@@ -1,0 +1,144 @@
+/*************************
+        Feature-box
+*************************/
+
+// feature-box
+.feature-box {
+    padding: 36px;
+    margin-right: -1px;
+    position: relative;
+    transition: all 0.3s ease-in-out;
+
+    .feature-box-icon {
+        font-size: 50px;
+        margin-bottom: 20px;
+        color: $primary;
+        line-height: 50px;
+    }
+
+    .feature-box-content {
+        transition: all 0.3s ease-in-out;
+
+        .feature-link .btn-link:before {
+            position: inherit;
+            content: inherit;
+        }
+    }
+
+}
+
+.feature-link {
+    position: relative;
+    display: inline-block;
+    transition: all 0.3s ease;
+
+    &:before {
+        position: absolute;
+        content: "";
+        left: 50%;
+        bottom: 7px;
+        width: 30px;
+        height: 2px;
+        background: $primary;
+        transform: translateX(-50%);
+        transition: all 0.3s ease;
+    }
+
+    &:hover {
+        &:before {
+            width: 100%;
+            background: $gray-900;
+        }
+
+    }
+
+}
+
+.feature-link .btn {
+    background-image: inherit;
+    background-size: inherit;
+    background-position: inherit;
+    opacity: 0;
+    transition: all 0.3s ease;
+
+    @include hover-focus {
+        background-size: inherit;
+        background-position: inherit;
+    }
+
+}
+
+.feature-style-02 {
+    background: $gray-100;
+
+    .feature-box-icon {
+        transition: all 0.3s ease;
+        height: 60px;
+    }
+
+    &:hover {
+        .btn {
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+    }
+
+}
+
+.feature-style-03 {
+    .feature-box-icon {
+        transition: all 0.3s ease;
+        opacity: 1;
+        position: absolute;
+        top: 0;
+    }
+
+    .feature-box-content {
+        padding-top: 70px;
+
+        .btn {
+            opacity: 0;
+            position: absolute;
+            bottom: -20px;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+    }
+
+    &:hover {
+        .feature-box-content {
+            padding-top: 25px;
+            padding-bottom: 45px;
+
+            .btn {
+                opacity: 1;
+                bottom: 0;
+                visibility: visible;
+            }
+
+        }
+
+        .feature-box-icon {
+            height: 0;
+            opacity: 0;
+        }
+
+    }
+
+}
+
+@include media-breakpoint-down(md) {
+    .feature-box {
+        padding: 15px;
+    }
+
+}
+
+@include media-breakpoint-down(sm) {
+    .feature-style-03 .feature-box-content {
+        padding-top: 60px;
+    }
+
+}

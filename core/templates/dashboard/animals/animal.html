@@ -1,0 +1,99 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = "Animal " + animal.eid()|string %}
+{% set dashboard_locations = [("/dashboard", "Animals"), ("/dashboard/animals/" + animal.eid() |string, animal.eid()|e)] %}
+
+{% block dashboard_content_header %}
+Animal {{ animal.eid()|e }}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<style>
+    :root .card .card-header {
+        background-color: #f9f9f9;
+    }
+</style>
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Sightings</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting"
+                    data-widget-map-animal="{{ animal.eid() }}" style='height:400px;'></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Certificates</h5>
+            <div class="card-body">
+                <p>No certificates found.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row widget" data-widget-type="sectors" data-widget-animal="{{ animal.eid() }}">
+</div>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Health Events</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="health table" data-widget-animal="{{ animal.eid() }}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Timeline</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="timeline" data-widget-animal="{{ animal.eid() }}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAnimalDebug" style="float:right;margin-right:20px;">Debug Info</a>
+        <div class="collapse" id="collapseAnimalDebug" style="clear:both;">
+            <div class="card" style="width:100%;">
+                <div class="card-body">
+                    <h5 class="card-title">Debug Info</h5>
+                    <p class="card-text">
+                        Animal EID: {{ animal.eid() }}<br>
+                        <br>
+                        Matches: <br>
+                    </p>
+                    <div class="row">
+                        {% for match in animal.matches() %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <h5 class="card-header">Match {{match.id()}}</h5>
+                                <div class="card-body">
+                                    Type: {{match.type_id()}} ({{match.type_str()}})<br>
+                                    Lat: {{match.lat()}}<br>
+                                    Lon: {{match.lon()}}<br>
+                                    Time: {{match.time()}}<br>
+                                    Created: {{match.created()}}<br>
+                                    Account ID: {{match.account_id()}}<br>
+                                    Account Link ID: {{match.account_link_id()}}<br>
+                                    Data: {{match.data()}}<br>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/widgets/manager.js" type="module"></script>
+
+{% endblock dashboard_content %}

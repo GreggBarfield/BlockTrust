@@ -1,0 +1,29 @@
+/*************************
+        sidebar
+*************************/
+
+.widget-categories{
+    ul{
+        li{
+            a{
+                color: $gray-600;
+                &:hover{
+                    color: $primary;
+                }
+            }
+        }
+    }
+}
+
+.widget-archive{
+    ul{
+        li{
+            a{
+                color: $gray-600;
+                &:hover{
+                   color: $primary;
+                }
+            }
+        }
+    }
+}

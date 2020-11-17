@@ -1,0 +1,160 @@
+/*********************
+    Buttons
+*********************/
+
+//
+// Link buttons
+//
+
+// Make a button look and behave like a link
+.btn-link {
+  text-decoration: none;
+  padding-left: 0;
+  padding-right: 0;
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: $black;
+
+    &:before {
+      width: 100%;
+      background: linear-gradient(currentColor, currentColor);
+      color: $black !important;
+    }
+
+  }
+
+  &:before {
+    text-decoration: none;
+    position: absolute;
+    content: "";
+    bottom: 5px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    width: 0;
+    background: linear-gradient(currentColor, currentColor);
+    -webkit-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+  }
+
+}
+
+.btn-link.text-white:hover:before {
+  color: $white !important;
+}
+
+// .btn.btn-link.text-primary:hover, .btn.btn-link.text-primary:focus {
+//     color: #fff !important;
+// }
+
+// .btn.btn-link.text-primary:hover:before {
+//   background: $white !important;
+//   color: #ffffff !important;
+// }
+
+// btn-animation
+.btn-animation {
+  position: relative;
+
+  &:before {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    width: 3.125rem;
+    height: 3.125rem;
+    background: $primary;
+    border-radius: 50%;
+    animation: pulse-border 1500ms ease-out infinite;
+  }
+
+}
+
+.bg-white.btn-animation {
+  &:before {
+    background: $white;
+  }
+
+}
+
+.btn-lg.btn-animation {
+  &:before {
+    width: 5rem;
+    height: 5rem;
+  }
+
+}
+
+.btn-md.btn-animation {
+  &:before {
+    width: 4rem;
+    height: 4rem;
+  }
+
+}
+
+.btn-sm.btn-animation {
+  &:before {
+    width: 2rem;
+    height: 2rem;
+  }
+
+}
+
+// btn-icon
+.btn-icon {
+  font-size: .80rem;
+  line-height: 1;
+  width: 3.125rem;
+  height: 3.125rem;
+  position: relative;
+
+  i {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+}
+
+.btn-icon.btn-lg {
+  font-size: 1.25rem;
+  width: 5rem;
+  height: 5rem;
+}
+
+.btn-icon.btn-md {
+  font-size: 1rem;
+  width: 4rem;
+  height: 4rem;
+}
+
+.btn-icon.btn-sm {
+  font-size: 0.75rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+@keyframes pulse-border {
+  0% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) translateY(-50%) translateZ(0) scale(1.5);
+    opacity: 0;
+  }
+
+}

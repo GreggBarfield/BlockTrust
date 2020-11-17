@@ -1,0 +1,64 @@
+/*
+
+Template: Technol - Multipurpose HTML5 Template
+Version: 1.0
+Author: potenzaglobalsolutions
+Design and Developed by: potenzaglobalsolutions.com
+
+*/
+
+// Bootstrap files
+@import "../libs/bootstrap/scss/functions";
+@import "../libs/bootstrap/scss/mixins";
+@import "../libs/bootstrap/scss/variables";
+
+// Potenza variables
+@import "variables";
+
+// Potenza variables
+@import "user-variables";
+
+// Bootstrap SCSS
+@import "../libs/bootstrap/scss/bootstrap";
+
+// Core files
+@import "core/helpers";
+@import "core/header";
+@import "core/footer";
+
+// Custom bootstrap override components
+@import "custom/buttons";
+@import "custom/navbar";
+@import "custom/nav";
+@import "custom/sizing";
+@import "custom/type";
+@import "custom/text";
+@import "custom/tables";
+@import "custom/input-group";
+@import "custom/dropdown";
+@import "custom/forms";
+@import "custom/breadcrumb";
+@import "custom/card";
+@import "custom/mixins/caret.scss";
+
+// components
+@import "components/team";
+@import "components/blog";
+@import "components/pricing";
+@import "components/swiper";
+@import "components/portfolio";
+@import "components/client";
+@import "components/avtar";
+@import "components/map";
+@import "components/progress-bar";
+@import "components/sidebar";
+@import "components/accordion";
+@import "components/feature-info";
+@import "components/owl-carousel";
+@import "components/testimonial";
+@import "components/error";
+@import "components/countdown";
+@import "components/counter";
+
+// user CSS
+@import "user";

@@ -1,0 +1,41 @@
+/*************************
+      Breadcrumbs
+*************************/
+.breadcrumb-item {
+    + {
+        .breadcrumb-item {
+            &::before {
+                content: "\e661";
+                font-family: 'themify';
+                font-size: 10px;
+            }
+
+        }
+
+    }
+
+}
+
+.breadcrumb-light {
+    .breadcrumb-item.active {
+        color: $white;
+    }
+
+    a {
+        color: $white;
+    }
+
+    .breadcrumb-item {
+        + {
+            .breadcrumb-item {
+                &::before {
+                    color: $white;
+                }
+
+            }
+
+        }
+
+    }
+
+}

@@ -1,0 +1,154 @@
+/*************************
+        Owl Carousel
+*************************/
+
+/* owl carousel */
+.owl-carousel {
+	.owl-item {
+		img {
+			width: auto;
+			display: inherit;
+		}
+
+	}
+
+	.owl-nav {
+		.owl-prev {
+			display: block;
+			position: absolute;
+			text-indent: inherit;
+			width: auto;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			right: 50px;
+			display: block;
+			position: absolute;
+			text-indent: inherit;
+			top: 0px;
+			margin: 0 !important;
+			display: inline-block;
+			margin: 14px 2px 0;
+
+			&:focus {
+				outline: none;
+			}
+
+			&:hover i {
+				background: $primary;
+				color: $white;
+			}
+
+		}
+
+		.owl-next {
+			display: block;
+			position: absolute;
+			text-indent: inherit;
+			width: auto;
+			cursor: pointer;
+			transition: all 0.2s ease-in-out;
+			right: 0;
+			display: block;
+			position: absolute;
+			text-indent: inherit;
+			top: 0px;
+			margin: 0 !important;
+			display: inline-block;
+			margin: 14px 2px 0;
+
+			&:focus {
+				outline: none;
+			}
+
+			&:hover i {
+				background: $primary;
+				color: $white;
+			}
+
+		}
+
+		i {
+			font-size: 16px;
+			width: 50px;
+			height: 35px;
+			line-height: 35px;
+			display: inline-block;
+			color: $white;
+			background: $gray-900;
+			border: 0px solid $border-color;
+			text-align: center;
+			transition: all 0.2s ease-in-out;
+
+		}
+
+	}
+
+}
+
+.owl-carousel {
+	.owl-nav {
+		i {
+			&:focus {
+				outline: 0;
+			}
+
+		}
+
+	}
+
+}
+
+.owl-nav-n100 {
+	.owl-nav {
+		button.owl-next {
+			top: -100px;
+		}
+
+		button.owl-prev {
+			top: -100px;
+		}
+
+	}
+
+}
+
+.owl-dots {
+	.owl-dot {
+		width: 10px;
+		height: 10px;
+		background: $gray-300 !important;
+		border-radius: 50px;
+		margin-right: 10px;
+	}
+
+	.owl-dot.active {
+		background: $primary !important;
+	}
+
+}
+
+.owl-carousel.client-review {
+	.owl-stage-outer {
+		padding: 20px;
+		margin-left: -20px;
+		margin-right: -20px;
+	}
+
+}
+
+@include media-breakpoint-down(sm) {
+	.owl-nav-sm-n35 {
+		.owl-nav {
+			button.owl-next {
+				top: -35px;
+			}
+
+			button.owl-prev {
+				top: -35px;
+			}
+
+		}
+
+	}
+
+}

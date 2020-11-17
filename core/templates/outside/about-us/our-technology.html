@@ -1,0 +1,33 @@
+{% extends "outside/info_standard.html" %}
+
+
+{% set page_title = "Our Technology" %}
+{% set info_banner_image = "blockchain_banner.jpg" %}
+
+{% block info_left_col %}
+<div class="mb-3">
+    <h3 class="font-weight-normal">Our Technology</h3>
+    <p>
+        The underlying technology of our platform is Blockchain. Blockchain is a ledger (sort of like a spreadsheet),
+        but it is decentralized, which means instead of residing on a central server, each ledger resides with the
+        participants. Blockchain can allow individuals and companies to make instantaneous transactions on a network
+        without any middlemen. Transactions made on blockchain are completely secure, and, by function of the
+        technology, are kept as a record of what happened. Cryptographic encryption algorithms ensure that no record of
+        a transaction on blockchain can be altered after the fact.
+    </p>
+    <p>
+    <h5><a href="https://hackernoon.com/blockchain-a-short-and-simple-explanation-with-pictures-d60d652f207f"
+            target="_blank">Click Here for a very simple explanation of Blockchain</a></h5>
+    Blockchain can be explained as literally a chain of blocks. Those blocks represent data, held all together in a
+    specific order. The data stored in the blocks includes information about a transaction (date, time, etc.), who is
+    participating in the transaction (via a “digital signature“), and information that distinguishes an individual block
+    from other blocks in the chain. This information is expressed as a unique code called a “hash.” Each block of data
+    represents some new transaction on the ledger.
+    </p>
+    <p>
+        A blockchain is a record of transactions. Using blockchain, companies (or people!) can both make and verify
+        these transactions.
+    </p>
+</div>
+
+{% endblock info_left_col %}

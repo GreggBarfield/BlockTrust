@@ -1,0 +1,79 @@
+<!--- bootstrap dropdown example code from w3schools.com-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Form control: select</h2>
+  <p>The form below contains two dropdown menus (select lists):</p>
+  <form>
+    <div class="form-group">
+      <label for="sel1">A (select one):</label>
+      <select class="form-control show_id_on_select" id="select_a">
+        <option>Select a choice...</option>
+        <option show_id="div_select_b">Category B</option>
+        <option show_id="div_select_c">Category C</option>
+      </select>
+      <div id="div_select_b" class="show_id_on_select_targetable">
+        <br>
+        <label for="sel1">B (select one):</label>
+        <select class="form-control" id="select_b">
+            <option>B 1</option>
+            <option>B 2</option>
+            <option>B 3</option>
+            <option>B 4</option>
+        </select>
+      </div>
+      <div id="div_select_c" class="show_id_on_select_targetable">
+        <br>
+        <label for="sel1">C (select one):</label>
+        <select class="form-control" id="select_c">
+            <option>C 1</option>
+            <option>C 2</option>
+            <option>C 3</option>
+            <option>C 4</option>
+        </select>
+      </div>
+    </div>
+  </form>
+</div>
+
+<style>
+    .show_id_on_select_targetable {
+        display: none;
+    }
+</style>
+<script>
+    $(function(){
+        $(".show_id_on_select").each(function(){
+            let all_targets = [];
+            function clickHandler() {
+                for (target of all_targets) {
+                    $(target).hide();
+                }
+                let i = $(this).prop("selectedIndex");
+                let o = $(this).find("option")[i];
+                if ($(o).attr("show_id")) {
+                    $("#" + $(o).attr("show_id")).show();
+                }
+            }
+            $(this).find("option").each(function(){
+                if ($(this).attr("show_id")) {
+                    all_targets.push($("#" + $(this).attr("show_id"))[0]);
+                }
+            });
+            $(this).change(clickHandler);
+        });
+    });
+</script>
+
+</body>
+</html>

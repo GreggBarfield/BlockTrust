@@ -1,0 +1,59 @@
+/*********************
+    Form Control
+*********************/
+
+.form-control {
+    border-bottom: $input-btn-border-width solid $input-border-color;
+    height: 38px;
+
+    &:focus {
+        border-bottom: $input-btn-border-width solid $primary;
+    }
+
+}
+
+// Focus border color primary
+.form-control {
+    border-radius: 0;
+    padding-left: 0px;
+    ~ {
+        .focus-border {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: $primary;
+            transition: 0.4s;
+        }
+
+    }
+
+    &:focus {
+
+        ~ {
+            .focus-border {
+                width: 100%;
+                transition: 0.4s;
+            }
+
+        }
+
+    }
+
+}
+
+.bg-primary {
+    .form-control {
+        &::placeholder {
+            color: $white;
+        }
+
+        &:focus {
+            border-bottom: $input-btn-border-width solid $input-border-color !important;
+            color: $white;
+        }
+
+    }
+
+}

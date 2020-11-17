@@ -1,0 +1,109 @@
+{% extends "outside/standard.html" %}
+
+{% set page_title = "Register" %}
+
+{% block outside_banner %}
+<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-white mb-1">Register</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item">
+                            <a href="/">
+                                <i class="fa fa-home pr-1"></i>
+                                Home
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Register</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock outside_banner %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-8 text-center">
+                <div class="mb-3">
+                    <h2>Welcome!</h2>
+                    <p>You're just a few clicks away from being set up.</p>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 mb-2">
+                <form class="bg-white shadow p-3" id="signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
+                    <div class="form-group">
+                        <label for="signup_form_username">Username</label>
+                        <input type="text" class="form-control" placeholder="JohnDoe6" id="signup_form_username">
+                        <span class="focus-border"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="signup_form_email">Email address</label>
+                        <input type="email" class="form-control" placeholder="johndoe@example.com"
+                            id="signup_form_email">
+                        <span class="focus-border"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_password">Password</label>
+                                <input type="password" class="form-control" placeholder="App623Ten!HHW"
+                                    id="signup_form_password">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_confirm_password">Confirm password</label>
+                                <input type="password" class="form-control" placeholder="App623Ten!HHW"
+                                    id="signup_form_confirm_password">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_first">First name</label>
+                                <input type="text" class="form-control" placeholder="John"
+                                    id="signup_form_first">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_last">Last name</label>
+                                <input type="text" class="form-control" placeholder="Doe" , id="signup_form_last">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_phone">Phone</label>
+                                <input type="text" class="form-control" placeholder="(123) 456-7890"
+                                    id="signup_form_phone">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                    <p class="mt-2 mb-0" id="signup_status_message" style="display:none;">Hang on, we're setting up your
+                        account...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
+                        error...</p>
+                    <p class="mt-2 mb-0">Looking to sign in?<a href="/login"> Right this way</a></p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script type="module" src="/static/entry_points/outside/signup.mjs"></script>
+{% endblock outside_content %}

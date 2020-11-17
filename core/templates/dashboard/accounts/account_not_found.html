@@ -1,0 +1,26 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Account Not Found" %}
+{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account_id | string, "Account " + account_id | string)] %}
+
+{% block dashboard_content_header %}
+Account Not Found
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <div class="card-body">
+                <h5 class="card-title">Account Not Found</h5>
+                <p class="card-text">Sorry, the requested account either could not be found or you haven't been added to
+                    it yet.</p>
+                <p class="card-text">If you were sent this link, ask them to add you to the account by going to Team
+                    Management and then clicking 'Add User' and entering your email, username, or User ID.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

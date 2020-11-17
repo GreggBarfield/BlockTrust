@@ -1,0 +1,81 @@
+/*************************
+        Swiper Slider
+*************************/
+
+.swiper-button-prev {
+    background-image: inherit;
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    cursor: pointer;
+    right: 50px;
+    left: auto;
+
+    i {
+        font-size: 16px;
+        width: 50px;
+        height: 35px;
+        line-height: 35px;
+        display: inline-block;
+        color: $white;
+        background: $gray-900;
+        border: 0px solid $gray-100;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background: $primary;
+            color: $white;
+        }
+
+    }
+
+}
+
+.swiper-button-next {
+    background-image: inherit;
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    cursor: pointer;
+    right: 0;
+    left: auto;
+
+    i {
+        font-size: 16px;
+        width: 50px;
+        height: 35px;
+        line-height: 35px;
+        display: inline-block;
+        color: $white;
+        background: $gray-900;
+        border: 0px solid $gray-100;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background: $primary;
+            color: $white;
+        }
+
+    }
+
+}
+
+.swiper-button-next.swiper-button-disabled {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.swiper-button-prev.swiper-button-disabled {
+    opacity: 1;
+    cursor: pointer;
+    pointer-events: auto;
+}

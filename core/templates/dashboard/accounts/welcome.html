@@ -1,0 +1,44 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Welcome" %}
+{% set dashboard_locations = [("/dashboard", "Welcome")] %}
+
+{% block dashboard_content_header %}
+Welcome to BlockTrust Network
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-2"></div>
+    <div class="col" style='text-align:center;'>
+        <h1>Welcome to BlockTrust Network!</h1>
+        <p>Tell us a bit about yourself so we can help get you started.</p>
+    </div>
+    <div class="col-2"></div>
+</div>
+<div class="row" style='height:20px;'></div>
+<div class="row">
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">I'm setting up BlockTrust Network for my team</h5>
+                <p class="card-text">Awesome! You've already created your User Account, now you just need an account
+                    for your team.</p>
+                <a href="/dashboard/accounts/new-account" class="btn btn-primary">New Account</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">I'm going to help manage my team's account</h5>
+                <p class="card-text">Sounds good! You'll be able to get started once someone on your team adds you
+                    to the team's account.</p>
+                <a href="/dashboard/accounts/join-account" class="btn btn-primary">Join Existing Account</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

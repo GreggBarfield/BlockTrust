@@ -1,0 +1,149 @@
+from ..objects.account_link import AccountLink, AccountLinkException
+
+class AccountLinksException(Exception):
+    """AccountLinks generic exception."""
+
+    def __init__(self, reason):
+        """Constructor for AccountLinks.
+
+        Params:
+            reason: the reason for the exception
+        """
+        super().__init__(reason)
+
+class AccountLinks:
+
+    def __init__(self, db):
+        self._db = db
+
+    def get_by_id(self, account_link_id):
+        """Gets an account link by ID.
+
+        Params:
+            id: row ID
+
+        Returns:
+            An AccountLink object
+
+        Raises:
+            AccountLinksException
+        """
+        account_link_rows = self._db.execute_d(
+            """SELECT * FROM account_links
+                WHERE id=%(id)s
+            """,
+            {
+                "id": account_link_id
+            }
+        )
+        if len(account_link_rows) != 1:
+            raise AccountLinkException("No account link with that ID")
+        return AccountLink(self._db, account_link_rows[0])
+
+    def get_by_account_id(self, account_id):
+        """Gets account links attached to the provided account.
+
+        Params:
+            account_id: The account to get account links on
+
+        Returns:
+            A list of AccountLink objects (could be empty)
+        """
+        account_link_rows = self._db.execute_d(
+            """SELECT * FROM account_links
+                WHERE account=%(account)s
+            """,
+            {
+                "account": account_id
+            }
+        )
+        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+
+
+    def get_by_company(self, company, insert_sector=None, insert=False):
+        """Gets all account links that match company.
+
+        Params:
+            company: company to search
+            insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
+            insert_sector: optional, if set to an integer it will be inserted if the row is inserted
+        
+        Returns:
+            A list of AccountLink objects (could be empty)
+        """
+        account_link_rows = self._db.execute_d(
+            """SELECT * FROM account_links
+                WHERE company=%(company)s
+            """,
+            {
+                "company": company
+            }
+        )
+        if len(account_link_rows) == 0 and insert:
+            self.insert(company=company, sector=insert_sector)
+            return [self.get_by_id(self._db.last_row_id())]
+        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+
+
+    def get_by_uid(self, uid, uid_type, insert=False):
+        """Gets all account links that match a uid.
+
+        Params:
+            uid: uid to search
+            uid_type: the UID type to search ("MFA")
+            insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
+        
+        Returns:
+            A list of AccountLink objects (could be empty)
+        """
+        account_link_rows = self._db.execute_d(
+            """SELECT * FROM account_links
+                WHERE uid=%(uid)s AND uid_type=%(uid_type)s
+            """,
+            {
+                "uid": uid,
+                "uid_type": uid_type
+            }
+        )
+        if len(account_link_rows) == 0 and insert:
+            self.insert(uid=uid,uid_type=uid_type)
+            return [self.get_by_id(self._db.last_row_id())]
+        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+
+    def insert(self, account=None, uid_type=None, uid=None, company=None, sector=None):
+        """Inserts a new account link.
+
+        Params:
+            account: Account ID to bind to (optional)
+            uid_type: UID
+
+        Raises:
+            AccountLinksException
+        """
+
+        # UID type not specified or specified and not uid
+        if uid_type is not None and uid is None or uid_type is None and uid is not None:
+            raise AccountLinksException("UID and UID type mismatch")
+
+        where_clause_statements = []
+
+        if uid is not None and company is not None:
+            raise AccountLinksException("Account link empty")
+
+        self._db.execute(
+            """
+                INSERT IGNORE INTO account_links
+                    (account, uid_type, uid, company, sector)
+                    VALUES (%(account)s, %(uid_type)s, %(uid)s, %(company)s, %(sector)s)
+            """,
+            {
+                "account": account,
+                "uid_type": uid_type,
+                "uid": uid,
+                "company": company,
+                "sector": sector
+            }
+        )
+
+        if self._db.row_count() != 1:
+            raise AccountLinksException("Conflict with another account link")

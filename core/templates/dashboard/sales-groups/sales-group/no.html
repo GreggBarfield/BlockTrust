@@ -1,0 +1,23 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Insufficient Permissions" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups", "Insufficient Permissions")] %}
+
+{% block dashboard_content_header %}
+Insufficient Permissions
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Insufficient Permissions</h5>
+                <p class="card-text">Sorry, you don't have sufficient permissions to perform that action.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

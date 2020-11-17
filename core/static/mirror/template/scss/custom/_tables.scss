@@ -1,0 +1,20 @@
+/*********************
+    Table
+*********************/
+
+.table {
+  th, td {
+    border-top: none;
+    font-weight: 400;
+    vertical-align: middle;
+  }
+
+  thead th {
+    color: $black;
+    font-size: 18px;
+    font-weight: 500;
+    border: none;
+    padding-top: 0;
+  }
+
+}

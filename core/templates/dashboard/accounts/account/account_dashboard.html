@@ -1,0 +1,109 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = account.name()|e %}
+{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
+
+{% block dashboard_content_header %}
+{{ account.name()|e }}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Calf-Crop Summary</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
+                    data-widget-account-name="{{ account.name() }}"></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Maps and Charts</h5>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active text-uppercase" href="#sightings" id="sightings-tab" data-toggle="tab"
+                            role="tab" aria-controls="sightings" aria-selected="true">Sightings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase" href="#carcass-quality" id="carcass-quality-tab"
+                            data-toggle="tab" role="tab" aria-controls="carcass-quality" aria-selected="false">Carcass
+                            Quality</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase" href="#carcass-yield-grade" id="carcass-yield-grade-tab"
+                            data-toggle="tab" role="tab" aria-controls="carcass-yield-grade"
+                            aria-selected="false">Carcass Yield Grade</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="sightings" role="tabpanel"
+                        aria-labelledby="sightings-tab">
+                        <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting"
+                            data-widget-map-account="{{ account.id() }}" style='height:400px;'></p>
+                    </div>
+                    <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
+                        aria-labelledby="carcass-quality-tab">
+                        <p class="mb-0">
+                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-str data-widget-match-type="USDA Quality Grade"
+                                data-widget-account="{{ account.id() }}"></p>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="carcass-yield-grade" role="tabpanel"
+                        aria-labelledby="carcass-yield-grade-tab">
+                        <p class="mb-0">
+                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-type="USDA Yield Grade"
+                                data-widget-account="{{ account.id() }}"></p>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Calf-Crop Summary</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="data table" data-widget-account="{{ account.id() }}"
+                    data-widget-account-name="{{ account.name() }}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAccountDebug" style="float:right;margin-right:20px;">Debug Info</a>
+        <div class="collapse" id="collapseAccountDebug" style="clear:both;">
+            <div class="card" style="width:100%;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ account.name()|e }}</h5>
+                    <p class="card-text">
+                        Debug<br>
+                        Account Links<br>
+                        {% for account_link in account_links %}
+                        Linked with account link {{ account_link.id() }}<br>
+                        {% if account_link.company() is not none %}
+                        Data 'company': {{ account_link.company()|e }}<br>
+                        {% endif %}
+                        {% if account_link.uid() is not none %}
+                        Data 'uid': {{ account_link.uid() }}<br>
+                        Data 'uid_type': {{ account_link.uid_type() }} (0 is MFA Patron ID)<br>
+                        {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/widgets/manager.js" type="module"></script>
+
+{% endblock dashboard_content %}

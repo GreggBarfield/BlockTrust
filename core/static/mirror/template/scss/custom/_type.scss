@@ -1,0 +1,178 @@
+/*********************
+    Typo
+*********************/
+
+// heading with anchor tag
+h1 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h2 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h3 {
+	>a {
+
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h4 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h5 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h6 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h1 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h2 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h3 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h4 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h5 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+.h6 {
+	>a {
+		color: $gray-900;
+
+		&:hover {
+			color: $primary;
+		}
+
+	}
+
+}
+
+h2 {
+	margin-bottom: 10px;
+}
+
+.h2 {
+	margin-bottom: 10px;
+}
+
+h5 {
+	line-height: 1.7rem;
+}
+
+.h5 {
+	line-height: 1.7rem;
+}
+
+// Display extend size
+.display-5 {
+	@include font-size($display5-size);
+	font-weight: $display5-weight;
+	line-height: $display-line-height;
+}
+form {
+
+	label {
+			color: $gray-900;
+	}
+}

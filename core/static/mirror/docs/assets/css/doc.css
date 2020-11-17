@@ -1,0 +1,160 @@
+
+code{
+	font-size: 100%;
+}
+
+/* navbar */
+.navbar {
+  padding: 0.1rem 1.25rem;
+}
+.navbar .navbar-brand img {
+  height: 26px;
+}
+
+/* left sidebar */
+.left-sidebar {
+  position: fixed;
+  top: 66px;
+  left: 0;
+  bottom: 0;
+  border-right: 1px solid #f2f2f2;
+  overflow-y: auto;
+}
+
+.left-sidebar ul {
+	margin-left: 0;
+	padding: 20px 30px;
+}
+.left-sidebar ul li{
+	display: block;
+	list-style-type: none;
+	padding: 3px 5px;
+}
+.left-sidebar ul li a{
+	color: #626262;
+}
+.left-sidebar ul li a:hover, .left-sidebar ul li.active a{
+	color:  #0079f6;
+}
+
+
+/* list */
+
+.list .list-item {
+  background: transparent;
+  border: 0;
+  list-style-type: none;
+  padding: 3px 0px;
+  font-weight: 400;
+
+}
+.list .list-item.list-item-heading {
+  font-weight: 500;
+  margin-top: 20px;
+  text-transform: uppercase;
+}
+.list .list-item a{
+  color: #1f1f1f;
+}
+.list .list-item a:hover, .list .list-item.active a {
+  color: #0079f6;
+}
+
+
+/* section navbar */
+.section-navbar ul {
+  border-left: 3px solid #f2f3f7;
+}
+
+.section-navbar ul li {
+  background: transparent;
+  border: 0;
+  list-style-type: none;
+  padding: 0px 0px;
+  font-weight: 400;
+}
+
+.section-navbar ul li a {
+  color: #1f1f1f;
+  font-size: 14px;
+}
+
+.section-navbar ul li.active a, .section-navbar ul li a:hover {
+    color: #0079f6;
+}
+
+
+
+
+/* custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 0.4em;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cecece;
+  outline: 1px solid slategrey;
+}
+
+
+
+@media (min-width: 992px){
+
+/* side-bar */
+.side-bar {
+  position: fixed;
+  top: 60px;
+  height: calc(100vh - 70px);
+  overflow: auto;
+}
+
+.section-navbar {
+  position: fixed;
+  top: 70px;
+  overflow: auto;
+  width: 100%;
+  background: transparent !important;
+}
+
+}
+
+
+@media (max-width: 991px){
+
+/* navbar */
+.navbar .navbar-brand {
+  padding-top: 0;
+}
+
+.navbar .navbar-brand img {
+  height: 20px;
+}
+
+.navbar {
+  padding: 0.48rem;
+}
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

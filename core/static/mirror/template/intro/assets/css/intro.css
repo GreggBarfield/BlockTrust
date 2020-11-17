@@ -1,0 +1,51 @@
+/*** intro css ***/
+.intro {
+    padding: 80px 10px;
+    height: 80vh;
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.header.intro-header.is-sticky  .navbar {
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+.portfolio {
+    text-align: center;
+}
+
+.portfolio .thumb {
+    position: relative;
+    margin-bottom: 40px;
+    box-shadow: 0 20px 30px rgba(73, 85, 99, .2);
+    transition: all .3s cubic-bezier(.65, .05, .36, 1);
+}
+
+.portfolio .pv-port-info
+a {
+    color: #1f1f1f;
+    font-size: 18px;
+    line-height: 1.39;
+}
+
+.portfolio .pv-port-info a:hover {
+    color: #0079f6;
+}
+
+.portfolio:hover .thumb {
+    transform: translateY(-10px);
+}
+
+@media (max-width:991px) {
+    .intro {
+        height: 100%;
+        background: #f7f9fc !important;
+    }
+    .navbar {
+        position: relative;
+    }
+
+}

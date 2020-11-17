@@ -1,0 +1,24 @@
+/*********************
+    Input Group
+*********************/
+
+.input-group {
+	i {
+		position: absolute;
+		top: 12px;
+
+		+ .form-control {
+			padding-left: 25px;
+		}
+
+	}
+
+}
+
+> .form-control:focus {
+	border-color: $input-color;
+}
+
+.form-group{
+	position: relative;
+}

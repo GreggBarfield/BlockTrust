@@ -1,0 +1,63 @@
+/*************************
+        Blog
+*************************/
+
+// blog post
+.blog-post {
+    border: 1px solid $gray-200;
+}
+
+.blog-post .blog-post-details {
+    position: relative;
+    padding: 20px;
+}
+
+.blog-post-meta {
+    a {
+        color: $gray-400;
+        transition: all 0.3s ease;
+        font-size: 13px;
+
+        &:hover {
+            color: $gray-900;
+        }
+
+    }
+
+    i {
+        padding-right: 5px;
+    }
+
+}
+
+
+.blog-post .blog-post-title {
+    font-weight: 500;
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+
+// blog post style 02
+.blog-post-style-02 {
+    .blog-post-meta {
+        position: absolute;
+        top: -30px;
+        background: $gray-900;
+        left: 0;
+        width: 100%;
+        padding: 3px 20px;
+
+        a {
+            color: $white;
+        }
+
+    }
+
+}
+
+
+// product single page next prev post
+.blog-post-nav-media {
+    width: 125px;
+    height: 80px;
+}

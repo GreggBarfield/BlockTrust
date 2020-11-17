@@ -1,0 +1,25 @@
+/*************************
+        Client Logo
+*************************/
+
+// client logo
+.client-logo {
+	img {
+		margin: 0 auto;
+	}
+
+}
+
+.client-logo-grayscale {
+	img {
+		filter: grayscale(100%);
+		transition: all 0.3s ease-in-out;
+
+		&:hover {
+			filter: grayscale(0%);
+			transition: all 0.3s ease-in-out;
+		}
+
+	}
+
+}

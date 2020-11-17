@@ -1,0 +1,36 @@
+/*************************
+        Progress Bar
+*************************/
+.progress {
+    position: relative;
+    overflow: inherit;
+    height: 6px;
+    margin: 30px 0px 15px;
+    width: 100%;
+    display: inline-block;
+    border-radius: 10px;
+
+    .progress-bar {
+        height: 6px;
+        background: $primary;
+        border-radius: 10px;
+    }
+
+    .progress-bar-title {
+        position: absolute;
+        left: 0;
+        top: -30px;
+        color: $gray-500;
+        font-size: 16px;
+    }
+
+    .progress-bar-number {
+        position: absolute;
+        right: 0;
+        color: $gray-600;
+        top: -30px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+}

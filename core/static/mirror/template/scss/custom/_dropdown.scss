@@ -1,0 +1,93 @@
+/*********************
+    Dropdown
+*********************/
+
+.dropdown-toggle::after {
+    content: "\e64b";
+    font-family: 'themify';
+    font-size: 8px;
+    border: none;
+    vertical-align: .100em;
+}
+
+.dropdown-menu-lg {
+    min-width: 35rem;
+}
+
+@include media-breakpoint-up(lg) {
+    .dropdown {
+        .dropdown-menu {
+            li {
+                a.dropdown-item {
+                    font-size: 14px;
+                    padding: 7px 0px 7px 0px;
+                    border-radius: 3px;
+                    position: relative;
+                    margin: 0px;
+                    width: auto;
+                    display: inline-block;
+
+                    &:before {
+                        text-decoration: none;
+                        position: absolute;
+                        content: "";
+                        bottom: 8px;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        width: 0;
+                        background: $primary;
+                        transition: all 0.3s ease;
+                    }
+
+                    &:hover {
+                         background: inherit;
+                        &:before {
+                            width: 100% !important;
+                        }
+                    }
+                    &:active {
+                         background: inherit;
+                         color: $dark;
+                        &:before {
+                            width: 100% !important;
+                        }
+                    }
+                    &:focus {
+                         background: inherit;
+                         color: $dark;
+                        &:before {
+                            width: 100% !important;
+                        }
+                    }
+                    &.active {
+                        background: inherit;
+                        color: $dark;
+                        &:before {
+                            width: 100% !important;
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+
+
+@include media-breakpoint-down(md) {
+    // dropdown-menu
+    .navbar .dropdown-menu {
+        margin-left: 0px;
+    }
+
+    .dropdown-menu-lg{
+        min-width: 100%;
+    }
+
+}

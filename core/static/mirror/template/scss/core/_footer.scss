@@ -1,0 +1,59 @@
+/*************************
+        Footer
+*************************/
+
+.footer-link {
+  li {
+    a {
+      color: $gray-600;
+      transition: all .4s;
+      padding: 5px 0;
+      display: block;
+
+      &:hover {
+        color: $primary;
+      }
+
+    }
+
+    &:first-of-type a {
+      padding-top: 0;
+    }
+
+    &:last-of-type a {
+      padding-bottom: 0;
+    }
+
+  }
+
+}
+
+.footer-recent-list {
+  span {
+    font-size: 12px;
+    color: $primary;
+  }
+
+  a{
+    color: $gray-600;
+
+    &:hover{
+      color: $primary;
+    }
+  }
+
+}
+
+.footer-contact {
+  span {
+    font-weight: 600;
+}
+
+}
+
+.footer-bottom {
+  a.btn {
+    color: #888;
+}
+
+}

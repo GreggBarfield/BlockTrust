@@ -1,0 +1,32 @@
+/*************************
+      Avatar
+*************************/
+
+.avatar {
+    position: relative;
+    display: inline-block;
+    width: 5rem;
+    height: 5rem;
+    font-size: 1rem;
+}
+
+.avatar-lg {
+    width: 8rem;
+    height: 8rem;
+}
+
+.avatar-md {
+    width: 6rem;
+    height: 6rem;
+}
+
+.avatar-sm {
+    width: 4rem;
+    height: 4rem;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

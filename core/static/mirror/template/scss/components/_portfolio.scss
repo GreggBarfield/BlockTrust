@@ -1,0 +1,335 @@
+/*************************
+        Portfolio
+*************************/
+
+.portfolio-item {
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    .portfolio-overlay {
+      background: rgba($primary, .60);
+      opacity: 1;
+    }
+
+    .portfolio-info {
+      bottom: 20px;
+    }
+
+    .portfolio-icon {
+      bottom: 20px;
+    }
+
+  }
+
+}
+
+.portfolio-overlay {
+  padding: 20px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  opacity: 0;
+  height: 100%;
+  align-items: flex-end;
+  transition: all 0.5s ease;
+  color: $white;
+
+  .portfolio-title {
+    color: $white;
+  }
+
+}
+
+.portfolio-info {
+  position: absolute;
+  bottom: 0px;
+  transition: all 0.5s ease;
+  width: 100%;
+  left: 20px;
+}
+
+.portfolio-icon {
+  position: absolute;
+  bottom: 0px;
+  right: 20px;
+  transition: all 0.5s ease;
+  align-self: center;
+
+  span {
+    color: $white;
+    font-size: 18px;
+  }
+
+  i {
+    color: $white;
+    font-size: 18px;
+  }
+
+}
+
+.portfolio-title {
+  color: $white;
+  margin-bottom: 0;
+}
+
+// Style 2
+.portfolio-style-02 {
+  .portfolio-icon {
+    top: -40px;
+    bottom: auto;
+    right: auto;
+    left: 20px;
+  }
+
+  &:hover {
+    .portfolio-overlay {
+      background: $primary;
+      opacity: 1;
+    }
+
+    .portfolio-icon {
+      top: 20px;
+    }
+
+  }
+
+}
+
+// Style 3
+.portfolio-style-03 {
+  .portfolio-overlay {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 0px;
+    transition: all 0.3s ease;
+    width: auto;
+    height: auto;
+    padding: 0;
+  }
+
+  .portfolio-description {
+    display: flex;
+    padding: 20px;
+    background-color: $white;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+
+  .portfolio-info {
+    bottom: 0px;
+    left: 0px;
+    color: $black;
+    position: relative;
+
+    span {
+      color: $primary;
+    }
+
+    .portfolio-title {
+      color: $black;
+    }
+
+  }
+
+  .portfolio-icon {
+    position: relative;
+    bottom: auto;
+    right: 0;
+    margin-left: auto;
+
+    i {
+      color: $primary;
+    }
+
+  }
+
+  &:hover {
+    .portfolio-icon {
+      bottom: 0;
+    }
+
+    .portfolio-info {
+      bottom: 0px;
+    }
+
+    .portfolio-overlay {
+      bottom: 20px;
+      background: none;
+      transition: all 0.3s ease;
+    }
+
+    .portfolio-description {
+      bottom: 20px;
+    }
+
+  }
+
+}
+
+/*************************************
+         isotope
+ *************************************/
+.isotope-filters {
+  display: table;
+  margin: 0 auto 50px;
+  text-align: center;
+
+  button {
+    margin: 0 15px;
+    padding: 0;
+    cursor: pointer;
+    font-size: 16px;
+    background: transparent;
+    border: none;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid $white;
+    font-weight: 500;
+    line-height: 18px;
+
+    &:hover {
+      color: $primary;
+      border-bottom: 1px solid $primary;
+    }
+
+  }
+
+  button.active {
+    color: $primary;
+    border-bottom: 1px solid $primary;
+  }
+
+}
+
+.isotope-filters.text-left {
+  display: block;
+  margin: 30px 0;
+  text-align: left;
+}
+
+.isotope {
+  margin-left: -15px;
+  margin-right: -15px;
+
+  .grid-item {
+    img {
+      width: 100%;
+    }
+
+  }
+
+}
+
+.isotope.columns-1 {
+  .grid-item {
+    width: 100%;
+    padding: 15px;
+  }
+
+}
+
+.isotope.columns-2 {
+  .grid-item {
+    width: 50%;
+    padding: 15px;
+  }
+
+}
+
+.isotope.columns-3 {
+  .grid-item {
+    width: 33.33333333%;
+    padding: 15px;
+  }
+
+}
+
+.isotope.columns-4 {
+  .grid-item {
+    width: 25%;
+    padding: 15px;
+  }
+
+}
+
+.isotope.columns-5 {
+  .grid-item {
+    width: 20%;
+    padding: 15px;
+  }
+
+}
+
+.mfp-zoom-out-cur .mfp-image-holder .mfp-close{
+  cursor: pointer;
+}
+
+@include media-breakpoint-down(sm) {
+  .isotope.columns-3 {
+    .grid-item {
+      width: 50%;
+    }
+
+  }
+
+  .isotope.columns-4 {
+    .grid-item {
+      width: 50%;
+    }
+
+  }
+
+  .isotope.columns-5 {
+    .grid-item {
+      width: 50%;
+    }
+
+  }
+
+}
+
+@include media-breakpoint-down(xs) {
+  .isotope.columns-2 {
+    .grid-item {
+      width: 100%;
+    }
+
+  }
+
+  .isotope.columns-3 {
+    .grid-item {
+      width: 100%;
+    }
+
+  }
+
+  .isotope.columns-4 {
+    .grid-item {
+      width: 100%;
+    }
+
+  }
+
+  .isotope.columns-5 {
+    .grid-item {
+      width: 100%;
+    }
+
+  }
+
+  .isotope-filters {
+    button {
+      font-size: 13px;
+      margin: 0 10px;
+    }
+
+  }
+
+}

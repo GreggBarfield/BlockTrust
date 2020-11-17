@@ -1,0 +1,41 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "New Account" %}
+{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/new-account", "New Account")] %}
+
+{% block dashboard_content_header %}
+New Account
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 mb-2">
+        <form class="bg-white shadow p-3" id="new_account_form" method="POST"> {# method="POST" is important in case preventDefault fails #}
+            <div class="form-group">
+                <label for="new_account_name">Account Name</label>
+                <input type="text" class="form-control" placeholder="Blue Ranch" id="new_account_name">
+                <small class="form-text text-muted">Other people will see this when they view something associated with the account.</small>
+            </div>
+            <div class="form-group">
+                <label for="new_account_company">Company</label>
+                <input type="text" class="form-control" placeholder="Blue Ranch, LLC" id="new_account_company">
+                <small class="form-text text-muted">If applicable, put your company name here.</small>
+            </div>
+            <div class="form-group">
+                <label for="new_account_sector">Sector</label>
+                <select class="js-example-basic-single form-control" id="new_account_sector">
+                    {% for sector_id, sector in sectors_by_id.items() %}
+                    <option value="{{sector_id}}">{{sector|e}}</option>
+                    {% endfor %}
+                </select>
+                <small class="form-text text-muted">This lets us do enhancements to the account interface that will hopefully increase productivity.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Account</button>
+            <p class="mt-2 mb-0" id="new_account_status_message" style="display:none;">Hang on, we're creating your account...</p>
+            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="new_account_error_message">Loading error...</p>
+        </form>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/accounts/new_account.mjs"></script>
+{% endblock dashboard_content %}

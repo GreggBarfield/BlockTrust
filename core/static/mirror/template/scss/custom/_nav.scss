@@ -1,0 +1,140 @@
+/*********************
+    Nav Tab
+*********************/
+.navbar-light{
+    .nav {
+      .nav-link, a.nav-link {
+        color: $gray-700;
+        transition: all 0.3s ease;
+
+        @include hover-focus {
+          color: $primary;
+          transition: all 0.3s ease;
+        }
+
+      }
+
+    }
+}
+
+// tab 1
+.nav-tabs {
+
+    margin-bottom: 10px;
+
+}
+
+.tab-vertical {
+  .nav-tabs {
+    .nav-link {
+      font-size: 18px;
+      font-weight: 500;
+      padding: 10px 0px;
+      color: $gray-900;
+      border: none;
+
+      &:hover {
+        box-shadow: 0 .1rem .6rem rgba($black, .10);
+        position: relative;
+        z-index: 9;
+        padding: 10px 20px;
+        background: $white;
+        color: $gray-900;
+      }
+
+      &:focus {
+        box-shadow: 0 .1rem .6rem rgba($black, .10);
+        position: relative;
+        z-index: 9;
+        padding: 10px 20px;
+        background: $white;
+        color: $gray-900;
+      }
+
+    }
+
+    .nav-link.active {
+      box-shadow: 0 .1rem .6rem rgba($black, .10);
+      position: relative;
+      z-index: 9;
+      padding: 10px 20px;
+      background: $white;
+      color: $gray-900;
+    }
+
+  }
+
+}
+
+// nav-tab style 02
+.nav.nav-tab-style-02 {
+  .nav-link {
+    h5 {
+      color: $gray-400;
+      margin-bottom: 0;
+    }
+
+  }
+
+  .nav-link.active {
+    h5 {
+      color: $gray-900;
+    }
+
+  }
+
+}
+
+.nav.nav-tab-style-02.nav-fill {
+  border-bottom: 1px solid $primary;
+  margin-bottom: 30px;
+
+  .nav-link.active {
+    &:before {
+      position: absolute;
+      content: "";
+      background: $primary;
+      width: 100px;
+      height: 3px;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: all 0.5s ease;
+    }
+
+  }
+
+  .nav-link {
+    &:hover {
+      &:before {
+        width: 100%;
+      }
+
+    }
+
+  }
+
+}
+
+.nav-tab-style-02.nav-fill {
+  .nav-link {
+    position: relative;
+    margin-bottom: 20px;
+    width: 33.33%;
+  }
+
+}
+
+@include media-breakpoint-down(sm) {
+  .nav-tab-style-02.nav-fill .nav-link{
+      width: 100%;
+    }
+}
+
+@include media-breakpoint-down(xs) {
+
+.nav.nav-tab-style-02.nav-fill {
+  display: block;
+}
+
+}
