@@ -27,7 +27,7 @@ IMAGE_SEARCH_SUGGESTED_DIR = urljoin(DOMAIN, "static/images/")
 # SQL config
 
 MYSQL_CONFIG = {
-    "host": "localhost",
+    "host": "mysql",
     "user": "dev",
     "passwd": "ag489jag4p98hj",
     "database": "example_db_1",

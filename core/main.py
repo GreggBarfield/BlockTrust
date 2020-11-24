@@ -1,6 +1,3 @@
-# Yes, it's messy; I know
-# Full steam ahead; we'll clean it up when we redesign everything
-
 import os
 import json
 import random
@@ -31,7 +28,8 @@ Talisman(
             DOMAIN,
             '\'unsafe-inline\'',
             'fonts.gstatic.com',
-            'fonts.googleapis.com'
+            'fonts.googleapis.com',
+            'http://localhost:5000'
         ]
     },
     force_https=False  # We don't want to serve HTTP in general
@@ -74,9 +72,5 @@ if __name__ == '__main__':
     app.run(
         host="0.0.0.0",
         debug=True,
-        port=443,
-        ssl_context=(
-            '/etc/letsencrypt/live/ledgerspacedev.com/fullchain.pem',
-            '/etc/letsencrypt/live/ledgerspacedev.com/privkey.pem'
-        )
+        port=5000
     )

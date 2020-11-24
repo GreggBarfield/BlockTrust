@@ -1,0 +1,14 @@
+[Unit]
+Description=BTN API
+After = network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+ExecStart=/usr/local/bin/uwsgi uwsgi.ini
+WorkingDirectory=/home/ubuntu/test-api
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
