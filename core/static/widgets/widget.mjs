@@ -3,6 +3,8 @@ export class Widget {
         this.frame = frame;
         this.totalDataLoaded = 0;
         this.totalDataRequested = 0;
+        this.queuedDataRequests = [];
+        this.instantProcessDataRequests = false;
         this.type = frame.getAttribute("data-widget-type");
 
         this.frame.innerHTML = '\
@@ -16,6 +18,8 @@ export class Widget {
     init() {
         try {
             this.initType();
+            this.processQueuedDataRequests();
+            this.instantProcessDataRequests = true;
         }
         catch (err) {
             this.displayError("in initType, error: " + err);
@@ -33,39 +37,56 @@ export class Widget {
         this.frame.appendChild(errorElement);
     }
 
-    getData(action, params, callback) {
-        let that = this;
-        this.totalDataRequested += 1;
-        let data = {
-            action: action,
-            params: params
-        };
-        $.ajax({
-            url: "/widgets/data",
-            data: JSON.stringify(data),
-            contentType: 'application/json',
-            method: "POST"
-        })
-            .done(function (data) {
-                if ('onSomeDataLoaded_bind' in that && that.onSomeDataLoaded_bind && that.totalDataLoaded > 0) {
-                    that.onSomeDataLoaded_bind();
-                    that.onSomeDataLoaded_bind = null;
-                }
-                that.totalDataLoaded += 1;
-                callback(data);
-                if ('onAllDataLoaded_bind' in that && that.onAllDataLoaded_bind && that.totalDataLoaded == that.totalDataRequested) {
-                    that.onAllDataLoaded_bind();  // Make sure to set this at the VERY END of all data requests
-                    that.onAllDataLoaded_bind = null;
-                }
+    processQueuedDataRequests() {
+        for (const dataRequest of this.queuedDataRequests) {
+            const action = dataRequest.action;
+            const params = dataRequest.params;
+            const callback = dataRequest.callback;
+            let that = this;
+            let data = {
+                action: action,
+                params: params
+            };
+            $.ajax({
+                url: "/widgets/data",
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                method: "POST"
             })
-            .fail(function (jqXHR, textStatus) {
-                that.displayError("HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText);
-            });
+                .done(function (data) {
+                    if ('onSomeDataLoaded_bind' in that && that.onSomeDataLoaded_bind) {
+                        that.onSomeDataLoaded_bind();
+                        that.onSomeDataLoaded_bind = null;
+                    }
+                    that.totalDataLoaded += 1;
+                    callback(data);
+                    if ('onAllDataLoaded_bind' in that && that.onAllDataLoaded_bind && that.totalDataLoaded == that.totalDataRequested) {
+                        that.onAllDataLoaded_bind();  // Make sure to set this at the VERY END of all data requests
+                        that.onAllDataLoaded_bind = null;
+                    }
+                })
+                .fail(function (jqXHR, textStatus) {
+                    that.displayError("HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText);
+                });
+        }
+        this.queuedDataRequests = [];
+    }
+
+    getData(action, params, callback) {
+        this.totalDataRequested += 1;
+        this.queuedDataRequests.push({
+            action: action,
+            params: params,
+            callback: callback
+        });
+        if (this.instantProcessDataRequests) {
+            this.processQueuedDataRequests();
+        }
     }
 
     onSomeDataLoaded(callback) {
         if (this.totalDataLoaded > 0) {
-            this.onSomeDataLoaded_bind();
+            callback();
         }
         else {
             this.onSomeDataLoaded_bind = callback;
@@ -74,7 +95,7 @@ export class Widget {
 
     onAllDataLoaded(callback) {
         if (this.totalDataLoaded == this.totalDataRequested) {
-            this.onAllDataLoaded_bind();
+            callback();
         }
         else {
             this.onAllDataLoaded_bind = callback;

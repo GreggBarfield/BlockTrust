@@ -86,6 +86,14 @@ def serve_data():
         return jsonify({
             "count_eid_distinct": g.db.matches.get_count_eid_distinct()
         })
+    elif action == "sales_group":
+        sales_group_row = g.db.sales_groups.row_by_id(params["sales_group"])
+        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+        return jsonify({
+            "reported": sales_group_row["reported"],
+            "published": sales_group_row["published"],
+            "eids": eids
+        })
     elif action == "get_count_distribution":
         join_str = False
         account_links = None
@@ -102,6 +110,24 @@ def serve_data():
                 
         return jsonify({
             "count_distribution": g.db.matches.get_count_distribution(match_types_by_name[params["type"]], account_links=account_links, join_str=join_str)
+        })
+    elif action == "save_sales_group":
+        # Check that the account selected is the owner of the sales group
+        original_row = g.db.sales_groups.row_by_id(params["id"])
+        if original_row["account"] != g.account.id():
+            raise ExportException("Insufficient permissions to edit this sales group.")
+
+        g.db.sales_group_eids.delete_sales_group(params["id"])
+        g.db.sales_group_eids.insert_multiple(params["eids"], params["id"])
+        
+        g.db.sales_groups.update(
+            params["id"],
+            params["reported"],
+            params["published"]
+        )
+
+        return jsonify({
+            "redirect": "/dashboard/sales-groups/view/" + str(params["id"])
         })
     else:
         return "Unknown action " + action, 400

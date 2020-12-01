@@ -77,3 +77,38 @@ class SalesGroupEIDs:
                 "sales_group": sales_group
             }
         )
+
+    def insert_multiple(self, eids, sales_group):
+        """Inserts a new row.
+
+        Params:
+            eids: A list of integer containing the EIDs to add to the sales group
+            sales_group: The sales group to bind to
+        """
+        if len(eids) == 0:
+            return
+        values = []
+        for eid in eids:
+            values += (eid, sales_group)
+        self._db.execute(
+            """INSERT INTO sales_group_eids
+                (eid, sales_group)
+                VALUES """ + ', '.join('(%s, %s)' for _ in range(len(eids))) + """
+            """,
+            values
+        )
+
+    def delete_sales_group(self, sales_group):
+        """Deletes rows.
+
+        Params:
+            sales_group: The sales group to delete (rows associated)
+        """
+        self._db.execute_d(
+            """DELETE FROM sales_group_eids
+                WHERE sales_group=%(sales_group)s
+            """,
+            {
+                "sales_group": sales_group
+            }
+        )

@@ -11,6 +11,32 @@ class SalesGroupsException(Exception):
         """
         super().__init__(reason)
 
+"""
+Sales group "reported" column is for user-reported information, aka untrustworthy
+The object is NOT sanitized whatsoever
+It comes directly from clients
+For convention purposes, the following details how to use the reported column
+
+{
+    "count": Number cows,
+    "breeds": List of breed names,
+    "weight": base weight,
+    "weight_variance": weight variance from base weight (string),
+    https://cdn-ext.agnet.tamu.edu/wp-content/uploads/2018/10/E-192-texas-adapted-genetic-strategies-for-beef-cattle-x-frame-score-frame-size-and-weight.pdf
+    "usda_frame_size": USDA Frame Size (Small, Medium, or Large),
+    "muscling": muscling score, "Light" or "Heavy",
+    "horns": "Horns" or "No Horns",
+    "preconditioning_program": string,
+    "vaccinations": List of vaccination names,
+    "implants": List of implant names,
+    "castrated": Method name, or "Not Castrated",
+    "process_verified_program": name or "None",
+    "feeding_programs": list of strings,
+    "comments": plaintext field
+}
+"""
+
+
 class SalesGroups:
 
     def __init__(self, db):
@@ -97,3 +123,23 @@ class SalesGroups:
             }
         )
         return self.row_by_id(self._db.last_row_id())
+
+    def update(self, row_id, reported, published):
+        """Updates a row.
+
+        Params:
+            row_id: The row ID
+            reported: New data to be updated for reported col (dict)
+            published: A number for the reported col
+        """
+        self._db.execute_d(
+            """UPDATE sales_groups
+                SET reported=%(reported)s, published=%(published)s
+                WHERE id=%(id)s
+            """,
+            {
+                "reported": json.dumps(reported),
+                "published": published,
+                "id": row_id
+            }
+        )

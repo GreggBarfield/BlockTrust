@@ -9,6 +9,7 @@ export class AsyncForm {
         this.submitting = false;
         this.onFinished = options.onFinished;
         this.getData = options.getData;
+        this.asJSON = options.asJSON;
         this.bindHandlers();
     }
 
@@ -50,10 +51,28 @@ export class AsyncForm {
 
         let that = this;
 
-        $.post({
+        let postOptions = {
             url: this.action,
-            data: this.getData()
-        })
+            data: undefined
+        };
+
+        try {
+            postOptions.data = this.getData();
+        }
+        catch(e) {
+            console.log(e);
+            this.clearStatus();
+            this.setError("An error occurred before submitting data: " + e + " (" + e.message + ")");
+            return;
+        }
+
+        
+        if (this.asJSON !== undefined && this.asJSON) {
+            postOptions.data = JSON.stringify(postOptions.data);
+            postOptions.contentType = "application/json";
+        }
+
+        $.post(postOptions)
             .always(function(){
                 that.clearStatus();
                 that.submitting = false;

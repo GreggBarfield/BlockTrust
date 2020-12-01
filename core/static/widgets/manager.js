@@ -5,6 +5,7 @@ import { GradeWidget } from './types/grade_widget.mjs';
 import { TimelineWidget } from './types/timeline_widget.mjs';
 import { HealthTableWidget } from './types/health_table_widget.mjs';
 import { SectorsWidget } from './types/sectors_widget.mjs';
+import { EditSalesGroupWidget } from './types/edit_sales_group_widget.mjs';
 
 
 // Immediately invoked
@@ -34,9 +35,13 @@ import { SectorsWidget } from './types/sectors_widget.mjs';
         else if (widgetType == "health table") {
             w = new HealthTableWidget(this);
         }
+        else if (widgetType == "edit sales group") {
+            w = new EditSalesGroupWidget(this);
+        }
         else if (widgetType == "sectors") {
             w = new SectorsWidget(this);
         }
+
         if (w === null) {
             console.log("Widget could not be loaded: " + widgetType);
         }

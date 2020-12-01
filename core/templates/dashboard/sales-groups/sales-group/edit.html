@@ -10,14 +10,10 @@ Sales Group {{sales_group['id']|e}}
 {% block dashboard_content %}
 
 <div class="row">
-    <div class="col">
-        <div class="card">
-            <h5 class="card-header">Edit</h5>
-            <div class="card-body">
-                
-            </div>
-        </div>
+    <div class="col widget" data-widget-type="edit sales group" data-widget-sales-group="{{sales_group['id']|e}}">
     </div>
 </div>
+
+<script src="/static/widgets/manager.js" type="module"></script>
 
 {% endblock dashboard_content %}
