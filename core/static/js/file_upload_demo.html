@@ -1,0 +1,287 @@
+<head><script src="/static/jvm/jquery-3.5.1.min.js"></script>
+</head>
+<style>
+    input {
+        display: block;
+    }
+    .outer {
+        position: relative;
+        width: 100%;
+    }
+    .inner {
+        width: 60%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #imageForm {
+        position: relative;
+        padding: 0px;
+    }
+    #imageFormDrop {
+        border-radius: 10px;
+        border: dashed 1px gray;
+        padding:20px;
+        text-align:center;
+    }
+    #imageFormDrop > button {
+        margin-top: 10px;
+    }
+    #imageOverlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0px;
+        top: 0px;
+        background-color: rgba(0, 0, 0, 0.5);
+        box-sizing: border-box;
+    }
+    #imageOverlay > div {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0px;
+        top: 0px;
+        color: white;
+        font-size: 25px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    #imageOverlay button {
+        font-size: default;
+        color: black;
+    }
+    .progressBar {
+        border: solid 1px white;
+        width: 100%;
+        padding: 0px;
+        box-sizing: border-box;
+    }
+    .progressBarInner {
+        padding: 0px;
+        margin: 0px;
+        background-color: rgba(0, 200, 0, 0.5);
+        width: 0%;
+        text-align: center;
+        box-sizing: border-box;
+
+    }
+</style>
+
+<div class='outer'>
+<div class='inner'>
+<form id="imageForm">
+    <div id="imageOverlay">
+        <div>
+            Loading...
+        </div>
+        <div>
+            Uploading...<br>
+            <div class='progressBar'>
+                <div class='progressBarInner'></div>
+            </div>
+        </div>
+        <div>
+            Uploaded!<br>
+            <button>Want to upload another?</button>
+        </div>
+        <div>
+            An error occurred. Try refreshing.
+        </div>
+    </div>
+    <div id="imageFormDrop">
+        <span>Loading...</span><br>
+        <button>Or, click here to open the file explorer</button>
+    </div>
+    <input type="file" name="image">
+    <input type="hidden" name="associate">
+    <input type="submit" value="Submit">
+    <div id="imageFormError"></div>
+</form>
+</div>
+</div>
+
+<script>
+$(function(){
+    createImageForm({
+        /*
+            GET'ing to url_associate should return a json object that contains the
+            image associate code, like
+                {'associate': 'g948nm984ejg94g4880j'}
+        */
+        "url_associate": "https://ledgerspacedev.com/get_associate",
+        "form": $("#imageForm"),  // Where the form is
+        "error": $("#imageFormError"),  // Where to put error messages
+        "drop": $("#imageFormDrop"),  // Where the drop area is
+        "overlay": $("#imageOverlay"),  // Where the overlay is
+        "url_to": "https://ledgerspacedev.com/upload_image"  // Where to POST the form to
+    });
+});
+
+function createImageForm(params) {
+    let inputImage = params.form.find("input[name='image']");
+    let inputAssociate = params.form.find("input[name='associate']");
+    let inputSubmit = params.form.find("input[type='submit']");
+    let dropButton = params.drop.find("button");
+    let dropSpan = params.drop.find("span");
+    let overlayDivs = params.overlay.find("> div");
+    let progressBarInner = $(overlayDivs[1]).find("> div> div");
+
+    function showOverlay(num) {
+        if (num >= 0 && num < overlayDivs.length) {
+            params.overlay.css("display", "block");
+            overlayDivs.css("display", "none");
+            $(overlayDivs[num]).css("display", "block");
+        }
+        else {
+            params.overlay.css("display", "none");
+        }
+    }
+
+    function showError(msg) {
+        params.error.css("display", "block");
+        params.error.html("An error occurred: " + msg);
+        inputSubmit.prop("disabled", true);
+    }
+
+    function hideError() {
+        params.error.css("display", "none");
+        inputSubmit.prop("disabled", false);
+    }
+
+    function updateError() {
+        let numFiles = inputImage.prop("files").length;
+        if (numFiles == 0) {
+            showError("No images selected.");
+            return false;
+        }
+        else if (numFiles > 1) {
+            showError("Only 1 image can be uploaded at a time.");
+            return false;
+        }
+
+        if (inputAssociate.val() == "") {
+            showError("No associate code entered.");
+            return false;
+        }
+
+        hideError();
+        return true;
+    }
+
+    function updateForm() {
+        if (params.error.css("display") == "block")
+            updateError();
+
+        let files = inputImage.prop("files");
+        if (files && files.length > 0) {
+            let names = files[0].name;
+            for (let i= 1;i<files.length;i++) {
+                names += ", " + files[i].name;
+            } 
+            dropSpan.html(names);
+        }
+        else {
+            dropSpan.html("Drag your image here!");
+        }
+    }
+
+    function newForm() {
+        $.ajax({
+            url: params.url_associate
+        })
+        .done(function(data, status) {
+            if ('associate' in data) {
+                inputAssociate.val(data.associate);
+                showOverlay(-1);
+            }
+            else {
+                showError("associate missing from json");
+                showOverlay(3);
+            }
+        })
+        .fail(function(xhr, status, err) {
+            showError(status + " " + err);
+            showOverlay(3);
+        });
+        inputImage.val("");
+        progressBarInner.css("width", "0%");
+        progressBarInner.html("0%");
+        
+        showOverlay(0);
+        updateForm();
+        hideError();
+    }
+
+    // Various handles
+    params.form.find("input").change(updateForm);
+    params.form.find("input").keyup(updateForm);
+    dropButton.click((e) => {e.preventDefault();inputImage.click();});
+    params.drop.on('dragover', (e) => {e.preventDefault();});
+    params.drop.on('dragenter', (e) => {e.preventDefault();});
+    params.drop.on('drop', function(e) {
+        e.preventDefault();
+        inputImage.prop("files", e.originalEvent.dataTransfer.files);
+        updateForm();
+    });
+
+    // Hide original input form (can't just display none due to browser weirdness)
+    inputImage.css("position", "fixed");
+    inputImage.css("left", "-1000px");
+
+    // Again?
+    $(overlayDivs[2]).find("button").click(function(e){
+        e.preventDefault();
+        newForm();
+    });
+
+    // On-submit
+    params.form.submit(function(e){
+        try {
+            if (updateError()) {
+                showOverlay(1);
+                $.ajax({
+                    type: "POST",
+                    url: params.url_to,
+                    processData: false,
+                    contentType: false,
+                    xhr: function() {
+                        let x = new XMLHttpRequest();
+                        x.upload.addEventListener("progress", function(e){
+                            if (e.lengthComputable) {
+                                let perc = parseInt(100 * e.loaded / e.total);
+                                if (perc == 100)
+                                    perc = 98;
+                                progressBarInner.css("width", perc + "%");
+                                progressBarInner.html(perc + "%");
+                            }
+                        }, false);
+                        return x;
+                    },
+                    data: new FormData(params.form[0])
+                })
+                .done(function(data, status){
+                    inputAssociate.val("");
+                    progressBarInner.css("width", "100%");
+                    progressBarInner.html("100%");
+                    showOverlay(2);
+                })
+                .fail(function(xhr, status, err){
+                    showOverlay(-1);
+                    showError("error during post: " + status + " " + err + "<br>" + 
+                        "The specific error returned was: " + xhr.responseText);
+                });
+            }
+        }
+        catch (err) {
+            console.log(err);
+            showOverlay(-1);
+            showError(err);
+        }
+        e.preventDefault();
+        return false;
+    });
+
+    // Start the associate-getting process and prep the form
+    newForm();
+}
+</script>

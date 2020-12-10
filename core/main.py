@@ -20,18 +20,7 @@ app = Flask(__name__)
 app.secret_key = FLASK_SESSION_SECRET_KEY
 Talisman(
     app,
-    content_security_policy={
-        'default-src': [
-            'https://js.stripe.com',
-            'https://polyfill.io',
-            'https://i.imgur.com',
-            DOMAIN,
-            '\'unsafe-inline\'',
-            'fonts.gstatic.com',
-            'fonts.googleapis.com',
-            'http://localhost:5000'
-        ]
-    },
+    content_security_policy=CSP,
     force_https=False  # We don't want to serve HTTP in general
 )
 CORS(app)

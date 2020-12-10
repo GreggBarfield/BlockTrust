@@ -1,0 +1,25 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "View Sales Group" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view/" + (sales_group['id']|e) + "", "View Sales Group " + (sales_group['id']|e))] %}
+
+{% block dashboard_content_header %}
+View Sales Group {{ sales_group['id'] }}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Sales Group {{ sales_group['id'] }}</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="view sales group" data-widget-sales-group="{{ sales_group['id'] }}"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/widgets/manager.js" type="module"></script>
+
+{% endblock dashboard_content %}

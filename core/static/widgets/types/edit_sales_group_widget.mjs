@@ -1,3 +1,5 @@
+import { ProgressBar } from '../../js/core/progress_bar.mjs';
+import { BasicFileEditor } from '../../js/files/basic_file_editor.mjs';
 import { Widget } from '../widget.mjs';
 import { AsyncForm } from '/static/global/async_form.mjs';
 
@@ -97,6 +99,25 @@ let commonBreedNames = [
 	"Not Reported",
 ]
 
+let commonPVPProgramNames = [
+    "None",
+    "American Certified Brands",
+    "AzTx Cattle Co.",
+    "BeefTraxx",
+    "Big Blue Sale Barn Passport Program®",
+    "Cal Poly State Univ Animal Science",
+    "Frost PLLC dba FACTA",
+    "IdentiGEN North America",
+    "IMI Global",
+    "Legacy Verified",
+    "Ranchers Connecting Ranchers",
+    "Red Angus Association of America",
+    "Samson",
+    "TechniTrack",
+    "Zoetis Genetics",
+    "Other"
+];
+
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -112,9 +133,7 @@ export class EditSalesGroupWidget extends Widget {
                 sales_group: this.salesGroupID
             },
             (data) => {
-                this.reported = data.reported;
-                this.published = data.published;
-                this.eids = data.eids;
+                this.data = data;
                 this.makeForm();
             }
         );
@@ -203,6 +222,36 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
+        function createDate(row, name, epoch) {
+            let id = "domuid" + window.DOMUIDNext++;
+
+            let group = createGroup(row, name, id);
+            let input = document.createElement("input");
+            input.type = "date";
+            if (epoch === null) {
+                input.value = null;
+            }
+            else {
+                let d = new Date(epoch * 1000);
+                function setWidth(val) {
+                    if (val < 10)
+                        return "0" + val;
+                    return val;
+                }
+                input.value = d.getFullYear() + "-" + setWidth(d.getMonth() + 1) + "-" + setWidth(d.getDate());
+            }
+            input.className = "form-control";
+            input.id = id;
+            group.append(input);
+            return input;
+        }
+
+        function fromDate(node) {
+            let values = node.value.split("-");
+            let d = new Date(values[0], values[1] - 1, values[2]);
+            return Math.floor(d.getTime() / 1000);
+        }
+
         function createSelect(row, name, options, values, multiple, tags, placeholder) {
             let id = "domuid" + window.DOMUIDNext++;
 
@@ -265,7 +314,10 @@ export class EditSalesGroupWidget extends Widget {
 
         let marketingRow = createSection(form, "Marketing");
 
-        let marketingCount = createNumber(marketingRow, "Total Animals", this.reported.count || null);
+        let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
+        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
+        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
 
         // Characteristics
         
@@ -275,18 +327,18 @@ export class EditSalesGroupWidget extends Widget {
             characteristicsRow,
             "Breed",
             commonBreedNames,
-            this.reported.breeds || [],
+            this.data.reported.breeds || [],
             true,
             true,
             "Select Applicable Breeds"
         );
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.reported.weight || null);
-        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.reported.weight_variance || null);
+        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null);
+        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null);
         let characteristicsFrame = createSelect(
             characteristicsRow,
             "Frame",
             ["Small", "Medium", "Large"],
-            this.reported.usda_frame_size || "Small",
+            this.data.reported.usda_frame_size || "Small",
             false,
             false,
             "Select Frame"
@@ -295,7 +347,7 @@ export class EditSalesGroupWidget extends Widget {
             characteristicsRow,
             "Muscling",
             ["Light", "Heavy"],
-            this.reported.muscling || "Light",
+            this.data.reported.muscling || "Light",
             false,
             false,
             "Select Muscling"
@@ -304,7 +356,7 @@ export class EditSalesGroupWidget extends Widget {
             characteristicsRow,
             "Horns",
             ["Horns", "No Horns"],
-            this.reported.horns || "Horns",
+            this.data.reported.horns || "Horns",
             false,
             false,
             "Select Horns"
@@ -318,7 +370,7 @@ export class EditSalesGroupWidget extends Widget {
             maintenanceRow,
             "Precon Program",
             ["None", "Health Track", "Value Added Calf-45", "OQBN Vac-45 Program", "JRS Wean-Vac 45"],
-            this.reported.preconditioning_program || "None",
+            this.data.reported.preconditioning_program || "None",
             false,
             true,
             "Select Precon Program"
@@ -327,7 +379,7 @@ export class EditSalesGroupWidget extends Widget {
             maintenanceRow,
             "Vaccinations",
             ["Covexin 8", "One Shot BVD", "Infor"],
-            this.reported.vaccinations || [],
+            this.data.reported.vaccinations || [],
             true,
             true,
             "Select Vaccinations"
@@ -336,7 +388,7 @@ export class EditSalesGroupWidget extends Widget {
             maintenanceRow,
             "Feeding Program",
             ["Native Range", "Improved Pasture"],
-            this.reported.feeding_programs || [],
+            this.data.reported.feeding_programs || [],
             true,
             true,
             "Select Feeding Program"
@@ -345,7 +397,7 @@ export class EditSalesGroupWidget extends Widget {
             maintenanceRow,
             "Implants",
             ["Raigro"],
-            this.reported.implants || [],
+            this.data.reported.implants || [],
             true,
             true,
             "Select Implants"
@@ -354,7 +406,7 @@ export class EditSalesGroupWidget extends Widget {
             maintenanceRow,
             "Castrated",
             ["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
-            this.reported.castrated || "Not Castrated",
+            this.data.reported.castrated || "Not Castrated",
             false,
             false,
             "Select Castration Method"
@@ -362,12 +414,28 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceProcessVerifiedProgram = createSelect(
             maintenanceRow,
             "PVP Program",
-            ["None", "IMI Global", "AngusLink", "Red Angus Association", "Verified Beef", "Other"],
-            this.reported.process_verified_program || "None",
+            commonPVPProgramNames,
+            this.data.reported.process_verified_program || "None",
             false,
             false,
             "Select Process Verified Program"
         );
+
+        // Media
+
+        let mediaRow = createSection(form, "Media");
+
+        let mediaGroup = document.createElement("div");
+        mediaGroup.className = "form-group col-12";
+        mediaRow.append(mediaGroup);
+
+        let mediaLabel = document.createElement("label")
+        mediaLabel.textContent = "Add images here to make the post look more attractive!";
+        mediaGroup.append(mediaLabel);
+
+        let fileEditorFrame = document.createElement("div");
+        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
+        mediaGroup.append(fileEditorFrame);
 
         // Comments
 
@@ -387,7 +455,7 @@ export class EditSalesGroupWidget extends Widget {
         commentsTA.maxLength = 1000;
         commentsTA.className = "form-control max-textarea";
         commentsTA.rows = 4;
-        commentsTA.value = this.reported.comments || "";
+        commentsTA.value = this.data.reported.comments || "";
         commentsGroup.append(commentsTA);
 
         form.append(document.createElement("br"));
@@ -426,7 +494,7 @@ export class EditSalesGroupWidget extends Widget {
         eidsTA.className = "form-control max-textarea";
         eidsTA.rows = 4;
         eidsTA.placeholder = "Ex. 982000418411463, 982000423277824, 982000423277825"
-        eidsTA.value = (this.eids || []).join(", ");
+        eidsTA.value = (this.data.eids || []).join(", ");
         function eidsTALabelChange() {
             eidsLabel.textContent = "Enter your animals' EIDs below.";
             let eids = parseEIDs(eidsTA);
@@ -459,7 +527,7 @@ export class EditSalesGroupWidget extends Widget {
         publishSwitchInput.className = "";
         publishSwitchInput.type = "checkbox";
         publishSwitchInput.id = "sw" + (window.DOMUIDNext++);
-        publishSwitchInput.checked = this.published != 0;
+        publishSwitchInput.checked = this.data.published != 0;
         publishSwitchRegion.append(publishSwitchInput);
 
         let publishSwitchLabel = document.createElement("label");
@@ -481,7 +549,12 @@ export class EditSalesGroupWidget extends Widget {
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
         submitButton.textContent = "Save";
+        submitButton.type = "button";
         submitFormGroup.append(submitButton);
+
+        this.progressBar = new ProgressBar();
+        this.progressBar.attach(form);
+        this.progressBar.hide();
         
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
@@ -530,10 +603,25 @@ export class EditSalesGroupWidget extends Widget {
                             implants: $(maintenanceImplants).val(),
                             castrated: maintenanceCastrated.value,
                             process_verified_program: maintenanceProcessVerifiedProgram.value,
-                        }
+                            images: that.fileEditor.getFileIDs(),
+                        },
+                        "zip": parseInt(marketingZIP.value),
+                        "start": fromDate(marketingStart),
+                        "end": fromDate(marketingEnd),
                     } 
                 }
             }
-        });        
+        });     
+        
+        submitButton.addEventListener("click", ()=>{
+            function progress(perc) {
+                that.progressBar.setProgress(perc);
+            }
+            that.progressBar.show();
+            this.fileEditor.upload(progress)
+            .then(()=>{
+                this.asyncForm.submit();
+            });
+        });
     }
 }

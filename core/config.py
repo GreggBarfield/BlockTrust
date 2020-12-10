@@ -38,4 +38,18 @@ MYSQL_CONFIG = {
 
 ADMIN_PASSWORD = "admin4"
 
+AWS_S3_BUCKET = "btndev"
 
+CSP = {
+    'default-src': [
+        'https://js.stripe.com',
+        'https://polyfill.io',
+        'https://i.imgur.com',
+        DOMAIN,
+        '\'unsafe-inline\'',
+        'fonts.gstatic.com',
+        'fonts.googleapis.com',
+        'http://localhost:5000',
+        AWS_S3_BUCKET + ".s3.amazonaws.com"
+    ]
+}

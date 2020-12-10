@@ -124,22 +124,64 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published):
+    def update(self, row_id, reported, published, zip_code, start, end):
         """Updates a row.
 
         Params:
             row_id: The row ID
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
+            zip_code: The zip code
+            start: The start time
+            end: The end time
         """
         self._db.execute_d(
             """UPDATE sales_groups
-                SET reported=%(reported)s, published=%(published)s
+                SET reported=%(reported)s, published=%(published)s,
+                    start=%(start)s, end=%(end)s, zip=%(zip)s
                 WHERE id=%(id)s
             """,
             {
                 "reported": json.dumps(reported),
                 "published": published,
-                "id": row_id
+                "id": row_id,
+                "start": start,
+                "end": end,
+                "zip": zip_code
             }
         )
+
+    def search_within(self, zip_code, miles, start, end, skip=0, limit=10):
+        """Searches for sales groups.
+
+        Params:
+            zip_code: Origin zip code
+            miles: Radius in miles
+            skip: Number of records to skip
+            limit: Number of records to select
+        
+        Returns:
+            A list of sales group rows
+        """
+        zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
+
+        #TODO: Optimize
+        #TODO: Add skip, limit
+
+        sql_zip_codes = ','.join(("%s" for i in zip_codes))
+        sql = """
+            SELECT * FROM sales_groups
+                WHERE
+                    (
+                        %s <= start AND start <= %s OR
+                        %s <= end AND end <= %s
+                    )
+                    AND published > 0
+                    AND zip IN (""" + sql_zip_codes + """)
+        """
+
+        sales_groups = self._db.execute_d(
+            sql,
+            [start, end, start, end] + zip_codes
+        )
+        return sales_groups

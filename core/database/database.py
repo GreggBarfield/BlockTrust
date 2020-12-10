@@ -10,6 +10,9 @@ from .tables.animals import Animals
 from .tables.matches_data_strings import MatchesDataStrings
 from .tables.sales_groups import SalesGroups
 from .tables.sales_group_eids import SalesGroupEIDs
+from .tables.sales_group_intervals import SalesGroupIntervals
+from .tables.files import Files
+from .tables.zip_codes import ZIPCodes
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -42,6 +45,8 @@ class Database:
         self.matches_data_strings = MatchesDataStrings(self)
         self.sales_groups = SalesGroups(self)
         self.sales_group_eids = SalesGroupEIDs(self)
+        self.files = Files(self)
+        self.zip_codes = ZIPCodes(self)
 
 
     def connect(self):

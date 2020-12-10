@@ -6,6 +6,8 @@ import { TimelineWidget } from './types/timeline_widget.mjs';
 import { HealthTableWidget } from './types/health_table_widget.mjs';
 import { SectorsWidget } from './types/sectors_widget.mjs';
 import { EditSalesGroupWidget } from './types/edit_sales_group_widget.mjs';
+import { ViewSalesGroupWidget } from './types/view_sales_group_widget.mjs';
+import { AccountSalesGroupsWidget } from './types/account_sales_groups_widget.mjs';
 
 
 // Immediately invoked
@@ -40,6 +42,12 @@ import { EditSalesGroupWidget } from './types/edit_sales_group_widget.mjs';
         }
         else if (widgetType == "sectors") {
             w = new SectorsWidget(this);
+        }
+        else if (widgetType == "account sales groups") {
+            w = new AccountSalesGroupsWidget(this);
+        }
+        else if (widgetType == "view sales group") {
+            w = new ViewSalesGroupWidget(this);
         }
 
         if (w === null) {

@@ -164,3 +164,23 @@ def serve_edit_sales_group(sales_group_id):
         return dashboard_render("sales-groups/sales-group/no.html")
     
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
+
+@bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
+def serve_view_sales_group(sales_group_id):
+    if g.user is None:
+        return redirect('/')
+    if g.account is None:
+        return dashboard_render("sales-groups/no-account.html")
+
+    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+
+    if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        return dashboard_render("sales-groups/sales-group/view.html", {"sales_group": sales_group_row})
+    return dashboard_render("sales-groups/sales-group/not-published.html")
+
+@bp.route('/dashboard/sales-groups/manage', methods=['GET'])
+def serve_manage_sales_groups():
+    if g.user is None:
+        return redirect('/')
+
+    return dashboard_render("sales-groups/manage.html", {"account": g.account})

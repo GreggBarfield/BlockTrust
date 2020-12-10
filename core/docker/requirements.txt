@@ -3,3 +3,4 @@ flask-talisman
 flask-cors
 mysql-connector
 bcrypt
+boto3

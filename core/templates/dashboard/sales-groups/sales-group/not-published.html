@@ -1,0 +1,24 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Not Published" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups", "Not Published")] %}
+
+{% block dashboard_content_header %}
+Not Published
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Not Published</h5>
+                <p class="card-text">Sorry, the requested sales group is not published.</p>
+                <p class="card-text">If you are the sales group owner, please select the account you use to create this sales group, then try again.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

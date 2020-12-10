@@ -97,7 +97,18 @@ export class AsyncForm {
                 }
             })
             .fail(function(xhr, status){
-                that.setError("An error occurred: " + status + ", " + xhr.status + ", " + xhr.responseText);
+                try {
+                    let data = JSON.parse(xhr.responseText);
+                    if ("error" in data) {
+                        that.setError("An error occurred: " + data.error);
+                    }
+                    else {
+                        throw "Nope";
+                    }
+                }
+                catch {
+                    that.setError("An error occurred: " + status + ", " + xhr.status + ", " + xhr.responseText);
+                }
             });
 
     }
