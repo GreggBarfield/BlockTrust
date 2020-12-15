@@ -12,21 +12,22 @@ Sales Groups
 <div class="row">
     <div class="col">
         <div class="card" style="width:100%;">
-            <div class="card-body">
-                <h5 class="card-title">Sales Groups</h5>
-                <div class="row">
-                    <div class="col col-8">
-                        <p class="card-text">
-                            Filter Controls
-                        </p>
-                    </div>
-                    <div class="col col-4" style="text-align: right;">
-                        <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sales-groups/new">New Sales Group</a>
-                    </div>
+            <h5 class="card-header">Search Sales Groups</h5>
+            <div class="card-body widget" class="mb-0 widget" data-widget-type="search sales groups"></div>
+            <!--<div class="row">
+                <div class="col col-8">
+                    <p class="card-text">
+                        Filter Controls
+                    </p>
                 </div>
-            </div>
+                <div class="col col-4" style="text-align: right;">
+                    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sales-groups/new">New Sales Group</a>
+                </div>
+            </div>-->
         </div>
     </div>
 </div>
+
+<script src="/static/widgets/manager.js" type="module"></script>
 
 {% endblock dashboard_content %}

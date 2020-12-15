@@ -1,5 +1,6 @@
 from ..const.zip_codes_data import ZIP_CODES
 from ..const.spatial_math import distance, miles_to_meters
+from common_exceptions import ExportException
 
 class ZIPCodesException(Exception):
     """ZIPCodes generic exception."""
@@ -27,6 +28,9 @@ class ZIPCodes:
             dist: The distance to search within (radius, miles)
         """
         results = []
+
+        if zip_code not in ZIP_CODES:
+            raise ExportException("ZIP Code not recognized.")
 
         for itr_zip_code in ZIP_CODES:
             if distance(ZIP_CODES[itr_zip_code]["ecef"], ZIP_CODES[zip_code]["ecef"]) < miles_to_meters(dist):

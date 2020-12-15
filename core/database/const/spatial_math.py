@@ -36,6 +36,17 @@ def miles_to_meters(miles):
     """
     return miles * 1609.344
 
+def meters_to_miles(meters):
+    """Converts meters to miles.
+
+    Params:
+        meters: The distance in meters
+    
+    Returns:
+        The distance in miles
+    """
+    return meters / 1609.344
+
 def distance(p1, p2):
     """Calculates the distance in meters between two points in ECEF meters.
 
@@ -46,6 +57,6 @@ def distance(p1, p2):
         Distance in meters
     """
     return math.sqrt(sum((
-        (p1[0] - p2[0])
+        ((p1[0] - p2[0]) ** 2)
         for i in range(3)
     )))

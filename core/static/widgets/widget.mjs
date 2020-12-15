@@ -42,6 +42,7 @@ export class Widget {
             const action = dataRequest.action;
             const params = dataRequest.params;
             const callback = dataRequest.callback;
+            const errorCallback = dataRequest.error;
             let that = this;
             let data = {
                 action: action,
@@ -66,18 +67,25 @@ export class Widget {
                     }
                 })
                 .fail(function (jqXHR, textStatus) {
-                    that.displayError("HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText);
+                    let errorMessage = "HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText;
+                    if (errorCallback !== null) {
+                        errorCallback(errorMessage);
+                    }
+                    else {
+                        that.displayError(errorMessage);
+                    }
                 });
         }
         this.queuedDataRequests = [];
     }
 
-    getData(action, params, callback) {
+    getData(action, params, callback, error=null) {
         this.totalDataRequested += 1;
         this.queuedDataRequests.push({
             action: action,
             params: params,
-            callback: callback
+            callback: callback,
+            error: error
         });
         if (this.instantProcessDataRequests) {
             this.processQueuedDataRequests();

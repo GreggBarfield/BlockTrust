@@ -8,6 +8,7 @@ import { SectorsWidget } from './types/sectors_widget.mjs';
 import { EditSalesGroupWidget } from './types/edit_sales_group_widget.mjs';
 import { ViewSalesGroupWidget } from './types/view_sales_group_widget.mjs';
 import { AccountSalesGroupsWidget } from './types/account_sales_groups_widget.mjs';
+import { SearchSalesGroupsWidget } from './types/search_sales_groups_widget.mjs';
 
 
 // Immediately invoked
@@ -48,6 +49,9 @@ import { AccountSalesGroupsWidget } from './types/account_sales_groups_widget.mj
         }
         else if (widgetType == "view sales group") {
             w = new ViewSalesGroupWidget(this);
+        }
+        else if (widgetType == "search sales groups") {
+            w = new SearchSalesGroupsWidget(this);
         }
 
         if (w === null) {

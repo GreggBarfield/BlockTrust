@@ -30,17 +30,17 @@ function uploadFileToS3(config, file, progress=null) {
         },
         data: formData
     })
-    .done(function(data, status){
-        if (typeof progress == "function") {
-            progress(1);
-        }
-        return Promise.resolve(true);
-    })
     .fail(function(xhr, status, err){
         if (typeof fail == "function") {
             throw "error during post: " + status + " " + err + "<br>" + 
                 "The specific error returned was: " + xhr.responseText;
         }
+    })
+    .then(function(data, status){
+        if (typeof progress == "function") {
+            progress(1);
+        }
+        return Promise.resolve(true);
     });
 }
 
@@ -59,12 +59,12 @@ export function uploadFile(userOwns, accountOwns, file, progress=null) {
         contentType: 'application/json',
         method: "POST"
     })
-        .done(function (data) {
-            dataResult = data;
-            return uploadFileToS3(data["config"], file, progress);
-        })
         .fail(function (jqXHR, textStatus) {
             throw "HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText;
+        })
+        .then(function (data) {//note: done() and then() are NOT even close to similar, done() does not respect returned promises
+            dataResult = data;
+            return uploadFileToS3(data["config"], file, progress);
         })
         .then(function(){
             return Promise.resolve(dataResult["id"]);

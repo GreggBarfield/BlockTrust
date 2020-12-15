@@ -157,6 +157,8 @@ class SalesGroups:
         Params:
             zip_code: Origin zip code
             miles: Radius in miles
+            start: Start time
+            end: End time
             skip: Number of records to skip
             limit: Number of records to select
         
@@ -184,4 +186,4 @@ class SalesGroups:
             sql,
             [start, end, start, end] + zip_codes
         )
-        return sales_groups
+        return self._translate_json(sales_groups)

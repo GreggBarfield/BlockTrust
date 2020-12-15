@@ -1,0 +1,158 @@
+import { Widget } from '../widget.mjs';
+import { SalesGroupViewer } from '../../js/sales_groups/view_sales_group.mjs';
+import { SalesGroupFields } from '../../js/sales_groups/sales_group_fields.mjs';
+
+export class SearchSalesGroupsWidget extends Widget {
+    constructor(frame) {
+        super(frame);
+    }
+
+    initType() {
+        this.frame.innerHTML = "";
+
+        this.inputs = {};
+
+        this.generate();
+
+    }
+
+    generate() {
+        this.form = document.createElement("form");
+        this.form.addEventListener("submit", (e)=>{
+            e.preventDefault();
+            this.search();
+        });
+
+        let locationHeader = document.createElement("h6");
+        locationHeader.textContent = "Location";
+        this.form.append(locationHeader);
+
+        let firstFormRow = document.createElement("div");
+        firstFormRow.className = "form-row";
+        this.form.append(firstFormRow);
+
+        let milesFormGroup = document.createElement("div");
+        milesFormGroup.className = "form-group col-md-6";
+        firstFormRow.append(milesFormGroup);
+
+        let milesLabel = document.createElement("label");
+        milesLabel.textContent = "Search Radius";
+        milesFormGroup.append(milesLabel);
+
+        this.inputs.milesSelect = document.createElement("select");
+        this.inputs.milesSelect.className = "form-control";
+        milesFormGroup.append(this.inputs.milesSelect);
+
+        for (const miles of SalesGroupFields.commonMiles) {
+            let milesOption = document.createElement("option");
+            milesOption.value = miles;
+            milesOption.textContent = miles + " Miles";
+            this.inputs.milesSelect.append(milesOption);
+        }
+
+        this.inputs.milesSelect.children[0].setAttribute("selected", true);
+
+        let zipCodeFormGroup = document.createElement("div");
+        zipCodeFormGroup.className = "form-group col-md-6";
+        firstFormRow.append(zipCodeFormGroup);
+
+        let zipCodeLabel = document.createElement("label");
+        zipCodeLabel.textContent = "Center Zip Code";
+        zipCodeFormGroup.append(zipCodeLabel);
+
+        this.inputs.zipCode = document.createElement("input");
+        this.inputs.zipCode.className = "form-control";
+        this.inputs.zipCode.type = "number";
+        this.inputs.zipCode.placeholder = "12345"
+        zipCodeFormGroup.append(this.inputs.zipCode);
+        
+        let submitFormGroup = document.createElement("div");
+        submitFormGroup.className = "form-group";
+        this.form.append(submitFormGroup);
+
+        let submitButton = document.createElement("input");
+        submitButton.className = "btn btn-primary";
+        submitButton.type = "submit";
+        submitButton.value = "Search";
+        submitFormGroup.append(submitButton);
+
+        this.searchErrorAlert = document.createElement("div");
+        this.searchErrorAlert.className = "alert alert-danger";
+        this.searchErrorAlert.style.display = "none";
+        this.form.append(this.searchErrorAlert);
+
+        this.frame.append(this.form);
+
+        this.resultsHr = document.createElement("hr");
+        this.resultsHr.style.display = "none";
+        this.resultsHr.style.marginLeft = "-25px";
+        this.resultsHr.style.marginRight = "-25px";
+        this.frame.append(this.resultsHr);
+
+        this.results = document.createElement("div");
+        this.results.style.display = "none";
+        this.frame.append(this.results);
+    }
+
+    showError(error) {
+        this.searchErrorAlert.style.display = "block";
+        this.searchErrorAlert.textContent = error;
+    }
+
+    search() {
+        this.searchErrorAlert.style.display = "none";
+
+        if (this.inputs.milesSelect.value == "") {
+            this.showError("Please select a radius (in miles).");
+            return;
+        }
+
+        if (this.inputs.zipCode.value == "") {
+            this.showError("Please enter a valid ZIP Code.");
+            return;
+        }
+
+        this.resultsHr.style.display = "block";
+        this.results.style.display = "block";
+        this.results.innerHTML = '\
+            <div class="d-flex justify-content-center">\
+                <div class="spinner-border" role="status">\
+                    <span class="sr-only">Loading...</span>\
+                </div>\
+            </div>';
+
+        this.getData(
+            "search_sales_groups_2",
+            {
+                search: {
+                    zip: parseInt(this.inputs.zipCode.value),
+                    radius: parseInt(this.inputs.milesSelect.value)
+                }
+            },
+            (data) => {
+                this.handleSearchResults(data);
+            },
+            (message) => {
+                this.results.innerHTML = "";
+                this.showError(message);
+            }
+        );
+    }
+
+    handleSearchResults(data) {
+        let sales_groups = data.sales_groups;
+        console.log(sales_groups);
+        this.results.innerHTML = "";
+
+        let isFirst = true;
+        for (const sales_group of sales_groups) {
+            let container = document.createElement("p");
+            if (!isFirst) {
+                container.style.marginTop = "50px";
+            }
+            isFirst = false;
+            this.results.append(container);
+            new SalesGroupViewer(sales_group, container);
+        }
+    }
+}

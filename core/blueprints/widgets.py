@@ -11,6 +11,7 @@ from database.tables.account_users import NoAccountUserFound
 from database.tables.accounts import AccountsException
 from database.objects.account import AccountException
 
+from database.const.spatial_math import meters_to_miles, distance
 from database.const.zip_codes_data import ZIP_CODES
 
 bp = Blueprint('widgets_bp', __name__)
@@ -115,21 +116,47 @@ def serve_data():
 
             for sales_group_row in sales_group_rows:
                 eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+                if sales_group_row["account"] == g.account.id():
+                    results.append({
+                        "id": sales_group_row["id"],
+                        "reported": sales_group_row["reported"],
+                        "published": sales_group_row["published"],
+                        "eids": eids,
+                        "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if params["file_auths"] else [],
+                        "zip": sales_group_row["zip"],
+                        "start": sales_group_row["start"],
+                        "end": sales_group_row["end"]
+                    })
+
+            return jsonify({
+                "sales_groups": results
+            })
+        elif action == "search_sales_groups_2":
+            sales_group_rows = []
+
+            sales_group_rows = g.db.sales_groups.search_within(params["search"]["zip"], params["search"]["radius"], 0, 9999999999)
+
+            results = []
+
+            for sales_group_row in sales_group_rows:
+                eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
                 results.append({
                     "id": sales_group_row["id"],
                     "reported": sales_group_row["reported"],
                     "published": sales_group_row["published"],
                     "eids": eids,
-                    "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if params["file_auths"] else [],
+                    "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
                     "zip": sales_group_row["zip"],
                     "start": sales_group_row["start"],
-                    "end": sales_group_row["end"]
+                    "end": sales_group_row["end"],
+                    "context": {
+                        "milesAway": meters_to_miles(distance(ZIP_CODES[params["search"]["zip"]]["ecef"], ZIP_CODES[sales_group_row["zip"]]["ecef"]))
+                    }
                 })
 
             return jsonify({
                 "sales_groups": results
             })
-
         elif action == "get_count_distribution":
             join_str = False
             account_links = None

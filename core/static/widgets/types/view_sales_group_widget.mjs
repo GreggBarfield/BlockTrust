@@ -16,13 +16,7 @@ export class ViewSalesGroupWidget extends Widget {
                 "sales_group": this.salesGroupID
             },
             (data) => {
-                this.sales_group = {
-                    "id": data["id"],
-                    "reported": data["reported"],
-                    "published": data["published"],
-                    "eids": data["eids"],
-                    "file_auths": data["file_auths"],
-                };
+                this.sales_group = data;
                 this.displaySalesGroup();
             }
         );
