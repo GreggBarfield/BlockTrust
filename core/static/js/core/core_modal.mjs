@@ -17,6 +17,8 @@ export class CoreModal {
         this.modalContent = document.createElement("div");
         this.modalContent.className = "modal-content";
         this.modalDialog.append(this.modalContent);
+
+        this.closedPromise = new Promise((resolve)=>{this.closedPromiseResolve=resolve;});
     }
 
     close() {
@@ -26,6 +28,8 @@ export class CoreModal {
         setTimeout(()=>{
             that.modal.remove();
             that.modalBackdrop.remove();
+            this.closedPromiseResolve();
         }, 100);
+        return this.closedPromise;
     }
 }

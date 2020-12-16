@@ -24,11 +24,15 @@ export class InfoModal extends CoreModal {
         this.modalContent.append(modalHeader);
 
         let modalBody = document.createElement("div");
+        this.modalBody = modalBody;
         modalBody.className = "modal-body";
 
-        let modalBodyP = document.createElement("p");
-        modalBodyP.textContent = contentText;
-        modalBody.append(modalBodyP);
+        if (contentText !== null) {
+            // Sometimes stuff is just appended to body manually
+            let modalBodyP = document.createElement("p");
+            modalBodyP.textContent = contentText;
+            modalBody.append(modalBodyP);
+        }
 
         this.modalContent.append(modalBody);
 
@@ -44,5 +48,9 @@ export class InfoModal extends CoreModal {
         modalFooter.append(closeButton);
 
         this.modalContent.append(modalFooter);
+    }
+
+    getBody() {
+        return this.modalBody;
     }
 }

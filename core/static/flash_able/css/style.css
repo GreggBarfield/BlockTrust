@@ -15774,7 +15774,7 @@ div.code-toolbar > .toolbar span:hover {
 /* custom */
 
 .acc-container {
-    border-left: solid 1px rgb(0,111,233);
+    /*border-left: solid 1px rgb(0,111,233);*/
     margin-top: 10px;
 
 }
@@ -15798,7 +15798,7 @@ div.code-toolbar > .toolbar span:hover {
 }
 
 .acc-body {
-    padding-left: 20px;
+    /*padding-left: 20px;*/
     padding-top: 20px;
     margin-top: 5px;
 }

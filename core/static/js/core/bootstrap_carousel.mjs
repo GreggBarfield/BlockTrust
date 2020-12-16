@@ -1,7 +1,15 @@
+import { InfoModal } from "./info_modal.mjs";
+
 export class BootstrapCarousel {
     constructor(imageURLs, attachTo) {
         let frame = attachTo;
+        this.frame = frame;
+        this.isFullScreen = false;
+        this.modal = null;
+
+
         let box = document.createElement("div");
+        this.box = box;
         box.style.overflow = "hidden";
         box.style.height = "100%";
         box.className = "carousel slide";
@@ -59,6 +67,27 @@ export class BootstrapCarousel {
         let next = createButton("next", "Next", "right");
         box.append(next);
 
+        let carouselFullscreenBox = document.createElement("div");
+        this.carouselFullscreenBox = carouselFullscreenBox;
+        carouselFullscreenBox.style.position = "absolute";
+        carouselFullscreenBox.style.right = "0px";
+        carouselFullscreenBox.style.bottom = "0px";
+        carouselFullscreenBox.style.width = "15%";
+        carouselFullscreenBox.style.height = "23px";
+        carouselFullscreenBox.style.display = "flex";
+        carouselFullscreenBox.style.justifyContent = "center";
+        carouselFullscreenBox.style.alignItems = "center";
+        carouselFullscreenBox.style.zIndex = 3;
+        carouselFullscreenBox.style.cursor = "pointer";
+        carouselFullscreenBox.addEventListener("click", ()=>{this.goFullScreen();});
+        box.append(carouselFullscreenBox);
+
+        let carouselFullscreenIcon = document.createElement("i");
+        carouselFullscreenIcon.className = "fas fa-expand";
+        carouselFullscreenIcon.style.fontSize = "12px";
+        carouselFullscreenIcon.style.color = "white";
+        carouselFullscreenBox.append(carouselFullscreenIcon);
+
         frame.append(box);
         $(box).carousel();
         $(previous).click(()=>{$(box).carousel('prev')});
@@ -68,5 +97,28 @@ export class BootstrapCarousel {
                 $(box).carousel(i);
             });
         }
+    }
+
+    goFullScreen() {
+        if (this.isFullScreen) {
+            return;
+        }
+        this.isFullScreen = true;
+
+        this.modal = new InfoModal("Sales Group Images", null);
+        this.box.remove();
+        this.modal.getBody().append(this.box);
+        this.modal.getBody().style.height = "400px";
+        this.modal.getBody().style.position = "relative";
+        this.modal.getBody().style.padding = "0px";
+
+        this.carouselFullscreenBox.style.display = "none";
+
+        this.modal.closedPromise.then(()=>{
+            this.frame.append(this.box);
+            this.modal = null;
+            this.isFullScreen = false;
+            this.carouselFullscreenBox.style.display = "flex";
+        });
     }
 }

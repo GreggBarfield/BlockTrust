@@ -295,7 +295,7 @@ export class SalesGroupViewer {
             let mainTableBody = document.createElement("tbody");
             mainTable.appendChild(mainTableBody);
 
-            for (const eid in this.data.eids) {
+            for (const eid of this.data.eids) {
                 let rowTag = document.createElement("tr");
                 mainTableBody.appendChild(rowTag);
 

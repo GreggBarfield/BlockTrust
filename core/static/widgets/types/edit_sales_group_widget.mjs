@@ -371,11 +371,13 @@ export class EditSalesGroupWidget extends Widget {
             }
             return eids;
         }
+        this.parseEIDs = parseEIDs;
         
         let eidsLabel = document.createElement("label")
         eidsGroup.append(eidsLabel);
 
         let eidsTA = document.createElement("textarea");
+        this.eidsTA = eidsTA;
         eidsTA.maxLength = 10000;
         eidsTA.className = "form-control max-textarea";
         eidsTA.rows = 4;
@@ -450,6 +452,10 @@ export class EditSalesGroupWidget extends Widget {
         errorMessage.style.display = "none";
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
+        this.internalErrorMessage = document.createElement("p");
+        this.internalErrorMessage.style.display = "none";
+        this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(this.internalErrorMessage);
 
         // Setup
 
@@ -500,14 +506,47 @@ export class EditSalesGroupWidget extends Widget {
         });     
         
         submitButton.addEventListener("click", ()=>{
-            function progress(perc) {
-                that.progressBar.setProgress(perc);
+            this.internalErrorMessage.style.display = "none";
+            if (this.allGood()) {
+                function progress(perc) {
+                    that.progressBar.setProgress(perc);
+                }
+                that.progressBar.show();
+                this.fileEditor.upload(progress)
+                .then(()=>{
+                    this.asyncForm.submit();
+                });
             }
-            that.progressBar.show();
-            this.fileEditor.upload(progress)
-            .then(()=>{
-                this.asyncForm.submit();
-            });
         });
+    }
+
+    showError(error) {
+        this.internalErrorMessage.style.display = "block";
+        this.internalErrorMessage.textContent = error;
+    }
+
+    allGood() {
+        try {
+            let eids = this.parseEIDs();
+            for (const eid of eids) {
+                let str = eid.toString();
+                if (str.length != 15) {
+                    throw "The following EID is invalid, please check it: " + eid;
+                }
+            }
+
+            for (let i = 0; i< eids.length;i++) {
+                for (let i2 =i+1;i2<eids.length;i2++) {
+                    if (eids[i] == eids[i2]) {
+                        throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
+                    }
+                }
+            }
+        }
+        catch(error) {
+            this.showError(error);
+            return false;
+        }
+        return true;
     }
 }
