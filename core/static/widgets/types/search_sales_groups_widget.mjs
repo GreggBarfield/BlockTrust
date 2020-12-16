@@ -231,7 +231,7 @@ export class SearchSalesGroupsWidget extends Widget {
 
     handleSearchResults(data) {
         let sales_groups = data.sales_groups;
-        console.log(sales_groups);
+
         this.results.innerHTML = "";
 
         let isFirst = true;

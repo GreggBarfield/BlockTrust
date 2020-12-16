@@ -1,5 +1,8 @@
 import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
+import { urlHighlighter } from "../core/url_highlighter.mjs";
+import { DL } from "../core/dl.mjs";
+import { formatDate } from "../core/time.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
@@ -91,7 +94,7 @@ export class SalesGroupViewer {
             let layoutDataRow = document.createElement("div");
             layoutDataRow.className = "row";
             layout.data.append(layoutDataRow);
-            function addKV(key, value) {
+            function addKV(key, value, wide=false, highlighting=false) {
                 let str = "";
 
                 if (Array.isArray(value)) {
@@ -105,7 +108,13 @@ export class SalesGroupViewer {
                 }
 
                 let kvp = document.createElement("div");
-                kvp.className = "col col-md-6";
+
+                if (wide) {
+                    kvp.className = "col-12";
+                }
+                else {
+                    kvp.className = "col col-md-6";
+                }
 
                 let kvpKey = document.createElement("div");
                 kvpKey.className = "text-info";
@@ -114,7 +123,14 @@ export class SalesGroupViewer {
 
                 let kvpValue = document.createElement("div");
                 kvpValue.className = "h5 text-dark";
-                kvpValue.textContent = str;
+                kvpValue.style.whiteSpace = "pre-wrap";
+                kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
+                if (highlighting) {
+                    urlHighlighter(str, kvpValue);
+                }
+                else {
+                    kvpValue.textContent = str;
+                }
                 kvp.append(kvpValue);
 
                 layoutDataRow.append(kvp);
@@ -123,6 +139,7 @@ export class SalesGroupViewer {
             addKV("PRECONDITIONING", this.data.reported.preconditioning_program);
             addKV("FEEDING", this.data.reported.feeding_programs);
             addKV("PROCESS VERIFIED", this.data.reported.process_verified_program);
+            addKV("COMMENTS", this.data.reported.comments, true, true);
         }
 
         // Configure image & numbers
@@ -267,8 +284,89 @@ export class SalesGroupViewer {
         }
 
         let b_contactInfo = createAcc(this.box, "Contact Info");
-        let b_additionalInformation = createAcc(this.box, "Additional Information");
-        let b_tags = createAcc(this.box, "Tags (EIDs)", (body)=>{
+
+        {
+            let b_additionalInformation = createAcc(this.box, "Additional Information");
+
+            let row = document.createElement("div");
+            row.className = "row";
+            b_additionalInformation.append(row);
+
+            function atos(value) {
+                let result = value;
+                if (value === null || value === undefined) {
+                    result = "";
+                }
+                else {
+                    if (typeof value === "number") {
+                        if (value > 1000000) {
+                            result = formatDate(value);
+                        }
+                        else {
+                            result = value;
+                        }
+                    }
+                    else if (Array.isArray(value)) {
+                        let temp = [];
+                        for (const value_in of value) {
+                            temp.push(atos(value_in));
+                        }
+                        result = temp.join(", ");
+                    }
+                }
+                return "" + result;
+            }
+
+
+            let createSection = (name, reportedKeys) => {
+                let box = document.createElement("div");
+                box.className = "col-12 col-md-4";
+                row.append(box);
+                let h6 = document.createElement('h6');
+                h6.textContent = name;
+                box.append(h6);
+
+                let dl = new DL(true, box);
+
+                for (const up of reportedKeys) {
+                    let name = up[0];
+                    if (up.length == 3) {
+                        dl.add(name, atos(up[2]));
+                    }
+                    else if (up[1] in this.data.reported) {
+                        dl.add(name, atos(this.data.reported[up[1]]));
+                    }
+                    else {
+                        dl.add(name, "");
+                    }
+                }
+            }
+            createSection("Market", [
+                ["Count", "count"], 
+                ["Market Start", null, this.data.start], 
+                ["Market End", null, this.data.end], 
+                ["Market ZIP", null, this.data.zip], 
+            ]);
+            createSection("Characteristics", [
+                ["Breed", "breeds"],
+                ["Base Weight", "weight"],
+                ["Wt. Variance", "weight_variance"],
+                ["Frame", "usda_frame_size"],
+                ["Muscling", "muscling"],
+                ["Horns", "horns"],
+            ]);
+            createSection("Maintenance", [
+                ["Implants", "implants"],
+                ["Castrated", "castrated"],
+                ["Vaccinations", "vaccinations"],
+                ["Feeding Program", "feeding_programs"],
+                ["Preconditioning Program", "preconditioning_program"],
+                ["Process Verified Program", "process_verified_program"],
+            ]);
+        }
+        
+        {
+            let b_tags = createAcc(this.box, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
 
@@ -322,8 +420,9 @@ export class SalesGroupViewer {
             // Put HTML in frame
 
             body.appendChild(divTableResponsive);
-            $(mainTable).DataTable();
-        });
+                $(mainTable).DataTable();
+            });
+        }
     }
 
     attach(frame) {
