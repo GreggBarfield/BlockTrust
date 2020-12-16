@@ -255,7 +255,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenancePreconditioningProgram = createSelect(
             maintenanceRow,
             "Precon Program",
-            ["None", "Health Track", "Value Added Calf-45", "OQBN Vac-45 Program", "JRS Wean-Vac 45"],
+            SalesGroupFields.commonPreconditioningProgramNames,
             this.data.reported.preconditioning_program || "None",
             false,
             true,

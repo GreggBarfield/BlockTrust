@@ -151,7 +151,10 @@ class SalesGroups:
             }
         )
 
-    def search_within(self, zip_code, miles, start, end, skip=0, limit=10):
+    def search_within(
+        self, zip_code, miles, start, end, skip=0, limit=10,
+        breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
+    ):
         """Searches for sales groups.
 
         Params:
@@ -161,6 +164,8 @@ class SalesGroups:
             end: End time
             skip: Number of records to skip
             limit: Number of records to select
+            breed, minimum_weight, preconditioning_program, process_verified_program:
+                Searches in reported, None (default) to disable
         
         Returns:
             A list of sales group rows
@@ -169,6 +174,25 @@ class SalesGroups:
 
         #TODO: Optimize
         #TODO: Add skip, limit
+
+        additionals = []
+        sql_additionals_total = ""
+
+        if breed is not None:
+            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.breeds')"
+            additionals.append(json.dumps(breed))
+
+        if preconditioning_program is not None:
+            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.preconditioning_program')"
+            additionals.append(json.dumps(preconditioning_program))
+
+        if process_verified_program is not None:
+            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.process_verified_program')"
+            additionals.append(json.dumps(process_verified_program))
+
+        if minimum_weight is not None:
+            sql_additionals_total += "AND JSON_EXTRACT(reported, '$.weight') >= %s"
+            additionals.append(minimum_weight)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
         sql = """
@@ -180,10 +204,11 @@ class SalesGroups:
                     )
                     AND published > 0
                     AND zip IN (""" + sql_zip_codes + """)
+                    """ + sql_additionals_total + """
         """
 
         sales_groups = self._db.execute_d(
             sql,
-            [start, end, start, end] + zip_codes
+            [start, end, start, end] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)

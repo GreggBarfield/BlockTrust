@@ -134,7 +134,16 @@ def serve_data():
         elif action == "search_sales_groups_2":
             sales_group_rows = []
 
-            sales_group_rows = g.db.sales_groups.search_within(params["search"]["zip"], params["search"]["radius"], 0, 9999999999)
+            sales_group_rows = g.db.sales_groups.search_within(
+                zip_code=params["search"]["zip"],
+                miles=params["search"]["radius"],
+                start=0,
+                end=9999999999,
+                breed=params["search"]["breed"],
+                minimum_weight=params["search"]["minimum_weight"],
+                preconditioning_program=params["search"]["preconditioning_program"],
+                process_verified_program=params["search"]["process_verified_program"],
+            )
 
             results = []
 
