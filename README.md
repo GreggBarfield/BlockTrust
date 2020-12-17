@@ -24,3 +24,6 @@ ubuntu@ip-172-26-15-39:~$
 
 >>> s3c = boto3.client('s3', config=boto3.session.Config(signature_version='s3v4', region_name='us-east-2'))
 >>> s3c.generate_presigned_url('get_object', Params={'Bucket': 'btndev', 'Key': 'tf'}, ExpiresIn=20)
+
+
+'root'@'localhost' password: 09wg84j09843umgf0w934gj09w34g (dev computer)
