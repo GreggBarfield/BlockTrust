@@ -27,3 +27,6 @@ ubuntu@ip-172-26-15-39:~$
 
 
 'root'@'localhost' password: 09wg84j09843umgf0w934gj09w34g (dev computer)
+
+
+'root'@'localhost' password: doojuiseeN6Quooph6yoosai6foh3fae (ledgerspacedev)
