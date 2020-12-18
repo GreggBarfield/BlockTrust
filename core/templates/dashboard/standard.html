@@ -3,10 +3,10 @@
 {% set section_title = "Dashboard" %}
 
 {% block head_section %}
-<link rel="stylesheet" href="/static/flash_able/fonts/fontawesome/css/fontawesome-all.min.css">
-<link rel="stylesheet" href="/static/flash_able/plugins/animation/css/animate.min.css">
-<link rel="stylesheet" href="/static/flash_able/plugins/prism/css/prism.min.css">
-<link rel="stylesheet" href="/static/flash_able/css/style.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/fonts/fontawesome/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/animation/css/animate.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/prism/css/prism.min.css">
+<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css">
 <style>
     .nav-link {
         cursor: pointer;
@@ -41,11 +41,11 @@
 
 {% block scripts %}
 <script src="/static/js/clipboard.min.js"></script>
-<script src="/static/flash_able/js/vendor-all.min.js"></script>
-<script src="/static/flash_able/plugins/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/flash_able/js/pcoded.min.js"></script>
-<script src="/static/flash_able/plugins/prism/js/prism.min.js"></script>
-<script src="/static/flash_able/js/horizontal-menu.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/vendor-all.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/pcoded.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/plugins/prism/js/prism.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/horizontal-menu.js"></script>
 <script src="/static/jvm/jquery-jvectormap-2.0.5.min.js"></script>
 <script src="/static/jvm/jquery-jvectormap-us-lcc.js"></script>
 <script src="/static/libs2/DataTables/datatables.min.js"></script>
@@ -53,7 +53,7 @@
 <script src="/static/libs2/amcharts/charts.js"></script>
 <script src="/static/libs2/amcharts/themes/animated.js"></script>
 <script src="/static/libs2/select2/select2.min.js"></script>
-{# <script src="/static/flash_able/js/menu-setting.min.js"></script> What is this? #}
+{# <script src="/static/css/flash_able/flash_able_old/js/menu-setting.min.js"></script> What is this? #}
 <script src="/static/libs2/codyhouse/main/assets/js/scripts.min.js"></script>
 <script type="text/javascript">
 
@@ -161,7 +161,7 @@
           </a>
           <div class="dropdown-menu dropdown-menu-right profile-notification">
             <div class="pro-head">
-              <img src="/static/flash_able/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
+              <img src="/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
               <span>{{dashboard_standard_user_first}} {{dashboard_standard_user_last}}</span>
               <a href="/logout" class="dud-logout" title="Logout">
                 <i class="feather icon-log-out"></i>
@@ -210,6 +210,7 @@
             {% block dashboard_content %}
             Needs dashboard content
             {% endblock dashboard_content %}
+            <script src="/static/build/build_manager.min.mjs" type="module"></script>
             <!-- [ Main Content ] end -->
           </div>
         </div>

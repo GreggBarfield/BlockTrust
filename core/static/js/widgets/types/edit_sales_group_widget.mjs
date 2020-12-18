@@ -1,8 +1,8 @@
-import { ProgressBar } from '../../js/core/progress_bar.mjs';
-import { BasicFileEditor } from '../../js/files/basic_file_editor.mjs';
+import { ProgressBar } from '../../core/progress_bar.mjs';
+import { BasicFileEditor } from '../../files/basic_file_editor.mjs';
 import { Widget } from '../widget.mjs';
-import { AsyncForm } from '/static/global/async_form.mjs';
-import { SalesGroupFields } from '../../js/sales_groups/sales_group_fields.mjs';
+import { AsyncForm } from '../../../global/async_form.mjs';
+import { SalesGroupFields } from '../../sales_groups/sales_group_fields.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {

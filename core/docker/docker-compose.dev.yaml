@@ -17,3 +17,9 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes:
       - ../../local/mysql:/var/lib/mysql
+  webpack:
+    build:
+      context: ./webpack
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../:/home/ubuntu/core

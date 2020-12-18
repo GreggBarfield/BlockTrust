@@ -1,0 +1,16 @@
+FROM node
+
+# Set default dir
+WORKDIR /home/ubuntu
+
+# Install package.json
+
+COPY package.json .
+RUN npm install
+
+# Webpack script
+
+COPY webpack.dev.config.js .
+
+# Run
+CMD npm run build

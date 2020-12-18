@@ -2,10 +2,10 @@
      Google Font
 ==========================  **/
 @import url("https://fonts.googleapis.com/css?family=Mada:400,500,600");
-@import url("../plugins/bootstrap/css/bootstrap.min.css");
-@import url("../fonts/feather/css/feather.css");
-@import url("../plugins/jquery-scrollbar/css/perfect-scrollbar.css");
-@import url("../fonts/datta/datta-icon.css"); /**  =====================
+@import url("/static/css/dashboard/flashable/flash_able_old/plugins/bootstrap/css/bootstrap.min.css");
+@import url("/static/css/dashboard/flashable/flash_able_old/fonts/feather/css/feather.css");
+@import url("/static/css/dashboard/flashable/flash_able_old/plugins/jquery-scrollbar/css/perfect-scrollbar.css");
+@import url("/static/css/dashboard/flashable/flash_able_old/fonts/datta/datta-icon.css"); /**  =====================
       Custom css start
 ==========================  **/
 
@@ -157,8 +157,8 @@ p.text-muted {
         h5 {
             margin-bottom: 0;
             color: $theme-heading-color;
-            font-size: 16px;
-            font-weight: 500;
+            /*font-size: 16px;
+            font-weight: 500;*/ /* Modification */
             display: inline-block;
             margin-right: 10px;
             line-height: 1.1;

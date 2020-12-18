@@ -77,15 +77,15 @@ $dark-layout-font: #adb7be;
 // Menu icon
 $menu-icon-color: #3949AB, #F57C00, #01a9ac ,#463699 , #0288d1, $warning-color;
 // Header background
-$color-header-name: blue, red, purple, info, dark;
+$color-header-name: "blue", "red", "purple", "info", "dark";
 $color-header-color: #3949AB, #b31d1d, #463699 ,#0288d1,#1b1c1d;
 $color-header-color-gt: #2962FF, #ff0000, #7661e6 ,#0288d1,#37383a;
 // Menu background
-$color-menu-name: blue, red, purple, info, dark;
-$color-menu-color: #3949AB, #F57C00, #463699 ,#0288d1,#1b1c1d;
+$color-menu-name: "blue", "red", "purple", "info", "dark";
+$color-menu-color: #3949AB, #F57C00, #463699 ,#0288d1, $btn-primary-color;
 
 // Menu background gradient
-$color-menu-gradient-name: blue, red, purple, info, dark;
+$color-menu-gradient-name: "blue", "red", "purple", "info", "dark";
 $color-menu-gradient-color: linear-gradient(45deg, $primary-color, $primary-color-gt),
 linear-gradient(45deg, $danger-color, $danger-color-gt),
 linear-gradient(45deg, $purple-color, $purple-color-gt),
@@ -93,10 +93,10 @@ linear-gradient(45deg, $info-color, $info-color-gt),
 linear-gradient(45deg, rgb(36, 46, 62), rgb(58, 76, 103));
 
 // Active background color
-$color-active-name: blue, red, purple, info, dark;
+$color-active-name: "blue", "red", "purple", "info", "dark";
 $color-active-color: #3949AB, #F57C00, #463699 ,#0288d1,$dark-color;
  // Menu title color
-$color-title-name: blue, red, purple, info, dark;
+$color-title-name: "blue", "red", "purple", "info", "dark";
 $color-title-color: #3949AB, #F57C00, #463699 ,#0288d1,$dark-color;
 
 $theme-font-family: "Mada",sans-serif;
@@ -110,7 +110,7 @@ $color-color: $primary-color,$danger-color,$success-color ,$warning-color ,$purp
 $color-color-gt: $primary-color-gt,$danger-color-gt,$success-color-gt ,$warning-color-gt ,$purple-color-gt,$info-color-gt;
 
 
-$color-bt-name: primary,danger,success,warning,purple,info;
+$color-bt-name: primary,danger,success,warning,"purple",info;
 $color-bt-color: $primary-color,$danger-color,$success-color ,$warning-color,$purple-color ,$info-color;
 $color-bt-color-gt: $primary-color-gt,$danger-color-gt,$success-color-gt ,$warning-color-gt,$purple-color-gt ,$info-color-gt;
 

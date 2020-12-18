@@ -1,5 +1,5 @@
 import { Widget } from '../widget.mjs';
-import { Table } from '../../js/core/table.mjs';
+import { Table } from '../../core/table.mjs';
 
 export class AccountSalesGroupsWidget extends Widget {
     constructor(frame) {

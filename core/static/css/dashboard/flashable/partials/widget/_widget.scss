@@ -388,7 +388,7 @@
     }
 
     .send-chat {
-        $chat-color: #eae9e9 !global;
+        $chat-color: #eae9e9;
         position: relative;
         background: lighten($primary-color, 30%);
         padding: 7px;
