@@ -1,9 +1,6 @@
 Developing
 ==========
 
-docker-compose -f core/docker/docker-compose.dev.yaml up --build --detach
-docker-compose -f core/docker/docker-compose.dev.yaml stop
-docker-compose -f core/docker/docker-compose.dev.yaml restart
 docker-compose -f core/docker/docker-compose.dev.yaml stop && docker-compose -f core/docker/docker-compose.dev.yaml up --build --detach
 aing0Eitohy1yah3ang2Oapai6quu6Ge
 

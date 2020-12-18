@@ -16,7 +16,7 @@ class WatchRunPlugin {
 
 module.exports = {
   plugins: [
-    new WatchRunPlugin()
+    new WatchRunPlugin() // for debugging watcher
   ],
   mode: "development", // If you remove this an infinite loop will occur from the watcher due to how the sass works!
                       // Make sure you disable the watcher too!
@@ -33,7 +33,7 @@ module.exports = {
   },
   watch: true,
   watchOptions: {
-    poll: 500
+    poll: 500 // necessary due to wsl2
   },
   module: {
     rules: [
