@@ -56,3 +56,4 @@ local/
 
 build*
 
+core/environment_config.json

@@ -1,5 +1,6 @@
-import boto3
 import config
+
+import utilities.aws.aws as aws
 
 class FilesException(Exception):
     """Files generic exception."""
@@ -25,7 +26,7 @@ class Files:
             expires_in: The number of seconds before the link is no longer available
                 (default 1 hour (3600))
         """
-        return self._get_client().generate_presigned_url(
+        return aws.get_s3_client().generate_presigned_url(
             ClientMethod="get_object",
             Params={
                 "Bucket": config.AWS_S3_BUCKET,
@@ -101,7 +102,7 @@ class Files:
         )
 
         file_id = self._db.last_row_id()
-        return file_id, self._get_client().generate_presigned_post(
+        return file_id, aws.get_s3_client().generate_presigned_post(
             Bucket=config.AWS_S3_BUCKET,
             Key="files/" + str(file_id),
             Fields={
@@ -154,11 +155,3 @@ class Files:
                 "name": file_row["name"]
             }
         return auths
-
-    def _get_client(self):
-        """Gets a boto3 s3 client on the default session.
-
-        Returns:
-            boto3.Client
-        """
-        return boto3.client('s3', region_name="us-east-2")

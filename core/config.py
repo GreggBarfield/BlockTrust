@@ -1,51 +1,39 @@
+import json
+import os
 from urllib.parse import urljoin
 
-# Stripe config
+# config.py loads environment_config.json
+# create environment_config.json from tools/config/environment_config_template.json
+# config.py should throw errors if environment_config.json is misconfigured
+# store config in config.py if it is shared, else store in environment_config.json
 
-ENDPOINT_SECRET = "whsec_zqBq9a4XgpGnW9fQAjLJLB4j4ntiHQye"
+config_file_name = "environment_config.json"
+config_file_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    config_file_name
+)
+config_file = json.load(open(config_file_path))
 
-STRIPE_API_KEY = 'sk_test_51HRTwoGWRtomrLg3A2oqpP5mS60M5OAJyjpoUNGm4YjgGmhAWMFBaKx9ezdtk5DGfExhpSrPgd0ESgcbc9hOCpiR0023awyPeX'
+PROTOCOL = config_file["proxy"]["protocol"]
+DOMAIN = config_file["proxy"]["domain"]
+ROOT = PROTOCOL + "://" + DOMAIN
+PORT = config_file["proxy"]["port"]
 
-# Server config
+FLASK_SESSION_SECRET_KEY = config_file["flask"]["secret_key"]
 
-DOMAIN = 'https://ledgerspacedev.com'
+MYSQL_CONFIG = config_file["mysql"]
 
-PORT = 443
-
-FLASK_SESSION_SECRET_KEY = "sg3v40n78gvsny3780gsv45n0h87gsv34nh807"
-
-SERVER_COMMUNICATION_API_SECRET = "banana"
-
-
-# Image config
-
-IMAGE_PATH = "static/images"
-IMAGE_JPEG_QUALITY = 70
-IMAGE_MAX_PIXEL_COUNT = 1280 * 720
-IMAGE_SEARCH_SUGGESTED_DIR = urljoin(DOMAIN, "static/images/")
-
-# SQL config
-
-MYSQL_CONFIG = {
-    "host": "mysql",
-    "user": "dev",
-    "passwd": "ag489jag4p98hj",
-    "database": "example_db_1",
-    "autocommit": True
-}
-
-# Admin password
-
-ADMIN_PASSWORD = "admin4"
-
-AWS_S3_BUCKET = "btndev"
+AWS_S3_BUCKET = config_file["aws"]["s3"]["bucket"]
+AWS_S3_REGION_NAME = config_file["aws"]["s3"]["region_name"]
+AWS_ACCESS_KEY_ID = config_file["aws"]["access_key_id"]
+AWS_SECRET_ACCESS_KEY = config_file["aws"]["secret_access_key"]
 
 CSP = {
     'default-src': [
         'https://js.stripe.com',
         'https://polyfill.io',
         'https://i.imgur.com',
-        DOMAIN,
+        ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
         'fonts.googleapis.com',
