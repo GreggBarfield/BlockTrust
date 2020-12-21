@@ -41,3 +41,5 @@ CSP = {
         AWS_S3_BUCKET + ".s3.amazonaws.com"
     ]
 }
+
+EMAIL_SENDER = config_file["email"]["sender"]

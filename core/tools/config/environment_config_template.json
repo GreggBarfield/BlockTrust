@@ -21,5 +21,8 @@
         "passwd": "ag489jag4p98hj",
         "database": "example_db_1",
         "autocommit": true
+    },
+    "email": {
+        "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
     }
 }
