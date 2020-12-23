@@ -127,7 +127,21 @@ let commonMiles = [
 let commonWeights = [];
 for (let i = 400; i <= 950; i+=50) { commonWeights.push(i); }
 
-let commonPreconditioningProgramNames = ["None", "Health Track", "Value Added Calf-45", "OQBN Vac-45 Program", "JRS Wean-Vac 45"];
+let commonPreconditioningProgramNames = [
+	"None",
+	"Health Track",
+	"Value Added Calf-45",
+	"OQBN Vac-45 Program",
+	"JRS Wean-Vac 45",
+	"Superior Livestock Vac-45",
+	"TAMU Vac-45",
+	"Integrity Beef Alliance Vac-45",
+	"MFA Health Track Vac-45",
+	"NMSU Vac-45",
+	"MCA Vac-45",
+	"PrimeVac Vac-45",
+	"SelectVac WeanVac"
+];
 
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
