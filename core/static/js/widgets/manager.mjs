@@ -1,14 +1,15 @@
-import { TableWidget } from './types/table_widget.mjs';
-import { MapWidget } from './types/map_widget.mjs';
-import { DataTableWidget } from './types/data_table_widget.mjs';
-import { GradeWidget } from './types/grade_widget.mjs';
-import { TimelineWidget } from './types/timeline_widget.mjs';
-import { HealthTableWidget } from './types/health_table_widget.mjs';
-import { SectorsWidget } from './types/sectors_widget.mjs';
-import { EditSalesGroupWidget } from './types/edit_sales_group_widget.mjs';
-import { ViewSalesGroupWidget } from './types/view_sales_group_widget.mjs';
-import { AccountSalesGroupsWidget } from './types/account_sales_groups_widget.mjs';
-import { SearchSalesGroupsWidget } from './types/search_sales_groups_widget.mjs';
+import { TableWidget } from './types/animal_data/table_widget.mjs';
+import { MapWidget } from './types/animal_data/map_widget.mjs';
+import { DataTableWidget } from './types/animal_data/data_table_widget.mjs';
+import { GradeWidget } from './types/animal_data/grade_widget.mjs';
+import { TimelineWidget } from './types/animal_data/timeline_widget.mjs';
+import { HealthTableWidget } from './types/animal_data/health_table_widget.mjs';
+import { SectorsWidget } from './types/animal_data/sectors_widget.mjs';
+import { EditSalesGroupWidget } from './types/sales_groups/edit_sales_group_widget.mjs';
+import { ViewSalesGroupWidget } from './types/sales_groups/view_sales_group_widget.mjs';
+import { AccountSalesGroupsWidget } from './types/sales_groups/account_sales_groups_widget.mjs';
+import { SearchSalesGroupsWidget } from './types/sales_groups/search_sales_groups_widget.mjs';
+import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 
 
 // Immediately invoked
@@ -52,6 +53,9 @@ import { SearchSalesGroupsWidget } from './types/search_sales_groups_widget.mjs'
         }
         else if (widgetType == "search sales groups") {
             w = new SearchSalesGroupsWidget(this);
+        }
+        else if (widgetType == "messages list") {
+            w = new MessagesListWidget(this);
         }
 
         if (w === null) {

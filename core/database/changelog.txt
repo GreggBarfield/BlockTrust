@@ -1,0 +1,11 @@
+12/21/2020 Evan K
+
+CREATE TABLE `messages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `from_account` int DEFAULT NULL,
+  `to_account` int DEFAULT NULL,
+  `data` varchar(1023) DEFAULT NULL,
+  `time_sent` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+

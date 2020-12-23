@@ -13,6 +13,7 @@ from .tables.sales_group_eids import SalesGroupEIDs
 from .tables.sales_group_intervals import SalesGroupIntervals
 from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
+from .tables.messages import Messages
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -47,6 +48,7 @@ class Database:
         self.sales_group_eids = SalesGroupEIDs(self)
         self.files = Files(self)
         self.zip_codes = ZIPCodes(self)
+        self.messages = Messages(self)
 
 
     def connect(self):

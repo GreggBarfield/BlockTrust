@@ -1,4 +1,4 @@
-import { Widget } from '../widget.mjs';
+import { Widget } from '../../widget.mjs';
 
 export class DataTableWidget extends Widget {
     constructor(frame) {

@@ -3,6 +3,7 @@ import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
+import { promptNewMessage } from "./messages.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
@@ -283,7 +284,21 @@ export class SalesGroupViewer {
             return body;
         }
 
-        let b_contactInfo = createAcc(this.box, "Contact Info");
+        {
+            let b_contactInfo = createAcc(this.box, "Contact Info");
+
+            let p = document.createElement("p");
+            p.textContent = this.data.account_name;
+            b_contactInfo.append(p);
+
+            let sendMessageButton = document.createElement("button");
+            sendMessageButton.className = "btn btn-sm btn-primary";
+            sendMessageButton.textContent = "Send Message";
+            sendMessageButton.addEventListener("click", ()=>{
+                promptNewMessage(this.data.account, this.data.account_name);
+            });
+            b_contactInfo.append(sendMessageButton);
+        }
 
         {
             let b_additionalInformation = createAcc(this.box, "Additional Information");

@@ -8,7 +8,7 @@
         "access_key_id": "AKIAUNE5IOKKIZUW3YRI",
         "secret_access_key": "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",
         "s3": {
-            "bucket": "btndev",
+            "bucket": "",
             "region_name": "us-east-2"
         }
     },

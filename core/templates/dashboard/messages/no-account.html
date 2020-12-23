@@ -1,0 +1,25 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "No Account Selected" %}
+{% set dashboard_locations = [("/dashboard/messages", "Messages")] %}
+
+{% block dashboard_content_header %}
+No Account Selected
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">No Account Selected</h5>
+                <p class="card-text">You're logged in, but you haven't selected which account to use.</p>
+                <p class="card-text">An account must be selected in order to use BlockTrust Network's Messages feature.</p>
+                <p class="card-text"><a href="/dashboard/accounts">Select Account</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

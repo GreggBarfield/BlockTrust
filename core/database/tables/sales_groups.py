@@ -38,6 +38,8 @@ For convention purposes, the following details how to use the reported column
 
 
 class SalesGroups:
+    """Handler for sales groups.
+    """
 
     def __init__(self, db):
         self._db = db
@@ -65,12 +67,16 @@ class SalesGroups:
         Returns:
             A dictionary (w/ JSON pre-converted)
 
+            Enhanced with account_name
+
         Raises:
             SalesGroupsException
         """
         sales_groups = self._db.execute_d(
-            """SELECT * FROM sales_groups
-                WHERE id=%(id)s
+            """
+            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
+                LEFT JOIN accounts ON sales_groups.account=accounts.id
+                WHERE sales_groups.id=%(id)s
             """,
             {
                 "id": row_id
@@ -89,12 +95,16 @@ class SalesGroups:
         Returns:
             A list of dictionaries
 
+            Enhanced with account_name
+
         Raises:
             SalesGroupsException
         """
         sales_groups = self._db.execute_d(
-            """SELECT * FROM sales_groups
-                WHERE account=%(account)s
+            """
+            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
+                LEFT JOIN accounts ON sales_groups.account=accounts.id
+                WHERE sales_groups.account=%(account)s
             """,
             {
                 "account": account
@@ -169,6 +179,8 @@ class SalesGroups:
         
         Returns:
             A list of sales group rows
+
+            Enhanced with account_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
 
@@ -196,7 +208,8 @@ class SalesGroups:
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
         sql = """
-            SELECT * FROM sales_groups
+            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
+                LEFT JOIN accounts ON sales_groups.account=accounts.id
                 WHERE
                     (
                         %s <= start AND start <= %s OR

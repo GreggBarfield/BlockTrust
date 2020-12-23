@@ -154,6 +154,13 @@
   <div class="collapse navbar-collapse">
     <a href="#!" class="mob-toggler"></a>
     <ul class="navbar-nav ml-auto">
+      {% if dashboard_standard_account is not none %}
+      <li>  
+        <a href="/dashboard/messages">
+          <i class="icon feather icon-mail"></i>
+        </a>
+      </li>
+      {% endif %}
       <li>
         <div class="dropdown drp-user">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">

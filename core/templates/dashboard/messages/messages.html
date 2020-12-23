@@ -1,0 +1,31 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = "Messages" %}
+{% set dashboard_locations = [("/dashboard/messages", "Messages")] %}
+
+{% block dashboard_content_header %}
+Messages
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Messages</h5>
+            <div class="card-body">
+                <p class="mb-0 widget"
+                    data-widget-type="messages list"
+                    {{ messages_attributes | safe }}
+                ></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock dashboard_content %}

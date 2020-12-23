@@ -43,6 +43,8 @@ export class Widget {
             const params = dataRequest.params;
             const callback = dataRequest.callback;
             const errorCallback = dataRequest.error;
+            const promiseResolve = dataRequest.promiseResolve;
+            const promiseError = dataRequest.promiseError;
             let that = this;
             let data = {
                 action: action,
@@ -60,7 +62,10 @@ export class Widget {
                         that.onSomeDataLoaded_bind = null;
                     }
                     that.totalDataLoaded += 1;
-                    callback(data);
+                    if (callback !== null) {
+                        callback(data);
+                    }
+                    promiseResolve(data);
                     if ('onAllDataLoaded_bind' in that && that.onAllDataLoaded_bind && that.totalDataLoaded == that.totalDataRequested) {
                         that.onAllDataLoaded_bind();  // Make sure to set this at the VERY END of all data requests
                         that.onAllDataLoaded_bind = null;
@@ -74,22 +79,31 @@ export class Widget {
                     else {
                         that.displayError(errorMessage);
                     }
+                    promiseError(errorMessage);
                 });
         }
         this.queuedDataRequests = [];
     }
 
-    getData(action, params, callback, error=null) {
+    getData(action, params, callback=null, error=null) {
         this.totalDataRequested += 1;
+        let promiseResolve, promiseError;
+        let promise = new Promise((resolve, error)=>{
+            promiseResolve = resolve;
+            promiseError = error;
+        });
         this.queuedDataRequests.push({
             action: action,
             params: params,
             callback: callback,
-            error: error
+            error: error,
+            promiseResolve: promiseResolve,
+            promiseError: promiseError
         });
         if (this.instantProcessDataRequests) {
             this.processQueuedDataRequests();
         }
+        return promise;
     }
 
     onSomeDataLoaded(callback) {

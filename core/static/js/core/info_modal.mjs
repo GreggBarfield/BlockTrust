@@ -1,7 +1,7 @@
 import {CoreModal} from "./core_modal.mjs";
 
 export class InfoModal extends CoreModal {
-    constructor(headerText, contentText) {
+    constructor(headerText, contentText=null) {
         super();
         let that = this;
 
@@ -37,6 +37,7 @@ export class InfoModal extends CoreModal {
         this.modalContent.append(modalBody);
 
         let modalFooter = document.createElement("div");
+        this.modalFooter = modalFooter;
         modalFooter.className = "modal-footer";
 
         let closeButton = document.createElement("button");
@@ -53,4 +54,9 @@ export class InfoModal extends CoreModal {
     getBody() {
         return this.modalBody;
     }
+
+    getFooter() {
+        return this.modalFooter;
+    }
+
 }

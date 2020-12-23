@@ -14,6 +14,11 @@ from database.objects.account import AccountException
 from database.const.spatial_math import meters_to_miles, distance
 from database.const.zip_codes_data import ZIP_CODES
 
+from renderers.email import render_email
+from utilities.email import send_email
+
+from config import ROOT as WEBSITE_ROOT
+
 bp = Blueprint('widgets_bp', __name__)
 
 @bp.route('/widgets/data', methods=['POST'])
@@ -100,6 +105,8 @@ def serve_data():
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
                 "published": sales_group_row["published"],
+                "account": sales_group_row["account"],
+                "account_name": sales_group_row["account_name"],
                 "eids": eids,
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
                 "zip": sales_group_row["zip"],
@@ -121,6 +128,8 @@ def serve_data():
                         "id": sales_group_row["id"],
                         "reported": sales_group_row["reported"],
                         "published": sales_group_row["published"],
+                        "account": sales_group_row["account"],
+                        "account_name": sales_group_row["account_name"],
                         "eids": eids,
                         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if params["file_auths"] else [],
                         "zip": sales_group_row["zip"],
@@ -153,6 +162,8 @@ def serve_data():
                     "id": sales_group_row["id"],
                     "reported": sales_group_row["reported"],
                     "published": sales_group_row["published"],
+                    "account": sales_group_row["account"],
+                    "account_name": sales_group_row["account_name"],
                     "eids": eids,
                     "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
                     "zip": sales_group_row["zip"],
@@ -201,7 +212,7 @@ def serve_data():
             if params["start"] is None or params["end"] is None:
                 raise ExportException("Sorry, start or end date missing.")
         
-            if params["start"] >= params["end"]:
+            if params["start"] > params["end"]:
                 raise ExportException("Sorry, check the market start and end dates (specifically the order).")
 
             # Alright, go ahead...
@@ -233,6 +244,36 @@ def serve_data():
                 "id": file_id,
                 "config": file_config
             })
+        elif action == "get_account_messages":
+            return jsonify({
+                "messages": g.db.messages.get(g.account.id(), g.account.id())
+            })
+        elif action == "send_message":
+            message_id = g.db.messages.insert_message(
+                g.account.id(),
+                params["to_account"],
+                params["data"]
+            )
+            send_to_users = g.db.users.get_rows_by_account(params["to_account"])
+            for user in send_to_users:
+                send_email(
+                    "New Message",
+                    render_email(
+                        "new_message.html",
+                        {
+                            'new_message': {
+                                'link': (
+                                    WEBSITE_ROOT + "/dashboard/messages/"
+                                    + str(message_id)
+                                ),
+                                'receiver': user['account_name'],
+                                'sender': g.account.name()
+                            }
+                        }
+                    ),
+                    user["email"]
+                )
+            return jsonify({}), 200
         else:
             return "Unknown action " + action, 400
     except ExportException as e:

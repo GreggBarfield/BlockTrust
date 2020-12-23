@@ -242,6 +242,32 @@ class Users:
         if len(matching_users) != 1:
             raise NoUserFoundException()
         return User(self._db, matching_users[0])
+    
+    def get_rows_by_account(self, account_id):
+        """Gets user rows by account ID.
+
+        Params:
+            account_id: The account ID
+        
+        Returns:
+            The rows
+
+            Enhanced with account_name
+        """
+        rows = self._db.execute_d(
+            """
+            SELECT users.*, accounts.name AS account_name FROM users
+                INNER JOIN account_users
+                    ON account_users.user=users.id
+                INNER JOIN accounts
+                    ON account_users.account=accounts.id
+                WHERE account_users.account=%(account)s
+            """,
+            {
+                "account": account_id
+            }
+        )
+        return rows
 
     def signup(self, username, email, phone, first, last, password, confirm_password):
         """Create new user account.

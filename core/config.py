@@ -38,7 +38,8 @@ CSP = {
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'http://localhost:5000',
-        AWS_S3_BUCKET + ".s3.amazonaws.com"
+        AWS_S3_BUCKET + ".s3.amazonaws.com",
+        'blocktrustnetwork.com'
     ]
 }
 

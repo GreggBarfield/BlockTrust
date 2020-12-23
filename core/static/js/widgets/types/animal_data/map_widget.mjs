@@ -1,5 +1,5 @@
 
-import { Widget } from '../widget.mjs';
+import { Widget } from '../../widget.mjs';
 
 const imageMap = {
     "Bounty County Feeders": "barton_county_map_logo.png",

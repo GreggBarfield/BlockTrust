@@ -12,6 +12,8 @@ from database.tables.account_users import NoAccountUserFound
 from database.tables.accounts import AccountsException
 from database.objects.account import AccountException
 
+from renderers.email import render_email
+
 bp = Blueprint('dashboard_bp', __name__)
 
 @bp.route('/dashboard', methods=['GET'])
@@ -139,6 +141,31 @@ def serve_sales_groups():
     
     return dashboard_render("sales-groups/list.html")
 
+@bp.route('/dashboard/messages', methods=['GET'])
+def serve_messages(open_message_id=None):
+    if g.user is None:
+        return redirect('/')
+    if g.account is None:
+        return dashboard_render("messages/no-account.html")
+
+    messages_attributes = ""
+
+    if open_message_id is not None:
+        messages_attributes += (
+            " data-widget-messages-open='" + str(int(open_message_id)) + "' "
+        )
+
+    return dashboard_render(
+        "messages/messages.html",
+        {
+            'messages_attributes': messages_attributes
+        }
+    )
+
+@bp.route('/dashboard/messages/<int:open_message_id>', methods=['GET'])
+def serve_messages_specific(open_message_id):
+    return serve_messages(open_message_id)
+
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
 def serve_new_sales_group():
     if g.user is None:
@@ -184,3 +211,13 @@ def serve_manage_sales_groups():
         return redirect('/')
 
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
+
+@bp.route('/dashboard/emt', methods=['GET'])
+def serve_emt():
+    return render_email("new_message.html", {
+        'new_message': {
+            'link': "https://blockagoijeroisejpro;jiserg",
+            'sender': "3 sender 3333",
+            'receiver': "3 receiver 3333",
+        }
+    })
