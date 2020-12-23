@@ -1,7 +1,7 @@
 import argparse
 import csv
-from database.database import Database
-from config import MYSQL_CONFIG
+from ....database.database import Database
+from ....config import MYSQL_CONFIG
 
 from .helper import insert_helper, date_to_epoch
 

@@ -1,6 +1,18 @@
 import os
 import json
 import random
+import sys
+
+sys.path = [
+    os.path.abspath(os.path.join(os.path.abspath(__file__), "..", ".."))
+] + sys.path
+
+debug_mode = False
+
+if __name__ == "__main__":
+    debug_mode = True
+
+__name__ = "core.main"
 
 from flask import (
     Flask, jsonify, request, render_template, session, redirect, url_for, g
@@ -8,13 +20,13 @@ from flask import (
 from flask_cors import CORS
 from flask_talisman import Talisman
 
-from config import *
+from .config import *
 from urllib.parse import unquote_plus
-from database.database import Database
+from .database.database import Database
 
-from blueprints import dashboard
-from blueprints import outside
-from blueprints import widgets
+from .blueprints import dashboard
+from .blueprints import outside
+from .blueprints import widgets
 
 app = Flask(__name__)
 app.secret_key = FLASK_SESSION_SECRET_KEY
@@ -57,7 +69,7 @@ app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
 
-if __name__ == '__main__':
+if debug_mode:
     app.run(
         host="0.0.0.0",
         debug=True,

@@ -13,7 +13,7 @@ COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
 # Set app dir
-WORKDIR /home/ubuntu/core
+WORKDIR /home/ubuntu
 
 # Run
-CMD python3 main.py
+CMD python3 core/main.py

@@ -2,22 +2,22 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, render_template
 )
 
-from sectors import sectors_by_name, sectors_by_id
-from match_types import match_types_by_name, match_types_by_id
+from ..sectors import sectors_by_name, sectors_by_id
+from ..match_types import match_types_by_name, match_types_by_id
 
-from common_exceptions import ExportException
+from ..common_exceptions import ExportException
 
-from database.tables.account_users import NoAccountUserFound
-from database.tables.accounts import AccountsException
-from database.objects.account import AccountException
+from ..database.tables.account_users import NoAccountUserFound
+from ..database.tables.accounts import AccountsException
+from ..database.objects.account import AccountException
 
-from database.const.spatial_math import meters_to_miles, distance
-from database.const.zip_codes_data import ZIP_CODES
+from ..database.const.spatial_math import meters_to_miles, distance
+from ..database.const.zip_codes_data import ZIP_CODES
 
-from renderers.email import render_email
-from utilities.email import send_email
+from ..renderers.email import render_email
+from ..utilities.email import send_email
 
-from config import ROOT as WEBSITE_ROOT
+from ..config import ROOT as WEBSITE_ROOT
 
 bp = Blueprint('widgets_bp', __name__)
 

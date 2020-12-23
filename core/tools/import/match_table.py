@@ -1,10 +1,10 @@
 import argparse
 import csv
-from database.database import Database
-from config import MYSQL_CONFIG
 from datetime import datetime
-from match_types import match_types_by_name
-from sectors import sectors_by_name
+from ...database.database import Database
+from ...config import MYSQL_CONFIG
+from ...match_types import match_types_by_name
+from ...sectors import sectors_by_name
 
 def insert_helper(db, sector, eid, company, date, lat, lon):
     if company == "" or eid == "":

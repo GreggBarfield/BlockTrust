@@ -1,5 +1,5 @@
 from copy import deepcopy
-from match_types import match_types_by_id
+from ...match_types import match_types_by_id
 
 class AnimalException(Exception):
     """Generic animal exception."""

@@ -1,5 +1,5 @@
 import time
-from common_exceptions import ExportException
+from ...common_exceptions import ExportException
 
 class MessagesException(Exception):
     """Messages generic exception."""

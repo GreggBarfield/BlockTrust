@@ -1,6 +1,5 @@
-import config
-
-import utilities.aws.aws as aws
+from ... import config
+from ...utilities.aws import aws
 
 class FilesException(Exception):
     """Files generic exception."""

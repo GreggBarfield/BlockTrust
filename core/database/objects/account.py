@@ -1,6 +1,6 @@
-from sectors import sectors_by_id
-from ..tables.account_users import AccountUsersException
 from copy import deepcopy
+from ...sectors import sectors_by_id
+from ..tables.account_users import AccountUsersException
 
 
 class AccountException(Exception):

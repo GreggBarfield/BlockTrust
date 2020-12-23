@@ -2,8 +2,8 @@ import json
 from time import time
 import uuid
 import os
-from config import *
 from math import sqrt
+from .config import *
 
 class Approval:
 

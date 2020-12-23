@@ -1,5 +1,5 @@
 from .aws.aws import get_ses_client
-from config import EMAIL_SENDER
+from ..config import EMAIL_SENDER
 
 
 def send_email(subject, html, to_address):

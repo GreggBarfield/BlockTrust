@@ -1,7 +1,7 @@
-from sectors import sectors_by_id
+from flask import session, g
+from ...sectors import sectors_by_id
 from ..objects.account import Account, AccountException
 
-from flask import session, g
 
 class AccountsException(Exception):
     """Account generic exception."""

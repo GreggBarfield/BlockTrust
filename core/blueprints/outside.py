@@ -2,9 +2,9 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect
 )
 
-from renderers.outside import outside_render
-from database.tables.users import UsersException, LoginException, SignupFailedException
-from common_exceptions import ExportException
+from ..renderers.outside import outside_render
+from ..database.tables.users import UsersException, LoginException, SignupFailedException
+from ..common_exceptions import ExportException
 
 bp = Blueprint('outside_bp', __name__)
 

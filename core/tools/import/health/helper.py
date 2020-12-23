@@ -1,6 +1,6 @@
 from datetime import datetime
 import json
-from match_types import match_types_by_name
+from ....match_types import match_types_by_name
 
 def insert_helper(db, eid, time, type, product=None, location=None, method=None, symptom=None, fatal=False, category=None):
 

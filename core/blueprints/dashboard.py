@@ -2,17 +2,17 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect
 )
 
-from renderers.dashboard import dashboard_render
+from ..renderers.dashboard import dashboard_render
 
-from sectors import sectors_by_id
+from ..sectors import sectors_by_id
 
-from common_exceptions import ExportException
+from ..common_exceptions import ExportException
 
-from database.tables.account_users import NoAccountUserFound
-from database.tables.accounts import AccountsException
-from database.objects.account import AccountException
+from ..database.tables.account_users import NoAccountUserFound
+from ..database.tables.accounts import AccountsException
+from ..database.objects.account import AccountException
 
-from renderers.email import render_email
+from ..renderers.email import render_email
 
 bp = Blueprint('dashboard_bp', __name__)
 
