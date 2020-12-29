@@ -275,3 +275,32 @@ class Matches:
             }
         )
 
+    def get_by_auction_sale_account(self, account_id, restrict_types, ljoin_account_links):
+        """Gets matches associated with an auction sale.
+
+        Params:
+            account_id: Account ID to get auction sales from
+            restrict_types: Types to restrict results to
+            ljoin_account_links: Whether to ljoin account links (ignored)
+
+        Returns:
+            A list of rows
+
+            Enhances with account_links.company, account_links.sector
+        """
+        # TODO: Do ljoin_account_links, restrict_types
+        return [Match(self._db, row) for row in self._db.execute_d(
+            """
+            SELECT matches.*, account_links.company AS 'account_links.company',
+                    account_links.sector AS 'account_links.sector'
+                FROM auction_sales
+                LEFT JOIN sales_groups ON sales_groups.auction_sale=auction_sales.id
+                LEFT JOIN sales_group_eids ON sales_group_eids.sales_group=sales_groups.id
+                LEFT JOIN matches ON sales_group_eids.eid=matches.eid
+                LEFT JOIN account_links ON matches.account_link=account_links.id
+                WHERE auction_sales.account=%(account_id)s
+            """,
+            {
+                "account_id": account_id
+            }
+        )]

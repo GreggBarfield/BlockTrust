@@ -41,6 +41,14 @@ class SalesGroups:
     """Handler for sales groups.
     """
 
+    _STANDARD_SELECT = """
+        SELECT sales_groups.*, accounts.name AS account_name,
+                auction_sales.name AS auction_sale_name
+            FROM sales_groups
+            LEFT JOIN accounts ON sales_groups.account=accounts.id
+            LEFT JOIN auction_sales ON sales_groups.auction_sale=auction_sales.id
+    """
+
     def __init__(self, db):
         self._db = db
         
@@ -67,15 +75,13 @@ class SalesGroups:
         Returns:
             A dictionary (w/ JSON pre-converted)
 
-            Enhanced with account_name
+            Enhanced with account_name, auction_sale_name
 
         Raises:
             SalesGroupsException
         """
         sales_groups = self._db.execute_d(
-            """
-            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
-                LEFT JOIN accounts ON sales_groups.account=accounts.id
+            SalesGroups._STANDARD_SELECT + """
                 WHERE sales_groups.id=%(id)s
             """,
             {
@@ -95,15 +101,13 @@ class SalesGroups:
         Returns:
             A list of dictionaries
 
-            Enhanced with account_name
+            Enhanced with account_name, auction_sale_name
 
         Raises:
             SalesGroupsException
         """
         sales_groups = self._db.execute_d(
-            """
-            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
-                LEFT JOIN accounts ON sales_groups.account=accounts.id
+            SalesGroups._STANDARD_SELECT + """
                 WHERE sales_groups.account=%(account)s
             """,
             {
@@ -134,7 +138,7 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, start, end):
+    def update(self, row_id, reported, published, zip_code, start, end, auction_sale):
         """Updates a row.
 
         Params:
@@ -144,11 +148,13 @@ class SalesGroups:
             zip_code: The zip code
             start: The start time
             end: The end time
+            auction_sale: The auction sale ID 
         """
         self._db.execute_d(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s
+                    start=%(start)s, end=%(end)s, zip=%(zip)s,
+                    auction_sale=%(auction_sale)s
                 WHERE id=%(id)s
             """,
             {
@@ -157,7 +163,8 @@ class SalesGroups:
                 "id": row_id,
                 "start": start,
                 "end": end,
-                "zip": zip_code
+                "zip": zip_code,
+                "auction_sale": auction_sale
             }
         )
 
@@ -180,7 +187,7 @@ class SalesGroups:
         Returns:
             A list of sales group rows
 
-            Enhanced with account_name
+            Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
 
@@ -207,9 +214,7 @@ class SalesGroups:
             additionals.append(minimum_weight)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
-        sql = """
-            SELECT sales_groups.*, accounts.name AS account_name FROM sales_groups
-                LEFT JOIN accounts ON sales_groups.account=accounts.id
+        sql = SalesGroups._STANDARD_SELECT + """
                 WHERE
                     (
                         %s <= start AND start <= %s OR

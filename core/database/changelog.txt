@@ -9,3 +9,19 @@ CREATE TABLE `messages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+12/23/2020 Evan K
+
+CREATE TABLE `auction_sales` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) DEFAULT NULL,
+  `at` int DEFAULT NULL,
+  `account` int DEFAULT NULL,
+  `comments` varchar(1001) DEFAULT NULL,
+  `published` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+12/24/2020 Evan K
+
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `auction_sale` INT NULL DEFAULT NULL AFTER `zip`;

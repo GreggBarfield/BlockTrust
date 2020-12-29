@@ -1,0 +1,28 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Manage Auction Sales" %}
+{% set dashboard_locations = [
+    ("/dashboard/auction-sales", "Auction Sales"),
+    ("/dashboard/auction-sales/manage", "Manage Auction Sales")
+] %}
+
+{% block dashboard_content_header %}
+Manage Auction Sales
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <div class="card-body">
+                <h5 class="card-title">Manage Auction Sales</h5>
+                <div class="row">
+                    <div class="col widget" data-widget-type="manage auction sales" {{ manage_auction_sales_attr }}></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

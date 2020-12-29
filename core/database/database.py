@@ -14,6 +14,7 @@ from .tables.sales_group_intervals import SalesGroupIntervals
 from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
+from .tables.auction_sales import AuctionSales
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -49,6 +50,7 @@ class Database:
         self.files = Files(self)
         self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
+        self.auction_sales = AuctionSales(self)
 
 
     def connect(self):

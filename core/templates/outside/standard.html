@@ -21,6 +21,20 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 <script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
 {% endblock scripts %}
 
+{% set dashboard_standard_socialmedia_links_html %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link pl-0" target="_blank" rel="noopener" href="https://www.facebook.com/BlockTrustNetwork"> <i class="fab fa-facebook-f"></i> </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" target="_blank" rel="noopener" href="https://twitter.com/RockTags"> <i class="fab fa-twitter"></i> </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" target="_blank" rel="noopener" href="#"> <i class="fab fa-linkedin"></i> </a>
+  </li>
+</ul>
+{% endset %}
+
 {% block header %}
 <header class="header header-style-03">
   <div class="navbar-top py-1 bg-light">
@@ -30,33 +44,7 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
           <div class="d-sm-flex align-items-center text-center">
             <!-- social icon -->
             <div class="social d-inline-block">
-              <ul class="nav">
-                <li class="nav-item">
-                  <a class="nav-link pl-0" href="#">
-                    <i class="fab fa-facebook-f"></i>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fab fa-twitter"></i>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fab fa-linkedin"></i>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fab fa-pinterest"></i>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fab fa-instagram"></i>
-                  </a>
-                </li>
-              </ul>
+              {{ dashboard_standard_socialmedia_links_html }}
             </div>
             <div class="ml-auto d-flex justify-content-center">
               <!-- search input -->
@@ -343,6 +331,13 @@ Needs outside content
               </div>
             </a>
           </div>
+          <div class="item">
+            <a href="https://www.uscattletrace.org/" target="_blank">
+              <div class="client-logo client-logo-grayscale">
+                <img src="/static/images/partners/cattletrace_small.png" alt="">
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -380,23 +375,7 @@ Needs outside content
             network.</p>
 
           <div class="social d-inline-block mt-1 mt-md-2">
-            <ul class="nav">
-              <li class="nav-item">
-                <a class="nav-link pl-0" href="#"> <i class="fab fa-facebook-f"></i> </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fab fa-twitter"></i> </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fab fa-linkedin"></i> </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fab fa-pinterest"></i> </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#"> <i class="fab fa-instagram"></i> </a>
-              </li>
-            </ul>
+            {{ dashboard_standard_socialmedia_links_html }}
           </div>
         </div>
       </div>

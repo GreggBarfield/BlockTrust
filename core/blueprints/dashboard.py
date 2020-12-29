@@ -72,6 +72,7 @@ def serve_accounts_new_account_action():
                 company=required['company'],
                 sector=required['sector'],
             )
+            g.db.accounts.session_start(account.id())
             return jsonify({"redirect": "/dashboard/accounts/" + str(account.id())})
         except AccountsException as e:
             raise ExportException("Account creation failed: " + str(e))
@@ -110,7 +111,13 @@ def serve_account_id(account_id):
     account = account_user.account()
     account_links = account.account_links()
 
-    return dashboard_render("accounts/account/account_dashboard.html", {"account": account, "account_links": account_links})
+    sector_params = {"account": account, "account_links": account_links}
+
+    if account.sector_name() == "Auction House":
+        return dashboard_render("sectors/auction.html", sector_params)
+    else:
+        return dashboard_render("sectors/generic.html", sector_params)
+
 
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 def serve_animal_eid(animal_eid):
@@ -137,7 +144,7 @@ def serve_sales_groups():
     if g.user is None:
         return redirect('/')
     if g.account is None:
-        return dashboard_render("sales-groups/no-account.html")
+        return dashboard_render("errors/no-account.html")
     
     return dashboard_render("sales-groups/list.html")
 
@@ -146,7 +153,7 @@ def serve_messages(open_message_id=None):
     if g.user is None:
         return redirect('/')
     if g.account is None:
-        return dashboard_render("messages/no-account.html")
+        return dashboard_render("errors/no-account.html")
 
     messages_attributes = ""
 
@@ -171,7 +178,7 @@ def serve_new_sales_group():
     if g.user is None:
         return redirect('/')
     if g.account is None:
-        return dashboard_render("sales-groups/no-account.html")
+        return dashboard_render("errors/no-account.html")
     
 
     new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
@@ -183,7 +190,7 @@ def serve_edit_sales_group(sales_group_id):
     if g.user is None:
         return redirect('/')
     if g.account is None:
-        return dashboard_render("sales-groups/no-account.html")
+        return dashboard_render("errors/no-account.html")
 
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
@@ -197,7 +204,7 @@ def serve_view_sales_group(sales_group_id):
     if g.user is None:
         return redirect('/')
     if g.account is None:
-        return dashboard_render("sales-groups/no-account.html")
+        return dashboard_render("errors/no-account.html")
 
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
@@ -221,3 +228,28 @@ def serve_emt():
             'receiver': "3 receiver 3333",
         }
     })
+
+
+@bp.route('/dashboard/auction-sales', methods=['GET'])
+@bp.route('/dashboard/auction-sales/manage', methods=['GET'])
+def serve_auction_sales_manage(new_auction_sale=False):
+    if g.user is None:
+        return redirect('/')
+    if g.account is None:
+        return dashboard_render("errors/no-account.html")
+    
+    manage_auction_sales_attr = ""
+
+    if new_auction_sale:
+        manage_auction_sales_attr = " data-widget-manage-auction-sales-new "
+
+    return dashboard_render(
+        "auction-sales/manage.html",
+        {
+            "manage_auction_sales_attr": manage_auction_sales_attr
+        }
+    )
+
+@bp.route('/dashboard/auction-sales/new', methods=['GET'])
+def serve_auction_sales_new():
+    return serve_auction_sales_manage(True)

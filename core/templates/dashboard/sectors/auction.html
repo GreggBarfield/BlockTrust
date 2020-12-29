@@ -1,0 +1,35 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = account.name()|e %}
+{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
+
+{% block dashboard_content_header %}
+{{ account.name()|e }}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Associated Cattle</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting"
+                            data-widget-map-mode="associated auction sale account" style='height:400px;'></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Upcoming Auction Sales</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="view upcoming auction sales"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

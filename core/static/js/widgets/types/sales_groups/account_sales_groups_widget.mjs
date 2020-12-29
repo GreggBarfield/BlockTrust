@@ -1,5 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { Table } from '../../../core/table.mjs';
+import { ShortControls } from '../../../ui/short_controls.mjs';
 
 export class AccountSalesGroupsWidget extends Widget {
     constructor(frame) {
@@ -43,20 +44,17 @@ export class AccountSalesGroupsWidget extends Widget {
 
         for (const salesGroup of this.sales_groups) {
             let optionsGroup = document.createElement("div");
-            let optionView = document.createElement("a");
-            optionView.className = "btn btn-sm btn-info";
-            optionView.type = "button";
-            optionView.textContent = "View";
-            optionView.style.color = "white";
-            optionView.href = "/dashboard/sales-groups/view/" + salesGroup.id;
-            optionsGroup.append(optionView);
-            let optionsEdit = document.createElement("a");
-            optionsEdit.className = "btn btn-sm btn-info";
-            optionsEdit.type = "button";
-            optionsEdit.textContent = "Edit";
-            optionsEdit.style.color = "white";
-            optionsEdit.href = "/dashboard/sales-groups/edit/" + salesGroup.id;
-            optionsGroup.append(optionsEdit);
+            let controls = new ShortControls(optionsGroup);
+            controls.addA(
+                "View",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/view/" + salesGroup.id
+            );
+            controls.addA(
+                "Edit",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/edit/" + salesGroup.id
+            );
             this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No", optionsGroup]);
         }
 

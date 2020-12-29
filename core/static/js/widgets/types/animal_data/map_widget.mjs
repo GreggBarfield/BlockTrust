@@ -36,12 +36,19 @@ export class MapWidget extends Widget {
             types: this.matchTypes,
             ljoin_account_links: true
         };
-
-        if (this.frame.hasAttribute("data-widget-map-account")) {
-            matches_object.account = parseInt(this.frame.getAttribute("data-widget-map-account"));
+        
+        let temp = this.frame.hasAttribute("data-widget-map-mode");
+        if (temp) {
+            matches_object.mode = this.frame.getAttribute("data-widget-map-mode");
         }
         else {
-            matches_object.animal = parseInt(this.frame.getAttribute("data-widget-map-animal"));
+            // Support for older uses
+            if (this.frame.hasAttribute("data-widget-map-account")) {
+                matches_object.account = parseInt(this.frame.getAttribute("data-widget-map-account"));
+            }
+            else {
+                matches_object.animal = parseInt(this.frame.getAttribute("data-widget-map-animal"));
+            }
         }
 
 

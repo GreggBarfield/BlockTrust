@@ -3,6 +3,8 @@ import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { SwitchFormGroup } from '../../../ui/switch.mjs';
+import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -109,33 +111,9 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createDate(row, name, epoch) {
-            let id = "domuid" + window.DOMUIDNext++;
-
-            let group = createGroup(row, name, id);
-            let input = document.createElement("input");
-            input.type = "date";
-            if (epoch === null) {
-                input.value = null;
-            }
-            else {
-                let d = new Date(epoch * 1000);
-                function setWidth(val) {
-                    if (val < 10)
-                        return "0" + val;
-                    return val;
-                }
-                input.value = d.getFullYear() + "-" + setWidth(d.getMonth() + 1) + "-" + setWidth(d.getDate());
-            }
-            input.className = "form-control";
-            input.id = id;
-            group.append(input);
-            return input;
-        }
-
-        function fromDate(node) {
-            let values = node.value.split("-");
-            let d = new Date(values[0], values[1] - 1, values[2]);
-            return Math.floor(d.getTime() / 1000);
+            let dateFormGroup = new DateFormGroup(row, name, epoch);
+            dateFormGroup.getFormGroup().classList.add("col-md-4");
+            return dateFormGroup;
         }
 
         function createSelect(row, name, options, values, multiple, tags, placeholder) {
@@ -204,6 +182,12 @@ export class EditSalesGroupWidget extends Widget {
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
+        let marketingAuctionSale = new SelectAuctionSaleFormGroup(
+            marketingRow,
+            this.data.auction_sale || null,
+            this.data.auction_sale_name || null
+        );
+        marketingAuctionSale.getFormGroup().classList.add("col-md-4");
 
         // Characteristics
         
@@ -403,30 +387,7 @@ export class EditSalesGroupWidget extends Widget {
 
         // Publish
 
-        let publishFormGroup = document.createElement("div");
-        publishFormGroup.className = "form-group";
-        form.append(publishFormGroup);
-
-        let publishSwitchRegion = document.createElement("div");
-        publishSwitchRegion.className = "switch switch-success d-inline m-r-10";
-        publishFormGroup.append(publishSwitchRegion);
-
-        let publishSwitchInput = document.createElement("input");
-        publishSwitchInput.className = "";
-        publishSwitchInput.type = "checkbox";
-        publishSwitchInput.id = "sw" + (window.DOMUIDNext++);
-        publishSwitchInput.checked = this.data.published != 0;
-        publishSwitchRegion.append(publishSwitchInput);
-
-        let publishSwitchLabel = document.createElement("label");
-        publishSwitchLabel.className = "cr";
-        publishSwitchLabel.htmlFor = publishSwitchInput.id;
-        publishSwitchRegion.append(publishSwitchLabel);
-
-        let publishSwitchLabelLabel = document.createElement("label");
-        publishSwitchLabelLabel.htmlFor = publishSwitchInput.id;
-        publishSwitchLabelLabel.textContent = "Publish";
-        publishFormGroup.append(publishSwitchLabelLabel);
+        let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
         // Save
 
@@ -471,6 +432,9 @@ export class EditSalesGroupWidget extends Widget {
             asJSON: true,
             getData: () => {
                 function safeInt(v) {
+                    if (v === "") {
+                        return null;
+                    }
                     return Math.floor(parseFloat(v));
                 }
 
@@ -478,7 +442,7 @@ export class EditSalesGroupWidget extends Widget {
                     action: "save_sales_group",
                     params: {
                         id: that.salesGroupID,
-                        published: publishSwitchInput.checked,
+                        published: publishSwitch.isChecked(),
                         eids: parseEIDs(eidsTA),
                         reported: {
                             comments: commentsTA.value,
@@ -498,8 +462,9 @@ export class EditSalesGroupWidget extends Widget {
                             images: that.fileEditor.getFileIDs(),
                         },
                         "zip": parseInt(marketingZIP.value),
-                        "start": fromDate(marketingStart),
-                        "end": fromDate(marketingEnd),
+                        "start": marketingStart.getTime(),
+                        "end": marketingEnd.getTime(),
+                        auction_sale: marketingAuctionSale.getID()
                     } 
                 }
             }
@@ -548,5 +513,77 @@ export class EditSalesGroupWidget extends Widget {
             return false;
         }
         return true;
+    }
+}
+
+/**
+ * Presents a selector for auction sale.
+ */
+class SelectAuctionSaleFormGroup extends FormGroup {
+
+    /**
+     * Constructs SelectAuctionSale.
+     * 
+     * @param {Node} attachTo Where to place DOM elements
+     * @param {number|null} auctionSaleID The ID for the auction sale or null
+     * @param {string|null} auctionSaleName The auction sale name or null
+     */
+    constructor(attachTo, auctionSaleID, auctionSaleName) {
+        super(attachTo, "Select auction sale (i/a):");
+
+        this._select = document.createElement("select");
+        this._select.id = this._input_id;
+        this._select.className = "select2-hidden-accessible";
+        this._form_group.append(this._select);
+
+        if (auctionSaleID !== null) {
+            let option = document.createElement("option");
+            option.value = auctionSaleID;
+            option.textContent = auctionSaleName;
+            this._select.append(option);
+        }
+
+        $(this._select).select2({
+            ajax: {
+                url: "/widgets/data",
+                data: (params) => {
+                    return JSON.stringify({
+                        "action": "search_auction_sales",
+                        "params": {
+                            "term": params.term
+                        }
+                    })
+                },
+                contentType: 'application/json',
+                method: "POST",
+                delay: 250,
+                processResults: function (data) {
+                    let results = [];
+                    for (const auction_sale of data.auction_sales) {
+                        results.push({
+                            id: auction_sale.id,
+                            text: (
+                                auction_sale.name + " (" +
+                                auction_sale.account_name + ")"
+                            )
+                        });
+                    }
+                    return {results};
+                },
+            },
+            placeholder: 'Type here to search...',
+            minimumInputLength: 3,
+            allowClear: true
+        });
+    }
+    
+    /**
+     * Gets the ID of the auction sale selected.
+     */
+    getID() {
+        if (this._select.value === null || this._select.value === "") {
+            return null;
+        }
+        return parseInt(this._select.value);
     }
 }

@@ -72,14 +72,32 @@ def serve_data():
             if "ljoin_data_str" in params:
                 ljoin_data_str = params["ljoin_data_str"]
             
-            if 'account' in params:
-                account_user = g.db.account_users.get_by_user_and_account_id(g.user, params['account'])
-                account = account_user.account()
-                account_links = account.account_links()
-                matches = g.db.matches.get_by_account_links_spread(account_links, restrict_types=restrict_types, ljoin_account_links=ljoin_account_links)
-                
+            if 'mode' in params:
+                if params["mode"] == "associated auction sale account":
+                    matches = g.db.matches.get_by_auction_sale_account(
+                        g.account.id(),
+                        restrict_types=restrict_types,
+                        ljoin_account_links=ljoin_account_links
+                    )
+                else:
+                    raise ExportException("Mode not found")
             else:
-                matches = g.db.matches.get_by_eid(params["animal"], restrict_types=restrict_types, ljoin_account_links=ljoin_account_links, ljoin_data_str=ljoin_data_str)
+                # Support for older uses
+                if 'account' in params:
+                    account_user = g.db.account_users.get_by_user_and_account_id(
+                        g.user,
+                        params['account']
+                    )
+                    account = account_user.account()
+                    account_links = account.account_links()
+                    matches = g.db.matches.get_by_account_links_spread(
+                        account_links,
+                        restrict_types=restrict_types,
+                        ljoin_account_links=ljoin_account_links
+                    )
+                    
+                else:
+                    matches = g.db.matches.get_by_eid(params["animal"], restrict_types=restrict_types, ljoin_account_links=ljoin_account_links, ljoin_data_str=ljoin_data_str)
 
             if len(matches) > 2000:
                 # TODO: Remove
@@ -111,7 +129,9 @@ def serve_data():
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
                 "zip": sales_group_row["zip"],
                 "start": sales_group_row["start"],
-                "end": sales_group_row["end"]
+                "end": sales_group_row["end"],
+                "auction_sale": sales_group_row["auction_sale"],
+                "auction_sale_name": sales_group_row["auction_sale_name"]
             })
         elif action == "search_sales_groups":
             sales_group_rows = []
@@ -134,7 +154,9 @@ def serve_data():
                         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if params["file_auths"] else [],
                         "zip": sales_group_row["zip"],
                         "start": sales_group_row["start"],
-                        "end": sales_group_row["end"]
+                        "end": sales_group_row["end"],
+                        "auction_sale": sales_group_row["auction_sale"],
+                        "auction_sale_name": sales_group_row["auction_sale_name"]
                     })
 
             return jsonify({
@@ -171,7 +193,9 @@ def serve_data():
                     "end": sales_group_row["end"],
                     "context": {
                         "milesAway": meters_to_miles(distance(ZIP_CODES[params["search"]["zip"]]["ecef"], ZIP_CODES[sales_group_row["zip"]]["ecef"]))
-                    }
+                    },
+                    "auction_sale": sales_group_row["auction_sale"],
+                    "auction_sale_name": sales_group_row["auction_sale_name"]
                 })
 
             return jsonify({
@@ -213,7 +237,18 @@ def serve_data():
                 raise ExportException("Sorry, start or end date missing.")
         
             if params["start"] > params["end"]:
-                raise ExportException("Sorry, check the market start and end dates (specifically the order).")
+                raise ExportException(
+                    "Sorry, check the market start "
+                    "and end dates (specifically the order)."
+                )
+
+            if (
+                params["auction_sale"] is not None
+                and original_row['auction_sale'] != params["auction_sale"]
+            ):
+                # it was changed to a non-None value, verify new is published
+                if not g.db.auction_sales.get_auction_sale_by_id(params["auction_sale"])["published"]:
+                    raise ExportException("Auction sale specified is not published yet.")
 
             # Alright, go ahead...
 
@@ -226,7 +261,8 @@ def serve_data():
                 params["published"],
                 params["zip"],
                 params["start"],
-                params["end"]
+                params["end"],
+                params["auction_sale"]
             )
 
             return jsonify({
@@ -274,7 +310,43 @@ def serve_data():
                     user["email"]
                 )
             return jsonify({}), 200
+
+        # Auction Sales
+        
+        elif action == "get_auction_sales":
+            return jsonify({
+                "auction_sales": g.db.auction_sales.get_auction_sales_by_account(g.account.id())
+            })
+        elif action == "search_auction_sales":
+            return jsonify({
+                "auction_sales": g.db.auction_sales.search_auction_sales(params["term"])
+            })
+        elif action == "new_auction_sale":
+            g.db.auction_sales.new_auction_sale(
+                name=params["name"],
+                at=params["at"],
+                account_id=g.account.id(),
+                comments=params["comments"],
+                published=params["published"]
+            )
+            return jsonify({}), 200
+        elif action == "update_auction_sale":
+            if g.db.auction_sales.get_auction_sale_by_id(params["id"])["account"] == g.account.id():
+                g.db.auction_sales.update_auction_sale(
+                    name=params["name"],
+                    at=params["at"],
+                    auction_sale_id=params["id"],
+                    comments=params["comments"],
+                    published=params["published"]
+                )
+                return jsonify({}), 200
+            else:
+                return jsonify({
+                    "Account does not match"
+                }), 400
+
         else:
             return "Unknown action " + action, 400
+        
     except ExportException as e:
         return jsonify({"error":str(e)}), 500
