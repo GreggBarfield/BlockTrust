@@ -20,28 +20,28 @@ export class SectorsWidget extends Widget {
             }
         );
         this.getData(
-            "sectors_by_id",
+            "direct/sectors_by_id",
             {},
             (data) => {
                 this.sectors_by_id = data.sectors_by_id;
             }
         );
         this.getData(
-            "sectors_by_name",
+            "direct/sectors_by_name",
             {},
             (data) => {
                 this.sectors_by_name = data.sectors_by_name;
             }
         );
         this.getData(
-            "match_types_by_id",
+            "direct/match_types_by_id",
             {},
             (data) => {
                 this.match_types_by_id = data.match_types_by_id;
             }
         );
         this.getData(
-            "match_types_by_name",
+            "direct/match_types_by_name",
             {},
             (data) => {
                 this.match_types_by_name = data.match_types_by_name;

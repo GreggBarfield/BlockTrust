@@ -1,8 +1,15 @@
 import {CoreModal} from "./core_modal.mjs";
 
 export class InfoModal extends CoreModal {
-    constructor(headerText, contentText=null) {
-        super();
+    /**
+     * Constructs the info modal.
+     * 
+     * @param {string} headerText Text for the header
+     * @param {string|null} [contentText] Text for the content, or null for nothing
+     * @param {boolean} [wide] Whether to make the modal wide. Default false
+     */
+    constructor(headerText, contentText=null, wide=false) {
+        super(wide);
         let that = this;
 
         let modalHeader = document.createElement("div");

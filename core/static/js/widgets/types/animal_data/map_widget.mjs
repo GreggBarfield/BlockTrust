@@ -60,7 +60,7 @@ export class MapWidget extends Widget {
             }
         );
         this.getData(
-            "sectors_by_id",
+            "direct/sectors_by_id",
             {},
             (data) => {
                 this.sectors_by_id = data.sectors_by_id;

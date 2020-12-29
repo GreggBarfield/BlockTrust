@@ -1,3 +1,5 @@
+import { ajax, NetworkError } from '../core/network.mjs';
+
 export class Widget {
     constructor(frame) {
         this.frame = frame;
@@ -46,33 +48,29 @@ export class Widget {
             const promiseResolve = dataRequest.promiseResolve;
             const promiseError = dataRequest.promiseError;
             let that = this;
-            let data = {
-                action: action,
-                params: params
-            };
-            $.ajax({
-                url: "/widgets/data",
-                data: JSON.stringify(data),
+            ajax({
+                url: "/widgets/data/" + action,
+                data: JSON.stringify(params),
                 contentType: 'application/json',
                 method: "POST"
             })
-                .done(function (data) {
+                .then((networkResult) => {
                     if ('onSomeDataLoaded_bind' in that && that.onSomeDataLoaded_bind) {
                         that.onSomeDataLoaded_bind();
                         that.onSomeDataLoaded_bind = null;
                     }
                     that.totalDataLoaded += 1;
                     if (callback !== null) {
-                        callback(data);
+                        callback(networkResult.data);
                     }
-                    promiseResolve(data);
+                    promiseResolve(networkResult.data);
                     if ('onAllDataLoaded_bind' in that && that.onAllDataLoaded_bind && that.totalDataLoaded == that.totalDataRequested) {
                         that.onAllDataLoaded_bind();  // Make sure to set this at the VERY END of all data requests
                         that.onAllDataLoaded_bind = null;
                     }
                 })
-                .fail(function (jqXHR, textStatus) {
-                    let errorMessage = "HTTP error " + jqXHR.status + " " + textStatus + ": " + jqXHR.responseText;
+                .catch((error) => {
+                    let errorMessage = error.toString();
                     if (errorCallback !== null) {
                         errorCallback(errorMessage);
                     }

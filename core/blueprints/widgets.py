@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, render_template
+    Flask, request, session, Blueprint, g, redirect, render_template
 )
 
 from ..sectors import sectors_by_name, sectors_by_id
@@ -19,39 +19,14 @@ from ..utilities.email import send_email
 
 from ..config import ROOT as WEBSITE_ROOT
 
+from ..utilities import crut
+
 bp = Blueprint('widgets_bp', __name__)
 
-@bp.route('/widgets/data', methods=['POST'])
-def serve_data():
-    """Serves data.
-
-    Post:
-        JSON data.
-        action: What data to get
-        params: Configuration of the data to get
-
-    Actions & params:
-        matches
-            account: Account ID to get matches for
-            types: Optional list of types to get (by string)
-    """
-    # TODO: How to handle not signed in?
-    data = request.json
-
-    if data == None:
-        return "Missing JSON (application/json not specified perhaps)", 400
+@bp.route('/widgets/data/direct/<name>', methods=['POST'])
+@crut.require_user
+def serve_direct(name):
     
-    if 'action' not in data:
-        return "Missing action", 400
-    
-    if 'params' not in data:
-        return "Missing params", 400
-
-    # Serve actions
-
-    action = data['action']
-    params = data['params']
-
     direct_export = {
         "match_types_by_id": match_types_by_id,
         "match_types_by_name": match_types_by_name,
@@ -59,294 +34,340 @@ def serve_data():
         "sectors_by_name": sectors_by_name
     }
 
-    try:
+    if name in direct_export:
+        return {
+            name: direct_export[name]
+        }
+    raise ExportException("Unable to directly export the requested value")
 
-        if action == "matches":
-            restrict_types = []
-            if 'types' in params:
-                restrict_types = [match_types_by_name[n] for n in params['types']]
-            ljoin_account_links = False
-            if "ljoin_account_links" in params:
-                ljoin_account_links = params["ljoin_account_links"]
-            ljoin_data_str = False
-            if "ljoin_data_str" in params:
-                ljoin_data_str = params["ljoin_data_str"]
+
+@bp.route('/widgets/data/matches', methods=['POST'])
+@crut.require_user
+def serve_matches():
+    restrict_types = []
+    if 'types' in request.json:
+        restrict_types = [match_types_by_name[n] for n in request.json['types']]
+    ljoin_account_links = False
+    if "ljoin_account_links" in request.json:
+        ljoin_account_links = request.json["ljoin_account_links"]
+    ljoin_data_str = False
+    if "ljoin_data_str" in request.json:
+        ljoin_data_str = request.json["ljoin_data_str"]
+    
+    if 'mode' in request.json:
+        if request.json["mode"] == "associated auction sale account":
+            matches = g.db.matches.get_by_auction_sale_account(
+                g.account.id(),
+                restrict_types=restrict_types,
+                ljoin_account_links=ljoin_account_links
+            )
+        else:
+            raise ExportException("Mode not found")
+    else:
+        # Support for older uses
+        if 'account' in request.json:
+            account_user = g.db.account_users.get_by_user_and_account_id(
+                g.user,
+                request.json['account']
+            )
+            account = account_user.account()
+            account_links = account.account_links()
+            matches = g.db.matches.get_by_account_links_spread(
+                account_links,
+                restrict_types=restrict_types,
+                ljoin_account_links=ljoin_account_links
+            )
             
-            if 'mode' in params:
-                if params["mode"] == "associated auction sale account":
-                    matches = g.db.matches.get_by_auction_sale_account(
-                        g.account.id(),
-                        restrict_types=restrict_types,
-                        ljoin_account_links=ljoin_account_links
-                    )
-                else:
-                    raise ExportException("Mode not found")
-            else:
-                # Support for older uses
-                if 'account' in params:
-                    account_user = g.db.account_users.get_by_user_and_account_id(
-                        g.user,
-                        params['account']
-                    )
-                    account = account_user.account()
-                    account_links = account.account_links()
-                    matches = g.db.matches.get_by_account_links_spread(
-                        account_links,
-                        restrict_types=restrict_types,
-                        ljoin_account_links=ljoin_account_links
-                    )
-                    
-                else:
-                    matches = g.db.matches.get_by_eid(params["animal"], restrict_types=restrict_types, ljoin_account_links=ljoin_account_links, ljoin_data_str=ljoin_data_str)
+        else:
+            matches = g.db.matches.get_by_eid(request.json["animal"], restrict_types=restrict_types, ljoin_account_links=ljoin_account_links, ljoin_data_str=ljoin_data_str)
 
-            if len(matches) > 2000:
-                # TODO: Remove
-                #raise ValueError("Remove me later")
-                pass
-            return jsonify({
-                "match_rows": [match.row() for match in matches]
-            })
-        elif action in direct_export:
-            return jsonify({
-                action: direct_export[action]
-            })
-        elif action == "get_count_eid_distinct":
-            return jsonify({
-                "count_eid_distinct": g.db.matches.get_count_eid_distinct()
-            })
-        elif action == "sales_group":
-            sales_group_row = g.db.sales_groups.row_by_id(params["sales_group"])
-            if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
-                raise ExportException("Insufficient Permissions")
-            eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
-            return jsonify({
+    if len(matches) > 2000:
+        # TODO: Remove
+        #raise ValueError("Remove me later")
+        pass
+    return {
+        "match_rows": [match.row() for match in matches]
+    }
+
+
+@bp.route('/widgets/data/get_count_eid_distinct', methods=['POST'])
+@crut.require_user
+def serve_get_count_eid_distinct():
+    return {
+        "count_eid_distinct": g.db.matches.get_count_eid_distinct()
+    }
+
+
+@bp.route('/widgets/data/sales_group', methods=['POST'])
+@crut.require_account
+def serve_sales_group():
+    sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
+    if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
+        raise ExportException("Insufficient Permissions")
+    eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+    return {
+        "id": sales_group_row["id"],
+        "reported": sales_group_row["reported"],
+        "published": sales_group_row["published"],
+        "account": sales_group_row["account"],
+        "account_name": sales_group_row["account_name"],
+        "eids": eids,
+        "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+        "zip": sales_group_row["zip"],
+        "start": sales_group_row["start"],
+        "end": sales_group_row["end"],
+        "auction_sale": sales_group_row["auction_sale"],
+        "auction_sale_name": sales_group_row["auction_sale_name"]
+    }
+
+
+@bp.route('/widgets/data/search_sales_groups', methods=['POST'])
+@crut.require_account
+def serve_search_sales_groups():
+    sales_group_rows = []
+
+    # TODO: Optimize and fix
+    sales_group_rows = g.db.sales_groups.rows_by_account(request.json["search"]["params"]["ID"])
+
+    results = []
+
+    for sales_group_row in sales_group_rows:
+        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+        if sales_group_row["account"] == g.account.id():
+            results.append({
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
                 "eids": eids,
-                "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+                "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"]
             })
-        elif action == "search_sales_groups":
-            sales_group_rows = []
 
-            # TODO: Optimize and fix
-            sales_group_rows = g.db.sales_groups.rows_by_account(params["search"]["params"]["ID"])
+    return {
+        "sales_groups": results
+    }
 
-            results = []
 
-            for sales_group_row in sales_group_rows:
-                eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
-                if sales_group_row["account"] == g.account.id():
-                    results.append({
-                        "id": sales_group_row["id"],
-                        "reported": sales_group_row["reported"],
-                        "published": sales_group_row["published"],
-                        "account": sales_group_row["account"],
-                        "account_name": sales_group_row["account_name"],
-                        "eids": eids,
-                        "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if params["file_auths"] else [],
-                        "zip": sales_group_row["zip"],
-                        "start": sales_group_row["start"],
-                        "end": sales_group_row["end"],
-                        "auction_sale": sales_group_row["auction_sale"],
-                        "auction_sale_name": sales_group_row["auction_sale_name"]
-                    })
+@bp.route('/widgets/data/search_sales_groups_2', methods=['POST'])
+@crut.require_account
+def serve_search_sales_groups_2():
+    sales_group_rows = []
 
-            return jsonify({
-                "sales_groups": results
-            })
-        elif action == "search_sales_groups_2":
-            sales_group_rows = []
+    sales_group_rows = g.db.sales_groups.search_within(
+        zip_code=request.json["search"]["zip"],
+        miles=request.json["search"]["radius"],
+        start=0,
+        end=9999999999,
+        breed=request.json["search"]["breed"],
+        minimum_weight=request.json["search"]["minimum_weight"],
+        preconditioning_program=request.json["search"]["preconditioning_program"],
+        process_verified_program=request.json["search"]["process_verified_program"],
+    )
 
-            sales_group_rows = g.db.sales_groups.search_within(
-                zip_code=params["search"]["zip"],
-                miles=params["search"]["radius"],
-                start=0,
-                end=9999999999,
-                breed=params["search"]["breed"],
-                minimum_weight=params["search"]["minimum_weight"],
-                preconditioning_program=params["search"]["preconditioning_program"],
-                process_verified_program=params["search"]["process_verified_program"],
-            )
+    results = []
 
-            results = []
+    for sales_group_row in sales_group_rows:
+        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+        results.append({
+            "id": sales_group_row["id"],
+            "reported": sales_group_row["reported"],
+            "published": sales_group_row["published"],
+            "account": sales_group_row["account"],
+            "account_name": sales_group_row["account_name"],
+            "eids": eids,
+            "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+            "zip": sales_group_row["zip"],
+            "start": sales_group_row["start"],
+            "end": sales_group_row["end"],
+            "context": {
+                "milesAway": meters_to_miles(distance(ZIP_CODES[request.json["search"]["zip"]]["ecef"], ZIP_CODES[sales_group_row["zip"]]["ecef"]))
+            },
+            "auction_sale": sales_group_row["auction_sale"],
+            "auction_sale_name": sales_group_row["auction_sale_name"]
+        })
 
-            for sales_group_row in sales_group_rows:
-                eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
-                results.append({
-                    "id": sales_group_row["id"],
-                    "reported": sales_group_row["reported"],
-                    "published": sales_group_row["published"],
-                    "account": sales_group_row["account"],
-                    "account_name": sales_group_row["account_name"],
-                    "eids": eids,
-                    "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
-                    "zip": sales_group_row["zip"],
-                    "start": sales_group_row["start"],
-                    "end": sales_group_row["end"],
-                    "context": {
-                        "milesAway": meters_to_miles(distance(ZIP_CODES[params["search"]["zip"]]["ecef"], ZIP_CODES[sales_group_row["zip"]]["ecef"]))
-                    },
-                    "auction_sale": sales_group_row["auction_sale"],
-                    "auction_sale_name": sales_group_row["auction_sale_name"]
-                })
+    return {
+        "sales_groups": results
+    }
 
-            return jsonify({
-                "sales_groups": results
-            })
-        elif action == "get_count_distribution":
-            join_str = False
-            account_links = None
-            if "type" not in params:
-                return "Missing params.type", 400
-            if 'join_str' in params:
-                join_str = params['join_str']
-            if 'account' in params:
-                account_user = g.db.account_users.get_by_user_and_account_id(g.user, params['account'])
-                account = account_user.account()
-                account_links = account.account_links()
-                if len(account_links) == 0:
-                    return jsonify({"count_distribution":[]})
-                    
-            return jsonify({
-                "count_distribution": g.db.matches.get_count_distribution(match_types_by_name[params["type"]], account_links=account_links, join_str=join_str)
-            })
-        elif action == "save_sales_group":
-            # Check that the account selected is the owner of the sales group
-            original_row = g.db.sales_groups.row_by_id(params["id"])
-            if original_row["account"] != g.account.id():
-                raise ExportException("Insufficient permissions to edit this sales group.")
 
-            # Verify that the images provided are allowed
-            if 'images' in params["reported"]:
-                for image in params["reported"]["images"]:
-                    if not g.db.files.is_owner(None, g.account.id(), image):
-                        raise ExportException("Image " + str(image) + " is not owned by the selected account.")
-
-            if params["zip"] not in ZIP_CODES:
-                raise ExportException("Sorry, that zip code could not be found.")
-        
-            if params["start"] is None or params["end"] is None:
-                raise ExportException("Sorry, start or end date missing.")
-        
-            if params["start"] > params["end"]:
-                raise ExportException(
-                    "Sorry, check the market start "
-                    "and end dates (specifically the order)."
-                )
-
-            if (
-                params["auction_sale"] is not None
-                and original_row['auction_sale'] != params["auction_sale"]
-            ):
-                # it was changed to a non-None value, verify new is published
-                if not g.db.auction_sales.get_auction_sale_by_id(params["auction_sale"])["published"]:
-                    raise ExportException("Auction sale specified is not published yet.")
-
-            # Alright, go ahead...
-
-            g.db.sales_group_eids.delete_sales_group(params["id"])
-            g.db.sales_group_eids.insert_multiple(params["eids"], params["id"])
+@bp.route('/widgets/data/get_count_distribution', methods=['POST'])
+@crut.require_account
+def serve_get_count_distribution():
+    join_str = False
+    account_links = None
+    if "type" not in request.json:
+        return "Missing request.json.type", 400
+    if 'join_str' in request.json:
+        join_str = request.json['join_str']
+    if 'account' in request.json:
+        account_user = g.db.account_users.get_by_user_and_account_id(g.user, request.json['account'])
+        account = account_user.account()
+        account_links = account.account_links()
+        if len(account_links) == 0:
+            return {"count_distribution":[]}
             
-            g.db.sales_groups.update(
-                params["id"],
-                params["reported"],
-                params["published"],
-                params["zip"],
-                params["start"],
-                params["end"],
-                params["auction_sale"]
-            )
+    return {
+        "count_distribution": g.db.matches.get_count_distribution(match_types_by_name[request.json["type"]], account_links=account_links, join_str=join_str)
+    }
 
-            return jsonify({
-                "redirect": "/dashboard/sales-groups/view/" + str(params["id"])
-            })
-        elif action == "get_upload_config":
-            user_owns = params["user_owns"] == True
-            account_owns = params["account_owns"] == True
-            if not user_owns and not account_owns:
-                raise ExportException("Someone must own the file.")
 
-            file_id, file_config = g.db.files.get_post(params["file_name"], g.user.id() if user_owns else None, g.account.id() if account_owns else None)
+@bp.route('/widgets/data/save_sales_group', methods=['POST'])
+@crut.require_account
+def serve_save_sales_group():
+    # Check that the account selected is the owner of the sales group
+    original_row = g.db.sales_groups.row_by_id(request.json["id"])
+    if original_row["account"] != g.account.id():
+        raise ExportException("Insufficient permissions to edit this sales group.")
 
-            return jsonify({
-                "id": file_id,
-                "config": file_config
-            })
-        elif action == "get_account_messages":
-            return jsonify({
-                "messages": g.db.messages.get(g.account.id(), g.account.id())
-            })
-        elif action == "send_message":
-            message_id = g.db.messages.insert_message(
-                g.account.id(),
-                params["to_account"],
-                params["data"]
-            )
-            send_to_users = g.db.users.get_rows_by_account(params["to_account"])
-            for user in send_to_users:
-                send_email(
-                    "New Message",
-                    render_email(
-                        "new_message.html",
-                        {
-                            'new_message': {
-                                'link': (
-                                    WEBSITE_ROOT + "/dashboard/messages/"
-                                    + str(message_id)
-                                ),
-                                'receiver': user['account_name'],
-                                'sender': g.account.name()
-                            }
-                        }
-                    ),
-                    user["email"]
-                )
-            return jsonify({}), 200
+    # Verify that the images provided are allowed
+    if 'images' in request.json["reported"]:
+        for image in request.json["reported"]["images"]:
+            if not g.db.files.is_owner(None, g.account.id(), image):
+                raise ExportException("Image " + str(image) + " is not owned by the selected account.")
 
-        # Auction Sales
-        
-        elif action == "get_auction_sales":
-            return jsonify({
-                "auction_sales": g.db.auction_sales.get_auction_sales_by_account(g.account.id())
-            })
-        elif action == "search_auction_sales":
-            return jsonify({
-                "auction_sales": g.db.auction_sales.search_auction_sales(params["term"])
-            })
-        elif action == "new_auction_sale":
-            g.db.auction_sales.new_auction_sale(
-                name=params["name"],
-                at=params["at"],
-                account_id=g.account.id(),
-                comments=params["comments"],
-                published=params["published"]
-            )
-            return jsonify({}), 200
-        elif action == "update_auction_sale":
-            if g.db.auction_sales.get_auction_sale_by_id(params["id"])["account"] == g.account.id():
-                g.db.auction_sales.update_auction_sale(
-                    name=params["name"],
-                    at=params["at"],
-                    auction_sale_id=params["id"],
-                    comments=params["comments"],
-                    published=params["published"]
-                )
-                return jsonify({}), 200
-            else:
-                return jsonify({
-                    "Account does not match"
-                }), 400
+    if request.json["zip"] not in ZIP_CODES:
+        raise ExportException("Sorry, that zip code could not be found.")
 
-        else:
-            return "Unknown action " + action, 400
-        
-    except ExportException as e:
-        return jsonify({"error":str(e)}), 500
+    if request.json["start"] is None or request.json["end"] is None:
+        raise ExportException("Sorry, start or end date missing.")
+
+    if request.json["start"] > request.json["end"]:
+        raise ExportException(
+            "Sorry, check the market start "
+            "and end dates (specifically the order)."
+        )
+
+    if (
+        request.json["auction_sale"] is not None
+        and original_row['auction_sale'] != request.json["auction_sale"]
+    ):
+        # it was changed to a non-None value, verify new is published
+        if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
+            raise ExportException("Auction sale specified is not published yet.")
+
+    # Alright, go ahead...
+
+    g.db.sales_group_eids.delete_sales_group(request.json["id"])
+    g.db.sales_group_eids.insert_multiple(request.json["eids"], request.json["id"])
+    
+    g.db.sales_groups.update(
+        request.json["id"],
+        request.json["reported"],
+        request.json["published"],
+        request.json["zip"],
+        request.json["start"],
+        request.json["end"],
+        request.json["auction_sale"]
+    )
+
+    return {
+        "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
+    }
+
+
+@bp.route('/widgets/data/get_upload_config', methods=['POST'])
+@crut.require_account
+def serve_get_upload_config():
+    user_owns = request.json["user_owns"] == True
+    account_owns = request.json["account_owns"] == True
+    if not user_owns and not account_owns:
+        raise ExportException("Someone must own the file.")
+
+    file_id, file_config = g.db.files.get_post(request.json["file_name"], g.user.id() if user_owns else None, g.account.id() if account_owns else None)
+
+    return {
+        "id": file_id,
+        "config": file_config
+    }
+
+
+@bp.route('/widgets/data/get_account_messages', methods=['POST'])
+@crut.require_account
+def serve_get_account_messages():
+    return {
+        "messages": g.db.messages.get(g.account.id(), g.account.id())
+    }
+
+
+@bp.route('/widgets/data/send_message', methods=['POST'])
+@crut.require_account
+def serve_send_message():
+    message_id = g.db.messages.insert_message(
+        g.account.id(),
+        request.json["to_account"],
+        request.json["data"]
+    )
+    send_to_users = g.db.users.get_rows_by_account(request.json["to_account"])
+    for user in send_to_users:
+        send_email(
+            "New Message",
+            render_email(
+                "new_message.html",
+                {
+                    'new_message': {
+                        'link': (
+                            WEBSITE_ROOT + "/dashboard/messages/"
+                            + str(message_id)
+                        ),
+                        'receiver': user['account_name'],
+                        'sender': g.account.name()
+                    }
+                }
+            ),
+            user["email"]
+        )
+    return {}, 200
+
+
+@bp.route('/widgets/data/get_auction_sales', methods=['POST'])
+@crut.require_account
+def serve_get_auction_sales():
+    return {
+        "auction_sales": g.db.auction_sales.get_auction_sales_by_account(g.account.id())
+    }
+
+
+@bp.route('/widgets/data/search_auction_sales', methods=['POST'])
+@crut.require_account
+def serve_search_auction_sales():
+    return {
+        "auction_sales": g.db.auction_sales.search_auction_sales(request.json["term"])
+    }
+
+
+@bp.route('/widgets/data/new_auction_sale', methods=['POST'])
+@crut.require_account
+def serve_new_auction_sale():
+    g.db.auction_sales.new_auction_sale(
+        name=request.json["name"],
+        at=request.json["at"],
+        account_id=g.account.id(),
+        comments=request.json["comments"],
+        published=request.json["published"]
+    )
+    return {}, 200
+
+
+@bp.route('/widgets/data/update_auction_sale', methods=['POST'])
+@crut.require_account
+def serve_update_auction_sale():
+    if g.db.auction_sales.get_auction_sale_by_id(request.json["id"])["account"] == g.account.id():
+        g.db.auction_sales.update_auction_sale(
+            name=request.json["name"],
+            at=request.json["at"],
+            auction_sale_id=request.json["id"],
+            comments=request.json["comments"],
+            published=request.json["published"]
+        )
+        return {}, 200
+    else:
+        return {
+            "Account does not match"
+        }, 400

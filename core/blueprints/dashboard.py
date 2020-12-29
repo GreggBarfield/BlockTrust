@@ -14,13 +14,13 @@ from ..database.objects.account import AccountException
 
 from ..renderers.email import render_email
 
+from ..utilities import crut
+
 bp = Blueprint('dashboard_bp', __name__)
 
 @bp.route('/dashboard', methods=['GET'])
+@crut.require_user
 def serve_dashboard():
-    if g.user is None:
-        return redirect('/')
-    
     account_users = g.db.account_users.get_by_user(g.user)
 
     if len(account_users) == 0:
@@ -37,16 +37,15 @@ def serve_dashboard():
 # Accounts
 
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
+@crut.require_user
 def serve_accounts_new_account():
-    if g.user is None:
-        return redirect('/')
-
     return dashboard_render("accounts/new_account.html", {
         "sectors_by_id": sectors_by_id
     })
 
 
 @bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
+@crut.require_user
 def serve_accounts_new_account_action():
     try:
         required = {
@@ -73,36 +72,30 @@ def serve_accounts_new_account_action():
                 sector=required['sector'],
             )
             g.db.accounts.session_start(account.id())
-            return jsonify({"redirect": "/dashboard/accounts/" + str(account.id())})
+            return {"redirect": "/dashboard/accounts/" + str(account.id())}
         except AccountsException as e:
             raise ExportException("Account creation failed: " + str(e))
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
 
 @bp.route('/dashboard/accounts/join-account', methods=['GET'])
+@crut.require_user
 def serve_accounts_join_account():
-    if g.user is None:
-        return redirect('/')
-
     return dashboard_render("accounts/join_account.html")
 
 
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
+@crut.require_user
 def serve_select_account_id(account_id):
-    if g.user is None:
-        return redirect('/')
-
     g.db.accounts.session_start(account_id)
 
     return redirect("/dashboard/accounts/" + str(g.account.id()))
 
 
 @bp.route('/dashboard/accounts/<int:account_id>', methods=['GET'])
+@crut.require_user
 def serve_account_id(account_id):
-    if g.user is None:
-        return redirect('/')
-
     try:
         account_user = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
     except NoAccountUserFound as e:
@@ -120,10 +113,8 @@ def serve_account_id(account_id):
 
 
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
+@crut.require_user
 def serve_animal_eid(animal_eid):
-    if g.user is None:
-        return redirect('/')
-
     animal = g.db.animals.get_by_eid(animal_eid)
 
     if len(animal.matches()) == 0:
@@ -132,28 +123,19 @@ def serve_animal_eid(animal_eid):
     return dashboard_render("animals/animal.html", {"animal": animal})
 
 @bp.route('/dashboard/accounts', methods=['GET'])
+@crut.require_user
 def serve_accounts():
-    if g.user is None:
-        return redirect('/')
-    
     accounts = g.db.accounts.get_by_user(g.user)
     return dashboard_render("accounts/account_select.html", {"accounts": accounts})
 
 @bp.route('/dashboard/sales-groups', methods=['GET'])
+@crut.require_account
 def serve_sales_groups():
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
-    
     return dashboard_render("sales-groups/list.html")
 
 @bp.route('/dashboard/messages', methods=['GET'])
+@crut.require_account
 def serve_messages(open_message_id=None):
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
 
     messages_attributes = ""
 
@@ -174,24 +156,15 @@ def serve_messages_specific(open_message_id):
     return serve_messages(open_message_id)
 
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
+@crut.require_account
 def serve_new_sales_group():
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
-    
-
     new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
 
     return redirect('/dashboard/sales-groups/edit/' + str(new_id) + '')
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
+@crut.require_account
 def serve_edit_sales_group(sales_group_id):
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
-
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
     if sales_group_row['account'] != g.account.id():
@@ -200,12 +173,8 @@ def serve_edit_sales_group(sales_group_id):
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
+@crut.require_account
 def serve_view_sales_group(sales_group_id):
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
-
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
@@ -213,31 +182,15 @@ def serve_view_sales_group(sales_group_id):
     return dashboard_render("sales-groups/sales-group/not-published.html")
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
+@crut.require_user
 def serve_manage_sales_groups():
-    if g.user is None:
-        return redirect('/')
-
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
-
-@bp.route('/dashboard/emt', methods=['GET'])
-def serve_emt():
-    return render_email("new_message.html", {
-        'new_message': {
-            'link': "https://blockagoijeroisejpro;jiserg",
-            'sender': "3 sender 3333",
-            'receiver': "3 receiver 3333",
-        }
-    })
 
 
 @bp.route('/dashboard/auction-sales', methods=['GET'])
 @bp.route('/dashboard/auction-sales/manage', methods=['GET'])
+@crut.require_account
 def serve_auction_sales_manage(new_auction_sale=False):
-    if g.user is None:
-        return redirect('/')
-    if g.account is None:
-        return dashboard_render("errors/no-account.html")
-    
     manage_auction_sales_attr = ""
 
     if new_auction_sale:

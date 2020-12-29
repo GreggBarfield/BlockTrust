@@ -23,7 +23,7 @@ export class TableWidget extends Widget {
             }
         );
         this.getData(
-            "match_types_by_name",
+            "direct/match_types_by_name",
             {},
             (data) => {
                 this.match_types_by_name = data.match_types_by_name;

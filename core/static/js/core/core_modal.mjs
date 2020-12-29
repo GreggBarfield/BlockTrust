@@ -1,5 +1,10 @@
 export class CoreModal {
-    constructor() {
+    /**
+     * Constructs the core modal.
+     * 
+     * @param {boolean} [wide] Whether to make the modal wide. Default false
+     */
+    constructor(wide=false) {
         this.visible = false;
         this.modalBackdrop = document.createElement("div");
         this.modalBackdrop.className = "modal-backdrop fade show";
@@ -8,7 +13,10 @@ export class CoreModal {
         this.modal = document.createElement("div");
         this.modal.className = "modal fade show";
         this.modal.style = "display:block";
+        this.modal.style.overflowY = "scroll";
         document.body.append(this.modal);
+
+        // Todo: implement wide
         
         this.modalDialog = document.createElement("div");
         this.modalDialog.className = "modal-dialog";

@@ -25,7 +25,13 @@ def serve_logout():
 @bp.route('/signin', methods=['GET'])
 @bp.route('/sign-in', methods=['GET'])
 def serve_login():
-    return outside_render('login.html')
+    redirect_to = ''
+
+    # Might want to revisit this eventually to protect against users getting tricked
+    if 'redirect' in request.args:
+        redirect_to = request.args['redirect']
+
+    return outside_render('login.html', {"redirect_to": redirect_to})
 
 
 @bp.route('/login/action', methods=['POST'])
@@ -41,7 +47,14 @@ def serve_login_action():
                 identifier=request.form['identifier'],
                 password=request.form['password']
             )
-            return jsonify({"redirect": "/dashboard"})
+            redirect_to = '/dashboard'
+            if (
+                'requestRedirectTo' in request.form and
+                request.form['requestRedirectTo'] is not None and
+                request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
+            return jsonify({"redirect": redirect_to})
         except LoginException as e:
             raise ExportException(str(e))
         except UsersException as e:

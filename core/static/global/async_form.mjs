@@ -10,6 +10,7 @@ export class AsyncForm {
         this.onFinished = options.onFinished;
         this.getData = options.getData;
         this.asJSON = options.asJSON;
+        this.requestRedirectTo = options.requestRedirectTo;
         this.bindHandlers();
     }
 
@@ -70,6 +71,10 @@ export class AsyncForm {
         if (this.asJSON !== undefined && this.asJSON) {
             postOptions.data = JSON.stringify(postOptions.data);
             postOptions.contentType = "application/json";
+        }
+
+        if (this.requestRedirectTo) {
+            postOptions.data.requestRedirectTo = this.requestRedirectTo;
         }
 
         $.post(postOptions)

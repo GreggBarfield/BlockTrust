@@ -4,6 +4,12 @@ let loginForm = $("#login_form");
 let statusMessage = loginForm.find("#login_status_message");
 let errorMessage = loginForm.find("#login_error_message");
 
+let requestRedirectTo = null;
+
+if (loginForm[0].hasAttribute("request_redirect_to")) {
+    requestRedirectTo = loginForm[0].getAttribute("request_redirect_to");
+}
+
 let form = new AsyncForm({
     action: "/login/action",
     form: loginForm[0],
@@ -16,5 +22,6 @@ let form = new AsyncForm({
             identifier: loginForm.find("input[name='identifier']").val(),
             password: loginForm.find("input[name='password']").val()
         }
-    }
+    },
+    requestRedirectTo: requestRedirectTo
 });

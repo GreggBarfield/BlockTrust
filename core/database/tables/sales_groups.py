@@ -220,7 +220,7 @@ class SalesGroups:
                         %s <= start AND start <= %s OR
                         %s <= end AND end <= %s
                     )
-                    AND published > 0
+                    AND sales_groups.published > 0
                     AND zip IN (""" + sql_zip_codes + """)
                     """ + sql_additionals_total + """
         """

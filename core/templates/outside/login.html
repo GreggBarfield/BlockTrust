@@ -39,7 +39,11 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-lg-6 mb-2 login-form">
-                <form class="bg-white shadow p-3" id="login_form" method="POST"> {# method="POST" is important in case preventDefault fails #}
+                <form class="bg-white shadow p-3" id="login_form" method="POST"
+                
+                    request_redirect_to="{{ redirect_to }}"
+                
+                > {# method="POST" is important in case preventDefault fails #}
                     <div class="form-group">
                         <label for="login_username">Username, Email, or User ID</label>
                         <input type="text" class="form-control" placeholder="JohnDoe6" name="identifier" id="login_username">
@@ -59,6 +63,9 @@
                     <button type="submit" class="btn btn-primary">Login</button>
                     <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
+                    {% if redirect_to != '' and redirect_to is not none %}
+                    <p class="mt-2 mb-0">Once you log in, you'll be taken back to where you left off: {{ redirect_to }}</p>
+                    {% endif %}
                     <p class="mt-2 mb-0">Looking to register?<a href="/signup"> Right this way</a></p>
                     {#
                         <div class="login-social-media mt-4 text-center">

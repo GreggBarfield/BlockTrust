@@ -28,6 +28,9 @@ from .blueprints import dashboard
 from .blueprints import outside
 from .blueprints import widgets
 
+from .utilities.handlers import attach_handlers
+
+
 app = Flask(__name__)
 app.secret_key = FLASK_SESSION_SECRET_KEY
 Talisman(
@@ -36,6 +39,8 @@ Talisman(
     force_https=False  # We don't want to serve HTTP in general
 )
 CORS(app)
+
+attach_handlers(app)
 
 @app.before_request
 def before_request():
@@ -48,6 +53,9 @@ def before_request():
     # Database
     if getattr(g, "db", None) is None:
         g.db = Database(MYSQL_CONFIG)
+
+    if request.method == 'POST':
+        g.api = True
     
     g.user = None
     g.db.users.session_open()
