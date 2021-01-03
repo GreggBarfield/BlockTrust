@@ -219,14 +219,13 @@ export class SearchSalesGroupsWidget extends Widget {
                     process_verified_program: processDropdown(this.inputs.processVerifiedProgram.value),
                 }
             },
-            (data) => {
-                this.handleSearchResults(data);
-            },
-            (message) => {
-                this.results.innerHTML = "";
-                this.showError(message);
-            }
-        );
+            true
+        ).then((data) => {
+            this.handleSearchResults(data);
+        }).catch((message) => {
+            this.results.innerHTML = "";
+            this.showError(message.toString());
+        });
     }
 
     handleSearchResults(data) {

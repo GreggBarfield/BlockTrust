@@ -25,3 +25,46 @@ CREATE TABLE `auction_sales` (
 
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `auction_sale` INT NULL DEFAULT NULL AFTER `zip`;
+
+12/31/2020 Evan K
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `visibility` TINYINT(1) NULL AFTER `raw_identifier`;
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `data_json` JSON NULL AFTER `visibility`;
+
+Times out but finishes:
+UPDATE matches LEFT JOIN matches_data_strings ON matches_data_strings.id=matches.data SET matches.data_json = JSON_QUOTE(matches_data_strings.data) WHERE matches.id!=-1
+
+UPDATE matches SET data_json=CONVERT(data, JSON) WHERE id != -1 AND type IN (10, 14, 17)
+
+Times out but finishes:
+UPDATE matches SET data_json=JSON_UNQUOTE(matches.data_json) WHERE id != -1 AND type IN (11, 20, 21);
+
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `data` `_data` INT NULL DEFAULT NULL ;
+
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `data_json` `data` JSON NULL DEFAULT NULL ;
+
+DROP TABLE `example_db_1`.`matches_data_strings`;
+
+DROP TABLE `example_db_1`.`matches_keep`;
+
+DROP TABLE `example_db_1`.`test`;
+
+Might time out but finishes:
+ALTER TABLE `example_db_1`.`matches` 
+DROP COLUMN `_data`,
+DROP INDEX `data_string_lookup_idx` ;
+;
+
+
+
+Optimize comparisons at the SQL level with generated hash
+(todo)
+
+Merge visual ID with visual complex ID
+
+

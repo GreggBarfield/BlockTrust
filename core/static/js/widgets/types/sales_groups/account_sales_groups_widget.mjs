@@ -23,12 +23,11 @@ export class AccountSalesGroupsWidget extends Widget {
                     "and": null
                 },
                 file_auths: false
-            },
-            (data) => {
-                this.sales_groups = data.sales_groups;
-                this.displaySalesGroups();
             }
-        );
+        ).then((data) => {
+            this.sales_groups = data.sales_groups;
+            this.displaySalesGroups();
+        });
 
 
         this.onSomeDataLoaded(function () {

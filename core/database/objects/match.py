@@ -128,7 +128,7 @@ class Match:
         """Gets the raw match data
 
         Returns:
-            The raw match data as an int
+            The raw match data as unencoded json
         """
         return self._row['data']
 

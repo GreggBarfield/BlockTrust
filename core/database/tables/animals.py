@@ -30,7 +30,7 @@ class Animals:
         Raises:
             AnimalsException
         """
-        return Animal(self._db, eid, self._db.matches.get_by_eid(eid))
+        return Animal(self._db, eid, self._db.matches.get_by_eids((eid,)))
 
 
     def get_by_account_id(self, account):

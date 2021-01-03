@@ -14,12 +14,11 @@ export class ViewSalesGroupWidget extends Widget {
             "sales_group",
             {
                 "sales_group": this.salesGroupID
-            },
-            (data) => {
-                this.sales_group = data;
-                this.displaySalesGroup();
             }
-        );
+        ).then((data) => {
+            this.sales_group = data;
+            this.displaySalesGroup();
+        });
 
 
         this.onSomeDataLoaded(function () {

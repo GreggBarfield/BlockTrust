@@ -21,12 +21,14 @@ from ..config import ROOT as WEBSITE_ROOT
 
 from ..utilities import crut
 
+from ..data_requests.router import unauth_route
+
 bp = Blueprint('widgets_bp', __name__)
+
 
 @bp.route('/widgets/data/direct/<name>', methods=['POST'])
 @crut.require_user
 def serve_direct(name):
-    
     direct_export = {
         "match_types_by_id": match_types_by_id,
         "match_types_by_name": match_types_by_name,
@@ -40,62 +42,6 @@ def serve_direct(name):
         }
     raise ExportException("Unable to directly export the requested value")
 
-
-@bp.route('/widgets/data/matches', methods=['POST'])
-@crut.require_user
-def serve_matches():
-    restrict_types = []
-    if 'types' in request.json:
-        restrict_types = [match_types_by_name[n] for n in request.json['types']]
-    ljoin_account_links = False
-    if "ljoin_account_links" in request.json:
-        ljoin_account_links = request.json["ljoin_account_links"]
-    ljoin_data_str = False
-    if "ljoin_data_str" in request.json:
-        ljoin_data_str = request.json["ljoin_data_str"]
-    
-    if 'mode' in request.json:
-        if request.json["mode"] == "associated auction sale account":
-            matches = g.db.matches.get_by_auction_sale_account(
-                g.account.id(),
-                restrict_types=restrict_types,
-                ljoin_account_links=ljoin_account_links
-            )
-        else:
-            raise ExportException("Mode not found")
-    else:
-        # Support for older uses
-        if 'account' in request.json:
-            account_user = g.db.account_users.get_by_user_and_account_id(
-                g.user,
-                request.json['account']
-            )
-            account = account_user.account()
-            account_links = account.account_links()
-            matches = g.db.matches.get_by_account_links_spread(
-                account_links,
-                restrict_types=restrict_types,
-                ljoin_account_links=ljoin_account_links
-            )
-            
-        else:
-            matches = g.db.matches.get_by_eid(request.json["animal"], restrict_types=restrict_types, ljoin_account_links=ljoin_account_links, ljoin_data_str=ljoin_data_str)
-
-    if len(matches) > 2000:
-        # TODO: Remove
-        #raise ValueError("Remove me later")
-        pass
-    return {
-        "match_rows": [match.row() for match in matches]
-    }
-
-
-@bp.route('/widgets/data/get_count_eid_distinct', methods=['POST'])
-@crut.require_user
-def serve_get_count_eid_distinct():
-    return {
-        "count_eid_distinct": g.db.matches.get_count_eid_distinct()
-    }
 
 
 @bp.route('/widgets/data/sales_group', methods=['POST'])
@@ -194,27 +140,6 @@ def serve_search_sales_groups_2():
 
     return {
         "sales_groups": results
-    }
-
-
-@bp.route('/widgets/data/get_count_distribution', methods=['POST'])
-@crut.require_account
-def serve_get_count_distribution():
-    join_str = False
-    account_links = None
-    if "type" not in request.json:
-        return "Missing request.json.type", 400
-    if 'join_str' in request.json:
-        join_str = request.json['join_str']
-    if 'account' in request.json:
-        account_user = g.db.account_users.get_by_user_and_account_id(g.user, request.json['account'])
-        account = account_user.account()
-        account_links = account.account_links()
-        if len(account_links) == 0:
-            return {"count_distribution":[]}
-            
-    return {
-        "count_distribution": g.db.matches.get_count_distribution(match_types_by_name[request.json["type"]], account_links=account_links, join_str=join_str)
     }
 
 
@@ -371,3 +296,9 @@ def serve_update_auction_sale():
         return {
             "Account does not match"
         }, 400
+
+
+@bp.route('/widgets/data/data_request', methods=['POST'])
+@crut.require_account
+def serve_data_request():
+    return unauth_route(request.json['request']), 200

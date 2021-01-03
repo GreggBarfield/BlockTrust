@@ -7,7 +7,6 @@ from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
 from .tables.animals import Animals
-from .tables.matches_data_strings import MatchesDataStrings
 from .tables.sales_groups import SalesGroups
 from .tables.sales_group_eids import SalesGroupEIDs
 from .tables.sales_group_intervals import SalesGroupIntervals
@@ -19,6 +18,7 @@ from .tables.auction_sales import AuctionSales
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
 
+
 class Database:
     """Access to the database on a given SQL connection.
     This should be initialized PER APPLICATION CONTEXT.
@@ -29,7 +29,7 @@ class Database:
 
         Params:
             sql_config: a dictionary that will be unpacked and passed to mysql.connect
-        """  
+        """
         self._sql_config = sql_config
         self._connection = None
         self._cursor = None
@@ -44,14 +44,12 @@ class Database:
         self.matches = Matches(self)
         self.animals = Animals(self)
         self.account_links = AccountLinks(self)
-        self.matches_data_strings = MatchesDataStrings(self)
         self.sales_groups = SalesGroups(self)
         self.sales_group_eids = SalesGroupEIDs(self)
         self.files = Files(self)
         self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
-
 
     def connect(self):
         try:
@@ -67,7 +65,6 @@ class Database:
         self._connection = mysql.connect(**self._sql_config)
         self._cursor = self._connection.cursor()
         return self._cursor
-
 
     def execute(self, code, params=tuple(), allow_retry=True):
         try:
@@ -88,15 +85,23 @@ class Database:
                     quit()  # TODO Find better solution in future
             raise error
 
-
     def execute_d(self, *wargs):
         self._cursor.execute(*wargs)
         return self.fetch_all_d()
-        
+
+    def exec_frag_d(self, kvs):
+        """Executes a frag() style return value.
+
+        Params:
+            kvs: The frag()'s return value.
+
+        Returns:
+            See execute_d
+        """
+        return self.execute_d(kvs[0], kvs[1])
 
     def fetch_all(self):
         return self._cursor.fetchall()
-        
 
     def fetch_all_d(self):
         # Should we just use MySQLCursorDict?

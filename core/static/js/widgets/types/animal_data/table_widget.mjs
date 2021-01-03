@@ -11,77 +11,104 @@ export class TableWidget extends Widget {
 
         // TODO: This is a bad data request, optimize later
         this.getData(
-            "matches",
+            "data_request",
             {
-                account: this.account,
-                types: ["Weaned", "Sighting"]
-            },
-            (data) => {
-                this.match_rows = data.match_rows;
-                this.displayMatches();
-                this.displayAccount();
+                request: {
+                    type: 'matches_by_account',
+                    params: {
+                        account: this.account,
+                        types: ["Weaned", "Sighting"]
+                    }
+                }
             }
-        );
+        ).then((data) => {
+            this.match_rows = data.result.matches;
+            this.displayMatches();
+            this.displayAccount();
+        });
+
         this.getData(
             "direct/match_types_by_name",
-            {},
-            (data) => {
-                this.match_types_by_name = data.match_types_by_name;
-                this.displayAccount();
-            }
-        );
+            {}
+        ).then((data) => {
+            this.match_types_by_name = data.match_types_by_name;
+            this.displayAccount();
+        });
+        
         this.getData(
-            "get_count_distribution",
+            "data_request",
             {
-                'type': 'USDA Yield Grade'
-            },
-            (data) => {
-                this.global_usda_yield_grade_distribution = data.count_distribution;
-                this.displayGlobal();
+                request: {
+                    type: 'count_distribution',
+                    params: {
+                        match_type: 'USDA Yield Grade'
+                    }
+                }
             }
-        );
+        ).then((data) => {
+            this.global_usda_yield_grade_distribution = data.result.count_distribution;
+            this.displayGlobal();
+        });
+            
         this.getData(
-            "get_count_distribution",
+            "data_request",
             {
-                'type': 'USDA Quality Grade',
-                'join_str': true
-            },
-            (data) => {
-                this.global_usda_quality_grade_distribution = data.count_distribution;
-                this.displayGlobal();
+                request: {
+                    type: 'count_distribution',
+                    params: {
+                        match_type: 'USDA Quality Grade'
+                    }
+                }
             }
-        );
+        ).then((data) => {
+            this.global_usda_quality_grade_distribution = data.result.count_distribution;
+            this.displayGlobal();
+        });
+            
         this.getData(
-            "get_count_distribution",
+            "data_request",
             {
-                account: this.account,
-                'type': 'USDA Yield Grade'
-            },
-            (data) => {
-                this.account_usda_yield_grade_distribution = data.count_distribution;
-                this.displayAccount();
+                request: {
+                    type: 'count_distribution',
+                    params: {
+                        match_type: 'USDA Yield Grade',
+                        account: null
+                    }
+                }
             }
-        );
+        ).then((data) => {
+            this.account_usda_yield_grade_distribution = data.result.count_distribution;
+            this.displayAccount();
+        });
+            
         this.getData(
-            "get_count_distribution",
+            "data_request",
             {
-                account: this.account,
-                'type': 'USDA Quality Grade',
-                'join_str': true
-            },
-            (data) => {
-                this.account_usda_quality_grade_distribution = data.count_distribution;
-                this.displayAccount();
+                request: {
+                    type: 'count_distribution',
+                    params: {
+                        match_type: 'USDA Quality Grade',
+                        account: null
+                    }
+                }
             }
-        );
+        ).then((data) => {
+            this.account_usda_quality_grade_distribution = data.result.count_distribution;
+            this.displayAccount();
+        });
+            
         this.getData(
-            "get_count_eid_distinct",
-            {},
-            (data) => {
-                this.count_eid_distinct = data.count_eid_distinct;
-                this.displayGlobal();
-            }
-        );
+            "data_request",
+            {
+                request: {
+                    type: 'count_eid_distinct',
+                    params: {}
+                }
+            },
+        ).then((data) => {
+            this.count_eid_distinct = data.result.count_eid_distinct;
+            this.displayGlobal();
+        });
 
 
         this.onSomeDataLoaded(function () {

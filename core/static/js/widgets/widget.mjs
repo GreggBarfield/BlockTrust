@@ -1,5 +1,9 @@
 import { ajax, NetworkError } from '../core/network.mjs';
 
+// onAllDataLoaded removed and onSomeDataLoaded deprecated;
+// use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any
+// or the all (or allSettled) versions
+
 export class Widget {
     constructor(frame) {
         this.frame = frame;
@@ -43,10 +47,9 @@ export class Widget {
         for (const dataRequest of this.queuedDataRequests) {
             const action = dataRequest.action;
             const params = dataRequest.params;
-            const callback = dataRequest.callback;
-            const errorCallback = dataRequest.error;
             const promiseResolve = dataRequest.promiseResolve;
             const promiseError = dataRequest.promiseError;
+            const suppressErrors = dataRequest.suppressErrors;
             let that = this;
             ajax({
                 url: "/widgets/data/" + action,
@@ -60,30 +63,20 @@ export class Widget {
                         that.onSomeDataLoaded_bind = null;
                     }
                     that.totalDataLoaded += 1;
-                    if (callback !== null) {
-                        callback(networkResult.data);
-                    }
                     promiseResolve(networkResult.data);
-                    if ('onAllDataLoaded_bind' in that && that.onAllDataLoaded_bind && that.totalDataLoaded == that.totalDataRequested) {
-                        that.onAllDataLoaded_bind();  // Make sure to set this at the VERY END of all data requests
-                        that.onAllDataLoaded_bind = null;
-                    }
                 })
                 .catch((error) => {
                     let errorMessage = error.toString();
-                    if (errorCallback !== null) {
-                        errorCallback(errorMessage);
-                    }
-                    else {
+                    if (!suppressErrors) {
                         that.displayError(errorMessage);
                     }
-                    promiseError(errorMessage);
+                    promiseError(error);
                 });
         }
         this.queuedDataRequests = [];
     }
 
-    getData(action, params, callback=null, error=null) {
+    getData(action, params, suppressErrors=false) {
         this.totalDataRequested += 1;
         let promiseResolve, promiseError;
         let promise = new Promise((resolve, error)=>{
@@ -93,10 +86,9 @@ export class Widget {
         this.queuedDataRequests.push({
             action: action,
             params: params,
-            callback: callback,
-            error: error,
             promiseResolve: promiseResolve,
-            promiseError: promiseError
+            promiseError: promiseError,
+            suppressErrors: suppressErrors
         });
         if (this.instantProcessDataRequests) {
             this.processQueuedDataRequests();
@@ -110,15 +102,6 @@ export class Widget {
         }
         else {
             this.onSomeDataLoaded_bind = callback;
-        }
-    }
-
-    onAllDataLoaded(callback) {
-        if (this.totalDataLoaded == this.totalDataRequested) {
-            callback();
-        }
-        else {
-            this.onAllDataLoaded_bind = callback;
         }
     }
 }

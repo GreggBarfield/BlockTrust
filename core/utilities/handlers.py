@@ -2,11 +2,11 @@ from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
 from .crut.requirements import RequireAccountFailed, RequireUserFailed
-from ..common_exceptions import ExportException
+from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
 
-def respond(code, short):
+def respond(code, short, exception=None):
     """Generate a response.
 
     Params:
@@ -18,7 +18,8 @@ def respond(code, short):
         # Return as an api response
         return {
             'short': short,
-            'code': code
+            'code': code,
+            'exception': type(exception).__name__ if exception is not None else None
         }, code
 
     else:
@@ -51,11 +52,19 @@ def attach_handlers(app):
             return dashboard_render("errors/no-account.html")
         else:
             # Else send a 401
-            return respond(401, 'No account selected')
+            return respond(401, 'No account selected', e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):
-        return respond(400, str(e))
+        return respond(400, str(e), e)
+
+    @app.errorhandler(FriendlyException)
+    def handle_friendly_exception(e):
+        return respond(400, str(e), e)
+
+    @app.errorhandler(DebugException)
+    def handle_debug_exception(e):
+        return respond(400, str(e), e)
 
     @app.errorhandler(404)
     def handle_error_404(error):

@@ -9,30 +9,33 @@ export class DataTableWidget extends Widget {
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
 
         // TODO: This is a bad data request, optimize later
-        this.getData(
-            "matches",
-            {
-                account: this.account,
-                types: ["Weaned", "Sighting"]
-            },
-            (data) => {
-                this.match_rows = data.match_rows;
-            }
-        );
-        this.getData(
-            "direct/match_types_by_name",
-            {},
-            (data) => {
-                this.match_types_by_name = data.match_types_by_name;
-            }
-        );
+        Promise.all([
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: "matches_by_account",
+                        params: {
+                            types: ["Weaned", "Sighting"]
+                        }
+                    }
+                }
+            ).then((data) => {
+                this.match_rows = data.result.matches;
+            }),
 
-        this.onAllDataLoaded(function () {
+            this.getData(
+                "direct/match_types_by_name",
+                {}
+            ).then((data) => {
+                this.match_types_by_name = data.match_types_by_name;
+            }),
+
+        ]).then(() => {
             this.frame.innerHTML = "";
             this.makeAnimals();
             this.makeTable();
         });
-
     }
 
     formatDate(epoch) {

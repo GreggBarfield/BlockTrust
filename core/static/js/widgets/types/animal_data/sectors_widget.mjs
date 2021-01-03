@@ -8,53 +8,56 @@ export class SectorsWidget extends Widget {
     initType() {
         this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
 
-        this.getData(
-            "matches",
-            {
-                animal: this.animal,
-                ljoin_data_str: true,
-                ljoin_account_links: true
-            },
-            (data) => {
-                this.match_rows = data.match_rows;
-            }
-        );
-        this.getData(
-            "direct/sectors_by_id",
-            {},
-            (data) => {
+        Promise.all([
+
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'matches_by_eids',
+                        params: {
+                            eids: [this.animal],
+                            ljoin_account_links: true
+                        }
+                    }
+                }
+            ).then((data) => {
+                this.match_rows = data.result.matches;
+            }),
+
+            this.getData(
+                "direct/sectors_by_id",
+                {}
+            ).then((data) => {
                 this.sectors_by_id = data.sectors_by_id;
-            }
-        );
-        this.getData(
-            "direct/sectors_by_name",
-            {},
-            (data) => {
+            }),
+            
+            this.getData(
+                "direct/sectors_by_name",
+                {}
+            ).then((data) => {
                 this.sectors_by_name = data.sectors_by_name;
-            }
-        );
-        this.getData(
-            "direct/match_types_by_id",
-            {},
-            (data) => {
+            }),
+            
+            this.getData(
+                "direct/match_types_by_id",
+                {}
+            ).then((data) => {
                 this.match_types_by_id = data.match_types_by_id;
-            }
-        );
-        this.getData(
-            "direct/match_types_by_name",
-            {},
-            (data) => {
+            }),
+            
+            this.getData(
+                "direct/match_types_by_name",
+                {}
+            ).then((data) => {
                 this.match_types_by_name = data.match_types_by_name;
-            }
-        );
+            })
 
-
-        this.onAllDataLoaded(function () {
+        ]).then(() => {
             this.frame.innerHTML = "";
             this.prepData();
             this.makeBoxes();
         });
-
     }
 
     formatDate(epoch) {
@@ -110,12 +113,6 @@ export class SectorsWidget extends Widget {
             return formatDate(v);
         }
 
-        function useDataString(converter=convAsIs) {
-            return function (row) {
-                return converter(row.data_str);
-            }
-        }
-
         function useAccountLinkCompany(converter=convAsIs) {
             return function (row) {
                 return converter(row["account_links.company"]);
@@ -160,11 +157,7 @@ export class SectorsWidget extends Widget {
         
         function useDataJson(property, converter=convAsIs) {
             return function (row) {
-                let jObj = null;
-                try {
-                    jObj = JSON.parse(row.data_str);
-                }
-                catch {}
+                let jObj = row.data;
                 if (jObj != null && jObj.hasOwnProperty(property)) {
                     return converter(jObj[property])
                 }
@@ -205,7 +198,7 @@ export class SectorsWidget extends Widget {
 
         // Cow-Calf info
         addField("Cow-Calf", "Demographics", "Born", filterMatchType("Born"), useTime());
-        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, [[filterMatchType("Visual ID"), useDataValue()], [filterMatchType("Visual ID Complex"), useDataString()]]);
+        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, [[filterMatchType("Visual ID"), useDataValue()], [filterMatchType("Visual ID Complex"), useDataValue()]]);
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
 
@@ -224,7 +217,7 @@ export class SectorsWidget extends Widget {
 
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
-        addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataString());
+        addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
         addData("Packer", "Quality", "Ribeye Area", "");
         addData("Packer", "Quality", "Marbling Score", "");

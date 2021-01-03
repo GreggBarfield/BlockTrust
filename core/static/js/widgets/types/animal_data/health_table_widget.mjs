@@ -9,25 +9,23 @@ export class HealthTableWidget extends Widget {
         this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
 
         this.getData(
-            "matches",
+            "data_request",
             {
-                animal: this.animal,
-                ljoin_data_str: true,
-                ljoin_account_links: true,
-                types: ["Medical"]
-            },
-            (data) => {
-                this.match_rows = data.match_rows;
+                request: {
+                    type: 'matches_by_eids',
+                    params: {
+                        eids: [this.animal],
+                        ljoin_account_links: true,
+                        types: ["Medical"]
+                    }
+                }
             }
-        );
-
-
-        this.onAllDataLoaded(function () {
+        ).then((data) => {
+            this.match_rows = data.result.matches;
             this.frame.innerHTML = "";
             this.prepData();
             this.makeTable();
         });
-
     }
 
     formatDate(epoch) {
@@ -43,7 +41,7 @@ export class HealthTableWidget extends Widget {
         this.rows = [];
 
         for (const match_row of this.match_rows) {
-            let data_obj = JSON.parse(match_row["data_str"]);
+            let data_obj = match_row["data"];
             data_obj.date = this.formatDate(match_row.time);
             let row = [];
             for (const header in data_obj) {

@@ -9,26 +9,21 @@ export class GradeWidget extends Widget {
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
 
         this.matchType = this.frame.getAttribute("data-widget-match-type");
-        this.matchStr = false;
-        if (this.frame.hasAttribute("data-widget-match-str")) {
-            this.matchStr = true;
-        }
 
 
         this.getData(
-            "get_count_distribution",
+            "data_request",
             {
-                account: this.account,
-                'type': this.matchType,
-                'join_str': this.matchStr
-            },
-            (data) => {
-                this.count_distribution = data.count_distribution;
+                request: {
+                    type: 'count_distribution',
+                    params: {
+                        match_type: this.matchType,
+                        account: null
+                    }
+                }
             }
-        );
-
-
-        this.onAllDataLoaded(function () {
+        ).then((data) => {
+            this.count_distribution = data.result.count_distribution;
             this.frame.innerHTML = "";
             this.makeGraph();
         });

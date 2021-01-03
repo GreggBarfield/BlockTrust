@@ -74,16 +74,16 @@ Animal {{ animal.eid()|e }}
                         {% for match in animal.matches() %}
                         <div class="col-md-4">
                             <div class="card">
-                                <h5 class="card-header">Match {{match.id()}}</h5>
+                                <h5 class="card-header">Match {{match['id']}}</h5>
                                 <div class="card-body">
-                                    Type: {{match.type_id()}} ({{match.type_str()}})<br>
-                                    Lat: {{match.lat()}}<br>
-                                    Lon: {{match.lon()}}<br>
-                                    Time: {{match.time()}}<br>
-                                    Created: {{match.created()}}<br>
-                                    Account ID: {{match.account_id()}}<br>
-                                    Account Link ID: {{match.account_link_id()}}<br>
-                                    Data: {{match.data()}}<br>
+                                    Type: {{match['type']}}<br>
+                                    Lat: {{match['lat']}}<br>
+                                    Lon: {{match['lon']}}<br>
+                                    Time: {{match['time']}}<br>
+                                    Created: {{match['created']}}<br>
+                                    Account ID: {{match['account']}}<br>
+                                    Account Link ID: {{match['account_link']}}<br>
+                                    Data: {{match['data']}}<br>
                                 </div>
                             </div>
                         </div>

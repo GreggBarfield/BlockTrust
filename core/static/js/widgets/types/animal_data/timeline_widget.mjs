@@ -9,33 +9,38 @@ export class TimelineWidget extends Widget {
         this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
 
         // TODO: This is a bad data request, optimize later
-        this.getData(
-            "matches",
-            {
-                animal: this.animal,
-                ljoin_data_str: true,
-                ljoin_account_links: true
-            },
-            (data) => {
-                this.match_rows = data.match_rows;
-            }
-        );
-        this.getData(
-            "direct/match_types_by_name",
-            {},
-            (data) => {
-                this.match_types_by_name = data.match_types_by_name;
-            }
-        );
-        this.getData(
-            "direct/match_types_by_id",
-            {},
-            (data) => {
-                this.match_types_by_id = data.match_types_by_id;
-            }
-        );
+        Promise.all([
 
-        this.onAllDataLoaded(function () {
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'matches_by_eids',
+                        params: {
+                            eids: [this.animal],
+                            ljoin_account_links: true
+                        }
+                    }
+                }
+            ).then((data) => {
+                this.match_rows = data.result.matches;
+            }),
+
+            this.getData(
+                "direct/match_types_by_name",
+                {}
+            ).then((data) => {
+                this.match_types_by_name = data.match_types_by_name;
+            }),
+            
+            this.getData(
+                "direct/match_types_by_id",
+                {}
+            ).then((data) => {
+                this.match_types_by_id = data.match_types_by_id;
+            })
+
+        ]).then(() => {
             this.frame.innerHTML = "";
             this.makeTimeline();
         });
@@ -113,11 +118,7 @@ export class TimelineWidget extends Widget {
             "Medical": function(rows) {
                 let description = "";
                 for (const row of rows) {
-                    let jObj = null;
-                    try {
-                        jObj = JSON.parse(row.data_str);
-                    }
-                    catch {}
+                    let jObj = row.data;
                     if (jObj !== null) {
                         if (jObj.hasOwnProperty("product")) {
                             description += jObj.product + "<br>";

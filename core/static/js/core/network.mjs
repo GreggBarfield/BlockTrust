@@ -32,6 +32,10 @@ export class NetworkError extends Error {
                     error += " " + o.short;
                 }
 
+                if ('exception' in o) {
+                    error += " (" + o.exception + ")";
+                }
+
                 error += " (full error: " + this.jqXHR.responseText + ")";
             }
             else if (contentType.includes("html")) {

@@ -24,3 +24,18 @@ match_types_by_name = {
     value: key
     for key, value in match_types_by_id.items()
 }
+
+
+def name_to_id(value):
+    """Converts value from name to id.
+
+    Params:
+        value: either a str or a list/tuple of strs
+
+    Returns:
+        The value as ID (int) or a tuple of the conversions
+    """
+    if isinstance(value, (list, tuple)):
+        return tuple(name_to_id(v) for v in value)
+
+    return match_types_by_name[value]

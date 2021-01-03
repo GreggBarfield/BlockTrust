@@ -32,43 +32,52 @@ export class MapWidget extends Widget {
     initType() {
         this.matchTypes = this.frame.getAttribute("data-widget-map-match-types").split(",");
 
-        let matches_object = {
-            types: this.matchTypes,
-            ljoin_account_links: true
+        let request_object = {
+            params: {
+                types: this.matchTypes,
+                ljoin_account_links: true
+            }
         };
         
-        let temp = this.frame.hasAttribute("data-widget-map-mode");
-        if (temp) {
-            matches_object.mode = this.frame.getAttribute("data-widget-map-mode");
+        if (this.frame.hasAttribute("data-widget-map-mode")) {
+            let mode = this.frame.getAttribute("data-widget-map-mode");
+            if (mode == "associated auction sale account") {
+                request_object.type = "matches_by_auction_account";
+            }
+            else {
+                throw "Mode unresolved: " + mode;
+            }
         }
         else {
             // Support for older uses
             if (this.frame.hasAttribute("data-widget-map-account")) {
-                matches_object.account = parseInt(this.frame.getAttribute("data-widget-map-account"));
+                request_object.type = "matches_by_account";
             }
             else {
-                matches_object.animal = parseInt(this.frame.getAttribute("data-widget-map-animal"));
+                request_object.type = "matches_by_eids";
+                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-map-animal"))];
             }
         }
 
+        Promise.all([
+            
+            this.getData(
+                "data_request",
+                {
+                    request: request_object
+                }
+            ).then((data) => {
+                this.match_rows = data.result.matches;
+            }),
 
-        this.getData(
-            "matches",
-            matches_object,
-            (data) => {
-                this.match_rows = data.match_rows;
-            }
-        );
-        this.getData(
-            "direct/sectors_by_id",
-            {},
-            (data) => {
+            this.getData(
+                "direct/sectors_by_id",
+                {}
+            ).then((data) => {
                 this.sectors_by_id = data.sectors_by_id;
-            }
-        );
+            })
 
-
-        this.onAllDataLoaded(function () {
+        ]).then(() => {
             this.frame.innerHTML = "";
             this.makeMap();
         });

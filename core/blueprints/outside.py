@@ -8,9 +8,11 @@ from ..common_exceptions import ExportException
 
 bp = Blueprint('outside_bp', __name__)
 
+
 @bp.route('/', methods=['GET'])
 def serve_landing():
     return outside_render('landing.html')
+
 
 @bp.route('/logout', methods=['GET'])
 @bp.route('/log-out', methods=['GET'])
@@ -19,6 +21,7 @@ def serve_landing():
 def serve_logout():
     g.db.users.logout()
     return redirect('/')
+
 
 @bp.route('/login', methods=['GET'])
 @bp.route('/log-in', methods=['GET'])
@@ -62,11 +65,13 @@ def serve_login_action():
     except ExportException as e:
         return jsonify({"error": str(e)})
 
+
 @bp.route('/sign-up', methods=['GET'])
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
     return outside_render('signup.html')
+
 
 @bp.route('/signup/action', methods=['POST'])
 def serve_signup_action():
@@ -79,7 +84,7 @@ def serve_signup_action():
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
-    
+
         # Sign up
         try:
             g.db.users.signup(
@@ -93,7 +98,7 @@ def serve_signup_action():
             )
         except SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
-    
+
         # Sign up worked, now log in and redirect
         try:
             g.db.users.login(
@@ -110,6 +115,7 @@ def serve_signup_action():
 
 # About us
 
+
 @bp.route('/about-us/<path:path>', methods=['GET'])
 def serve_about_us(path):
     if '.' in path:
@@ -118,19 +124,29 @@ def serve_about_us(path):
 
 # Our Partners
 
+
 @bp.route('/our-partners/<path:path>', methods=['GET'])
 def serve_our_partners(path):
     if '.' in path:
         return "Error accessing " + path + ": '.' should not be included"
     return outside_render('our-partners/' + path + '.html')
 
+# Market Trust
+
+
+@bp.route('/market-trust', methods=['GET'])
+def serve_market_trust():
+    return outside_render('market-trust/index.html')
+
 # Developers
+
 
 @bp.route('/developers', methods=['GET'])
 def serve_developers():
     return outside_render('developers/index.html')
 
 # Privacy
+
 
 @bp.route('/privacy', methods=['GET'])
 @bp.route('/privacypolicy', methods=['GET'])

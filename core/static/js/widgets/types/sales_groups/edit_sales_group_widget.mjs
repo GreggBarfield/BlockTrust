@@ -19,12 +19,11 @@ export class EditSalesGroupWidget extends Widget {
             "sales_group",
             {
                 sales_group: this.salesGroupID
-            },
-            (data) => {
-                this.data = data;
-                this.makeForm();
             }
-        );
+        ).then((data) => {
+            this.data = data;
+            this.makeForm();
+        });
 
 
         this.onSomeDataLoaded(function () {
