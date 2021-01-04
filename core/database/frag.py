@@ -18,6 +18,91 @@ FRAG_KEY_CHARS = (
 # Note that SQL evaluates IN ((3)) to IN (3), so IN ((3, 2)) doesn't seem to work
 
 
+def safe_sql_value(value):
+    """Checks if a value is safe to be passed to mysql connector.
+
+    Params:
+        value: The value to check
+
+    Returns:
+        True if safe, False if not
+    """
+    return (
+        isinstance(value, (str, int, float))
+        or value is None or value is True or value is False
+    )
+
+
+def frag_insert_into(table_name, values):
+    """Generates a full insert_into.
+
+    DO NOT pass dictionaries directly to values, always generate the dictionary
+        right at the frag_insert_into or you risk injections!
+
+    Returns:
+        frag return value
+    """
+    if len(values) == 0:
+        raise DebugException("Expected at least 1 value.")
+
+    column_order = [col for col in values[0]]
+
+    for value in values:
+        if len(column_order) != len(value):
+            raise DebugException("Expected all values to have the same number of columns.")
+
+    return frag(
+        "INSERT INTO " + table_name,
+        frag(
+            "(",
+            ','.join(column_order),
+            ")"
+        ),
+        frag(
+            "VALUES",
+            _frag_values([
+                tuple(value[col] for col in column_order)
+                for value in values
+            ])
+        )
+    )
+
+
+def _frag_values(values):
+    """Helper for the part after VALUES.
+
+    Params:
+        values: each of the values as tuples or lists
+    """
+    if not isinstance(values, (tuple, list)):
+        raise DebugException("Expected values to be a tuple or list")
+    if len(values) == 0:
+        raise DebugException("Expected at least 1 value.")
+
+    build_sqls = []
+    build_values = []
+
+    for value in values:
+        if not isinstance(value, (tuple, list)):
+            raise DebugException("All values should be tuples or lists.")
+        if len(value) == 0:
+            raise DebugException("All values should have some col values in them.")
+
+        for v in value:
+            if not safe_sql_value(v):
+                raise DebugException("One of the values is not safe")
+
+        build_sqls += ['(' + ','.join(['%s' for v in value]) + ')']
+        build_values += value
+
+    if len(build_values) == 0:
+        raise DebugException("Expected at least 1 value.")
+    if len(values) * len(values[0]) != len(build_values):
+        raise DebugException("Expected each value to be the exact same size.")
+
+    return ','.join(build_sqls), build_values
+
+
 def frag(*args, **kwargs):
     """Computes a fragment of SQL and values.
 
@@ -142,10 +227,7 @@ def build_values(value):
     Returns:
         flattened values, built sql
     """
-    if (
-        isinstance(value, (str, int, float))
-        or value is None or value is True or value is False
-    ):
+    if safe_sql_value(value):
         return [value], "%s"
     elif isinstance(value, (tuple, list)):
         build_sqls = []
@@ -200,4 +282,29 @@ if __name__ == "__main__":
             "accounts.id AND account_links.f=%s WHERE accounts.id=%s OR accounts.abc IN (%s,%s,%s)",
             [5, 4, 'a', 'b', 'c']
         )
+    )
+
+    a(
+        _frag_values([
+            (3, 5, '3'),
+            (2, 7, 'a')
+        ]),
+        (
+            "(%s,%s,%s),(%s,%s,%s)",
+            [3, 5, '3', 2, 7, 'a']
+        )
+    )
+
+    a(
+        frag_insert_into("a", [
+            {
+                'a': 3,
+                'b': 4
+            },
+            {
+                'b': 6,
+                'a': 6
+            }
+        ]),
+        ('INSERT INTO a ( a,b ) VALUES (%s,%s),(%s,%s)', [3, 4, 6, 6])
     )

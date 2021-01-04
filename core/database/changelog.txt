@@ -1,4 +1,4 @@
-12/21/2020 Evan K
+/* 12/21/2020 Evan K */
 
 CREATE TABLE `messages` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -9,7 +9,7 @@ CREATE TABLE `messages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-12/23/2020 Evan K
+/* 12/23/2020 Evan K */
 
 CREATE TABLE `auction_sales` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -21,12 +21,12 @@ CREATE TABLE `auction_sales` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-12/24/2020 Evan K
+/* 12/24/2020 Evan K */
 
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `auction_sale` INT NULL DEFAULT NULL AFTER `zip`;
 
-12/31/2020 Evan K
+/* 12/31/2020 Evan K */
 
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `visibility` TINYINT(1) NULL AFTER `raw_identifier`;
@@ -39,7 +39,7 @@ UPDATE matches LEFT JOIN matches_data_strings ON matches_data_strings.id=matches
 
 UPDATE matches SET data_json=CONVERT(data, JSON) WHERE id != -1 AND type IN (10, 14, 17)
 
-Times out but finishes:
+/* Times out but finishes: */
 UPDATE matches SET data_json=JSON_UNQUOTE(matches.data_json) WHERE id != -1 AND type IN (11, 20, 21);
 
 ALTER TABLE `example_db_1`.`matches` 
@@ -54,17 +54,29 @@ DROP TABLE `example_db_1`.`matches_keep`;
 
 DROP TABLE `example_db_1`.`test`;
 
-Might time out but finishes:
+/* Might time out but finishes: */
 ALTER TABLE `example_db_1`.`matches` 
 DROP COLUMN `_data`,
 DROP INDEX `data_string_lookup_idx` ;
 ;
 
+/* Evan Krohn 1/3/2021 */
+
+/* Times out but finishes */
+ALTER TABLE `example_db_1`.`matches` 
+DROP COLUMN `visibility`;
+
+CREATE TABLE `example_db_1`.`matches_type_visibility` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account` INT NULL,
+  `type` INT NULL,
+  `visibility` TINYINT(1) NULL,
+  PRIMARY KEY (`id`));
 
 
-Optimize comparisons at the SQL level with generated hash
-(todo)
-
-Merge visual ID with visual complex ID
-
+/*
+Todo:
+  Optimize comparisons at the SQL level with generated hash (matches data json)
+  Merge visual ID with visual complex ID
+*/
 

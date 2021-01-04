@@ -14,6 +14,7 @@ from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
+from .tables.matches_type_visibility import MatchesTypeVisibility
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -50,6 +51,7 @@ class Database:
         self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
+        self.matches_type_visibility = MatchesTypeVisibility(self)
 
     def connect(self):
         try:

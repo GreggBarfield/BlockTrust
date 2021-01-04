@@ -1,6 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag
+from ..frag import frag, frag_insert_into
 from ..objects.match import Match, MatchException
 
 
@@ -26,40 +26,33 @@ class Matches:
         )
     )
 
+    _select_visibility = """
+        ,matches_type_visibility.visibility
+    """
+    _left_join_visibility = """
+        LEFT JOIN matches_type_visibility ON
+            matches.account=matches_type_visibility.account AND
+                matches.type=matches_type_visibility.type
+    """
+
     @staticmethod
-    def _load_json(rows):
-        """Parses returned JSON from mysql."""
+    def _load_rows(rows):
+        """Parses returned JSON from mysql and applies booleans."""
         for row in rows:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
+            if 'visibility' in row:
+                if row['visibility'] is None:
+                    if row['account'] is None:
+                        row['visibility'] = True  # Visible if nobody owns it
+                    else:
+                        row['visibility'] = None
+                else:
+                    row['visibility'] = row['visibility'] > 0
         return rows
 
     def __init__(self, db):
         self._db = db
-
-    def get_by_id(self, match_id):
-        """Gets a match by an ID.
-
-        Params:
-            id: the match id
-        
-        Returns:
-            A Match object
-
-        Raises:
-            MatchesException
-        """
-        match_rows = Matches._load_json(self._db.execute_d(
-            """SELECT * FROM matches
-                WHERE id=%(id)s
-            """,
-            {
-                "id": match_id
-            }
-        ))
-        if len(match_rows) != 1:
-            raise MatchesException("No match found with that ID.")
-        return Match(self._db, match_rows[0])
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -72,14 +65,16 @@ class Matches:
         Returns:
             A list (possibly empty) of matches rows
         """
-        return Matches._load_json(self._db.exec_frag_d(
+        return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
+                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id",
                 ) if ljoin_account_links else "",
+                Matches._left_join_visibility,
                 frag(
                     "WHERE matches.eid IN (:eid)",
                     eid=eids
@@ -111,14 +106,16 @@ class Matches:
         if len(account_links) == 0:
             return []
 
-        return Matches._load_json(self._db.exec_frag_d(
+        return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
+                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id"
                 ) if ljoin_account_links else "",
+                Matches._left_join_visibility,
                 "WHERE eid IN (",
                 frag(
                     "SELECT DISTINCT eid FROM matches",  # Need to look for other issues like this
@@ -154,31 +151,29 @@ class Matches:
         Raises:
             MatchesException
         """
-    
+
         if not isinstance(type_int, int):
             raise MatchesException("type_int should be an int")
 
-        self._db.execute(
-            """
-            INSERT INTO matches
-                (eid, type, data, account, account_link, lat, lon, time, created, raw_identifier)
-                VALUES
-                (%(eid)s, %(type)s, %(data)s, %(account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s, %(created)s, %(raw_identifier)s)
-            """,
-            {
-                "eid": eid,
-                "type": type_int,
-                "data": None if data is None else json.dumps(data),
-                "account": account,
-                "account_link": account_link,
-                "lat": lat,
-                "lon": lon,
-                "time": time,
-                "created": int(time_module.time()),
-                "raw_identifier": raw_identifier
-            }
+        self._db.exec_frag_d(
+            frag_insert_into(
+                'matches',
+                [
+                    {
+                        "eid": eid,
+                        "type": type_int,
+                        "data": None if data is None else json.dumps(data),
+                        "account": account,
+                        "account_link": account_link,
+                        "lat": lat,
+                        "lon": lon,
+                        "time": time,
+                        "created": int(time_module.time()),
+                        "raw_identifier": raw_identifier
+                    }
+                ]
+            )
         )
-
 
     def get_count_eid_distinct(self):
         """Count the number of distinct EIDs in the database.
@@ -188,14 +183,13 @@ class Matches:
         """
         self._db.execute(
             """
-            SELECT 
+            SELECT
                 COUNT(DISTINCT eid)
             FROM
                 matches
             """
         )
         return self._db.fetch_all()[0][0]
-
 
     def get_count_distribution(self, type_int, account_links=None, eid_distinct=True):
         """Gets the count of each data type
@@ -205,7 +199,7 @@ class Matches:
             account_links: Query on only a set of account links (spread)
             eid_distinct: Whether it should only count once per EID
                 (as long as duplicate entries per type per eid don't exist, this doesn't matter)
-        
+
         Returns:
             A list of dictionaries
                 Keys
@@ -236,7 +230,7 @@ class Matches:
                 GROUP BY
                     data
             """
-        return Matches._load_json(self._db.execute_d(
+        return Matches._load_rows(self._db.execute_d(
             full_sql,
             {
                 "type": type_int
@@ -257,9 +251,10 @@ class Matches:
             Enhances with account_links.company, account_links.sector
         """
 
-        return Matches._load_json(self._db.exec_frag_d(
+        return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
+                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 """
                     FROM auction_sales
@@ -268,6 +263,7 @@ class Matches:
                     LEFT JOIN matches ON sales_group_eids.eid=matches.eid
                     LEFT JOIN account_links ON matches.account_link=account_links.id
                 """,
+                Matches._left_join_visibility,
                 frag(
                     "WHERE auction_sales.account=:account_id",
                     account_id=account_id
