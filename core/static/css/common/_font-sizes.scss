@@ -1,0 +1,10 @@
+@use "sass:map";
+
+$common-font-sizes: (
+    'small': 13px,
+    'regular': 14px,
+);
+
+@function font-size($name) {
+    @return map.get($common-font-sizes, $name);
+}

@@ -1,6 +1,12 @@
-@import "../common/colors";
+@use "../common/colors" as *;
+@use "../common/spacings" as *;
+@use "flashable/style" with (
+    $btn-primary-color: color("primary")
+);
 
 // Flashable theme
-@import "flashable/style";
+
 
 @import "custom/sales_groups";
+
+@import "widgets/widgets";

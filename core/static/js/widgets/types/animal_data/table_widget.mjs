@@ -39,7 +39,7 @@ export class TableWidget extends Widget {
             "data_request",
             {
                 request: {
-                    type: 'count_distribution',
+                    type: 'count_distribution_global',
                     params: {
                         match_type: 'USDA Yield Grade'
                     }
@@ -54,7 +54,7 @@ export class TableWidget extends Widget {
             "data_request",
             {
                 request: {
-                    type: 'count_distribution',
+                    type: 'count_distribution_global',
                     params: {
                         match_type: 'USDA Quality Grade'
                     }

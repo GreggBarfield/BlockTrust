@@ -1,0 +1,77 @@
+.match-types-privacy-panel {
+  
+    * {
+      
+      box-sizing: border-box;
+    }
+
+    flex-wrap: wrap;
+    
+    input {
+      opacity: 0%;
+      position: absolute;
+    }
+    
+    > div, > div > div {
+      padding: 0px;
+      display: block;
+      position: relative;
+      padding: padding("thin");
+    }
+    
+    input:checked + div {
+      background-color: #FFEFEF;
+    }
+  
+    div > div {
+      padding: 15px;
+      width: 100%;
+      height: 100%;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
+      top-section {
+      
+        header {
+          display: inline-block;
+          font-size: 16px;
+          margin: 0px;
+          font-weight: 700;
+        }
+        
+        id {
+          color: #686c71;
+          
+          float: right;
+          padding: 1px;
+          font-size: 13px;
+          
+          &::before {
+            content: "#";
+          }
+        }
+        
+        description {
+          display: block;
+          font-size: 14px;
+          margin-top: 3px;
+        }
+
+      }
+      
+      warning {
+        display: block;
+        color: #D05252;
+        text-align: right;
+        font-size: 14px;
+        margin-top: 20px;
+
+        span {
+            margin-right: 10px;
+        }
+      }
+    }
+  }
+  

@@ -191,8 +191,8 @@ class Matches:
         )
         return self._db.fetch_all()[0][0]
 
-    def get_count_distribution(self, type_int, account_links=None, eid_distinct=True):
-        """Gets the count of each data type
+    def get_count_distribution(self, type_int, account_links, eid_distinct=True):
+        """Gets the count of each data type for an account
 
         Params:
             type_int: The type as an int
@@ -207,18 +207,20 @@ class Matches:
                     count: The number of times data existed
         """
         #TODO: implement eid_distinct
-        data_type_clause = "data"
-        account_links_clause = ""
-        if account_links:
-            account_links_clause = """AND eid IN
-                        (
-                            SELECT eid
-                            FROM matches
-                            WHERE
-                            account_link IN (""" +','.join([
-                str(int(account_link.id())) for account_link in account_links
-            ]) + """))
-                """
+
+        if len(account_links) == 0:
+            return []
+
+        account_links_clause = """AND eid IN
+                    (
+                        SELECT eid
+                        FROM matches
+                        WHERE
+                        account_link IN (""" +','.join([
+            str(int(account_link.id())) for account_link in account_links
+        ]) + """))
+            """
+
         full_sql = """
                 SELECT 
                     data, COUNT(*) as 'count'
@@ -235,6 +237,37 @@ class Matches:
             {
                 "type": type_int
             }
+        ))
+
+    def get_count_distribution_global(self, type_int, eid_distinct=True):
+        """Gets the count of each data type for global
+
+        Params:
+            type_int: The type as an int
+            eid_distinct: Whether it should only count once per EID
+                (as long as duplicate entries per type per eid don't exist, this doesn't matter)
+
+        Returns:
+            A list of dictionaries
+                Keys
+                    data: Int value of data or string if join_str is set
+                    count: The number of times data existed
+        """
+        #TODO: implement eid_distinct
+        return Matches._load_rows(self._db.exec_frag_d(
+            frag(
+                """
+                    SELECT
+                        data, COUNT(*) as 'count'
+                    FROM
+                        matches
+                    WHERE
+                        type=:type
+                    GROUP BY
+                        data
+                """,
+                type=type_int
+            )
         ))
 
     def get_by_auction_sale_account(self, account_id, restrict_types, ljoin_account_links):

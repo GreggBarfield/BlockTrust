@@ -47,3 +47,16 @@ class MatchesTypeVisibility:
                     ]
                 )
             )
+
+    def get_account_type_visibilities(self, account_id):
+        """Gets all the type visibilities for an account.
+
+        Params:
+            account_id: Account ID to get for
+        """
+        return self._db.exec_frag_d(
+            frag(
+                "SELECT * FROM matches_type_visibility WHERE account=:account",
+                account=account_id
+            )
+        )

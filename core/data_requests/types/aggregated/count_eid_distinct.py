@@ -1,7 +1,9 @@
 from flask import g
 
+
 def unauth(params):
     return auth(params)
+
 
 def auth(params):
     return {

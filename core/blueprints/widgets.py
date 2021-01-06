@@ -23,6 +23,8 @@ from ..utilities import crut
 
 from ..data_requests.router import unauth_route
 
+from time import time
+
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -127,12 +129,19 @@ def serve_search_sales_groups_2():
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": eids,
-            "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+            "file_auths": g.db.files.get_auths(
+                sales_group_row["reported"]["images"]
+                if "images" in sales_group_row["reported"]
+                else None
+            ),
             "zip": sales_group_row["zip"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {
-                "milesAway": meters_to_miles(distance(ZIP_CODES[request.json["search"]["zip"]]["ecef"], ZIP_CODES[sales_group_row["zip"]]["ecef"]))
+                "milesAway": meters_to_miles(distance(
+                    ZIP_CODES[request.json["search"]["zip"]]["ecef"],
+                    ZIP_CODES[sales_group_row["zip"]]["ecef"]
+                ))
             },
             "auction_sale": sales_group_row["auction_sale"],
             "auction_sale_name": sales_group_row["auction_sale_name"]
@@ -200,12 +209,16 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
 def serve_get_upload_config():
-    user_owns = request.json["user_owns"] == True
-    account_owns = request.json["account_owns"] == True
+    user_owns = request.json["user_owns"] is True
+    account_owns = request.json["account_owns"] is True
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
 
-    file_id, file_config = g.db.files.get_post(request.json["file_name"], g.user.id() if user_owns else None, g.account.id() if account_owns else None)
+    file_id, file_config = g.db.files.get_post(
+        request.json["file_name"],
+        g.user.id() if user_owns else None,
+        g.account.id() if account_owns else None
+    )
 
     return {
         "id": file_id,
@@ -298,7 +311,27 @@ def serve_update_auction_sale():
         }, 400
 
 
+@bp.route('/widgets/data/update_match_visibility_settings', methods=['POST'])
+@crut.require_account
+def serve_update_match_visibility_settings():
+    g.db.matches_type_visibility.set_account_type_visibilities(
+        g.account.id(),
+        request.json["visibility_settings"]
+    )
+    return {}, 200
+
+
 @bp.route('/widgets/data/data_request', methods=['POST'])
 @crut.require_account
 def serve_data_request():
     return unauth_route(request.json['request']), 200
+
+
+@bp.route('/widgets/data/get_account_type_visibilities', methods=['POST'])
+@crut.require_account
+def serve_get_account_type_visibilities():
+    return {
+        'type_visibilities': g.db.matches_type_visibility.get_account_type_visibilities(
+            g.account.id()
+        )
+    }

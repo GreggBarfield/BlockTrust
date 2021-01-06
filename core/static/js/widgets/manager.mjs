@@ -12,6 +12,7 @@ import { SearchSalesGroupsWidget } from './types/sales_groups/search_sales_group
 import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_sales_widget.mjs';
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
+import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match_visibility_settings_widget.mjs';
 
 
 // Immediately invoked
@@ -42,6 +43,7 @@ import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_
     attach("messages list", MessagesListWidget);
     attach("manage auction sales", ManageAuctionSalesWidget);
     attach("view upcoming auction sales", ViewUpcomingAuctionsWidget);
+    attach("match visibility settings", MatchVisibilitySettingsWidget);
 
     // Find widgets
     $(".widget").each(function () {

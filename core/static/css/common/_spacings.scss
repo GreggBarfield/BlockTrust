@@ -1,0 +1,17 @@
+@use "sass:map";
+
+$common-paddings: (
+    'thin': 5px,
+);
+
+@function padding($name) {
+    @return map.get($common-paddings, $name);
+}
+
+$common-margins: (
+    'thin': 15px,
+);
+
+@function margin($name) {
+    @return map.get($common-margins, $name);
+}

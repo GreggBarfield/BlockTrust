@@ -1,1 +1,10 @@
-$btn-primary-color: #8b4513;
+@use "sass:map";
+
+$common-colors: (
+    'primary': #8b4513,
+    'secondary': #748892
+);
+
+@function color($name) {
+    @return map.get($common-colors, $name);
+}

@@ -18,6 +18,7 @@ from ..utilities import crut
 
 bp = Blueprint('dashboard_bp', __name__)
 
+
 @bp.route('/dashboard', methods=['GET'])
 @crut.require_user
 def serve_dashboard():
@@ -35,6 +36,7 @@ def serve_dashboard():
         return redirect('/dashboard/accounts')
 
 # Accounts
+
 
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
@@ -55,7 +57,7 @@ def serve_accounts_new_account_action():
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
-    
+
         # Create Account
         try:
             sector_id = -1
@@ -99,7 +101,10 @@ def serve_account_id(account_id):
     try:
         account_user = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
     except NoAccountUserFound as e:
-        return dashboard_render("accounts/account_not_found.html", {"account_id":account_id})
+        return dashboard_render(
+            "accounts/account_not_found.html",
+            {"account_id": account_id}
+        )
 
     account = account_user.account()
     account_links = account.account_links()
@@ -122,16 +127,19 @@ def serve_animal_eid(animal_eid):
 
     return dashboard_render("animals/animal.html", {"animal": animal})
 
+
 @bp.route('/dashboard/accounts', methods=['GET'])
 @crut.require_user
 def serve_accounts():
     accounts = g.db.accounts.get_by_user(g.user)
     return dashboard_render("accounts/account_select.html", {"accounts": accounts})
 
+
 @bp.route('/dashboard/sales-groups', methods=['GET'])
 @crut.require_account
 def serve_sales_groups():
     return dashboard_render("sales-groups/list.html")
+
 
 @bp.route('/dashboard/messages', methods=['GET'])
 @crut.require_account
@@ -151,9 +159,11 @@ def serve_messages(open_message_id=None):
         }
     )
 
+
 @bp.route('/dashboard/messages/<int:open_message_id>', methods=['GET'])
 def serve_messages_specific(open_message_id):
     return serve_messages(open_message_id)
+
 
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
 @crut.require_account
@@ -162,6 +172,7 @@ def serve_new_sales_group():
 
     return redirect('/dashboard/sales-groups/edit/' + str(new_id) + '')
 
+
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
 def serve_edit_sales_group(sales_group_id):
@@ -169,8 +180,9 @@ def serve_edit_sales_group(sales_group_id):
 
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
-    
+
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
+
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
@@ -178,8 +190,12 @@ def serve_view_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
-        return dashboard_render("sales-groups/sales-group/view.html", {"sales_group": sales_group_row})
+        return dashboard_render(
+            "sales-groups/sales-group/view.html",
+            {"sales_group": sales_group_row}
+        )
     return dashboard_render("sales-groups/sales-group/not-published.html")
+
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
@@ -203,6 +219,13 @@ def serve_auction_sales_manage(new_auction_sale=False):
         }
     )
 
+
 @bp.route('/dashboard/auction-sales/new', methods=['GET'])
 def serve_auction_sales_new():
     return serve_auction_sales_manage(True)
+
+
+@bp.route('/dashboard/data', methods=['GET'])
+@crut.require_account
+def serve_data():
+    return dashboard_render("data/index.html")

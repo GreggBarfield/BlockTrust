@@ -3,7 +3,11 @@ from .exceptions import (
     DataRequestTypeUnknownException
 )
 
-from .types.aggregated import count_eid_distinct
+from .types.aggregated import (
+    count_eid_distinct,
+    count_distribution_global
+)
+
 from .types.specific import (
     count_distribution, matches_by_eids, matches_by_account,
     matches_by_auction_account
@@ -14,7 +18,8 @@ routing_table = {
     'count_distribution': count_distribution,
     'matches_by_eids': matches_by_eids,
     'matches_by_account': matches_by_account,
-    'matches_by_auction_account': matches_by_auction_account
+    'matches_by_auction_account': matches_by_auction_account,
+    'count_distribution_global' : count_distribution_global
 }
 
 
