@@ -12,4 +12,3 @@ sectors_by_name = {
     value: key
     for key, value in sectors_by_id.items()
 }
-

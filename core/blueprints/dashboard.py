@@ -113,6 +113,8 @@ def serve_account_id(account_id):
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", sector_params)
+    elif account.sector_name() == "Feedlot":
+        return dashboard_render("sectors/feedlot.html", sector_params)
     else:
         return dashboard_render("sectors/generic.html", sector_params)
 

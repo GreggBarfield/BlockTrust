@@ -5,6 +5,7 @@ import { GradeWidget } from './types/animal_data/grade_widget.mjs';
 import { TimelineWidget } from './types/animal_data/timeline_widget.mjs';
 import { HealthTableWidget } from './types/animal_data/health_table_widget.mjs';
 import { SectorsWidget } from './types/animal_data/sectors_widget.mjs';
+import { SourceSummaryWidget } from './types/animal_data/source_summary_widget.mjs';
 import { EditSalesGroupWidget } from './types/sales_groups/edit_sales_group_widget.mjs';
 import { ViewSalesGroupWidget } from './types/sales_groups/view_sales_group_widget.mjs';
 import { AccountSalesGroupsWidget } from './types/sales_groups/account_sales_groups_widget.mjs';
@@ -44,6 +45,7 @@ import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match
     attach("manage auction sales", ManageAuctionSalesWidget);
     attach("view upcoming auction sales", ViewUpcomingAuctionsWidget);
     attach("match visibility settings", MatchVisibilitySettingsWidget);
+    attach("source summary", SourceSummaryWidget);
 
     // Find widgets
     $(".widget").each(function () {
