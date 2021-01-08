@@ -206,17 +206,17 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        #TODO: implement eid_distinct
+        # TODO: implement eid_distinct
 
         if len(account_links) == 0:
             return []
 
         account_links_clause = """AND eid IN
                     (
-                        SELECT eid
+                        SELECT DISTINCT eid
                         FROM matches
                         WHERE
-                        account_link IN (""" +','.join([
+                        account_link IN (""" + ','.join([
             str(int(account_link.id())) for account_link in account_links
         ]) + """))
             """

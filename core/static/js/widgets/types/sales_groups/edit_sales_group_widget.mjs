@@ -193,42 +193,42 @@ export class EditSalesGroupWidget extends Widget {
         let characteristicsRow = createSection(form, "Characteristics");
 
         let characteristicBreeds = createSelect(
-            characteristicsRow,
-            "Breed",
-            SalesGroupFields.commonBreedNames,
-            this.data.reported.breeds || [],
-            true,
-            true,
-            "Select Applicable Breeds"
+            row=characteristicsRow,
+            name="Breed",
+            options=SalesGroupFields.commonBreedNames,
+            values=this.data.reported.breeds || [],
+            multiple=true,
+            tags=true,
+            placeholder="Select Applicable Breeds"
         );
         let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null);
         let characteristicsFrame = createSelect(
-            characteristicsRow,
-            "Frame",
-            ["Small", "Medium", "Large"],
-            this.data.reported.usda_frame_size || "Small",
-            false,
-            false,
-            "Select Frame"
+            row=characteristicsRow,
+            name="Frame",
+            options=["Small", "Medium", "Large"],
+            values=this.data.reported.usda_frame_size || "Small",
+            multiple=false,
+            tags=false,
+            placeholder="Select Frame"
         );
         let characteristicsMuscling = createSelect(
-            characteristicsRow,
-            "Muscling",
-            ["Light", "Heavy"],
-            this.data.reported.muscling || "Light",
-            false,
-            false,
-            "Select Muscling"
+            row=characteristicsRow,
+            name="Muscling",
+            options=["Light", "Heavy"],
+            values=this.data.reported.muscling || "Light",
+            multiple=false,
+            tags=false,
+            placeholder="Select Muscling"
         );
         let characteristicsHorns = createSelect(
-            characteristicsRow,
-            "Horns",
-            ["Horns", "No Horns"],
-            this.data.reported.horns || "Horns",
-            false,
-            false,
-            "Select Horns"
+            row=characteristicsRow,
+            name="Horns",
+            options=["Horns", "No Horns"],
+            values=this.data.reported.horns || "Horns",
+            multiple=false,
+            tags=false,
+            placeholder="Select Horns"
         );
 
         // Maintenance
@@ -236,58 +236,58 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceRow = createSection(form, "Maintenance");
 
         let maintenancePreconditioningProgram = createSelect(
-            maintenanceRow,
-            "Precon Program",
-            SalesGroupFields.commonPreconditioningProgramNames,
-            this.data.reported.preconditioning_program || "None",
-            false,
-            true,
-            "Select Precon Program"
+            row=maintenanceRow,
+            name="Precon Program",
+            options=SalesGroupFields.commonPreconditioningProgramNames,
+            values=this.data.reported.preconditioning_program || "None",
+            multiple=false,
+            tags=true,
+            placeholder="Select Precon Program"
         );
         let maintenanceVaccinations = createSelect(
-            maintenanceRow,
-            "Vaccinations",
-            ["Covexin 8", "One Shot BVD", "Infor"],
-            this.data.reported.vaccinations || [],
-            true,
-            true,
-            "Select Vaccinations"
+            row=maintenanceRow,
+            name="Vaccinations",
+            options=["Covexin 8", "One Shot BVD", "Infor"],
+            values=this.data.reported.vaccinations || [],
+            multiple=true,
+            tags=true,
+            placeholder="Select Vaccinations"
         );
         let maintenanceFeedingProgram = createSelect(
-            maintenanceRow,
-            "Feeding Program",
-            ["Native Range", "Improved Pasture"],
-            this.data.reported.feeding_programs || [],
-            true,
-            true,
-            "Select Feeding Program"
+            row=maintenanceRow,
+            name="Feeding Program",
+            options=["Native Range", "Improved Pasture"],
+            values=this.data.reported.feeding_programs || [],
+            multiple=true,
+            tags=true,
+            placeholder="Select Feeding Program"
         );
         let maintenanceImplants = createSelect(
-            maintenanceRow,
-            "Implants",
-            ["Raigro"],
-            this.data.reported.implants || [],
-            true,
-            true,
-            "Select Implants"
+            row=maintenanceRow,
+            name="Implants",
+            options=["Raigro"],
+            values=this.data.reported.implants || [],
+            multiple=true,
+            tags=true,
+            placeholder="Select Implants"
         );
         let maintenanceCastrated = createSelect(
-            maintenanceRow,
-            "Castrated",
-            ["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
-            this.data.reported.castrated || "Not Castrated",
-            false,
-            false,
-            "Select Castration Method"
+            row=maintenanceRow,
+            name="Castrated",
+            options=["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
+            values=this.data.reported.castrated || "Not Castrated",
+            multiple=false,
+            tags=false,
+            placeholder="Select Castration Method"
         );
         let maintenanceProcessVerifiedProgram = createSelect(
-            maintenanceRow,
-            "PVP Program",
-            SalesGroupFields.commonPVPProgramNames,
-            this.data.reported.process_verified_program || "None",
-            false,
-            false,
-            "Select Process Verified Program"
+            row=maintenanceRow,
+            name="PVP Program",
+            options=SalesGroupFields.commonPVPProgramNames,
+            values=this.data.reported.process_verified_program || "None",
+            multiple=false,
+            tags=false,
+            placeholder="Select Process Verified Program"
         );
 
         // Media
