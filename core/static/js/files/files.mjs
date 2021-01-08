@@ -47,14 +47,11 @@ function uploadFileToS3(config, file, progress=null) {
 export function uploadFile(userOwns, accountOwns, file, progress=null) {
     let dataResult = null;
     return $.ajax({
-        url: "/widgets/data",
+        url: "/widgets/data/get_upload_config",
         data: JSON.stringify({
-            "action": "get_upload_config",
-            "params": {
-                "user_owns": userOwns === true,
-                "account_owns": accountOwns === true,
-                "file_name": file.name
-            }
+            "user_owns": userOwns === true,
+            "account_owns": accountOwns === true,
+            "file_name": file.name
         }),
         contentType: 'application/json',
         method: "POST"

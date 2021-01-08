@@ -115,7 +115,7 @@ export class EditSalesGroupWidget extends Widget {
             return dateFormGroup;
         }
 
-        function createSelect(row, name, options, values, multiple, tags, placeholder) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}) {
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
@@ -192,103 +192,103 @@ export class EditSalesGroupWidget extends Widget {
         
         let characteristicsRow = createSection(form, "Characteristics");
 
-        let characteristicBreeds = createSelect(
-            row=characteristicsRow,
-            name="Breed",
-            options=SalesGroupFields.commonBreedNames,
-            values=this.data.reported.breeds || [],
-            multiple=true,
-            tags=true,
-            placeholder="Select Applicable Breeds"
-        );
+        let characteristicBreeds = createSelect({
+            row: characteristicsRow,
+            name: "Breed",
+            options: SalesGroupFields.commonBreedNames,
+            values: this.data.reported.breeds || [],
+            multiple: true,
+            tags: true,
+            placeholder: "Select Applicable Breeds"
+        });
         let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null);
-        let characteristicsFrame = createSelect(
-            row=characteristicsRow,
-            name="Frame",
-            options=["Small", "Medium", "Large"],
-            values=this.data.reported.usda_frame_size || "Small",
-            multiple=false,
-            tags=false,
-            placeholder="Select Frame"
-        );
-        let characteristicsMuscling = createSelect(
-            row=characteristicsRow,
-            name="Muscling",
-            options=["Light", "Heavy"],
-            values=this.data.reported.muscling || "Light",
-            multiple=false,
-            tags=false,
-            placeholder="Select Muscling"
-        );
-        let characteristicsHorns = createSelect(
-            row=characteristicsRow,
-            name="Horns",
-            options=["Horns", "No Horns"],
-            values=this.data.reported.horns || "Horns",
-            multiple=false,
-            tags=false,
-            placeholder="Select Horns"
-        );
+        let characteristicsFrame = createSelect({
+            row: characteristicsRow,
+            name: "Frame",
+            options: ["Small", "Medium", "Large"],
+            values: this.data.reported.usda_frame_size || "Small",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Frame"
+        });
+        let characteristicsMuscling = createSelect({
+            row: characteristicsRow,
+            name: "Muscling",
+            options: ["Light", "Heavy"],
+            values: this.data.reported.muscling || "Light",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Muscling"
+        });
+        let characteristicsHorns = createSelect({
+            row: characteristicsRow,
+            name: "Horns",
+            options: ["Horns", "No Horns"],
+            values: this.data.reported.horns || "Horns",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Horns"
+        });
 
         // Maintenance
 
         let maintenanceRow = createSection(form, "Maintenance");
 
-        let maintenancePreconditioningProgram = createSelect(
-            row=maintenanceRow,
-            name="Precon Program",
-            options=SalesGroupFields.commonPreconditioningProgramNames,
-            values=this.data.reported.preconditioning_program || "None",
-            multiple=false,
-            tags=true,
-            placeholder="Select Precon Program"
-        );
-        let maintenanceVaccinations = createSelect(
-            row=maintenanceRow,
-            name="Vaccinations",
-            options=["Covexin 8", "One Shot BVD", "Infor"],
-            values=this.data.reported.vaccinations || [],
-            multiple=true,
-            tags=true,
-            placeholder="Select Vaccinations"
-        );
-        let maintenanceFeedingProgram = createSelect(
-            row=maintenanceRow,
-            name="Feeding Program",
-            options=["Native Range", "Improved Pasture"],
-            values=this.data.reported.feeding_programs || [],
-            multiple=true,
-            tags=true,
-            placeholder="Select Feeding Program"
-        );
-        let maintenanceImplants = createSelect(
-            row=maintenanceRow,
-            name="Implants",
-            options=["Raigro"],
-            values=this.data.reported.implants || [],
-            multiple=true,
-            tags=true,
-            placeholder="Select Implants"
-        );
-        let maintenanceCastrated = createSelect(
-            row=maintenanceRow,
-            name="Castrated",
-            options=["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
-            values=this.data.reported.castrated || "Not Castrated",
-            multiple=false,
-            tags=false,
-            placeholder="Select Castration Method"
-        );
-        let maintenanceProcessVerifiedProgram = createSelect(
-            row=maintenanceRow,
-            name="PVP Program",
-            options=SalesGroupFields.commonPVPProgramNames,
-            values=this.data.reported.process_verified_program || "None",
-            multiple=false,
-            tags=false,
-            placeholder="Select Process Verified Program"
-        );
+        let maintenancePreconditioningProgram = createSelect({
+            row: maintenanceRow,
+            name: "Precon Program",
+            options: SalesGroupFields.commonPreconditioningProgramNames,
+            values: this.data.reported.preconditioning_program || "None",
+            multiple: false,
+            tags: true,
+            placeholder: "Select Precon Program"
+        });
+        let maintenanceVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Vaccinations",
+            options: ["Covexin 8", "One Shot BVD", "Infor"],
+            values: this.data.reported.vaccinations || [],
+            multiple: true,
+            tags: true,
+            placeholder: "Select Vaccinations"
+        });
+        let maintenanceFeedingProgram = createSelect({
+            row: maintenanceRow,
+            name: "Feeding Program",
+            options: ["Native Range", "Improved Pasture"],
+            values: this.data.reported.feeding_programs || [],
+            multiple: true,
+            tags: true,
+            placeholder: "Select Feeding Program"
+        });
+        let maintenanceImplants = createSelect({
+            row: maintenanceRow,
+            name: "Implants",
+            options: ["Raigro"],
+            values: this.data.reported.implants || [],
+            multiple: true,
+            tags: true,
+            placeholder: "Select Implants"
+        });
+        let maintenanceCastrated = createSelect({
+            row: maintenanceRow,
+            name: "Castrated",
+            options: ["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
+            values: this.data.reported.castrated || "Not Castrated",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Castration Method"
+        });
+        let maintenanceProcessVerifiedProgram = createSelect({
+            row: maintenanceRow,
+            name: "PVP Program",
+            options: SalesGroupFields.commonPVPProgramNames,
+            values: this.data.reported.process_verified_program || "None",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Process Verified Program"
+        });
 
         // Media
 
@@ -422,7 +422,7 @@ export class EditSalesGroupWidget extends Widget {
         this.frame.append(card);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data",
+            action: "/widgets/data/save_sales_group",
             form: form,
             status: statusMessage,
             error: errorMessage,
@@ -438,33 +438,30 @@ export class EditSalesGroupWidget extends Widget {
                 }
 
                 return {
-                    action: "save_sales_group",
-                    params: {
-                        id: that.salesGroupID,
-                        published: publishSwitch.isChecked(),
-                        eids: parseEIDs(eidsTA),
-                        reported: {
-                            comments: commentsTA.value,
-                            count: safeInt(marketingCount.value),
-                            weight: safeInt(characteristicsWeight.value),
-                            weight_variance: characteristicsWeightVariance.value,
-                            breeds: $(characteristicBreeds).val(),
-                            horns: characteristicsHorns.value,
-                            muscling: characteristicsMuscling.value,
-                            usda_frame_size: characteristicsFrame.value,
-                            preconditioning_program: maintenancePreconditioningProgram.value,
-                            vaccinations: $(maintenanceVaccinations).val(),
-                            feeding_programs: $(maintenanceFeedingProgram).val(),
-                            implants: $(maintenanceImplants).val(),
-                            castrated: maintenanceCastrated.value,
-                            process_verified_program: maintenanceProcessVerifiedProgram.value,
-                            images: that.fileEditor.getFileIDs(),
-                        },
-                        "zip": parseInt(marketingZIP.value),
-                        "start": marketingStart.getTime(),
-                        "end": marketingEnd.getTime(),
-                        auction_sale: marketingAuctionSale.getID()
-                    } 
+                    id: that.salesGroupID,
+                    published: publishSwitch.isChecked(),
+                    eids: parseEIDs(eidsTA),
+                    reported: {
+                        comments: commentsTA.value,
+                        count: safeInt(marketingCount.value),
+                        weight: safeInt(characteristicsWeight.value),
+                        weight_variance: characteristicsWeightVariance.value,
+                        breeds: $(characteristicBreeds).val(),
+                        horns: characteristicsHorns.value,
+                        muscling: characteristicsMuscling.value,
+                        usda_frame_size: characteristicsFrame.value,
+                        preconditioning_program: maintenancePreconditioningProgram.value,
+                        vaccinations: $(maintenanceVaccinations).val(),
+                        feeding_programs: $(maintenanceFeedingProgram).val(),
+                        implants: $(maintenanceImplants).val(),
+                        castrated: maintenanceCastrated.value,
+                        process_verified_program: maintenanceProcessVerifiedProgram.value,
+                        images: that.fileEditor.getFileIDs(),
+                    },
+                    "zip": parseInt(marketingZIP.value),
+                    "start": marketingStart.getTime(),
+                    "end": marketingEnd.getTime(),
+                    auction_sale: marketingAuctionSale.getID()
                 }
             }
         });     
@@ -544,13 +541,10 @@ class SelectAuctionSaleFormGroup extends FormGroup {
 
         $(this._select).select2({
             ajax: {
-                url: "/widgets/data",
+                url: "/widgets/data/search_auction_sales",
                 data: (params) => {
                     return JSON.stringify({
-                        "action": "search_auction_sales",
-                        "params": {
-                            "term": params.term
-                        }
+                        "term": params.term
                     })
                 },
                 contentType: 'application/json',
