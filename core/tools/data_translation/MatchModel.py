@@ -1,4 +1,6 @@
 import json
+import ModelUtilities
+
 class MatchModel:
     def __init__(self):
         self.num_cols = 11
@@ -129,17 +131,64 @@ class MatchModel:
         return output_json
 
     def verify_values(self):
-        is_valid = False
         #Returns whether the data can be uploaded to the matches table
-        #id - integer - not null - auto increment
+        #id - integer - not null - auto increment - we won't edit current records yet
+        if not (self.id == None or self.id == ''):
+            print('reason: id')
+            return False
+
         #account - int - nullable
+        if (not ModelUtilities.verify_nullable_int(self.account)):
+            print('reason: account')
+            return False
+
         #account link - nullable
+        if (not ModelUtilities.verify_nullable_int(self.account_link)):
+            print('reason: account_link')
+            return False
+
         #eid - nullable
+        if (not ModelUtilities.verify_nullable_int(self.eid)):
+            print('reason: eid')
+            return False
+
         #lat - double - nullable
+        if (not ModelUtilities.verify_nullable_float(self.lat)):
+            print('reason: lat')
+            return False
+
         #lon - double - nullable
+        if (not ModelUtilities.verify_nullable_float(self.lon)):
+            print('reason: lon')
+            return False
+
         #time - int - nullable
+        if (not ModelUtilities.verify_nullable_int(self.time)):
+            print('reason: time')
+            return False
         #created - int - nullable
+        if (not ModelUtilities.verify_nullable_int(self.created)):
+            print('reason: created')
+            return False
         #type - int - nullable
+        if (not ModelUtilities.verify_nullable_int(self.type)):
+            print('reason: type')
+            return False
+
+        if not (ModelUtilities.verify_type_by_id(self.type)):
+            print('reason: type')
+            return False
+
         #raw_identifier - varchar - nullable
+        if (not ModelUtilities.verify_nullable_str(self.raw_identifier)):
+            print('reason: raw identifier')
+            return False
+
+        
         #data - json - nullable
-        return is_valid
+        if (not ModelUtilities.verify_nullable_json(self.data)):
+            print('reason: data')
+            return False
+
+        # Made it past all checks, must be verifiable
+        return True

@@ -39,6 +39,6 @@ print('----------End Results------------')
 print('---------------------------------')
 
 for m in matches:
-    print(m.to_list())
+    print(str(m.to_list()) + ' verified: ' + str(m.verify_values()))
 
 
