@@ -37,58 +37,75 @@ class MatchGeneratorMFA(MatchGenerator.MatchGenerator):
 
     def generate_born_match(self, insert):
         # Look for Birthdate or Birthweight field
-        if 'Birthdate' in insert.fields:
-            birth_date = insert.get_data_dict()['Birthdate']
-            if (birth_date == ''):
-                return
+        try:
+            if 'Birthdate' in insert.fields:
+                birth_date = insert.get_data_dict()['Birthdate']
+                if (birth_date == '' or birth_date == None):
+                    return None
 
-            new_match = MatchModel.MatchModel()
-            new_match.account = insert.account
-            new_match.eid = insert.get_data_dict()['EID']
-            new_match.type = 4
+                new_match = MatchModel.MatchModel()
+                new_match.account = insert.account
+                new_match.eid = insert.get_data_dict()['EID']
+                new_match.type = 4
 
-            created_date = insert.created
-            created_date = self.date_to_epoch(created_date)
-            new_match.created = created_date
+                created_date = insert.created
+                created_date = self.date_to_epoch(created_date)
+                new_match.created = created_date
 
-            birth_date = self.date_to_epoch(birth_date)
-            new_match.time = birth_date
-            return new_match
+                birth_date = self.date_to_epoch(birth_date)
+                new_match.time = birth_date
+                return new_match
+            else:
+                return None
+        except Exception as e:
+            print('generate_born_match failed.')
+            return None
+
 
     def generate_visual_id_match(self, insert):
         # Look for VisualID field
-        if 'VisualID' in insert.fields:
-            visual_id = insert.get_data_dict()['VisualID']
-            if (visual_id == ''):
-                return
+        try:
+            if 'VisualID' in insert.fields:
+                visual_id = insert.get_data_dict()['VisualID']
+                if (visual_id == ''):
+                    return None
 
-            new_match = MatchModel.MatchModel()
-            new_match.account = insert.account
-            new_match.eid = insert.get_data_dict()['EID']
-            new_match.type = 10
+                new_match = MatchModel.MatchModel()
+                new_match.account = insert.account
+                new_match.eid = insert.get_data_dict()['EID']
+                new_match.type = 10
 
-            created_date = insert.created
-            created_date = self.date_to_epoch(created_date)
-            new_match.created = created_date
+                created_date = insert.created
+                created_date = self.date_to_epoch(created_date)
+                new_match.created = created_date
 
-            new_match.data = str(visual_id)
-            return new_match
+                new_match.data = str(visual_id)
+                return new_match
+            else:
+                return None
+        except Exception as e:
+            print('generate_visual_id_match failed.')
+            return None
 
-
-        pass
 
     def generate_weaned_match(self, insert):
         # look for WeanDate field
-        if 'WeanDate' in insert.fields:
-            new_match = MatchModel.MatchModel()
-            new_match.account = insert.account
-            new_match.eid = insert.get_data_dict()['EID']
-            new_match.type = 11
+        try:
+            if 'WeanDate' in insert.fields:
+                new_match = MatchModel.MatchModel()
+                new_match.account = insert.account
+                new_match.eid = insert.get_data_dict()['EID']
+                new_match.type = 11
 
-            created_date = insert.created
-            created_date = self.date_to_epoch(created_date)
-            new_match.created = created_date
-            return new_match
+                created_date = insert.created
+                created_date = self.date_to_epoch(created_date)
+                new_match.created = created_date
+                return new_match
+            else:
+                return None
+        except Exception as e:
+            print('generate_weaned_match failed.')
+            return None
 
     def generate_first_birth_match(self, insert):
         pass
@@ -110,26 +127,32 @@ class MatchGeneratorMFA(MatchGenerator.MatchGenerator):
 
     def generate_died_match(self, insert):
         # Look for DeathDate field
+        try:
+            if 'DeathDate' in insert.fields:
 
-        if 'DeathDate' in insert.fields:
-            death_date = insert.get_data_dict()['DeathDate']
-            if (death_date == ''):
-                return
+                death_date = insert.get_data_dict()['DeathDate']
+                if (death_date == '' or death_date == None):
+                    return None
 
-            new_match = MatchModel.MatchModel()
-            new_match.account = insert.account
-            new_match.eid = insert.get_data_dict()['EID']
-            new_match.type = 18
+                new_match = MatchModel.MatchModel()
+                new_match.account = insert.account
+                new_match.eid = insert.get_data_dict()['EID']
 
-            created_date = insert.created
-            created_date = self.date_to_epoch(created_date)
-            new_match.created = created_date
+                new_match.type = 18
 
-            
-            death_date = self.date_to_epoch(death_date)
-            new_match.time = death_date
+                created_date = insert.created
+                created_date = self.date_to_epoch(created_date)
+                new_match.created = created_date
 
-            return new_match
+                death_date = self.date_to_epoch(death_date)
+                new_match.time = death_date
+
+                return new_match
+            else:
+                return None
+        except Exception as e:
+            print('generate_died_match failed')
+            return None
 
     def generate_railed_match(self, insert):
         pass

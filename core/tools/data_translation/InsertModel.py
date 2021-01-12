@@ -15,13 +15,15 @@ class InsertModel:
     def load_from_list(self, insert_list):
         # This assumes that all values are given in order of DB
         if (len(insert_list) == self.num_cols):
-            self.id = insert_list[0]
-            self.account = insert_list[1]
-            self.namespace = insert_list[2]
-            self.type = insert_list[3]
-            self.fields = insert_list[4]
-            self.row = insert_list[5]
-            self.created = insert_list[6]
+            self.id = str(insert_list[0])
+            self.account = str(insert_list[1])
+            self.namespace = str(insert_list[2])
+            self.type = str(insert_list[3])
+            self.fields = str(insert_list[4])
+            self.fields = json.loads(self.fields)
+            self.row = str(insert_list[5])
+            self.row = json.loads(self.row)
+            self.created = str(insert_list[6])
 
             return True
         else:
@@ -92,10 +94,14 @@ class InsertModel:
 
     def get_data_dict(self):
         data_dict = {}
-        if (len(self.fields) == len(self.row)):
+        if (len(self.fields) == len(self.row) or len(self.fields) < len(self.row)):
             for i in range(0, len(self.fields)):
                 data_dict[self.fields[i]] = self.row[i]
-            return data_dict
+            return dict(data_dict)
+        elif len(self.fields) > len(self.row):
+            for i in range(0, len(self.row)):
+                data_dict[self.fields[i]] = self.row[i]
+            return dict(data_dict)
         else:
             return None
 
