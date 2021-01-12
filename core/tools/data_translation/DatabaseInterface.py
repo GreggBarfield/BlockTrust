@@ -2,7 +2,24 @@
 import mysql.connector
 import InsertModel
 class DatabaseInterface:
+    """ This class is meant to serve as a (temporary)
+        solution to interfacing the inserts and matches table
+        for the api-worker functionality.
+
+        It creates a connection to a given database, 
+        and provides simplified functionality for uploading
+        matches and downloading insert records.
+    
+    """
     def __init__(self):
+        """ Constructor for DatabaseInterface
+            It sets up a database connection and prepares the
+            inserts table for reading.
+
+            Params:
+                NONE
+        
+        """
         self.db_connection = None
         self.cursor = None
         try:
@@ -19,11 +36,16 @@ class DatabaseInterface:
             print('Failed to Establish Connection to DB')
 
     def get_next_insert(self):
+        """ get_next insert
+            purpose: reads rows from inserts
+                     one row at a time.
+        """
         if (self.cursor != None):
             try:
                 row = self.cursor.fetchone()
                 new_insert = InsertModel.InsertModel()
                 new_insert.load_from_list(list(row))
+                new_insert.shrink_data()
                 return new_insert
             except:
                 print('Error: get next insert failed.')

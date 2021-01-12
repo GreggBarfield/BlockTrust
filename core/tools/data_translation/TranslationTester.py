@@ -62,7 +62,6 @@ while (temp_insert != None):
     num_insert += 1
     #print(temp_insert.to_list())
     #print()
-
     try:
         matchGenerator = None
         if (temp_insert.namespace == "MFA"):
