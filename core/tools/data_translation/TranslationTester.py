@@ -1,3 +1,6 @@
+#TRANSLATION TESTER: A program to test the DatabaseInterface
+#InsertModel, MatchModel, MatchGenerator, MatchGeneratorMFA, etc
+
 import csv
 import InsertModel
 import MatchModel

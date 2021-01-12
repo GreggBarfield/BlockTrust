@@ -3,10 +3,40 @@ import MatchModel
 import InsertModel
 from datetime import datetime
 class MatchGeneratorMFA(MatchGenerator.MatchGenerator):
+    """ MatchGeneratorMFA is an implementation of MatchGenerator
+        It's purpose is to generate MatchModel objects given
+        InsertModel objects.
+
+        One call to generate_matches is meant to generate all possible matches for
+        a given InsertModel object in the MFA namespace.
+
+        IMPORTANT: Many specific instances of generate_[type]_match exist. To make
+        this file less cluttered, they all will be described here.
+        These should only be considered private functions though.
+
+            Params: 
+                insert: An instance of the InsertModel class.
+
+            Returns:
+                new_match: An instance of the MatchModel class.
+                None: In the case no match could be made
+    
+    """
     def __init__(self):
         pass
 
     def generate_matches(self, insert):
+        """ generate_matches is the main, callable function of MatchGeneratorMFA
+            It generate all possible matches for the InsertModel that it is given.
+
+            Params:
+                insert: an instance of an InsertModel object corresponding
+                        to a a row in the inserts table
+
+            Returns:
+                matches: a list of MatchModel objects
+
+        """
         matches = []
 
         temp_matches = self.generate_weaned_match(insert)
@@ -164,6 +194,15 @@ class MatchGeneratorMFA(MatchGenerator.MatchGenerator):
         pass
 
     def date_to_epoch(self, s):
+        """ date_to_epoch converts a date time string from sql into 
+            its epoch equivalent.
+
+            Params:
+                s: a date time string from sql
+
+            Returns:
+                the epoch date time value as an integer.
+        """
         n_in = False
         digits = ''.join([str(i) for i in range(10)])
         for c in s:
