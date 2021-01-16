@@ -29,6 +29,7 @@ from .blueprints import outside
 from .blueprints import widgets
 
 from .utilities.handlers import attach_handlers
+from .utilities import auth
 
 
 app = Flask(__name__)
@@ -58,9 +59,8 @@ def before_request():
         g.api = True
     
     g.user = None
-    g.db.users.session_open()
     g.account = None
-    g.db.accounts.session_open()
+    auth.session_open()
 
 
 @app.teardown_request

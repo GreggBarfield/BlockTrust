@@ -3,8 +3,9 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.users import UsersException, LoginException, SignupFailedException
+from ..database.tables.users import UsersException
 from ..common_exceptions import ExportException
+from ..utilities import auth
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -19,7 +20,7 @@ def serve_landing():
 @bp.route('/signout', methods=['GET'])
 @bp.route('/sign-out', methods=['GET'])
 def serve_logout():
-    g.db.users.logout()
+    auth.logout()
     return redirect('/')
 
 
@@ -46,7 +47,7 @@ def serve_login_action():
         if 'password' not in request.form:
             raise ExportException("internal error, password missing from form")
         try:
-            g.db.users.login(
+            auth.login(
                 identifier=request.form['identifier'],
                 password=request.form['password']
             )
@@ -58,9 +59,9 @@ def serve_login_action():
             ):
                 redirect_to = request.form['requestRedirectTo']
             return jsonify({"redirect": redirect_to})
-        except LoginException as e:
+        except auth.LoginException as e:
             raise ExportException(str(e))
-        except UsersException as e:
+        except auth.SignupFailedException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
         return jsonify({"error": str(e)})
@@ -87,7 +88,7 @@ def serve_signup_action():
 
         # Sign up
         try:
-            g.db.users.signup(
+            auth.signup(
                 username=required['username'],
                 email=required['email'],
                 phone=required['phone'],
@@ -96,19 +97,19 @@ def serve_signup_action():
                 password=required['password'],
                 confirm_password=required['confirm_password']
             )
-        except SignupFailedException as e:
+        except auth.SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
 
         # Sign up worked, now log in and redirect
         try:
-            g.db.users.login(
+            auth.login(
                 identifier=required['username'],
                 password=required['password']
             )
             return jsonify({"redirect": "/dashboard"})
-        except LoginException as e:
+        except auth.LoginException as e:
             raise ExportException("Sorry, we created your account but had difficulties logging you in. Contact us for help.")
-        except UsersException as e:
+        except auth.UsersException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
         return jsonify({"error": str(e)})

@@ -1,4 +1,3 @@
-from flask import session, g
 from ...sectors import sectors_by_id
 from ..objects.account import Account, AccountException
 
@@ -16,39 +15,8 @@ class AccountsException(Exception):
 
 class Accounts:
 
-    SESSION_ACCOUNT_ID_VAR = "account_id"
-
     def __init__(self, db):
         self._db = db
-
-    
-    def session_start(self, account_id):
-        """Start a session with this account.
-        
-        Note that g.user should already be set to allow this to work.
-
-        Params:
-            account: Account to set as active
-        
-        Raises:
-            NoAccountUserFound on user not found
-        """
-        g.account = None
-        session[Accounts.SESSION_ACCOUNT_ID_VAR] = ""
-        attempt_login = self._db.account_users.get_by_user_and_account_id(g.user, account_id)
-        if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
-            session[Accounts.SESSION_ACCOUNT_ID_VAR] = account_id
-            self.session_open()
-
-    
-    def session_open(self):
-        """Load session into app context."""
-        g.account = None
-        if Accounts.SESSION_ACCOUNT_ID_VAR in session and session[Accounts.SESSION_ACCOUNT_ID_VAR] != "":
-            g.account = self.get_by_id(session[Accounts.SESSION_ACCOUNT_ID_VAR])
-        else:
-            session[Accounts.SESSION_ACCOUNT_ID_VAR] = ""
-
 
     def get_by_id(self, account_id):
         """Gets an account by an ID.

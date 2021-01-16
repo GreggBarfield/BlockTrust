@@ -1,15 +1,16 @@
 from os.path import join
 from flask import (
-    Flask, jsonify, request, render_template, session, redirect, url_for, g
+    Flask, jsonify, request, render_template, redirect, url_for, g
 )
+
 
 def outside_render(file, args={}):
     """Renders a template from templates/outside.
-    
+
     Params:
         file: file should be a path relative to templates/outside.
         args: context variables for jinja2
-    
+
     Returns:
         A Response object
 

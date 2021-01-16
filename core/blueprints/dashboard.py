@@ -14,7 +14,7 @@ from ..database.objects.account import AccountException
 
 from ..renderers.email import render_email
 
-from ..utilities import crut
+from ..utilities import crut, auth
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -30,7 +30,7 @@ def serve_dashboard():
     elif g.account is not None:
         return redirect('/dashboard/accounts/' + str(g.account.id()))
     elif len(account_users) == 1:
-        g.db.accounts.session_start(account_users[0].account_id())
+        auth.session_start_account(account_users[0].account_id())
         return redirect('/dashboard/accounts/' + str(account_users[0].account_id()))
     else:
         return redirect('/dashboard/accounts')
@@ -73,7 +73,7 @@ def serve_accounts_new_account_action():
                 company=required['company'],
                 sector=required['sector'],
             )
-            g.db.accounts.session_start(account.id())
+            auth.session_start_account(account.id())
             return {"redirect": "/dashboard/accounts/" + str(account.id())}
         except AccountsException as e:
             raise ExportException("Account creation failed: " + str(e))
@@ -90,7 +90,7 @@ def serve_accounts_join_account():
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
 @crut.require_user
 def serve_select_account_id(account_id):
-    g.db.accounts.session_start(account_id)
+    auth.session_start_account(account_id)
 
     return redirect("/dashboard/accounts/" + str(g.account.id()))
 

@@ -1,7 +1,15 @@
 Developing
 ==========
 
-docker-compose -f core/docker/docker-compose.dev.yaml stop && docker-compose -f core/docker/docker-compose.dev.yaml up --build --detach
+
+Docker
+
+Web development stack:
+docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core stop && docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core up --build --detach
+
+Reports worker (requries web dev stack online):
+docker-compose -f reports-worker/docker/docker-compose.dev.yaml -p btn-rw stop && docker-compose -f reports-worker/docker/docker-compose.dev.yaml -p btn-rw up --build --detach
+
 aing0Eitohy1yah3ang2Oapai6quu6Ge
 
 ubuntu@ip-172-26-15-39:~$ sudo cat /etc/systemd/system/webhooks.service 

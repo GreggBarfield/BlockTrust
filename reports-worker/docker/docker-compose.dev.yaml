@@ -1,0 +1,13 @@
+services:
+  reports-worker:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../../core:/home/ubuntu/core
+      - ../:/home/ubuntu/reports-worker
+
+networks:
+  default:
+    external:
+      name: btn-core_default

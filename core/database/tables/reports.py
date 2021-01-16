@@ -1,5 +1,6 @@
 from json import dumps
 from time import time
+from enum import Enum
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
@@ -30,6 +31,7 @@ class Reports:
         1: "Ready",
         2: "Dropped",
         3: "Running",
+        4: "Error",  # Note that errors may also be uncaught, leading to infinite running
     }
 
     def __init__(self, db):
@@ -109,12 +111,13 @@ class Reports:
         )[3]
         return results[0] if results else None
 
-    def fulfill_report(self, report_id, result):
+    def fulfill_report(self, report_id, result, status=1):
         """Fulfills a report.
 
         Params:
             report_id: The report ID
             result: The result (dictionary)
+            status: The status (default 1, success)
         """
         self._db.exec_frag(
             frag(
@@ -122,10 +125,10 @@ class Reports:
                 frag(
                     "SET",
                     "result=:result",
-                    "status=:ready_status",
+                    "status=:status",
                     "fulfilled=:fulfilled",
-                    result=result,
-                    ready_status=1,
+                    result=dumps(result),
+                    status=status,
                     fulfilled=time()
                 ),
                 frag(
