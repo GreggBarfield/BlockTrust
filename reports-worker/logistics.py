@@ -13,10 +13,12 @@ def run(db):
         report = db.reports.work_report()
 
         if report is None:
+            print("Sleeping")
             sleep(10)
         else:
+            print("Running report", report['id'])
             try:
-                result = execute_query(report['query'])
+                result = execute_query(db, report['query'])
                 db.reports.fulfill_report(
                     report['id'],
                     result

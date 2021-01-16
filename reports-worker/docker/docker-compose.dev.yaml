@@ -1,5 +1,7 @@
 services:
   reports-worker:
+    environment:
+      - PYTHONUNBUFFERED=1
     build:
       context: .
       dockerfile: dockerfile.dev

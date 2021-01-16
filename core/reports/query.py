@@ -14,9 +14,12 @@ def execute_query(db, query):
         A dictionary, the result.
     """
     if 'type' not in query:
-        raise DebugException("'type' is missing from query")
+        raise ExportException("'type' is missing from query")
+
+    if 'params' not in query:
+        raise ExportException("'params' is missing from query")
 
     if query['type'] not in types:
         raise ExportException("type unrecognized: " + query['type'])
 
-    return types[query['type']].execute(query)
+    return types[query['type']].execute(db, query['params'])

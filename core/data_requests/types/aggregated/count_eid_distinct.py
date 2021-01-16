@@ -1,4 +1,5 @@
 from flask import g
+from ....reports.query_types.count_eid_distinct import execute
 
 
 def unauth(params):
@@ -6,6 +7,4 @@ def unauth(params):
 
 
 def auth(params):
-    return {
-        'count_eid_distinct': g.db.matches.get_count_eid_distinct()
-    }
+    return execute(g.db, params)

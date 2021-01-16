@@ -1,4 +1,4 @@
-from json import dumps
+from json import dumps, loads
 from time import time
 from enum import Enum
 from ...common_exceptions import DebugException
@@ -58,7 +58,7 @@ class Reports:
                 "ORDER BY fulfilled DESC LIMIT 1"
             )
         )
-        return results[0] if results else None
+        return Reports._process_row(results[0]) if results else None
 
     def insert_query(self, owner, query, issuer=None, priority=30):
         """Insert a new query.
@@ -109,7 +109,7 @@ class Reports:
                 running_status=3
             )
         )[3]
-        return results[0] if results else None
+        return Reports._process_row(results[0]) if results else None
 
     def fulfill_report(self, report_id, result, status=1):
         """Fulfills a report.
@@ -124,8 +124,8 @@ class Reports:
                 "UPDATE reports",
                 frag(
                     "SET",
-                    "result=:result",
-                    "status=:status",
+                    "result=:result,",
+                    "status=:status,",
                     "fulfilled=:fulfilled",
                     result=dumps(result),
                     status=status,
@@ -138,3 +138,12 @@ class Reports:
                 )
             )
         )
+
+    @staticmethod
+    def _process_row(row):
+        """Takes in a raw row (dict) and converts it in-place to be more python like."""
+        json_cols = ['query', 'result']
+        for col in json_cols:
+            if row[col] is not None:
+                row[col] = loads(row[col])
+        return row
