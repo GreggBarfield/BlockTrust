@@ -80,3 +80,17 @@ Todo:
   Merge visual ID with visual complex ID
 */
 
+/* Evan Krohn 1/15/2021 */
+
+CREATE TABLE `reports` (
+  `id` int NOT NULL,
+  `priority` int DEFAULT NULL,
+  `owner` int DEFAULT NULL,
+  `issuer` int DEFAULT NULL,
+  `query` json DEFAULT NULL,
+  `result` json DEFAULT NULL,
+  `status` int DEFAULT '0',
+  `fulfilled` int DEFAULT NULL,
+  `created` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

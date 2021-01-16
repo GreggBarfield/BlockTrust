@@ -15,6 +15,7 @@ from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
+from .tables.reports import Reports
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -52,6 +53,7 @@ class Database:
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
         self.matches_type_visibility = MatchesTypeVisibility(self)
+        self.reports = Reports(self)
 
     def connect(self):
         try:
@@ -68,9 +70,9 @@ class Database:
         self._cursor = self._connection.cursor()
         return self._cursor
 
-    def execute(self, code, params=tuple(), allow_retry=True):
+    def execute(self, code, params=tuple(), allow_retry=True, multi=False):
         try:
-            return self._cursor.execute(code, params)
+            return self._cursor.execute(code, params, multi)
         except Error as error:
             # SQL server can sometimes kick us off after a period of time,
             # see if that's the case and attempt reconnect
@@ -81,14 +83,19 @@ class Database:
                 if allow_retry:
                     print("Attempting reconnection after", error)
                     self.connect()
-                    return self.execute(code, params=params, allow_retry=False)
+                    return self.execute(
+                        code,
+                        params=params,
+                        allow_retry=False,
+                        multi=multi
+                    )
                 else:
                     print("SQL Bad, quitting (not allowed to retry) after", error)
                     quit()  # TODO Find better solution in future
             raise error
 
-    def execute_d(self, *wargs):
-        self._cursor.execute(*wargs)
+    def execute_d(self, code, params=tuple()):
+        self.execute(code, params)
         return self.fetch_all_d()
 
     def exec_frag_d(self, kvs):
@@ -102,20 +109,59 @@ class Database:
         """
         return self.execute_d(kvs[0], kvs[1])
 
+    def exec_multi_frag_d(self, kvs):
+        """Executes a frag() style return value.
+
+        Enables multi.
+
+        Params:
+            kvs: The frag()'s return value.
+
+        Returns:
+            An iterator on the results, which are lists of dictionaries.
+        """
+        statement_results = self.execute(kvs[0], kvs[1], multi=True)
+        results = []
+
+        try:
+            for statement_result in statement_results:
+                if statement_result.with_rows:
+                    results.append(Database._d_converter(
+                        statement_result.column_names, self._cursor
+                    ))
+                else:
+                    results.append([])
+        except RuntimeError as e:
+            # https://www.python.org/dev/peps/pep-0479/
+            if 'StopIteration' not in str(e):
+                raise e
+        return results
+
+    def exec_frag(self, kvs):
+        """Executes a frag() style return value.
+
+        Params:
+            kvs: The frag()'s return value.
+        """
+        self.execute(kvs[0], kvs[1])
+
     def fetch_all(self):
         return self._cursor.fetchall()
 
-    def fetch_all_d(self):
-        # Should we just use MySQLCursorDict?
-        columns = self._cursor.column_names
+    @staticmethod
+    def _d_converter(columns, iterable):
         return [
             {
                 columns[col_i]: row[col_i]
                 for col_i in range(len(columns))
             }
-            for row in self._cursor
+            for row in iterable
         ]
-    
+
+    def fetch_all_d(self):
+        # Should we just use MySQLCursorDict?
+        columns = self._cursor.column_names
+        return Database._d_converter(columns, self._cursor)
 
     def last_row_id(self):
         return self._cursor.lastrowid
