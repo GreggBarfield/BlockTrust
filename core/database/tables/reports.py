@@ -37,8 +37,8 @@ class Reports:
     def __init__(self, db):
         self._db = db
 
-    def get_by_query(self, query):
-        """Gets a report by query.
+    def get_ready_by_query(self, query):
+        """Gets ready reports by query.
 
         If multiple reports match the query, the most recent (by fulfilled) is returned.
 
@@ -53,7 +53,9 @@ class Reports:
                 "SELECT * FROM reports",
                 frag(
                     "WHERE query=CAST(:query AS JSON)",
-                    query=dumps(query)
+                    "AND status=:ready_status",
+                    query=dumps(query),
+                    ready_status=1
                 ),
                 "ORDER BY fulfilled DESC LIMIT 1"
             )

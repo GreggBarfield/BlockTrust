@@ -1,6 +1,6 @@
 from flask import g
 from ....common_exceptions import ExportException
-from ....reports.query_types.count_distribution import execute
+from ....reports.query_types import count_distribution
 
 
 def unauth(params):
@@ -12,10 +12,12 @@ def auth(params):
         raise ExportException("account none null not implemented")
         # WARNING: visibility system not set up here
 
-    return execute(
-        g.db,
-        {
-            'account': g.account.id(),
-            'match_type': params['match_type']
-        }
+    row = g.db.reports.get_ready_by_query(
+        count_distribution.create(
+            g.account.id(),
+            params['match_type']
+        )
     )
+    if row is not None:
+        return row['result']
+    return None

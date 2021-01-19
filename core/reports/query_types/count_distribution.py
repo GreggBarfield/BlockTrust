@@ -1,8 +1,13 @@
 from ...match_types import match_types_by_name
 
 
-def execute(db, params):
+TYPE_NAME = "count_distribution"
+
+
+def execute(db, query):
     """Execute the query."""
+    params = query['params']
+
     account = db.accounts.get_by_id(params['account'])
     account_links = account.account_links()
 
@@ -14,4 +19,39 @@ def execute(db, params):
             match_types_by_name[params["match_type"]],
             account_links=account_links
         )
+    }
+
+
+def accessible(query, account_id):
+    """Checks whether the query is accessible by an account.
+
+    Params:
+        query: The query dictionary
+        account_id: The account ID of who is accessing the query
+            or None if anonymous
+
+    Returns:
+        A boolean of whether the query is accessible
+    """
+    if account_id is None:
+        return False
+    return account_id == query['params']['account']
+
+
+def create(account_id, match_type):
+    """Creates a query.
+
+    Params:
+        account_id: The account ID to get cows associated with
+        match_type: The match type name to generate distribution data on
+
+    Returns:
+        The query dictionary
+    """
+    return {
+        'type': TYPE_NAME,
+        'params': {
+            'account': account_id,
+            'match_type': match_type
+        }
     }

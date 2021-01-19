@@ -7,11 +7,6 @@ sys.path = [
     os.path.abspath(os.path.join(os.path.abspath(__file__), "..", ".."))
 ] + sys.path
 
-debug_mode = False
-
-if __name__ == "__main__":
-    debug_mode = True
-
 __name__ = "reports-worker.main"
 
 from core.config import *  # noqa

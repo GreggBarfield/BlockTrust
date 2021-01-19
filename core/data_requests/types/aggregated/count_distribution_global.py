@@ -1,6 +1,6 @@
 from flask import g
 from ....common_exceptions import ExportException
-from ....reports.query_types.count_distribution_global import execute
+from ....reports.query_types import count_distribution_global
 
 
 def unauth(params):
@@ -8,4 +8,9 @@ def unauth(params):
 
 
 def auth(params):
-    return execute(g.db, params)
+    row = g.db.reports.get_ready_by_query(
+        count_distribution_global.create(params['match_type'])
+    )
+    if row is not None:
+        return row['result']
+    return None

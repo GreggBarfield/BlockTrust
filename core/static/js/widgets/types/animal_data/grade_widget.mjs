@@ -23,7 +23,12 @@ export class GradeWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.count_distribution = data.result.count_distribution;
+            if (data.result === null) {
+                this.count_distribution = null;
+            }
+            else {
+                this.count_distribution = data.result.count_distribution;
+            }
             this.frame.innerHTML = "";
             this.makeGraph();
         });
@@ -37,7 +42,10 @@ export class GradeWidget extends Widget {
         this.container.style = "width:100%;";
         this.frame.appendChild(this.container);
 
-        if (this.count_distribution.length == 0) {
+        if (this.count_distribution === null) {
+            this.container.textContent = "Data is not available yet.";
+        }
+        else if (this.count_distribution.length == 0) {
             this.container.textContent = "(no data)";
         }
         else {

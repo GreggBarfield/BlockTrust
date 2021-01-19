@@ -14,16 +14,14 @@ export class TableWidget extends Widget {
             "data_request",
             {
                 request: {
-                    type: 'matches_by_account',
+                    type: 'count_account_eid_distinct',
                     params: {
-                        account: this.account,
-                        types: ["Weaned", "Sighting"]
+
                     }
                 }
             }
         ).then((data) => {
-            this.match_rows = data.result.matches;
-            this.displayMatches();
+            this.account_total_distinct = data.result.count_eid_distinct;
             this.displayAccount();
         });
 
@@ -46,7 +44,12 @@ export class TableWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.global_usda_yield_grade_distribution = data.result.count_distribution;
+            if (data.result === null) {
+                this.global_usda_yield_grade_distribution = null;
+            }
+            else {
+                this.global_usda_yield_grade_distribution = data.result.count_distribution;
+            }
             this.displayGlobal();
         });
             
@@ -61,7 +64,12 @@ export class TableWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.global_usda_quality_grade_distribution = data.result.count_distribution;
+            if (data.result === null) {
+                this.global_usda_quality_grade_distribution = null;
+            }
+            else {
+                this.global_usda_quality_grade_distribution = data.result.count_distribution;
+            }
             this.displayGlobal();
         });
             
@@ -77,7 +85,12 @@ export class TableWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.account_usda_yield_grade_distribution = data.result.count_distribution;
+            if (data.result === null) {
+                this.account_usda_yield_grade_distribution = null;
+            }
+            else {
+                this.account_usda_yield_grade_distribution = data.result.count_distribution;
+            }
             this.displayAccount();
         });
             
@@ -93,7 +106,12 @@ export class TableWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.account_usda_quality_grade_distribution = data.result.count_distribution;
+            if (data.result === null) {
+                this.account_usda_quality_grade_distribution = null;
+            }
+            else {
+                this.account_usda_quality_grade_distribution = data.result.count_distribution;
+            }
             this.displayAccount();
         });
             
@@ -106,7 +124,12 @@ export class TableWidget extends Widget {
                 }
             },
         ).then((data) => {
-            this.count_eid_distinct = data.result.count_eid_distinct;
+            if (data.result === null) {
+                this.count_eid_distinct = null;
+            }
+            else {
+                this.count_eid_distinct = data.result.count_eid_distinct;
+            }
             this.displayGlobal();
         });
 
@@ -118,149 +141,222 @@ export class TableWidget extends Widget {
 
     }
 
-    displayMatches() {
-        let research = {};
-
-        for (const match of this.match_rows) {
-            if (!(match["eid"] in research)) {
-                research[match["eid"]] = 1;
-            }
+    unavailableSection(rows, indx) {
+        for (let row of rows.slice(1)) {
+            let interest = row.children[indx];
+            interest.innerHTML = "";
+            interest.append(this.createNotAvailableYet());
         }
-
-        let totalCalves = 0;
-
-        for (const animal_i in research) {
-            totalCalves += 1;
-        }
-
-        this.account_total_distinct = totalCalves;
-    }
+    };
 
     displayGlobal() {
         if ('count_eid_distinct' in this) {
-            this.tableSectionSightingsRows[1].children[2].textContent = this.count_eid_distinct;
+            let interest = this.tableSectionSightingsRows[1].children[2];
+            if (this.count_eid_distinct === null) {
+                interest.innerHTML = "";
+                interest.append(this.createNotAvailableYet());
+            }
+            else {
+                interest.textContent = this.count_eid_distinct;
+            }
         }
         if ('global_usda_yield_grade_distribution' in this) {
-            let total = 0;
-            let yg = [0,0,0,0,0,0];
-            for (const r of this.global_usda_yield_grade_distribution) {
-                total += r.count;
-                if (r.data >= 1 && r.data <= 5) {
-                    yg[5-r.data]+=r.count;
-                }
-                else {
-                    yg[5]+=r.count;
-                }
+            if (this.global_usda_yield_grade_distribution === null) {
+                this.unavailableSection(this.tableSectionYieldRows, 2);
             }
-            for (const i in yg) {
-                let v = "n/a";
-                if (total > 0) {
-                    v = Math.round(100 * yg[i] / total) + "%";
+            else {
+                let total = 0;
+                let yg = [0,0,0,0,0,0];
+                for (const r of this.global_usda_yield_grade_distribution) {
+                    total += r.count;
+                    if (r.data >= 1 && r.data <= 5) {
+                        yg[5-r.data]+=r.count;
+                    }
+                    else {
+                        yg[5]+=r.count;
+                    }
                 }
-                this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
+                for (const i in yg) {
+                    let v = "n/a";
+                    if (total > 0) {
+                        v = Math.round(100 * yg[i] / total) + "%";
+                    }
+                    this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
+                }
+                this.global_total_available = total;
             }
-            this.global_total_available = total;
         }
         if ('global_usda_quality_grade_distribution' in this) {
-            let total = 0;
-            let yg = [0,0,0,0];
-            for (const r of this.global_usda_quality_grade_distribution) {
-                total += r.count;
-                if (r.data == "Prime") {
-                    yg[0]+=r.count;
-                }
-                else if (r.data == "Choice") {
-                    yg[1]+=r.count;
-                }
-                else if (r.data == "Select or Lower") {
-                    yg[2]+=r.count;
-                }
-                else {
-                    yg[3]+=r.count;
-                }
+            if (this.global_usda_quality_grade_distribution === null) {
+                this.unavailableSection(this.tableSectionQualityRows, 2);
             }
-            for (const i in yg) {
-                let v = "n/a";
-                if (total > 0) {
-                    v = Math.round(100 * yg[i] / total) + "%";
+            else {
+                let total = 0;
+                let yg = [0,0,0,0];
+                for (const r of this.global_usda_quality_grade_distribution) {
+                    total += r.count;
+                    if (r.data == "Prime") {
+                        yg[0]+=r.count;
+                    }
+                    else if (r.data == "Choice") {
+                        yg[1]+=r.count;
+                    }
+                    else if (r.data == "Select or Lower") {
+                        yg[2]+=r.count;
+                    }
+                    else {
+                        yg[3]+=r.count;
+                    }
                 }
-                this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
+                for (const i in yg) {
+                    let v = "n/a";
+                    if (total > 0) {
+                        v = Math.round(100 * yg[i] / total) + "%";
+                    }
+                    this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
+                }
+                this.global_total_available = total;
             }
-            this.global_total_available = total;
         }
-        if ('global_total_available' in this && 'count_eid_distinct' in this) {
-            this.tableSectionSightingsRows[2].children[2].textContent = this.global_total_available;
-            let v = "n/a";
-            if (this.count_eid_distinct != 0) {
-                v = Math.round(100 * this.global_total_available / this.count_eid_distinct) + "%";
+        if ('global_total_available' in this || 'count_eid_distinct' in this) {
+            let interest1 = this.tableSectionSightingsRows[2].children[2];
+            let interest2 = this.tableSectionSightingsRows[3].children[2];
+
+            if (
+                'global_total_available' in this && this.global_total_available === null ||
+                'count_eid_distinct' in this && this.count_eid_distinct === null
+            ) {
+                interest1.innerHTML = "";
+                interest1.append(this.createNotAvailableYet());
+                interest2.innerHTML = "";
+                interest2.append(this.createNotAvailableYet());
             }
-            this.tableSectionSightingsRows[3].children[2].textContent = v;
+            else if ('global_total_available' in this && 'count_eid_distinct' in this) {
+                interest1.textContent = this.global_total_available;
+                let v = "n/a";
+                if (this.count_eid_distinct != 0) {
+                    v = Math.round(100 * this.global_total_available / this.count_eid_distinct) + "%";
+                }
+                interest2.textContent = v;
+            }
         }
     }
 
     displayAccount() {
         if ('account_usda_yield_grade_distribution' in this) {
-            let total = 0;
-            let yg = [0,0,0,0,0,0];
-            for (const r of this.account_usda_yield_grade_distribution) {
-                total += r.count;
-                if (r.data >= 1 && r.data <= 5) {
-                    yg[5-r.data]+=r.count;
-                }
-                else {
-                    yg[5]+=r.count;
+            if (this.account_usda_yield_grade_distribution === null) {
+                this.unavailableSection(this.tableSectionYieldRows, 1);
+                if (!('account_total_available' in this)) {
+                    this.account_total_available = null;
                 }
             }
-            for (const i in yg) {
-                let v = "n/a";
-                if (total > 0) {
-                    v = Math.round(100 * yg[i] / total) + "%";
+            else {
+                let total = 0;
+                let yg = [0,0,0,0,0,0];
+                for (const r of this.account_usda_yield_grade_distribution) {
+                    total += r.count;
+                    if (r.data >= 1 && r.data <= 5) {
+                        yg[5-r.data]+=r.count;
+                    }
+                    else {
+                        yg[5]+=r.count;
+                    }
                 }
-                this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
+                for (const i in yg) {
+                    let v = "n/a";
+                    if (total > 0) {
+                        v = Math.round(100 * yg[i] / total) + "%";
+                    }
+                    this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
+                }
+                this.account_total_available = total;
             }
-            this.account_total_available = total;
         }
         if ('account_usda_quality_grade_distribution' in this) {
-            let total = 0;
-            let yg = [0,0,0,0];
-            for (const r of this.account_usda_quality_grade_distribution) {
-                total += r.count;
-                if (r.data == "Prime") {
-                    yg[0]+=r.count;
-                }
-                else if (r.data == "Choice") {
-                    yg[1]+=r.count;
-                }
-                else if (r.data == "Select or Lower") {
-                    yg[2]+=r.count;
-                }
-                else {
-                    yg[3]+=r.count;
+            if (this.account_usda_quality_grade_distribution === null) {
+                this.unavailableSection(this.tableSectionQualityRows, 1);
+                if (!('account_total_available' in this)) {
+                    this.account_total_available = null;
                 }
             }
-            for (const i in yg) {
-                let v = "n/a";
-                if (total > 0) {
-                    v = Math.round(100 * yg[i] / total) + "%";
+            else {
+                let total = 0;
+                let yg = [0,0,0,0];
+                for (const r of this.account_usda_quality_grade_distribution) {
+                    total += r.count;
+                    if (r.data == "Prime") {
+                        yg[0]+=r.count;
+                    }
+                    else if (r.data == "Choice") {
+                        yg[1]+=r.count;
+                    }
+                    else if (r.data == "Select or Lower") {
+                        yg[2]+=r.count;
+                    }
+                    else {
+                        yg[3]+=r.count;
+                    }
                 }
-                this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
+                for (const i in yg) {
+                    let v = "n/a";
+                    if (total > 0) {
+                        v = Math.round(100 * yg[i] / total) + "%";
+                    }
+                    this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
+                }
+                this.account_total_available = total;
             }
-            this.account_total_available = total;
         }
 
-        if ('tableSectionSightingsRows' in this && 'account_total_distinct' in this) {
-            this.tableSectionSightingsRows[1].children[1].textContent = this.account_total_distinct;
+        if ('account_total_distinct' in this) {
+            let interest = this.tableSectionSightingsRows[1].children[1];
+            if (this.account_total_distinct === null) {
+                interest.innerHTML = "";
+                interest.append(this.createNotAvailableYet());
+            }
+            else if ('account_total_distinct' in this) {
+                interest.textContent = this.account_total_distinct;
+            }
         }
         if ('account_total_available' in this) {
-            this.tableSectionSightingsRows[2].children[1].textContent = this.account_total_available;
-        }
-        if ('account_total_available' in this && 'account_total_distinct' in this) {
-            let v = "n/a";
-            if (this.account_total_distinct != 0) {
-                v = Math.round(100 * this.account_total_available / this.account_total_distinct) + "%";
+            let interest = this.tableSectionSightingsRows[2].children[1];
+            if (this.account_total_available === null) {
+                interest.innerHTML = "";
+                interest.append(this.createNotAvailableYet());
             }
-            this.tableSectionSightingsRows[3].children[1].textContent = v;
+            else {
+                interest.textContent = this.account_total_available;
+            }
         }
+        if ('account_total_available' in this || 'account_total_distinct' in this) {
+            let interest = this.tableSectionSightingsRows[3].children[1];
+            if (
+                'account_total_available' in this && this.account_total_available === null ||
+                'account_total_distinct' in this && this.account_total_distinct === null) {
+                interest.innerHTML = "";
+                interest.append(this.createNotAvailableYet());
+            }
+            else if ('account_total_available' in this && 'account_total_distinct' in this) {
+                let v = "n/a";
+                if (this.account_total_distinct != 0) {
+                    v = Math.round(100 * this.account_total_available / this.account_total_distinct) + "%";
+                }
+                interest.textContent = v;
+            }
+        }
+    }
+
+    createNotAvailableYet() {
+        let span = document.createElement("span");
+        span.textContent = "?";
+        span.className = "badge badge-pill badge-info";
+        span.setAttribute("toggle", "tooltip");
+        span.setAttribute("data-placement", "top");
+        span.setAttribute("data-original-title", "Data is still being processed.");
+        $(span).tooltip({
+            offset: -50
+        });
+        return span;
     }
 
     makeTable() {

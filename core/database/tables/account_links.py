@@ -1,5 +1,6 @@
 from ..objects.account_link import AccountLink, AccountLinkException
 
+
 class AccountLinksException(Exception):
     """AccountLinks generic exception."""
 
@@ -10,6 +11,7 @@ class AccountLinksException(Exception):
             reason: the reason for the exception
         """
         super().__init__(reason)
+
 
 class AccountLinks:
 
@@ -59,7 +61,6 @@ class AccountLinks:
         )
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-
     def get_by_company(self, company, insert_sector=None, insert=False):
         """Gets all account links that match company.
 
@@ -83,7 +84,6 @@ class AccountLinks:
             self.insert(company=company, sector=insert_sector)
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
-
 
     def get_by_uid(self, uid, uid_type, insert=False):
         """Gets all account links that match a uid.

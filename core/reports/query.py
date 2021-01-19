@@ -22,4 +22,4 @@ def execute_query(db, query):
     if query['type'] not in types:
         raise ExportException("type unrecognized: " + query['type'])
 
-    return types[query['type']].execute(db, query['params'])
+    return types[query['type']].execute(db, query)

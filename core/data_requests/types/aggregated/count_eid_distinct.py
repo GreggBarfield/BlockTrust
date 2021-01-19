@@ -1,5 +1,5 @@
 from flask import g
-from ....reports.query_types.count_eid_distinct import execute
+from ....reports.query_types import count_eid_distinct
 
 
 def unauth(params):
@@ -7,4 +7,7 @@ def unauth(params):
 
 
 def auth(params):
-    return execute(g.db, params)
+    row = g.db.reports.get_ready_by_query(count_eid_distinct.create())
+    if row is not None:
+        return row['result']
+    return None

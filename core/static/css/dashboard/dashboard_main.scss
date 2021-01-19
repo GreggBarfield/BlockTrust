@@ -10,3 +10,10 @@
 @import "custom/sales_groups";
 
 @import "widgets/widgets";
+
+
+// Flashable theme fixes
+
+body {
+    position: static !important;
+}
