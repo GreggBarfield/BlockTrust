@@ -126,7 +126,7 @@ class SalesGroups:
         Returns:
             The sales group row inserted
         """
-        self._db.execute_d(
+        self._db.execute(
             """INSERT INTO sales_groups
                 (account, reported)
                 VALUES (%(account)s, %(reported)s)
@@ -150,7 +150,7 @@ class SalesGroups:
             end: The end time
             auction_sale: The auction sale ID 
         """
-        self._db.execute_d(
+        self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
                     start=%(start)s, end=%(end)s, zip=%(zip)s,

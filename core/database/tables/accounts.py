@@ -107,7 +107,7 @@ class Accounts:
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
 
-        self._db.execute_d(
+        self._db.execute(
             """INSERT INTO accounts
                 (name, company, sector)
                 VALUES

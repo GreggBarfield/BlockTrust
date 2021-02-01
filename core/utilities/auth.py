@@ -206,7 +206,7 @@ def signup(username, email, phone, first, last, password, confirm_password):
     if phone == "":
         phone = "-1"
 
-    g.db.execute_d(
+    g.db.execute(
         """
             INSERT INTO users
                 (password, username, email, phone, first, last, email_verified)

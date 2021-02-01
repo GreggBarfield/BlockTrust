@@ -67,7 +67,7 @@ class SalesGroupEIDs:
             eid: An integer containing the EID to add to the sales group
             sales_group: The sales group to bind to
         """
-        self._db.execute_d(
+        self._db.execute(
             """INSERT INTO sales_groups
                 (eid, sales_group)
                 VALUES (%(eid)s, %(sales_group)s)
@@ -104,7 +104,7 @@ class SalesGroupEIDs:
         Params:
             sales_group: The sales group to delete (rows associated)
         """
-        self._db.execute_d(
+        self._db.execute(
             """DELETE FROM sales_group_eids
                 WHERE sales_group=%(sales_group)s
             """,

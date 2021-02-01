@@ -57,3 +57,4 @@ local/
 build*
 
 core/environment_config.json
+api/env_cfg.json
