@@ -7,7 +7,7 @@ sys.path = [
     os.path.abspath(os.path.join(os.path.abspath(__file__), "..", ".."))
 ] + sys.path
 
-__name__ = "reports-worker.main"
+__name__ = "reports_worker.main"
 
 from core.config import *  # noqa
 from core.database.database import Database  # noqa

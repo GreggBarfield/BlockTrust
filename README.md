@@ -5,10 +5,18 @@ Developing
 Docker
 
 Web development stack:
-docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core stop && docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core up --build --detach
+docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core stop \
+    && docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core up --build --detach
 
 Reports worker (requries web dev stack online):
-docker-compose -f reports-worker/docker/docker-compose.dev.yaml -p btn-rw stop && docker-compose -f reports-worker/docker/docker-compose.dev.yaml -p btn-rw up --build --detach
+docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw stop \
+    && docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw up --build --detach
+
+API:
+    Translation worker:
+        docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw stop \
+            && docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw up --build --detach
+
 
 aing0Eitohy1yah3ang2Oapai6quu6Ge
 

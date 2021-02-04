@@ -1,0 +1,16 @@
+services:
+  translation-worker:
+    environment:
+      - PYTHONUNBUFFERED=1
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../../../core:/home/ubuntu/core
+      - ../../../api:/home/ubuntu/api
+      - ../:/home/ubuntu/translation_worker
+
+networks:
+  default:
+    external:
+      name: btn-core_default

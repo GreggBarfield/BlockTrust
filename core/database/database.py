@@ -67,7 +67,7 @@ class Database:
         except Exception as e:
             pass
         self._connection = mysql.connect(**self._sql_config)
-        self._cursor = self._connection.cursor()
+        self._cursor = self._connection.cursor(dictionary=True)
         return self._cursor
 
     def execute(self, code, params=tuple(), allow_retry=True, multi=False):
@@ -96,7 +96,7 @@ class Database:
 
     def execute_d(self, code, params=tuple()):
         self.execute(code, params)
-        return self.fetch_all_d()
+        return self.fetch_all()
 
     def exec_frag_d(self, kvs):
         """Executes a frag() style return value.
@@ -120,15 +120,23 @@ class Database:
         Returns:
             An iterator on the results, which are lists of dictionaries.
         """
-        statement_results = self.execute(kvs[0], kvs[1], multi=True)
-        results = []
+        return Database._expand_multi(self.execute(kvs[0], kvs[1], multi=True))
 
+    @staticmethod
+    def _expand_multi(statement_results):
+        """Helper for multi executes
+
+        Params:
+            statement_results: generator of MySQL DictCursor
+
+        Returns:
+            A list of lists of dictionaries
+        """
+        results = []
         try:
             for statement_result in statement_results:
                 if statement_result.with_rows:
-                    results.append(Database._d_converter(
-                        statement_result.column_names, self._cursor
-                    ))
+                    results.append(statement_result.fetchall())
                 else:
                     results.append([])
         except RuntimeError as e:
@@ -147,21 +155,6 @@ class Database:
 
     def fetch_all(self):
         return self._cursor.fetchall()
-
-    @staticmethod
-    def _d_converter(columns, iterable):
-        return [
-            {
-                columns[col_i]: row[col_i]
-                for col_i in range(len(columns))
-            }
-            for row in iterable
-        ]
-
-    def fetch_all_d(self):
-        # Should we just use MySQLCursorDict?
-        columns = self._cursor.column_names
-        return Database._d_converter(columns, self._cursor)
 
     def last_row_id(self):
         return self._cursor.lastrowid

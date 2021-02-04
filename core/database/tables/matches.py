@@ -2,6 +2,7 @@ import time as time_module
 import json
 from ..frag import frag, frag_insert_into
 from ..objects.match import Match, MatchException
+from .match_types import MatchTypes
 
 
 class MatchesException(Exception):
@@ -35,23 +36,8 @@ class Matches:
                 matches.type=matches_type_visibility.type
     """
 
-    @staticmethod
-    def _load_rows(rows):
-        """Parses returned JSON from mysql and applies booleans."""
-        for row in rows:
-            if row['data'] is not None:
-                row['data'] = json.loads(row['data'])
-            if 'visibility' in row:
-                if row['visibility'] is None:
-                    if row['account'] is None:
-                        row['visibility'] = True  # Visible if nobody owns it
-                    else:
-                        row['visibility'] = None
-                else:
-                    row['visibility'] = row['visibility'] > 0
-        return rows
-
     def __init__(self, db):
+        self.types = MatchTypes(self)
         self._db = db
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
@@ -155,7 +141,7 @@ class Matches:
         if not isinstance(type_int, int):
             raise MatchesException("type_int should be an int")
 
-        self._db.exec_frag_d(
+        self._db.exec_frag(
             frag_insert_into(
                 'matches',
                 [
@@ -184,12 +170,12 @@ class Matches:
         self._db.execute(
             """
             SELECT
-                COUNT(DISTINCT eid)
+                COUNT(DISTINCT eid) AS 'count'
             FROM
                 matches
             """
         )
-        return self._db.fetch_all()[0][0]
+        return self._db.fetch_all()[0]['count']
 
     def get_count_eid_distinct_by_account(self, account_id):
         """Count the number of distinct EIDs in the database for an account.
@@ -331,3 +317,19 @@ class Matches:
                 ) if restrict_types else ""
             )
         ))
+
+    @staticmethod
+    def _load_rows(rows):
+        """Parses returned JSON from mysql and applies booleans."""
+        for row in rows:
+            if row['data'] is not None:
+                row['data'] = json.loads(row['data'])
+            if 'visibility' in row:
+                if row['visibility'] is None:
+                    if row['account'] is None:
+                        row['visibility'] = True  # Visible if nobody owns it
+                    else:
+                        row['visibility'] = None
+                else:
+                    row['visibility'] = row['visibility'] > 0
+        return rows

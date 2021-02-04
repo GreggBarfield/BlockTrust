@@ -1,0 +1,19 @@
+FROM ubuntu
+
+# Install stuff
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install python3 python3-pip -y
+
+# Set default dir
+WORKDIR /home/ubuntu
+
+# Finish installing
+
+COPY requirements.txt .
+RUN python3 -m pip install -r requirements.txt
+
+# Set app dir
+WORKDIR /home/ubuntu
+
+# Run
+CMD python3 reports_worker/main.py

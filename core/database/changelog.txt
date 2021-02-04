@@ -98,3 +98,42 @@ CREATE TABLE `reports` (
 ALTER TABLE `example_db_1`.`reports` 
 CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 
+/* Evan Krohn 1/19/2021 */
+/* as part of the can-be-multi-database-but-doesnt-have-to-be */
+/* if having issues look into the underscore in table name */
+CREATE TABLE `api_inserts` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `account` varchar(45) DEFAULT NULL,
+  `namespace` varchar(45) DEFAULT NULL,
+  `type` varchar(45) DEFAULT NULL,
+  `fields` json DEFAULT NULL,
+  `row` json DEFAULT NULL,
+  `created` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=102422 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `example_db_1`.`api_blocks` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `key` VARCHAR(255) NULL,
+  `resolved` TINYINT(1) NULL DEFAULT 0,
+  `value` JSON NULL DEFAULT NULL,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `block` INT NULL DEFAULT NULL AFTER `created`,
+ADD COLUMN `status` INT NULL DEFAULT 0 AFTER `block`;
+
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `priority` TINYINT(1) NULL DEFAULT 0 AFTER `status`;
+
+/* Evan Krohn 1/20/2021 */
+
+ALTER TABLE `example_db_1`.`api_blocks` 
+ADD UNIQUE INDEX `UNIQUE` (`key` ASC) VISIBLE;
+;
+
+/* Evan Krohn 1/21/2021 */
+
+ALTER TABLE `example_db_1`.`api_inserts` 
+CHANGE COLUMN `account` `account` INT NULL DEFAULT NULL ;
+
