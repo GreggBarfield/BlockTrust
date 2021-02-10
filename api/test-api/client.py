@@ -17,7 +17,7 @@ data = {
                     ["electronic","a", "b","end_time"],
                 "values": [
                     [i, i/2, hex(i), hex(int(i/2))]
-                    for i in range(10000)
+                    for i in range(100)
                 ]
             }
         }
@@ -27,10 +27,13 @@ encoded = json.dumps(data).encode()
 compressed = gzip.compress(encoded)
 print("Encoded:", len(encoded) / (1000 * 1000))
 print("Compressed:", len(compressed) / (1000 * 1000))
-print(requests.post(
+
+r = requests.post(
     url=URL,
     data=compressed,
     headers={
         'Content-Encoding': 'gzip'
     }
-))
+)
+print(r.status_code)
+print(r.text)

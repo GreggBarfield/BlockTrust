@@ -1,0 +1,17 @@
+services:
+  server:
+    environment:
+      - PYTHONUNBUFFERED=1
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../../../core:/home/ubuntu/core
+      - ../../../api:/home/ubuntu/api
+    ports:
+      - "127.0.0.1:5001:80"
+
+networks:
+  default:
+    external:
+      name: btn-core_default

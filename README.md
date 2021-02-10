@@ -16,6 +16,10 @@ API:
     Translation worker:
         docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw stop \
             && docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw up --build --detach
+    
+    Server:
+        docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server stop \
+            && docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server up --build --detach
 
 
 aing0Eitohy1yah3ang2Oapai6quu6Ge

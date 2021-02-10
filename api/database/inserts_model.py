@@ -190,3 +190,29 @@ class InsertsModel:
         if resolved is None or resolved == 0:
             raise BlockNotAvailable()
         return value
+
+    def insert_row(self, account, namespace, type_, fields):
+        """Inserts a row.
+
+        No checks performed.
+
+        Params:
+            account: Account ID (int)
+            namespace: Namespace (str)
+            type: Type in the namesapce (str)
+            fields: Dictionary
+        """
+        self._cur.execute(
+            """
+                INSERT INTO api_inserts
+                    (account, namespace, type, fields)
+                    VALUES
+                    (%(account)s, %(namespace)s, %(type)s, %(fields)s)
+            """,
+            {
+                'account': account,
+                'namespace': namespace,
+                'type': type_,
+                'fields': json.dumps(fields)
+            }
+        )

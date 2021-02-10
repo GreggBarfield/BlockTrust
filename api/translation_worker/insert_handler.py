@@ -1,6 +1,6 @@
 from .types.MFA import Animal
 from .types.TestNS import TestTY
-from .inserts_model import statuses_by_name, BlockNotAvailable
+from ..database.inserts_model import statuses_by_name, BlockNotAvailable
 
 types = {
     "MFA": {

@@ -40,6 +40,10 @@ class Account:
         return self._row['company']
 
 
+    def token(self):
+        return self._row['token']
+
+
     def sector_id(self):
         return self._row['sector']
 

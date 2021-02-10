@@ -28,7 +28,7 @@ class Accounts:
             An Account() object
 
         Raises:
-            AccountsException
+            AccountsException on ID not found
         """
         # TODO: Add account_links caching option
         account_rows = self._db.execute_d(

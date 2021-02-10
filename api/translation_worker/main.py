@@ -16,7 +16,7 @@ from core.database.database import Database  # noqa
 db = Database(MYSQL_CONFIG)
 
 from .logistics import run  # noqa
-from .inserts_model import InsertsModel  # noqa
+from ..database.inserts_model import InsertsModel  # noqa
 
 
 run(
