@@ -61,7 +61,7 @@ class AccountLinks:
         )
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_company(self, company, insert_sector=None, insert=False):
+    def get_by_company(self, company, insert_sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match company.
 
         Params:
@@ -81,11 +81,22 @@ class AccountLinks:
             }
         )
         if len(account_link_rows) == 0 and insert:
-            self.insert(company=company, sector=insert_sector)
+            try:
+                self.insert(company=company, sector=insert_sector)
+            except AccountLinksException as e:
+                # *might* be a data race. Happens a lot in high thread environments.
+                if data_race_protection:
+                    return self.get_by_company(
+                        company=company,
+                        insert_sector=insert_sector,
+                        insert=insert,
+                        data_race_protection=False
+                    )
+                raise e
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_uid(self, uid, uid_type, insert=False):
+    def get_by_uid(self, uid, uid_type, insert=False, data_race_protection=True):
         """Gets all account links that match a uid.
 
         Params:
@@ -106,7 +117,18 @@ class AccountLinks:
             }
         )
         if len(account_link_rows) == 0 and insert:
-            self.insert(uid=uid,uid_type=uid_type)
+            try:
+                self.insert(uid=uid, uid_type=uid_type)
+            except AccountLinksException as e:
+                # *might* be a data race. Happens a lot in high thread environments.
+                if data_race_protection:
+                    return self.get_by_uid(
+                        uid=uid,
+                        uid_type=uid_type,
+                        insert=insert,
+                        data_race_protection=False
+                    )
+                raise e
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 

@@ -1,0 +1,39 @@
+python -m api.embedded.process_csv \
+    --file "C:\Users\egame\Documents\LedgerSpace\backups\11182020\old\import_working_space\all_animals.csv" \
+    --namespace BTN1 \
+    --type AnimalsCSV \
+    --account 602 \
+    --token g4ws4e4fesaasw4 \
+    --endpoint "http://localhost:5001/api"
+
+python -m api.embedded.process_csv \
+    --file "C:\Users\egame\Documents\LedgerSpace\backups\11182020\old\import_working_space\feeder_results (1).xls - feeder_results.csv" \
+    --namespace BTN1 \
+    --type FeederResultsCSV \
+    --account 602 \
+    --token g4ws4e4fesaasw4 \
+    --endpoint "http://localhost:5001/api"
+
+python -m api.embedded.process_csv \
+    --file "C:\Users\egame\Documents\LedgerSpace\backups\11182020\old\import_working_space\match_table.xlsx - match_table.csv" \
+    --namespace BTN1 \
+    --type MatchTableCSV \
+    --account 602 \
+    --token g4ws4e4fesaasw4 \
+    --endpoint "http://localhost:5001/api"
+
+python -m api.embedded.process_csv \
+    --file "C:\Users\egame\Documents\LedgerSpace\backups\11182020\old\import_working_space\processing.csv" \
+    --namespace BTN1 \
+    --type ProcessingCSV \
+    --account 602 \
+    --token g4ws4e4fesaasw4 \
+    --endpoint "http://localhost:5001/api"
+
+python -m api.embedded.process_csv \
+    --file "C:\Users\egame\Documents\LedgerSpace\backups\11182020\old\import_working_space\treatment.csv" \
+    --namespace BTN1 \
+    --type TreatmentCSV \
+    --account 602 \
+    --token g4ws4e4fesaasw4 \
+    --endpoint "http://localhost:5001/api"

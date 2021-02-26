@@ -3,6 +3,10 @@ import json
 from ..frag import frag, frag_insert_into
 from ..objects.match import Match, MatchException
 from .match_types import MatchTypes
+from core.match_types import match_types_by_name
+
+
+THREE_YEARS = 60 * 60 * 24 * 365 * 5
 
 
 class MatchesException(Exception):
@@ -176,6 +180,67 @@ class Matches:
             """
         )
         return self._db.fetch_all()[0]['count']
+
+    def get_unique_eids(self):
+        """Get the unique EIDs in the database.
+
+        Returns:
+            Tuple of the eids
+        """
+        self._db.execute(
+            """
+            SELECT DISTINCT
+                eid
+            FROM
+                matches
+            """
+        )
+        a
+        # Data from last 3 years, and USDAQualityGrade
+        return tuple(
+            row['eid'] for row in
+            self._db.fetch_all()
+        )
+
+    def get_ils_eids(self):
+        """Get EIDs that ILS still needs to process in the database.
+
+        Returns:
+            Tuple of the eids
+        """
+        self._db.exec_frag(
+            frag(
+                """
+                SELECT
+                    eid
+                FROM
+                    matches
+                GROUP BY eid
+                """,
+                frag(
+                    "HAVING",
+                    frag(
+                        "MAX(created) >= :window_start",
+                        window_start=time_module.time() - THREE_YEARS
+                    ),
+                    "AND",
+                    frag(
+                        """
+                            MAX(IF(type=:usda_quality_grade_type,1,0))=0
+                        """,
+                        usda_quality_grade_type=match_types_by_name[
+                            "USDA Quality Grade"
+                        ]
+                    )
+                )
+            )
+        )
+
+        # Data from last 3 years, and USDAQualityGrade
+        return tuple(
+            row['eid'] for row in
+            self._db.fetch_all()
+        )
 
     def get_count_eid_distinct_by_account(self, account_id):
         """Count the number of distinct EIDs in the database for an account.

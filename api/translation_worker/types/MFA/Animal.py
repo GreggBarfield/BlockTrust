@@ -1,6 +1,8 @@
 from ...exceptions import ExecutionException
 from .blocks import block_eid_from_animal_id
-from .datetime import all_to_unix
+from ...all_to_unix import all_to_unix
+from core.database.database import Database
+from api.database.inserts_model import InsertsModel
 
 
 def _check_format(insert):
@@ -14,7 +16,7 @@ def block_key(insert):
     return None
 
 
-def handle(db, inserts_model, insert, block_value):
+def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     _check_format(insert)
 
     account = insert["account"]
@@ -38,14 +40,14 @@ def handle(db, inserts_model, insert, block_value):
     if birth_date is not None:
         db.matches.types.insert_born(
             account=account,
-            unix=birth_date,
+            time=birth_date,
             eid=eid
         )
 
     if wean_date is not None:
         db.matches.types.insert_weaned(
             account=account,
-            unix=wean_date,
+            time=wean_date,
             eid=eid
         )
 

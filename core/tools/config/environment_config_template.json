@@ -22,7 +22,11 @@
         "database": "example_db_1",
         "autocommit": true
     },
+    "api_mysql": "same",
     "email": {
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
+    },
+    "internal_api": {
+        "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8"
     }
 }

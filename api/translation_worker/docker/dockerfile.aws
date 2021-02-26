@@ -1,0 +1,22 @@
+FROM python:3.9-buster
+
+# Install stuff
+RUN apt update -y && apt upgrade -y
+
+# Set temporary install dir
+WORKDIR /home/ubuntu/install
+
+# Finish installing
+
+COPY api/translation_worker/docker/requirements.txt .
+RUN python3 -m pip install -r requirements.txt
+
+# Copy application code
+COPY core /home/ubuntu/blocktrust/core
+COPY api /home/ubuntu/blocktrust/api
+
+# Set app dir
+WORKDIR /home/ubuntu/blocktrust
+
+# Run
+CMD python3 api/translation_worker/main.py

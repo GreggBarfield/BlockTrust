@@ -2,6 +2,8 @@ import os
 import json
 import random
 import sys
+import argparse
+from threading import Thread
 
 sys.path = [
     os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
@@ -9,23 +11,47 @@ sys.path = [
 
 __name__ = "api.translation_worker.main"
 
-from core.config import *  # noqa
+from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG  # noqa
 from core.database.database import Database  # noqa
 
-
-db = Database(MYSQL_CONFIG)
 
 from .logistics import run  # noqa
 from ..database.inserts_model import InsertsModel  # noqa
 
 
-run(
-    db,
-    InsertsModel(
-        json.load(open(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "..",
-            "env_cfg.json"
-        )))['api_mysql']
-    )
-)
+parser = argparse.ArgumentParser(description='Start an instance of the translation worker.')
+
+parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
+parser.add_argument('-i', '--id', help='Run ID (regardless of status) (exits after finishing)', type=int, default=None)
+parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=30)
+
+args = parser.parse_args()
+
+
+def threaded_function():
+    try:
+        run(
+            Database(MYSQL_CONFIG),
+            InsertsModel(API_MYSQL_CONFIG),
+            verbose=args.verbose,
+            insert_id=args.id
+        )
+    except BaseException as e:
+        print(e)
+        print("Thread excepted, killing program")
+        exit()
+
+
+threads = []
+thread_count = args.threads
+if args.id is not None:
+    print("--id: forcing thread count to 1")
+    thread_count = 1
+
+for i in range(thread_count):
+    thread = Thread(target=threaded_function)
+    thread.start()
+    threads.append(thread)
+print("Spawned", len(threads), "threads")
+for thread in threads:
+    thread.join()

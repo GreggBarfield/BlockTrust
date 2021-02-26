@@ -11,7 +11,7 @@ from flask import (
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
 from core.database.database import Database
-from core.config import MYSQL_CONFIG
+from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG
 from core.common_exceptions import ExportException
 
 
@@ -22,13 +22,7 @@ bp = Blueprint('input_blueprint', __name__)
 def before_request():
     """Per-request setup."""
     g.db = Database(MYSQL_CONFIG)
-    g.inserts_model = InsertsModel(
-        json.load(open(os.path.join(
-            os.path.dirname(os.path.realpath(__file__)),
-            "..",
-            "env_cfg.json"
-        )))['api_mysql']
-    )
+    g.inserts_model = InsertsModel(API_MYSQL_CONFIG)
 
 
 @bp.route('/', methods=["GET", "POST"])
