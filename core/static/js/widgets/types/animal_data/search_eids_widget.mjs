@@ -84,7 +84,6 @@ export class SearchEIDsWidget extends Widget {
             return;
         }
 
-
         this.resultsHr.style.display = "block";
         this.results.style.display = "block";
         this.results.innerHTML = '\
