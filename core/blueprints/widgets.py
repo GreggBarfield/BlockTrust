@@ -152,6 +152,14 @@ def serve_search_sales_groups_2():
     }
 
 
+@bp.route('/widgets/data/search_by_eid_if_visible', methods=['POST'])
+@crut.require_account
+def serve_search_by_eid_if_visible():
+    return {
+        "matches": g.db.matches.get_count_by_eid_if_visible(request.json["search"]["eid"])
+    }
+
+
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group():

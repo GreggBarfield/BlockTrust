@@ -325,20 +325,20 @@ class Matches:
             eid_number: eid number
 
         Returns:
-            One row or none indicating the count
+            One row indicating the count
         """
-
         return self._db.exec_frag_d(
             frag(
                 """
                 SELECT count(eid) as 'count'
                 FROM matches
-                INNER JOIN matches_type_visibility ON matches.account=matches_type_visibility.account
-                AND matches.type = matches_type_visibility.type
-                WHERE matches.eid=:eid_number
                 """,
-                eid_number=eid_number
-            )
+                Matches._left_join_visibility,
+                frag(
+                    "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
+                    eid_number=eid_number
+                )
+            ),
         )[0]['count']
 
     @staticmethod

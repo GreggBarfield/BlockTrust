@@ -14,6 +14,8 @@ import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_sales_widget.mjs';
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
 import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match_visibility_settings_widget.mjs';
+import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
+import { InfoModal } from '../core/info_modal.mjs';
 
 
 // Immediately invoked
@@ -70,5 +72,11 @@ import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match
             widget.init();
         }
     })
+
+    $("#icon-search").click(() => {
+        let infoModal = new InfoModal("Search By EID");
+        let widget = new SearchEIDsWidget(infoModal.getBody());
+        widget.init(); // TODO: Fix (This will break in the future when networking is optimized)
+    });
 
 })()
