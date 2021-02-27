@@ -16,6 +16,9 @@ API:
     Translation worker:
         docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw stop \
             && docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw up --build --detach
+
+        sudo docker container update --restart unless-stopped tw
+        (When it runs into issues, it is exit-happy. Probably a good idea to auto restart it.)
     
     Server:
         docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server stop \
@@ -24,28 +27,28 @@ API:
 
 aing0Eitohy1yah3ang2Oapai6quu6Ge
 
-ubuntu@ip-172-26-15-39:~$ sudo cat /etc/systemd/system/webhooks.service 
-[Unit]
-Description = Start webhooks uWSGI instance
-After = network.target
-
-[Service]
-User = ubuntu
-Group = www-data
-WorkingDirectory = /home/ubuntu/current
-ExecStart = /usr/local/bin/uwsgi --ini uwsgi.ini
-
-[Install]
-WantedBy = multi-user.target
-ubuntu@ip-172-26-15-39:~$ 
-
->>> s3c = boto3.client('s3', config=boto3.session.Config(signature_version='s3v4', region_name='us-east-2'))
->>> s3c.generate_presigned_url('get_object', Params={'Bucket': 'btndev', 'Key': 'tf'}, ExpiresIn=20)
-
-
 'root'@'localhost' password: 09wg84j09843umgf0w934gj09w34g (dev computer)
-
-
 'root'@'localhost' password: doojuiseeN6Quooph6yoosai6foh3fae (ledgerspacedev)
 
-This file has been edited.
+docker image build --tag tw --file api/translation_worker/docker/dockerfile.aws .
+docker image save -o tw.image tw
+scp -i ../aws/kp-ledgerspacedev.pem tw.image ubuntu@ledgerspacedev.com:~
+rm tw.image
+ssh -i ../aws/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com
+sudo docker image load -i tw.image
+rm tw.image
+sudo docker container stop tw
+sudo docker container rm tw
+sudo docker container create --name tw --restart unless-stopped --env PYTHONUNBUFFERED=1 tw
+sudo docker container start tw
+sudo docker logs --tail 5 tw
+exit
+
+
+Testing
+=========
+
+pytest
+pytest api/translation_worker
+
+

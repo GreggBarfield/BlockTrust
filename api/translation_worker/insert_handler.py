@@ -1,6 +1,11 @@
 from .types.MFA import Animal
 from .types.TestNS import TestTY
+from .types.ILS import Packer
+from .types.BTN1 import (
+    AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
+)
 from ..database.inserts_model import statuses_by_name, BlockNotAvailable
+
 
 types = {
     "MFA": {
@@ -8,6 +13,16 @@ types = {
     },
     "TestNS": {
         "TestTY": TestTY
+    },
+    "ILS": {
+        "Packer": Packer
+    },
+    "BTN1": {
+        "AnimalsCSV": AnimalsCSV,
+        "FeederResultsCSV": FeederResultsCSV,
+        "MatchTableCSV": MatchTableCSV,
+        "ProcessingCSV": ProcessingCSV,
+        "TreatmentCSV": TreatmentCSV,
     }
 }
 
@@ -52,8 +67,9 @@ def handle_insert(db, inserts_model, insert):
     emitted_blocks = handler.handle(db, inserts_model, insert, block_value=block_value)
 
     # Handle any emitted blocks
-    for emitted_block in emitted_blocks:
-        key, value = emitted_block
-        inserts_model.emit_block(key, value)
+    if emitted_blocks is not None:
+        for emitted_block in emitted_blocks:
+            key, value = emitted_block
+            inserts_model.emit_block(key, value)
 
     inserts_model.set_status(insert['id'], "Done")

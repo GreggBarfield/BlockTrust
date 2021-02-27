@@ -142,3 +142,9 @@ ALTER TABLE `example_db_1`.`accounts`
 ADD COLUMN `token` VARCHAR(127) NULL AFTER `sector`;
 ALTER TABLE accounts AUTO_INCREMENT=602;
 /* MFA developer is 582 */
+
+
+/* Evan Krohn 2/19/2021 */
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD INDEX `get_next` (`status` ASC, `priority` DESC, `id` ASC) VISIBLE;
+;

@@ -9,6 +9,7 @@ class AuctionSalesException(Exception):
         """
         super().__init__(reason)
 
+
 class AuctionSales:
 
     def __init__(self, db):

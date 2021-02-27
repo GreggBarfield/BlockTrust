@@ -68,6 +68,7 @@ class Database:
             pass
         self._connection = mysql.connect(**self._sql_config)
         self._cursor = self._connection.cursor(dictionary=True)
+        print("SECURE:", self._connection._ssl_active)
         return self._cursor
 
     def execute(self, code, params=tuple(), allow_retry=True, multi=False):

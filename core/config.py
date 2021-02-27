@@ -22,6 +22,10 @@ PORT = config_file["proxy"]["port"]
 FLASK_SESSION_SECRET_KEY = config_file["flask"]["secret_key"]
 
 MYSQL_CONFIG = config_file["mysql"]
+API_MYSQL_CONFIG = (
+    config_file["mysql"] if config_file["api_mysql"] == "same"
+    else config_file["api_mysql"]
+)
 
 AWS_S3_BUCKET = config_file["aws"]["s3"]["bucket"]
 AWS_S3_REGION_NAME = config_file["aws"]["s3"]["region_name"]
@@ -44,3 +48,5 @@ CSP = {
 }
 
 EMAIL_SENDER = config_file["email"]["sender"]
+
+INTERNAL_API_SECRET = config_file["internal_api"]["secret"]

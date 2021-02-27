@@ -14,7 +14,7 @@ class MatchesTypeVisibility:
         Params:
             account_id: Account ID to delete
         """
-        return self._db.exec_frag_d(
+        self._db.exec_frag(
             frag(
                 "DELETE FROM matches_type_visibility",
                 frag(
@@ -34,7 +34,7 @@ class MatchesTypeVisibility:
         self._delete_account_type_visibilities(account_id)
 
         if len(settings) != 0:
-            self._db.exec_frag_d(
+            self._db.exec_frag(
                 frag_insert_into(
                     "matches_type_visibility",
                     [

@@ -89,6 +89,23 @@ class InsertsModel:
         rows = results[3]
         return InsertsModel._process_row(rows[0]) if rows else None
 
+    def get_by_id(self, insert_id):
+        """Gets an insert by ID."""
+        self._cur.execute(
+            """
+                SELECT api_inserts.*, api_blocks.value AS 'api_blocks.value',
+                    api_blocks.resolved AS 'api_blocks.resolved'
+                    FROM api_inserts
+                    LEFT JOIN api_blocks ON api_blocks.id=api_inserts.block
+                    WHERE api_inserts.id=%(insert_id)s;
+            """,
+            {
+                'insert_id': insert_id
+            }
+        )
+        rows = self._cur.fetchall()
+        return InsertsModel._process_row(rows[0]) if rows else None
+
     def set_status(self, insert_id, status_name):
         """Sets the status.
 
