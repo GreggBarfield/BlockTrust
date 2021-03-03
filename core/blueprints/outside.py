@@ -154,3 +154,8 @@ def serve_developers():
 @bp.route('/privacy-policy', methods=['GET'])
 def serve_privacy():
     return outside_render('privacy.html')
+
+
+@bp.route('/favicon.ico', methods=['GET'])
+def serve_favicon():
+    return redirect("/static/favicon.ico")
