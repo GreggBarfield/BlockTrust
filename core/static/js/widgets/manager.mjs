@@ -75,7 +75,7 @@ import { InfoModal } from '../core/info_modal.mjs';
 
     $("#icon-search").click(() => {
         let infoModal = new InfoModal("Search By EID");
-        let widget = new SearchEIDsWidget(infoModal.getBody());
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter());
         widget.init(); // TODO: Fix (This will break in the future when networking is optimized)
     });
 

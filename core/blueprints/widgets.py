@@ -155,8 +155,9 @@ def serve_search_sales_groups_2():
 @bp.route('/widgets/data/search_by_eid_if_visible', methods=['POST'])
 @crut.require_account
 def serve_search_by_eid_if_visible():
+    eid_number = int(request.json["search"]["eid"])
     return {
-        "matches": g.db.matches.get_count_by_eid_if_visible(request.json["search"]["eid"])
+        "matches": g.db.matches.get_count_by_eid_if_visible(eid_number)
     }
 
 

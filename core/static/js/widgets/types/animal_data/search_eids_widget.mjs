@@ -1,8 +1,9 @@
 import { Widget } from '../../widget.mjs';
 
 export class SearchEIDsWidget extends Widget {
-    constructor(frame) {
+    constructor(frame, searchFrame) {
         super(frame);
+        this.searchFrame = searchFrame;
     }
 
     initType() {
@@ -16,11 +17,7 @@ export class SearchEIDsWidget extends Widget {
 
     generate() {
         this.form = document.createElement("form");
-        this.form.addEventListener("submit", (e)=>{
-            e.preventDefault();
-            this.search();
-        });
-
+   
         let firstFormRow = document.createElement("div");
         firstFormRow.className = "form-row";
         this.form.append(firstFormRow);
@@ -38,16 +35,13 @@ export class SearchEIDsWidget extends Widget {
         this.inputs.eidNumber.placeholder = "12345"
         eidNumberFormGroup.append(this.inputs.eidNumber);
         
-        let submitFormGroup = document.createElement("div");
-        submitFormGroup.className = "form-group";
-        submitFormGroup.style.marginTop = "2em";
-        firstFormRow.append(submitFormGroup);
-
-        let submitButton = document.createElement("input");
+        let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
-        submitButton.type = "submit";
-        submitButton.value = "Search";
-        submitFormGroup.append(submitButton);
+        submitButton.textContent = "Search";
+        submitButton.addEventListener("click", (e)=>{
+            this.search();
+        });
+        this.searchFrame.prepend(submitButton);
       
         this.searchErrorAlert = document.createElement("div");
         this.searchErrorAlert.className = "alert alert-danger";
@@ -79,8 +73,8 @@ export class SearchEIDsWidget extends Widget {
             this.showError("Please enter a EID number.");
             return;
         }
-        else if(this.inputs.eidNumber.value.length < 15) {
-            this.showError("EID number must be of 15 digits.");
+        else if(this.inputs.eidNumber.value.length != 15) {
+            this.showError("EID number must have exactly 15 digits.");
             return;
         }
 
