@@ -383,6 +383,29 @@ class Matches:
             )
         ))
 
+    def get_count_by_eid_if_visible(self, eid_number):
+        """Gets count of matches associated with an eid if visible.
+
+        Params:
+            eid_number: eid number
+
+        Returns:
+            One row indicating the count
+        """
+        return self._db.exec_frag_d(
+            frag(
+                """
+                SELECT count(eid) as 'count'
+                FROM matches
+                """,
+                Matches._left_join_visibility,
+                frag(
+                    "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
+                    eid_number=eid_number
+                )
+            ),
+        )[0]['count']
+
     @staticmethod
     def _load_rows(rows):
         """Parses returned JSON from mysql and applies booleans."""
