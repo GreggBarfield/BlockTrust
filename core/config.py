@@ -42,10 +42,13 @@ CSP = {
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'http://localhost:5000',
-        AWS_S3_BUCKET + ".s3.amazonaws.com",
-        'blocktrustnetwork.com'
+        'blocktrustnetwork.com',
+        'data:'
     ]
 }
+
+if AWS_S3_BUCKET:
+    CSP['default-src'].append(AWS_S3_BUCKET + ".s3.amazonaws.com")
 
 EMAIL_SENDER = config_file["email"]["sender"]
 

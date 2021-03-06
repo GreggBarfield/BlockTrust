@@ -37,11 +37,12 @@ app.secret_key = FLASK_SESSION_SECRET_KEY
 Talisman(
     app,
     content_security_policy=CSP,
-    force_https=False  # We don't want to serve HTTP in general
+    force_https=False  # Handle at nginx in deployment
 )
 CORS(app)
 
 attach_handlers(app)
+
 
 @app.before_request
 def before_request():
