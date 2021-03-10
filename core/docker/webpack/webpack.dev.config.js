@@ -23,6 +23,7 @@ module.exports = {
                       // https://github.com/webpack/webpack/issues/6901
   entry: {
     manager: path.resolve(__dirname, './core/static/js/widgets/manager.mjs'),
+    outside_interactive: path.resolve(__dirname, './core/static/js/outside/interactive.mjs'),
     // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/518
     ignoreme1: path.resolve(__dirname, './core/static/css/dashboard/dashboard_main.scss'),
   },

@@ -6,6 +6,9 @@ from ..renderers.outside import outside_render
 from ..database.tables.users import UsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
+from ..utilities.email import send_email
+from ..renderers.email import render_email
+from core.config import SUPPORT_GENERAL_EMAIL
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -123,6 +126,12 @@ def serve_about_us(path):
         return "Error accessing " + path + ": '.' should not be included"
     return outside_render('about-us/' + path + '.html')
 
+
+@bp.route('/contact_us', methods=["GET"])
+def serve_contact_us_old():
+    return redirect("/about-us/contact-us")
+
+
 # Our Partners
 
 
@@ -159,3 +168,19 @@ def serve_privacy():
 @bp.route('/favicon.ico', methods=['GET'])
 def serve_favicon():
     return redirect("/static/favicon.ico")
+
+
+@bp.route('/outside/contact_response', methods=['POST'])
+def serve_contact_form_response():
+    send_email(
+        "New Contact Us Response",
+        render_email("contact_us_response.html", {
+            'first': request.json['first'],
+            'last': request.json['last'],
+            'phone': request.json['phone'],
+            'email': request.json['email'],
+            'message': request.json['message'],
+        }),
+        SUPPORT_GENERAL_EMAIL
+    )
+    return {}

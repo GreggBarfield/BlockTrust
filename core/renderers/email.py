@@ -5,7 +5,7 @@ from flask import (
 
 
 def render_email(file, args={}):
-    """Renders a template from templates/emails.
+    """Renders a template from templates/email.
 
     Params:
         file: file should be a path relative to templates/emails.
