@@ -7,10 +7,11 @@
 // Flashable theme
 
 
-@import "custom/sales_groups";
+@use "custom/sales_groups";
 
-@import "widgets/widgets";
+@use "widgets/widgets";
 
+@use "custom/header_bar";
 
 // Flashable theme fixes
 

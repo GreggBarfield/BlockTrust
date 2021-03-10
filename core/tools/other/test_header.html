@@ -1,0 +1,141 @@
+<link rel="stylesheet"
+    href="./core/static/build/build_dashboard_main.min.css">
+<link rel="stylesheet"
+    href="./core/static/css/dashboard/flashable/flash_able_old/fonts/datta/datta-icon.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<style>
+    
+@import url("./core/static/css/dashboard/flashable/flash_able_old/fonts/feather/css/feather.css");
+</style>
+<body style="padding:150px;">
+    <header class="b-header">
+        <div class="b-header-bar">
+            <a class="b-header-logo" href="/">
+                <img
+                    class="b-header-logo-desktop"
+                    src="./core/static/images/logos/logo-color-light-eps-01.svg"
+                />
+                <img
+                    class="b-header-logo-mobile"
+                    src="./core/static/images/logos/logo-color-dark-eps-01.svg"
+                />
+            </a>
+        </div>
+
+        <button
+            class="b-header-mobile-hamburger hamburger hamburger--3dy toggler"
+            data-toggles="b-header-mobile-hamburger b-nav b-nav-underlay"
+            type="button"
+        >
+            <span class="hamburger-box">
+                <span class="hamburger-inner"></span>
+            </span>
+        </button>
+
+        <nav class="b-nav">
+            <span>Utility</span>
+    
+            <div class="b-nav-utility">
+                <ul>
+                    <li>
+                        <a href="/dashboard/messages">
+                            <i class="icon feather icon-mail"></i>
+                        </a>
+                    </li>
+                    <li class="b-user-settings-li">
+                        <a
+                            href="#"
+                            class="toggler"
+                            data-toggles="b-user-settings-li b-user-settings"
+                        >
+                            <i class="icon feather icon-settings"></i>
+                        </a>
+
+                        <div class="b-user-settings">
+                            <div class="pro-head">
+                                <img
+                                    src="./core/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg"
+                                    class="img-radius"
+                                    alt="User-Profile-Image"
+                                >
+                                <span>test user</span>
+                                <a href="/logout" title="Logout">
+                                    <i class="feather icon-log-out"></i>
+                                </a>
+                            </div>
+                            <ul class="pro-body">
+                                <li><a href="/logout" class="dropdown-item"><i class="feather icon-lock"></i> Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+    
+            <span>Navigation</span>
+            
+            <ul>
+                <li>
+                    <a href="/dashboard/accounts">
+                        <span><i class="feather icon-home"></i></span>
+                        <span>Ranch 1029</span>
+                    </a>
+                    <ul>
+                        <li><a href="/dashboard/accounts">Switch Account</a></li>
+                        <li><a href="/dashboard/accounts/new-account">New Account</a></li>
+                        <li><a href="/dashboard/accounts/join-account">Join Account</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/dashboard/sales-groups">
+                        <span><i class="feather icon-tag"></i></span>
+                        <span>Sales Groups</span>
+                    </a>
+                    <ul>
+                        <li><a href="/dashboard/sales-groups">Search</a></li>
+                        <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
+                        <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/dashboard/auction-sales/manage">
+                        <span><i class="feather icon-award"></i></span>
+                        <span>Auctions</span>
+                    </a>
+                    <ul>
+                        <li><a href="/dashboard/auction-sales/new">New Auction Sale</a></li>
+                        <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="/dashboard/data">
+                        <span><i class="feather icon-box"></i></span>
+                        <span>Data</span>
+                    </a>
+                    <ul>
+                        <li><a href="/dashboard/data">Manage My Data</a></li>
+                        <li><a href="/dashboard/data/advanced">Advanced Tools</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <div class="b-nav-underlay triggers-toggler" data-toggler="b-header-mobile-hamburger"></div>
+
+    <script>
+        $(".toggler").click(function() {
+            for (const c of $(this).attr("data-toggles").split(" ")) {
+                if (c != "") {
+                    $("." + c).toggleClass("is-active");
+                }
+            }
+            return false;
+        });
+        $(".triggers-toggler").click(function() {
+            $("." + $(this).attr("data-toggler")).click();
+            return false;
+        });
+    </script>
+
+</body>

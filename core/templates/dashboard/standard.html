@@ -87,12 +87,24 @@
         } catch (e) { }
       }
     });
-  });
   $(document).ready(function () {
     $("#pcoded").pcodedmenu({
       themelayout: 'horizontal',
       MenuTrigger: 'hover',
       SubMenuTrigger: 'hover',
+    });
+  });
+    $(".toggler").click(function() {
+        for (const c of $(this).attr("data-toggles").split(" ")) {
+            if (c != "") {
+                $("." + c).toggleClass("is-active");
+            }
+        }
+        return false;
+    });
+    $(".triggers-toggler").click(function() {
+        $("." + $(this).attr("data-toggler")).click();
+        return false;
     });
   });
 </script>
@@ -104,107 +116,138 @@
     <div class="loader-fill"></div>
   </div>
 </div>
-
-<nav class="pcoded-navbar theme-horizontal navbar-dark" style="height:50px;top:70px;">
-  <div class="navbar-wrapper">
-    <div class="navbar-content sidenav-horizontal" id="layout-sidenav">
-      <ul class="nav pcoded-inner-navbar sidenav-inner">
-        <li class="nav-item pcoded-hasmenu">
-          {% if dashboard_standard_account is not none %}
-          <a href="/dashboard/accounts/{{ dashboard_standard_account.id() }}" class="nav-link"><span class="pcoded-micon"><i
-                class="feather icon-home"></i></span><span class="pcoded-mtext">{{ dashboard_standard_account.name()|e }}</span></a>
-          {% else %}
-          <a href="/dashboard/accounts" class="nav-link"><span class="pcoded-micon"><i
-                class="feather icon-home"></i></span><span class="pcoded-mtext">Accounts</span></a>
-          {% endif %}
-          <ul class="pcoded-submenu">
-            <li class=""><a href="/dashboard/accounts" class="">Switch Account</a></li>
-            <li class=""><a href="/dashboard/accounts/new-account" class="">New Account</a></li>
-            <li class=""><a href="/dashboard/accounts/join-account" class="">Join Account</a></li>
-          </ul>
-        </li>
-        {% if dashboard_standard_account is not none %}
-        <li class="nav-item pcoded-hasmenu">
-          <a href="/dashboard/sales-groups" class="nav-link"><span class="pcoded-micon"><i
-                class="feather icon-tag"></i></span><span class="pcoded-mtext">Sales Groups</span></a>
-          <ul class="pcoded-submenu">
-            <li class=""><a href="/dashboard/sales-groups" class="">Search</a></li>
-            <li class=""><a href="/dashboard/sales-groups/manage" class="">Manage Sales Groups</a></li>
-            <li class=""><a href="/dashboard/sales-groups/new" class="">New Sales Group</a></li>
-          </ul>
-        </li>
-        <li class="nav-item pcoded-hasmenu">
-          <a href="/dashboard/auction-sales/manage" class="nav-link"><span class="pcoded-micon"><i
-                class="feather icon-award"></i></span><span class="pcoded-mtext">Auctions</span></a>
-          <ul class="pcoded-submenu">
-            <li class=""><a href="/dashboard/auction-sales/new" class="">New Auction Sale</a></li>
-            <li class=""><a href="/dashboard/auction-sales/manage" class="">Manage Auction Sales</a></li>
-          </ul>
-        </li>
-        <li class="nav-item pcoded-hasmenu">
-          <a href="/dashboard/data" class="nav-link"><span class="pcoded-micon"><i
-                class="feather icon-box"></i></span><span class="pcoded-mtext">Data</span></a>
-          <ul class="pcoded-submenu">
-            <li class=""><a href="/dashboard/data" class="">Manage My Data</a></li>
-            <li class=""><a href="/dashboard/data/advanced" class="">Advanced Tools</a></li>
-          </ul>
-        </li>
-        {% endif %}
-
-      </ul>
+<header class="b-header">
+    <div class="b-header-bar">
+        <a class="b-header-logo" href="/">
+            <img
+                class="b-header-logo-desktop"
+                src="/static/images/logos/logo-color-light-eps-01.svg"
+            />
+            <img
+                class="b-header-logo-mobile"
+                src="/static/images/logos/logo-color-dark-eps-01.svg"
+            />
+        </a>
     </div>
-  </div>
-</nav>
 
-<header class="navbar pcoded-header navbar-expand-lg navbar-light" style="min-height:70px;">
-  <div class="m-header" style="padding:0px 10px;">
-    <a class="mobile-menu" id="mobile-collapse1" href="#!"><span></span></a>
-    <a href="/" class="b-brand">
-      <img src="/static/images/logos/logo-color-light-eps-01.svg" alt="" class="logo images" style='height:50px;'>
-      <img src="/static/images/logos/logo-color-light-eps-01.svg" alt="" class="logo-thumb images" style='height:50px;'>
-    </a>
-  </div>
-  <a class="mobile-menu" id="mobile-header" href="#!">
-    <i class="feather icon-more-horizontal"></i>
-  </a>
-  <div class="collapse navbar-collapse">
-    <a href="#!" class="mob-toggler"></a>
-    <ul class="navbar-nav ml-auto">
-      {% if dashboard_standard_account is not none %}
-      <li> 
-        <a href="#" id="icon-search">
-          <i class="icon feather icon-search"></i>
-        </a>
-      </li>
-      <li>  
-        <a href="/dashboard/messages">
-          <i class="icon feather icon-mail"></i>
-        </a>
-      </li>
-      {% endif %}
-      <li>
-        <div class="dropdown drp-user">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <i class="icon feather icon-settings"></i>
-          </a>
-          <div class="dropdown-menu dropdown-menu-right profile-notification">
-            <div class="pro-head">
-              <img src="/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg" class="img-radius" alt="User-Profile-Image">
-              <span>{{dashboard_standard_user_first}} {{dashboard_standard_user_last}}</span>
-              <a href="/logout" class="dud-logout" title="Logout">
-                <i class="feather icon-log-out"></i>
-              </a>
-            </div>
-            <ul class="pro-body">
-              <li><a href="/logout" class="dropdown-item"><i class="feather icon-lock"></i> Logout</a>
-              </li>
+    <button
+        class="b-header-mobile-hamburger hamburger hamburger--3dy toggler"
+        data-toggles="b-header-mobile-hamburger b-nav b-nav-underlay"
+        type="button"
+    >
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+    
+    <nav class="b-nav">
+        <span>Utility</span>
+        <div class="b-nav-utility">
+            <ul>
+                {% if dashboard_standard_account is not none %}
+                <li> 
+                  <a href="#" id="icon-search">
+                    <i class="icon feather icon-search"></i>
+                  </a>
+                </li>
+                <li>  
+                    <a href="/dashboard/messages">
+                    <i class="icon feather icon-mail"></i>
+                    </a>
+                </li>
+                {% endif %}
+                <li class="b-user-settings-li">
+                    <a
+                        href="#"
+                        class="toggler"
+                        data-toggles="b-user-settings-li b-user-settings"
+                    >
+                        <i class="icon feather icon-settings"></i>
+                    </a>
+                    <div class="b-user-settings">
+                        <div class="pro-head">
+                            <img
+                                src="/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg"
+                                class="img-radius"
+                                alt="User-Profile-Image"
+                            >
+                            <span>{{dashboard_standard_user_first}} {{dashboard_standard_user_last}}</span>
+                            <a href="/logout" title="Logout">
+                                <i class="feather icon-log-out"></i>
+                            </a>
+                        </div>
+                        <ul class="pro-body">
+                            <li>
+                                <a href="/logout">
+                                    <i class="feather icon-lock"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
             </ul>
-          </div>
         </div>
-      </li>
-    </ul>
-  </div>
+
+        <span>Navigation</span>
+
+        <ul>
+            <li>
+                {% if dashboard_standard_account is not none %}
+                <a
+                    href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
+                >
+                    <span><i class="feather icon-home"></i></span>
+                    <span>{{ dashboard_standard_account.name()|e }}</span>
+                </a>
+                {% else %}
+                <a href="/dashboard/accounts">
+                    <span><i class="feather icon-home"></i></span>
+                    <span>Accounts</span>
+                </a>
+                {% endif %}
+                <ul>
+                    <li class=""><a href="/dashboard/accounts" class="">Switch Account</a></li>
+                    <li class=""><a href="/dashboard/accounts/new-account" class="">New Account</a></li>
+                    <li class=""><a href="/dashboard/accounts/join-account" class="">Join Account</a></li>
+                </ul>
+            </li>
+            {% if dashboard_standard_account is not none %}
+            <li>
+                <a href="/dashboard/sales-groups">
+                    <span><i class="feather icon-tag"></i></span>
+                    <span>Sales Groups</span>
+                </a>
+                <ul>
+                    <li><a href="/dashboard/sales-groups">Search</a></li>
+                    <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
+                    <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="/dashboard/auction-sales/manage">
+                    <span><i class="feather icon-award"></i></span>
+                    <span>Auctions</span>
+                </a>
+                <ul>
+                    <li><a href="/dashboard/auction-sales/new">New Auction Sale</a></li>
+                    <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="/dashboard/data">
+                    <span><i class="feather icon-box"></i></span>
+                    <span>Data</span>
+                </a>
+                <ul>
+                    <li><a href="/dashboard/data">Manage My Data</a></li>
+                    <li><a href="/dashboard/data/advanced">Advanced Tools</a></li>
+                </ul>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
 </header>
+<div class="b-nav-underlay triggers-toggler" data-toggler="b-header-mobile-hamburger"></div>
 {% endblock header %}
 
 {% block content %}
