@@ -113,3 +113,30 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=all_to_unix(fields["marketingd"]),
             data=sold_object
         )
+
+    if 'zipcode' in fields and fields['zipcode'] and 'patronid' in fields and fields['patronid']:
+        zipcode = str(fields['zipcode'])
+        patronid = int(fields['patronid'])
+
+        if len(zipcode) >= 5 and patronid > 0:
+            f5 = zipcode[0:5]
+            for d in f5:
+                if d not in "0123456789":
+                    break
+            else:
+                lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                db.matches.types.insert_sighting(
+                    eid=eid,
+                    time=all_to_unix(fields['appdate']),
+                    lat=lat,
+                    lon=lon,
+                    account=account,
+                    account_link=(
+                        db.account_links.get_by_uid(
+                            uid=patronid,
+                            uid_type=0,
+                            insert_sector=sectors_by_name["Feedlot"],
+                            insert=True
+                        )[0].id()
+                    )
+                )

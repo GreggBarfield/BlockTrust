@@ -96,13 +96,14 @@ class AccountLinks:
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_uid(self, uid, uid_type, insert=False, data_race_protection=True):
+    def get_by_uid(self, uid, uid_type, insert=False, insert_sector=None, data_race_protection=True):
         """Gets all account links that match a uid.
 
         Params:
             uid: uid to search
             uid_type: the UID type to search ("MFA")
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
+            insert_sector: Whether to insert a sector too (sector ID, default None)
         
         Returns:
             A list of AccountLink objects (could be empty)
@@ -118,7 +119,7 @@ class AccountLinks:
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(uid=uid, uid_type=uid_type)
+                self.insert(uid=uid, uid_type=uid_type, sector=insert_sector)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
