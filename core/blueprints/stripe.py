@@ -10,7 +10,8 @@ bp = Blueprint('stripe_bp', __name__)
 
 @bp.route('/stripe/test', methods=['GET'])
 def serve_stripe_test():
-    return jsonify({'status':'Hello world'})
+    return jsonify('<h1>Hello World</h1>')
+
 
 #events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
 @bp.route('/stripe/subscription', methods=['POST'])

@@ -81,7 +81,7 @@ class Accounts:
         return [
             Account(self._db, account_row)
             for account_row in account_rows
-        ]    
+        ]
     
     
     def get_by_stripe_customer_id(self, stripe_customer_id):
