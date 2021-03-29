@@ -1,6 +1,6 @@
 flask
 flask-talisman
 flask-cors
-mysql-connector
+mysql-connector-python
 bcrypt
 boto3

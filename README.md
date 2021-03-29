@@ -8,6 +8,8 @@ Web development stack:
 docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core stop \
     && docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core up --build --detach
 
+    To build a single service, add the service name
+
 Reports worker (requries web dev stack online):
 docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw stop \
     && docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw up --build --detach

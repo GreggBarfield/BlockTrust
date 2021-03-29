@@ -32,7 +32,6 @@
         margin: 0px !important;
     }
 </style>
-<script>document.getElementsByTagName("html")[0].className += " js";</script>
 <script src="/static/js/jquery-3.5.1.min.js"></script>
 <script src="/static/global/global.mjs" type="module"></script>
 {% block head_section_per_dashboard_page %}
@@ -54,7 +53,8 @@
 <script src="/static/libs2/amcharts/themes/animated.js"></script>
 <script src="/static/libs2/select2/select2.min.js"></script>
 {# <script src="/static/css/flash_able/flash_able_old/js/menu-setting.min.js"></script> What is this? #}
-<script src="/static/libs2/codyhouse/main/assets/js/scripts.min.js"></script>
+<script src="/static/libs2/codyhouse/main/assets/js/scripts.js"></script>
+<script src="/static/build/build_manager.min.mjs" type="module"></script>
 <script type="text/javascript">
 
   // Collapse menu
@@ -281,7 +281,6 @@
             {% block dashboard_content %}
             Needs dashboard content
             {% endblock dashboard_content %}
-            <script src="/static/build/build_manager.min.mjs" type="module"></script>
             <!-- [ Main Content ] end -->
           </div>
         </div>

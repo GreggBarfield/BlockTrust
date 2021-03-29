@@ -25,7 +25,7 @@ module.exports = {
     manager: path.resolve(__dirname, './core/static/js/widgets/manager.mjs'),
     outside_interactive: path.resolve(__dirname, './core/static/js/outside/interactive.mjs'),
     // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/518
-    ignoreme1: path.resolve(__dirname, './core/static/css/dashboard/dashboard_main.scss'),
+    standalone_assets: path.resolve(__dirname, './core/static/css/dashboard/dashboard_main.scss'),
   },
   devtool: 'source-map', // DISABLE IN PRODUCTION! SLOW
   output: {
@@ -41,14 +41,12 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,//need to add extract-loader, post-css, 
         use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: 'build_[name].min.css',
-            },
-          },
-          "sass-loader",
+          "sass-loader"
         ],
+        type: "asset/resource",
+        generator: {
+          filename: "build_[name].min.css"
+        }
       },
     ],
   },
