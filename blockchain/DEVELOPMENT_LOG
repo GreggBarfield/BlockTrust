@@ -1,0 +1,28 @@
+4/1 
+Used CouchDB as default DB. Change this in config/core.yaml
+
+
+
+TODO:
+1. Remove the anchor peer setup if necessary as it is used in multiple-organization setup. Search "Anchor" in this directory to 
+see all the relevant lines in the source files.
+
+2. Good practices for queries
+https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_as_state_database.html#good-practices-for-queries
+
+3. Read this about CouchDB https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_tutorial.html
+
+4. Change peer's database password in docker-compose-couch.yaml
+
+5. Save certificates in s3
+
+6. change db from sqlite3 to mysql in organizations/org/fabric-ca-server-config.yaml
+
+7. https://chat.hyperledger.org/home
+You must provision persistent storage for your ledger files. The following properties in core.yaml dictates where ledger files and snapshots are written:
+
+peer.fileSystemPath - defaults to /var/hyperledger/production
+ledger.snapshots.rootDir - defaults to /var/hyperledger/production/snapshots
+
+8. How to Deploy a Node.js Application On AWS EC2 Server
+https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-on-aws-ec2-server

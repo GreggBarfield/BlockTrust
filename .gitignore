@@ -59,3 +59,22 @@ build*
 core/environment_config.json
 core/environment_configs
 api/translation_worker/tools/sandbox.py
+
+# Fabric Network generated files
+blockchain/blockchain-network/basic.tar.gz
+blockchain/blockchain-network/channel-artifacts/
+blockchain/blockchain-network/log.txt
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/IssuerPublicKey
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/IssuerRevocationPublicKey
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/ca-cert.pem
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/fabric-ca-server.db
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/msp/
+blockchain/blockchain-network/organizations/fabric-ca/ordererOrg/tls-cert.pem
+blockchain/blockchain-network/organizations/fabric-ca/org1/IssuerPublicKey
+blockchain/blockchain-network/organizations/fabric-ca/org1/IssuerRevocationPublicKey
+blockchain/blockchain-network/organizations/fabric-ca/org1/ca-cert.pem
+blockchain/blockchain-network/organizations/fabric-ca/org1/fabric-ca-server.db
+blockchain/blockchain-network/organizations/fabric-ca/org1/msp/
+blockchain/blockchain-network/organizations/fabric-ca/org1/tls-cert.pem
+blockchain/blockchain-network/organizations/ordererOrganizations/
+blockchain/blockchain-network/organizations/peerOrganizations/
