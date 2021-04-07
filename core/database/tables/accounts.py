@@ -1,6 +1,9 @@
 from ...sectors import sectors_by_id
 from ..objects.account import Account, AccountException
+from ..no_value import NoValue
+from ..frag import frag
 
+NO_VALUE = NoValue()
 
 class AccountsException(Exception):
     """Account generic exception."""
@@ -153,7 +156,7 @@ class Accounts:
             raise AccountsException("Account exception: " + str(e))
 
 
-    def update_account(self, account_id, name, company, sector_id, token, paid, manual_paid, stripe_customer_id):
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -162,25 +165,65 @@ class Accounts:
             company: the company name
             sector: the sector number
             token: token that we give the customer to use our apis
-            paid: indicates if it is a paid account (this should be synced with stripe subscription)
+            stripe_paid: indicates if this account has an active subscription in stripe 
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
-        self._db.execute("""
-            UPDATE accounts
-                SET name=%(name)s, company=%(company)s, sector=%(sector_id)s,
-                    token=%(token)s, paid=%(paid)s, manual_paid=%(manual_paid)s,
-                    stripe_customer_id=%(stripe_customer_id)s
-                WHERE id=%(account_id)s
-            """,
-            {
-                "account_id": account_id,
-                "name": name,
-                "company": company,
-                "sector_id": sector_id,
-                "token": token,
-                "paid": paid,
-                "manual_paid": manual_paid,
-                "stripe_customer_id": stripe_customer_id
-            }
+        set_frags = ('',[])
+        if name is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "name=:name,",
+                            name=name
+                        )           
+        if company is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "company=:company,",
+                            company=company
+                        )
+        if sector_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "sector_id=:sector_id,",
+                            sector_id=sector_id
+                        )
+        if token is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "token=:token,",
+                            token=token
+                        )
+        if stripe_paid is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "stripe_paid=:stripe_paid,",
+                            stripe_paid=stripe_paid
+                        ) 
+        if manual_paid is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "manual_paid=:manual_paid,",
+                            manual_paid=manual_paid
+                        )  
+        
+        if stripe_customer_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "stripe_customer_id=:stripe_customer_id",
+                            stripe_customer_id=stripe_customer_id
+                        )   
+        #check if last character in SQL is , and remove it if so
+        if set_frags[0][-1] == ",":
+            set_frags = (set_frags[0][:-1],set_frags[1])
+
+        self._db.exec_frag(   
+            frag(
+                "UPDATE accounts SET",
+                set_frags,
+                frag(
+                    "WHERE id=:id",
+                    id=account_id
+                )               
+            )
         )

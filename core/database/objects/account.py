@@ -52,8 +52,8 @@ class Account:
         return sectors_by_id[self._row['sector']]
 
 
-    def paid(self):
-        return self._row['paid']
+    def stripe_paid(self):
+        return self._row['stripe_paid']
 
 
     def manual_paid(self):

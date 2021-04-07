@@ -4,6 +4,7 @@ from flask import (
 import stripe
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..common_exceptions import ExportException
 from core.config import SUBSCRIPTION_WEBHOOK_SECRET
 
 bp = Blueprint('stripe_bp', __name__)
@@ -32,52 +33,35 @@ def serve_stripe_subscription():
         # Invalid signature
         return jsonify({'error': str(e)})
 
-    if event.type != 'customer.subscription.created' and event.type != 'customer.subscription.deleted' \
-       and event.type != 'customer.subscription.updated':
-        return jsonify({'status': 'This event ' + event.type + ' is not supported.'})
-
-    customer_id = event.data.object.customer  
-    #read the customer id and get the account
-    try:
-        account = g.db.accounts.get_by_stripe_customer_id(customer_id)
-    except AccountsException:
-        return jsonify({'status': 'No customer found with the stripe customer id: ' + customer_id})
-
-    # found account, now update it as required
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
+            account = get_account_of_stripe_customer(event)
             g.db.accounts.update_account(
                 account.id(),
-                account.name(),
-                account.company(),
-                account.sector_id(),
-                account.token(),
-                1,
-                account.manual_paid(),
-                account.stripe_customer_id()
+                stripe_paid=1
             )
     elif event.type == 'customer.subscription.deleted':
+        account = get_account_of_stripe_customer(event)
         g.db.accounts.update_account(
             account.id(),
-            account.name(),
-            account.company(),
-            account.sector_id(),
-            account.token(),
-            0,
-            account.manual_paid(),
-            account.stripe_customer_id()
+            stripe_paid=0
         )
     elif event.type == 'customer.subscription.updated':
+        account = get_account_of_stripe_customer(event)
         if event.data.object.status == 'past_due':
             g.db.accounts.update_account(
                 account.id(),
-                account.name(),
-                account.company(),
-                account.sector_id(),
-                account.token(),
-                0,
-                account.manual_paid(),
-                account.stripe_customer_id()
+                stripe_paid=0
             )
+    else:
+        return jsonify({'status': 'This event ' + event.type + ' is not supported.'})
 
     return jsonify({'status': 'Success'})
+
+def get_account_of_stripe_customer(event):
+    customer_id = event.data.object.customer  
+    #read the customer id and get the account
+    try:
+        return g.db.accounts.get_by_stripe_customer_id(customer_id)
+    except AccountsException:
+        raise ExportException('No customer found with the stripe customer id: ' + customer_id)
