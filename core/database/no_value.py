@@ -1,5 +1,5 @@
 #Singleton Pattern
-class NoValue(object):
+class NoValue:
     _instance = None
 
     def __new__(cls):
