@@ -59,8 +59,8 @@ def serve_stripe_subscription():
     return jsonify({'status': 'Success'})
 
 def get_account_of_stripe_customer(event):
-    customer_id = event.data.object.customer  
     #read the customer id and get the account
+    customer_id = event.data.object.customer      
     try:
         return g.db.accounts.get_by_stripe_customer_id(customer_id)
     except AccountsException:
