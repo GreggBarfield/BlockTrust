@@ -1,6 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag, frag_insert_into
+from ..frag import frag, frag_insert_into, frag_insert_single_where
 from ..objects.match import Match, MatchException
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
@@ -145,23 +145,54 @@ class Matches:
         if not isinstance(type_int, int):
             raise MatchesException("type_int should be an int")
 
+        row = {
+            "eid": eid,
+            "type": type_int,
+            "data": None if data is None else json.dumps(data),
+            "account": account,
+            "account_link": account_link,
+            "lat": lat,
+            "lon": lon,
+            "time": time,
+            "created": int(time_module.time()),
+            "raw_identifier": raw_identifier
+        }
+
         self._db.exec_frag(
-            frag_insert_into(
+            frag_insert_single_where(
                 'matches',
-                [
-                    {
-                        "eid": eid,
-                        "type": type_int,
-                        "data": None if data is None else json.dumps(data),
-                        "account": account,
-                        "account_link": account_link,
-                        "lat": lat,
-                        "lon": lon,
-                        "time": time,
-                        "created": int(time_module.time()),
-                        "raw_identifier": raw_identifier
-                    }
-                ]
+                row,
+                frag(
+                    "(",
+                    frag(
+                        "SELECT COUNT(*) FROM matches",
+                        "WHERE",
+                        "eid<=>:eid",
+                        "AND",
+                        "type<=>:type",
+                        "AND",
+                        "data<=>CAST(:data AS JSON)",
+                        "AND",
+                        "account<=>:account",
+                        "AND",
+                        "account_link<=>:account_link",
+                        "AND",
+                        "lat<=>:lat",
+                        "AND",
+                        "lon<=>:lon",
+                        "AND",
+                        "time<=>:time",
+                        eid=row["eid"],
+                        type=row["type"],
+                        data=row["data"],
+                        account=row["account"],
+                        account_link=row["account_link"],
+                        lat=row["lat"],
+                        lon=row["lon"],
+                        time=row["time"]
+                    ),
+                    ") = 0",
+                )
             )
         )
 
