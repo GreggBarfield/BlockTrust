@@ -1,5 +1,6 @@
 from ..objects.account_user import AccountUser
 
+
 class AccountUsersException(Exception):
     """account users generic exception."""
 
@@ -22,14 +23,13 @@ class AccountUsers:
     def __init__(self, db):
         self._db = db
 
-
     def get_by_user_and_account_id(self, user, account_id):
         """Get an account user by a user and an account ID.
 
         Params:
             user: User object
             account: Account ID
-        
+
         Returns:
             An AccountUser object
 
@@ -52,14 +52,13 @@ class AccountUsers:
             return AccountUser(self._db, account_users[0])
         raise NoAccountUserFound()
 
-
     def get_by_user_and_account(self, user, account):
         """Get an account user by a user and an account.
 
         Params:
             user: User object
             account: Account object
-        
+
         Returns:
             An AccountUser object
 
@@ -68,13 +67,12 @@ class AccountUsers:
         """
         return self.get_by_user_and_account_id(user, account.id())
 
-
     def get_by_user(self, user):
         """Get a user's linked accounts.
 
         Params:
             user: User object
-        
+
         Returns:
             A list of AccountUser objects. This list can be blank
                 (exceptions are not raised on no accounts found)
@@ -90,7 +88,6 @@ class AccountUsers:
         )
         return [AccountUser(self._db, account_user) for account_user in account_users]
 
-    
     def add_user_to_account(self, user, account):
         """Add a user to an account.
 

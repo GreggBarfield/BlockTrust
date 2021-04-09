@@ -1,4 +1,5 @@
 from ..objects.user import User
+from .. import database
 
 
 class UsersException(Exception):
@@ -20,7 +21,7 @@ class NoUserFoundException(UsersException):
 
 class Users:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def get(self, user_id):
