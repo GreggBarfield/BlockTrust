@@ -169,7 +169,7 @@ class Accounts:
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
-        set_frags = ('',[])
+        set_frags = frag()
         if name is not NO_VALUE:
             set_frags = frag(
                             set_frags,
@@ -205,25 +205,26 @@ class Accounts:
                             set_frags, 
                             "manual_paid=:manual_paid,",
                             manual_paid=manual_paid
-                        )  
-        
+                        )         
         if stripe_customer_id is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
                             "stripe_customer_id=:stripe_customer_id",
                             stripe_customer_id=stripe_customer_id
-                        )   
-        #check if last character in SQL is , and remove it if so
-        if set_frags[0][-1] == ",":
-            set_frags = (set_frags[0][:-1],set_frags[1])
+                        )
+        
+        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
+            #check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1],set_frags[1])
 
-        self._db.exec_frag(   
-            frag(
-                "UPDATE accounts SET",
-                set_frags,
+            self._db.exec_frag(   
                 frag(
-                    "WHERE id=:id",
-                    id=account_id
-                )               
+                    "UPDATE accounts SET",
+                    set_frags,
+                    frag(
+                        "WHERE id=:id",
+                        id=account_id
+                    )               
+                )
             )
-        )
