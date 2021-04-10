@@ -52,6 +52,22 @@ class Account:
         return sectors_by_id[self._row['sector']]
 
 
+    def stripe_paid(self):
+        return self._row['stripe_paid']
+
+
+    def manual_paid(self):
+        return self._row['manual_paid']
+
+
+    def generated_paid(self):
+        return self._row['generated_paid']
+
+
+    def stripe_customer_id(self):
+        return self._row['stripe_customer_id']
+
+
     def add_user(self, user):
         """Add a user to this account.
 
