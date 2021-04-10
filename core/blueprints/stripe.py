@@ -9,6 +9,7 @@ from core.config import SUBSCRIPTION_WEBHOOK_SECRET
 
 bp = Blueprint('stripe_bp', __name__)
 
+
 @bp.route('/stripe/test', methods=['GET'])
 def serve_stripe_test():
     return ('<h1>Hello World</h1>')
@@ -57,6 +58,7 @@ def serve_stripe_subscription():
         return jsonify({'status': 'This event ' + event.type + ' is not supported.'})
 
     return jsonify({'status': 'Success'})
+
 
 def get_account_of_stripe_customer(event):
     #read the customer id and get the account
