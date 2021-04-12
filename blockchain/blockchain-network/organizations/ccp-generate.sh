@@ -34,12 +34,3 @@ CAPEM=organizations/peerOrganizations/org1.blocktrustnetwork.com/ca/ca.org1.bloc
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.blocktrustnetwork.com/connection-org1.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org1.blocktrustnetwork.com/connection-org1.yaml
-
-# ORG=2
-# P0PORT=9051
-# CAPORT=8054
-# PEERPEM=organizations/peerOrganizations/org2.blocktrustnetwork.com/tlsca/tlsca.org2.blocktrustnetwork.com-cert.pem
-# CAPEM=organizations/peerOrganizations/org2.blocktrustnetwork.com/ca/ca.org2.blocktrustnetwork.com-cert.pem
-
-# echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.blocktrustnetwork.com/connection-org2.json
-# echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/org2.blocktrustnetwork.com/connection-org2.yaml

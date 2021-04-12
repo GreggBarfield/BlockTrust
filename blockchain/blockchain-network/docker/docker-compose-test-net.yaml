@@ -10,7 +10,6 @@ version: '2.4'
 volumes:
   orderer.blocktrustnetwork.com:
   peer0.org1.blocktrustnetwork.com:
-  # peer0.org2.blocktrustnetwork.com:
 
 networks:
   test:
@@ -96,43 +95,6 @@ services:
       - 7051:7051
     networks:
       - test
-
-  # peer0.org2.blocktrustnetwork.com:
-  #   container_name: peer0.org2.blocktrustnetwork.com
-  #   image: hyperledger/fabric-peer:latest
-  #   labels:
-  #     service: hyperledger-fabric
-  #   environment:
-  #     #Generic peer variables
-  #     - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-  #     - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fabric_test
-  #     - FABRIC_LOGGING_SPEC=INFO
-  #     #- FABRIC_LOGGING_SPEC=DEBUG
-  #     - CORE_PEER_TLS_ENABLED=true
-  #     - CORE_PEER_PROFILE_ENABLED=true
-  #     - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-  #     - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-  #     - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-  #     # Peer specific variabes
-  #     - CORE_PEER_ID=peer0.org2.blocktrustnetwork.com
-  #     - CORE_PEER_ADDRESS=peer0.org2.blocktrustnetwork.com:9051
-  #     - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-  #     - CORE_PEER_CHAINCODEADDRESS=peer0.org2.blocktrustnetwork.com:9052
-  #     - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-  #     - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.blocktrustnetwork.com:9051
-  #     - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.blocktrustnetwork.com:9051
-  #     - CORE_PEER_LOCALMSPID=Org2MSP
-  #   volumes:
-  #       - /var/run/docker.sock:/host/var/run/docker.sock
-  #       - ../organizations/peerOrganizations/org2.blocktrustnetwork.com/peers/peer0.org2.blocktrustnetwork.com/msp:/etc/hyperledger/fabric/msp
-  #       - ../organizations/peerOrganizations/org2.blocktrustnetwork.com/peers/peer0.org2.blocktrustnetwork.com/tls:/etc/hyperledger/fabric/tls
-  #       - peer0.org2.blocktrustnetwork.com:/var/hyperledger/production
-  #   working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
-  #   command: peer node start
-  #   ports:
-  #     - 9051:9051
-  #   networks:
-  #     - test
   
   cli:
     container_name: cli
@@ -154,6 +116,5 @@ services:
         - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
     depends_on:
       - peer0.org1.blocktrustnetwork.com
-      # - peer0.org2.blocktrustnetwork.com
     networks:
       - test

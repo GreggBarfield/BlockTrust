@@ -14,8 +14,6 @@
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/msp/tlscacerts/tlsca.blocktrustnetwork.com-cert.pem
 export PEER0_ORG1_CA=${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls/ca.crt
-# export PEER0_ORG2_CA=${PWD}/organizations/peerOrganizations/org2.blocktrustnetwork.com/peers/peer0.org2.blocktrustnetwork.com/tls/ca.crt
-# export PEER0_ORG3_CA=${PWD}/organizations/peerOrganizations/org3.blocktrustnetwork.com/peers/peer0.org3.blocktrustnetwork.com/tls/ca.crt
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls/server.key
 
@@ -33,17 +31,6 @@ setGlobals() {
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/Admin@org1.blocktrustnetwork.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
-  # elif [ $USING_ORG -eq 2 ]; then
-  #   export CORE_PEER_LOCALMSPID="Org2MSP"
-  #   export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
-  #   export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.blocktrustnetwork.com/users/Admin@org2.blocktrustnetwork.com/msp
-  #   export CORE_PEER_ADDRESS=localhost:9051
-
-  # elif [ $USING_ORG -eq 3 ]; then
-  #   export CORE_PEER_LOCALMSPID="Org3MSP"
-  #   export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
-  #   export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.blocktrustnetwork.com/users/Admin@org3.blocktrustnetwork.com/msp
-  #   export CORE_PEER_ADDRESS=localhost:11051
   else
     errorln "ORG Unknown"
   fi
@@ -65,10 +52,6 @@ setGlobalsCLI() {
   fi
   if [ $USING_ORG -eq 1 ]; then
     export CORE_PEER_ADDRESS=peer0.org1.blocktrustnetwork.com:7051
-  # elif [ $USING_ORG -eq 2 ]; then
-  #   export CORE_PEER_ADDRESS=peer0.org2.blocktrustnetwork.com:9051
-  # elif [ $USING_ORG -eq 3 ]; then
-  #   export CORE_PEER_ADDRESS=peer0.org3.blocktrustnetwork.com:11051
   else
     errorln "ORG Unknown"
   fi

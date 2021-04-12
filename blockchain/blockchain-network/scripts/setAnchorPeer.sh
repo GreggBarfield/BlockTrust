@@ -22,12 +22,6 @@ createAnchorPeerUpdate() {
   if [ $ORG -eq 1 ]; then
     HOST="peer0.org1.blocktrustnetwork.com"
     PORT=7051
-  # elif [ $ORG -eq 2 ]; then
-  #   HOST="peer0.org2.blocktrustnetwork.com"
-  #   PORT=9051
-  # elif [ $ORG -eq 3 ]; then
-  #   HOST="peer0.org3.blocktrustnetwork.com"
-  #   PORT=11051
   else
     errorln "Org${ORG} unknown"
   fi
