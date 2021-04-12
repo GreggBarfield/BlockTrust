@@ -2,6 +2,8 @@
  * Copyright IBM Corp. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * NOTICE: This file is for DEVELOPMENT ONLY, NOT for PRODUCTION.
  */
 
 'use strict';
@@ -9,8 +11,8 @@
 const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
-const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../../test-application/javascript/CAUtil.js');
-const { buildCCPOrg1, buildWallet } = require('../../test-application/javascript/AppUtil.js');
+const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../../application-utils/javascript/CAUtil.js');
+const { buildCCPOrg1, buildWallet } = require('../../application-utils/javascript/AppUtil.js');
 
 const channelName = 'mychannel';
 const chaincodeName = 'basic';
@@ -23,7 +25,7 @@ function prettyJSONString(inputString) {
 }
 
 // pre-requisites:
-// - fabric-sample two organization test-network setup with two peers, ordering service,
+// - one organization test-network setup with two peers, ordering service,
 //   and 2 certificate authorities
 //         ===> from directory /fabric-samples/test-network
 //         ./network.sh up createChannel -ca
@@ -110,28 +112,27 @@ async function main() {
 			// Get the contract from the network.
 			const contract = network.getContract(chaincodeName);
 
-			// Initialize a set of record data on the channel using the chaincode 'InitLedger' function.
-			// This type of transaction would only be run once by an application the first time it was started after it
-			// deployed the first time. Any updates to the chaincode deployed later would likely not need to run
-			// an "init" type function.
-			console.log('\n--> Submit Transaction: InitLedger, function creates the initial set of records on the ledger');
-			await contract.submitTransaction('InitLedger');
-			console.log('*** Result: committed');
+			// // Initialize a set of record data on the channel using the chaincode 'InitLedger' function.
+			// // This type of transaction would only be run once by an application the first time it was started after it
+			// // deployed the first time. Any updates to the chaincode deployed later would likely not need to run
+			// // an "init" type function.
+			// console.log('\n--> Submit Transaction: InitLedger, function creates the initial set of records on the ledger');
+			// await contract.submitTransaction('InitLedger');
+			// console.log('*** Result: committed');
 
-			// Let's try a query type operation (function).
-			// This will be sent to just one peer and the results will be shown.
-			console.log('\n--> Evaluate Transaction: GetAllRecords, function returns all the current records on the ledger');
-			let result = await contract.evaluateTransaction('GetAllRecords');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
+			// // Let's try a query type operation (function).
+			// // This will be sent to just one peer and the results will be shown.
+			// console.log('\n--> Evaluate Transaction: GetAllRecords, function returns all the current records on the ledger');
+			// let result = await contract.evaluateTransaction('GetAllRecords');
+			// console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			// Now let's try to submit a transaction.
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
 			// to the orderer to be committed by each of the peer's to the channel ledger.
 			console.log('\n--> Submit Transaction: CreateRecord, creates new record with id and data arguments');
-			let data = {name: 'new', lat: 32.9686, lon: 100.9018};
-			result = await contract.submitTransaction('CreateRecord', 'record99', 'record', JSON.stringify(data));
+			let result = await contract.submitTransaction('CreateRecord', 'record1', 'data1');
 			console.log('*****************');
-			console.log(result.toString());
+			console.log(result);
 			console.log('*****************');
 			console.log('*** Result: committed');
 			if (`${result}` !== '') {
@@ -139,7 +140,7 @@ async function main() {
 			}
 
 			console.log('\n--> Evaluate Transaction: ReadRecord, function returns an record with a given recordID');
-			result = await contract.evaluateTransaction('ReadRecord', 'record99');
+			result = await contract.evaluateTransaction('ReadRecord', 'record1');
 			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			console.log('\n--> Evaluate Transaction: RecordExists, function returns "true" if an record with given recordID exist');
@@ -147,7 +148,7 @@ async function main() {
 			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			console.log('\n--> Submit Transaction: UpdateRecord record1, change the name to \'updated\'');
-			await contract.submitTransaction('UpdateRecord', 'record1', {name: 'updated', lat: 31.9686, lon: 99.9018});
+			await contract.submitTransaction('UpdateRecord', 'record1', 'newdata1');
 			console.log('*** Result: committed');
 
 			console.log('\n--> Evaluate Transaction: ReadRecord, function returns "record1" attributes');
@@ -157,8 +158,8 @@ async function main() {
 			try {
 				// How about we try a transactions where the executing chaincode throws an error
 				// Notice how the submitTransaction will throw an error containing the error thrown by the chaincode
-				console.log('\n--> Submit Transaction: UpdateRecord record70, record70 does not exist and should return an error');
-				await contract.submitTransaction('UpdateRecord', 'record70', {});
+				console.log('\n--> Submit Transaction: UpdateRecord record999, record999 does not exist and should return an error');
+				await contract.submitTransaction('UpdateRecord', 'record999', {});
 				console.log('******** FAILED to return an error');
 			} catch (error) {
 				console.log(`*** Successfully caught the error: \n    ${error}`);

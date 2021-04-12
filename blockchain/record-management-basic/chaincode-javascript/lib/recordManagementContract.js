@@ -10,31 +10,15 @@ const { Contract } = require('fabric-contract-api');
 
 class RecordManagementContract extends Contract {
 
-    async InitLedger(ctx) {
-        const records = [
-            {
-                id: 'record1',
-                created: new Date(),
-                data: {name: 'abc', lat: 31.9686, lon: 99.9018}
-            }
-        ];
-
-        for (const record of records) {
-            record.docType = 'record';
-            await ctx.stub.putState(record.id, Buffer.from(JSON.stringify(record)));
-            console.info(`Record ${record.id} initialized`);
-        }
-    }
-
     // CreateRecord issues a new record to the world state with given details.
-    async CreateRecord(ctx, id, docType, data) {
-        const now = new Date();
+    async CreateRecord(ctx, id, data) {
+
         const record = {
-            id: id,
-            docType: docType,
-            created: now,
-            data: data
+            txID: ctx.stub.getTxID(),
+            data: data,
+            created: new Date(),
         };
+        //The transaction ID uniquely identifies the transaction within the scope of the channel.
         ctx.stub.putState(id, Buffer.from(JSON.stringify(record)));
         return JSON.stringify(record);
     }
@@ -42,6 +26,7 @@ class RecordManagementContract extends Contract {
     // ReadRecord returns the record stored in the world state with given id.
     async ReadRecord(ctx, id) {
         const recordJSON = await ctx.stub.getState(id); // get the record from chaincode state
+
         if (!recordJSON || recordJSON.length === 0) {
             throw new Error(`The record ${id} does not exist`);
         }
@@ -54,11 +39,10 @@ class RecordManagementContract extends Contract {
         if (!exists) {
             throw new Error(`The record ${id} does not exist`);
         }
-        const now = new Date();
         // overwriting original record with new record
         const updatedRecord = {
-            id: id,
-            created: now,
+            txID: ctx.stub.getTxID(),
+            created: new Date(),
             data: data
         };
         return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedRecord)));
@@ -79,14 +63,6 @@ class RecordManagementContract extends Contract {
         return recordJSON && recordJSON.length > 0;
     }
 
-    // // TransferRecord updates the owner field of record with given id in the world state.
-    // async TransferRecord(ctx, id, newOwner) {
-    //     const recordString = await this.ReadRecord(ctx, id);
-    //     const record = JSON.parse(recordString);
-    //     record.Owner = newOwner;
-    //     return ctx.stub.putState(id, Buffer.from(JSON.stringify(record)));
-    // }
-
     // GetAllRecords returns all records found in the world state.
     async GetAllRecords(ctx) {
         const allResults = [];
@@ -106,6 +82,11 @@ class RecordManagementContract extends Contract {
             result = await iterator.next();
         }
         return JSON.stringify(allResults);
+    }
+
+    async GetBlock(ctx, txID) {
+        const block = await queryBlockByTxID(txID);
+        return block;
     }
 
 

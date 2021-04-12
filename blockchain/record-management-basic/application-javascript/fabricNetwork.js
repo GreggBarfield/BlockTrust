@@ -9,11 +9,11 @@
 const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
-const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../../test-application/javascript/CAUtil.js');
-const { buildCCPOrg1, buildWallet } = require('../../test-application/javascript/AppUtil.js');
+const { buildCAClient, registerAndEnrollUser, enrollAdmin } = require('../../application-utils/javascript/CAUtil.js');
+const { buildCCPOrg1, buildWallet } = require('../../application-utils/javascript/AppUtil.js');
 
 const channelName = 'mychannel';
-const chaincodeName = 'basic';
+// const chaincodeName = 'basic';
 const mspOrg1 = 'Org1MSP';
 const walletPath = path.join(__dirname, 'wallet');
 const org1UserId = 'appUser';
@@ -69,7 +69,7 @@ function prettyJSONString(inputString) {
  * To see the SDK workings, try setting the logging to show on the console before running
  *        export HFC_LOGGING='{"debug":"console"}'
  */
-async function connectNetwork() {
+async function connectNetwork(channelName) {
 
 		// build an in memory object with the network configuration (also known as a connection profile)
 		const ccp = buildCCPOrg1();
@@ -107,10 +107,7 @@ async function connectNetwork() {
     // Build a network instance based on the channel where the smart contract is deployed
     const network = await gateway.getNetwork(channelName);
 
-    // Get the contract from the network.
-    const contract = network.getContract(chaincodeName);
-
-    return contract
+    return network
 
 }
 
