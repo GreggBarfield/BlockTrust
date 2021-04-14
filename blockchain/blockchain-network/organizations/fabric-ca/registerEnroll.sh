@@ -89,7 +89,7 @@ function createOrderer() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com
 
   set -x
-  fabric-ca-client enroll -u https://admin:4T5kB2BEaH63G2kq3en4@localhost:9054 --caname ca-orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client enroll -u https://ca_orderer_admin:WTfgD28nmH8wJ9hVC2tR@localhost:9054 --caname ca-orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:

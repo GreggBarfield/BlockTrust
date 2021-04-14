@@ -41,7 +41,7 @@ services:
       - FABRIC_CA_SERVER_PORT=9054
     ports:
       - "9054:9054"
-    command: sh -c 'fabric-ca-server start -b admin:4T5kB2BEaH63G2kq3en4 -d'
+    command: sh -c 'fabric-ca-server start -b ca_orderer_admin:WTfgD28nmH8wJ9hVC2tR -d'
     volumes:
       - ../organizations/fabric-ca/ordererOrg:/etc/hyperledger/fabric-ca-server
     container_name: ca_orderer
