@@ -29,29 +29,29 @@ function createOrg1() {
   # Deployment Guide: https://hyperledger-fabric-ca.readthedocs.io/en/release-1.4/deployguide/use_CA.html
   infoln "Registering peer0"
   set -x
-  fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret peer0pw --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client register --caname ca-org1 --id.name peer0 --id.secret bHb3Lg7awPghrwrwQMuj --id.type peer --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Registering user"
   set -x
-  fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret user1pw --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client register --caname ca-org1 --id.name user1 --id.secret L7SxQqEv235MCvq9fEEP --id.type client --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Registering the org admin"
   set -x
-  fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret org1adminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client register --caname ca-org1 --id.name org1admin --id.secret YdwnvkENnbkyY6Bq5bak --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the peer0 msp"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/msp" --csr.hosts peer0.org1.blocktrustnetwork.com --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://peer0:bHb3Lg7awPghrwrwQMuj@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/msp" --csr.hosts peer0.org1.blocktrustnetwork.com --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/msp/config.yaml"
 
   infoln "Generating the peer0-tls certificates"
   set -x
-  fabric-ca-client enroll -u https://peer0:peer0pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls" --enrollment.profile tls --csr.hosts peer0.org1.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://peer0:bHb3Lg7awPghrwrwQMuj@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls" --enrollment.profile tls --csr.hosts peer0.org1.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls/tlscacerts/"* "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls/ca.crt"
@@ -69,14 +69,14 @@ function createOrg1() {
 
   infoln "Generating the user msp"
   set -x
-  fabric-ca-client enroll -u https://user1:user1pw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/User1@org1.blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://user1:L7SxQqEv235MCvq9fEEP@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/User1@org1.blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/User1@org1.blocktrustnetwork.com/msp/config.yaml"
 
   infoln "Generating the org admin msp"
   set -x
-  fabric-ca-client enroll -u https://org1admin:org1adminpw@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/Admin@org1.blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://org1admin:YdwnvkENnbkyY6Bq5bak@localhost:7054 --caname ca-org1 -M "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/Admin@org1.blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/msp/config.yaml" "${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/users/Admin@org1.blocktrustnetwork.com/msp/config.yaml"
@@ -109,24 +109,24 @@ function createOrderer() {
 
   infoln "Registering orderer"
   set -x
-  fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret ordererpw --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client register --caname ca-orderer --id.name orderer --id.secret uB9N7dXzKF7EL4x7Btsx --id.type orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Registering the orderer admin"
   set -x
-  fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret ordererAdminpw --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client register --caname ca-orderer --id.name ordererAdmin --id.secret pDwk4J3zRFw9ps3h8fAN --id.type admin --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   infoln "Generating the orderer msp"
   set -x
-  fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/msp" --csr.hosts orderer.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client enroll -u https://orderer:uB9N7dXzKF7EL4x7Btsx@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/msp" --csr.hosts orderer.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/msp/config.yaml"
 
   infoln "Generating the orderer-tls certificates"
   set -x
-  fabric-ca-client enroll -u https://orderer:ordererpw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls" --enrollment.profile tls --csr.hosts orderer.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client enroll -u https://orderer:uB9N7dXzKF7EL4x7Btsx@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls" --enrollment.profile tls --csr.hosts orderer.blocktrustnetwork.com --csr.hosts localhost --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls/tlscacerts/"* "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls/ca.crt"
@@ -141,7 +141,7 @@ function createOrderer() {
 
   infoln "Generating the admin msp"
   set -x
-  fabric-ca-client enroll -u https://ordererAdmin:ordererAdminpw@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/users/Admin@blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client enroll -u https://ordererAdmin:pDwk4J3zRFw9ps3h8fAN@localhost:9054 --caname ca-orderer -M "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/users/Admin@blocktrustnetwork.com/msp" --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   cp "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/msp/config.yaml" "${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com/users/Admin@blocktrustnetwork.com/msp/config.yaml"
