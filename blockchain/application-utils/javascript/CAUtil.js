@@ -7,7 +7,7 @@
 'use strict';
 
 const adminUserId = 'admin';
-const adminUserPasswd = 'adminpw';
+const adminUserPasswd = '4T5kB2BEaH63G2kq3en4';
 
 /**
  *

@@ -7,7 +7,7 @@ function createOrg1() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/peerOrganizations/org1.blocktrustnetwork.com/
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca-org1 --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
+  fabric-ca-client enroll -u https://admin:4T5kB2BEaH63G2kq3en4@localhost:7054 --caname ca-org1 --tls.certfiles "${PWD}/organizations/fabric-ca/org1/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   # explanation about Node Organization Units https://hyperledger-fabric-ca.readthedocs.io/en/release-1.4/deployguide/use_CA.html#nodeous
@@ -89,7 +89,7 @@ function createOrderer() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/organizations/ordererOrganizations/blocktrustnetwork.com
 
   set -x
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:9054 --caname ca-orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
+  fabric-ca-client enroll -u https://admin:4T5kB2BEaH63G2kq3en4@localhost:9054 --caname ca-orderer --tls.certfiles "${PWD}/organizations/fabric-ca/ordererOrg/tls-cert.pem"
   { set +x; } 2>/dev/null
 
   echo 'NodeOUs:
