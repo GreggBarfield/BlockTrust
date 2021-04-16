@@ -21,10 +21,10 @@ app.post('/api/addRecord', async function (req, res) {
   try {
     const network = await fabricNetwork.connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
-    let tx = await contract.submitTransaction('CreateRecord', req.body.id, req.body.data);
+    let tx = await contract.submitTransaction('CreateRecord', req.body.data);
     res.json({
       status: 'OK - Transaction has been submitted',
-      record: tx.toString()
+      record: JSON.parse(tx.toString())
     });
   } catch (error) {
     console.error(`Failed to evaluate transaction: ${error}`);

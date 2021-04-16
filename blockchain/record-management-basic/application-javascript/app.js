@@ -27,22 +27,22 @@ function prettyJSONString(inputString) {
 // pre-requisites:
 // - one organization test-network setup with two peers, ordering service,
 //   and 2 certificate authorities
-//         ===> from directory /fabric-samples/test-network
+//         ===> from directory /blockchain/blockchain-network
 //         ./network.sh up createChannel -ca
 // - Use any of the record-management-basic chaincodes deployed on the channel "mychannel"
 //   with the chaincode name of "basic". The following deploy command will package,
 //   install, approve, and commit the javascript chaincode, all the actions it takes
 //   to deploy a chaincode to a channel.
-//         ===> from directory /fabric-samples/test-network
+//         ===> from directory /blockchain/blockchain-network
 //         ./network.sh deployCC -ccn basic -ccp ../record-management-basic/chaincode-javascript/ -ccl javascript
 // - Be sure that node.js is installed
-//         ===> from directory /fabric-samples/record-management-basic/application-javascript
+//         ===> from directory /blockchain/record-management-basic/application-javascript
 //         node -v
 // - npm installed code dependencies
-//         ===> from directory /fabric-samples/record-management-basic/application-javascript
+//         ===> from directory /blockchain/record-management-basic/application-javascript
 //         npm install
 // - to run this test application
-//         ===> from directory /fabric-samples/record-management-basic/application-javascript
+//         ===> from directory /blockchain/record-management-basic/application-javascript
 //         node app.js
 
 // NOTE: If you see  kind an error like these:
@@ -55,7 +55,7 @@ function prettyJSONString(inputString) {
    Failed to register user : Error: fabric-ca request register failed with errors [[ { code: 20, message: 'Authentication failure' } ]]
    ******** FAILED to run the application: Error: Identity not found in wallet: appUser
 */
-// Delete the /fabric-samples/record-management-basic/application-javascript/wallet directory
+// Delete the /blockchain/record-management-basic/application-javascript/wallet directory
 // and retry this application.
 //
 // The certificate authority must have been restarted and the saved certificates for the
@@ -71,6 +71,7 @@ function prettyJSONString(inputString) {
  * To see the SDK workings, try setting the logging to show on the console before running
  *        export HFC_LOGGING='{"debug":"console"}'
  */
+
 async function main() {
 	try {
 		// build an in memory object with the network configuration (also known as a connection profile)
@@ -130,40 +131,30 @@ async function main() {
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
 			// to the orderer to be committed by each of the peer's to the channel ledger.
 			console.log('\n--> Submit Transaction: CreateRecord, creates new record with id and data arguments');
-			let result = await contract.submitTransaction('CreateRecord', 'record1', 'data1');
-			console.log('*****************');
-			console.log(result);
-			console.log('*****************');
+			let result = await contract.submitTransaction('CreateRecord', 'data1');
 			console.log('*** Result: committed');
 			if (`${result}` !== '') {
 				console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 			}
 
+			const id = JSON.parse(result.toString()).id;
 			console.log('\n--> Evaluate Transaction: ReadRecord, function returns an record with a given recordID');
-			result = await contract.evaluateTransaction('ReadRecord', 'record1');
+			result = await contract.evaluateTransaction('ReadRecord', id);
 			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
 			console.log('\n--> Evaluate Transaction: RecordExists, function returns "true" if an record with given recordID exist');
-			result = await contract.evaluateTransaction('RecordExists', 'record1');
+			result = await contract.evaluateTransaction('RecordExists', id);
 			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
 
-			console.log('\n--> Submit Transaction: UpdateRecord record1, change the name to \'updated\'');
-			await contract.submitTransaction('UpdateRecord', 'record1', 'newdata1');
-			console.log('*** Result: committed');
-
-			console.log('\n--> Evaluate Transaction: ReadRecord, function returns "record1" attributes');
-			result = await contract.evaluateTransaction('ReadRecord', 'record1');
-			console.log(`*** Result: ${prettyJSONString(result.toString())}`);
-
-			try {
-				// How about we try a transactions where the executing chaincode throws an error
-				// Notice how the submitTransaction will throw an error containing the error thrown by the chaincode
-				console.log('\n--> Submit Transaction: UpdateRecord record999, record999 does not exist and should return an error');
-				await contract.submitTransaction('UpdateRecord', 'record999', {});
-				console.log('******** FAILED to return an error');
-			} catch (error) {
-				console.log(`*** Successfully caught the error: \n    ${error}`);
-			}
+			// try {
+			// 	// How about we try a transactions where the executing chaincode throws an error
+			// 	// Notice how the submitTransaction will throw an error containing the error thrown by the chaincode
+			// 	console.log('\n--> Submit Transaction: UpdateRecord record999, record999 does not exist and should return an error');
+			// 	await contract.submitTransaction('UpdateRecord', 'record999', {});
+			// 	console.log('******** FAILED to return an error');
+			// } catch (error) {
+			// 	console.log(`*** Successfully caught the error: \n    ${error}`);
+			// }
 
 		} finally {
 			// Disconnect from the gateway when the application is closing

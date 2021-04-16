@@ -11,15 +11,16 @@ const { Contract } = require('fabric-contract-api');
 class RecordManagementContract extends Contract {
 
     // CreateRecord issues a new record to the world state with given details.
-    async CreateRecord(ctx, id, data) {
+    async CreateRecord(ctx, data) {
 
         const record = {
-            txID: ctx.stub.getTxID(),
             data: data,
             created: new Date(),
         };
+        const txID = ctx.stub.getTxID();
         //The transaction ID uniquely identifies the transaction within the scope of the channel.
-        ctx.stub.putState(id, Buffer.from(JSON.stringify(record)));
+        ctx.stub.putState(txID, Buffer.from(JSON.stringify(record)));
+        record.id = txID;
         return JSON.stringify(record);
     }
 
@@ -31,21 +32,6 @@ class RecordManagementContract extends Contract {
             throw new Error(`The record ${id} does not exist`);
         }
         return recordJSON.toString();
-    }
-
-    // UpdateRecord updates an existing record in the world state with provided parameters.
-    async UpdateRecord(ctx, id, data) {
-        const exists = await this.RecordExists(ctx, id);
-        if (!exists) {
-            throw new Error(`The record ${id} does not exist`);
-        }
-        // overwriting original record with new record
-        const updatedRecord = {
-            txID: ctx.stub.getTxID(),
-            created: new Date(),
-            data: data
-        };
-        return ctx.stub.putState(id, Buffer.from(JSON.stringify(updatedRecord)));
     }
 
     // DeleteRecord deletes an given record from the world state.
@@ -83,12 +69,6 @@ class RecordManagementContract extends Contract {
         }
         return JSON.stringify(allResults);
     }
-
-    async GetBlock(ctx, txID) {
-        const block = await queryBlockByTxID(txID);
-        return block;
-    }
-
 
 }
 
