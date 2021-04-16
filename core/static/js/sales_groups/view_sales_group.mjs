@@ -58,37 +58,29 @@ export class SalesGroupViewer {
             left.className = "col";
             row.append(left);
 
-            let headCount = document.createElement("span");
-            headCount.className = "text-dark h4";
-            headCount.textContent = this.data.reported.count || "?";
-            left.append(headCount);
-
-            let headsOf = document.createElement("span");
-            headsOf.className = "text-info";
-            headsOf.style.marginLeft = "20px";
-            headsOf.style.marginRight = "20px";
-            headsOf.textContent = "HEAD OF";
-            left.append(headsOf);
-
-            let breeds = document.createElement("span");
-            breeds.className = "text-dark h4";
-            if (this.data.reported.breeds && this.data.reported.breeds.length > 0)
-                breeds.textContent = this.data.reported.breeds.join(', ');
-            else
-                breeds.textContent = "?";
-            left.append(breeds);
+            let salesGroupID =document.createElement("h4");
+            salesGroupID .textContent = "Sales Group "+this.data.id; 
+            left.append(salesGroupID);
 
             let right = document.createElement("div");
             right.className = "col-auto";
             row.append(right);
 
-            let rightText = document.createElement("span");
-            rightText.className = "text-muted";
-            rightText.textContent = "#" + this.data.id;
-            right.append(rightText);
+            let location = document.createElement("span");
+            location.className = "text-muted";
+            
+            let milesAway = "--";
+            if ("context" in this.data && "milesAway" in this.data.context) {
+                milesAway = Math.floor(this.data.context.milesAway);
+            }
+            let milesAwayInt = parseInt(milesAway);
+            
+            location.textContent = "Location: " +"("+milesAwayInt+" Miles)";
+
+            right.append(location);
         }
 
-        // Configure data
+        // Configure Animal data
 
         {
 
@@ -111,6 +103,7 @@ export class SalesGroupViewer {
                 let kvp = document.createElement("div");
 
                 if (wide) {
+            
                     kvp.className = "col-12";
                 }
                 else {
@@ -136,11 +129,18 @@ export class SalesGroupViewer {
 
                 layoutDataRow.append(kvp);
             }
-
+            addKV("Breed", this.data.reported.breeds);
             addKV("PRECONDITIONING", this.data.reported.preconditioning_program);
             addKV("FEEDING", this.data.reported.feeding_programs);
             addKV("PROCESS VERIFIED", this.data.reported.process_verified_program);
             addKV("COMMENTS", this.data.reported.comments, true, true);
+        }
+        //Configure market data
+        {
+            // let headCount = document.createElement("span");
+            // headCount.className = "text-dark h4";
+            // headCount.textContent = this.data.reported.count || "?";
+            // left.append(headCount);
         }
 
         // Configure image & numbers
@@ -181,12 +181,7 @@ export class SalesGroupViewer {
             }
 
             addNum("AVERAGE WEIGHT", this.data.reported.weight || "?");
-            
-            let milesAway = "--";
-            if ("context" in this.data && "milesAway" in this.data.context) {
-                milesAway = Math.floor(this.data.context.milesAway);
-            }
-            addNum("MILES AWAY", milesAway);
+
 
             let daysRemaining = "--";
 
