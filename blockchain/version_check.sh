@@ -1,6 +1,6 @@
 #!/bin/bash
+# This script prints installed packages'versions. 
 
-# load helper functions for printing and help msg
 . blockchain-network/scripts/utils.sh || . utils.sh
 
 infoln "curl version:"

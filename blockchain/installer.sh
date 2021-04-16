@@ -1,4 +1,5 @@
 #!/bin/bash
+# This script will install all required packages for running Hyperledger Fabric network and its client application using Node.js.
 
 step=1
 
