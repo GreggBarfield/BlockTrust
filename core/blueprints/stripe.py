@@ -29,10 +29,10 @@ def serve_stripe_subscription():
         )
     except ValueError as e:
         # Invalid payload
-        return jsonify({'error': str(e)})
+        raise ExportException(str(e))
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
-        return jsonify({'error': str(e)})
+        raise ExportException(str(e))
 
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
@@ -55,7 +55,7 @@ def serve_stripe_subscription():
                 stripe_paid=0
             )
     else:
-        return jsonify({'status': 'This event ' + event.type + ' is not supported.'})
+        raise ExportException('This event type ' + event.type + ' is not supported.')
 
     return jsonify({'status': 'Success'})
 
