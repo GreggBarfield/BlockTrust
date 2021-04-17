@@ -37,15 +37,20 @@ export class SalesGroupViewer {
         layout.header.style.borderBottom = "solid 1px #0288d1";
         layout.content.append(layout.header);
 
-        layout.data = document.createElement("div");
-        layout.data.className = "col-12 col-md-8";
-        layout.data.style.paddingTop = "10px";
-        layout.content.append(layout.data);
+        layout.media = document.createElement("div");
+        layout.media.className = "col-12 col-md-4";
+        layout.media.style.paddingTop = "10px";
+        layout.content.append(layout.media);
 
-        layout.side = document.createElement("div");
-        layout.side.className = "col-12 col-md-4";
-        layout.side.style.paddingTop = "10px";
-        layout.content.append(layout.side);
+        layout.animalData = document.createElement("div");
+        layout.animalData.className = "col-12 col-md-4";
+        layout.animalData.style.paddingTop = "10px";
+        layout.content.append(layout.animalData);
+
+        layout.marketData = document.createElement("div");
+        layout.marketData.className = "col-12 col-md-4";
+        layout.marketData.style.paddingTop = "10px";
+        layout.content.append(layout.marketData);
 
         // Configure header
 
@@ -84,9 +89,18 @@ export class SalesGroupViewer {
 
         {
 
-            let layoutDataRow = document.createElement("div");
-            layoutDataRow.className = "row";
-            layout.data.append(layoutDataRow);
+            let animalDataCol = document.createElement("div");
+            animalDataCol.className = "row";
+            layout.animalData.append(animalDataCol);
+
+            let animalHeader = document.createElement("div");
+            animalHeader.className ="col-12";
+            animalHeader.style.paddingBottom = "10px";
+            animalHeader.style.borderBottom = "solid 1px #0288d1";
+            animalHeader.textContent ="Animal Data"
+            animalDataCol.append(animalHeader);
+
+
             function addKV(key, value, wide=false, highlighting=false) {
                 let str = "";
 
@@ -100,34 +114,36 @@ export class SalesGroupViewer {
                     str = "" + value;
                 }
 
-                let kvp = document.createElement("div");
-
-                if (wide) {
-            
-                    kvp.className = "col-12";
-                }
-                else {
-                    kvp.className = "col col-md-6";
-                }
-
                 let kvpKey = document.createElement("div");
-                kvpKey.className = "text-info";
+                kvpKey.className = "col";
+                kvpKey.style.paddingTop = "10px";
                 kvpKey.textContent = key;
-                kvp.append(kvpKey);
+                
+                // kvp.append(kvpKey);
+                animalDataCol.append(kvpKey);
 
                 let kvpValue = document.createElement("div");
-                kvpValue.className = "h5 text-dark";
+                kvpValue.className = "col-auto text-end";
+                kvpValue.style.paddingTop = "10px";
                 kvpValue.style.whiteSpace = "pre-wrap";
                 kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
+                
+                let valueText= document.createElement("p");
+                valueText.className ="text-right";
+
                 if (highlighting) {
-                    urlHighlighter(str, kvpValue);
+                    urlHighlighter(str, valueText);
                 }
                 else {
-                    kvpValue.textContent = str;
+                    valueText.textContent = str;
                 }
-                kvp.append(kvpValue);
+                kvpValue.append(valueText);
 
-                layoutDataRow.append(kvp);
+                animalDataCol.append(kvpValue);
+
+                let breakCol= document.createElement("div");
+                breakCol.className = "w-100";
+                animalDataCol.append(breakCol);
             }
             addKV("Breed", this.data.reported.breeds);
             addKV("PRECONDITIONING", this.data.reported.preconditioning_program);
@@ -137,6 +153,28 @@ export class SalesGroupViewer {
         }
         //Configure market data
         {
+            let marketDataCol = document.createElement("div");
+            marketDataCol.className ="col";
+            layout.marketData.append(marketDataCol);
+            let marketHeader =  document.createElement("div");
+            marketHeader.className ="row";
+            marketHeader.textContent = "Market Data";
+            marketDataCol.append(marketHeader);
+            // let headCount = document.createElement("span");
+            // headCount.className = "text-dark h4";
+            // headCount.textContent = this.data.reported.count || "?";
+            // left.append(headCount);
+        }
+
+        //Configure media data
+        {
+            let mediaDataCol = document.createElement("div");
+            mediaDataCol.className ="col";
+            layout.media.append(mediaDataCol);
+            let mediaHeader =  document.createElement("div");
+            mediaHeader.className ="row";
+            mediaHeader.textContent = "Media Data";
+            mediaDataCol.append(mediaHeader);
             // let headCount = document.createElement("span");
             // headCount.className = "text-dark h4";
             // headCount.textContent = this.data.reported.count || "?";
@@ -145,76 +183,76 @@ export class SalesGroupViewer {
 
         // Configure image & numbers
 
-        {
-            let numImgRow = document.createElement("div");
-            numImgRow.className = "row";
-            layout.side.append(numImgRow);
+        // {
+        //     let numImgRow = document.createElement("div");
+        //     numImgRow.className = "col-md-4";
+        //     layout.side.append(numImgRow);
 
-            let numCol = document.createElement("div");
-            numCol.className = "col-12 col-md-auto d-flex d-md-block";
-            numCol.style.justifyContent = "space-around";
-            numCol.style.backgroundColor = "hsl(232,50%,45%)";
-            numCol.style.color = "white";
-            numImgRow.append(numCol);
+        //     let numCol = document.createElement("div");
+        //     numCol.className = "col-12 col-md-auto d-flex d-md-block";
+        //     numCol.style.justifyContent = "space-around";
+        //     numCol.style.backgroundColor = "hsl(232,50%,45%)";
+        //     numCol.style.color = "white";
+        //     numImgRow.append(numCol);
 
-            let numRow = numCol;
+        //     let numRow = numCol;
 
-            function addNum(key, num) {
-                let bin = document.createElement("div");
-                bin.style.height = "80px";
-                bin.style.width = "80px";
-                bin.style.textAlign = "center";
-                bin.style.display = "flex";
-                bin.style.flexDirection = "column";
-                bin.style.justifyContent = "center";
-                numRow.append(bin);
+        //     function addNum(key, num) {
+        //         let bin = document.createElement("div");
+        //         bin.style.height = "80px";
+        //         bin.style.width = "80px";
+        //         bin.style.textAlign = "center";
+        //         bin.style.display = "flex";
+        //         bin.style.flexDirection = "column";
+        //         bin.style.justifyContent = "center";
+        //         numRow.append(bin);
 
-                let numDiv = document.createElement("span");
-                numDiv.textContent = num;
-                numDiv.style.fontSize = "20px";
-                bin.append(numDiv);
+        //         let numDiv = document.createElement("span");
+        //         numDiv.textContent = num;
+        //         numDiv.style.fontSize = "20px";
+        //         bin.append(numDiv);
 
-                let keyDiv = document.createElement("span");
-                keyDiv.textContent = key;
-                bin.append(keyDiv);
-                keyDiv.style.wordSpacing = "100px";
-            }
+        //         let keyDiv = document.createElement("span");
+        //         keyDiv.textContent = key;
+        //         bin.append(keyDiv);
+        //         keyDiv.style.wordSpacing = "100px";
+        //     }
 
-            addNum("AVERAGE WEIGHT", this.data.reported.weight || "?");
+        //     addNum("AVERAGE WEIGHT", this.data.reported.weight || "?");
 
 
-            let daysRemaining = "--";
+        //     let daysRemaining = "--";
 
-            if ("end" in this.data && this.data.end !== null) {
-                let currentEpoch = Date.now()/1000;
-                daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
-            }
-            addNum("DAYS REMAINING", daysRemaining);
+        //     if ("end" in this.data && this.data.end !== null) {
+        //         let currentEpoch = Date.now()/1000;
+        //         daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
+        //     }
+        //     addNum("DAYS REMAINING", daysRemaining);
 
-            let img = document.createElement("div");
-            img.className = "col-12 col-md";
-            img.style.height = "240px";
-            img.style.padding = "0px";
-            numImgRow.append(img);
+        //     let img = document.createElement("div");
+        //     img.className = "col-12 col-md";
+        //     img.style.height = "240px";
+        //     img.style.padding = "0px";
+        //     numImgRow.append(img);
 
-            let images = [];
+        //     let images = [];
 
-            for (const image of this.data.reported.images) {
-                if (image in this.data.file_auths) {
-                    if (fileNameIsImage(this.data.file_auths[image]["name"])) {
-                        images.push(this.data.file_auths[image]["get"]);
-                    }   
-                    else {
-                        console.log(image + " is not an image?");
-                    }                 
-                }
-                else {
-                    console.log("Expected file auth for " + image);
-                }
-            }
+        //     for (const image of this.data.reported.images) {
+        //         if (image in this.data.file_auths) {
+        //             if (fileNameIsImage(this.data.file_auths[image]["name"])) {
+        //                 images.push(this.data.file_auths[image]["get"]);
+        //             }   
+        //             else {
+        //                 console.log(image + " is not an image?");
+        //             }                 
+        //         }
+        //         else {
+        //             console.log("Expected file auth for " + image);
+        //         }
+        //     }
 
-            new BootstrapCarousel(images, img);
-        }
+        //     new BootstrapCarousel(images, img);
+        // }
 
         this.box.append(layout.content);
 
