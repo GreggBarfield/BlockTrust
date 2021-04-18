@@ -73,9 +73,10 @@ node -e "console.log('Running Node.js ' + process.version)"
 successln "Installed node."
 ((step++))
 
-infoln "$step. Switching node to version 14.13.1."
+infoln "$step. Switching node to version 14.13.1. and set it to default."
 nvm install 14.13.1
-successln "Switched node to 14.13.1"
+nvm alias default 14.13.1
+successln "Defaulted node to 14.13.1"
 ((step++))
 
 infoln "$step. Installing gcc. We need it to build node.js"
