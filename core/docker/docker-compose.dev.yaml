@@ -6,14 +6,14 @@ services:
       context: .
       dockerfile: dockerfile.dev
     ports:
-      - "127.0.0.1:5000:5000"
+      - "5000:5000"
     volumes:
       - ../:/home/ubuntu/core
-      - ./webpack/webpack.dev.config.js:/home/ubuntu
+      - ./webpack/webpack.dev.config.js:/home/ubuntu/webpack.dev.config.js
   mysql:
     image: mysql
     ports:
-      - "127.0.0.1:3306:3306"
+      - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
