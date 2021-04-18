@@ -258,7 +258,7 @@ peer:
     # TLS Settings
     tls:
         # Require server-side TLS
-        enabled:  false
+        enabled:  true
         # Require client certificates / mutual TLS for inbound connections.
         # Note that clients that are not configured to use a certificate will
         # fail to connect to the peer.
@@ -479,7 +479,7 @@ vm:
     # settings for docker vms
     docker:
         tls:
-            enabled: false
+            enabled: true
             ca:
                 file: docker/ca.crt
             cert:
@@ -714,7 +714,7 @@ operations:
     # TLS configuration for the operations endpoint
     tls:
         # TLS enabled
-        enabled: false
+        enabled: true
 
         # path to PEM encoded server certificate for the operations server
         cert:

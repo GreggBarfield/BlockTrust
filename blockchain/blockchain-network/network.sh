@@ -192,6 +192,16 @@ function createOrgs() {
   ./organizations/ccp-generate.sh
 }
 
+# Create external volumes for ledger 
+# We must provision persistent storage for ledger files and snapshots
+# These volumes are referenced in docker/docker-compose-test-net.yaml
+function createExternalVolumes() {
+  infoln "Creating external volume: orderer.blocktrustnetwork.com"
+  docker volume create orderer.blocktrustnetwork.com
+  infoln "Creating external volume: peer0.org1.blocktrustnetwork.com"
+  docker volume create peer0.org1.blocktrustnetwork.com
+}
+
 # Once you create the organization crypto material, you need to create the
 # genesis block of the application channel.
 
@@ -221,6 +231,9 @@ function createOrgs() {
 # Bring up the peer and orderer nodes using docker compose.
 function networkUp() {
   checkPrereqs
+  
+  createExternalVolumes
+
   # generate artifacts if they don't exist
   if [ ! -d "organizations/peerOrganizations" ]; then
     createOrgs
@@ -268,7 +281,8 @@ function deployCC() {
 
 # Tear down running network
 function networkDown() {
-  read -p "WARNNING!!!: This command will CLEAR all the related containers and images. Are you sure you wish to continue? Type \"yes\" to continue."
+  warnln "WARNNING!!!: This command will CLEAR all the related containers and images. Are you sure you wish to continue?"
+  read -p "Type \"yes\" to continue>> "
   
   if [ "$REPLY" != "yes" ]; then
     exit

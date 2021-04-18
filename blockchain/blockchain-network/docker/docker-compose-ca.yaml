@@ -6,6 +6,12 @@
 
 version: '2.4'
 
+# volumes:
+#   orderer.blocktrustnetwork.com:
+#     external: true
+#   peer0.org1.blocktrustnetwork.com:
+#     external: true
+    
 networks:
   test:
     name: fabric_test
