@@ -35,28 +35,41 @@ infoln ""
 # Sample Output
 ###############
 
-# ./version_check.sh: line 4: blockchain-network/scripts/utils.sh: No such file or directory
-# curl version:
-# curl 7.61.1 (x86_64-koji-linux-gnu) libcurl/7.61.1 OpenSSL/1.0.2k zlib/1.2.7 libidn2/2.3.0 libssh2/1.4.3 nghttp2/1.41.0
-# Release-Date: 2018-09-05
-# Protocols: dict file ftp ftps gopher http https imap imaps ldap ldaps pop3 pop3s rtsp scp sftp smb smbs smtp smtps telnet tftp 
-# Features: AsynchDNS IDN IPv6 Largefile GSS-API Kerberos SPNEGO NTLM NTLM_WB SSL libz HTTP2 UnixSockets HTTPS-proxy Metalink 
+infoln "The sample output is for your reference."
+infoln "Make sure you have the correct version for Node.js."
+infoln ""
+infoln "#################################"
+infoln "######### Sample Output #########"
+infoln "#################################"
 
-# Golang version:
-# go version go1.15.8 linux/amd64
+infoln "
+./version_check.sh: line 4: blockchain-network/scripts/utils.sh: No such file or directory
+curl version:
+curl 7.61.1 (x86_64-koji-linux-gnu) libcurl/7.61.1 OpenSSL/1.0.2k zlib/1.2.7 libidn2/2.3.0 libssh2/1.4.3 nghttp2/1.41.0
+Release-Date: 2018-09-05
+Protocols: dict file ftp ftps gopher http https imap imaps ldap ldaps pop3 pop3s rtsp scp sftp smb smbs smtp smtps telnet tftp 
+Features: AsynchDNS IDN IPv6 Largefile GSS-API Kerberos SPNEGO NTLM NTLM_WB SSL libz HTTP2 UnixSockets HTTPS-proxy Metalink 
 
-# Python version:
-# Python 2.7.18
+Golang version:
+go version go1.15.8 linux/amd64
 
-# Node version:
-# v15.14.0
+Python version:
+Python 2.7.18
 
-# npm version:
-# 7.7.6
+Node version:
+v14.13.1
 
-# Docker version:
-# Docker version 19.03.13-ce, build 4484c46
+npm version:
+7.7.6
 
-# Docker-compose version:
-# docker-compose version 1.29.1, build c34c88b2
+Docker version:
+Docker version 19.03.13-ce, build 4484c46
+
+Docker-compose version:
+docker-compose version 1.29.1, build c34c88b2
+"
+
+infoln "########################################"
+infoln "######### End of Sample Output #########"
+infoln "########################################"
 

@@ -90,7 +90,7 @@ successln "Installed jq."
 
 warnln "In some cases, you may need to reboot your instance to provide permissions for the ec2-user to access the Docker daemon."
 
-read -p "Type \"yes\" to reboot."
+read -p "Type \"yes\" to reboot>> "
 
 if [ "$REPLY" != "yes" ]; then
   exit
