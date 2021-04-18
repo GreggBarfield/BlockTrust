@@ -16,8 +16,6 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth
 
-from core.config import SUPPORT_GENERAL_EMAIL
-
 bp = Blueprint('dashboard_bp', __name__)
 
 
@@ -234,10 +232,12 @@ def serve_auction_sales_new():
 def serve_data():
     return dashboard_render("data/index.html")
 
+
 @bp.route('/dashboard/plans', methods=['GET'])
 @crut.require_account
 def serve_plans():
     return dashboard_render("stripe/plans.html")
+
 
 @bp.route('/dashboard/subscribe', methods=['GET'])
 @crut.require_account

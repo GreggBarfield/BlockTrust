@@ -97,7 +97,7 @@ def create_customer():
         else:
             return jsonify(error={'message': "No account selected"}), 400
     except Exception as e:
-        return jsonify(error=str(e)), 400
+        return jsonify(error={'message': str(e)}), 400
 
 
 @bp.route('/stripe/create-subscription', methods=['POST'])

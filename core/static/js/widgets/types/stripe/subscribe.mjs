@@ -105,6 +105,16 @@ export class SubscribeWidget extends Widget {
     }
 
     async subscribe(stripe, cardElement, priceLookupKey) {
+
+        if (this.inputs.name.value == "") {
+            this.showError("Name is required.");
+            return;
+        }
+        if(this.inputs.email.value == "") {
+            this.showError("Email is required.");
+            return;
+        }
+
         //display appropriate alerts
         this.loadingAction.style.display = "inline-block";
         this.loadingAction.innerHTML = '\
