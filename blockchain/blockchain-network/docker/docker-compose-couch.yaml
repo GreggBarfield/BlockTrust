@@ -28,6 +28,7 @@ services:
       - "5984:5984"
     networks:
       - test
+    restart: on-failure
 
   peer0.org1.blocktrustnetwork.com:
     environment:
@@ -40,3 +41,4 @@ services:
       - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=sfGk,8}%T*MtV+mNq@SZ
     depends_on:
       - couchdb0
+    restart: on-failure
