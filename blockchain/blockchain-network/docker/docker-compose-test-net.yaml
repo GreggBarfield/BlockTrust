@@ -55,7 +55,7 @@ services:
         - ../organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/msp:/var/hyperledger/orderer/msp
         - ../organizations/ordererOrganizations/blocktrustnetwork.com/orderers/orderer.blocktrustnetwork.com/tls/:/var/hyperledger/orderer/tls
         - orderer.blocktrustnetwork.com:/var/hyperledger/production/orderer
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - 7050:7050
       - 7053:7053
@@ -92,7 +92,7 @@ services:
         - ../organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/msp:/etc/hyperledger/fabric/msp
         - ../organizations/peerOrganizations/org1.blocktrustnetwork.com/peers/peer0.org1.blocktrustnetwork.com/tls:/etc/hyperledger/fabric/tls
         - peer0.org1.blocktrustnetwork.com:/var/hyperledger/production
-    restart: on-failure
+    restart: unless-stopped
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: peer node start
     ports:
@@ -118,7 +118,7 @@ services:
         - /var/run/:/host/var/run/
         - ../organizations:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
         - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
-    restart: on-failure
+    restart: unless-stopped
     depends_on:
       - peer0.org1.blocktrustnetwork.com
     networks:
