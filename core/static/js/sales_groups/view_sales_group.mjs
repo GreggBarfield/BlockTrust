@@ -30,11 +30,17 @@ export class SalesGroupViewer {
 
         layout.content = document.createElement("div");
         layout.content.className = "row";
+        layout.content.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
+
+        // layout.format =document.createElement("div");
+        // layout.format.className = "container-fluid";
+        // layout.format.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
+
 
         layout.header = document.createElement("div");
         layout.header.className = "col-12";
         layout.header.style.paddingBottom = "10px";
-        layout.header.style.borderBottom = "solid 1px #0288d1";
+        layout.header.style.borderBottom = "solid 1px #c0c0c0";
         layout.content.append(layout.header);
 
         layout.media = document.createElement("div");
@@ -52,37 +58,90 @@ export class SalesGroupViewer {
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
 
+        function addKV(key, value, position, wide=false, highlighting=false) {
+            let str = "";
+
+            if (Array.isArray(value)) {
+                if (value.length > 0)
+                    str = "" + value.join(', ');
+                else
+                    str = "?";
+            }
+            else {
+                str = "" + value;
+            }
+            let kvp = document.createElement("div");
+            kvp.className="row";
+            
+
+            let kvpKey = document.createElement("dt");
+            kvpKey.className = "col-sm-6";
+            // kvpKey.style.paddingTop = "10px";
+            kvpKey.textContent = key;
+            
+            kvp.append(kvpKey);
+            // animalDataCol.append(kvpKey);
+
+            let kvpValue = document.createElement("dd");
+            kvpValue.className = "col-sm-6";
+            // kvpValue.style.paddingTop = "10px";
+            kvpValue.style.whiteSpace = "pre-wrap";
+            kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
+            
+            let valueText= document.createElement("p");
+            valueText.className ="text-right";
+
+            if (highlighting) {
+                urlHighlighter(str, valueText);
+            }
+            else {
+                valueText.textContent = str;
+            }
+            kvpValue.append(valueText);
+
+            // animalDataCol.append(kvpValue);
+            kvp.append(kvpValue);
+            // let breakCol= document.createElement("div");
+            // breakCol.className = "w-100";
+            // animalDataCol.append(breakCol);
+            position.append(kvp);
+        }
         // Configure header
 
         {
             let row = document.createElement("div");
-            row.className = "row";
+            row.className = "card";
+            row.style ="margin-bottom:5px;border-radius: 25px"
             layout.header.append(row);
 
             let left = document.createElement("div");
-            left.className = "col";
+            left.className = "card-body";
             row.append(left);
 
-            let salesGroupID =document.createElement("h4");
+            let salesGroupID =document.createElement("h5");
+            salesGroupID.className="mb-0";
+            salesGroupID.style ="display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
 
-            let right = document.createElement("div");
-            right.className = "col-auto";
-            row.append(right);
+            // let right = document.createElement("div");
+            // right.className = "col-auto";
+            // row.append(right);
 
-            let location = document.createElement("span");
-            location.className = "text-muted";
+            let location = document.createElement("div");
+            // location.className = "text-muted";
             
             let milesAway = "--";
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
             let milesAwayInt = parseInt(milesAway);
-            
+            location.style="float:right;display: inline;color:black";
             location.textContent = "Location: " +"("+milesAwayInt+" Miles)";
+            left.append(location);
+            // right.append(location);
 
-            right.append(location);
+
         }
 
         // Configure Animal data
@@ -90,95 +149,176 @@ export class SalesGroupViewer {
         {
 
             let animalDataCol = document.createElement("div");
-            animalDataCol.className = "row";
+            animalDataCol.className = "card";
+            animalDataCol.style ="border-radius: 5%";
             layout.animalData.append(animalDataCol);
 
             let animalHeader = document.createElement("div");
-            animalHeader.className ="col-12";
-            animalHeader.style.paddingBottom = "10px";
-            animalHeader.style.borderBottom = "solid 1px #0288d1";
-            animalHeader.textContent ="Animal Data"
+            animalHeader.className ="card-header";
+            animalHeader.style ="color:#8B4513; height:75px";
+            // animalHeader.style.paddingBottom = "10px";
+            animalHeader.style.borderBottom = "solid 1px #c0c0c0";
+            animalHeader.textContent ="Animal Data";
             animalDataCol.append(animalHeader);
 
+            let animalBody = document.createElement("div");
+            animalBody.className ="card-body";
+            animalDataCol.append(animalBody);
 
-            function addKV(key, value, wide=false, highlighting=false) {
-                let str = "";
+            
+            
+            addKV("Breed", this.data.reported.breeds,animalBody);
+            addKV("Base Weight", this.data.reported.weight,animalBody);
+            addKV("Wt. Variance", this.data.reported.weight_variance,animalBody);
+            addKV("Frame", this.data.reported.usda_frame_size,animalBody);
+            addKV("Horns", this.data.reported.horns,animalBody);
+            addKV("Precon Program", this.data.reported.preconditioning_program,animalBody);
+            addKV("Implants", this.data.reported.implants,animalBody);
+            addKV("Castrated", this.data.reported.castrated,animalBody);
+            addKV("Vaccinations", this.data.reported.vaccinations,animalBody);
+            addKV("Feeding Program", this.data.reported.feeding_programs,animalBody);
+            addKV("PVP Program", this.data.reported.process_verified_program,animalBody);
 
-                if (Array.isArray(value)) {
-                    if (value.length > 0)
-                        str = "" + value.join(', ');
-                    else
-                        str = "?";
-                }
-                else {
-                    str = "" + value;
-                }
-
-                let kvpKey = document.createElement("div");
-                kvpKey.className = "col";
-                kvpKey.style.paddingTop = "10px";
-                kvpKey.textContent = key;
-                
-                // kvp.append(kvpKey);
-                animalDataCol.append(kvpKey);
-
-                let kvpValue = document.createElement("div");
-                kvpValue.className = "col-auto text-end";
-                kvpValue.style.paddingTop = "10px";
-                kvpValue.style.whiteSpace = "pre-wrap";
-                kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
-                
-                let valueText= document.createElement("p");
-                valueText.className ="text-right";
-
-                if (highlighting) {
-                    urlHighlighter(str, valueText);
-                }
-                else {
-                    valueText.textContent = str;
-                }
-                kvpValue.append(valueText);
-
-                animalDataCol.append(kvpValue);
-
-                let breakCol= document.createElement("div");
-                breakCol.className = "w-100";
-                animalDataCol.append(breakCol);
-            }
-            addKV("Breed", this.data.reported.breeds);
-            addKV("PRECONDITIONING", this.data.reported.preconditioning_program);
-            addKV("FEEDING", this.data.reported.feeding_programs);
-            addKV("PROCESS VERIFIED", this.data.reported.process_verified_program);
-            addKV("COMMENTS", this.data.reported.comments, true, true);
         }
-        //Configure market data
+        //Configure market data 
+
         {
             let marketDataCol = document.createElement("div");
-            marketDataCol.className ="col";
+            marketDataCol.className = "card";
+            marketDataCol.style ="border-radius: 5%";
             layout.marketData.append(marketDataCol);
-            let marketHeader =  document.createElement("div");
-            marketHeader.className ="row";
-            marketHeader.textContent = "Market Data";
+
+            let marketHeader = document.createElement("div");
+            marketHeader.className ="card-header";
+            marketHeader.style ="color:#8B4513; height:75px";
+            marketHeader.style.borderBottom = "solid 1px #c0c0c0";
+            marketHeader.textContent ="Market Data";
             marketDataCol.append(marketHeader);
-            // let headCount = document.createElement("span");
-            // headCount.className = "text-dark h4";
-            // headCount.textContent = this.data.reported.count || "?";
-            // left.append(headCount);
+
+            //TODO: Logo img
+
+            let marketBody = document.createElement("div");
+            marketBody.className ="card-body";
+            marketDataCol.append(marketBody);
+
+            let marketInfo = document.createElement("div");
+            marketInfo.className = "col-sm-12";
+            marketBody.append(marketInfo);
+
+            let marketInfoText = document.createElement("dl");
+            marketInfoText.className = "dl-horizontal row";
+            
+            addKV("Total Count",this.data.reported.count, marketBody);
+            let daysRemaining = "--";
+
+            if ("end" in this.data && this.data.end !== null) {
+                let currentEpoch = Date.now()/1000;
+                daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
+            }
+            addKV("Days Remaining",daysRemaining,marketBody);
+            //TODO: Count w Data, Delivery Location,Market
+            // addKV("Count w Data",this.data.reported.count, marketInfoText);
+            marketInfo.append(marketInfoText);
+            let commentCol = document.createElement("div");
+            commentCol.className = "card";
+            marketDataCol.append(commentCol);
+
+            let commentHeader = document.createElement("div");
+            commentHeader.className ="card-header";
+            commentHeader.style ="color:#8B4513";
+            commentHeader.textContent ="Comments";
+            commentCol.append(commentHeader);
+
+            let commentBody = document.createElement("div");
+            commentBody.className ="card-body";
+            commentBody.textContent = this.data.reported.comments;
+            commentCol.append(commentBody);
+
+
+        
+
+
         }
 
         //Configure media data
         {
             let mediaDataCol = document.createElement("div");
-            mediaDataCol.className ="col";
+            mediaDataCol.className = "card";
+            mediaDataCol.style ="border-radius: 5%";
             layout.media.append(mediaDataCol);
-            let mediaHeader =  document.createElement("div");
-            mediaHeader.className ="row";
-            mediaHeader.textContent = "Media Data";
+
+            let mediaHeader = document.createElement("div");
+            mediaHeader.className ="card-header";
+            mediaHeader.style ="color:#8B4513; height:75px";
+            mediaHeader.style.borderBottom = "solid 1px #c0c0c0";
+            mediaHeader.textContent ="Media";
             mediaDataCol.append(mediaHeader);
-            // let headCount = document.createElement("span");
-            // headCount.className = "text-dark h4";
-            // headCount.textContent = this.data.reported.count || "?";
-            // left.append(headCount);
+
+            let mediaBody = document.createElement("div")
+            mediaBody.className="card-body";
+            mediaDataCol.append(mediaBody);
+
+            let mediaNav = document.createElement("ul");
+            mediaNav.className = "nav nav-tabs";
+            mediaNav.id ="myTab";
+            mediaBody.append(mediaNav);
+
+            let photoNav = document.createElement("li");
+            photoNav.className="nav-item";
+            mediaBody.append(photoNav);
+
+            let photoNavLink =document.createElement("a");
+            photoNavLink.className="nav-link text-uppercase";
+            photoNavLink.textContent="Photos";
+            photoNavLink.id="photo-tab";
+            photoNavLink.href="#photo";
+            photoNav.append(photoNavLink);
+
+            let videoNav = document.createElement("li");
+            videoNav.className="nav-item";
+            mediaBody.append(videoNav);
+
+            let videoNavLink =document.createElement("a");
+            videoNavLink.className="nav-link text-uppercase";
+            videoNavLink.textContent="Video";
+            videoNavLink.id="video-tab";
+            videoNavLink.href="#video";
+            videoNav.append(videoNavLink);
+
+            let mediaContent = document.createElement("div");
+            mediaContent.className = "tab-content";
+            mediaContent.id ="myTabContent";
+            mediaBody.append(mediaContent);
+
+            let photo = document.createElement("div");
+            photo.className = "tab-pane fade active show";
+            photo.id = "photo";
+
+            let img = document.createElement("div");
+            img.className = "col-12 col-md";
+            img.style.height = "240px";
+            img.style.padding = "0px";
+            photo.append(img);
+
+            let images = [];
+
+            for (const image of this.data.reported.images) {
+                if (image in this.data.file_auths) {
+                    if (fileNameIsImage(this.data.file_auths[image]["name"])) {
+                        images.push(this.data.file_auths[image]["get"]);
+                    }   
+                    else {
+                        console.log(image + " is not an image?");
+                    }                 
+                }
+                else {
+                    console.log("Expected file auth for " + image);
+                }
+            }
+
+            new BootstrapCarousel(images, img);
+
+
         }
 
         // Configure image & numbers
@@ -229,29 +369,7 @@ export class SalesGroupViewer {
         //     }
         //     addNum("DAYS REMAINING", daysRemaining);
 
-        //     let img = document.createElement("div");
-        //     img.className = "col-12 col-md";
-        //     img.style.height = "240px";
-        //     img.style.padding = "0px";
-        //     numImgRow.append(img);
-
-        //     let images = [];
-
-        //     for (const image of this.data.reported.images) {
-        //         if (image in this.data.file_auths) {
-        //             if (fileNameIsImage(this.data.file_auths[image]["name"])) {
-        //                 images.push(this.data.file_auths[image]["get"]);
-        //             }   
-        //             else {
-        //                 console.log(image + " is not an image?");
-        //             }                 
-        //         }
-        //         else {
-        //             console.log("Expected file auth for " + image);
-        //         }
-        //     }
-
-        //     new BootstrapCarousel(images, img);
+        //     
         // }
 
         this.box.append(layout.content);
