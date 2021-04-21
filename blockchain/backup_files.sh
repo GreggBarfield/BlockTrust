@@ -1,6 +1,8 @@
 #!/bin/bash
+# This script is used to upload important credentials to S3 bucket for backup purpose.
+# These keys can be used to run the original built blockchain network.
 
-# Batch upload files to the cloud
+# Reference: Batch upload files to the cloud
 # https://aws.amazon.com/getting-started/hands-on/backup-to-s3-cli/
 
 # load helper functions for printing and help msg
