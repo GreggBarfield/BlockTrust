@@ -28,10 +28,23 @@ export class SalesGroupViewer {
         let layout = {};
         this.layout = layout;
 
+        layout.formatRow  =document.createElement("div");
+        layout.formatRow.className = "row";
+
+        layout.formatCol  =document.createElement("div");
+        layout.formatCol.className = "col-md-12 col-sm-12";
+        layout.formatRow.append(layout.formatCol);
+
+        layout.format =document.createElement("div");
+        layout.format.className = "container-fluid";
+        layout.format.style="margin-bottom:5px;border-radius: 25px";
+        layout.formatCol.append(layout.format);
+
         layout.content = document.createElement("div");
         layout.content.className = "row";
+        
         layout.content.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
-
+        layout.format.append(layout.content);
         // layout.format =document.createElement("div");
         // layout.format.className = "container-fluid";
         // layout.format.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
@@ -261,28 +274,38 @@ export class SalesGroupViewer {
             let mediaNav = document.createElement("ul");
             mediaNav.className = "nav nav-tabs";
             mediaNav.id ="myTab";
+            mediaNav.setAttribute("role","tablist");
+
             mediaBody.append(mediaNav);
 
             let photoNav = document.createElement("li");
             photoNav.className="nav-item";
-            mediaBody.append(photoNav);
+            mediaNav.append(photoNav);
 
             let photoNavLink =document.createElement("a");
-            photoNavLink.className="nav-link text-uppercase";
+            photoNavLink.className="nav-link text-uppercase active";
             photoNavLink.textContent="Photos";
             photoNavLink.id="photo-tab";
             photoNavLink.href="#photo";
+            photoNavLink.setAttribute("role","tab");
+            photoNavLink.setAttribute("data-toggle","tab");
+            photoNavLink.setAttribute("aria-controls","home");
+            photoNavLink.setAttribute("aria-selected","true");
             photoNav.append(photoNavLink);
 
             let videoNav = document.createElement("li");
             videoNav.className="nav-item";
-            mediaBody.append(videoNav);
+            mediaNav.append(videoNav);
 
             let videoNavLink =document.createElement("a");
             videoNavLink.className="nav-link text-uppercase";
             videoNavLink.textContent="Video";
             videoNavLink.id="video-tab";
             videoNavLink.href="#video";
+            videoNavLink.setAttribute("role","tab");
+            videoNavLink.setAttribute("data-toggle","tab");
+            videoNavLink.setAttribute("aria-controls","home");
+            videoNavLink.setAttribute("aria-selected","true");
             videoNav.append(videoNavLink);
 
             let mediaContent = document.createElement("div");
@@ -293,6 +316,10 @@ export class SalesGroupViewer {
             let photo = document.createElement("div");
             photo.className = "tab-pane fade active show";
             photo.id = "photo";
+            photo.setAttribute("role","tabpanel");
+            photo.setAttribute("aria-labelledby","photo");
+            mediaContent.append(photo);
+
 
             let img = document.createElement("div");
             img.className = "col-12 col-md";
@@ -373,15 +400,16 @@ export class SalesGroupViewer {
         // }
 
         this.box.append(layout.content);
+        // layout.format.append(this.box);
 
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
             attachTo.append(container);
 
-            let bar = document.createElement("div");
-            bar.className = "acc-bar";
-            container.append(bar);
+            // let bar = document.createElement("div");
+            // bar.className = "acc-bar";
+            // container.append(bar);
 
             let tri = document.createElement("span");
             tri.style.marginRight = "10px";
@@ -391,13 +419,15 @@ export class SalesGroupViewer {
             tri.append(triClosed);
 
             let triOpened = document.createElement("i");
+            // triOpened.style ="margin-bottom:5px;border-radius: 25px";
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
 
 
             let header = document.createElement("div");
-            header.className = "acc-header h5 text-dark";
+            header.className = "btn btn-outline-secondary btn-sm";
+            header.style ="float:left";
             header.append(tri);
             header.append(document.createTextNode(headerText));
             container.append(header);
@@ -412,7 +442,9 @@ export class SalesGroupViewer {
 
             header.addEventListener("click", ()=>{
                 if (isClosed) {
+                    triOpened.style="margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
+                    body.style ="border:1px solid #c0c0c0;padding:15px;";
                     body.style.display = "block";
                     triClosed.style.display = "none";
                     isClosed = false;
@@ -437,12 +469,14 @@ export class SalesGroupViewer {
 
         {
             let b_contactInfo = createAcc(this.box, "Contact Info");
-
-            let p = document.createElement("p");
+            
+            let p = document.createElement("h5");
+            p.style="text-align:center";
             p.textContent = this.data.account_name;
             b_contactInfo.append(p);
 
             let sendMessageButton = document.createElement("button");
+            // sendMessageButton.style =" left: 230px;"
             sendMessageButton.className = "btn btn-sm btn-primary";
             sendMessageButton.textContent = "Send Message";
             sendMessageButton.addEventListener("click", ()=>{
@@ -451,85 +485,85 @@ export class SalesGroupViewer {
             b_contactInfo.append(sendMessageButton);
         }
 
-        {
-            let b_additionalInformation = createAcc(this.box, "Additional Information");
+        // {
+        //     let b_additionalInformation = createAcc(this.box, "Additional Information");
 
-            let row = document.createElement("div");
-            row.className = "row";
-            b_additionalInformation.append(row);
+        //     let row = document.createElement("div");
+        //     row.className = "row";
+        //     b_additionalInformation.append(row);
 
-            function atos(value) {
-                let result = value;
-                if (value === null || value === undefined) {
-                    result = "";
-                }
-                else {
-                    if (typeof value === "number") {
-                        if (value > 1000000) {
-                            result = formatDate(value);
-                        }
-                        else {
-                            result = value;
-                        }
-                    }
-                    else if (Array.isArray(value)) {
-                        let temp = [];
-                        for (const value_in of value) {
-                            temp.push(atos(value_in));
-                        }
-                        result = temp.join(", ");
-                    }
-                }
-                return "" + result;
-            }
+        //     function atos(value) {
+        //         let result = value;
+        //         if (value === null || value === undefined) {
+        //             result = "";
+        //         }
+        //         else {
+        //             if (typeof value === "number") {
+        //                 if (value > 1000000) {
+        //                     result = formatDate(value);
+        //                 }
+        //                 else {
+        //                     result = value;
+        //                 }
+        //             }
+        //             else if (Array.isArray(value)) {
+        //                 let temp = [];
+        //                 for (const value_in of value) {
+        //                     temp.push(atos(value_in));
+        //                 }
+        //                 result = temp.join(", ");
+        //             }
+        //         }
+        //         return "" + result;
+        //     }
 
 
-            let createSection = (name, reportedKeys) => {
-                let box = document.createElement("div");
-                box.className = "col-12 col-md-4";
-                row.append(box);
-                let h6 = document.createElement('h6');
-                h6.textContent = name;
-                box.append(h6);
+        //     let createSection = (name, reportedKeys) => {
+        //         let box = document.createElement("div");
+        //         box.className = "col-12 col-md-4";
+        //         row.append(box);
+        //         let h6 = document.createElement('h6');
+        //         h6.textContent = name;
+        //         box.append(h6);
 
-                let dl = new DL(true, box);
+        //         let dl = new DL(true, box);
 
-                for (const up of reportedKeys) {
-                    let name = up[0];
-                    if (up.length == 3) {
-                        dl.add(name, atos(up[2]));
-                    }
-                    else if (up[1] in this.data.reported) {
-                        dl.add(name, atos(this.data.reported[up[1]]));
-                    }
-                    else {
-                        dl.add(name, "");
-                    }
-                }
-            }
-            createSection("Market", [
-                ["Count", "count"], 
-                ["Market Start", null, this.data.start], 
-                ["Market End", null, this.data.end], 
-                ["Market ZIP", null, this.data.zip], 
-            ]);
-            createSection("Characteristics", [
-                ["Breed", "breeds"],
-                ["Base Weight", "weight"],
-                ["Wt. Variance", "weight_variance"],
-                ["Frame", "usda_frame_size"],
-                ["Muscling", "muscling"],
-                ["Horns", "horns"],
-            ]);
-            createSection("Maintenance", [
-                ["Implants", "implants"],
-                ["Castrated", "castrated"],
-                ["Vaccinations", "vaccinations"],
-                ["Feeding Program", "feeding_programs"],
-                ["Preconditioning Program", "preconditioning_program"],
-                ["Process Verified Program", "process_verified_program"],
-            ]);
-        }
+        //         for (const up of reportedKeys) {
+        //             let name = up[0];
+        //             if (up.length == 3) {
+        //                 dl.add(name, atos(up[2]));
+        //             }
+        //             else if (up[1] in this.data.reported) {
+        //                 dl.add(name, atos(this.data.reported[up[1]]));
+        //             }
+        //             else {
+        //                 dl.add(name, "");
+        //             }
+        //         }
+        //     }
+        //     createSection("Market", [
+        //         ["Count", "count"], 
+        //         ["Market Start", null, this.data.start], 
+        //         ["Market End", null, this.data.end], 
+        //         ["Market ZIP", null, this.data.zip], 
+        //     ]);
+        //     createSection("Characteristics", [
+        //         ["Breed", "breeds"],
+        //         ["Base Weight", "weight"],
+        //         ["Wt. Variance", "weight_variance"],
+        //         ["Frame", "usda_frame_size"],
+        //         ["Muscling", "muscling"],
+        //         ["Horns", "horns"],
+        //     ]);
+        //     createSection("Maintenance", [
+        //         ["Implants", "implants"],
+        //         ["Castrated", "castrated"],
+        //         ["Vaccinations", "vaccinations"],
+        //         ["Feeding Program", "feeding_programs"],
+        //         ["Preconditioning Program", "preconditioning_program"],
+        //         ["Process Verified Program", "process_verified_program"],
+        //     ]);
+        // }
         
         {
             let b_tags = createAcc(this.box, "Tags (EIDs)", (body)=>{
