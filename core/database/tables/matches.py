@@ -226,7 +226,6 @@ class Matches:
                 matches
             """
         )
-        a
         # Data from last 3 years, and USDAQualityGrade
         return tuple(
             row['eid'] for row in
