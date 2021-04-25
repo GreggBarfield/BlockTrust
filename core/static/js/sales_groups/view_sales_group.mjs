@@ -45,10 +45,6 @@ export class SalesGroupViewer {
         
         layout.content.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
         layout.format.append(layout.content);
-        // layout.format =document.createElement("div");
-        // layout.format.className = "container-fluid";
-        // layout.format.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
-
 
         layout.header = document.createElement("div");
         layout.header.className = "col-12";
@@ -71,7 +67,7 @@ export class SalesGroupViewer {
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
 
-        function addKV(key, value, position, wide=false, highlighting=false) {
+        function addInfo(key, value, position, wide=false, highlighting=false) {
             let str = "";
 
             if (Array.isArray(value)) {
@@ -112,11 +108,7 @@ export class SalesGroupViewer {
             }
             kvpValue.append(valueText);
 
-            // animalDataCol.append(kvpValue);
             kvp.append(kvpValue);
-            // let breakCol= document.createElement("div");
-            // breakCol.className = "w-100";
-            // animalDataCol.append(breakCol);
             position.append(kvp);
         }
         // Configure header
@@ -137,12 +129,7 @@ export class SalesGroupViewer {
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
 
-            // let right = document.createElement("div");
-            // right.className = "col-auto";
-            // row.append(right);
-
             let location = document.createElement("div");
-            // location.className = "text-muted";
             
             let milesAway = "--";
             if ("context" in this.data && "milesAway" in this.data.context) {
@@ -152,8 +139,6 @@ export class SalesGroupViewer {
             location.style="float:right;display: inline;color:black";
             location.textContent = "Location: " +"("+milesAwayInt+" Miles)";
             left.append(location);
-            // right.append(location);
-
 
         }
 
@@ -178,19 +163,17 @@ export class SalesGroupViewer {
             animalBody.className ="card-body";
             animalDataCol.append(animalBody);
 
-            
-            
-            addKV("Breed", this.data.reported.breeds,animalBody);
-            addKV("Base Weight", this.data.reported.weight,animalBody);
-            addKV("Wt. Variance", this.data.reported.weight_variance,animalBody);
-            addKV("Frame", this.data.reported.usda_frame_size,animalBody);
-            addKV("Horns", this.data.reported.horns,animalBody);
-            addKV("Precon Program", this.data.reported.preconditioning_program,animalBody);
-            addKV("Implants", this.data.reported.implants,animalBody);
-            addKV("Castrated", this.data.reported.castrated,animalBody);
-            addKV("Vaccinations", this.data.reported.vaccinations,animalBody);
-            addKV("Feeding Program", this.data.reported.feeding_programs,animalBody);
-            addKV("PVP Program", this.data.reported.process_verified_program,animalBody);
+            addInfo("Breed", this.data.reported.breeds,animalBody);
+            addInfo("Base Weight", this.data.reported.weight,animalBody);
+            addInfo("Wt. Variance", this.data.reported.weight_variance,animalBody);
+            addInfo("Frame", this.data.reported.usda_frame_size,animalBody);
+            addInfo("Horns", this.data.reported.horns,animalBody);
+            addInfo("Precon Program", this.data.reported.preconditioning_program,animalBody);
+            addInfo("Implants", this.data.reported.implants,animalBody);
+            addInfo("Castrated", this.data.reported.castrated,animalBody);
+            addInfo("Vaccinations", this.data.reported.vaccinations,animalBody);
+            addInfo("Feeding Program", this.data.reported.feeding_programs,animalBody);
+            addInfo("PVP Program", this.data.reported.process_verified_program,animalBody);
 
         }
         //Configure market data 
@@ -221,16 +204,15 @@ export class SalesGroupViewer {
             let marketInfoText = document.createElement("dl");
             marketInfoText.className = "dl-horizontal row";
             
-            addKV("Total Count",this.data.reported.count, marketBody);
+            addInfo("Total Count",this.data.reported.count, marketBody);
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
                 let currentEpoch = Date.now()/1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
-            addKV("Days Remaining",daysRemaining,marketBody);
+            addInfo("Days Remaining",daysRemaining,marketBody);
             //TODO: Count w Data, Delivery Location,Market
-            // addKV("Count w Data",this.data.reported.count, marketInfoText);
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
             commentCol.className = "card";
@@ -246,10 +228,6 @@ export class SalesGroupViewer {
             commentBody.className ="card-body";
             commentBody.textContent = this.data.reported.comments;
             commentCol.append(commentBody);
-
-
-        
-
 
         }
 
@@ -348,57 +326,6 @@ export class SalesGroupViewer {
 
         }
 
-        // Configure image & numbers
-
-        // {
-        //     let numImgRow = document.createElement("div");
-        //     numImgRow.className = "col-md-4";
-        //     layout.side.append(numImgRow);
-
-        //     let numCol = document.createElement("div");
-        //     numCol.className = "col-12 col-md-auto d-flex d-md-block";
-        //     numCol.style.justifyContent = "space-around";
-        //     numCol.style.backgroundColor = "hsl(232,50%,45%)";
-        //     numCol.style.color = "white";
-        //     numImgRow.append(numCol);
-
-        //     let numRow = numCol;
-
-        //     function addNum(key, num) {
-        //         let bin = document.createElement("div");
-        //         bin.style.height = "80px";
-        //         bin.style.width = "80px";
-        //         bin.style.textAlign = "center";
-        //         bin.style.display = "flex";
-        //         bin.style.flexDirection = "column";
-        //         bin.style.justifyContent = "center";
-        //         numRow.append(bin);
-
-        //         let numDiv = document.createElement("span");
-        //         numDiv.textContent = num;
-        //         numDiv.style.fontSize = "20px";
-        //         bin.append(numDiv);
-
-        //         let keyDiv = document.createElement("span");
-        //         keyDiv.textContent = key;
-        //         bin.append(keyDiv);
-        //         keyDiv.style.wordSpacing = "100px";
-        //     }
-
-        //     addNum("AVERAGE WEIGHT", this.data.reported.weight || "?");
-
-
-        //     let daysRemaining = "--";
-
-        //     if ("end" in this.data && this.data.end !== null) {
-        //         let currentEpoch = Date.now()/1000;
-        //         daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
-        //     }
-        //     addNum("DAYS REMAINING", daysRemaining);
-
-        //     
-        // }
-
         this.box.append(layout.content);
         // layout.format.append(this.box);
 
@@ -476,7 +403,7 @@ export class SalesGroupViewer {
             b_contactInfo.append(p);
 
             let sendMessageButton = document.createElement("button");
-            // sendMessageButton.style =" left: 230px;"
+           
             sendMessageButton.className = "btn btn-sm btn-primary";
             sendMessageButton.textContent = "Send Message";
             sendMessageButton.addEventListener("click", ()=>{
