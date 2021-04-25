@@ -1,37 +1,76 @@
-Developing
-==========
+# Resources
 
+- BTN Developer Guide: https://docs.google.com/document/d/1rZRAPgqILzBfXDPBJQfGqnAsglGssID07MWHNJW1YS4/edit#
 
-Docker
+# Developing
 
-Web development stack:
-docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core stop \
-    && docker-compose -f core/docker/docker-compose.dev.yaml -p btn-core up --build --detach
+## Web development stack
 
-    To build a single service, add the service name
+Starting the full local environment:
 
-Reports worker (requries web dev stack online):
-docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw stop \
-    && docker-compose -f reports_worker/docker/docker-compose.dev.yaml -p btn-rw up --build --detach
+```bash
+docker-compose -f core/docker/docker-compose.dev.yaml \
+    -p btn-core stop \
+&& docker-compose -f core/docker/docker-compose.dev.yaml \
+    -p btn-core up --build --detach
+```
 
-API:
-    Translation worker:
-        docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw stop \
-            && docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml -p btn-api-tw up --build --detach
+## Reports worker
+(connects to docker network btn-core_default)
 
-        sudo docker container update --restart unless-stopped tw
-        (When it runs into issues, it is exit-happy. Probably a good idea to auto restart it.)
+```bash
+docker-compose -f reports_worker/docker/docker-compose.dev.yaml \
+    -p btn-rw stop \
+&& docker-compose -f reports_worker/docker/docker-compose.dev.yaml \
+    -p btn-rw up --build --detach
+```
+
+## API
+
+### API Translation Worker
+
+```bash
+docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml \
+    -p btn-api-tw stop \
+&& docker-compose -f api/translation_worker/docker/docker-compose.dev.yaml \
+    -p btn-api-tw up --build --detach
+```
+
+### API Server
     
-    Server:
-        docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server stop \
-            && docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server up --build --detach
+```bash
+docker-compose -f api/server/docker/docker-compose.dev.yaml -p btn-api-server \
+    stop \
+&& docker-compose -f api/server/docker/docker-compose.dev.yaml \
+    -p btn-api-server up --build --detach
+```
 
+# General Docker tips
 
-aing0Eitohy1yah3ang2Oapai6quu6Ge
+## Building specific services
 
-'root'@'localhost' password: 09wg84j09843umgf0w934gj09w34g (dev computer)
-'root'@'localhost' password: doojuiseeN6Quooph6yoosai6foh3fae (ledgerspacedev)
+To build only specific services), add the service names after the docker-compose command but before the command options:
 
+```bash
+docker-compose -f core/docker/docker-compose.dev.yaml \
+    -p btn-core stop webpack \
+    && docker-compose -f core/docker/docker-compose.dev.yaml \
+    -p btn-core up webpack --build --detach
+```
+
+## Persisting a container after restarts
+
+```bash
+docker container update --restart unless-stopped tw
+```
+
+# Internal Testing Deployments
+Internal testing is made up of external-test-server-1 (lightsail), the external API server, and EC2 instance ledgerspacedev.com i-01390ee79c2452eb3, running most of the rest. There are also blockchain servers, but they don't need to be updated as frequently.
+
+BTN developer guide has a bit of information on this.
+
+### API Translation Worker
+```bash
 docker image build --tag tw --file api/translation_worker/docker/dockerfile.aws .
 docker image save -o tw.image tw
 scp -i ../aws/kp-ledgerspacedev.pem tw.image ubuntu@ledgerspacedev.com:~
@@ -45,12 +84,13 @@ sudo docker container create --name tw --restart unless-stopped --env PYTHONUNBU
 sudo docker container start tw
 sudo docker logs --tail 5 tw
 exit
+```
 
 
-Testing
-=========
+# Testing
 
+```bash
 pytest
 pytest api/translation_worker
-
+```
 
