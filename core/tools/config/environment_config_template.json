@@ -31,5 +31,8 @@
     },
     "support": {
         "general_email": "info@blocktrustnetwork.com"
+    },
+    "stripe": {
+        "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR"
     }
 }
