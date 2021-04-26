@@ -3,7 +3,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
-const fabricNetwork = require('./fabricNetwork')
+const { connectNetwork } = require('./fabricNetwork');
 const { BlockDecoder } = require('fabric-common');
 
 app.set('view engine', 'ejs');
@@ -17,9 +17,9 @@ const chaincodeName = 'basic';
 
 
 // create a record and save it into the blockchain
-app.post('/api/addRecord', async function (req, res) {
+app.post('/api/add-record', async function (req, res) {
   try {
-    const network = await fabricNetwork.connectNetwork(channelName);
+    const network = await connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
     let tx = await contract.submitTransaction('CreateRecord', req.body.data);
     res.json({
@@ -35,9 +35,9 @@ app.post('/api/addRecord', async function (req, res) {
 
 });
 
-app.get('/api/getRecord/:id', async function (req, res) {
+app.get('/api/get-record/:id', async function (req, res) {
   try {
-    const network = await fabricNetwork.connectNetwork(channelName);
+    const network = await connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
     const result = await contract.evaluateTransaction('ReadRecord', req.params.id.toString());
     let response = JSON.parse(result.toString());
@@ -50,9 +50,9 @@ app.get('/api/getRecord/:id', async function (req, res) {
   }
 })
 
-app.get('/api/getBlock/:txid', async function (req, res) {
+app.get('/api/get-block/:txid', async function (req, res) {
   try {
-    const network = await fabricNetwork.connectNetwork(channelName);
+    const network = await connectNetwork(channelName);
     const contract = network.getContract('qscc');// Query System Chaincode
     const resultByte = await contract.evaluateTransaction(
       'GetBlockByTxID',
@@ -69,9 +69,9 @@ app.get('/api/getBlock/:txid', async function (req, res) {
   }
 })
 
-app.get('/api/getTransaction/:txid', async function (req, res) {
+app.get('/api/get-transaction/:txid', async function (req, res) {
   try {
-    const network = await fabricNetwork.connectNetwork(channelName);
+    const network = await connectNetwork(channelName);
     const contract = network.getContract('qscc');
     const resultByte = await contract.evaluateTransaction(
       'GetTransactionByID',
@@ -84,7 +84,7 @@ app.get('/api/getTransaction/:txid', async function (req, res) {
   } catch (error) {
     console.error(`Failed to evaluate transaction: ${error}`);
     res.status(500).json({
-      error: error
+      error: errors
     });
   }
 })

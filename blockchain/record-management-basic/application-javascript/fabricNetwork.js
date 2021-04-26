@@ -15,8 +15,8 @@ const { buildCCPOrg1, buildWallet } = require('../../application-utils/javascrip
 const channelName = 'mychannel';
 // const chaincodeName = 'basic';
 const mspOrg1 = 'Org1MSP';
-const walletPath = path.join(__dirname, 'wallet');
 const org1UserId = 'appUser';
+const walletPath = path.join(__dirname, 'wallet');
 
 function prettyJSONString(inputString) {
 	return JSON.stringify(JSON.parse(inputString), null, 2);
@@ -69,24 +69,46 @@ function prettyJSONString(inputString) {
  * To see the SDK workings, try setting the logging to show on the console before running
  *        export HFC_LOGGING='{"debug":"console"}'
  */
-async function connectNetwork(channelName) {
+exports.enrollMyAdmin = async () => {
+
+  // build an in memory object with the network configuration (also known as a connection profile)
+  const ccp = buildCCPOrg1();
+
+  // build an instance of the fabric ca services client based on
+  // the information in the network configuration
+  const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.blocktrustnetwork.com');
+
+  // setup the wallet to hold the credentials of the application user
+  const wallet = await buildWallet(Wallets, walletPath);
+
+  // in a real application this would be done on an administrative flow, and only once
+  await enrollAdmin(caClient, wallet, mspOrg1);
+
+}
+
+exports.enrollUser = async(org1UserId) => {
+    // build an in memory object with the network configuration (also known as a connection profile)
+    const ccp = buildCCPOrg1();
+
+    // build an instance of the fabric ca services client based on
+    // the information in the network configuration
+    const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.blocktrustnetwork.com');
+  
+    // setup the wallet to hold the credentials of the application user
+    const wallet = await buildWallet(Wallets, walletPath);
+  
+    // in a real application this would be done only when a new user was required to be added
+    // and would be part of an administrative flow
+    await registerAndEnrollUser(caClient, wallet, mspOrg1, org1UserId, 'org1.department1');
+}
+
+exports.connectNetwork = async(channelName) => {
 
 		// build an in memory object with the network configuration (also known as a connection profile)
 		const ccp = buildCCPOrg1();
 
-		// build an instance of the fabric ca services client based on
-		// the information in the network configuration
-		const caClient = buildCAClient(FabricCAServices, ccp, 'ca.org1.blocktrustnetwork.com');
-
 		// setup the wallet to hold the credentials of the application user
 		const wallet = await buildWallet(Wallets, walletPath);
-
-		// in a real application this would be done on an administrative flow, and only once
-		await enrollAdmin(caClient, wallet, mspOrg1);
-
-		// in a real application this would be done only when a new user was required to be added
-		// and would be part of an administrative flow
-		await registerAndEnrollUser(caClient, wallet, mspOrg1, org1UserId, 'org1.department1');
 
 		// Create a new gateway instance for interacting with the fabric network.
 		// In a real application this would be done as the backend server session is setup for
@@ -111,4 +133,5 @@ async function connectNetwork(channelName) {
 
 }
 
-module.exports = {connectNetwork};
+// module.exports = {enrollAdmin, enrollUser, connectNetwork};
+// export {enrollMyAdmin, enrollUser, connectNetwork};
