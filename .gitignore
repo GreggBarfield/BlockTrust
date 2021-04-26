@@ -78,3 +78,6 @@ blockchain/blockchain-network/organizations/fabric-ca/org1/msp/
 blockchain/blockchain-network/organizations/fabric-ca/org1/tls-cert.pem
 blockchain/blockchain-network/organizations/ordererOrganizations/
 blockchain/blockchain-network/organizations/peerOrganizations/
+
+# backup
+blockchain/backup/ 
