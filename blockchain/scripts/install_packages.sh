@@ -4,7 +4,7 @@
 step=1
 
 # load helper functions for printing and help msg
-. blockchain-network/scripts/utils.sh || . utils.sh
+. blockchain-network/scripts/utils.sh
 
 infoln "$step. Updating packages on the system."
 sudo yum -y update

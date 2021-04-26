@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script prints installed packages'versions. 
 
-. blockchain-network/scripts/utils.sh || . utils.sh
+. blockchain-network/scripts/utils.sh
 
 infoln "curl version:"
 curl --version
