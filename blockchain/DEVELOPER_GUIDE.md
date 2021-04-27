@@ -173,15 +173,15 @@ References:
 
 2.  Select the created volume, right-click and select the “attach volume” option.
 
-3. Select the instance from the instance text box as shown below:   
-![picture](img/attach_volume.png)   
+3. Select the instance from the instance text box as shown below:  
+![picture](img/attach_volume.png)  
 
 4. Now, login to your ec2 instance and list the available disks using the following command. 
    ```
    lsblk
    ```
-   The above command will list the disk you attached to your instance.   
-   ![picture](img/available_disks.png)   
+   The above command will list the disk you attached to your instance.  
+   ![picture](img/available_disks.png)  
 
 
 5. Check if the volume has any data using the following command.
@@ -242,8 +242,8 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    /dev/xvdf       /blockchainvolume   xfs    defaults,nofail        0       2
    ```
-   Here is a sample /etc/fstab after adding the entry:   
-   ![picture](img/fstab_sample.png)   
+   Here is a sample /etc/fstab after adding the entry:  
+   ![picture](img/fstab_sample.png)  
    We mount the device `/dev/xvdf` to mount point `/blockchainvolume` and we use the xfs file system. We also use the defaults and nofail flags. We specify 0 to prevent the file system from being dumped, and we specify 2 to indicate that it is a non-root device.\
    **Note**:\
    If you ever boot your instance without this volume attached (for example, after moving the volume to another instance), the nofail mount option enables the instance to boot even if there are errors mounting the volume. Debian derivatives, including Ubuntu versions earlier than 16.04, must also add the nobootwait mount option.
@@ -269,8 +269,8 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    lsblk
    ```
-   Sample output:   
-   ![picture](img/lsblk_sample.png)   
+   Sample output:  
+   ![picture](img/lsblk_sample.png)  
    Now xvdf is mounted at `/blockchainvolume` in our ec2 instance.
 
 #### **Change the Default Location for Docker Volume Creation**
@@ -350,17 +350,58 @@ From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-ja
    npm install
    ```
 
-6. Register and enroll admin and user for client API. A wallet folder which contains admin and user credentails for client API will be generated. From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the setup file:
+6. Register and enroll admin and user for client API. A new directory named "wallet" which contains the admin user and application user's credentials will be generated in the directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript/`. From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the setup file:
    ```
    node adminUserSetup.js
    ```
 
-7. Run the client application. TODO
-From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the command:
+7. Run the client application.
+
+   If it's in **development**, we only need to run the following command from directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`to launch the client application.
    ```
-   node server.js
+   (In development) node server.js
    ```
-   When the application is running for the first time. A new directory named "wallet" which contains the admin user and application user's credentials will be generated in the directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript/`
+
+   However, we need to **keep live** our app after closing our terminal or disconnect from remote server in **production**.
+   Run the following command: 
+   ```
+   npm install pm2 -g
+   ```
+   It will install PM2 package globally on server. Switch to our app directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript` and run:
+   ```
+   pm2 start server.js
+   ```
+   Now even if you close the terminal, the app will still be running. For automatically running PM2 when the server restarts, issue the following command:
+   ```
+   pm2 startup
+   ```
+   You may see the following output after you run the command:
+   ```
+   [PM2] To setup the Startup Script, copy/paste the following command:
+   sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v14.13.1/bin /home/ec2-user/.nvm/versions/node/v14.13.1/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
+   ```
+   You **MUST** run the command "sudo env PATH=..." as prompted from the above output.
+
+   Now you can reboot the instance using sudo reboot and connect after 1 min. You can still see the app is running on port 3000 using:
+   ```
+   pm2 list
+   ```
+   Or
+   ```
+   pm2 show server
+   ```
+   (**Optional**) To stop a running application, you can run the command:
+   ```
+   pm2 stop server
+   ```
+   To delete it, run
+   ```
+   pm2 delete server
+   ```
+   To restart it, run
+   ```
+   pm2 restart server
+   ```
 
 ### **Credentails Backup**
 We need to back up the credentials files of the blockchain network because we can use these files to access the blockchain.
@@ -372,11 +413,11 @@ Executing this script will zip all important files generated during the creation
 
 Here is an example:
 
-**s3 bucket `btnblockchainbackup`**:   
-![picture](img/s3_bucket_backup.png)   
+**s3 bucket `btnblockchainbackup`**:  
+![picture](img/s3_bucket_backup.png)  
 
-**backup file in s3 bucket**:   
-![picture](img/s3_backup_file.png)   
+**backup file in s3 bucket**:  
+![picture](img/s3_backup_file.png)  
 
 
 ## **Blockchain Network Restoration**
@@ -403,8 +444,8 @@ In the case we terminated the ec2 instance which host the blockchain network and
    ```
 4. After you unzip the file, you will see some directories in the same structure as the original directories `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. You need to move all the necessary files to its corresponding locations in `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. For examples, basic.tar.gz, all files except the yaml files in the directory `organizations` and all files in directory `wallet` .
 
-**sample unzipped files/directories**:   
-![picture](img/unzipped_backup.png)   
+**sample unzipped files/directories**:  
+![picture](img/unzipped_backup.png)  
 
 5. Since we use the backup files to restore the network, we will skip most of the steps in [ Blockchain Network Setup ](#markdown-header-blockchain-network-setup). The steps we will take are as follow:
    * Download docker images and binaries for Fabric v2.3.1 and Fabric CA v1.4.9.
