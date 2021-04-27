@@ -19,6 +19,12 @@ const chaincodeName = 'basic';
 // create a record and save it into the blockchain
 app.post('/api/add-record', async function (req, res) {
   try {
+    console.info(req);
+    if (!req.is('application/json')) {
+      res.sendStatus(400)
+      console.info("bad head")
+    }
+
     const network = await connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
     let tx = await contract.submitTransaction('CreateRecord', req.body.data);
