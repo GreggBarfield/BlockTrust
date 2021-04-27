@@ -386,6 +386,7 @@ From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-ja
    ```
    pm2 list
    ```
+   ![picture](img/pm2_list_out.png) 
    Or
    ```
    pm2 show server
