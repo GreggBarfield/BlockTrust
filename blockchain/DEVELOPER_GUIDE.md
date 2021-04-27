@@ -11,12 +11,13 @@
             * [ Change the Default Location for Docker Volume Creation ](#markdown-header-change-the-default-location-for-docker-volume-creation)
         * [ Blockchain Network Setup ](#markdown-header-blockchain-network-setup)
         * [ Credentails Backup ](#markdown-header-credentails-backup)
-        * [ Blockchain Network Restore ](#markdown-header-blockchain-network-restore)
+        * [ Blockchain Network Restoration ](#markdown-header-blockchain-network-restoration)
 * [ Production and Development ](#markdown-header-production-and-development)
       * [ Bring down the Blockchain Network ](#markdown-header-bring-down-the-blockchain-network)
 * [ Local Testing ](#markdown-header-local-testing)
 * [ Important Notes ](#markdown-header-important-notes)
-
+* [ Client API ](#markdown-header-client-api)
+* [ Other Configurations ](#markdown-header-other-configurations)
 
 # ###################
 # Production
@@ -25,7 +26,7 @@
 **Blockchain Network Structure**: one organization network setup with one peer, ordering service, and one certificate authority.
 
 **Note**:
-- `PROJECT_FOLDER` refers to the root directory of the whole project.
+- `PROJECT_FOLDER` refers to the root directory of the whole project.   
 - Whenever you need to execute a shell script in any "scripts" folder such as `PROJECT_FOLDER/scripts` and `PROJECT_FOLDER/blockchain-network/scripts`, you need to cd into the same directory as the script. Otherwise, you may run into directory not found error.
 
 ## **Deployment**
@@ -33,7 +34,7 @@
 ### **AWS Resources Used In Production**
 1. **EC2 instance**: It holds the blockchain network server and its client API server (which is used to interact with smart contract/chaincode).
 2. **EBS volume** - It is attached to the above EC2 instance and used as the default location for external Docker volumes. **NEVER** delete this EBS volume (unless you have a snapshot as a backup of the current data) since it stores the ledger(state database and blockchain).
-3. **S3 bucket**- It contains a backup of credentials (certificates and keys used in authorization). If the EC2 instance is terminated by accident (*This should not happen since we have enabled protection against accidental termination on the ec2 instance setup.*)
+3. **S3 bucket**- It contains a backup of credentials (certificates and keys used in authorization). If the EC2 instance is terminated by accident (*This should not happen since we have enabled protection against accidental termination on the ec2 instance setup.*), we can still have the access to the blockchain data (stored in a EBS volume) by using these credentials.
 4. **Snapshots** - For ec2 instance and EBS volume.
 
 ### **ec2 Instance Setup**
@@ -59,7 +60,7 @@ sudo yum -y install git
 ```
 Then clone the repository of the source code to the ec2 instance.
 
-Next, you can run the following commands manually or run the script [PROJECT_FOLDER/blockchain/scripts/installer.sh](scripts/install_packages.sh) to automatically install all required packages. You will be asked to reboot in the end to ensure that the ec2-user has permission to access Docker daemon. After you install all required packages, you can execute the script [PROJECT_FOLDER/blockchain/scripts/show_versions.sh](scripts/show_versions.sh) to display all installed packages' versions.
+Next, you can run the following commands manually or run the script [PROJECT_FOLDER/blockchain/scripts/install_packages.sh](scripts/install_packages.sh) to automatically install all required packages. You will be asked to reboot in the end to ensure that the ec2-user has permission to access Docker daemon. After you install all required packages, you can execute the script [PROJECT_FOLDER/blockchain/scripts/show_versions.sh](scripts/show_versions.sh) to display all installed packages' versions.
 
 1. Update packages on the system.  
    ```
@@ -172,15 +173,15 @@ References:
 
 2.  Select the created volume, right-click and select the “attach volume” option.
 
-3. Select the instance from the instance text box as shown below:
-![picture](img/attach_volume.png)
+3. Select the instance from the instance text box as shown below:   
+![picture](img/attach_volume.png)   
 
 4. Now, login to your ec2 instance and list the available disks using the following command. 
    ```
    lsblk
    ```
-   The above command will list the disk you attached to your instance.
-   ![picture](img/available_disks.png)
+   The above command will list the disk you attached to your instance.   
+   ![picture](img/available_disks.png)   
 
 
 5. Check if the volume has any data using the following command.
@@ -241,8 +242,8 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    /dev/xvdf       /blockchainvolume   xfs    defaults,nofail        0       2
    ```
-   Here is a sample /etc/fstab after adding the entry:
-   ![picture](img/fstab_sample.png)
+   Here is a sample /etc/fstab after adding the entry:   
+   ![picture](img/fstab_sample.png)   
    We mount the device `/dev/xvdf` to mount point `/blockchainvolume` and we use the xfs file system. We also use the defaults and nofail flags. We specify 0 to prevent the file system from being dumped, and we specify 2 to indicate that it is a non-root device.\
    **Note**:\
    If you ever boot your instance without this volume attached (for example, after moving the volume to another instance), the nofail mount option enables the instance to boot even if there are errors mounting the volume. Debian derivatives, including Ubuntu versions earlier than 16.04, must also add the nobootwait mount option.
@@ -268,8 +269,8 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    lsblk
    ```
-   Sample output:
-   ![picture](img/lsblk_sample.png)
+   Sample output:   
+   ![picture](img/lsblk_sample.png)   
    Now xvdf is mounted at `/blockchainvolume` in our ec2 instance.
 
 #### **Change the Default Location for Docker Volume Creation**
@@ -371,14 +372,14 @@ Executing this script will zip all important files generated during the creation
 
 Here is an example:
 
-**s3 bucket `btnblockchainbackup`**:
-![picture](img/s3_bucket_backup.png)
+**s3 bucket `btnblockchainbackup`**:   
+![picture](img/s3_bucket_backup.png)   
 
-**backup file in s3 bucket**:
-![picture](img/s3_backup_file.png)
+**backup file in s3 bucket**:   
+![picture](img/s3_backup_file.png)   
 
 
-## **Blockchain Network Restore**
+## **Blockchain Network Restoration**
 
 In the case we terminated the ec2 instance which host the blockchain network and client application but still have the EBS volume which contains the ledger, we are still able to restore the blockchain network(given that we have a backup of credentials). Here are the steps to take:
 
@@ -402,8 +403,8 @@ In the case we terminated the ec2 instance which host the blockchain network and
    ```
 4. After you unzip the file, you will see some directories in the same structure as the original directories `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. You need to move all the necessary files to its corresponding locations in `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. For examples, basic.tar.gz, all files except the yaml files in the directory `organizations` and all files in directory `wallet` .
 
-**sample unzipped files/directories**:
-![picture](img/unzipped_backup.png)
+**sample unzipped files/directories**:   
+![picture](img/unzipped_backup.png)   
 
 5. Since we use the backup files to restore the network, we will skip most of the steps in [ Blockchain Network Setup ](#markdown-header-blockchain-network-setup). The steps we will take are as follow:
    * Download docker images and binaries for Fabric v2.3.1 and Fabric CA v1.4.9.
@@ -474,7 +475,13 @@ export HFC_LOGGING='{"debug":"console"}''
 
 Add a record to blockchain. 
 
-**Request**:  
+**Request**:   
+Headers
+```
+{
+   'content-type': 'application/json'
+}
+```  
 Body (json):
 ```
 {
