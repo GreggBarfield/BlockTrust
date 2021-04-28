@@ -14,7 +14,7 @@ class RecordManagementContract extends Contract {
     async CreateRecord(ctx, data) {
 
         const record = {
-            data: data,
+            data: JSON.parse(data),
             created: new Date(),
         };
         const txID = ctx.stub.getTxID();
