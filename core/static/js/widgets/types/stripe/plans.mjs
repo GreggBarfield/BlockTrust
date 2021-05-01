@@ -5,12 +5,12 @@ export class PlansWidget extends Widget {
         super(frame);
     }
 
-    initType() {
+    async initType() {
         this.frame.innerHTML = "";
 
         this.inputs = {};
 
-        this.generate();
+        await this.generate();
     }
 
     async generate() {
@@ -39,7 +39,8 @@ export class PlansWidget extends Widget {
          let rowTag = document.createElement("tr");
          this.mainTableBody.appendChild(rowTag);
          let cowCalfFeaturesTD = document.createElement("td");
-         cowCalfFeaturesTD.innerHTML = "1.Feature <br/> 2.Feature <br/> 3.Feature <br/><br/> <h6>Price: $119.40 per year</h6>";
+         let {price} = await fetch("/stripe/price/basic").then(r => r.json());
+         cowCalfFeaturesTD.innerHTML = "1.Feature <br/> 2.Feature <br/> 3.Feature <br/><br/> <h6>Price: " + price + " per year</h6>";
          rowTag.appendChild(cowCalfFeaturesTD);
 
          let enterpriseFeaturesTD = document.createElement("td");

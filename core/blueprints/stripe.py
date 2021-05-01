@@ -20,9 +20,26 @@ def serve_stripe_test():
 
 @bp.route('/stripe/config', methods=['GET'])
 def serve_stripe_config():
-    return jsonify(
-        publishableKey=STRIPE_PUBLISHABLE_KEY
-    )
+    return  {
+        'publishableKey':STRIPE_PUBLISHABLE_KEY
+    }
+
+
+@bp.route('/stripe/price/<priceLookupKey>', methods=['GET'])
+def serve_stripe_price(priceLookupKey):
+    try:
+        if priceLookupKey == "basic":
+            price = stripe.Price.retrieve(
+                STRIPE_BASIC_PRICE,
+            )
+            print(price)  
+            return {
+                'price': "${:,.2f}".format(price['unit_amount']/100)
+            }
+        else:
+            return {'error':{'message': 'Incorrect price key'}}, 400    
+    except Exception as e:
+        return {'error':{'message': str(e)}}, 400
 
 
 #events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated

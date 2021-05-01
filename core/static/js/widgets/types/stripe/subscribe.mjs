@@ -5,15 +5,25 @@ export class SubscribeWidget extends Widget {
         super(frame);
     }
 
-    initType() {
+    async initType() {
         this.frame.innerHTML = "";
 
         this.inputs = {};
 
-        this.generate();
+        await this.generate();
     }
 
-    async generate() {
+    async generate() {     
+        const params = new URLSearchParams(window.location.search);
+        const priceLookupKey = params.get('price');
+        let priceHeader = document.createElement("h5")
+        priceHeader.className = "text-warning";
+        let {price} = await fetch("/stripe/price/" + priceLookupKey).then(r => r.json());
+        if(price) {
+          priceHeader.textContent = "You will be charged: " + price;
+        }
+        this.frame.append(priceHeader);
+
         this.form = document.createElement("form");
    
         let firstFormRow = document.createElement("div");
@@ -56,10 +66,7 @@ export class SubscribeWidget extends Widget {
         let cardElementDiv = document.createElement("div");
         cardElementDiv.id = "card-element";
         cardFormGroup.append(cardElementDiv);
-
-        const params = new URLSearchParams(window.location.search);
-        const priceLookupKey = params.get('price');
-      
+              
         // Initialize an instance of Stripe
         const {publishableKey} = await fetch("/stripe/config").then(r => r.json());
         const stripe = Stripe(publishableKey);
@@ -123,7 +130,7 @@ export class SubscribeWidget extends Widget {
                   <span class="sr-only">Loading...</span>\
               </div>\
           </div>';
-        this.showError("Subscribing... please wait.");
+        this.submitButton.textContent = "Subscribing..."
 
         var error, paymentMethod, customer, subscription, paymentIntent;
         // Tokenize the payment method.
@@ -183,7 +190,7 @@ export class SubscribeWidget extends Widget {
 
             switch(subscription.status) {
                 case 'active':
-                    this.showError("Success!");
+                    this.submitButton.textContent = "Subscribed! Redirecting…";
                     break;
                 case 'incomplete':
                     this.showError("Please confirm the payment.");
@@ -199,7 +206,7 @@ export class SubscribeWidget extends Widget {
                     if(error) {
                         this.showError(error.message);
                     } else {
-                        this.showError("Success!");
+                        this.submitButton.textContent = "Subscribed! Redirecting…";
                     }
                     break;
                 default:
