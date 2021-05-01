@@ -155,6 +155,6 @@ export class SearchEIDsWidget extends Widget {
             }
             
             this.results.append(mainTable);
-        }          
+        }
     }
 }

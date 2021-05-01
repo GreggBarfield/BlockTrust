@@ -423,18 +423,18 @@ class Matches:
             One row indicating the count
         """
         return self._db.exec_frag_d(
+            frag(
+                """
+                SELECT count(eid) as 'count'
+                FROM matches
+                """,
+                Matches._left_join_visibility,
                 frag(
-                    """
-                    SELECT count(eid) as 'count'
-                    FROM matches
-                    """,
-                    Matches._left_join_visibility,
-                    frag(
-                        "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
-                        eid_number=eid_number
-                    )
-                ),
-             )[0]['count']
+                    "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
+                    eid_number=eid_number
+                )
+            ),
+        )[0]['count']
    
     def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
         """Gets matches data associated with an visual id if visible.
@@ -447,25 +447,25 @@ class Matches:
             All the matches table rows containing the visual id matches
         """
         return self._db.execute_d(
-                    """
-                        SELECT matches.*
-                        FROM matches
-                        LEFT JOIN account_links on matches.account_link=account_links.id
-                        LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
-                        WHERE matches.type=%(visual_id_type)s 
-                        AND (
-                            (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
-                            OR 
-                            (matches.account=%(account_id)s)
-                            )
-                        AND matches.data=%(visual_id)s
-                    """,
-                    {
-                        "visual_id_type": match_types_by_name["Visual ID"],
-                        "account_id": account_id,
-                        "visual_id": visual_id
-                    }                        
-                )
+            """
+                SELECT matches.*
+                FROM matches
+                LEFT JOIN account_links on matches.account_link=account_links.id
+                LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
+                WHERE matches.type=%(visual_id_type)s 
+                AND (
+                    (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
+                    OR 
+                    (matches.account=%(account_id)s)
+                    )
+                AND matches.data=%(visual_id)s
+            """,
+            {
+                "visual_id_type": match_types_by_name["Visual ID"],
+                "account_id": account_id,
+                "visual_id": visual_id
+            }
+        )
 
     @staticmethod
     def _load_rows(rows):
