@@ -473,7 +473,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
-                        videos: that.fileEditor.getFileIDs(),
+                        videos: that.VideoEditor.getLinks(),
                     },
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),

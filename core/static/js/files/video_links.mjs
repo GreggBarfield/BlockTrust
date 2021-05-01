@@ -12,6 +12,7 @@ export class VideoSession{
             for (const linkID of linkIDs) {
                 let link_obj = {
                     "id": linkID,
+                    "name": "",
                     "uploaded": true
                 };
                 if (linkID in linkAuths) {
@@ -37,7 +38,7 @@ export class VideoSession{
         this.addURLButton.type = "button";
         this.addURLButton.addEventListener("click", ()=> {
            
-            this.promptURLBox(this.links,"23456",this);
+            this.promptURLBox(this.links,"23456");
 
         });
 
@@ -48,20 +49,21 @@ export class VideoSession{
         }
 
     }
-    getFileIDs() {
+    getLinks() {
         // Gets all uploaded and not removed file IDs
         let result = [];
         for (const link of this.links) {
-            if ("removed" in link && link["removed"])
-                continue;
-            if (!("uploaded" in link)) {
-                throw "Uploaded link already exist";
-            }
-            if (!link["uploaded"])
-                continue;
-            if (!("id" in link) || link["id"] === undefined || link["id"] === null)
-                continue;
-            result.push(link["id"]);
+            // if ("removed" in link && link["removed"])
+            //     continue;
+            // if (!("uploaded" in link)) {
+            //     throw "Uploaded link already exist";
+            // }
+            // if (!link["uploaded"])
+            //     continue;
+            // // if (!("id" in link) || link["id"] === undefined || link["id"] === null)
+            // //     continue;
+            // console.log(link);
+            result.push(link["name"]);
         }
         return result;
     }
@@ -121,7 +123,7 @@ export class VideoSession{
             }
         }
     }
-    promptURLBox(files, toAccountName=null, obj){
+    promptURLBox(files, id=null){
 
         // let toStr = toAccountName;
 
@@ -160,7 +162,7 @@ export class VideoSession{
 
         submitButton.addEventListener("click", ()=>{
             let file_obj = {
-                "id": toAccountName,
+                "id": id,
                 "name": textArea.value,
                 "uploaded": false
             };
@@ -169,7 +171,7 @@ export class VideoSession{
         
             // obj.updateTable();
             infoModal.close();
-            obj.updateTable();
+            this.updateTable();
         
         });
         
