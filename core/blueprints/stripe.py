@@ -1,5 +1,5 @@
 from flask import (
-    Flask, Blueprint, jsonify, request, g
+    Flask, Blueprint, request, g
 )
 import stripe
 import json
@@ -84,7 +84,7 @@ def serve_stripe_subscription():
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
-    return jsonify({'status': 'Success'})
+    return {'status': 'Success'}
 
 
 def get_account_of_stripe_customer(event):
@@ -109,12 +109,12 @@ def create_customer():
                 g.account.id(),
                 stripe_customer_id=customer.id
             )
-            resp = jsonify(customer=customer)
+            resp = {'customer':customer}
             return resp
         else:
-            return jsonify(error={'message': "No account selected"}), 400
+            return {'error':{'message': "No account selected"}}, 400
     except Exception as e:
-        return jsonify(error={'message': str(e)}), 400
+        return {'error':{'message': str(e)}}, 400
 
 
 @bp.route('/stripe/create-subscription', methods=['POST'])
@@ -136,8 +136,8 @@ def create_subscription():
                 }],
                 expand=['latest_invoice.payment_intent'],
             )
-            return jsonify(subscription=subscription)
+            return {'subscription':subscription}
         else:
-            return jsonify(error={'message': 'No or incorrect price selected'}), 400
+            return {'error':{'message': 'No or incorrect price selected'}}, 400
     except Exception as e:
-        return jsonify(error={'message': str(e)}), 400
+        return {'error':{'message': str(e)}}, 400
