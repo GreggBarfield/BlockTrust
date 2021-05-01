@@ -58,6 +58,7 @@ export class SearchEIDsWidget extends Widget {
 
         this.results = document.createElement("div");
         this.results.style.display = "none";
+        this.results.style.marginLeft = "-0.5rem";
         this.frame.append(this.results);
     }
 
@@ -73,10 +74,6 @@ export class SearchEIDsWidget extends Widget {
             this.showError("Please enter a EID number.");
             return;
         }
-        else if(this.inputs.eidNumber.value.length != 15) {
-            this.showError("EID number must have exactly 15 digits.");
-            return;
-        }
 
         this.resultsHr.style.display = "block";
         this.results.style.display = "block";
@@ -88,7 +85,7 @@ export class SearchEIDsWidget extends Widget {
             </div>';
       
         this.getData(
-            "search_by_eid_if_visible",  
+            "search_by_eid_and_visual_id",  
             {
                 search: {
                     eid: parseInt(this.inputs.eidNumber.value)
@@ -104,9 +101,60 @@ export class SearchEIDsWidget extends Widget {
     }
 
     handleSearchResults(data) {
-        if(data.matches === 0)
+        if(data.matches.length == 0)
             this.results.innerHTML = "<div style='text-align:center;'>0 results</div>";
-        else
-            window.location.href = location.protocol + "//" + location.host + "/dashboard/animals/" + this.inputs.eidNumber.value;
+        else if(data.matches.length == 1) {  
+            window.location.href = location.protocol + "//" + location.host + "/dashboard/animals/" + data.matches[0].eid;
+        }
+        else {
+            this.results.innerHTML = "";
+
+            let mainTable = document.createElement("table");
+            mainTable.className = "table table-bordered nowrap";
+
+            // Header
+            let mainTableHead = document.createElement("thead");
+            mainTable.appendChild(mainTableHead);
+    
+            let mainTableHeadRow = document.createElement("tr");
+            mainTableHead.appendChild(mainTableHeadRow);
+            const headers = ["EID number", "Visual Id", "Created Time", ""];
+            for (const headerText of headers) {
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                mainTableHeadRow.appendChild(th);
+            }
+
+             let mainTableBody = document.createElement("tbody");
+             mainTable.appendChild(mainTableBody);
+
+            for(const match of data.matches) {
+                let rowTag = document.createElement("tr");
+                mainTableBody.appendChild(rowTag);
+
+                let tdEID = document.createElement("td");
+                tdEID.innerHTML = match.eid;
+                rowTag.appendChild(tdEID);
+
+                let tdvisualID = document.createElement("td");
+                tdvisualID.innerHTML = match.data;
+                rowTag.appendChild(tdvisualID);          
+
+                let tdCreated = document.createElement("td");
+                let d = new Date(parseInt(match.created)*1000);
+                tdCreated.innerHTML = d.toLocaleString();
+                rowTag.appendChild(tdCreated);
+
+                let tdSelect = document.createElement("td");
+                rowTag.appendChild(tdSelect);
+                let btnSelect = document.createElement("a");
+                btnSelect.className = "btn btn-info btn-md";
+                btnSelect.setAttribute("href", "/dashboard/animals/" + match.eid);
+                btnSelect.textContent = "Select";
+                tdSelect.appendChild(btnSelect);
+            }
+            
+            this.results.append(mainTable);
+        }          
     }
 }
