@@ -457,7 +457,7 @@ class Matches:
                     (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
                     OR 
                     (matches.account=%(account_id)s)
-                    )
+                )
                 AND matches.data=%(visual_id)s
             """,
             {
