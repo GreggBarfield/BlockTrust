@@ -56,16 +56,16 @@ export class VideoSession{
         // Gets all uploaded and not removed file IDs
         let result = [];
         for (const link of this.links) {
-            // if ("removed" in link && link["removed"])
-            //     continue;
-            // if (!("uploaded" in link)) {
-            //     throw "Uploaded link already exist";
-            // }
-            // if (!link["uploaded"])
-            //     continue;
-            // // if (!("id" in link) || link["id"] === undefined || link["id"] === null)
-            // //     continue;
-            // console.log(link);
+            if ("removed" in link && link["removed"])
+                continue;
+            if (!("uploaded" in link)) {
+                throw "Uploaded link already exist";
+            }
+            if (!link["uploaded"])
+                continue;
+            if (!("embed" in link) || link["embed"] === undefined || link["embed"] === null)
+                continue;
+          
             result.push([link["platform"],link["embed"]]);
         }
         return result;
