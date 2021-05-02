@@ -11,12 +11,15 @@ export class VideoSession{
         if (linkIDs !== null) {
             for (const linkID of linkIDs) {
                 let link_obj = {
-                    "id": linkID,
-                    "name": linkID,
-                    "uploaded": true
+                    
+                    "platform": linkID[0],
+                   
+                    "embed":linkID[1],
+                    "uploaded": false
+                    
                 };
                 if (linkID in linkAuths) {
-                    link_obj["name"] = linkAuths[linkID]["name"];
+                    link_obj["link"] = linkAuths[linkID]["link"];
                 }
                 this.links.push(link_obj);
             }
@@ -29,7 +32,7 @@ export class VideoSession{
         this.table = new Table();
         this.table.attach(this.linkBox);
 
-        this.table.setHeader(["ID", "Link", "Options"]);
+        this.table.setHeader(["Platform", "Link", "Options"]);
         
         this.updateTable();
         this.addURLButton = document.createElement("button");
@@ -38,7 +41,7 @@ export class VideoSession{
         this.addURLButton.type = "button";
         this.addURLButton.addEventListener("click", ()=> {
            
-            this.promptURLBox(this.links,"23456");
+            this.promptURLBox(this.links);
 
         });
 
@@ -63,7 +66,7 @@ export class VideoSession{
             // // if (!("id" in link) || link["id"] === undefined || link["id"] === null)
             // //     continue;
             // console.log(link);
-            result.push(link["name"]);
+            result.push([link["platform"],link["embed"]]);
         }
         return result;
     }
@@ -83,13 +86,13 @@ export class VideoSession{
     }
     updateTable() {
         for (let link of this.links) {
-            let linkID = "Not Uploaded";
-            if ("id" in link && link.uploaded == true) {
-                linkID = link.id;
+            let linkID = link.platform;
+            if ("platform" in link && link.uploaded == true) {
+                linkID = link.platform;
             }
             let linkName = "";
-            if ("name" in link) {
-                linkName = link.name;
+            if ("embed" in link) {
+                linkName = link.embed;
             }
             if (!("row" in link)) {
                 
@@ -123,7 +126,7 @@ export class VideoSession{
             }
         }
     }
-    promptURLBox(files, id=null){
+    promptURLBox(files){
 
         // let toStr = toAccountName;
 
@@ -160,10 +163,27 @@ export class VideoSession{
         submitButton.className = "btn btn-primary";
         infoModal.getFooter().append(submitButton);
 
+       
+
+
+
         submitButton.addEventListener("click", ()=>{
+            var tag = textArea.value.split("/");
+            console.log(tag);
+            var platform="N/A";
+            var id="";
+            if(tag[2].includes("youtube")){
+                platform="youtube";
+                id=tag[tag.length-1].substring(tag[tag.length-1].indexOf("=")+1,tag[tag.length-1].indexOf("&"))
+            }
+            else{
+                platform="vimeo";
+                id=tag[tag.length-1]
+    
+            }
             let file_obj = {
-                "id": id,
-                "name": textArea.value,
+                "platform": platform,
+                "embed":id,
                 "uploaded": false
             };
             files.push(file_obj);

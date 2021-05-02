@@ -344,11 +344,20 @@ export class SalesGroupViewer {
             embed.className ="embed-responsive embed-responsive-16by9";
             thumb.append(embed);
             
-            // let videos = this.data.reported.videos;
-
+            let videos = this.data.reported.videos;
             let link = document.createElement("iframe");
             link.type="text/html";
-            link.src = "https://www.youtube.com/embed/s_9klp0Qar8";
+            for( let video of videos){
+                if(video[0]=="youtube"){
+                    link.src = "https://www.youtube.com/embed/"+video[1];
+                }
+                if(video[0]=="vimeo"){
+                    link.src = "https://player.vimeo.com/video/"+video[1];
+                }
+            }
+
+            
+           
             embed.append(link);
             videoNavLink.onclick = videoOnClick();
             photoNavLink.onclick = photoOnClick();
