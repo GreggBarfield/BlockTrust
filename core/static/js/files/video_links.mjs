@@ -127,18 +127,6 @@ export class VideoSession{
         }
     }
     promptURLBox(files){
-
-        // let toStr = toAccountName;
-
-        // if (toStr === null || toStr == undefined) {
-        //     if (typeof toAccount === "number") {
-        //         toStr = "Account ID " + toAccount;
-        //     }
-        //     else {
-        //         throw "Needs to know who to send the message to";
-        //     }
-        // }
-
         let infoModal = new InfoModal("Adding video link(s) ");
         let modalBody = infoModal.getBody();
 
@@ -150,7 +138,7 @@ export class VideoSession{
         form.append(formGroup);
 
         let label = document.createElement("label");
-        label.textContent = "Link(s):";
+        label.textContent = "Use , to separate links";
         formGroup.append(label);
 
         let textArea = document.createElement("textarea");
@@ -163,37 +151,40 @@ export class VideoSession{
         submitButton.className = "btn btn-primary";
         infoModal.getFooter().append(submitButton);
 
-       
-
-
-
         submitButton.addEventListener("click", ()=>{
-            var tag = textArea.value.split("/");
-            console.log(tag);
-            var platform="N/A";
-            var id="";
-            if(tag[2].includes("youtube")){
-                platform="youtube";
-                id=tag[tag.length-1].substring(tag[tag.length-1].indexOf("=")+1,tag[tag.length-1].indexOf("&"))
-            }
-            else{
-                platform="vimeo";
-                id=tag[tag.length-1]
-    
-            }
-            let file_obj = {
-                "platform": platform,
-                "embed":id,
-                "uploaded": false
-            };
-            files.push(file_obj);
-            console.log(files);
-        
-            // obj.updateTable();
+            handleUrlInput(textArea.value);
             infoModal.close();
             this.updateTable();
         
         });
+        //allow to multiple links
+        function handleUrlInput(links){
+            var urls= links.split(",");
+            console.log(urls);
+            var tag=null
+            var platform="N/A";
+            var id="";
+            for( const url of urls){
+               tag = url.split("/");
+               if(tag[2].includes("youtube")){
+                    platform="youtube";
+                    id=tag[tag.length-1].substring(tag[tag.length-1].indexOf("=")+1,tag[tag.length-1].indexOf("&"))
+                }
+                else{
+                    platform="vimeo";
+                    id=tag[tag.length-1]
+        
+                }
+                let file_obj = {
+                    "platform": platform,
+                    "embed":id,
+                    "uploaded": false
+                };
+                files.push(file_obj);
+                console.log(files);
+            }
+
+        }
         
     }
 }
