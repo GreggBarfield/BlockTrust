@@ -14,7 +14,12 @@ app.use(bodyParser.urlencoded({
 
 const channelName = 'mychannel';
 const chaincodeName = 'basic';
+var network;
+async function connect(){
+  network = await connectNetwork(channelName);
+}
 
+connect();
 
 // create a record and save it into the blockchain
 app.post('/api/add-record', async function (req, res) {
@@ -24,7 +29,7 @@ app.post('/api/add-record', async function (req, res) {
       res.sendStatus(400)
     }
 
-    const network = await connectNetwork(channelName);
+    // const network = await connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
     let tx = await contract.submitTransaction('CreateRecord', JSON.stringify(req.body.data));
     res.json({
@@ -42,7 +47,7 @@ app.post('/api/add-record', async function (req, res) {
 
 app.get('/api/get-record/:id', async function (req, res) {
   try {
-    const network = await connectNetwork(channelName);
+    // const network = await connectNetwork(channelName);
     const contract = network.getContract(chaincodeName);
     const result = await contract.evaluateTransaction('ReadRecord', req.params.id.toString());
     let response = JSON.parse(result.toString());
@@ -57,7 +62,7 @@ app.get('/api/get-record/:id', async function (req, res) {
 
 app.get('/api/get-block/:txid', async function (req, res) {
   try {
-    const network = await connectNetwork(channelName);
+    // const network = await connectNetwork(channelName);
     const contract = network.getContract('qscc');// Query System Chaincode
     const resultByte = await contract.evaluateTransaction(
       'GetBlockByTxID',
@@ -76,7 +81,7 @@ app.get('/api/get-block/:txid', async function (req, res) {
 
 app.get('/api/get-transaction/:txid', async function (req, res) {
   try {
-    const network = await connectNetwork(channelName);
+    // const network = await connectNetwork(channelName);
     const contract = network.getContract('qscc');
     const resultByte = await contract.evaluateTransaction(
       'GetTransactionByID',
