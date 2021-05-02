@@ -12,7 +12,7 @@ export class VideoSession{
             for (const linkID of linkIDs) {
                 let link_obj = {
                     "id": linkID,
-                    "name": "",
+                    "name": linkID,
                     "uploaded": true
                 };
                 if (linkID in linkAuths) {

@@ -320,7 +320,7 @@ export class EditSalesGroupWidget extends Widget {
         videoGroup.append(videoLabel);
 
         let videoText = document.createElement("div");
-        this.VideoEditor = new VideoSession({}, videoText, null || [], null);
+        this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
         videoGroup.append(videoText);
         // Comments
 

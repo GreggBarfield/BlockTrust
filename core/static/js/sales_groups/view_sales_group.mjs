@@ -269,6 +269,8 @@ export class SalesGroupViewer {
             photoNavLink.setAttribute("data-toggle","tab");
             photoNavLink.setAttribute("aria-controls","home");
             photoNavLink.setAttribute("aria-selected","true");
+            
+            
             photoNav.append(photoNavLink);
 
             let videoNav = document.createElement("li");
@@ -283,7 +285,8 @@ export class SalesGroupViewer {
             videoNavLink.setAttribute("role","tab");
             videoNavLink.setAttribute("data-toggle","tab");
             videoNavLink.setAttribute("aria-controls","home");
-            videoNavLink.setAttribute("aria-selected","true");
+            videoNavLink.setAttribute("aria-selected","false");
+            
             videoNav.append(videoNavLink);
 
             let mediaContent = document.createElement("div");
@@ -322,6 +325,57 @@ export class SalesGroupViewer {
             }
 
             new BootstrapCarousel(images, img);
+
+            
+
+            //Video tab
+            let video = document.createElement("div");
+            video.className = "tab-pane fade";
+            video.id = "video";
+            video.setAttribute("role","tabpanel");
+            video.setAttribute("aria-labelledby","video");
+            mediaContent.append(video);
+
+            let thumb = document.createElement("div");
+            thumb.className ="thumb";
+            video.append(thumb);
+
+            let embed = document.createElement("div");
+            embed.className ="embed-responsive embed-responsive-16by9";
+            thumb.append(embed);
+            
+            // let videos = this.data.reported.videos;
+
+            let link = document.createElement("iframe");
+            link.type="text/html";
+            link.src = "https://www.youtube.com/embed/s_9klp0Qar8";
+            embed.append(link);
+            videoNavLink.onclick = videoOnClick();
+            photoNavLink.onclick = photoOnClick();
+            function photoOnClick(){
+           
+                photoNavLink.className="nav-link text-uppercase active";
+                photo.className = "tab-pane fade active show";
+                photoNavLink.setAttribute("aria-selected","true");
+
+                videoNavLink.className="nav-link text-uppercase";
+                videoNavLink.setAttribute("aria-selected","false");
+                video.className = "tab-pane fade";
+    
+            }
+
+            function videoOnClick() {
+           
+                videoNavLink.className="nav-link text-uppercase active";
+                video.className = "tab-pane fade active show";
+                videoNavLink.setAttribute("aria-selected","true");
+
+                photoNavLink.className="nav-link text-uppercase";
+                photoNavLink.setAttribute("aria-selected","false");
+                photo.className = "tab-pane fade";
+    
+            }
+
 
 
         }
