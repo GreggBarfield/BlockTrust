@@ -15,7 +15,8 @@ export class VideoSession{
                     "platform": linkID[0],
                    
                     "embed":linkID[1],
-                    "uploaded": false
+                    "uploaded": false,
+                    "removed":false
                     
                 };
                 if (linkID in linkAuths) {
@@ -55,16 +56,19 @@ export class VideoSession{
     getLinks() {
         // Gets all uploaded and not removed file IDs
         let result = [];
+        console.log(this.links)
         for (const link of this.links) {
-            if ("removed" in link && link["removed"])
+            console.log(link["removed"]);
+
+            if (link["removed"])
                 continue;
-            if (!("uploaded" in link)) {
-                throw "Uploaded link already exist";
-            }
-            if (!link["uploaded"])
-                continue;
-            if (!("embed" in link) || link["embed"] === undefined || link["embed"] === null)
-                continue;
+            // if (!("uploaded" in link)) {
+            //     throw "Uploaded link already exist";
+            // }
+            // if (!link["uploaded"])
+            //     continue;
+            // if (!("embed" in link) || link["embed"] === undefined || link["embed"] === null)
+            //     continue;
           
             result.push([link["platform"],link["embed"]]);
         }
@@ -76,12 +80,12 @@ export class VideoSession{
         this.frame.append(this.linkBox);
     }
     remove(link) {
-        if ("removed" in link) {
+        // if ("removed" in link) {
             link["removed"] = !link["removed"];
-        }
-        else {
-            link["removed"] = true;
-        }
+        // }
+        // else {
+        //     link["removed"] = true;
+        // }
         return link["removed"];
     }
     updateTable() {
@@ -118,7 +122,7 @@ export class VideoSession{
             this.table.setValue(link["row"], 0, linkID);
             this.table.setValue(link["row"], 1, linkName);
 
-            if ("removed" in link && link["removed"]) {
+            if (link["removed"]) {
                 link["row"].style.textDecoration = "line-through";
             }
             else {
@@ -178,7 +182,8 @@ export class VideoSession{
                 let file_obj = {
                     "platform": platform,
                     "embed":id,
-                    "uploaded": false
+                    "uploaded": false,
+                    "removed":false
                 };
                 files.push(file_obj);
                 console.log(files);

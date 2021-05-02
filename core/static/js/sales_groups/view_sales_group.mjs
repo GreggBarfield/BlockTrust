@@ -345,20 +345,22 @@ export class SalesGroupViewer {
             thumb.append(embed);
             
             let videos = this.data.reported.videos;
-            let link = document.createElement("iframe");
-            link.type="text/html";
+            var videoUrls=[];
+            // let link = document.createElement("iframe");
+            // link.type="text/html";
             for( let video of videos){
                 if(video[0]=="youtube"){
-                    link.src = "https://www.youtube.com/embed/"+video[1];
+                    videoUrls.push( "https://www.youtube.com/embed/"+video[1]);
                 }
                 if(video[0]=="vimeo"){
-                    link.src = "https://player.vimeo.com/video/"+video[1];
+                    videoUrls.push(  "https://player.vimeo.com/video/"+video[1]);
                 }
             }
+            console.log(videoUrls);
 
             
            
-            embed.append(link);
+            // embed.append(link);
             videoNavLink.onclick = videoOnClick();
             photoNavLink.onclick = photoOnClick();
             function photoOnClick(){
