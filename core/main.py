@@ -27,6 +27,7 @@ from .database.database import Database
 from .blueprints import dashboard
 from .blueprints import outside
 from .blueprints import widgets
+from .blueprints import stripe
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth
@@ -77,6 +78,7 @@ def teardown_request(err):
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
+app.register_blueprint(stripe.bp)
 
 if debug_mode:
     app.run(
