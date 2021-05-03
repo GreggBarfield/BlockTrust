@@ -324,7 +324,7 @@ export class SalesGroupViewer {
                 }
             }
 
-            new BootstrapCarousel(images, img);
+            new BootstrapCarousel(images, img,"img");
 
             
 
@@ -346,8 +346,7 @@ export class SalesGroupViewer {
             
             let videos = this.data.reported.videos;
             var videoUrls=[];
-            // let link = document.createElement("iframe");
-            // link.type="text/html";
+            
             for( let video of videos){
                 if(video[0]=="youtube"){
                     videoUrls.push( "https://www.youtube.com/embed/"+video[1]);
@@ -359,7 +358,7 @@ export class SalesGroupViewer {
             console.log(videoUrls);
 
             
-           
+            new BootstrapCarousel(videoUrls, embed,"video");
             // embed.append(link);
             videoNavLink.onclick = videoOnClick();
             photoNavLink.onclick = photoOnClick();
