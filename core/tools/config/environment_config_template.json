@@ -34,5 +34,8 @@
     },
     "stripe": {
         "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR"
+    },
+    "blockchain": {
+        "endpoint": "18.217.17.210:3000"
     }
 }

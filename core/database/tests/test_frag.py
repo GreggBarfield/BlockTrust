@@ -1,6 +1,6 @@
 from ..frag import (
     frag, build_values, _frag_values, frag_insert_into,
-    frag_insert_single_where
+    frag_insert_single_where, frag_insert_ignore
 )
 
 
@@ -87,5 +87,17 @@ def test_frag():
             "INSERT INTO testing_unique ( v1,v2 ) SELECT %s,%s WHERE (SELECT COUNT(*)"
             " FROM testing_unique AS t2 WHERE t2.v1=%s AND t2.v2=%s) = 0",
             [1, 3345, 1, 3345]
+        )
+    )
+
+    assert (
+        frag_insert_ignore(
+            "testing_unique",
+            {"v1": 1, "v2": 3345}
+        )
+        ==
+        (
+            "INSERT INTO testing_unique ( v1,v2 ) SELECT %s,%s ON DUPLICATE KEY UPDATE v1=v1",
+            [1, 3345]
         )
     )

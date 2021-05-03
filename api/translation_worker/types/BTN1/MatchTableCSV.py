@@ -5,43 +5,52 @@ from .medical_helper import format_data
 from core.sectors import sectors_by_name
 
 
-def block_key(insert):
-    return None
+from ...abstract_type import AbstractType
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
-    fields = insert["fields"]
-    eid = int(fields["eid"])  # This might fail!
-    account = insert["account"]
+class MatchTableCSVType(AbstractType):
 
-    sectors = ["cc", "fd", "pk", "au"]
-    sectors_by_abbreviation = {
-        "au": "Auction House",
-        "cc": "Cow-Calf",
-        "fd": "Feedlot",
-        "pk": "Packer"
-    }
+    NAMESPACE = "BTN1"
+    TYPE = "MatchTableCSV"
 
-    for sector in sectors:
-        lat = fields[sector+"_lat"]
-        lon = fields[sector+"_long"]
-        date = fields[sector+"_date"]
-        company = fields[sector+"_name"].strip()
+    def block_key(self):
+        return None
 
-        if company == "":
-            return
+    def handle(self):
+        db = self.db
+        insert = self.insert
+        fields = insert["fields"]
+        eid = int(fields["eid"])  # This might fail!
+        account = insert["account"]
 
-        db.matches.types.insert_sighting(
-            eid=eid,
-            time=all_to_unix(date),
-            lat=lat,
-            lon=lon,
-            account=account,
-            account_link=(
-                db.account_links.get_by_company(
-                    company,
-                    insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
-                    insert=True
-                )[0].id()
-            )
-        )
+        sectors = ["cc", "fd", "pk", "au"]
+        sectors_by_abbreviation = {
+            "au": "Auction House",
+            "cc": "Cow-Calf",
+            "fd": "Feedlot",
+            "pk": "Packer"
+        }
+
+        for sector in sectors:
+            lat = fields[sector+"_lat"]
+            lon = fields[sector+"_long"]
+            date = fields[sector+"_date"]
+            company = fields[sector+"_name"].strip()
+
+            if company == "":
+                return
+
+            self.emit(db.matches.factory.create_sighting(
+                eid=eid,
+                time=all_to_unix(date),
+                lat=lat,
+                lon=lon,
+                account_id=account,
+                account_link_id=(
+                    db.account_links.get_by_company(
+                        company,
+                        insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
+                        insert=True
+                    )[0].id()
+                )
+            ))

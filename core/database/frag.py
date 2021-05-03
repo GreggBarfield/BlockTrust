@@ -68,6 +68,46 @@ def frag_insert_into(table_name, values):
     )
 
 
+def frag_insert_ignore(table_name, row):
+    """Generates a full INSERT INTO with a discard on duplicates.
+
+    DO NOT pass dictionaries directly to values, always generate the dictionary
+        right at the frag_insert_ignore or you risk injections!
+
+    Params:
+        table_name: The table name to insert into
+        row: A dictionary definining the format of the insert
+
+    Returns:
+        frag return value
+    """
+    if not isinstance(row, dict):
+        raise DebugException("Row should be a dict")
+
+    columns = [col for col in row]
+    values = [row[col] for col in columns]
+
+    if len(values) == 0:
+        raise DebugException("Row must be significant")
+
+    return frag(
+        "INSERT INTO",
+        table_name,
+        frag(
+            "(",
+            ','.join(columns),
+            ")"
+        ),
+        frag(
+            "SELECT",
+            (','.join(('%s' for _ in values)), values)
+        ),
+        frag(
+            "ON DUPLICATE KEY UPDATE " + columns[0] + "=" + columns[0]
+        )
+    )
+
+
 def frag_insert_single_where(table_name, row, where_frag):
     """Generates a full insert_into with a WHERE clause.
 

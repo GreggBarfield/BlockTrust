@@ -1,6 +1,7 @@
 from copy import deepcopy
 from ...match_types import match_types_by_id
 
+
 class AnimalException(Exception):
     """Generic animal exception."""
 
@@ -49,25 +50,9 @@ class Animal:
         return self._eid
 
     def matches(self):
-        """Gets animal Match(s)
+        """Gets animal match rows
 
         Returns:
-            A (possibly empty) list of Match(s)
+            A (possibly empty) list of match rows
         """
         return self._matches
-
-    def data(self, type_id):
-        """Get a type's data by ID.
-
-        Returns:
-            The type's data, or None.
-        """
-        return self._matches_by_type[type_id] if type_id in self._matches_by_type else None
-
-    def match(self, type_id):
-        """Get a type's Match object by ID.
-
-        Returns:
-            The type's Match object, or None.
-        """
-        return self._matches_by_type[type_id] if type_id in self._matches_by_type else None

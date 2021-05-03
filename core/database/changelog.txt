@@ -164,3 +164,8 @@ ADD COLUMN `stripe_customer_id` VARCHAR(127) NULL AFTER `manual_paid`;
 /* Rohan Sureshkumar 3/27/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid`),1,0)) VIRTUAL AFTER `manual_paid`;
+
+/* Evan Krohn 4/27/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_record` VARCHAR(64) NULL AFTER `data`,
+ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_txid`;

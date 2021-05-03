@@ -9,7 +9,7 @@ statuses_by_id = {
     1: "Done",
     2: "Blocked",
     3: "Running",
-    4: "Bad Namespace",
+    4: "Bad Namespace",  # (not used)
     5: "Bad Type",
     6: "Exception"
 }

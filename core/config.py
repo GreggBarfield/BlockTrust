@@ -57,3 +57,6 @@ INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+
+BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
+BLOCKCHAIN_TRANSLATION_WORKER_UPLOADS = config_file["blockchain"]["translation_worker_uploads"]

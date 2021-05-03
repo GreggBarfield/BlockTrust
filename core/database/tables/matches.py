@@ -1,8 +1,7 @@
 import time as time_module
 import json
 from ..frag import frag, frag_insert_into, frag_insert_single_where
-from ..objects.match import Match, MatchException
-from .match_types import MatchTypes
+from ..objects.match import Match, MatchException, MatchFactory
 from core.match_types import match_types_by_name
 
 
@@ -41,7 +40,7 @@ class Matches:
     """
 
     def __init__(self, db):
-        self.types = MatchTypes(self)
+        self.factory = MatchFactory(self)
         self._db = db
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
@@ -88,7 +87,7 @@ class Matches:
             ljoin_account_links: Whether to left join account links
 
         Returns:
-            A list of unsorted, ungrouped Match objects (possibly empty)
+            A list of unsorted, ungrouped match rows (possibly empty)
 
             No duplicates.
         """
@@ -121,7 +120,7 @@ class Matches:
         ))
 
     def insert(
-        self, eid, type_int, data=None, account=None, account_link=None,
+        self, eid, type_int, bc_hash, bc_record, data=None, account=None, account_link=None,
         lat=None, lon=None, time=None, raw_identifier=None
     ):
         """Insert a new row into matches.
@@ -129,6 +128,8 @@ class Matches:
         Params:
             eid: The animal ID, int (required)
             type_int: The match type, int (required)
+            bc_hash: The match hash (used to check duplicates and check blockchain) (required)
+            bc_record: The match record (used to check blockchain) (required)
             data: The match data (optional)
                 If None is provided (default), NULL is inserted
                 Else it is json-encoded and put in the record
@@ -155,45 +156,57 @@ class Matches:
             "lon": lon,
             "time": time,
             "created": int(time_module.time()),
-            "raw_identifier": raw_identifier
+            "raw_identifier": raw_identifier,
+            "bc_hash": bc_hash,
+            "bc_record": bc_record
         }
 
+        # TODO: Deadlocks on index eid_lookup when there are a lot of overlaps
         self._db.exec_frag(
             frag_insert_single_where(
                 'matches',
                 row,
                 frag(
                     "(",
-                    frag(
+                    frag(  # Checking for duplicates.
                         "SELECT COUNT(*) FROM matches",
                         "WHERE",
-                        "eid<=>:eid",
-                        "AND",
-                        "type<=>:type",
-                        "AND",
-                        "data<=>CAST(:data AS JSON)",
-                        "AND",
                         "account<=>:account",
                         "AND",
                         "account_link<=>:account_link",
                         "AND",
-                        "lat<=>:lat",
+                        "bc_hash<=>:bc_hash",
                         "AND",
-                        "lon<=>:lon",
-                        "AND",
-                        "time<=>:time",
+                        "eid<=>:eid",
                         eid=row["eid"],
-                        type=row["type"],
-                        data=row["data"],
                         account=row["account"],
                         account_link=row["account_link"],
-                        lat=row["lat"],
-                        lon=row["lon"],
-                        time=row["time"]
+                        bc_hash=row["bc_hash"]
                     ),
                     ") = 0",
                 )
             )
+        )
+
+    def insert_match_object(self, match_object: Match):
+        """Inserts a match object.
+
+        'id' is ignored in the inserted match (new 'id' is generated).
+
+        Params:
+            match_object: A Match() object.
+        """
+        self.insert(
+            eid=match_object.eid,
+            type_int=match_object.type_id,
+            data=match_object.data,
+            account=match_object.account_id,
+            account_link=match_object.account_link_id,
+            lat=match_object.lat,
+            lon=match_object.lon,
+            time=match_object.time,
+            bc_hash=match_object.bc_hash,
+            bc_record=match_object.bc_record
         )
 
     def get_count_eid_distinct(self):
@@ -226,7 +239,7 @@ class Matches:
                 matches
             """
         )
-        a
+
         # Data from last 3 years, and USDAQualityGrade
         return tuple(
             row['eid'] for row in
@@ -328,7 +341,7 @@ class Matches:
             """
 
         full_sql = """
-                SELECT 
+                SELECT
                     data, COUNT(*) as 'count'
                 FROM
                     matches
@@ -359,7 +372,7 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        #TODO: implement eid_distinct
+        # TODO: implement eid_distinct
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 """

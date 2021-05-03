@@ -3,6 +3,7 @@ import json
 import random
 import sys
 import argparse
+import traceback
 from threading import Thread
 
 sys.path = [
@@ -37,7 +38,7 @@ def threaded_function():
             insert_id=args.id
         )
     except BaseException as e:
-        print(e)
+        traceback.print_exc()
         print("Thread excepted, killing program")
         exit()
 

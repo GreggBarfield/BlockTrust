@@ -2,6 +2,7 @@ from ..const.zip_codes_data import ZIP_CODES
 from ..const.spatial_math import distance, miles_to_meters
 from ...common_exceptions import ExportException
 
+
 class ZIPCodesException(Exception):
     """ZIPCodes generic exception."""
 
@@ -12,6 +13,7 @@ class ZIPCodesException(Exception):
             reason: the reason for the exception
         """
         super().__init__(reason)
+
 
 class ZIPCodes:
 
@@ -38,5 +40,5 @@ class ZIPCodes:
 
         if zip_code not in results:
             results.append(zip_code)
-        
+
         return results

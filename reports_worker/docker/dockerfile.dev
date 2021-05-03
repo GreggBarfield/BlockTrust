@@ -16,4 +16,4 @@ RUN python3 -m pip install -r requirements.txt
 WORKDIR /home/ubuntu
 
 # Run
-CMD python3 reports_worker/main.py
+CMD exec python3 reports_worker/main.py

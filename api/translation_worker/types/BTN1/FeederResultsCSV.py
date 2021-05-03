@@ -1,90 +1,97 @@
-from core.database.database import Database
-from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
 from .medical_helper import format_data
 from core.sectors import sectors_by_name
 
 
-def block_key(insert):
-    return None
+from ...abstract_type import AbstractType
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
-    fields = insert["fields"]
-    time = all_to_unix(fields["killdate"])
-    account = insert["account"]
-    eid = int(fields["eid"])
+class FeederResultsCSVType(AbstractType):
 
-    account_link = db.account_links.get_by_company(
-        fields["packer"].strip(),
-        insert_sector=sectors_by_name["Packer"],
-        insert=True
-    )[0].id()
+    NAMESPACE = "BTN1"
+    TYPE = "FeederResultsCSV"
 
-    died = False
-    if int(float(fields["hotwt"])) != 0:
-        died = True
-        db.matches.types.insert_hot_weight(
-            weight=int(float(fields["hotwt"])),
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account,
-        )
+    def block_key(self):
+        return None
 
-    if fields["grade1"].strip() != "":
-        died = True
-        db.matches.types.insert_usda_quality_grade(
-            grade=fields["grade1"].strip(),
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account,
-        )
+    def handle(self):
+        db = self.db
+        insert = self.insert
+        fields = insert["fields"]
+        time = all_to_unix(fields["killdate"])
+        account = insert["account"]
+        eid = int(fields["eid"])
 
-    if int(fields["side1yiel1"]) != 0:
-        died = True
-        db.matches.types.insert_usda_yield_grade(
-            grade=int(fields["side1yiel1"]),
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account
-        )
+        account_link = db.account_links.get_by_company(
+            fields["packer"].strip(),
+            insert_sector=sectors_by_name["Packer"],
+            insert=True
+        )[0].id()
 
-    if int(fields["railedind"]) != 0:
-        db.matches.types.insert_railed(
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account
-        )
+        died = False
+        if int(float(fields["hotwt"])) != 0:
+            died = True
+            self.emit(db.matches.factory.create_hot_weight(
+                weight=int(float(fields["hotwt"])),
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+            ))
 
-    if fields["packer"].strip() != "":
-        packer_str = fields["packer"].strip() + ";" + fields["plantid"].strip()
-        db.matches.types.insert_packer(
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account,
-            packer_str=packer_str
-        )
-    if died:
-        db.matches.types.insert_died(
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account,
-            reason=None
-        )
-    elif int(fields["deadind"]) != 0:
-        s = "Died before being packed"
-        if int(fields["treat_cnt"]) != 0:
-            s += " after being treated " + fields["treat_cnt"] + " times"
-        db.matches.types.insert_died(
-            eid=eid,
-            time=time,
-            account_link=account_link,
-            account=account,
-            reason=s
-        )
+        if fields["grade1"].strip() != "":
+            died = True
+            self.emit(db.matches.factory.create_usda_quality_grade(
+                grade=fields["grade1"].strip(),
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+            ))
+
+        if int(fields["side1yiel1"]) != 0:
+            died = True
+            self.emit(db.matches.factory.create_usda_yield_grade(
+                grade=int(fields["side1yiel1"]),
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+            ))
+
+        if int(fields["railedind"]) != 0:
+            self.emit(db.matches.factory.create_railed(
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+            ))
+
+        if fields["packer"].strip() != "":
+            packer_str = fields["packer"].strip() + ";" + fields["plantid"].strip()
+            self.emit(db.matches.factory.create_packer(
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+                packer_str=packer_str
+            ))
+        if died:
+            self.emit(db.matches.factory.create_died(
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+                reason=None
+            ))
+        elif int(fields["deadind"]) != 0:
+            s = "Died before being packed"
+            if int(fields["treat_cnt"]) != 0:
+                s += " after being treated " + fields["treat_cnt"] + " times"
+            self.emit(db.matches.factory.create_died(
+                eid=eid,
+                time=time,
+                account_link_id=account_link,
+                account_id=account,
+                reason=s
+            ))

@@ -4,43 +4,51 @@ from api.translation_worker.all_to_unix import all_to_unix
 from .medical_helper import format_data
 from .remapper import remap
 
-
-def block_key(insert):
-    return None
+from ...abstract_type import AbstractType
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
-    insert["fields"] = fields = remap(insert["fields"], {
-        "LotNumber": "lot_no",
-        "SequenceID": "sequence",
-        "SysEndTime": "end_time",
-        "ProductName": "prod_name",
-        "ElectronicID": "electronic",
-        "LocationName": "loc_name",
-        "SysStartTime": "st_time",
-        "ProcessingDate": "proc_date",
-        "AdministrationRouteName": "admin_rt",
-        "AdminstrationRouteName": "admin_rt"
-    })
-    time = all_to_unix(fields["proc_date"])
-    account = insert["account"]
-    eid = int(fields["electronic"])  # This might fail!
+class ProcessingCSVType(AbstractType):
 
-    if time is None:
-        return
+    NAMESPACE = "BTN1"
+    TYPE = "ProcessingCSV"
 
-    medical_data = format_data(
-        product=fields["prod_name"],
-        method=fields["admin_rt"],
-        location=fields["loc_name"]
-    )
+    def block_key(self):
+        return None
 
-    if medical_data is None or medical_data == {}:
-        return
+    def handle(self):
+        db = self.db
+        insert = self.insert
+        insert["fields"] = fields = remap(insert["fields"], {
+            "LotNumber": "lot_no",
+            "SequenceID": "sequence",
+            "SysEndTime": "end_time",
+            "ProductName": "prod_name",
+            "ElectronicID": "electronic",
+            "LocationName": "loc_name",
+            "SysStartTime": "st_time",
+            "ProcessingDate": "proc_date",
+            "AdministrationRouteName": "admin_rt",
+            "AdminstrationRouteName": "admin_rt"
+        })
+        time = all_to_unix(fields["proc_date"])
+        account = insert["account"]
+        eid = int(fields["electronic"])  # This might fail!
 
-    db.matches.types.insert_medical(
-        time=time,
-        data=medical_data,
-        eid=eid,
-        account=account
-    )
+        if time is None:
+            return
+
+        medical_data = format_data(
+            product=fields["prod_name"],
+            method=fields["admin_rt"],
+            location=fields["loc_name"]
+        )
+
+        if medical_data is None or medical_data == {}:
+            return
+
+        self.emit(db.matches.factory.create_medical(
+            time=time,
+            data=medical_data,
+            eid=eid,
+            account_id=account
+        ))

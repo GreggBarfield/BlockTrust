@@ -47,10 +47,23 @@ sudo docker logs --tail 5 tw
 exit
 
 
-Testing
-=========
+# Testing
+## Unit tests
 
-pytest
-pytest api/translation_worker
+This is the fairly benign section of the tests. These (hopefully) won't delete files, write to databases, use real networks, etc.
 
+```
+pytest --ignore "core/static"
+pytest api/translation_worker --ignore "core/static"
+```
 
+## System tests 
+This is the more aggressive section of the tests. These dump files, write to databases, use real networks, etc. Read the warnings below before running them!
+
+- Check that `core/environment_config.json` is the correct one you want to use.
+> The tests might try to wipe the database, and having the wrong one configured could be bad. Some tests might check that this is the correct database, and will refuse to run on databases that might be live.
+- Backup anything in the local folder. This is reset to core/tools/config/developer_local_template.
+
+```
+pytest --ignore "core/static" -o python_files="system_test_*"
+```

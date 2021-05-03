@@ -5,26 +5,28 @@ from .types.BTN1 import (
     AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
 )
 from ..database.inserts_model import statuses_by_name, BlockNotAvailable
+from .abstract_type import AbstractType
+from core.utilities.blockchain.transmit import transmit
+from core.config import BLOCKCHAIN_TRANSLATION_WORKER_UPLOADS
 
+types = [
+    Animal.AnimalType,
+    TestTY.TestTYType,
+    Packer.PackerType,
+    AnimalsCSV.AnimalsCSVType,
+    FeederResultsCSV.FeederResultsCSVType,
+    MatchTableCSV.MatchTableCSVType,
+    ProcessingCSV.ProcessingCSVType,
+    TreatmentCSV.TreatmentCSVType,
+]
 
-types = {
-    "MFA": {
-        "Animal": Animal
-    },
-    "TestNS": {
-        "TestTY": TestTY
-    },
-    "ILS": {
-        "Packer": Packer
-    },
-    "BTN1": {
-        "AnimalsCSV": AnimalsCSV,
-        "FeederResultsCSV": FeederResultsCSV,
-        "MatchTableCSV": MatchTableCSV,
-        "ProcessingCSV": ProcessingCSV,
-        "TreatmentCSV": TreatmentCSV,
-    }
-}
+types_lookup = {}
+
+for cur in types:
+    pair = (cur.NAMESPACE, cur.TYPE)
+    if pair in types_lookup:
+        raise ValueError("Duplicate pair found.")
+    types_lookup[pair] = cur
 
 
 def handle_insert(db, inserts_model, insert):
@@ -36,18 +38,18 @@ def handle_insert(db, inserts_model, insert):
         insert: An insert dictionary, with 'api_blocks.value' and 'api_blocks.resolved'
     """
 
-    if insert['namespace'] not in types:
-        inserts_model.set_status(insert['id'], "Bad Namespace")
-        return
-
-    if insert['type'] not in types[insert['namespace']]:
+    if (insert['namespace'], insert['type']) not in types_lookup:
         inserts_model.set_status(insert['id'], "Bad Type")
         return
 
-    handler = types[insert['namespace']][insert['type']]
+    handler: AbstractType = types_lookup[(insert['namespace'], insert['type'])](
+        db=db,
+        inserts_model=inserts_model,
+        insert=insert
+    )
 
-    # Note that fields is pre-converted
-    block_key = handler.block_key(insert)
+    # Note that fields are pre-converted
+    block_key = handler.block_key()
 
     if block_key is None:
         block_value = None
@@ -63,12 +65,25 @@ def handle_insert(db, inserts_model, insert):
             # after running blocked_on another worker could potentially pick it up
             return
 
-    # Note that fields is pre-converted
-    emitted_blocks = handler.handle(db, inserts_model, insert, block_value=block_value)
+    # Note that fields are pre-converted
+    handler.block_value = block_value
+    handler.handle()
+
+    # Handle any emitted matches
+    if handler.emitted_matches:
+        hashes = [match.generate_bc_hash() for match in handler.emitted_matches]
+
+        bc_record = None
+        if BLOCKCHAIN_TRANSLATION_WORKER_UPLOADS:
+            bc_record = transmit(hashes)
+
+        for match in handler.emitted_matches:
+            match.bc_record = bc_record
+            db.matches.insert_match_object(match)
 
     # Handle any emitted blocks
-    if emitted_blocks is not None:
-        for emitted_block in emitted_blocks:
+    if handler.emitted_blocks:
+        for emitted_block in handler.emitted_blocks:
             key, value = emitted_block
             inserts_model.emit_block(key, value)
 
