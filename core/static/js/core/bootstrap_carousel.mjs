@@ -120,7 +120,7 @@ export class BootstrapCarousel {
         }
         this.isFullScreen = true;
 
-        this.modal = new InfoModal("Sales Group Images", null);
+        this.modal = new InfoModal("Sales Group Media", null);
         this.box.remove();
         this.modal.getBody().append(this.box);
         this.modal.getBody().style.height = "400px";
