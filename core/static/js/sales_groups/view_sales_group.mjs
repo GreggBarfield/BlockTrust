@@ -67,6 +67,10 @@ export class SalesGroupViewer {
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
 
+        layout.tabs = document.createElement("div");
+        layout.tabs.className= "row";
+        layout.content.append(layout.tabs);
+
         function addInfo(key, value, position, wide=false, highlighting=false) {
             let str = "";
 
@@ -326,12 +330,14 @@ export class SalesGroupViewer {
 
         }
 
+        // layout.tabs.append(this.box);
         this.box.append(layout.content);
         // layout.format.append(this.box);
 
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
+            container.style.marginLeft="10px";
             attachTo.append(container);
 
             // let bar = document.createElement("div");
@@ -395,10 +401,11 @@ export class SalesGroupViewer {
         }
 
         {
-            let b_contactInfo = createAcc(this.box, "Contact Info");
+            let b_contactInfo = createAcc(layout.tabs, "Contact Info");
             
             let p = document.createElement("h5");
-            p.style="text-align:center";
+            p.style="text-align:center;";
+            p.style.marginLeft = "10px";
             p.textContent = this.data.account_name;
             b_contactInfo.append(p);
 
@@ -493,7 +500,7 @@ export class SalesGroupViewer {
         // }
         
         {
-            let b_tags = createAcc(this.box, "Tags (EIDs)", (body)=>{
+            let b_tags = createAcc(layout.tabs, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
 
