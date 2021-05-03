@@ -292,7 +292,7 @@ export class EditSalesGroupWidget extends Widget {
 
         // Media
 
-        let mediaRow = createSection(form, "Media");
+        let mediaRow = createSection(form, "Image");
 
         let mediaGroup = document.createElement("div");
         mediaGroup.className = "form-group col-12";

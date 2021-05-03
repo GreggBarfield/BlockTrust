@@ -62,13 +62,6 @@ export class VideoSession{
 
             if (link["removed"])
                 continue;
-            // if (!("uploaded" in link)) {
-            //     throw "Uploaded link already exist";
-            // }
-            // if (!link["uploaded"])
-            //     continue;
-            // if (!("embed" in link) || link["embed"] === undefined || link["embed"] === null)
-            //     continue;
           
             result.push([link["platform"],link["embed"]]);
         }
@@ -130,6 +123,7 @@ export class VideoSession{
             }
         }
     }
+    
     promptURLBox(files){
         let infoModal = new InfoModal("Adding video link(s) ");
         let modalBody = infoModal.getBody();
@@ -162,34 +156,49 @@ export class VideoSession{
         
         });
         //allow to multiple links
+        function parseYouTubeTokenByUri(url){
+            var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            var match = url.match(regExp);
+            return (match&&match[7].length==11)? match[7] : false;
+        }
+        function parseVimeoTokenByUri(url){
+            var regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/
+            var match = url.match(regExp);
+            return match[5]
+        }
         function handleUrlInput(links){
             var urls= links.split(",");
-            console.log(urls);
+            // console.log(urls);
             var tag=null
             var platform="N/A";
             var id="";
             for( const url of urls){
-               tag = url.split("/");
-               if(tag[2].includes("youtube")){
-                    platform="youtube";
-                    id=tag[tag.length-1].substring(tag[tag.length-1].indexOf("=")+1,tag[tag.length-1].indexOf("&"))
+                if(url.includes("youtube") || url.includes("vimeo")){
+                    tag = url.split("/");
+               
+                    if(tag[2].includes("youtube")){
+                        platform="youtube";
+                        id=parseYouTubeTokenByUri(url);
+                    }
+                    else{
+                        platform="vimeo";
+                        id=parseVimeoTokenByUri(url);
+            
+                    }
+                    let file_obj = {
+                        "platform": platform,
+                        "embed":id,
+                        "uploaded": false,
+                        "removed":false
+                    };
+                    files.push(file_obj);
+                    console.log(files);
                 }
-                else{
-                    platform="vimeo";
-                    id=tag[tag.length-1]
-        
-                }
-                let file_obj = {
-                    "platform": platform,
-                    "embed":id,
-                    "uploaded": false,
-                    "removed":false
-                };
-                files.push(file_obj);
-                console.log(files);
+               
             }
 
         }
         
     }
+   
 }
