@@ -33,5 +33,5 @@ RUN npm run build
 
 ############# RUNTIME
 
-WORKDIR /home/ubuntu
+WORKDIR /home/ubuntu/blocktrust
 CMD python3 core/main.py

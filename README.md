@@ -102,12 +102,13 @@ ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpac
 
 Rebuild containers:
 
-Note: this does the production-style deployment, so 
+Note: this does the production-style deployment, so modifying the files outside the container does nothing to the files inside.
+
+If the ubuntu image's cache is bad, add `--no-cache` to the end of the build command (that's why they are separate).
 
 ```bash
-ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core build --no-cache && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --detach"
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core build && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --detach"
 ```
-
 
 ### Background
 
