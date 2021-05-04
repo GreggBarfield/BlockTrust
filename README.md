@@ -101,8 +101,11 @@ ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpac
 ```
 
 Rebuild containers:
+
+Note: this does the production-style deployment, so 
+
 ```bash
-ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --build --detach"
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core build --no-cache && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --detach"
 ```
 
 

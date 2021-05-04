@@ -24,7 +24,7 @@ RUN npm install
 # Copy everything over
 
 WORKDIR /home/ubuntu/blocktrust
-COPY ../../core ./core
+COPY core ./core
 
 # Build static
 
