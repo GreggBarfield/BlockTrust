@@ -86,6 +86,75 @@ sudo docker logs --tail 5 tw
 exit
 ```
 
+## New Deployments
+
+### Updating Deployment
+
+Update current branch:
+```bash
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && git pull"
+```
+
+Switch branches:
+```bash
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && git fetch && git checkout <branch>"
+```
+
+Rebuild containers:
+```bash
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --build --detach"
+```
+
+
+### Background
+
+Created a new keypair:
+`ssh-keygen`
+
+Then copied it to the server:
+`scp ../secrets/internal_deployments_bitbucket_ak* "ubuntu@ledgerspacedev.com:~/LedgerSpace/secrets"`
+
+Fixed permissions:
+`chmod 600 secrets/int*`
+
+Added keypair to bitbucket access keys.
+
+Set identity:
+`nano ~/.ssh/config`
+
+```
+Host bitbucket.org
+    IdentityFile ~/LedgerSpace/secrets/internal_deployments_bitbucket_ak
+```
+
+Clone:
+`git clone git@bitbucket.org:blocktrust/blocktrust.git`
+
+## Docker Contexts
+
+Some remote operations can be done through docker contexts.
+
+### Configuring keypairs
+
+```bash
+eval `ssh-agent -s`
+ssh-add ../secrets/kp-ledgerspacedev.pem
+```
+
+On the remote server, sign in and run:
+```bash
+sudo usermod -aG docker $USER
+```
+
+Now you should be able to run locally:
+```bash
+docker --host "ssh://ubuntu@ledgerspacedev.com" ps
+```
+
+### Deploying core
+
+Note: your docker for windows must be running locally
+
 
 # Testing
 
