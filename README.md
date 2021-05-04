@@ -95,19 +95,26 @@ Update current branch:
 ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && git pull"
 ```
 
-Switch branches:
-```bash
-ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && git fetch && git checkout <branch>"
-```
-
 Rebuild containers:
+
+```bash
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core build && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --detach"
+```
 
 Note: this does the production-style deployment, so modifying the files outside the container does nothing to the files inside.
 
 If the ubuntu image's cache is bad, add `--no-cache` to the end of the build command (that's why they are separate).
 
+### Utilities
+
+Switch branches:
 ```bash
-ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core build && docker-compose -f core/docker/docker-compose.aws.yaml -p btn-core up --detach"
+ssh -i ../secrets/kp-ledgerspacedev.pem ubuntu@ledgerspacedev.com "cd LedgerSpace/blocktrust && git fetch && git checkout <branch>"
+```
+
+Upload environment config:
+```bash
+scp -i ../secrets/kp-ledgerspacedev.pem core/environment_config.json "ubuntu@ledgerspacedev.com:~/LedgerSpace/blocktrust/core"
 ```
 
 ### Background
