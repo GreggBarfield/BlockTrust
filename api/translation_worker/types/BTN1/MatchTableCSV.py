@@ -38,7 +38,7 @@ class MatchTableCSVType(AbstractType):
             company = fields[sector+"_name"].strip()
 
             if company == "":
-                return
+                continue
 
             self.emit(db.matches.factory.create_sighting(
                 eid=eid,

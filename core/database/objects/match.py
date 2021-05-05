@@ -1,8 +1,10 @@
 from copy import deepcopy
 import json
 from hashlib import sha256
-from .. import database
 from ...match_types import match_types_by_id, match_types_by_name
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .. import database
 
 
 class MatchException(Exception):
@@ -226,6 +228,44 @@ class Match:
             self._data = init_row["data"]
             self._bc_record = init_row["bc_record"]
             self._bc_hash = init_row["bc_hash"]
+
+    def __eq__(self, other):
+        """Evaluate if two matches are equal.
+
+        This is used for unit testing.
+        """
+        return (
+            self._id == other._id and
+            self._eid == other._eid and
+            self._account_id == other._account_id and
+            self._account_link_id == other._account_link_id and
+            self._lat == other._lat and
+            self._lon == other._lon and
+            self._time == other._time and
+            self._created == other._created and
+            self._type_id == other._type_id and
+            self._data == other._data and
+            self._bc_record == other._bc_record and
+            self._bc_hash == other._bc_hash and
+            self._db is other._db
+        )
+
+    def __repr__(self):
+        """Turn self into a printable string, for debugging."""
+        return (
+            "<Match object id: " + str(id(self)) +
+            " type: " + match_types_by_id[self.type_id] + " (" + str(self.type_id) + ")>"
+        )
+
+    def __str__(self):
+        """Turn self into a big printable string, for debugging."""
+        d = self.to_dict()
+        for k in d:
+            if "Mock" in repr(d[k]):
+                d[k] = repr(d[k])
+        return (
+            repr(self) + ": " + json.dumps(d)
+        )
 
     @property
     def id(self):
