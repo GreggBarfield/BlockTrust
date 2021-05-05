@@ -189,14 +189,10 @@ class InsertsModel:
                     FROM api_blocks
                     WHERE `key`=@block_key;
                 SELECT @block_value AS value, @block_resolved AS resolved;
-                UPDATE api_inserts SET status=%(blocked_status)s, block=@block_id
-                    WHERE (@block_value IS NULL) AND api_inserts.id=%(id)s;
                 UNLOCK TABLES;
             """,
             {
-                'key': key,
-                'id': insert_id,
-                'blocked_status': statuses_by_name['Blocked']
+                'key': key
             },
             multi=True
         ))

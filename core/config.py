@@ -7,6 +7,8 @@ from urllib.parse import urljoin
 # config.py should throw errors if environment_config.json is misconfigured
 # store config in config.py if it is shared, else store in environment_config.json
 
+# WARNING: These vars are considered constant! Some methods will not update on changes!
+
 config_file_name = "environment_config.json"
 config_file_path = os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
@@ -60,3 +62,4 @@ SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret
 
 BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
 BLOCKCHAIN_TRANSLATION_WORKER_UPLOADS = config_file["blockchain"]["translation_worker_uploads"]
+BLOCKCHAIN_RECOMMENDED_BATCH_SIZE = config_file["blockchain"]["recommended_batch_size"]
