@@ -4,6 +4,7 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "./messages.mjs";
+// import {ZIPCodes} from "../../../database/tables/"
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
@@ -136,12 +137,17 @@ export class SalesGroupViewer {
             let location = document.createElement("div");
             
             let milesAway = "--";
+            console.log("content"+this.data.content);
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
             let milesAwayInt = parseInt(milesAway);
             location.style="float:right;display: inline;color:black";
-            location.textContent = "Location: " +"("+milesAwayInt+" Miles)";
+            // let zip = new ZIPCodes(this.data.zip_codes);
+            $.post("../../../database/tables/zip_codes.py", function())
+            
+            location.textContent = "Location: "+ this.data.location+"("+milesAwayInt+" Miles)";
+            // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
             left.append(location);
 
         }
