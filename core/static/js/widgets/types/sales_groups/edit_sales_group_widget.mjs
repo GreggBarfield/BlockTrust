@@ -5,7 +5,7 @@ import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
-
+import {VideoSession  } from '../../../files/video_links.mjs';
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -292,7 +292,7 @@ export class EditSalesGroupWidget extends Widget {
 
         // Media
 
-        let mediaRow = createSection(form, "Media");
+        let mediaRow = createSection(form, "Image");
 
         let mediaGroup = document.createElement("div");
         mediaGroup.className = "form-group col-12";
@@ -306,6 +306,22 @@ export class EditSalesGroupWidget extends Widget {
         this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
 
+
+        //Video
+
+        let videoRow = createSection(form, "Video");
+
+        let videoGroup = document.createElement("div");
+        videoGroup.className = "form-group col-12";
+        videoRow.append(videoGroup);
+
+        let videoLabel = document.createElement("label");
+        videoLabel.textContent = "Add Youtube/Vimeo links here to make the post look more attractive!";
+        videoGroup.append(videoLabel);
+
+        let videoText = document.createElement("div");
+        this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
+        videoGroup.append(videoText);
         // Comments
 
         let commentsHeader = document.createElement("h6");
@@ -457,6 +473,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        videos: that.VideoEditor.getLinks(),
                     },
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),

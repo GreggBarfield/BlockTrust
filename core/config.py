@@ -37,13 +37,16 @@ CSP = {
         'https://js.stripe.com',
         'https://polyfill.io',
         'https://i.imgur.com',
+        'https://player.vimeo.com/',
+        'https://www.youtube.com/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'http://localhost:5000',
         'blocktrustnetwork.com',
-        'data:'
+        'data:',
+        's3.console.aws.amazon.com'
     ]
 }
 
