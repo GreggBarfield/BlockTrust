@@ -435,6 +435,37 @@ class Matches:
                 )
             ),
         )[0]['count']
+   
+    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
+        """Gets matches data associated with an visual id if visible.
+
+        Params:
+            visual_id: The visual id to look up
+            account_id: current active account
+
+        Returns:
+            All the matches table rows containing the visual id matches
+        """
+        return self._db.execute_d(
+            """
+                SELECT matches.*
+                FROM matches
+                LEFT JOIN account_links on matches.account_link=account_links.id
+                LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
+                WHERE matches.type=%(visual_id_type)s 
+                AND (
+                    (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
+                    OR 
+                    (matches.account=%(account_id)s)
+                )
+                AND matches.data=%(visual_id)s
+            """,
+            {
+                "visual_id_type": match_types_by_name["Visual ID"],
+                "account_id": account_id,
+                "visual_id": visual_id
+            }
+        )
 
     @staticmethod
     def _load_rows(rows):
