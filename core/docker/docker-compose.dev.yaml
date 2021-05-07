@@ -9,7 +9,6 @@ services:
       - "127.0.0.1:5000:5000"
     volumes:
       - ../:/home/ubuntu/core
-      - ./webpack/webpack.dev.config.js:/home/ubuntu
   mysql:
     image: mysql
     ports:
