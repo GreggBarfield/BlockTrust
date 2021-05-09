@@ -232,9 +232,9 @@ class Users:
                 temp_phone += c
         phone = temp_phone
 
-        # If phone is empty it is -1
+        # If phone is empty it is NULL
         if phone == "":
-            phone = "-1"
+            phone = None
         
         # We don't really care whether or not the phone is being used more than once
 

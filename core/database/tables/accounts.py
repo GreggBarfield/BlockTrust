@@ -134,6 +134,18 @@ class Accounts:
 
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
+        
+        # Process phone number
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
 
         self._db.execute(
             """INSERT INTO accounts
