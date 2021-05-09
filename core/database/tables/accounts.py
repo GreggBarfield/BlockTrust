@@ -111,6 +111,7 @@ class Accounts:
             raise AccountsException("No account found with that Stripe Customer ID.")
         return Account(self._db, account_rows[0])
 
+
     def create_account(self, user, name, company, sector, affiliate_id, city, state, zip_code, phone):
         """Creates a new account with the user automatically added.
 

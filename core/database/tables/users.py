@@ -136,6 +136,7 @@ class Users:
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
         return field.strip(" \n\r\t")
     
+    
     def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
         """Creates a new user
 
