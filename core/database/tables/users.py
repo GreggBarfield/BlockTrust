@@ -172,7 +172,7 @@ class Users:
             raise UsersException("Spaces cannot be in the username.")
         if len(username) == 0:
             raise UsersException("Username is blank.")
-        #Double-usage
+        # Double-usage
         try:
             self.get_by_username(username)
             raise UsersException("Username is already being used.")
@@ -206,7 +206,7 @@ class Users:
             raise UsersException("Email is blank.")
         if '@' not in email or '.' not in email or len(email) < 5:
             raise UsersException("The email you entered is incomplete.")
-        #Double-usage
+        # Double-usage
         try:
             self.get_by_email(email)
             raise UsersException("Email is already being used.")

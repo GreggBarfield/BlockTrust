@@ -113,7 +113,7 @@ def serve_signup_action():
                 state=required['state'],
                 zip_code=required['zip_code']
             )
-        except (auth.SignupFailedException,AccountsException,UsersException) as e:
+        except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
 
         #TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
