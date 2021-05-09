@@ -147,7 +147,22 @@ ALTER TABLE accounts AUTO_INCREMENT=602;
 /* Evan Krohn 2/19/2021 */
 ALTER TABLE `example_db_1`.`api_inserts` 
 ADD INDEX `get_next` (`status` ASC, `priority` DESC, `id` ASC) VISIBLE;
-;
+
+/* Rohan Sureshkumar 3/13/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `stripe_paid` TINYINT(1) NULL DEFAULT 0 AFTER `token`;
+
+/* Rohan Sureshkumar 3/18/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `manual_paid` TINYINT(1) NULL DEFAULT 0 AFTER `stripe_paid`;
+
+/* Rohan Sureshkumar 3/20/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `stripe_customer_id` VARCHAR(127) NULL AFTER `manual_paid`;
+
+/* Rohan Sureshkumar 3/27/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid`),1,0)) VIRTUAL AFTER `manual_paid`;
 
 /* Rohan Sureshkumar 8/5/2021 */
 ALTER TABLE `example_db_1`.`accounts` 

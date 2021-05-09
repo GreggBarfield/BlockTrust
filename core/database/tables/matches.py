@@ -1,6 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag, frag_insert_into
+from ..frag import frag, frag_insert_into, frag_insert_single_where
 from ..objects.match import Match, MatchException
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
@@ -145,23 +145,54 @@ class Matches:
         if not isinstance(type_int, int):
             raise MatchesException("type_int should be an int")
 
+        row = {
+            "eid": eid,
+            "type": type_int,
+            "data": None if data is None else json.dumps(data),
+            "account": account,
+            "account_link": account_link,
+            "lat": lat,
+            "lon": lon,
+            "time": time,
+            "created": int(time_module.time()),
+            "raw_identifier": raw_identifier
+        }
+
         self._db.exec_frag(
-            frag_insert_into(
+            frag_insert_single_where(
                 'matches',
-                [
-                    {
-                        "eid": eid,
-                        "type": type_int,
-                        "data": None if data is None else json.dumps(data),
-                        "account": account,
-                        "account_link": account_link,
-                        "lat": lat,
-                        "lon": lon,
-                        "time": time,
-                        "created": int(time_module.time()),
-                        "raw_identifier": raw_identifier
-                    }
-                ]
+                row,
+                frag(
+                    "(",
+                    frag(
+                        "SELECT COUNT(*) FROM matches",
+                        "WHERE",
+                        "eid<=>:eid",
+                        "AND",
+                        "type<=>:type",
+                        "AND",
+                        "data<=>CAST(:data AS JSON)",
+                        "AND",
+                        "account<=>:account",
+                        "AND",
+                        "account_link<=>:account_link",
+                        "AND",
+                        "lat<=>:lat",
+                        "AND",
+                        "lon<=>:lon",
+                        "AND",
+                        "time<=>:time",
+                        eid=row["eid"],
+                        type=row["type"],
+                        data=row["data"],
+                        account=row["account"],
+                        account_link=row["account_link"],
+                        lat=row["lat"],
+                        lon=row["lon"],
+                        time=row["time"]
+                    ),
+                    ") = 0",
+                )
             )
         )
 
@@ -195,7 +226,6 @@ class Matches:
                 matches
             """
         )
-        a
         # Data from last 3 years, and USDAQualityGrade
         return tuple(
             row['eid'] for row in
@@ -405,6 +435,37 @@ class Matches:
                 )
             ),
         )[0]['count']
+   
+    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
+        """Gets matches data associated with an visual id if visible.
+
+        Params:
+            visual_id: The visual id to look up
+            account_id: current active account
+
+        Returns:
+            All the matches table rows containing the visual id matches
+        """
+        return self._db.execute_d(
+            """
+                SELECT matches.*
+                FROM matches
+                LEFT JOIN account_links on matches.account_link=account_links.id
+                LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
+                WHERE matches.type=%(visual_id_type)s 
+                AND (
+                    (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
+                    OR 
+                    (matches.account=%(account_id)s)
+                )
+                AND matches.data=%(visual_id)s
+            """,
+            {
+                "visual_id_type": match_types_by_name["Visual ID"],
+                "account_id": account_id,
+                "visual_id": visual_id
+            }
+        )
 
     @staticmethod
     def _load_rows(rows):
