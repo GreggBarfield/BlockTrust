@@ -122,6 +122,33 @@ class Users:
         )
         return rows
 
+    def get_email_verified_status(self, email):
+        """
+        Confirms if the user email is verified
+
+        Params:
+            email:User email which needs to be looked up for verification status
+
+        Returns:
+            True if user is verified. False if not verified.
+        """
+        matching_user = self._db.execute_d(
+            """
+                SELECT * FROM users
+                WHERE
+                    email=%(email)s
+            """,
+            {
+                "email": Users._format_field(email)
+            }
+        )
+        if len(matching_user) != 1:
+            raise NoUserFoundException()
+        if matching_user[0]['email_verified'] == "Y":
+            return True
+        else:
+            return False
+
     @staticmethod
     def _format_field(field):
         """Format a user info field.

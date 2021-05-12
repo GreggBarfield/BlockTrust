@@ -148,9 +148,7 @@ def signup(username, email, phone, first, last, password, confirm_password):
 
     if len(username) == 0:
         raise SignupFailedException("Username is blank.")
-
-
-    # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
+        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
     digits = ''.join(chr(ord('0') + i) for i in range(10))
     all_digits = True
     for c in username:
@@ -220,7 +218,7 @@ def signup(username, email, phone, first, last, password, confirm_password):
             "phone": phone,
             "first": first,
             "last": last,
-            "email_verified": ""
+            "email_verified": "N"
         }
     )
 
@@ -250,7 +248,6 @@ def login(identifier, password="", override=False):
     try:
         if password is None and override is not True:
             raise LoginException("password is None")
-        
         if override is not True and override is not False:
             raise LoginException("override is bad")
 
@@ -263,13 +260,10 @@ def login(identifier, password="", override=False):
         user_row = None
 
         # Try ID first for security purposes
-        
         all_digits = True
-        
         for c in identifier:
             if c not in "0123456789":  # ASCII digits ONLY
                 all_digits = False
-        
         if user_row is None and all_digits:
             id_results = g.db.execute_d(
                 """
@@ -337,3 +331,16 @@ def login(identifier, password="", override=False):
         raise e
     except Exception as e:
         raise LoginException("other exception")
+
+
+def get_email_verified_value(email):
+    """
+    Gets the verification status of the email provided
+    Params:
+        email: Email of the user to check verification status
+
+
+    Returns:
+       True if user email is verified. False if user is unverified.
+    """
+    return g.db.users.get_email_verified_status(email)

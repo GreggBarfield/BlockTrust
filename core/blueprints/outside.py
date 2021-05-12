@@ -103,6 +103,7 @@ def serve_signup_action():
         except auth.SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
 
+
         # Sign up worked, now log in and redirect
         try:
             auth.login(
