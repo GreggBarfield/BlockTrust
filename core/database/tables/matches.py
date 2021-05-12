@@ -397,8 +397,8 @@ class Matches:
                 """
                     FROM auction_sales
                     LEFT JOIN sales_groups ON sales_groups.auction_sale=auction_sales.id
-                    LEFT JOIN sales_group_eids ON sales_group_eids.sales_group=sales_groups.id
-                    LEFT JOIN matches ON sales_group_eids.eid=matches.eid
+                    LEFT JOIN eid_group_eids ON eid_group_eids.eid_group=sales_groups.eid_group
+                    LEFT JOIN matches ON eid_group_eids.eid=matches.eid
                     LEFT JOIN account_links ON matches.account_link=account_links.id
                 """,
                 Matches._left_join_visibility,
