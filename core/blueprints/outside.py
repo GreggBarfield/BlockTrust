@@ -202,6 +202,7 @@ def serve_request_password_reset():
 
 @bp.route('/request_password_reset', methods=['POST'])
 def serve_password_request_action():
+
     # Generating token identifier for changing password securely
     userToken = token.generateConfirmationToken(request.form['email'])
     # Creating URL for user to access change password functionality
@@ -213,7 +214,7 @@ def serve_password_request_action():
                 'password_reset_url': password_reset_url
             }), request.form['email']
     )
-    return outside_render('passsord_reset_message.html')
+    return outside_render('password_reset_message.html')
 
 # Passowrd reset message page
 
