@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
 from ..renderers.outside import outside_render
@@ -7,6 +7,7 @@ from ..database.tables.users import UsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
+from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 
@@ -49,23 +50,22 @@ def serve_login_action():
 
         if 'password' not in request.form:
             raise ExportException("internal error, password missing from form")
-        try:
-            auth.login(
+        auth.login(
                 identifier=request.form['identifier'],
                 password=request.form['password']
             )
-            redirect_to = '/dashboard'
-            if (
+        redirect_to = '/dashboard'
+        if (
                 'requestRedirectTo' in request.form and
                 request.form['requestRedirectTo'] is not None and
                 request.form['requestRedirectTo'] != ''
-            ):
-                redirect_to = request.form['requestRedirectTo']
+        ):
+            redirect_to = request.form['requestRedirectTo']
             return jsonify({"redirect": redirect_to})
-        except auth.LoginException as e:
-            raise ExportException(str(e))
-        except auth.SignupFailedException as e:
-            raise ExportException("internal error in Users.login")
+    except auth.LoginException as e:
+        raise ExportException(str(e))
+    except auth.SignupFailedException as e:
+        raise ExportException("internal error in Users.login")
     except ExportException as e:
         return jsonify({"error": str(e)})
 
@@ -81,8 +81,8 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'username':None, 'password':None, 'confirm_password':None,
-            'email':None, 'first':None, 'last':None, 'phone':None
+            'username': None, 'password': None, 'confirm_password': None,
+            'email': None, 'first': None, 'last': None, 'phone': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -184,3 +184,72 @@ def serve_contact_form_response():
         SUPPORT_GENERAL_EMAIL
     )
     return {}
+
+# Request a password reset
+
+
+@bp.route('/request_password_reset', methods=['GET'])
+def serve_request_password_reset():
+    redirect_to = ''
+    print("Return request")
+    if 'redirect' in request.args:
+        redirect_to = request.args['redirect']
+
+    return outside_render('request_password_reset.html', {"redirect_to": redirect_to})
+
+# Request password reset action
+
+
+@bp.route('/request_password_reset', methods=['POST'])
+def serve_password_request_action():
+    # Generating token identifier for changing password securely
+    userToken = token.generateConfirmationToken(request.form['email'])
+    # Creating URL for user to access change password functionality
+    password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
+    # Sending an email to user with the Blocktrust email template and including password change link
+    send_email(
+            "BlockTrust Network Password change",
+            render_email("forgot_password.html", {
+                'password_reset_url': password_reset_url
+            }), request.form['email']
+    )
+    return outside_render('passsord_reset_message.html')
+
+# Passowrd reset message page
+
+
+@bp.route('/password_reset_message', methods=['GET'])
+def serve_password_reset_message():
+    return outside_render('password_reset_message.html')
+
+
+# Reset Password
+
+
+@bp.route('/reset_password/<tok>', methods=['GET'])
+def serve_reset_password(tok):
+    # Redirecting to password change page
+    redirect_to = ''
+    try:
+        email = token.confirmToken(tok)
+        return outside_render('reset_password.html', {"redirect_to": redirect_to})
+    except ExportException as e:
+        return outside_render('login.html')
+
+
+@bp.route('/reset_password/<tok>', methods=['POST'])
+def serve_reset_password_action(tok):
+    try:
+        try:
+            # Getting the requested new password from the user
+            new_password = request.form['password']
+            confirm_password = request.form['confirm_password']
+            # Getting the user eamil using the encrypted token
+            email = token.confirmToken(tok)
+            # Changing user password using email as an identifier
+            auth.change_password(email, new_password, confirm_password)
+            return outside_render('login.html')
+        except auth.PasswordChangeFailedException as e:
+            raise ExportException(str(e))
+    except ExportException as e:
+        return outside_render('reset_password.html', {"redirect_to": str(e)})

@@ -42,6 +42,19 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
+class PasswordChangeFailedException(AuthException):
+    """Password Change failed."""
+    def __init__(self, reason):
+        """Constructor for PasswordChangeFailedException.
+
+        Params:
+            reason: The reason why password could not be changed.
+                This will likely end up getting printed to the user,
+                so be careful.
+        """
+        super().__init__(reason)
+
+
 def session_open():
     """Load session into app context."""
     session_open_user()
@@ -149,7 +162,6 @@ def signup(username, email, phone, first, last, password, confirm_password):
     if len(username) == 0:
         raise SignupFailedException("Username is blank.")
 
-
     # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
     digits = ''.join(chr(ord('0') + i) for i in range(10))
     all_digits = True
@@ -232,6 +244,62 @@ def logout():
     session.clear()
 
 
+def change_password(email, new_password, confirm_password):
+    """
+    Changing the password in the user database
+
+    Params:
+        email: The user email for which the password needs to be updated
+        new_password: The new password which needs to be set
+
+    Returns: None
+
+    Raises:
+        PasswordChangeFailedException on failure with the reason.
+    """
+    try:
+        new_password = Users._format_field(new_password)
+        password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+
+        # Check if password reset link is valid. As token.py returns false if link is Invalid
+
+        if email is False:
+            raise PasswordChangeFailedException("Password reset link is Invalid")
+
+        # Password should not be blank
+
+        if new_password == "":
+            raise PasswordChangeFailedException("Password field is blank")
+
+        # Password must be at least 10 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(new_password) < 10:
+            raise PasswordChangeFailedException("Password must be at least 10 characters.")
+        if len(new_password.encode("utf-8")) > 60:
+            raise PasswordChangeFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        # Password should equal confirm_password
+
+        if new_password != confirm_password:
+            raise PasswordChangeFailedException("The passwords you entered were not identical.")
+
+        g.db.execute_d(
+            """
+            UPDATE users
+            SET password=%(password)s
+            WHERE users.email=%(email)s
+            """,
+            {
+                "password": password,
+                "email": email
+            }
+            )
+    except PasswordChangeFailedException as e:
+        raise e
+
+
 def login(identifier, password="", override=False):
     """Performs a login.
 
@@ -250,7 +318,7 @@ def login(identifier, password="", override=False):
     try:
         if password is None and override is not True:
             raise LoginException("password is None")
-        
+
         if override is not True and override is not False:
             raise LoginException("override is bad")
 
@@ -263,13 +331,13 @@ def login(identifier, password="", override=False):
         user_row = None
 
         # Try ID first for security purposes
-        
+
         all_digits = True
-        
+
         for c in identifier:
             if c not in "0123456789":  # ASCII digits ONLY
                 all_digits = False
-        
+
         if user_row is None and all_digits:
             id_results = g.db.execute_d(
                 """

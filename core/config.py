@@ -57,3 +57,7 @@ INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+
+EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
+
+EMAIL_SECRET_KEY = config_file["internal_api"]["secret_email_key"]
