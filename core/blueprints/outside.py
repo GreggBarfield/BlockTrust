@@ -230,7 +230,7 @@ def serve_password_reset_message():
 @bp.route('/reset_password/<tok>', methods=['GET'])
 def serve_reset_password(tok):
     # Redirecting to password change page
-    redirect_to = ''
+    redirect_to = tok
     try:
         email = token.confirmToken(tok)
         return outside_render('reset_password.html', {"redirect_to": redirect_to})
@@ -240,6 +240,7 @@ def serve_reset_password(tok):
 
 @bp.route('/reset_password/<tok>', methods=['POST'])
 def serve_reset_password_action(tok):
+    redirect_to = tok
     try:
         try:
             # Getting the requested new password from the user
@@ -249,8 +250,8 @@ def serve_reset_password_action(tok):
             email = token.confirmToken(tok)
             # Changing user password using email as an identifier
             auth.change_password(email, new_password, confirm_password)
-            return outside_render('login.html')
+            return jsonify({"redirect": "/login"})
         except auth.PasswordChangeFailedException as e:
-            raise ExportException(str(e))
+            return jsonify({"error": str(e)})
     except ExportException as e:
-        return outside_render('reset_password.html', {"redirect_to": str(e)})
+        return jsonify({"error": str(e)})

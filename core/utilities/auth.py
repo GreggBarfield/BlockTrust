@@ -259,6 +259,7 @@ def change_password(email, new_password, confirm_password):
     """
     try:
         new_password = Users._format_field(new_password)
+        confirm_password = Users._format_field(confirm_password)
         password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
 
         # Check if password reset link is valid. As token.py returns false if link is Invalid
