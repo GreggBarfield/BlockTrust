@@ -13,4 +13,4 @@ RUN npm install
 COPY webpack.dev.config.js .
 
 # Run
-CMD npm run continuous
+CMD exec npm run continuous
