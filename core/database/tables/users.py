@@ -122,6 +122,28 @@ class Users:
         )
         return rows
 
+    def verify_email(self, email):
+        """
+            Confirms a user profile and marks it as verified
+
+            Params:
+            email: User email to be verified
+
+            Returns:
+            None
+            """
+
+        self._db.execute_d(
+                """
+                UPDATE users
+                SET email_verified="Y"
+                WHERE users.email=%(email)s
+                """,
+                {
+                    "email": email
+                }
+                )
+
     def get_email_verified_status(self, email):
         """
         Confirms if the user email is verified

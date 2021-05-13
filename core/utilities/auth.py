@@ -28,6 +28,16 @@ class LoginException(AuthException):
         super().__init__(reason)
 
 
+class EmailNotVerifiedException(AuthException):
+    """Exception raised when a user with an unverified email tries to login"""
+    def __init__(self, reason):
+        """Constructor for EmailNotVerifiedException
+        Params:
+            reason: The reason why login failed. (Unverified email)
+        """
+        super().__init__(reason)
+
+
 class SignupFailedException(AuthException):
     """Signup failed."""
 
@@ -230,6 +240,11 @@ def logout():
     session.clear()
 
 
+def confirm(email):
+    """Confirms that the user email is verified"""
+    g.db.users.verify_email(email)
+
+
 def login(identifier, password="", override=False):
     """Performs a login.
 
@@ -319,6 +334,11 @@ def login(identifier, password="", override=False):
 
         if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
             raise LoginException(generic_error)
+        # To check if the user profile being accessed has a verified email
+
+        if user_row['email_verified'] == 'N':
+            email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
+            raise EmailNotVerifiedException(email_not_verified_error)
 
         g.user = User(g.db, user_row)
         session.clear()
@@ -326,6 +346,8 @@ def login(identifier, password="", override=False):
 
         return g.user
     except LoginException as e:
+        raise e
+    except EmailNotVerifiedException as e:
         raise e
     except Users.UsersException as e:
         raise e

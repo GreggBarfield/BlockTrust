@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
 from ..renderers.outside import outside_render
@@ -7,6 +7,7 @@ from ..database.tables.users import UsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
+from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 
@@ -64,6 +65,8 @@ def serve_login_action():
             return jsonify({"redirect": redirect_to})
         except auth.LoginException as e:
             raise ExportException(str(e))
+        except auth.EmailNotVerifiedException as e:
+            raise ExportException(str(e))
         except auth.SignupFailedException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
@@ -81,8 +84,8 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'username':None, 'password':None, 'confirm_password':None,
-            'email':None, 'first':None, 'last':None, 'phone':None
+            'username': None, 'password': None, 'confirm_password': None,
+            'email': None, 'first': None, 'last': None, 'phone': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -103,7 +106,21 @@ def serve_signup_action():
         except auth.SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
 
+<<<<<<< HEAD
+        # Generating token identifier for user for email verification
+        userToken = token.generateConfirmationToken(required['email'])
+        # Creating URL for user to confirm email address
+        confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
+        # Sending an email to user including Blocktrust email template and verification link
+        send_email(
+            "BlockTrust Network Email Confirmation",
+            render_email("verification_email.html", {
+                'confirm_url': confirm_url
+            }), required['email']
+        )
+=======
 
+>>>>>>> 01cbe3589d6b946290884ad7823e5d8be8616985
         # Sign up worked, now log in and redirect
         try:
             auth.login(
@@ -113,6 +130,8 @@ def serve_signup_action():
             return jsonify({"redirect": "/dashboard"})
         except auth.LoginException as e:
             raise ExportException("Sorry, we created your account but had difficulties logging you in. Contact us for help.")
+        except auth.EmailNotVerifiedException as e:
+            return jsonify({"redirect": "/email_not_verified"})
         except auth.UsersException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
@@ -186,9 +205,33 @@ def serve_contact_form_response():
     )
     return {}
 
+<<<<<<< HEAD
+# Route for user to confirm their account
+
+
+@bp.route('/confirm/<tok>', methods=['GET', 'POST'])
+def serve_confirm(tok):
+    try:
+        # Try whether the token is valid by passing it to confirmToken
+        email = token.confirmToken(tok)
+        # Confirm the user account
+        auth.confirm(email)
+    except auth.SignupFailedException as e:
+        raise ExportException("User email could not be verified")
+    # Redirect to user login page
+    return outside_render('email_verified.html')
+
+# Route to display that user email is not verified and needs to be verified after signing up
+
+
+@bp.route('/email_not_verified', methods=['GET'])
+def serve_email_not_confirmed():
+    return outside_render('email_not_verified.html')
+=======
 
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
+>>>>>>> 01cbe3589d6b946290884ad7823e5d8be8616985
