@@ -25,6 +25,7 @@ from ..data_requests.router import unauth_route
 
 from time import time
 
+from ..database.tables import zip_codes
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -53,6 +54,9 @@ def serve_sales_group():
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
+
+    
+    
     return {
         "id": sales_group_row["id"],
         "reported": sales_group_row["reported"],
@@ -62,6 +66,7 @@ def serve_sales_group():
         "eids": eids,
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
+        "location": sales_group_row["location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -91,6 +96,7 @@ def serve_search_sales_groups():
                 "eids": eids,
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
+                "location": sales_group_row["location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -135,6 +141,7 @@ def serve_search_sales_groups_2():
                 else None
             ),
             "zip": sales_group_row["zip"],
+            "location": sales_group_row["location"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {

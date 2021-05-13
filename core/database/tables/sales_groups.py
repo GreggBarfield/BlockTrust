@@ -1,5 +1,5 @@
 import json
-
+from ..tables import zip_codes
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -152,6 +152,8 @@ class SalesGroups:
             auction_sale: The auction sale ID 
         """
         location = self._db.zip_codes.get_locations(zip_code)
+        # location="Success"
+
         # print(location)
         self._db.execute(
             """UPDATE sales_groups
@@ -195,7 +197,7 @@ class SalesGroups:
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
-        location =  self._db.zip_codes.get_locations(zip_code)
+
 
         #TODO: Optimize
         #TODO: Add skip, limit
@@ -220,7 +222,6 @@ class SalesGroups:
             additionals.append(minimum_weight)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
-        sql_location = ','.join(("%s" for i in location))
         sql = SalesGroups._STANDARD_SELECT + """
                 WHERE
                     (
@@ -229,12 +230,11 @@ class SalesGroups:
                     )
                     AND sales_groups.published > 0
                     AND zip IN (""" + sql_zip_codes + """)
-                    AND location IN (""" + sql_location + """)
                     """ + sql_additionals_total + """
         """
 
         sales_groups = self._db.execute_d(
             sql,
-            [start, end, start, end] + zip_codes + location + additionals
+            [start, end, start, end] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)

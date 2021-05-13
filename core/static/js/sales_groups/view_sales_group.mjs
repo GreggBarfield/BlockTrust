@@ -141,12 +141,16 @@ export class SalesGroupViewer {
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
-            let milesAwayInt = parseInt(milesAway);
+            let milesAwayInt = "--"
+            if ( milesAway!= "--"){
+                milesAwayInt = parseInt(milesAway);
+            }
+            
             location.style="float:right;display: inline;color:black";
             // let zip = new ZIPCodes(this.data.zip_codes);
-            $.post("../../../database/tables/zip_codes.py", function())
             
-            location.textContent = "Location: "+ this.data.location+"("+milesAwayInt+" Miles)";
+            
+            location.textContent = "Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
             // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
             left.append(location);
 
