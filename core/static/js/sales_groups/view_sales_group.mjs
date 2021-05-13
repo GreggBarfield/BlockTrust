@@ -70,7 +70,16 @@ export class SalesGroupViewer {
 
         layout.tabs = document.createElement("div");
         layout.tabs.className= "row";
+        layout.tabs.style="width:100%;margin:auto";
         layout.content.append(layout.tabs);
+
+        layout.contact = document.createElement("div");
+        layout.contact.className= "col-12";
+        layout.tabs.append(layout.contact);
+
+        layout.tags =  document.createElement("div");
+        layout.tags.className= "col-12";
+        layout.tabs.append(layout.tags);
 
         function addInfo(key, value, position, wide=false, highlighting=false) {
             let str = "";
@@ -347,7 +356,7 @@ export class SalesGroupViewer {
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
-            container.style.marginLeft="10px";
+            // container.style.marginLeft="10px";
             attachTo.append(container);
 
             // let bar = document.createElement("div");
@@ -362,7 +371,7 @@ export class SalesGroupViewer {
             tri.append(triClosed);
 
             let triOpened = document.createElement("i");
-            // triOpened.style ="margin-bottom:5px;border-radius: 25px";
+            triOpened.style ="margin-bottom:5px;border-radius: 25px";
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
@@ -379,6 +388,7 @@ export class SalesGroupViewer {
             body.className = "acc-body";
             body.style.display = "none";
             container.append(body);
+            
 
             let isClosed = true;
             let isFirstOpen = true;
@@ -387,7 +397,7 @@ export class SalesGroupViewer {
                 if (isClosed) {
                     triOpened.style="margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
-                    body.style ="border:1px solid #c0c0c0;padding:15px;";
+                    body.style ="border:1px solid #c0c0c0;padding:15px;width:100%";
                     body.style.display = "block";
                     triClosed.style.display = "none";
                     isClosed = false;
@@ -411,7 +421,7 @@ export class SalesGroupViewer {
         }
 
         {
-            let b_contactInfo = createAcc(layout.tabs, "Contact Info");
+            let b_contactInfo = createAcc(layout.contact, "Contact Info");
             
             let p = document.createElement("h5");
             p.style="text-align:center;";
@@ -510,9 +520,11 @@ export class SalesGroupViewer {
         // }
         
         {
-            let b_tags = createAcc(layout.tabs, "Tags (EIDs)", (body)=>{
+
+            let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
+            divTableResponsive.style="width:100%;padding:15px";
 
             let mainTable = document.createElement("table");
             mainTable.className = "table table-striped table-bordered nowrap";
