@@ -165,6 +165,25 @@ ADD COLUMN `stripe_customer_id` VARCHAR(127) NULL AFTER `manual_paid`;
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid`),1,0)) VIRTUAL AFTER `manual_paid`;
 
+
+/* Evan Krohn 4/7/2021 */
+/* You should delete all sales groups before this! */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `eid_group` INT NULL AFTER `auction_sale`;
+CREATE TABLE `eid_groups` (
+  `id` int NOT NULL,
+  `owner` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `example_db_1`.`eid_group_eids` (
+  `eid_group` INT NOT NULL,
+  `eid` INT NOT NULL);
+DROP TABLE `example_db_1`.`sales_group_eids`;
+ALTER TABLE `example_db_1`.`eid_groups` 
+CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
+ALTER TABLE `example_db_1`.`eid_group_eids` 
+CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
+
 /* Lydia Qiao 5/13/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;

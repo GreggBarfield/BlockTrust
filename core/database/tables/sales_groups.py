@@ -51,27 +51,25 @@ class SalesGroups:
 
     def __init__(self, db):
         self._db = db
-        
 
     def _translate_json(self, d):
         to_process = d
 
         if not isinstance(d, list):
             to_process = [d]
-        
+
         for d_actual in to_process:
             if d_actual is not None:
                 if d_actual["reported"] is not None:
                     d_actual["reported"] = json.loads(d_actual["reported"])
         return d
 
-
     def row_by_id(self, row_id):
         """Gets a sales group row by an ID.
 
         Params:
             row_id: the row id
-        
+
         Returns:
             A dictionary (w/ JSON pre-converted)
 
@@ -126,14 +124,16 @@ class SalesGroups:
         Returns:
             The sales group row inserted
         """
+
         self._db.execute(
             """INSERT INTO sales_groups
-                (account, reported)
-                VALUES (%(account)s, %(reported)s)
+                (account, reported, eid_group)
+                VALUES (%(account)s, %(reported)s, %(eid_group)s)
             """,
             {
                 "account": account_id,
-                "reported": json.dumps(reported)  # Does this need to be converted to a string first?
+                "reported": json.dumps(reported),  # Does this need to be converted to a string first?
+                "eid_group": self._db.eid_groups.new_group(owner=account_id)
             }
         )
         return self.row_by_id(self._db.last_row_id())

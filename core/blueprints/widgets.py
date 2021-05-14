@@ -53,17 +53,13 @@ def serve_sales_group():
     sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
-    eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
-
-    
-    
     return {
         "id": sales_group_row["id"],
         "reported": sales_group_row["reported"],
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "eids": eids,
+        "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "location": sales_group_row["location"],
@@ -85,7 +81,6 @@ def serve_search_sales_groups():
     results = []
 
     for sales_group_row in sales_group_rows:
-        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
         if sales_group_row["account"] == g.account.id():
             results.append({
                 "id": sales_group_row["id"],
@@ -93,7 +88,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": eids,
+                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "location": sales_group_row["location"],
@@ -127,14 +122,13 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
-        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
         results.append({
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": eids,
+            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -159,14 +153,25 @@ def serve_search_sales_groups_2():
     }
 
 
-@bp.route('/widgets/data/search_by_eid_if_visible', methods=['POST'])
+@bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
 @crut.require_account
-def serve_search_by_eid_if_visible():
+def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
+    count = g.db.matches.get_count_by_eid_if_visible(eid_number)
+    if count > 0:
+        return {
+            "matches": [ {"eid": request.json["search"]["eid"]} ]
+        }
+    else:
+        if g.account is not None:
+            rows = g.db.matches.get_visual_id_if_owner_and_visible(eid_number,g.account.id())
+            if len(rows) > 0:
+                return {
+                    "matches": rows
+                }
     return {
-        "matches": g.db.matches.get_count_by_eid_if_visible(eid_number)
+            "matches": []
     }
-
 
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
@@ -204,9 +209,8 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
 
-    g.db.sales_group_eids.delete_sales_group(request.json["id"])
-    g.db.sales_group_eids.insert_multiple(request.json["eids"], request.json["id"])
-    
+    g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+
     g.db.sales_groups.update(
         request.json["id"],
         request.json["reported"],
