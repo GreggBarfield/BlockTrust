@@ -421,22 +421,23 @@ export class SalesGroupViewer {
         }
 
         {
-            let b_contactInfo = createAcc(layout.contact, "Contact Info");
+            // let b_contactInfo = createAcc(layout.contact, "Contact Info");
             
-            let p = document.createElement("h5");
-            p.style="text-align:center;";
-            p.style.marginLeft = "10px";
-            p.textContent = this.data.account_name;
-            b_contactInfo.append(p);
+            // let p = document.createElement("h5");
+            // p.style="text-align:center;";
+            // p.style.marginLeft = "10px";
+            // p.textContent = this.data.account_name;
+            // b_contactInfo.append(p);
 
             let sendMessageButton = document.createElement("button");
            
             sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.textContent = "Send Message";
+            sendMessageButton.textContent = "Contact Seller";
             sendMessageButton.addEventListener("click", ()=>{
                 promptNewMessage(this.data.account, this.data.account_name);
             });
-            b_contactInfo.append(sendMessageButton);
+            // b_contactInfo.append(sendMessageButton);
+            layout.contact.append(sendMessageButton);
         }
 
         // {
