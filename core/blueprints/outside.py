@@ -106,7 +106,6 @@ def serve_signup_action():
         except auth.SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
 
-<<<<<<< HEAD
         # Generating token identifier for user for email verification
         userToken = token.generateConfirmationToken(required['email'])
         # Creating URL for user to confirm email address
@@ -116,11 +115,8 @@ def serve_signup_action():
             "BlockTrust Network Email Confirmation",
             render_email("verification_email.html", {
                 'confirm_url': confirm_url
-            }), required['email']
+            }), required['email'], override=True
         )
-=======
-
->>>>>>> 01cbe3589d6b946290884ad7823e5d8be8616985
         # Sign up worked, now log in and redirect
         try:
             auth.login(
@@ -205,7 +201,6 @@ def serve_contact_form_response():
     )
     return {}
 
-<<<<<<< HEAD
 # Route for user to confirm their account
 
 
@@ -227,11 +222,16 @@ def serve_confirm(tok):
 @bp.route('/email_not_verified', methods=['GET'])
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
-=======
 
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
->>>>>>> 01cbe3589d6b946290884ad7823e5d8be8616985
+
+# Routes for shop, shopping cart, product and checkout pages
+
+
+@bp.route('/shop', methods=['GET'])
+def serve_shop():
+    return outside_render("shop/shop_homepage.html")

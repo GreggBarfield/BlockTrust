@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 class AccountUser:
 
     def __init__(self, db, row):
