@@ -156,7 +156,7 @@ export class SalesGroupViewer {
             // location.className="row";
             
             let milesAway = "--";
-            console.log("content"+this.data.content);
+            // console.log("content"+this.data.content);
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
@@ -239,6 +239,7 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
+            addInfo("Delivery Location", this.data.delivery, marketBody);
             
             // addInfo("Count w Data", this.data.eids.length,marketBody);
             let daysRemaining = "--";
