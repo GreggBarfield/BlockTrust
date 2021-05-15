@@ -63,6 +63,7 @@ def serve_sales_group():
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "location": sales_group_row["location"],
+        "delivery":sales_group_row["delivery"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -92,6 +93,7 @@ def serve_search_sales_groups():
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "location": sales_group_row["location"],
+                "delivery":sales_group_row["delivery"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -136,6 +138,7 @@ def serve_search_sales_groups_2():
             ),
             "zip": sales_group_row["zip"],
             "location": sales_group_row["location"],
+            "delivery":sales_group_row["delivery"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {
@@ -216,6 +219,7 @@ def serve_save_sales_group():
         request.json["reported"],
         request.json["published"],
         request.json["zip"],
+        request.json["delivery"],
         request.json["start"],
         request.json["end"],
         request.json["auction_sale"]

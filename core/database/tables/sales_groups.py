@@ -138,7 +138,7 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, start, end, auction_sale):
+    def update(self, row_id, reported, published, zip_code, delivery, start, end, auction_sale):
         """Updates a row.
 
         Params:
@@ -158,7 +158,7 @@ class SalesGroups:
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s, location = %(location)s,
+                    start=%(start)s, end=%(end)s, zip=%(zip)s, location = %(location)s, delivery =  %(delivery)s,
                     auction_sale=%(auction_sale)s
                 WHERE id=%(id)s
             """,
@@ -170,6 +170,7 @@ class SalesGroups:
                 "end": end,
                 "zip": zip_code,
                 "location":location,
+                "delivery":delivery,
                 "auction_sale": auction_sale
             }
         )

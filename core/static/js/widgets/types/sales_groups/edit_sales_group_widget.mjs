@@ -421,6 +421,8 @@ export class EditSalesGroupWidget extends Widget {
         // Setup
 
         this.frame.append(card);
+        console.log(marketingLocation.value);
+        console.log(this.data.delivery);
 
         this.asyncForm = new AsyncForm({
             action: "/widgets/data/save_sales_group",
@@ -459,7 +461,7 @@ export class EditSalesGroupWidget extends Widget {
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
                     },
-                    "delivery": marketingLocation.value,
+                    delivery: marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
