@@ -25,6 +25,7 @@ from ..data_requests.router import unauth_route
 
 from time import time
 
+from ..database.tables import zip_codes
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -61,6 +62,7 @@ def serve_sales_group():
         "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
+        "location": sales_group_row["location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -89,6 +91,7 @@ def serve_search_sales_groups():
                 "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
+                "location": sales_group_row["location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -132,6 +135,7 @@ def serve_search_sales_groups_2():
                 else None
             ),
             "zip": sales_group_row["zip"],
+            "location": sales_group_row["location"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {

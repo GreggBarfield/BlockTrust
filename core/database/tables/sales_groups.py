@@ -1,5 +1,5 @@
 import json
-
+from ..tables import zip_codes
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -146,14 +146,19 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
+            location: city and state of the zip code
             start: The start time
             end: The end time
             auction_sale: The auction sale ID 
         """
+        location = self._db.zip_codes.get_locations(zip_code)
+        # location="Success"
+
+        # print(location)
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s,
+                    start=%(start)s, end=%(end)s, zip=%(zip)s, location = %(location)s,
                     auction_sale=%(auction_sale)s
                 WHERE id=%(id)s
             """,
@@ -164,6 +169,7 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
+                "location":location,
                 "auction_sale": auction_sale
             }
         )
@@ -176,6 +182,7 @@ class SalesGroups:
 
         Params:
             zip_code: Origin zip code
+            location: city and state of the zip code
             miles: Radius in miles
             start: Start time
             end: End time
@@ -190,6 +197,7 @@ class SalesGroups:
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
+
 
         #TODO: Optimize
         #TODO: Add skip, limit
