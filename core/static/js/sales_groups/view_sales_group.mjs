@@ -142,8 +142,18 @@ export class SalesGroupViewer {
             salesGroupID.style ="display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
-
+            let sendMessageButton = document.createElement("button");
+           
+            sendMessageButton.className = "btn btn-sm btn-primary";
+            sendMessageButton.style="float:right"
+            sendMessageButton.textContent = "Contact Seller";
+            sendMessageButton.addEventListener("click", ()=>{
+                promptNewMessage(this.data.account, this.data.account_name);
+            });
+            // b_contactInfo.append(sendMessageButton);
+            left.append(sendMessageButton);
             let location = document.createElement("div");
+            // location.className="row";
             
             let milesAway = "--";
             console.log("content"+this.data.content);
@@ -155,13 +165,14 @@ export class SalesGroupViewer {
                 milesAwayInt = parseInt(milesAway);
             }
             
-            location.style="float:right;display: inline;color:black";
+            location.style="color:black";
             // let zip = new ZIPCodes(this.data.zip_codes);
             
             
-            location.textContent = "Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
+            location.textContent = "  Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
             // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
             left.append(location);
+            
 
         }
 
@@ -228,12 +239,16 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
+            
+            // addInfo("Count w Data", this.data.eids.length,marketBody);
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
                 let currentEpoch = Date.now()/1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
+            var date= new Date(this.data.start*1000);
+            addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
             //TODO: Count w Data, Delivery Location,Market
             marketInfo.append(marketInfoText);
@@ -429,15 +444,15 @@ export class SalesGroupViewer {
             // p.textContent = this.data.account_name;
             // b_contactInfo.append(p);
 
-            let sendMessageButton = document.createElement("button");
+            // let sendMessageButton = document.createElement("button");
            
-            sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.textContent = "Contact Seller";
-            sendMessageButton.addEventListener("click", ()=>{
-                promptNewMessage(this.data.account, this.data.account_name);
-            });
-            // b_contactInfo.append(sendMessageButton);
-            layout.contact.append(sendMessageButton);
+            // sendMessageButton.className = "btn btn-sm btn-primary";
+            // sendMessageButton.textContent = "Contact Seller";
+            // sendMessageButton.addEventListener("click", ()=>{
+            //     promptNewMessage(this.data.account, this.data.account_name);
+            // });
+            // // b_contactInfo.append(sendMessageButton);
+            // layout.contact.append(sendMessageButton);
         }
 
         // {
