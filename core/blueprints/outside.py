@@ -110,7 +110,7 @@ def serve_signup_action():
         userToken = token.generateConfirmationToken(required['email'])
         # Creating URL for user to confirm email address
         confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
-        # Sending an email to user including Blocktrust email template and verification link
+        # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
         send_email(
             "BlockTrust Network Email Confirmation",
             render_email("verification_email.html", {
