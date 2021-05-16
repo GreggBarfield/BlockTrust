@@ -57,5 +57,4 @@ local/
 build*
 
 core/environment_config.json
-core/environment_configs
 api/translation_worker/tools/sandbox.py

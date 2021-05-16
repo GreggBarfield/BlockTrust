@@ -1,18 +1,45 @@
 from flask import (
-    Flask, Blueprint, jsonify, request, g
+    Flask, Blueprint, request, g
 )
 import stripe
+import json
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..common_exceptions import ExportException
-from core.config import SUBSCRIPTION_WEBHOOK_SECRET
+from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE
 
 bp = Blueprint('stripe_bp', __name__)
+
+stripe.api_key = STRIPE_SECRET_KEY
 
 
 @bp.route('/stripe/test', methods=['GET'])
 def serve_stripe_test():
     return ('<h1>Hello World</h1>')
+
+
+@bp.route('/stripe/config', methods=['GET'])
+def serve_stripe_config():
+    return  {
+        'publishableKey':STRIPE_PUBLISHABLE_KEY
+    }
+
+
+@bp.route('/stripe/price/<priceLookupKey>', methods=['GET'])
+def serve_stripe_price(priceLookupKey):
+    try:
+        if priceLookupKey == "basic":
+            price = stripe.Price.retrieve(
+                STRIPE_BASIC_PRICE,
+            )
+            print(price)  
+            return {
+                'price': "${:,.2f}".format(price['unit_amount']/100)
+            }
+        else:
+            return {'error':{'message': 'Incorrect price key'}}, 400    
+    except Exception as e:
+        return {'error':{'message': str(e)}}, 400
 
 
 #events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
@@ -57,13 +84,60 @@ def serve_stripe_subscription():
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
-    return jsonify({'status': 'Success'})
+    return {'status': 'Success'}
 
 
 def get_account_of_stripe_customer(event):
-    #read the customer id and get the account
+    #read the stripe customer id and get the account
     customer_id = event.data.object.customer      
     try:
         return g.db.accounts.get_by_stripe_customer_id(customer_id)
     except AccountsException:
         raise ExportException('No customer found with the stripe customer id: ' + customer_id)
+
+
+@bp.route('/stripe/create-customer', methods=['POST'])
+def create_customer():
+    data = json.loads(request.data)
+    try:
+        if g.account is not None:
+            # Create a new customer object
+            customer = stripe.Customer.create(email=data['email'], name=data['name'], metadata={'AccountId':g.account.id()})
+            # At this point, associate the ID of the Customer object with your
+            # own internal representation of a customer, if you have one.            
+            g.db.accounts.update_account(
+                g.account.id(),
+                stripe_customer_id=customer.id
+            )
+            resp = {'customer':customer}
+            return resp
+        else:
+            return {'error':{'message': "No account selected"}}, 400
+    except Exception as e:
+        return {'error':{'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-subscription', methods=['POST'])
+def create_subscription():
+    data = json.loads(request.data)    
+    try:
+        payment_method = stripe.PaymentMethod.attach(
+            data['paymentMethodId'],
+            customer=data['customerId'],
+        )
+        # Create the subscription
+        # only supporting basic price right now       
+        if data['priceLookupKey'] == "basic":
+            subscription = stripe.Subscription.create(
+                default_payment_method=payment_method.id,
+                customer=data['customerId'],
+                items=[{
+                    'price': STRIPE_BASIC_PRICE
+                }],
+                expand=['latest_invoice.payment_intent'],
+            )
+            return {'subscription':subscription}
+        else:
+            return {'error':{'message': 'No or incorrect price selected'}}, 400
+    except Exception as e:
+        return {'error':{'message': str(e)}}, 400
