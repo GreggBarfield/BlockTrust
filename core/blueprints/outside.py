@@ -28,6 +28,7 @@ def serve_logout():
     return redirect('/')
 
 
+
 @bp.route('/login', methods=['GET'])
 @bp.route('/log-in', methods=['GET'])
 @bp.route('/signin', methods=['GET'])
