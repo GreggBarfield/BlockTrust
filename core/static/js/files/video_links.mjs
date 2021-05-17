@@ -15,6 +15,7 @@ export class VideoSession{
                     "platform": linkID[0],
                    
                     "embed":linkID[1],
+                    "description": linkID[2],
                     "uploaded": false,
                     "removed":false
                     
@@ -33,7 +34,7 @@ export class VideoSession{
         this.table = new Table();
         this.table.attach(this.linkBox);
 
-        this.table.setHeader(["Platform", "Link", "Options"]);
+        this.table.setHeader(["Platform", "Link", "Options","Description"]);
         
         this.updateTable();
         this.addURLButton = document.createElement("button");
@@ -63,7 +64,7 @@ export class VideoSession{
             if (link["removed"])
                 continue;
           
-            result.push([link["platform"],link["embed"]]);
+            result.push([link["platform"],link["embed"],document.getElementById(link["embed"]).value]);
         }
         return result;
     }
@@ -91,6 +92,15 @@ export class VideoSession{
             if ("embed" in link) {
                 linkName = link.embed;
             }
+            let linkDes = document.createElement("input");
+            linkDes.type = "text";
+            linkDes.className = "form-control";
+            linkDes.id = link.embed;
+            if("description" in link){
+                
+                linkDes.value = link.description;
+                
+            }
             if (!("row" in link)) {
                 
                 let optionsDiv = document.createElement("div");
@@ -110,7 +120,7 @@ export class VideoSession{
                 });
                 optionsDiv.append(removeButton);
                 
-                link["row"] = this.table.addRow([linkID, linkName, optionsDiv]);
+                link["row"] = this.table.addRow([linkID, linkName, optionsDiv,linkDes]);
             }
             this.table.setValue(link["row"], 0, linkID);
             this.table.setValue(link["row"], 1, linkName);
@@ -188,6 +198,7 @@ export class VideoSession{
                     let file_obj = {
                         "platform": platform,
                         "embed":id,
+                        "description":"testing",
                         "uploaded": false,
                         "removed":false
                     };
