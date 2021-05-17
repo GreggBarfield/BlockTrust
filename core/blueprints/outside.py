@@ -50,22 +50,25 @@ def serve_login_action():
 
         if 'password' not in request.form:
             raise ExportException("internal error, password missing from form")
-        auth.login(
-                identifier=request.form['identifier'],
-                password=request.form['password']
-            )
-        redirect_to = '/dashboard'
-        if (
-                'requestRedirectTo' in request.form and
-                request.form['requestRedirectTo'] is not None and
-                request.form['requestRedirectTo'] != ''
-        ):
-            redirect_to = request.form['requestRedirectTo']
+        try:
+            auth.login(
+                    identifier=request.form['identifier'],
+                    password=request.form['password']
+                )
+            redirect_to = '/dashboard'
+            if (
+                    'requestRedirectTo' in request.form and
+                    request.form['requestRedirectTo'] is not None and
+                    request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
             return jsonify({"redirect": redirect_to})
-    except auth.LoginException as e:
-        raise ExportException(str(e))
-    except auth.SignupFailedException as e:
-        raise ExportException("internal error in Users.login")
+        except auth.LoginException as e:
+            raise ExportException(str(e))
+        except auth.EmailNotVerifiedException as e:
+            raise ExportException(str(e))
+        except auth.SignupFailedException as e:
+            raise ExportException("internal error in Users.login")
     except ExportException as e:
         return jsonify({"error": str(e)})
 
@@ -103,6 +106,18 @@ def serve_signup_action():
         except auth.SignupFailedException as e:
             raise ExportException("Signup failed: " + str(e))
 
+        # Generating token identifier for user for email verification
+        userToken = token.generateConfirmationToken(required['email'])
+        # Creating URL for user to confirm email address
+        confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
+        # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
+        send_email(
+            "BlockTrust Network Email Confirmation",
+            render_email("verification_email.html", {
+                'confirm_url': confirm_url
+            }), required['email'], override=True
+        )
+
         # Sign up worked, now log in and redirect
         try:
             auth.login(
@@ -112,6 +127,8 @@ def serve_signup_action():
             return jsonify({"redirect": "/dashboard"})
         except auth.LoginException as e:
             raise ExportException("Sorry, we created your account but had difficulties logging you in. Contact us for help.")
+        except auth.EmailNotVerifiedException as e:
+            return jsonify({"redirect": "/email_not_verified"})
         except auth.UsersException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
@@ -255,3 +272,31 @@ def serve_reset_password_action(tok):
             return jsonify({"error": str(e)})
     except ExportException as e:
         return jsonify({"error": str(e)})
+# Route for user to confirm their account
+
+
+@bp.route('/confirm/<tok>', methods=['GET', 'POST'])
+def serve_confirm(tok):
+    try:
+        # Try whether the token is valid by passing it to confirmToken
+        email = token.confirmToken(tok)
+        # Confirm the user account
+        auth.confirm(email)
+    except auth.SignupFailedException as e:
+        raise ExportException("User email could not be verified")
+    # Redirect to user login page
+    return outside_render('email_verified.html')
+
+# Route to display that user email is not verified and needs to be verified after signing up
+
+
+@bp.route('/email_not_verified', methods=['GET'])
+def serve_email_not_confirmed():
+    return outside_render('email_not_verified.html')
+
+
+@bp.route('/outside/contact-email', methods=['GET'])
+def serve_contact_email():
+    return jsonify(
+        contactEmail=SUPPORT_GENERAL_EMAIL
+    )

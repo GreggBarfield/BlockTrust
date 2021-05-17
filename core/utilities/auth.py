@@ -28,6 +28,16 @@ class LoginException(AuthException):
         super().__init__(reason)
 
 
+class EmailNotVerifiedException(AuthException):
+    """Exception raised when a user with an unverified email tries to login"""
+    def __init__(self, reason):
+        """Constructor for EmailNotVerifiedException
+        Params:
+            reason: The reason why login failed. (Unverified email)
+        """
+        super().__init__(reason)
+
+
 class SignupFailedException(AuthException):
     """Signup failed."""
 
@@ -161,8 +171,7 @@ def signup(username, email, phone, first, last, password, confirm_password):
 
     if len(username) == 0:
         raise SignupFailedException("Username is blank.")
-
-    # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
+        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
     digits = ''.join(chr(ord('0') + i) for i in range(10))
     all_digits = True
     for c in username:
@@ -232,7 +241,7 @@ def signup(username, email, phone, first, last, password, confirm_password):
             "phone": phone,
             "first": first,
             "last": last,
-            "email_verified": ""
+            "email_verified": "N"
         }
     )
 
@@ -301,6 +310,11 @@ def change_password(email, new_password, confirm_password):
         raise e
 
 
+def confirm(email):
+    """Confirms that the user email is verified"""
+    g.db.users.verify_email(email)
+
+
 def login(identifier, password="", override=False):
     """Performs a login.
 
@@ -319,7 +333,6 @@ def login(identifier, password="", override=False):
     try:
         if password is None and override is not True:
             raise LoginException("password is None")
-
         if override is not True and override is not False:
             raise LoginException("override is bad")
 
@@ -332,13 +345,10 @@ def login(identifier, password="", override=False):
         user_row = None
 
         # Try ID first for security purposes
-
         all_digits = True
-
         for c in identifier:
             if c not in "0123456789":  # ASCII digits ONLY
                 all_digits = False
-
         if user_row is None and all_digits:
             id_results = g.db.execute_d(
                 """
@@ -394,6 +404,11 @@ def login(identifier, password="", override=False):
 
         if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
             raise LoginException(generic_error)
+        # To check if the user profile being accessed has a verified email
+
+        if user_row['email_verified'] == 'N':
+            email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
+            raise EmailNotVerifiedException(email_not_verified_error)
 
         g.user = User(g.db, user_row)
         session.clear()
@@ -402,7 +417,22 @@ def login(identifier, password="", override=False):
         return g.user
     except LoginException as e:
         raise e
+    except EmailNotVerifiedException as e:
+        raise e
     except Users.UsersException as e:
         raise e
     except Exception as e:
         raise LoginException("other exception")
+
+
+def get_email_verified_value(email):
+    """
+    Gets the verification status of the email provided
+    Params:
+        email: Email of the user to check verification status
+
+
+    Returns:
+       True if user email is verified. False if user is unverified.
+    """
+    return g.db.users.get_email_verified_status(email)
