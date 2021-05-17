@@ -4,6 +4,7 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "./messages.mjs";
+// import {ZIPCodes} from "../../../database/tables/"
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
@@ -67,6 +68,19 @@ export class SalesGroupViewer {
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
 
+        layout.tabs = document.createElement("div");
+        layout.tabs.className= "row";
+        layout.tabs.style="width:100%;margin:auto";
+        layout.content.append(layout.tabs);
+
+        layout.contact = document.createElement("div");
+        layout.contact.className= "col-12";
+        layout.tabs.append(layout.contact);
+
+        layout.tags =  document.createElement("div");
+        layout.tags.className= "col-12";
+        layout.tabs.append(layout.tags);
+
         function addInfo(key, value, position, wide=false, highlighting=false) {
             let str = "";
 
@@ -128,17 +142,37 @@ export class SalesGroupViewer {
             salesGroupID.style ="display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
-
+            let sendMessageButton = document.createElement("button");
+           
+            sendMessageButton.className = "btn btn-sm btn-primary";
+            sendMessageButton.style="float:right"
+            sendMessageButton.textContent = "Contact Seller";
+            sendMessageButton.addEventListener("click", ()=>{
+                promptNewMessage(this.data.account, this.data.account_name);
+            });
+            // b_contactInfo.append(sendMessageButton);
+            left.append(sendMessageButton);
             let location = document.createElement("div");
+            // location.className="row";
             
             let milesAway = "--";
+            // console.log("content"+this.data.content);
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
-            let milesAwayInt = parseInt(milesAway);
-            location.style="float:right;display: inline;color:black";
-            location.textContent = "Location: " +"("+milesAwayInt+" Miles)";
+            let milesAwayInt = "--"
+            if ( milesAway!= "--"){
+                milesAwayInt = parseInt(milesAway);
+            }
+            
+            location.style="color:black";
+            // let zip = new ZIPCodes(this.data.zip_codes);
+            
+            
+            location.textContent = "  Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
+            // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
             left.append(location);
+            
 
         }
 
@@ -205,12 +239,17 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
+            addInfo("Delivery Location", this.data.delivery, marketBody);
+            
+            // addInfo("Count w Data", this.data.eids.length,marketBody);
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
                 let currentEpoch = Date.now()/1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
+            var date= new Date(this.data.start*1000);
+            addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
             //TODO: Count w Data, Delivery Location,Market
             marketInfo.append(marketInfoText);
@@ -390,12 +429,14 @@ export class SalesGroupViewer {
 
         }
 
+        // layout.tabs.append(this.box);
         this.box.append(layout.content);
         // layout.format.append(this.box);
 
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
+            // container.style.marginLeft="10px";
             attachTo.append(container);
 
             // let bar = document.createElement("div");
@@ -410,7 +451,7 @@ export class SalesGroupViewer {
             tri.append(triClosed);
 
             let triOpened = document.createElement("i");
-            // triOpened.style ="margin-bottom:5px;border-radius: 25px";
+            triOpened.style ="margin-bottom:5px;border-radius: 25px";
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
@@ -427,6 +468,7 @@ export class SalesGroupViewer {
             body.className = "acc-body";
             body.style.display = "none";
             container.append(body);
+            
 
             let isClosed = true;
             let isFirstOpen = true;
@@ -435,7 +477,7 @@ export class SalesGroupViewer {
                 if (isClosed) {
                     triOpened.style="margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
-                    body.style ="border:1px solid #c0c0c0;padding:15px;";
+                    body.style ="border:1px solid #c0c0c0;padding:15px;width:100%";
                     body.style.display = "block";
                     triClosed.style.display = "none";
                     isClosed = false;
@@ -459,21 +501,23 @@ export class SalesGroupViewer {
         }
 
         {
-            let b_contactInfo = createAcc(this.box, "Contact Info");
+            // let b_contactInfo = createAcc(layout.contact, "Contact Info");
             
-            let p = document.createElement("h5");
-            p.style="text-align:center";
-            p.textContent = this.data.account_name;
-            b_contactInfo.append(p);
+            // let p = document.createElement("h5");
+            // p.style="text-align:center;";
+            // p.style.marginLeft = "10px";
+            // p.textContent = this.data.account_name;
+            // b_contactInfo.append(p);
 
-            let sendMessageButton = document.createElement("button");
+            // let sendMessageButton = document.createElement("button");
            
-            sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.textContent = "Send Message";
-            sendMessageButton.addEventListener("click", ()=>{
-                promptNewMessage(this.data.account, this.data.account_name);
-            });
-            b_contactInfo.append(sendMessageButton);
+            // sendMessageButton.className = "btn btn-sm btn-primary";
+            // sendMessageButton.textContent = "Contact Seller";
+            // sendMessageButton.addEventListener("click", ()=>{
+            //     promptNewMessage(this.data.account, this.data.account_name);
+            // });
+            // // b_contactInfo.append(sendMessageButton);
+            // layout.contact.append(sendMessageButton);
         }
 
         // {
@@ -557,9 +601,11 @@ export class SalesGroupViewer {
         // }
         
         {
-            let b_tags = createAcc(this.box, "Tags (EIDs)", (body)=>{
+
+            let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
+            divTableResponsive.style="width:100%;padding:15px";
 
             let mainTable = document.createElement("table");
             mainTable.className = "table table-striped table-bordered nowrap";
