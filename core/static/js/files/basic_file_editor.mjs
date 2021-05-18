@@ -3,7 +3,7 @@ import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 import {promptURLBox  } from "./video_links.mjs";
 export class BasicFileEditor {
-    constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
+    constructor(restrictions={}, attach_node=null, fileIDs=null, fileDes=null, fileAuths=null) {
         let that = this;
         this.files = [];
         this.restrictions = restrictions;
@@ -11,8 +11,10 @@ export class BasicFileEditor {
 
         if (fileIDs !== null) {
             for (const fileID of fileIDs) {
+                const curDes = fileDes[fileIDs.indexOf(fileID)]
                 let file_obj = {
                     "id": fileID,
+                    "description": curDes,
                     "uploaded": true
                 };
                 if (fileID in fileAuths) {
@@ -37,7 +39,7 @@ export class BasicFileEditor {
         this.table = new Table();
         this.table.attach(this.ImageBox);
 
-        this.table.setHeader(["ID", "Name", "Options"]);
+        this.table.setHeader(["ID", "Name", "Options","Description"]);
 
         this.updateTable();
 
@@ -77,15 +79,27 @@ export class BasicFileEditor {
         return file["removed"];
     }
 
+
     updateTable() {
         for (let file of this.files) {
             let fileID = "Not Uploaded";
             if ("id" in file && file.uploaded == true) {
                 fileID = file.id;
+                console.log("fileID:", fileID)
             }
             let fileName = "";
             if ("name" in file) {
                 fileName = file.name;
+            }
+            let fileDes = document.createElement("input");
+            fileDes.type = "text";
+            fileDes.className = "form-control";
+            fileDes.id = this.files.indexOf(file);
+            console.log("filedes:",  this.files.indexOf(file));
+            if("description" in file){
+                
+                fileDes.value = file.description;
+                
             }
             if (!("row" in file)) {
                 
@@ -106,7 +120,7 @@ export class BasicFileEditor {
                 });
                 optionsDiv.append(removeButton);
                 
-                file["row"] = this.table.addRow([fileID, fileName, optionsDiv]);
+                file["row"] = this.table.addRow([fileID, fileName, optionsDiv,fileDes]);
             }
             this.table.setValue(file["row"], 0, fileID);
             this.table.setValue(file["row"], 1, fileName);
@@ -119,6 +133,7 @@ export class BasicFileEditor {
             }
         }
     }
+
 
     acceptableFile(file) {
         // Just to make it a little less confusing for the users, not for security
@@ -162,6 +177,27 @@ export class BasicFileEditor {
             if (!("id" in file) || file["id"] === undefined || file["id"] === null)
                 continue;
             result.push(file["id"]);
+        }
+        return result;
+    }
+    getDes(){
+        let result = [];
+        let i=0;
+        for (const file of this.files) {
+            if ("removed" in file && file["removed"]){
+                i+=1;
+                continue;
+            }
+                
+            if (!("uploaded" in file)) {
+                throw "Uploaded should be in file";
+            }
+            if (!file["uploaded"])
+                continue;
+            if (!("id" in file) || file["id"] === undefined || file["id"] === null)
+                continue;
+            result.push(document.getElementById(i).value);
+            i+=1;
         }
         return result;
     }

@@ -198,7 +198,7 @@ export class VideoSession{
                     let file_obj = {
                         "platform": platform,
                         "embed":id,
-                        "description":"testing",
+                        "description":"",
                         "uploaded": false,
                         "removed":false
                     };

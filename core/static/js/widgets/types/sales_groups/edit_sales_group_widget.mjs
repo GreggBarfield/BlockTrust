@@ -304,7 +304,7 @@ export class EditSalesGroupWidget extends Widget {
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
+        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images, this.data.reported.imgDes || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
 
 
@@ -475,6 +475,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        imgDes: that.fileEditor.getDes(),
                         videos: that.VideoEditor.getLinks(),
                     },
                     delivery: marketingLocation.value,
