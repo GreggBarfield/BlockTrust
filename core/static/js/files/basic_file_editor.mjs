@@ -89,8 +89,11 @@ export class BasicFileEditor {
                 
                 let removeButton = document.createElement("button");
                 removeButton.textContent = "Remove";
+                removeButton.textContent.fontcolor("green");
+                removeButton.style.borderColor="black";
                 removeButton.className = "btn btn-sm btn-danger";
                 removeButton.type = "button";
+                removeButton.style.backgroundColor="rgb(168, 87, 34)";
                 removeButton.addEventListener("click", ()=>{
                     if (this.remove(file)) {
                         removeButton.textContent = "Add";
@@ -121,13 +124,19 @@ export class BasicFileEditor {
         if (file.size > 10 * 1000 * 1000) {
             return "Sorry, " + file.name + " is too big (" + Math.floor(file.size / (1000 * 1000)) + "MB, the limit is 10MB).";
         }
+        var allowedExtensions = 
+        /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+  
+        if (!allowedExtensions.exec(file)) {
+            return "Sorry, the file " + file.name + " is not in .jpg, .jpeg, .png, or .gif format.";
+} 
         return null;
     }
 
     checkInput() {
         let inputFiles = Array.from(this.input.files);
         this.input.value = "";
-
+       
         for (let file of inputFiles) {
             let r = this.acceptableFile(file);
             if (r === null) {
