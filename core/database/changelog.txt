@@ -182,3 +182,10 @@ ALTER TABLE `example_db_1`.`eid_groups`
 CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
+
+
+/*Lydia Qiao 5/20/2021 */
+ALTER TABLE `example_db_1`.`users` 
+ADD COLUMN `failed_attempt` INT NULL DEFAULT 0 AFTER `email_verified`,
+ADD COLUMN `account_non_locked` TINYINT(4) NULL DEFAULT 1 AFTER `failed_attempt`,
+ADD COLUMN `lock_time` DATETIME NULL DEFAULT NULL AFTER `account_non_locked`;
