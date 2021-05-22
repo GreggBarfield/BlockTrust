@@ -42,7 +42,6 @@ class ZIPCodes:
         
         return results
 
-
     def get_locations(self, zip_code):    
         zcdb = ZipCodeDatabase()
         info = zcdb[zip_code]
