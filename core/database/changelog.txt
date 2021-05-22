@@ -184,9 +184,10 @@ CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
-/* Lydia Qiao 5/14/2021 */
-ALTER TABLE `example_db_1`.`sales_groups` 
-ADD COLUMN `delivery` VARCHAR(225) NULL DEFAULT NULL AFTER `location`;
 /* Lydia Qiao 5/13/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
+
+/* Lydia Qiao 5/14/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `delivery` VARCHAR(255) NULL DEFAULT NULL AFTER `location`;
