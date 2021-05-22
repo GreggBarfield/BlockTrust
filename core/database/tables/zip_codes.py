@@ -46,9 +46,6 @@ class ZIPCodes:
     def get_locations(self, zip_code):
         
         zcdb = ZipCodeDatabase()
-        # for i in zip_code:
-        #     info= zcdb[i]
-        #     result.append(info["city"]+","+info["state"])
         info = zcdb[zip_code]
         result = info.city+","+info.state
         return result
