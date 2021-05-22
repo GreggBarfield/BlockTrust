@@ -165,7 +165,6 @@ ADD COLUMN `stripe_customer_id` VARCHAR(127) NULL AFTER `manual_paid`;
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid`),1,0)) VIRTUAL AFTER `manual_paid`;
 
-
 /* Evan Krohn 4/7/2021 */
 /* You should delete all sales groups before this! */
 ALTER TABLE `example_db_1`.`sales_groups` 
