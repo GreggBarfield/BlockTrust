@@ -4,7 +4,6 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "./messages.mjs";
-// import {ZIPCodes} from "../../../database/tables/"
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
