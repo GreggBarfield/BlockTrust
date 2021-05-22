@@ -152,9 +152,6 @@ class SalesGroups:
             auction_sale: The auction sale ID 
         """
         location = self._db.zip_codes.get_locations(zip_code)
-        # location="Success"
-
-        # print(location)
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
