@@ -46,6 +46,43 @@ class Account:
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
 
+
+    def affiliate_id(self):
+        return self._row['affiliate_id']
+
+
+    def city(self):
+        return self._row['city']
+
+
+    def state(self):
+        return self._row['state']
+
+
+    def zip_code(self):
+        return self._row['zip_code']
+
+
+    def phone(self):
+        return self._row['phone']
+
+
+    def stripe_paid(self):
+        return self._row['stripe_paid']
+
+
+    def manual_paid(self):
+        return self._row['manual_paid']
+
+
+    def generated_paid(self):
+        return self._row['generated_paid']
+
+
+    def stripe_customer_id(self):
+        return self._row['stripe_customer_id']
+
+
     def add_user(self, user):
         """Add a user to this account.
 

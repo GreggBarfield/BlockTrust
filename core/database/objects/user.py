@@ -29,3 +29,6 @@ class User:
 
     def email(self):
         return self._row['email']
+
+    def email_verified(self):
+        return self._row('email_verified')

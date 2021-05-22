@@ -1,6 +1,9 @@
 from ...sectors import sectors_by_id
 from ..objects.account import Account, AccountException
+from ..no_value import NoValue
+from ..frag import frag
 
+NO_VALUE = NoValue()
 
 class AccountsException(Exception):
     """Account generic exception."""
@@ -84,7 +87,32 @@ class Accounts:
         ]
     
     
-    def create_account(self, user, name, company, sector):
+    def get_by_stripe_customer_id(self, stripe_customer_id):
+        """Gets an account by an ID.
+
+        Params:
+            stripe_customer_id: the stripe_customer_id of the account
+        
+        Returns:
+            An Account() object
+
+        Raises:
+            AccountsException on ID not found
+        """
+        account_rows = self._db.execute_d(
+            """SELECT * FROM accounts
+                WHERE stripe_customer_id=%(stripe_customer_id)s
+            """,
+            {
+                "stripe_customer_id": stripe_customer_id
+            }
+        )
+        if len(account_rows) != 1:
+            raise AccountsException("No account found with that Stripe Customer ID.")
+        return Account(self._db, account_rows[0])
+
+
+    def create_account(self, user, name, company, sector, affiliate_id, city, state, zip_code, phone):
         """Creates a new account with the user automatically added.
 
         Params:
@@ -106,17 +134,34 @@ class Accounts:
 
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
+        
+        # Process phone number
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector)
+                (name, company, sector, affiliate_id, city, state, zip_code, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s)
+                    (%(name)s, %(company)s, %(sector)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip_code)s, %(phone)s)
             """,
             {
                 "name": name,
                 "company": company,
-                "sector": sector
+                "sector": sector,
+                "affiliate_id": affiliate_id,
+                "city": city,
+                "state": state,
+                "zip_code": zip_code,
+                "phone": phone
             }
         )
 
@@ -126,3 +171,108 @@ class Accounts:
             return account
         except AccountException as e:
             raise AccountsException("Account exception: " + str(e))
+
+
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip_code=NO_VALUE, 
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+        """Updates an account.
+
+        Params:
+            account_id: id of the account to update
+            name: the account name
+            company: the company name
+            sector: the sector number
+            token: token that we give the customer to use our apis
+            stripe_paid: indicates if this account has an active subscription in stripe 
+            manual_paid: indicates if it is a manually marked paid account
+            stripe_customer_id: the id for the corresponding customer object in stripe
+        """
+        set_frags = frag()
+        if name is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "name=:name,",
+                            name=name
+                        )           
+        if company is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "company=:company,",
+                            company=company
+                        )
+        if sector_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "sector_id=:sector_id,",
+                            sector_id=sector_id
+                        )
+        if affiliate_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "affiliate_id=:affiliate_id,",
+                            affiliate_id=affiliate_id
+                        )
+        if city is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "city=:city,",
+                            city=city
+                        )
+        if state is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "state=:state,",
+                            state=state
+                        )
+        if zip_code is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "zip_code=:zip_code,",
+                            zip_code=zip_code
+                        )
+        if phone is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "phone=:phone,",
+                            phone=phone
+                        )
+        if token is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "token=:token,",
+                            token=token
+                        )
+        if stripe_paid is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "stripe_paid=:stripe_paid,",
+                            stripe_paid=stripe_paid
+                        ) 
+        if manual_paid is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "manual_paid=:manual_paid,",
+                            manual_paid=manual_paid
+                        )         
+        if stripe_customer_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "stripe_customer_id=:stripe_customer_id",
+                            stripe_customer_id=stripe_customer_id
+                        )
+        
+        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
+            #check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1],set_frags[1])
+
+            self._db.exec_frag(   
+                frag(
+                    "UPDATE accounts SET",
+                    set_frags,
+                    frag(
+                        "WHERE id=:id",
+                        id=account_id
+                    )               
+                )
+            )

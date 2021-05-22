@@ -20,4 +20,4 @@ COPY api /home/ubuntu/blocktrust/api
 WORKDIR /home/ubuntu/blocktrust
 
 # Run
-CMD uwsgi api/server/docker/uwsgi.aws.ini
+CMD exec uwsgi api/server/docker/uwsgi.aws.ini
