@@ -254,7 +254,6 @@ export class SalesGroupViewer {
             commentBody.className ="card-body";
             commentBody.textContent = this.data.reported.comments;
             commentCol.append(commentBody);
-
         }
 
         //Configure media data
@@ -324,7 +323,6 @@ export class SalesGroupViewer {
             photo.setAttribute("aria-labelledby","photo");
             mediaContent.append(photo);
 
-
             let img = document.createElement("div");
             img.className = "col-12 col-md";
             img.style.height = "240px";
@@ -383,7 +381,6 @@ export class SalesGroupViewer {
             body.style.display = "none";
             container.append(body);
             
-
             let isClosed = true;
             let isFirstOpen = true;
 
@@ -416,7 +413,6 @@ export class SalesGroupViewer {
 
         
         {
-
             let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
