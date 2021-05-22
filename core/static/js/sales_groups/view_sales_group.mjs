@@ -216,8 +216,6 @@ export class SalesGroupViewer {
             marketHeader.textContent ="Market Data";
             marketDataCol.append(marketHeader);
 
-            //TODO: Logo img
-
             let marketBody = document.createElement("div");
             marketBody.className ="card-body";
             marketDataCol.append(marketBody);
@@ -240,7 +238,7 @@ export class SalesGroupViewer {
             var date= new Date(this.data.start*1000);
             addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
-            //TODO: Count w Data,Market
+            
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
             commentCol.className = "card";
