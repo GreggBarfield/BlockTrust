@@ -150,7 +150,7 @@ export class SalesGroupViewer {
             let location = document.createElement("div");
             
             let milesAway = "--";
-            console.log("content"+this.data.content);
+            
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
