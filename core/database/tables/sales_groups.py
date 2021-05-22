@@ -138,7 +138,7 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, delivery, start, end, auction_sale):
+    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale):
         """Updates a row.
 
         Params:
@@ -146,16 +146,16 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
-            location: city and state of the zip code
+            delivery_location: city and state of the zip code
             start: The start time
             end: The end time
             auction_sale: The auction sale ID 
         """
-        location = self._db.zip_codes.get_locations(zip_code)
+        market_location = self._db.zip_codes.get_locations(zip_code)
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s, location = %(location)s, delivery =  %(delivery)s,
+                    start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
                     auction_sale=%(auction_sale)s
                 WHERE id=%(id)s
             """,
@@ -166,8 +166,8 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
-                "location":location,
-                "delivery":delivery,
+                "market_location":market_location,
+                "delivery_location":delivery_location,
                 "auction_sale": auction_sale
             }
         )
@@ -180,7 +180,6 @@ class SalesGroups:
 
         Params:
             zip_code: Origin zip code
-            location: city and state of the zip code
             miles: Radius in miles
             start: Start time
             end: End time

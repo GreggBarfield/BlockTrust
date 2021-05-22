@@ -185,8 +185,8 @@ CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
 /* Lydia Qiao 5/13/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
-ADD COLUMN `location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
+ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
 
 /* Lydia Qiao 5/14/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
-ADD COLUMN `delivery` VARCHAR(255) NULL DEFAULT NULL AFTER `location`;
+ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
