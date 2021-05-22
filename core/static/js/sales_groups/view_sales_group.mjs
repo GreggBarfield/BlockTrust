@@ -99,15 +99,12 @@ export class SalesGroupViewer {
 
             let kvpKey = document.createElement("dt");
             kvpKey.className = "col-sm-6";
-            // kvpKey.style.paddingTop = "10px";
             kvpKey.textContent = key;
             
             kvp.append(kvpKey);
-            // animalDataCol.append(kvpKey);
 
             let kvpValue = document.createElement("dd");
             kvpValue.className = "col-sm-6";
-            // kvpValue.style.paddingTop = "10px";
             kvpValue.style.whiteSpace = "pre-wrap";
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
             
@@ -150,10 +147,8 @@ export class SalesGroupViewer {
             sendMessageButton.addEventListener("click", ()=>{
                 promptNewMessage(this.data.account, this.data.account_name);
             });
-            // b_contactInfo.append(sendMessageButton);
             left.append(sendMessageButton);
             let location = document.createElement("div");
-            // location.className="row";
             
             let milesAway = "--";
             console.log("content"+this.data.content);
@@ -166,11 +161,9 @@ export class SalesGroupViewer {
             }
             
             location.style="color:black";
-            // let zip = new ZIPCodes(this.data.zip_codes);
             
             
             location.textContent = "  Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
-            // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
             left.append(location);
             
 
@@ -188,7 +181,6 @@ export class SalesGroupViewer {
             let animalHeader = document.createElement("div");
             animalHeader.className ="card-header";
             animalHeader.style ="color:#8B4513; height:75px";
-            // animalHeader.style.paddingBottom = "10px";
             animalHeader.style.borderBottom = "solid 1px #c0c0c0";
             animalHeader.textContent ="Animal Data";
             animalDataCol.append(animalHeader);
@@ -240,7 +232,6 @@ export class SalesGroupViewer {
             
             addInfo("Total Count",this.data.reported.count, marketBody);
             
-            // addInfo("Count w Data", this.data.eids.length,marketBody);
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
@@ -250,7 +241,7 @@ export class SalesGroupViewer {
             var date= new Date(this.data.start*1000);
             addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
-            //TODO: Count w Data, Delivery Location,Market
+            //TODO: Count w Data,Market
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
             commentCol.className = "card";
@@ -364,19 +355,12 @@ export class SalesGroupViewer {
 
         }
 
-        // layout.tabs.append(this.box);
         this.box.append(layout.content);
-        // layout.format.append(this.box);
 
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
-            // container.style.marginLeft="10px";
             attachTo.append(container);
-
-            // let bar = document.createElement("div");
-            // bar.className = "acc-bar";
-            // container.append(bar);
 
             let tri = document.createElement("span");
             tri.style.marginRight = "10px";
@@ -435,105 +419,6 @@ export class SalesGroupViewer {
             return body;
         }
 
-        {
-            // let b_contactInfo = createAcc(layout.contact, "Contact Info");
-            
-            // let p = document.createElement("h5");
-            // p.style="text-align:center;";
-            // p.style.marginLeft = "10px";
-            // p.textContent = this.data.account_name;
-            // b_contactInfo.append(p);
-
-            // let sendMessageButton = document.createElement("button");
-           
-            // sendMessageButton.className = "btn btn-sm btn-primary";
-            // sendMessageButton.textContent = "Contact Seller";
-            // sendMessageButton.addEventListener("click", ()=>{
-            //     promptNewMessage(this.data.account, this.data.account_name);
-            // });
-            // // b_contactInfo.append(sendMessageButton);
-            // layout.contact.append(sendMessageButton);
-        }
-
-        // {
-        //     let b_additionalInformation = createAcc(this.box, "Additional Information");
-
-        //     let row = document.createElement("div");
-        //     row.className = "row";
-        //     b_additionalInformation.append(row);
-
-        //     function atos(value) {
-        //         let result = value;
-        //         if (value === null || value === undefined) {
-        //             result = "";
-        //         }
-        //         else {
-        //             if (typeof value === "number") {
-        //                 if (value > 1000000) {
-        //                     result = formatDate(value);
-        //                 }
-        //                 else {
-        //                     result = value;
-        //                 }
-        //             }
-        //             else if (Array.isArray(value)) {
-        //                 let temp = [];
-        //                 for (const value_in of value) {
-        //                     temp.push(atos(value_in));
-        //                 }
-        //                 result = temp.join(", ");
-        //             }
-        //         }
-        //         return "" + result;
-        //     }
-
-
-        //     let createSection = (name, reportedKeys) => {
-        //         let box = document.createElement("div");
-        //         box.className = "col-12 col-md-4";
-        //         row.append(box);
-        //         let h6 = document.createElement('h6');
-        //         h6.textContent = name;
-        //         box.append(h6);
-
-        //         let dl = new DL(true, box);
-
-        //         for (const up of reportedKeys) {
-        //             let name = up[0];
-        //             if (up.length == 3) {
-        //                 dl.add(name, atos(up[2]));
-        //             }
-        //             else if (up[1] in this.data.reported) {
-        //                 dl.add(name, atos(this.data.reported[up[1]]));
-        //             }
-        //             else {
-        //                 dl.add(name, "");
-        //             }
-        //         }
-        //     }
-        //     createSection("Market", [
-        //         ["Count", "count"], 
-        //         ["Market Start", null, this.data.start], 
-        //         ["Market End", null, this.data.end], 
-        //         ["Market ZIP", null, this.data.zip], 
-        //     ]);
-        //     createSection("Characteristics", [
-        //         ["Breed", "breeds"],
-        //         ["Base Weight", "weight"],
-        //         ["Wt. Variance", "weight_variance"],
-        //         ["Frame", "usda_frame_size"],
-        //         ["Muscling", "muscling"],
-        //         ["Horns", "horns"],
-        //     ]);
-        //     createSection("Maintenance", [
-        //         ["Implants", "implants"],
-        //         ["Castrated", "castrated"],
-        //         ["Vaccinations", "vaccinations"],
-        //         ["Feeding Program", "feeding_programs"],
-        //         ["Preconditioning Program", "preconditioning_program"],
-        //         ["Process Verified Program", "process_verified_program"],
-        //     ]);
-        // }
         
         {
 
