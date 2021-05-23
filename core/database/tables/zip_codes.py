@@ -42,9 +42,7 @@ class ZIPCodes:
         
         return results
 
-
-    def get_locations(self, zip_code):
-        
+    def get_locations(self, zip_code):    
         zcdb = ZipCodeDatabase()
         info = zcdb[zip_code]
         result = info.city+","+info.state

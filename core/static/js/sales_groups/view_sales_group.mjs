@@ -28,22 +28,22 @@ export class SalesGroupViewer {
         let layout = {};
         this.layout = layout;
 
-        layout.formatRow  =document.createElement("div");
+        layout.formatRow = document.createElement("div");
         layout.formatRow.className = "row";
 
-        layout.formatCol  =document.createElement("div");
+        layout.formatCol = document.createElement("div");
         layout.formatCol.className = "col-md-12 col-sm-12";
         layout.formatRow.append(layout.formatCol);
 
-        layout.format =document.createElement("div");
+        layout.format = document.createElement("div");
         layout.format.className = "container-fluid";
-        layout.format.style="margin-bottom:5px;border-radius: 25px";
+        layout.format.style = "margin-bottom:5px;border-radius: 25px";
         layout.formatCol.append(layout.format);
 
         layout.content = document.createElement("div");
         layout.content.className = "row";
         
-        layout.content.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
+        layout.content.style = "border:1px solid #c0c0c0;padding:15px;border-radius:25px";
         layout.format.append(layout.content);
 
         layout.header = document.createElement("div");
@@ -68,8 +68,8 @@ export class SalesGroupViewer {
         layout.content.append(layout.marketData);
 
         layout.tabs = document.createElement("div");
-        layout.tabs.className= "row";
-        layout.tabs.style="width:100%;margin:auto";
+        layout.tabs.className = "row";
+        layout.tabs.style = "width:100%;margin:auto";
         layout.content.append(layout.tabs);
 
         layout.contact = document.createElement("div");
@@ -77,7 +77,7 @@ export class SalesGroupViewer {
         layout.tabs.append(layout.contact);
 
         layout.tags =  document.createElement("div");
-        layout.tags.className= "col-12";
+        layout.tags.className = "col-12";
         layout.tabs.append(layout.tags);
 
         function addInfo(key, value, position, wide=false, highlighting=false) {
@@ -107,7 +107,7 @@ export class SalesGroupViewer {
             kvpValue.style.whiteSpace = "pre-wrap";
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
             
-            let valueText= document.createElement("p");
+            let valueText = document.createElement("p");
             valueText.className ="text-right";
 
             if (highlighting) {
@@ -126,22 +126,22 @@ export class SalesGroupViewer {
         {
             let row = document.createElement("div");
             row.className = "card";
-            row.style ="margin-bottom:5px;border-radius: 25px"
+            row.style = "margin-bottom:5px;border-radius: 25px"
             layout.header.append(row);
 
             let left = document.createElement("div");
             left.className = "card-body";
             row.append(left);
 
-            let salesGroupID =document.createElement("h5");
-            salesGroupID.className="mb-0";
-            salesGroupID.style ="display: inline;";
+            let salesGroupID = document.createElement("h5");
+            salesGroupID.className = "mb-0";
+            salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
            
             sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.style="float:right"
+            sendMessageButton.style = "float:right"
             sendMessageButton.textContent = "Contact Seller";
             sendMessageButton.addEventListener("click", ()=>{
                 promptNewMessage(this.data.account, this.data.account_name);
@@ -178,10 +178,10 @@ export class SalesGroupViewer {
             layout.animalData.append(animalDataCol);
 
             let animalHeader = document.createElement("div");
-            animalHeader.className ="card-header";
+            animalHeader.className = "card-header";
             animalHeader.style ="color:#8B4513; height:75px";
             animalHeader.style.borderBottom = "solid 1px #c0c0c0";
-            animalHeader.textContent ="Animal Data";
+            animalHeader.textContent = "Animal Data";
             animalDataCol.append(animalHeader);
 
             let animalBody = document.createElement("div");
@@ -210,8 +210,8 @@ export class SalesGroupViewer {
             layout.marketData.append(marketDataCol);
 
             let marketHeader = document.createElement("div");
-            marketHeader.className ="card-header";
-            marketHeader.style ="color:#8B4513; height:75px";
+            marketHeader.className = "card-header";
+            marketHeader.style = "color:#8B4513; height:75px";
             marketHeader.style.borderBottom = "solid 1px #c0c0c0";
             marketHeader.textContent ="Market Data";
             marketDataCol.append(marketHeader);
@@ -235,7 +235,7 @@ export class SalesGroupViewer {
                 let currentEpoch = Date.now()/1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
-            var date= new Date(this.data.start*1000);
+            var date = new Date(this.data.start*1000);
             addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
             
@@ -254,7 +254,6 @@ export class SalesGroupViewer {
             commentBody.className ="card-body";
             commentBody.textContent = this.data.reported.comments;
             commentCol.append(commentBody);
-
         }
 
         //Configure media data
@@ -265,10 +264,10 @@ export class SalesGroupViewer {
             layout.media.append(mediaDataCol);
 
             let mediaHeader = document.createElement("div");
-            mediaHeader.className ="card-header";
-            mediaHeader.style ="color:#8B4513; height:75px";
+            mediaHeader.className = "card-header";
+            mediaHeader.style = "color:#8B4513; height:75px";
             mediaHeader.style.borderBottom = "solid 1px #c0c0c0";
-            mediaHeader.textContent ="Media";
+            mediaHeader.textContent = "Media";
             mediaDataCol.append(mediaHeader);
 
             let mediaBody = document.createElement("div")
@@ -286,11 +285,11 @@ export class SalesGroupViewer {
             photoNav.className="nav-item";
             mediaNav.append(photoNav);
 
-            let photoNavLink =document.createElement("a");
-            photoNavLink.className="nav-link text-uppercase active";
-            photoNavLink.textContent="Photos";
-            photoNavLink.id="photo-tab";
-            photoNavLink.href="#photo";
+            let photoNavLink = document.createElement("a");
+            photoNavLink.className = "nav-link text-uppercase active";
+            photoNavLink.textContent = "Photos";
+            photoNavLink.id = "photo-tab";
+            photoNavLink.href = "#photo";
             photoNavLink.setAttribute("role","tab");
             photoNavLink.setAttribute("data-toggle","tab");
             photoNavLink.setAttribute("aria-controls","home");
@@ -298,14 +297,14 @@ export class SalesGroupViewer {
             photoNav.append(photoNavLink);
 
             let videoNav = document.createElement("li");
-            videoNav.className="nav-item";
+            videoNav.className = "nav-item";
             mediaNav.append(videoNav);
 
-            let videoNavLink =document.createElement("a");
-            videoNavLink.className="nav-link text-uppercase";
-            videoNavLink.textContent="Video";
-            videoNavLink.id="video-tab";
-            videoNavLink.href="#video";
+            let videoNavLink = document.createElement("a");
+            videoNavLink.className = "nav-link text-uppercase";
+            videoNavLink.textContent = "Video";
+            videoNavLink.id = "video-tab";
+            videoNavLink.href = "#video";
             videoNavLink.setAttribute("role","tab");
             videoNavLink.setAttribute("data-toggle","tab");
             videoNavLink.setAttribute("aria-controls","home");
@@ -314,7 +313,7 @@ export class SalesGroupViewer {
 
             let mediaContent = document.createElement("div");
             mediaContent.className = "tab-content";
-            mediaContent.id ="myTabContent";
+            mediaContent.id = "myTabContent";
             mediaBody.append(mediaContent);
 
             let photo = document.createElement("div");
@@ -323,7 +322,6 @@ export class SalesGroupViewer {
             photo.setAttribute("role","tabpanel");
             photo.setAttribute("aria-labelledby","photo");
             mediaContent.append(photo);
-
 
             let img = document.createElement("div");
             img.className = "col-12 col-md";
@@ -348,8 +346,6 @@ export class SalesGroupViewer {
             }
 
             new BootstrapCarousel(images, img);
-
-
         }
 
         this.box.append(layout.content);
@@ -367,7 +363,7 @@ export class SalesGroupViewer {
             tri.append(triClosed);
 
             let triOpened = document.createElement("i");
-            triOpened.style ="margin-bottom:5px;border-radius: 25px";
+            triOpened.style = "margin-bottom:5px;border-radius: 25px";
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
@@ -385,7 +381,6 @@ export class SalesGroupViewer {
             body.style.display = "none";
             container.append(body);
             
-
             let isClosed = true;
             let isFirstOpen = true;
 
@@ -393,7 +388,7 @@ export class SalesGroupViewer {
                 if (isClosed) {
                     triOpened.style="margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
-                    body.style ="border:1px solid #c0c0c0;padding:15px;width:100%";
+                    body.style = "border:1px solid #c0c0c0;padding:15px;width:100%";
                     body.style.display = "block";
                     triClosed.style.display = "none";
                     isClosed = false;
@@ -418,11 +413,10 @@ export class SalesGroupViewer {
 
         
         {
-
             let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
-            divTableResponsive.style="width:100%;padding:15px";
+            divTableResponsive.style = "width:100%;padding:15px";
 
             let mainTable = document.createElement("table");
             mainTable.className = "table table-striped table-bordered nowrap";
