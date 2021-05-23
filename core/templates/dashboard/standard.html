@@ -207,17 +207,12 @@
                         </div>
                         <ul class="pro-body">
                             <li>
-                                <a href="/dashboard/data">
-                                    <i class="feather icon-box"></i> Manage Data
-                                </a>
-                            </li>
-                            <li>
                                 <a href="#">
                                     <i class="feather icon-user-plus"></i> Invite Users
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
+                                <a href="/dashboard/plans">
                                     <i class="feather icon-credit-card"></i> Subscription
                                 </a>
                             </li>
@@ -279,10 +274,13 @@
                     <span>Accounts</span>
                 </a>
                 {% endif %}
+                {% if false %}
+                <!-- 5/23/21: Not visible now but retained for future use -->
                 <ul>
                     <li class=""><a href="/dashboard/accounts" class="">Switch Account</a></li>
                     <li class=""><a href="/dashboard/accounts/new-account" class="">New Account</a></li>
                 </ul>
+                {% endif %}
             </li>
             {% if dashboard_standard_account is not none %}
             <li>
