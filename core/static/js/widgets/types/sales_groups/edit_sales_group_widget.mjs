@@ -459,7 +459,7 @@ export class EditSalesGroupWidget extends Widget {
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
                     },
-                    delivery: marketingLocation.value,
+                    "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),

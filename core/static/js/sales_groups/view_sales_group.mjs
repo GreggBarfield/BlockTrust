@@ -162,7 +162,7 @@ export class SalesGroupViewer {
             location.style="color:black";
             
             
-            location.textContent = "  Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
+            location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
             left.append(location);
             
 
