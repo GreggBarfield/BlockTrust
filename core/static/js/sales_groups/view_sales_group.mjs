@@ -4,7 +4,6 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "./messages.mjs";
-// import {ZIPCodes} from "../../../database/tables/"
 
 export class SalesGroupViewer {
     constructor(data, attachTo=null) {
@@ -29,22 +28,22 @@ export class SalesGroupViewer {
         let layout = {};
         this.layout = layout;
 
-        layout.formatRow  =document.createElement("div");
+        layout.formatRow = document.createElement("div");
         layout.formatRow.className = "row";
 
-        layout.formatCol  =document.createElement("div");
+        layout.formatCol = document.createElement("div");
         layout.formatCol.className = "col-md-12 col-sm-12";
         layout.formatRow.append(layout.formatCol);
 
-        layout.format =document.createElement("div");
+        layout.format = document.createElement("div");
         layout.format.className = "container-fluid";
-        layout.format.style="margin-bottom:5px;border-radius: 25px";
+        layout.format.style = "margin-bottom:5px;border-radius: 25px";
         layout.formatCol.append(layout.format);
 
         layout.content = document.createElement("div");
         layout.content.className = "row";
         
-        layout.content.style="border:1px solid #c0c0c0;padding:15px;border-radius:25px";
+        layout.content.style = "border:1px solid #c0c0c0;padding:15px;border-radius:25px";
         layout.format.append(layout.content);
 
         layout.header = document.createElement("div");
@@ -69,8 +68,8 @@ export class SalesGroupViewer {
         layout.content.append(layout.marketData);
 
         layout.tabs = document.createElement("div");
-        layout.tabs.className= "row";
-        layout.tabs.style="width:100%;margin:auto";
+        layout.tabs.className = "row";
+        layout.tabs.style = "width:100%;margin:auto";
         layout.content.append(layout.tabs);
 
         layout.contact = document.createElement("div");
@@ -78,7 +77,7 @@ export class SalesGroupViewer {
         layout.tabs.append(layout.contact);
 
         layout.tags =  document.createElement("div");
-        layout.tags.className= "col-12";
+        layout.tags.className = "col-12";
         layout.tabs.append(layout.tags);
 
         function addInfo(key, value, position, wide=false, highlighting=false) {
@@ -99,19 +98,16 @@ export class SalesGroupViewer {
 
             let kvpKey = document.createElement("dt");
             kvpKey.className = "col-sm-6";
-            // kvpKey.style.paddingTop = "10px";
             kvpKey.textContent = key;
             
             kvp.append(kvpKey);
-            // animalDataCol.append(kvpKey);
 
             let kvpValue = document.createElement("dd");
             kvpValue.className = "col-sm-6";
-            // kvpValue.style.paddingTop = "10px";
             kvpValue.style.whiteSpace = "pre-wrap";
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
             
-            let valueText= document.createElement("p");
+            let valueText = document.createElement("p");
             valueText.className ="text-right";
 
             if (highlighting) {
@@ -130,33 +126,31 @@ export class SalesGroupViewer {
         {
             let row = document.createElement("div");
             row.className = "card";
-            row.style ="margin-bottom:5px;border-radius: 25px"
+            row.style = "margin-bottom:5px;border-radius: 25px"
             layout.header.append(row);
 
             let left = document.createElement("div");
             left.className = "card-body";
             row.append(left);
 
-            let salesGroupID =document.createElement("h5");
-            salesGroupID.className="mb-0";
-            salesGroupID.style ="display: inline;";
+            let salesGroupID = document.createElement("h5");
+            salesGroupID.className = "mb-0";
+            salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id; 
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
            
             sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.style="float:right"
+            sendMessageButton.style = "float:right"
             sendMessageButton.textContent = "Contact Seller";
             sendMessageButton.addEventListener("click", ()=>{
                 promptNewMessage(this.data.account, this.data.account_name);
             });
-            // b_contactInfo.append(sendMessageButton);
             left.append(sendMessageButton);
             let location = document.createElement("div");
-            // location.className="row";
             
             let milesAway = "--";
-            // console.log("content"+this.data.content);
+            
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
@@ -166,11 +160,9 @@ export class SalesGroupViewer {
             }
             
             location.style="color:black";
-            // let zip = new ZIPCodes(this.data.zip_codes);
             
             
-            location.textContent = "  Location: "+ this.data.location+" ( "+milesAwayInt+" Miles)";
-            // location.textContent = "Location: "+ self.zip_codes.get_location(this.data.zip_codes) +"("+milesAwayInt+" Miles)";
+            location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
             left.append(location);
             
 
@@ -186,11 +178,10 @@ export class SalesGroupViewer {
             layout.animalData.append(animalDataCol);
 
             let animalHeader = document.createElement("div");
-            animalHeader.className ="card-header";
+            animalHeader.className = "card-header";
             animalHeader.style ="color:#8B4513; height:75px";
-            // animalHeader.style.paddingBottom = "10px";
             animalHeader.style.borderBottom = "solid 1px #c0c0c0";
-            animalHeader.textContent ="Animal Data";
+            animalHeader.textContent = "Animal Data";
             animalDataCol.append(animalHeader);
 
             let animalBody = document.createElement("div");
@@ -219,13 +210,11 @@ export class SalesGroupViewer {
             layout.marketData.append(marketDataCol);
 
             let marketHeader = document.createElement("div");
-            marketHeader.className ="card-header";
-            marketHeader.style ="color:#8B4513; height:75px";
+            marketHeader.className = "card-header";
+            marketHeader.style = "color:#8B4513; height:75px";
             marketHeader.style.borderBottom = "solid 1px #c0c0c0";
             marketHeader.textContent ="Market Data";
             marketDataCol.append(marketHeader);
-
-            //TODO: Logo img
 
             let marketBody = document.createElement("div");
             marketBody.className ="card-body";
@@ -241,17 +230,16 @@ export class SalesGroupViewer {
             addInfo("Total Count",this.data.reported.count, marketBody);
             addInfo("Delivery Location", this.data.delivery, marketBody);
             
-            // addInfo("Count w Data", this.data.eids.length,marketBody);
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
                 let currentEpoch = Date.now()/1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
-            var date= new Date(this.data.start*1000);
+            var date = new Date(this.data.start*1000);
             addInfo("Sales Date",date.toDateString(),marketBody);
             addInfo("Days Remaining",daysRemaining,marketBody);
-            //TODO: Count w Data, Delivery Location,Market
+            
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
             commentCol.className = "card";
@@ -267,7 +255,6 @@ export class SalesGroupViewer {
             commentBody.className ="card-body";
             commentBody.textContent = this.data.reported.comments;
             commentCol.append(commentBody);
-
         }
 
         //Configure media data
@@ -278,10 +265,10 @@ export class SalesGroupViewer {
             layout.media.append(mediaDataCol);
 
             let mediaHeader = document.createElement("div");
-            mediaHeader.className ="card-header";
-            mediaHeader.style ="color:#8B4513; height:75px";
+            mediaHeader.className = "card-header";
+            mediaHeader.style = "color:#8B4513; height:75px";
             mediaHeader.style.borderBottom = "solid 1px #c0c0c0";
-            mediaHeader.textContent ="Media";
+            mediaHeader.textContent = "Media";
             mediaDataCol.append(mediaHeader);
 
             let mediaBody = document.createElement("div")
@@ -299,11 +286,11 @@ export class SalesGroupViewer {
             photoNav.className="nav-item";
             mediaNav.append(photoNav);
 
-            let photoNavLink =document.createElement("a");
-            photoNavLink.className="nav-link text-uppercase active";
-            photoNavLink.textContent="Photos";
-            photoNavLink.id="photo-tab";
-            photoNavLink.href="#photo";
+            let photoNavLink = document.createElement("a");
+            photoNavLink.className = "nav-link text-uppercase active";
+            photoNavLink.textContent = "Photos";
+            photoNavLink.id = "photo-tab";
+            photoNavLink.href = "#photo";
             photoNavLink.setAttribute("role","tab");
             photoNavLink.setAttribute("data-toggle","tab");
             photoNavLink.setAttribute("aria-controls","home");
@@ -311,14 +298,14 @@ export class SalesGroupViewer {
             photoNav.append(photoNavLink);
 
             let videoNav = document.createElement("li");
-            videoNav.className="nav-item";
+            videoNav.className = "nav-item";
             mediaNav.append(videoNav);
 
-            let videoNavLink =document.createElement("a");
-            videoNavLink.className="nav-link text-uppercase";
-            videoNavLink.textContent="Video";
-            videoNavLink.id="video-tab";
-            videoNavLink.href="#video";
+            let videoNavLink = document.createElement("a");
+            videoNavLink.className = "nav-link text-uppercase";
+            videoNavLink.textContent = "Video";
+            videoNavLink.id = "video-tab";
+            videoNavLink.href = "#video";
             videoNavLink.setAttribute("role","tab");
             videoNavLink.setAttribute("data-toggle","tab");
             videoNavLink.setAttribute("aria-controls","home");
@@ -327,7 +314,7 @@ export class SalesGroupViewer {
 
             let mediaContent = document.createElement("div");
             mediaContent.className = "tab-content";
-            mediaContent.id ="myTabContent";
+            mediaContent.id = "myTabContent";
             mediaBody.append(mediaContent);
 
             let photo = document.createElement("div");
@@ -336,7 +323,6 @@ export class SalesGroupViewer {
             photo.setAttribute("role","tabpanel");
             photo.setAttribute("aria-labelledby","photo");
             mediaContent.append(photo);
-
 
             let img = document.createElement("div");
             img.className = "col-12 col-md";
@@ -361,23 +347,14 @@ export class SalesGroupViewer {
             }
 
             new BootstrapCarousel(images, img);
-
-
         }
 
-        // layout.tabs.append(this.box);
         this.box.append(layout.content);
-        // layout.format.append(this.box);
 
         function createAcc(attachTo, headerText, firstOpen=null) {
             let container = document.createElement("div");
             container.className = "acc-container";
-            // container.style.marginLeft="10px";
             attachTo.append(container);
-
-            // let bar = document.createElement("div");
-            // bar.className = "acc-bar";
-            // container.append(bar);
 
             let tri = document.createElement("span");
             tri.style.marginRight = "10px";
@@ -387,7 +364,7 @@ export class SalesGroupViewer {
             tri.append(triClosed);
 
             let triOpened = document.createElement("i");
-            triOpened.style ="margin-bottom:5px;border-radius: 25px";
+            triOpened.style = "margin-bottom:5px;border-radius: 25px";
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
@@ -405,7 +382,6 @@ export class SalesGroupViewer {
             body.style.display = "none";
             container.append(body);
             
-
             let isClosed = true;
             let isFirstOpen = true;
 
@@ -413,7 +389,7 @@ export class SalesGroupViewer {
                 if (isClosed) {
                     triOpened.style="margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
-                    body.style ="border:1px solid #c0c0c0;padding:15px;width:100%";
+                    body.style = "border:1px solid #c0c0c0;padding:15px;width:100%";
                     body.style.display = "block";
                     triClosed.style.display = "none";
                     isClosed = false;
@@ -436,112 +412,12 @@ export class SalesGroupViewer {
             return body;
         }
 
-        {
-            // let b_contactInfo = createAcc(layout.contact, "Contact Info");
-            
-            // let p = document.createElement("h5");
-            // p.style="text-align:center;";
-            // p.style.marginLeft = "10px";
-            // p.textContent = this.data.account_name;
-            // b_contactInfo.append(p);
-
-            // let sendMessageButton = document.createElement("button");
-           
-            // sendMessageButton.className = "btn btn-sm btn-primary";
-            // sendMessageButton.textContent = "Contact Seller";
-            // sendMessageButton.addEventListener("click", ()=>{
-            //     promptNewMessage(this.data.account, this.data.account_name);
-            // });
-            // // b_contactInfo.append(sendMessageButton);
-            // layout.contact.append(sendMessageButton);
-        }
-
-        // {
-        //     let b_additionalInformation = createAcc(this.box, "Additional Information");
-
-        //     let row = document.createElement("div");
-        //     row.className = "row";
-        //     b_additionalInformation.append(row);
-
-        //     function atos(value) {
-        //         let result = value;
-        //         if (value === null || value === undefined) {
-        //             result = "";
-        //         }
-        //         else {
-        //             if (typeof value === "number") {
-        //                 if (value > 1000000) {
-        //                     result = formatDate(value);
-        //                 }
-        //                 else {
-        //                     result = value;
-        //                 }
-        //             }
-        //             else if (Array.isArray(value)) {
-        //                 let temp = [];
-        //                 for (const value_in of value) {
-        //                     temp.push(atos(value_in));
-        //                 }
-        //                 result = temp.join(", ");
-        //             }
-        //         }
-        //         return "" + result;
-        //     }
-
-
-        //     let createSection = (name, reportedKeys) => {
-        //         let box = document.createElement("div");
-        //         box.className = "col-12 col-md-4";
-        //         row.append(box);
-        //         let h6 = document.createElement('h6');
-        //         h6.textContent = name;
-        //         box.append(h6);
-
-        //         let dl = new DL(true, box);
-
-        //         for (const up of reportedKeys) {
-        //             let name = up[0];
-        //             if (up.length == 3) {
-        //                 dl.add(name, atos(up[2]));
-        //             }
-        //             else if (up[1] in this.data.reported) {
-        //                 dl.add(name, atos(this.data.reported[up[1]]));
-        //             }
-        //             else {
-        //                 dl.add(name, "");
-        //             }
-        //         }
-        //     }
-        //     createSection("Market", [
-        //         ["Count", "count"], 
-        //         ["Market Start", null, this.data.start], 
-        //         ["Market End", null, this.data.end], 
-        //         ["Market ZIP", null, this.data.zip], 
-        //     ]);
-        //     createSection("Characteristics", [
-        //         ["Breed", "breeds"],
-        //         ["Base Weight", "weight"],
-        //         ["Wt. Variance", "weight_variance"],
-        //         ["Frame", "usda_frame_size"],
-        //         ["Muscling", "muscling"],
-        //         ["Horns", "horns"],
-        //     ]);
-        //     createSection("Maintenance", [
-        //         ["Implants", "implants"],
-        //         ["Castrated", "castrated"],
-        //         ["Vaccinations", "vaccinations"],
-        //         ["Feeding Program", "feeding_programs"],
-        //         ["Preconditioning Program", "preconditioning_program"],
-        //         ["Process Verified Program", "process_verified_program"],
-        //     ]);
-        // }
         
         {
-
             let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
             divTableResponsive.className = "dt-responsive table-responsive";
-            divTableResponsive.style="width:100%;padding:15px";
+            divTableResponsive.style = "width:100%;padding:15px";
 
             let mainTable = document.createElement("table");
             mainTable.className = "table table-striped table-bordered nowrap";
