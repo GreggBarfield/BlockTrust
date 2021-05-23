@@ -228,7 +228,7 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
-            addInfo("Delivery Location", this.data.delivery, marketBody);
+            addInfo("Delivery Location", this.data.delivery_location, marketBody);
             
             let daysRemaining = "--";
 
