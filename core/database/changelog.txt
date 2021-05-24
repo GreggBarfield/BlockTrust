@@ -184,7 +184,6 @@ ALTER TABLE `example_db_1`.`eid_group_eids`
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
 /* Rohan Sureshkumar 5/8/2021 */
-
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
 ADD COLUMN `city` VARCHAR(50) NULL DEFAULT NULL AFTER `affiliate_id`,
