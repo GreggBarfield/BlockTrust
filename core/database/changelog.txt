@@ -182,10 +182,19 @@ CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
-/* Rohan Sureshkumar 8/5/2021 */
+/* Rohan Sureshkumar 5/8/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
 ADD COLUMN `city` VARCHAR(50) NULL DEFAULT NULL AFTER `affiliate_id`,
 ADD COLUMN `state` VARCHAR(2) NULL DEFAULT NULL AFTER `city`,
 ADD COLUMN `zip_code` VARCHAR(10) NULL DEFAULT NULL AFTER `state`,
 ADD COLUMN `phone` BIGINT NULL DEFAULT NULL AFTER `zip_code`;
+
+/* Lydia Qiao 5/13/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
+
+/* Lydia Qiao 5/14/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
+
