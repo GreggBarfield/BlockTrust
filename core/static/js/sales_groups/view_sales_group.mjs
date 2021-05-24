@@ -121,8 +121,8 @@ export class SalesGroupViewer {
             kvp.append(kvpValue);
             position.append(kvp);
         }
+        
         // Configure header
-
         {
             let row = document.createElement("div");
             row.className = "card";
@@ -159,17 +159,12 @@ export class SalesGroupViewer {
                 milesAwayInt = parseInt(milesAway);
             }
             
-            location.style="color:black";
-            
-            
+            location.style="color:black";           
             location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
             left.append(location);
-            
-
         }
 
         // Configure Animal data
-
         {
 
             let animalDataCol = document.createElement("div");
