@@ -94,7 +94,6 @@ export class SalesGroupViewer {
             }
             let kvp = document.createElement("div");
             kvp.className="row";
-            
 
             let kvpKey = document.createElement("dt");
             kvpKey.className = "col-sm-6";
@@ -121,8 +120,8 @@ export class SalesGroupViewer {
             kvp.append(kvpValue);
             position.append(kvp);
         }
+        
         // Configure header
-
         {
             let row = document.createElement("div");
             row.className = "card";
@@ -159,6 +158,7 @@ export class SalesGroupViewer {
                 milesAwayInt = parseInt(milesAway);
             }
             
+<<<<<<< HEAD
             location.style="color:black";
             
             
@@ -170,6 +170,14 @@ export class SalesGroupViewer {
 
         // Configure Animal data
 
+=======
+            location.style="color:black";           
+            location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
+            left.append(location);
+        }
+
+        // Configure Animal data
+>>>>>>> e87b349d057e652bc18c07b84d8573b7cc1c0bdd
         {
 
             let animalDataCol = document.createElement("div");
@@ -228,7 +236,10 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
+<<<<<<< HEAD
             addInfo("Delivery Location", this.data.delivery_location, marketBody);
+=======
+>>>>>>> e87b349d057e652bc18c07b84d8573b7cc1c0bdd
             
             let daysRemaining = "--";
 

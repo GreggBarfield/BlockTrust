@@ -194,8 +194,7 @@ class SalesGroups:
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
-
-
+        
         #TODO: Optimize
         #TODO: Add skip, limit
 
