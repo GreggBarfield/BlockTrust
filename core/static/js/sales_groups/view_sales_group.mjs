@@ -158,26 +158,12 @@ export class SalesGroupViewer {
                 milesAwayInt = parseInt(milesAway);
             }
             
-<<<<<<< HEAD
-            location.style="color:black";
-            
-            
-            location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
-            left.append(location);
-            
-
-        }
-
-        // Configure Animal data
-
-=======
             location.style="color:black";           
             location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
             left.append(location);
         }
 
         // Configure Animal data
->>>>>>> e87b349d057e652bc18c07b84d8573b7cc1c0bdd
         {
 
             let animalDataCol = document.createElement("div");
@@ -236,10 +222,7 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
-<<<<<<< HEAD
             addInfo("Delivery Location", this.data.delivery_location, marketBody);
-=======
->>>>>>> e87b349d057e652bc18c07b84d8573b7cc1c0bdd
             
             let daysRemaining = "--";
 
