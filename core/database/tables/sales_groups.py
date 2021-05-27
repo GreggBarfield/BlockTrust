@@ -1,5 +1,5 @@
 import json
-
+from ..tables import zip_codes
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -51,27 +51,25 @@ class SalesGroups:
 
     def __init__(self, db):
         self._db = db
-        
 
     def _translate_json(self, d):
         to_process = d
 
         if not isinstance(d, list):
             to_process = [d]
-        
+
         for d_actual in to_process:
             if d_actual is not None:
                 if d_actual["reported"] is not None:
                     d_actual["reported"] = json.loads(d_actual["reported"])
         return d
 
-
     def row_by_id(self, row_id):
         """Gets a sales group row by an ID.
 
         Params:
             row_id: the row id
-        
+
         Returns:
             A dictionary (w/ JSON pre-converted)
 
@@ -126,19 +124,21 @@ class SalesGroups:
         Returns:
             The sales group row inserted
         """
+
         self._db.execute(
             """INSERT INTO sales_groups
-                (account, reported)
-                VALUES (%(account)s, %(reported)s)
+                (account, reported, eid_group)
+                VALUES (%(account)s, %(reported)s, %(eid_group)s)
             """,
             {
                 "account": account_id,
-                "reported": json.dumps(reported)  # Does this need to be converted to a string first?
+                "reported": json.dumps(reported),  # Does this need to be converted to a string first?
+                "eid_group": self._db.eid_groups.new_group(owner=account_id)
             }
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, start, end, auction_sale):
+    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale):
         """Updates a row.
 
         Params:
@@ -146,14 +146,16 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
+            delivery_location: city and state of the zip code
             start: The start time
             end: The end time
             auction_sale: The auction sale ID 
         """
+        market_location = self._db.zip_codes.get_locations(zip_code)
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s,
+                    start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
                     auction_sale=%(auction_sale)s
                 WHERE id=%(id)s
             """,
@@ -164,6 +166,8 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
+                "market_location":market_location,
+                "delivery_location":delivery_location,
                 "auction_sale": auction_sale
             }
         )
@@ -190,7 +194,7 @@ class SalesGroups:
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
-
+        
         #TODO: Optimize
         #TODO: Add skip, limit
 

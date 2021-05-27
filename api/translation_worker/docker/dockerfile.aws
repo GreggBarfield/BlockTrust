@@ -19,4 +19,4 @@ COPY api /home/ubuntu/blocktrust/api
 WORKDIR /home/ubuntu/blocktrust
 
 # Run
-CMD python3 api/translation_worker/main.py
+CMD exec python3 api/translation_worker/main.py

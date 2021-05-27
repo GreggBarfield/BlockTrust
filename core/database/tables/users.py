@@ -1,4 +1,5 @@
 from ..objects.user import User
+import bcrypt
 
 
 class UsersException(Exception):
@@ -122,6 +123,55 @@ class Users:
         )
         return rows
 
+    def verify_email(self, email):
+        """
+            Confirms a user profile and marks it as verified
+
+            Params:
+            email: User email to be verified
+
+            Returns:
+            None
+            """
+
+        self._db.execute_d(
+                """
+                UPDATE users
+                SET email_verified="Y"
+                WHERE users.email=%(email)s
+                """,
+                {
+                    "email": email
+                }
+                )
+
+    def get_email_verified_status(self, email):
+        """
+        Confirms if the user email is verified
+
+        Params:
+            email:User email which needs to be looked up for verification status
+
+        Returns:
+            True if user is verified. False if not verified.
+        """
+        matching_user = self._db.execute_d(
+            """
+                SELECT * FROM users
+                WHERE
+                    email=%(email)s
+            """,
+            {
+                "email": Users._format_field(email)
+            }
+        )
+        if len(matching_user) != 1:
+            raise NoUserFoundException()
+        if matching_user[0]['email_verified'] == "Y":
+            return True
+        else:
+            return False
+
     @staticmethod
     def _format_field(field):
         """Format a user info field.
@@ -134,3 +184,125 @@ class Users:
         if b'\x00' in field.encode("utf-8"):
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
         return field.strip(" \n\r\t")
+    
+    
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
+        """Creates a new user
+
+        Params:
+            username: username to login
+            password: password to login
+            email: email of the user
+            first_name: first name of the user
+            last_name: last name of the user
+            phone: phone of the user
+            email_verified: is email verified
+        
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+        
+        # Correct symbols
+        # This is VERY IMPORTANT, otherwise auth.login() could have difficulties
+        # if someone uses an integer for a username for example.
+
+        # Username must exist, not be all digits (so it does't look like an ID),
+        # be in proper char set
+        # and not contain an '@' (so it doesn't look like an email)
+        # (the '@' is just an explicit check)
+
+        if '@' in username:
+            raise UsersException("'@' cannot be in the username.")
+
+        # Confusing when a user gets ' ' cannot be in username, so be more specific with spaces
+        if ' ' in username:
+            raise UsersException("Spaces cannot be in the username.")
+        if len(username) == 0:
+            raise UsersException("Username is blank.")
+        # Double-usage
+        try:
+            self.get_by_username(username)
+            raise UsersException("Username is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        all_digits = True
+        for c in username:
+            if c not in digits:
+                all_digits = False
+
+        if all_digits:
+            raise UsersException("Username cannot be all digits.")
+
+        valid_chars = (
+            digits +  # Digits
+            ''.join(chr(ord('a') + i) for i in range(26)) +  # Lowercase chars
+            ''.join(chr(ord('A') + i) for i in range(26)) +  # Uppercase chars
+            '_'  # Other
+        )
+
+        for c in username:
+            if c not in valid_chars:
+                raise UsersException("Invalid character '" + c + "' in username.")
+
+        # Email must exist and contain an '@'
+
+        if len(email) == 0:
+            raise UsersException("Email is blank.")
+        if '@' not in email or '.' not in email or len(email) < 5:
+            raise UsersException("The email you entered is incomplete.")
+        # Double-usage
+        try:
+            self.get_by_email(email)
+            raise UsersException("Email is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # Password must be at least 10 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(password) < 10:
+            raise UsersException("Password must be at least 10 characters.")
+
+        if len(password.encode("utf-8")) > 60:
+            raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        # Process phone number
+
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
+        
+        # We don't really care whether or not the phone is being used more than once
+
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, email, phone, first, last, email_verified)
+                    VALUES
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first)s, %(last)s, %(email_verified)s)
+            """,
+            {
+                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "username": username,
+                "phone": phone,
+                "email": email,
+                "first": first_name,
+                "last": last_name,
+                "email_verified": email_verified
+            }
+        )
+        user = self.get_by_username(username)
+        return user

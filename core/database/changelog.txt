@@ -147,7 +147,6 @@ ALTER TABLE accounts AUTO_INCREMENT=602;
 /* Evan Krohn 2/19/2021 */
 ALTER TABLE `example_db_1`.`api_inserts` 
 ADD INDEX `get_next` (`status` ASC, `priority` DESC, `id` ASC) VISIBLE;
-;
 
 /* Rohan Sureshkumar 3/13/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
@@ -164,3 +163,38 @@ ADD COLUMN `stripe_customer_id` VARCHAR(127) NULL AFTER `manual_paid`;
 /* Rohan Sureshkumar 3/27/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid`),1,0)) VIRTUAL AFTER `manual_paid`;
+
+/* Evan Krohn 4/7/2021 */
+/* You should delete all sales groups before this! */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `eid_group` INT NULL AFTER `auction_sale`;
+CREATE TABLE `eid_groups` (
+  `id` int NOT NULL,
+  `owner` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+CREATE TABLE `example_db_1`.`eid_group_eids` (
+  `eid_group` INT NOT NULL,
+  `eid` INT NOT NULL);
+DROP TABLE `example_db_1`.`sales_group_eids`;
+ALTER TABLE `example_db_1`.`eid_groups` 
+CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
+ALTER TABLE `example_db_1`.`eid_group_eids` 
+CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
+
+/* Rohan Sureshkumar 5/8/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
+ADD COLUMN `city` VARCHAR(50) NULL DEFAULT NULL AFTER `affiliate_id`,
+ADD COLUMN `state` VARCHAR(2) NULL DEFAULT NULL AFTER `city`,
+ADD COLUMN `zip_code` VARCHAR(10) NULL DEFAULT NULL AFTER `state`,
+ADD COLUMN `phone` BIGINT NULL DEFAULT NULL AFTER `zip_code`;
+
+/* Lydia Qiao 5/13/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
+
+/* Lydia Qiao 5/14/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
+
