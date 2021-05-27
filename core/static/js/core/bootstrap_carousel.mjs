@@ -7,7 +7,6 @@ export class BootstrapCarousel {
         this.isFullScreen = false;
         this.modal = null;
 
-
         let box = document.createElement("div");
         this.box = box;
         box.style.overflow = "hidden";

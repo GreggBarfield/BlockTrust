@@ -323,6 +323,7 @@ export class EditSalesGroupWidget extends Widget {
         let videoText = document.createElement("div");
         this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
         videoGroup.append(videoText);
+        
         // Comments
 
         let commentsHeader = document.createElement("h6");
