@@ -73,12 +73,12 @@ export class VideoSession{
         this.frame.append(this.linkBox);
     }
     remove(link) {
-        // if ("removed" in link) {
+        if ("removed" in link) {
             link["removed"] = !link["removed"];
-        // }
-        // else {
-        //     link["removed"] = true;
-        // }
+        }
+        else {
+            link["removed"] = true;
+        }
         return link["removed"];
     }
     updateTable() {
@@ -155,7 +155,8 @@ export class VideoSession{
             this.updateTable();
         
         });
-        //allow to multiple links
+        
+        // Allow input multiple links
         function parseYouTubeTokenByUri(url){
             var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             var match = url.match(regExp);
@@ -168,7 +169,6 @@ export class VideoSession{
         }
         function handleUrlInput(links){
             var urls= links.split(",");
-            // console.log(urls);
             var tag=null
             var platform="N/A";
             var id="";

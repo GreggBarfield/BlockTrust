@@ -49,10 +49,6 @@ export class BasicFileEditor {
             that.ImageInput.dispatchEvent(new MouseEvent("click"));
         });
         this.ImageBox.append(this.addImageButton);
-        
-        
-
-        
 
         if (attach_node !== null) {
             this.attach(attach_node);
