@@ -195,8 +195,8 @@ export class SalesGroupViewer {
             addInfo("PVP Program", this.data.reported.process_verified_program,animalBody);
 
         }
-        //Configure market data 
 
+        //Configure market data 
         {
             let marketDataCol = document.createElement("div");
             marketDataCol.className = "card";
@@ -363,7 +363,6 @@ export class SalesGroupViewer {
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
 
-
             let header = document.createElement("div");
             header.className = "btn btn-outline-secondary btn-sm";
             header.style ="float:left";
@@ -406,7 +405,6 @@ export class SalesGroupViewer {
             return body;
         }
 
-        
         {
             let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
             let divTableResponsive = document.createElement("div");
