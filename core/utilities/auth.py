@@ -7,6 +7,7 @@ from ..database.objects.account import Account
 
 SESSION_USER_ID_VAR = "user_id"
 SESSION_ACCOUNT_ID_VAR = "account_id"
+SESSION_SHOPPING_CART = "shopping_cart"
 
 
 class AuthException(Exception):
@@ -343,6 +344,8 @@ def login(identifier, password="", override=False):
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
+        session[SESSION_SHOPPING_CART] = {}
+        print(session)
 
         return g.user
     except LoginException as e:
