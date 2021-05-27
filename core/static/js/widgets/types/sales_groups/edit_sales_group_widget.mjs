@@ -478,7 +478,7 @@ export class EditSalesGroupWidget extends Widget {
                         imgDes: that.fileEditor.getDes(),
                         videos: that.VideoEditor.getLinks(),
                     },
-                    delivery: marketingLocation.value,
+                    "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
