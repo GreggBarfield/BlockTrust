@@ -30,3 +30,12 @@ class User:
 
     def email_verified(self):
         return self._row('email_verified')
+
+    def account_non_locked(self):
+        return self._row['account_non_locked']
+
+    def failed_attempt(self):
+        return self._row['failed_attempt']
+
+    def lock_time(self):
+        return self._row['lock_time']

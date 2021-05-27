@@ -1,8 +1,10 @@
+from os import times
 import bcrypt
 from flask import g, session
 from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
+import time
 
 
 SESSION_USER_ID_VAR = "user_id"
@@ -189,8 +191,25 @@ def login(identifier, password="", override=False):
     Returns:
         An User object on success.
     """
+    # try:
+    #     g.db.execute_d(
+    #         """
+    #         UPDATE users
+    #         SET password=%(password)s
+    #         WHERE users.email=%(email)s
+    #         """,
+    #         {
+    #             "password": password,
+    #             "email": "email"
+    #         }
+    #         )
+    # except:
+    #     raise "????"
 
     try:
+        
+    
+
         if password is None and override is not True:
             raise LoginException("password is None")
         if override is not True and override is not False:
@@ -256,13 +275,46 @@ def login(identifier, password="", override=False):
                 user_row = email_results[0]
 
         # End of tries
+        
 
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
 
         if user_row is None:
             raise LoginException(generic_error)
-
+        if int(user_row["account_non_locked"])==0:
+            #Todo: message
+            raise LoginException("Locked")
+        # Password does not match
         if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
+            
+            g.db.execute_d(
+                """
+                    UPDATE users
+                    SET failed_attempt = %(failed_attempt)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                {
+                    "id": user_row["id"],
+                    "failed_attempt":  int(user_row["failed_attempt"])+1
+                }
+            )
+            
+            if int(user_row['failed_attempt'])+1>3:
+                g.db.execute_d(
+                """
+                    UPDATE users
+                    SET account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                {
+                    "id": user_row["id"],
+                    "account_non_locked": 0,
+                    "lock_time": int(round(time.time()))+86400
+                }
+            )
+
             raise LoginException(generic_error)
         # To check if the user profile being accessed has a verified email
 
