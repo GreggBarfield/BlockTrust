@@ -146,7 +146,7 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
-            delivery_location: city and state to delivery
+            delivery_location: city and state 
             start: The start time
             end: The end time
             auction_sale: The auction sale ID 
@@ -180,7 +180,6 @@ class SalesGroups:
 
         Params:
             zip_code: Origin zip code
-            location: city and state of the zip code
             miles: Radius in miles
             start: Start time
             end: End time
