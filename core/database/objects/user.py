@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 class User:
 
     def __init__(self, db, row):

@@ -224,6 +224,7 @@ def serve_confirm(tok):
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
 
+
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
@@ -236,3 +237,8 @@ def serve_contact_email():
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
     return outside_render("shop/shop_homepage.html")
+
+
+@bp.route('/shopping-cart', methods=['GET'])
+def serve_shopping_cart():
+    return outside_render("shop/shopping_cart.html")

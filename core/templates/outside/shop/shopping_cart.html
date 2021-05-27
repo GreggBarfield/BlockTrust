@@ -1,0 +1,96 @@
+{% extends "outside/standard.html" %}
+
+{% set page_title = "Shopping Cart" | string %}
+
+{% block outside_banner %}
+
+<link rel="stylesheet" href="/static/css/outside/old/shop_styles.css" />
+<link href="statis/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+
+
+<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item">
+                            <h1 class="text-white mb-1">Shopping Cart</h1>
+                        </li>
+                        
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock outside_banner %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+
+                <div class="container">
+                    <table class="shopping-cart">
+                        <thead>
+                            <tr>
+                                <th class="image">&nbsp;</th>
+                                <th>PRODUCT</th>
+                                <th>PRICE</th>
+                                <th>QUANTITY</th>
+                                <th>TOTAL</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="cart-item">
+                                <td class="image"><a href="#"><img src="images/product-small1.jpg" alt=""></a></td>
+                                <td><a href="#x"><b>Amazing Framed Art</b></a></td>
+                                <td>$29.99</td>
+                                <td class="qty"><input type="number" step="1" min="0" name="cart" value="1" title="Qty" class="form-control qty" size="4"></td>
+                                <td>$29.99</td>
+                                <td class="remove"><a href="#x" class="btn btn-danger-filled x-remove">×</a></td>
+                            </tr>
+                            <tr class="cart-item">
+                                <td class="image"><a href="#"><img src="images/product-small2.jpg" alt=""></a></td>
+                                <td><a href="#x"><b>Printed Photography</b></a></td>
+                                <td>$14.99</td>
+                                <td class="qty"><input type="number" step="1" min="0" name="cart" value="1" title="Qty" class="form-control qty" size="4"></td>
+                                <td>$14.99</td>
+                                <td class="remove"><a href="#x" class="btn btn-danger-filled x-remove">×</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div><!-- / container -->
+
+
+                <section id="cart-features" class="bg-white">
+                    <div class="container">
+                        <div class="row cart-footer">
+                            <div class="coupon col-md-6 mt-1 mb-1">
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-sm" id="coupon-code" placeholder="Coupon Code">
+                                    <span class="input-group-btn">
+                                    <button class="btn btn-primary ml-3" type="button"><span>APPLY COUPON</span></button>
+                                    </span>
+                                </div>
+                            </div><!-- / input-group -->
+                            <div class="update-cart col-md-6 mt-1 mb-1">
+                                <button class="btn btn-primary" type="submit"><span>UPDATE CART</span></button>
+                            </div><!-- / update-cart -->
+            
+                            <div class="col-md-6 cart-total">
+                                <h4 class="pb-3">CART TOTAL</h4>
+                                <p>Subtotal: <span class="text-primary">$44.98</span></p>
+                                <p>Shippping: <span class="text-primary">$5</span></p>
+                                <p>Total: <span class="text-primary">$49.98</span></p>
+                            </div><!-- / cart-total -->
+            
+                            <div class="col-md-6 cart-checkout">
+                                <a href="checkout.html" class="btn btn-primary mt-1 mb-1"><i class="lnr lnr-exit"></i> <span>PROCEED TO CHECKOUT</span></a>
+                            </div><!-- / cart-checkout -->
+                        </div>
+                    </div><!-- / container -->
+                </section><!-- / cart-features -->
+
+</section>
+{% endblock outside_content %}

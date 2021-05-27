@@ -3,6 +3,9 @@
 {% set page_title = "Shop"| string %}
 
 {% block outside_banner %}
+<link rel="stylesheet" href="/static/css/outside/old/shop_styles.css" />
+<link href="statis/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+
 <div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
     <div class="container">
         <div class="row">
@@ -10,10 +13,10 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
                         <li class="breadcrumb-item">
-                            <a href="/">
-                                <i class="fa fa-home pr-1"></i>
-                                Home
-                            </a>
+                            
+                                
+                                <h1 class="text-white mb-1">BlockTrust Network Shop</h1>
+                            
                         </li>
                     </ol>
                 </nav>
@@ -26,34 +29,464 @@
 {% block outside_content %}
 <section id="gallery" class="p-0 line-effect">
     <div class="container">
-        
+            <div class="col-md-12 text-right">
+                <a href="/shopping-cart" class="btn btn-primary m-2">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></a>
+            </div><!-- / column -->
+            
             <ul class="gallery-filter list-inline text-center">
                 <li><a href="#" data-group="all" class="active ml-2">SEE ALL</a></li>
                 <li><a href="#" data-group="applicators">APPLICATORS</a></li>
                 <li><a href="#" data-group="readers">READERS</a></li>
                 <li><a href="#" data-group="tags">TAGS</a></li>
             </ul>
-            <div class="container full-width">
-                Shop itemsl
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
-                l
+            
+            <div class="container">
+                <ul class="row gallery line-effect list-unstyled mb-0" id="grid">
+                    <!-- gallery -->
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/match_pair_fdx_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">VISUAL MATCHED 840 FDX</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product1"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
+                    
+                    
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/match_pair_hdx_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">VISUAL MATCHED 840 HDX</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product2"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
+                    
+                    
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/840_fdx_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">FDX USDA 840</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product3"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
+                    
+                    
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/840_hdx_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">HDX USDA 840</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product4"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
 
-                l
-                l
-                l
+
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/MFA_HT_red_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">MFA HT NESTED PAIR</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product5"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
+
+
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/MFA_HT_UHF_lg.png" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">MFA UHF TAG</h2><!-- / hover-title -->
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product6"><i class="fas fa-plus"></i></a>
+                                            <a href="shopping-cart.html" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
+                                        </span><!--/ gallery-icons -->
+                                    </p><!-- / gallery-info -->
+                                </div><!-- / hover-content -->
+                            </figcaption>
+                        </figure><!-- / gallery-item -->
+                    </li>
+
+
+                    
+                    
+                    
+                    <!-- / gallery -->
+                    </ul>
+            </div>
+            
+            </div><div class="container">
+
             </div>
           
     </div>
+
+
+
+    <!-- product1-modal -->
+    <div class="modal fade product-modal" id="product1" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/match_pair_fdx_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">Visual matched  840 FDX</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li> Set contains 1 small button tag and a large floppy tag that you can put whatever number you want</li> 
+                                    <li>Yellow Extra Large USDA Official visual tag matched with FDX 840 EID tag.</li> 
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$3.63</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 unit</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product1-modal -->
+
+
+    <!-- product2-modal -->
+    <div class="modal fade product-modal" id="product2" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/match_pair_hdx_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">Visual matched  840 HDX</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li>Set contains 1 small button tag and a large floppy tag that you can put whatever number you want</li> 
+                                    <li>Yellow Extra Large USDA Official visual tag matched with HDX 840 EID tag.</li> 
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$4.26</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 unit</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product2-modal -->
+
+
+    
+    <!-- product3-modal -->
+    <div class="modal fade product-modal" id="product3" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/840_fdx_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">FDX USDA 840</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li>Destron Fearing USDA 840 FDX EID tag with small male</li>
+                                    <li>Full Duplex (FDX) technology offers a slightly lower read distance vs HDX (up to to 75cm).</li>
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$55.9</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 Bag of 25 units</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product3-modal -->
+
+
+    
+    <!-- product4-modal -->
+    <div class="modal fade product-modal" id="product4" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/840_hdx_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">Visual matched  840 FDX</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li>Destron Fearing USDA 840 HDX EID tag with small male</li> 
+                                    <li>Half Duplex (HDX) technology offers the greatest possible read distance (up to100cm). </li>
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$63.7</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 Bag of 25 units</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product4-modal -->
+
+
+    
+    <!-- product5-modal -->
+    <div class="modal fade product-modal" id="product5" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/MFA_HT_red_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">MFA HT Nested Pair</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li>MFA Health Track is a Vac 45 preconditioning verification program for beef calves administered by MFA Incorporated for our Cow/Calf producer customers.</li> 
+                                    <li> MFA Incorporated is uniquely qualified for this role due to our ability to supply and verify the purchase.</li> 
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$0</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 unit</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product5-modal -->
+
+
+    
+    <!-- product6-modal -->
+    <div class="modal fade product-modal" id="product6" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div><!-- / modal-header -->
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row vcenter">
+                            <div class="col-md-6">
+                                <img src="/static/images/shop/MFA_HT_UHF_lg_detail.png" alt="">
+                            </div><!-- / column -->
+                            <div class="col-md-6">
+                                <h4 class="single-product-title">MFA UHF TAG</h4>
+                                
+                                <ul style="display:inline-table; list-style-type: square;">
+                                    <li>MFA Health Track is a Vac 45 preconditioning verification program for beef calves administered by MFA Incorporated for our Cow/Calf producer customers.</li> 
+                                    <li> MFA Incorporated is uniquely qualified for this role due to our ability to supply and verify the purchase.</li> 
+                                </ul>
+                                <div class="product-info pb-3 pt-3">
+
+                                    <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>$0</b></span></p>
+
+                                    <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>1 unit</b></span></p>
+
+                                    <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
+
+                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
+
+                                    <form class="form-inline">
+                                        <input class="form-control qty m-2" type="number" value="1" id="number-input-3">
+                                    </form>
+                                </div><!-- / product-info -->
+                            </div><!-- / column -->
+                        </div><!-- / row -->
+                    </div><!-- / container-fluid -->
+                </div><!-- / modal-body -->
+                <div class="modal-footer">
+
+                            <div class="col-md-4 text-right">
+                                <a href="shopping-cart.html" class="btn btn-primary m-2">ADD TO CART</a>
+                            </div><!-- / column -->
+
+                </div><!-- / modal-footer -->
+            </div><!-- / modal-content -->
+        </div><!-- / modal-dialog -->
+    </div><!-- / modal -->
+    <!-- / product6-modal -->
+
+
 </section>
 {% endblock outside_content %}
