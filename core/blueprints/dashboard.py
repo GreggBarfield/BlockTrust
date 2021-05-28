@@ -267,7 +267,7 @@ def serve_edit_edituser():
                 return  dashboard_render("/dashboard/edit/edituser.html", { "error_passlen":error_passlen,"error":error, "new_password":new_password ,"user":user})
 
         
-            g.db.users.edit_user(
+            g.db.users.update_user(
                         username=user.username(),
                         first=request.form["first"],
                         last=request.form["last"],
