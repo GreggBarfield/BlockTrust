@@ -1,4 +1,5 @@
 from ...match_types import match_types_by_name
+from . import matches
 
 
 class MatchTypes:
@@ -9,7 +10,7 @@ class MatchTypes:
     
     """
 
-    def __init__(self, matches):
+    def __init__(self, matches: 'matches.Matches'):
         self._matches = matches
 
     def insert_sighting(self, **kwargs):
