@@ -197,4 +197,3 @@ ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
 /* Lydia Qiao 5/14/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
-
