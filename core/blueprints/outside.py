@@ -4,12 +4,14 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.tables.users import UsersException
+from ..database.tables.accounts import AccountsException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
+from ..sectors import sectors_by_id
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -77,33 +79,44 @@ def serve_login_action():
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
-    return outside_render('signup.html')
+    return outside_render('signup.html', {
+        "sectors_by_id": sectors_by_id
+    })
 
 
 @bp.route('/signup/action', methods=['POST'])
 def serve_signup_action():
     try:
         required = {
-            'username': None, 'password': None, 'confirm_password': None,
-            'email': None, 'first': None, 'last': None, 'phone': None
+            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
+            'city':None, 'state':None, 'zip_code':None,
+            'username':None, 'email':None, 'password':None, 'confirm_password':None
         }
         for required_field in required:
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_"," ") + "' does not have a value")
 
         # Sign up
         try:
             auth.signup(
                 username=required['username'],
                 email=required['email'],
-                phone=required['phone'],
-                first=required['first'],
-                last=required['last'],
+                phone=request.form['phone'],
+                first_name=required['first_name'],
+                last_name=required['last_name'],
                 password=required['password'],
-                confirm_password=required['confirm_password']
+                confirm_password=required['confirm_password'],
+                company = required['company'],
+                affiliate_id = request.form['affiliate_id'],
+                sector = required['sector'],
+                city=required['city'],
+                state=required['state'],
+                zip_code=required['zip_code']
             )
-        except auth.SignupFailedException as e:
+        except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
 
         # Generating token identifier for user for email verification
@@ -117,20 +130,9 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-
-        # Sign up worked, now log in and redirect
-        try:
-            auth.login(
-                identifier=required['username'],
-                password=required['password']
-            )
-            return jsonify({"redirect": "/dashboard"})
-        except auth.LoginException as e:
-            raise ExportException("Sorry, we created your account but had difficulties logging you in. Contact us for help.")
-        except auth.EmailNotVerifiedException as e:
-            return jsonify({"redirect": "/email_not_verified"})
-        except auth.UsersException as e:
-            raise ExportException("internal error in Users.login")
+        
+        #TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
+        raise ExportException("Success!")
     except ExportException as e:
         return jsonify({"error": str(e)})
 

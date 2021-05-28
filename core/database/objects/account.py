@@ -30,26 +30,41 @@ class Account:
 
     def id(self):
         return self._row['id']
-    
 
     def name(self):
         return self._row['name']
 
-
     def company(self):
         return self._row['company']
-
 
     def token(self):
         return self._row['token']
 
-
     def sector_id(self):
         return self._row['sector']
 
-
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
+
+
+    def affiliate_id(self):
+        return self._row['affiliate_id']
+
+
+    def city(self):
+        return self._row['city']
+
+
+    def state(self):
+        return self._row['state']
+
+
+    def zip_code(self):
+        return self._row['zip_code']
+
+
+    def phone(self):
+        return self._row['phone']
 
 
     def stripe_paid(self):
@@ -79,13 +94,12 @@ class Account:
         except AccountUsersException as e:
             raise AccountException("Failed to add link: " + str(e))
 
-
     def account_links(self, allow_cache=True):
         """Get account's account links
 
         Params:
             allow_cache: Allow this to come from the cache (default True)
-        
+
         Returns:
             a (possibly empty) list of AccountLink objects
         """

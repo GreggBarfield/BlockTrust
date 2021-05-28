@@ -181,6 +181,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
+        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery || null);
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
@@ -458,6 +459,7 @@ export class EditSalesGroupWidget extends Widget {
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
                     },
+                    "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
