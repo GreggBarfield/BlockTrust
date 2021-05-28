@@ -243,3 +243,37 @@ def serve_plans():
 @crut.require_account
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
+
+# edit user profile
+@bp.route('/dashboard/edit/edituser', methods=['GET','POST'])
+@crut.require_user
+def serve_edit_edituser():
+        user = g.db.users.get_by_username(g.user.username())
+      
+        if request.method =="POST":
+            
+            error = None
+            error_passlen=None
+            new_password = request.form["new_password"]
+            phone= request.form["phone"]
+
+            if (len(new_password) <= 10 or len(new_password) > 60):        
+                error_passlen = 'Password must be at least 10 characters.' 
+                return  dashboard_render("/dashboard/edit/edituser.html", {"error_passlen":error_passlen ,"error":error  , "user":user})
+
+            confirm_password = request.form["confirm_password"]
+            if (confirm_password != new_password):
+                error = 'The passwords you entered were not identical..'
+                return  dashboard_render("/dashboard/edit/edituser.html", { "error_passlen":error_passlen,"error":error, "new_password":new_password ,"user":user})
+
+        
+            g.db.users.edit_user(
+                        username=user.username(),
+                        first=request.form["first"],
+                        last=request.form["last"],
+                        phone=phone,
+                        password=new_password
+                        )
+       
+            return redirect("/dashboard")
+        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})

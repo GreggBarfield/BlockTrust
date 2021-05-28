@@ -1,0 +1,96 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/edituser", "Edit User")] %}
+
+{% block dashboard_content_header %}
+Edit User
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-8 text-center">
+                <div class="mb-3">
+                    <h4>Profile Info</h4>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-6 mb-2">
+                <form class="bg-white shadow p-3"  id="edituser_form" action=""  method="POST"> 
+                    <div class="form-group">
+                        <label for="edituser_form_username">Username</label>
+                        <input type="text" class="form-control" value="{{user.username()}}"  id="edituser_form_username" name="username" readonly>
+                        <span class="focus-border" ></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="#edituser_form_email">Email address</label>
+                        <input type="email" class="form-control" value={{user.email()}} id="#edituser_form_email"
+                            name="email" readonly>
+                        <span class="focus-border"></span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="dituser_form_new_password">Password</label>
+                                <input type="password" class="form-control"  id="dituser_form_new_password"
+                                    name="new_password" {% if new_password %} value="{{new_password}}" {% endif %}>
+                                {% if error_passlen %}
+                                   <div class="error-msg">{{ error_passlen }}</div>
+                                {% endif %}
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="edituser_form_confirm_password">Confirm password</label>
+                                <input type="password" class="form-control"  id="edituser_form_confirm_password"
+                                    name="confirm_password">
+                                {% if error %}
+                                   <div class="error-msg">{{ error }}</div>
+                                {% endif %}
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="edituser_form_first">First name</label>
+                                <input type="text" class="form-control" value={{user.first()}} id="edituser_form_first"
+                                name="first">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="edituser_form_last">Last name</label>
+                                <input type="text" class="form-control" value={{user.last()}} , id="edituser_form_last" name="last">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="edituser_form_phone">Phone</label>
+                                <input type="text" class="form-control" value={{user.phone()}}
+                               id="edituser_form_phone" name="phone">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <p class="mt-2 mb-0" id="edituser_status_message" style="display:none;">Hang on, we're updating your
+                        account...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edituser_error_message">Loading
+                        error...</p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- <script type="module" src="/static/entry_points/dashboard/edituser.mjs"></script> -->
+{% endblock dashboard_content %}

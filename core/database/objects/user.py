@@ -32,3 +32,6 @@ class User:
 
     def email_verified(self):
         return self._row('email_verified')
+
+    def id(self):
+            return self._row['phone']

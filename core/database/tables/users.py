@@ -1,7 +1,7 @@
 from ..objects.user import User
 from .. import database
 import bcrypt
-
+from ..frag import frag
 
 class UsersException(Exception):
     """Generic user exception."""
@@ -307,3 +307,70 @@ class Users:
         )
         user = self.get_by_username(username)
         return user
+
+    def  update_user(self, username, first=None  , last=None, phone=None, password=None ):
+        """Updates user information.
+
+        Params:
+            username: This is the user id, just the user can see it
+            email: email address of user,just the user can see it
+            password: This is corresponding password used to login
+            phone: phone number of user
+            first: first name of the user.
+            last: last name of the user.
+
+        """    
+        set_frags = frag()
+        if first is not None:
+            set_frags = frag(
+                            set_frags,
+                            "first=:first,",
+                             first=first
+                        )           
+        if last is not None:
+            set_frags = frag(
+                            set_frags, 
+                            "last=:last,",
+                            last=last
+                        )
+        if phone is not None:
+            # Process phone number
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
+            set_frags = frag(
+                            set_frags, 
+                            "phone=:phone,",
+                            phone=phone
+                        )
+        if password is not None:
+            set_frags = frag(
+                            set_frags, 
+                            "password=:password,",
+                            password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                        )
+        
+        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
+            #check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1],set_frags[1])
+
+            self._db.exec_frag(   
+                frag(
+                    "UPDATE users SET",
+                    set_frags,
+                    frag(
+                        "WHERE username=:username",
+                         username=Users._format_field(username)
+                    )               
+                )
+            )
+
