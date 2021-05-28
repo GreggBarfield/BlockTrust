@@ -181,7 +181,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
-        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery || null);
+        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null);
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
