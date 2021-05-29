@@ -63,8 +63,8 @@ class Account:
         return self._row['state']
 
 
-    def zip_code(self):
-        return self._row['zip_code']
+    def zip(self):
+        return self._row['zip']
 
 
     def phone(self):
