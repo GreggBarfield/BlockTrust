@@ -30,10 +30,10 @@ class Partners:
         """
         partner_rows = self._db.execute_d(
             """SELECT * FROM partners
-                WHERE id=%(id)s
+                WHERE partner_id=%(partner_id)s
             """,
             {
-                "id": partner_id
+                "partner_id": partner_id
             }
         )
         if len(partner_rows) != 1:

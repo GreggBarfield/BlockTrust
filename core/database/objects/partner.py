@@ -23,10 +23,10 @@ class Partner:
         return self._row['partner_name']
 
     def sector_id(self):
-        return self._row['sector']
+        return self._row['sector_id']
 
     def sector_name(self):
-        return sectors_by_id[self._row['sector']]
+        return sectors_by_id[self._row['sector_id']]
 
     def contact_name(self):
         return self._row['contact_name']
