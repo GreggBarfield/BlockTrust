@@ -4,11 +4,11 @@ from ...sectors import sectors_by_id
 class Partner:
 
     def __init__(self, db, row):
-        """User constructor.
+        """Partner constructor.
 
         Params:
             db: Database object
-            row: A 'users' row dictionary
+            row: A 'partner' row dictionary
         """
         self._db = db
         self._row = deepcopy(row)
