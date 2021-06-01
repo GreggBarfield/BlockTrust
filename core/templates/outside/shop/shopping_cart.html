@@ -35,31 +35,34 @@
                             <tr>
                                 <th class="image">&nbsp;</th>
                                 <th>PRODUCT</th>
-                                <th>PRICE</th>
                                 <th>QUANTITY</th>
+                                <th>PRICE PER UNIT</th>
                                 <th>TOTAL</th>
                                 <th>&nbsp;</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="cart-item">
-                                <td class="image"><a href="#"><img src="images/product-small1.jpg" alt=""></a></td>
-                                <td><a href="#x"><b>Amazing Framed Art</b></a></td>
-                                <td>$29.99</td>
-                                <td class="qty"><input type="number" step="1" min="0" name="cart" value="1" title="Qty" class="form-control qty" size="4"></td>
-                                <td>$29.99</td>
-                                <td class="remove"><a href="#x" class="btn btn-danger-filled x-remove">×</a></td>
+                            {% for key, val in session["shopping_cart"].items() %}
+					        {% set quantity = session["shopping_cart"][key]['quantity'] %}
+					        {% set price = session["shopping_cart"][key]['price'] %}
+					        {% set item_price = session["shopping_cart"][key]['total_price'] %}
+
+                            <tr>
+                                <td style="text-align: left;"><img src="/static/images/{{ session['shopping_cart'][key]['image'] }}" class="cart-item-image" />{{ session["shopping_cart"][key]['name'] }}</td>
+                                <td>{{ session["shopping_cart"][key]['code'] }}</td>
+                                <td>{{ quantity }}</td>
+                                <td>$ {{ price }}</td>
+                                <td>$ {{ item_price }}</td>
+                                <td">
+                                   
+                                </td>
                             </tr>
-                            <tr class="cart-item">
-                                <td class="image"><a href="#"><img src="images/product-small2.jpg" alt=""></a></td>
-                                <td><a href="#x"><b>Printed Photography</b></a></td>
-                                <td>$14.99</td>
-                                <td class="qty"><input type="number" step="1" min="0" name="cart" value="1" title="Qty" class="form-control qty" size="4"></td>
-                                <td>$14.99</td>
-                                <td class="remove"><a href="#x" class="btn btn-danger-filled x-remove">×</a></td>
-                            </tr>
+                        {% endfor %}
+
+
                         </tbody>
                     </table>
+                    
                 </div><!-- / container -->
 
 
@@ -80,7 +83,7 @@
             
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
-                                <p>Subtotal: <span class="text-primary">$44.98</span></p>
+                                <p>Subtotal: <span class="text-primary">{{session["all_total_price"]}}</span></p>
                                 <p>Shippping: <span class="text-primary">$5</span></p>
                                 <p>Total: <span class="text-primary">$49.98</span></p>
                             </div><!-- / cart-total -->

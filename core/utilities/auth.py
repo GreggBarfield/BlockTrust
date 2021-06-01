@@ -8,6 +8,7 @@ from ..database.objects.account import Account
 SESSION_USER_ID_VAR = "user_id"
 SESSION_ACCOUNT_ID_VAR = "account_id"
 SESSION_SHOPPING_CART = "shopping_cart"
+ALL_TOTAL_PRICE = "all_total_price"
 
 
 class AuthException(Exception):
@@ -345,7 +346,7 @@ def login(identifier, password="", override=False):
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
         session[SESSION_SHOPPING_CART] = {}
-        print(session)
+        session[ALL_TOTAL_PRICE] = 0
 
         return g.user
     except LoginException as e:
@@ -369,3 +370,11 @@ def get_email_verified_value(email):
        True if user email is verified. False if user is unverified.
     """
     return g.db.users.get_email_verified_status(email)
+
+
+def get_product_data(id):
+    return g.db.product_table.get_by_id(id)
+
+
+def get_product_price(id):
+    return g.db.product_table.get_price_by_id(id)

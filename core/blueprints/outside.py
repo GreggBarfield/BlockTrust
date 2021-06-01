@@ -11,6 +11,9 @@ from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 
+SESSION_SHOPPING_CART = "shopping_cart"
+ALL_TOTAL_PRICE = "all_total_price"
+
 bp = Blueprint('outside_bp', __name__)
 
 
@@ -238,7 +241,53 @@ def serve_contact_email():
 def serve_shop():
     return outside_render("shop/shop_homepage.html")
 
+# Routes for shopping cart page
+
 
 @bp.route('/shopping-cart', methods=['GET'])
 def serve_shopping_cart():
     return outside_render("shop/shopping_cart.html")
+
+# Routes for adding and deleting cart items
+
+
+@bp.route('/shop', methods=['POST'])
+def serve_add_to_cart():
+    prod_no = request.form['code']
+    quantity = int(request.form['quantity_1'])
+    all_total_price = 0
+
+    price = auth.get_product_price(int(prod_no))
+    product = auth.get_product_data(prod_no)
+
+    total_price = price*quantity
+    product_order = {prod_no: {
+        'name': product['product'],
+        'quantity': quantity,
+        'price': price,
+        'total_price': total_price
+        }
+        }
+
+    if SESSION_SHOPPING_CART in session:
+
+        if prod_no in session[SESSION_SHOPPING_CART]:
+            for key, value in session[SESSION_SHOPPING_CART].items():
+                if prod_no == key:
+                    old_quantity = session[SESSION_SHOPPING_CART][key]['quantity']
+                    total_quantity = old_quantity+quantity
+                    session[SESSION_SHOPPING_CART][key]['quantity'] = total_quantity
+                    session[SESSION_SHOPPING_CART][key]['total_price'] = total_quantity * price
+                    print(session[SESSION_SHOPPING_CART])
+        else:
+            session[SESSION_SHOPPING_CART] = dict(list(session[SESSION_SHOPPING_CART].items()) + list(product_order.items()))
+            print(session[SESSION_SHOPPING_CART])
+        for key, value in session[SESSION_SHOPPING_CART].items():
+            individual_price = value['total_price']
+            all_total_price = all_total_price + individual_price
+    else:
+        session[SESSION_SHOPPING_CART][prod_no] = product_order
+        all_total_price = total_price
+    session[ALL_TOTAL_PRICE] = all_total_price
+
+    return outside_render('shop/shop_homepage.html')
