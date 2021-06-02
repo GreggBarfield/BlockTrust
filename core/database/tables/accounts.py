@@ -112,7 +112,7 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector, affiliate_id, city, state, zip_code, phone):
+    def create_account(self, user, name, company, sector, affiliate_id, city, state, zip, phone):
         """Creates a new account with the user automatically added.
 
         Params:
@@ -120,6 +120,11 @@ class Accounts:
             name: the account name
             company: the company name
             sector: the sector number
+            affiliate_id: account number in our partners system
+            city: company's city
+            state: company's state
+            zip: company's zip
+            phone: company's phone
         
         Returns:
             An Account object
@@ -149,9 +154,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector, affiliate_id, city, state, zip_code, phone)
+                (name, company, sector, affiliate_id, city, state, zip, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip_code)s, %(phone)s)
+                    (%(name)s, %(company)s, %(sector)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
             """,
             {
                 "name": name,
@@ -160,7 +165,7 @@ class Accounts:
                 "affiliate_id": affiliate_id,
                 "city": city,
                 "state": state,
-                "zip_code": zip_code,
+                "zip": zip,
                 "phone": phone
             }
         )
@@ -173,7 +178,7 @@ class Accounts:
             raise AccountsException("Account exception: " + str(e))
 
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip_code=NO_VALUE, 
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
         phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
@@ -224,11 +229,11 @@ class Accounts:
                             "state=:state,",
                             state=state
                         )
-        if zip_code is not NO_VALUE:
+        if zip is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
-                            "zip_code=:zip_code,",
-                            zip_code=zip_code
+                            "zip=:zip,",
+                            zip=zip
                         )
         if phone is not NO_VALUE:
             set_frags = frag(

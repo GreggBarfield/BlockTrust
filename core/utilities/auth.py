@@ -158,7 +158,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         affiliate_id=affiliate_id,
         city=city,
         state=state,
-        zip_code=zip_code,
+        zip=zip_code,
         phone=phone
     )
 
