@@ -26,7 +26,7 @@ class Partners:
             An Partner() object
 
         Raises:
-            AccountsException on ID not found
+            PartnersException on ID not found
         """
         partner_rows = self._db.execute_d(
             """SELECT * FROM partners
