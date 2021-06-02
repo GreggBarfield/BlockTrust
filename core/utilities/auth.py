@@ -346,7 +346,7 @@ def login(identifier, password="", override=False):
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
         session[SESSION_SHOPPING_CART] = {}
-        session[ALL_TOTAL_PRICE] = 0
+        session[ALL_TOTAL_PRICE] = 0.0
 
         return g.user
     except LoginException as e:

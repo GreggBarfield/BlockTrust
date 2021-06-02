@@ -239,14 +239,10 @@ def serve_contact_email():
 
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
-    return outside_render("shop/shop_homepage.html")
-
-# Routes for shopping cart page
-
-
-@bp.route('/shopping-cart', methods=['GET'])
-def serve_shopping_cart():
-    return outside_render("shop/shopping_cart.html")
+    if g.user is None:
+        return outside_render("shop/shop_login.html")
+    else:
+        return outside_render("shop/shop_homepage.html")
 
 # Routes for adding and deleting cart items
 
@@ -257,12 +253,13 @@ def serve_add_to_cart():
     quantity = int(request.form['quantity_1'])
     all_total_price = 0
 
-    price = auth.get_product_price(int(prod_no))
+    price = auth.get_product_price(float(prod_no))
     product = auth.get_product_data(prod_no)
 
-    total_price = price*quantity
+    total_price = round(price*quantity, 2)
     product_order = {prod_no: {
         'name': product['product'],
+        'prod_no': prod_no,
         'quantity': quantity,
         'price': price,
         'total_price': total_price
@@ -277,11 +274,9 @@ def serve_add_to_cart():
                     old_quantity = session[SESSION_SHOPPING_CART][key]['quantity']
                     total_quantity = old_quantity+quantity
                     session[SESSION_SHOPPING_CART][key]['quantity'] = total_quantity
-                    session[SESSION_SHOPPING_CART][key]['total_price'] = total_quantity * price
-                    print(session[SESSION_SHOPPING_CART])
+                    session[SESSION_SHOPPING_CART][key]['total_price'] = round(total_quantity * price, 2)
         else:
             session[SESSION_SHOPPING_CART] = dict(list(session[SESSION_SHOPPING_CART].items()) + list(product_order.items()))
-            print(session[SESSION_SHOPPING_CART])
         for key, value in session[SESSION_SHOPPING_CART].items():
             individual_price = value['total_price']
             all_total_price = all_total_price + individual_price
@@ -291,3 +286,28 @@ def serve_add_to_cart():
     session[ALL_TOTAL_PRICE] = all_total_price
 
     return outside_render('shop/shop_homepage.html')
+
+# Routes for shopping cart page
+
+
+@bp.route('/shopping-cart', methods=['GET'])
+def serve_shopping_cart():
+    return outside_render("shop/shopping_cart.html")
+
+
+@bp.route('/shopping-cart/<code>', methods=['GET', 'POST'])
+def serve_remove_from_cart(code):
+
+    all_total_price = 0
+    for item in session[SESSION_SHOPPING_CART].items():
+        if item[0] == code:
+            session[SESSION_SHOPPING_CART].pop(item[0], None)
+            if SESSION_SHOPPING_CART in session:
+                for key, value in session[SESSION_SHOPPING_CART].items():
+                    individual_price = float(session[SESSION_SHOPPING_CART][key]['total_price'])
+                    all_total_price = all_total_price + individual_price
+            break
+
+    session[ALL_TOTAL_PRICE] = all_total_price
+
+    return outside_render('shop/shopping_cart.html')

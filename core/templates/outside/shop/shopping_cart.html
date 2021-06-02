@@ -30,10 +30,10 @@
 <section style="background-color: white;">
 
                 <div class="container">
+                    
                     <table class="shopping-cart">
                         <thead>
                             <tr>
-                                <th class="image">&nbsp;</th>
                                 <th>PRODUCT</th>
                                 <th>QUANTITY</th>
                                 <th>PRICE PER UNIT</th>
@@ -41,27 +41,34 @@
                                 <th>&nbsp;</th>
                             </tr>
                         </thead>
+                        
                         <tbody>
                             {% for key, val in session["shopping_cart"].items() %}
 					        {% set quantity = session["shopping_cart"][key]['quantity'] %}
 					        {% set price = session["shopping_cart"][key]['price'] %}
 					        {% set item_price = session["shopping_cart"][key]['total_price'] %}
-
+                            {% set prod_no = key %}
+                            <form id="shopping_cart_modify" method="POST" request_redirect_to="{{ redirect_to }}"></form>
                             <tr>
-                                <td style="text-align: left;"><img src="/static/images/{{ session['shopping_cart'][key]['image'] }}" class="cart-item-image" />{{ session["shopping_cart"][key]['name'] }}</td>
-                                <td>{{ session["shopping_cart"][key]['code'] }}</td>
+                                <input type="hidden" name="code" value="{{prod_no}}"/>
+                                <td style="text-align: left;"><img src="" class="cart-item-image" />{{ session["shopping_cart"][key]['name'] }}</td>
                                 <td>{{ quantity }}</td>
                                 <td>$ {{ price }}</td>
                                 <td>$ {{ item_price }}</td>
-                                <td">
-                                   
+                                <td style="text-align:center;">
+                                    <a href="{{url_for('.serve_remove_from_cart',code=session['shopping_cart'][key]['prod_no'])}}" class="btnRemoveAction">
+                                        <i class="far fa-trash-alt" alt="Remove Item"></i>
+                                    </a>
                                 </td>
                             </tr>
+                        </form>
                         {% endfor %}
 
 
                         </tbody>
+                    
                     </table>
+                
                     
                 </div><!-- / container -->
 
@@ -78,7 +85,7 @@
                                 </div>
                             </div><!-- / input-group -->
                             <div class="update-cart col-md-6 mt-1 mb-1">
-                                <button class="btn btn-primary" type="submit"><span>UPDATE CART</span></button>
+                                <a href="/shop" class="btn btn-primary" ><span>CONTINUE SHOPPING</span></a>
                             </div><!-- / update-cart -->
             
                             <div class="col-md-6 cart-total">
@@ -95,5 +102,7 @@
                     </div><!-- / container -->
                 </section><!-- / cart-features -->
 
+
 </section>
+<script type="module" src="/static/entry_points/shop/shopping_cart_delete.mjs"></script>
 {% endblock outside_content %}
