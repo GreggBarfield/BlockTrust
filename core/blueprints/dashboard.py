@@ -80,7 +80,7 @@ def serve_accounts_new_account_action():
     except ExportException as e:
         return {"error": str(e)}
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/join-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_join_account():
