@@ -249,43 +249,45 @@ def serve_shop():
 
 @bp.route('/shop', methods=['POST'])
 def serve_add_to_cart():
-    prod_no = request.form['code']
-    quantity = int(request.form['quantity_1'])
-    all_total_price = 0
+    try:
+        prod_no = request.form['code']
+        quantity = int(request.form['quantity_1'])
+        all_total_price = 0
 
-    price = auth.get_product_price(float(prod_no))
-    product = auth.get_product_data(prod_no)
+        price = auth.get_product_price(float(prod_no))
+        product = auth.get_product_data(prod_no)
 
-    total_price = round(price*quantity, 2)
-    product_order = {prod_no: {
-        'name': product['product'],
-        'prod_no': prod_no,
-        'quantity': quantity,
-        'price': price,
-        'total_price': total_price
-        }
-        }
+        total_price = round(price*quantity, 2)
+        product_order = {prod_no: {
+            'name': product['product'],
+            'prod_no': prod_no,
+            'quantity': quantity,
+            'price': price,
+            'total_price': total_price
+            }
+            }
 
-    if SESSION_SHOPPING_CART in session:
+        if SESSION_SHOPPING_CART in session:
 
-        if prod_no in session[SESSION_SHOPPING_CART]:
+            if prod_no in session[SESSION_SHOPPING_CART]:
+                for key, value in session[SESSION_SHOPPING_CART].items():
+                    if prod_no == key:
+                        old_quantity = session[SESSION_SHOPPING_CART][key]['quantity']
+                        total_quantity = old_quantity+quantity
+                        session[SESSION_SHOPPING_CART][key]['quantity'] = total_quantity
+                        session[SESSION_SHOPPING_CART][key]['total_price'] = round(total_quantity * price, 2)
+            else:
+                session[SESSION_SHOPPING_CART] = dict(list(session[SESSION_SHOPPING_CART].items()) + list(product_order.items()))
             for key, value in session[SESSION_SHOPPING_CART].items():
-                if prod_no == key:
-                    old_quantity = session[SESSION_SHOPPING_CART][key]['quantity']
-                    total_quantity = old_quantity+quantity
-                    session[SESSION_SHOPPING_CART][key]['quantity'] = total_quantity
-                    session[SESSION_SHOPPING_CART][key]['total_price'] = round(total_quantity * price, 2)
+                individual_price = value['total_price']
+                all_total_price = all_total_price + individual_price
         else:
-            session[SESSION_SHOPPING_CART] = dict(list(session[SESSION_SHOPPING_CART].items()) + list(product_order.items()))
-        for key, value in session[SESSION_SHOPPING_CART].items():
-            individual_price = value['total_price']
-            all_total_price = all_total_price + individual_price
-    else:
-        session[SESSION_SHOPPING_CART][prod_no] = product_order
-        all_total_price = total_price
-    session[ALL_TOTAL_PRICE] = all_total_price
-
-    return outside_render('shop/shop_homepage.html')
+            session[SESSION_SHOPPING_CART][prod_no] = product_order
+            all_total_price = total_price
+        session[ALL_TOTAL_PRICE] = round(all_total_price, 2)
+        return outside_render("shop/shop_homepage.html")
+    except ExportException as e:
+        return jsonify({"error": e})
 
 # Routes for shopping cart page
 
@@ -308,6 +310,22 @@ def serve_remove_from_cart(code):
                     all_total_price = all_total_price + individual_price
             break
 
-    session[ALL_TOTAL_PRICE] = all_total_price
+    session[ALL_TOTAL_PRICE] = round(all_total_price, 2)
 
     return outside_render('shop/shopping_cart.html')
+
+# Checkout and Order review pages
+
+
+@bp.route('/checkout', methods=['GET'])
+def serve_checkout():
+    return outside_render('shop/checkout.html')
+
+
+@bp.route('/checkout', methods=['POST'])
+def serve_checkout_submit():
+    try:
+        print(request.form)
+        return jsonify({"redirect": "/checkout"})
+    except ExportException as e:
+        return jsonify({"error": str(e)})

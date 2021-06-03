@@ -4,7 +4,7 @@ let cartForm=$("#shopping_cart_form");
 let statusMessage=cartForm.find("#cart_status_message");
 let errorMessage=cartForm.find("#cart_error_message");
 
-let requestRedirectTo="/shop";
+let requestRedirectTo=null;
 
 if(cartForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=cartForm[0].getAttribute("request_redirect_to");
