@@ -172,7 +172,8 @@ class Accounts:
 
         try:
             account = self.get_by_id(self._db.last_row_id())
-            account.add_user(user)
+            #make the first user the account admin
+            account.add_user(user, 1)
             return account
         except AccountException as e:
             raise AccountsException("Account exception: " + str(e))

@@ -37,7 +37,7 @@ def serve_dashboard():
 
 # Accounts
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
@@ -45,7 +45,7 @@ def serve_accounts_new_account():
         "sectors_by_id": sectors_by_id
     })
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
 @crut.require_user
 def serve_accounts_new_account_action():
