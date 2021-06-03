@@ -202,15 +202,17 @@
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
                             <div>
-                              {{ g.account.name() | e }}
+                              {{ g.account.company() | e }}
                             </div>
                         </div>
                         <ul class="pro-body">
+                            {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="#">
                                     <i class="feather icon-user-plus"></i> Invite Users
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/dashboard/plans">
                                     <i class="feather icon-credit-card"></i> Subscription

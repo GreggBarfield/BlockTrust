@@ -24,7 +24,8 @@ def dashboard_render(file, args={}):
         "dashboard_standard_user_first": g.user.first(),
         "dashboard_standard_user_last": g.user.last(),
         "dashboard_standard_user_username": g.user.username(),
-        "dashboard_standard_account": g.account
+        "dashboard_standard_account": g.account,
+        "dashboard_standard_is_admin": g.is_admin
     }
     for key in args:
         if key in dashboard_standard_args:
