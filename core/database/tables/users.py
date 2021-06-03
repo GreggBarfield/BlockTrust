@@ -1,7 +1,10 @@
 from ..objects.user import User
 from .. import database
 import bcrypt
+from ..no_value import NoValue
 from ..frag import frag
+
+NO_VALUE = NoValue()
 
 class UsersException(Exception):
     """Generic user exception."""
@@ -308,7 +311,7 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def  update_user(self, username, first=None  , last=None, phone=None, password=None ):
+    def  update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -318,40 +321,55 @@ class Users:
             phone: phone number of user
             first: first name of the user.
             last: last name of the user.
+        Returns:
+            None
+        
+        Raises:
+            UsersException
 
-        """    
+        """
+        username = Users._format_field(username)
+        if len(password) < 10:
+            raise UsersException("Password must be at least 10 characters.")
+
+        if len(password.encode("utf-8")) > 60:
+            raise UsersException("Your password is too long.")
+
+        if (password != confirm_password):
+            raise UsersException("Your passwords are not the same!")
+
+        # Process phone number
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
+        
         set_frags = frag()
-        if first is not None:
+        if first is not NO_VALUE:
             set_frags = frag(
                             set_frags,
                             "first=:first,",
                              first=first
                         )           
-        if last is not None:
+        if last is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
                             "last=:last,",
-                            last=last
+                             last=last
                         )
-        if phone is not None:
-            # Process phone number
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-
+        if phone is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
                             "phone=:phone,",
-                            phone=phone
+                             phone=phone
                         )
-        if password is not None:
+        if password is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
                             "password=:password,",
@@ -369,7 +387,7 @@ class Users:
                     set_frags,
                     frag(
                         "WHERE username=:username",
-                         username=Users._format_field(username)
+                         username= username
                     )               
                 )
             )
