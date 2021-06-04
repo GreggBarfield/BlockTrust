@@ -116,12 +116,6 @@ $nav-small-gap: 10px;
                 > li.is-active {
                     display: block;
                     margin-right: 25px;
-
-                    > a {
-                        > i {
-                            transform: rotate(90deg);
-                        }
-                    }
                 }
                 > li {
                     display: inline-block;
@@ -145,11 +139,11 @@ $nav-small-gap: 10px;
 
 
 
-                    .b-user-settings {
+                    .b-expandable-icon {
                         display: none;
                     }
 
-                    .b-user-settings.is-active {
+                    .b-expandable-icon.is-active {
                         position: relative;
                         display: block;
 
@@ -160,6 +154,11 @@ $nav-small-gap: 10px;
                             img {
 
                                 height: 60px;
+                            }
+
+                            div {
+                                padding-left: 10px;
+                                font-size: 1.5rem;
                             }
 
                             span {
@@ -437,6 +436,10 @@ $nav-small-gap: 10px;
                 align-items: center;
                 position: relative;
 
+                &.b-account-settings-li {
+                    padding-right: 0px;
+                }
+
                 > a {
                     @include reset.a;
                     color: $navbar-gray;
@@ -475,6 +478,11 @@ $nav-small-gap: 10px;
                         img {
                             width: 40px;
                             margin-right: 15px;
+                        }
+
+                        div {
+                            padding-left: 10px;
+                            font-size: 1.5rem;
                         }
 
                         a{
