@@ -9,6 +9,7 @@ SESSION_USER_ID_VAR = "user_id"
 SESSION_ACCOUNT_ID_VAR = "account_id"
 SESSION_SHOPPING_CART = "shopping_cart"
 ALL_TOTAL_PRICE = "all_total_price"
+TRANSACTION_VALUES = "transaction_values"
 
 
 class AuthException(Exception):
@@ -346,7 +347,13 @@ def login(identifier, password="", override=False):
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
         session[SESSION_SHOPPING_CART] = {}
-        session[ALL_TOTAL_PRICE] = 0.0
+        # session[ALL_TOTAL_PRICE] = 0.0
+        session[TRANSACTION_VALUES] = {
+            'all_total_price': 0.0,
+            'total_tax': 0.0,
+            'total_shipping': 15.0,
+            'grand_total': 0.0
+        }
 
         return g.user
     except LoginException as e:
@@ -373,8 +380,43 @@ def get_email_verified_value(email):
 
 
 def get_product_data(id):
+    """
+    Gets the product data from the product table
+    Params:
+        id: The prod_no of the product requested
+
+    Returns:
+        Object containing product data
+    """
     return g.db.product_table.get_by_id(id)
 
 
 def get_product_price(id):
+    """
+    Gets the price of the product
+    Params:
+        id: The prod_no of the requested product
+
+    Returns:
+        Price of the requested product
+    """
     return g.db.product_table.get_price_by_id(id)
+
+
+def get_transaction_data(id):
+    """
+    Gets the transaction records for a particular user
+    Params:
+        id: The user_id of the user whose transactions are required
+
+    Raise:
+        TransactionException if user is not found
+
+    Returns:
+        Array containing transaction objects for the praticular user
+    """
+    return g.db.transactions.getTransactionByID(id)
+
+
+def add_transaction_data():
+    return 1

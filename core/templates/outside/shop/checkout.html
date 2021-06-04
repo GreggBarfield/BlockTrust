@@ -82,11 +82,11 @@
                 </div><!-- / checkout-form -->
 
                 <div class="col-md-3 checkout-total">
-                    <h4>CART TOTAL: <span class="text-primary">$ {{session["all_total_price"]}}</span></h4>
+                    <h4>CART TOTAL: <span class="text-primary">$ {{session["transaction_values"]["grand_total"]}}</span></h4>
                     <p class="text-sm">*The price includes shipping and taxes.</p>
                     <div class="cart-total-footer">
-                        <a href="shopping-cart.html" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
-                        <a href="index.html" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
+                        <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
+                        <a href="/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
                     </div><!-- / cart-total-footer -->
                 </div><!-- / checkout-total -->
 

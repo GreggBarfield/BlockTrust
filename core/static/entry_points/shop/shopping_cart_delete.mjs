@@ -5,14 +5,14 @@ let modifyCartForm=$("#shopping_cart_modify");
 let statusMessage=modifyCartForm.find("#cart_status_message");
 let errorMessage=modifyCartForm.find("#cart_error_message");
 
-let requestRedirectTo="/shopping-cart";
+let requestRedirectTo=null;
 
 if(modifyCartForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=modifyCartForm[0].getAttribute("request_redirect_to");
 }
 
 let form1 = new AsyncForm({
-    action:"/delete/",
+    action:"/delete",
     form: modifyCartForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

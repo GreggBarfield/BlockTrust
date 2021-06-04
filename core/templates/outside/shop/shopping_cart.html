@@ -48,7 +48,7 @@
 					        {% set price = session["shopping_cart"][key]['price'] %}
 					        {% set item_price = session["shopping_cart"][key]['total_price'] %}
                             {% set prod_no = key %}
-                            <form id="shopping_cart_modify" method="POST" request_redirect_to="{{ redirect_to }}"></form>
+                            
                             <tr>
                                 <input type="hidden" name="code" value="{{prod_no}}"/>
                                 <td style="text-align: left;"><img src="" class="cart-item-image" />{{ session["shopping_cart"][key]['name'] }}</td>
@@ -61,7 +61,8 @@
                                     </a>
                                 </td>
                             </tr>
-                        </form>
+
+                        
                         {% endfor %}
 
 
@@ -90,9 +91,10 @@
             
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
-                                <p>Subtotal: <span class="text-primary">{{session["all_total_price"]}}</span></p>
-                                <p>Shippping: <span class="text-primary">$5</span></p>
-                                <p>Total: <span class="text-primary">$49.98</span></p>
+                                <p>Subtotal: <span class="text-primary">${{session['transaction_values']['all_total_price']}}</span></p>
+                                <p>Shipping: <span class="text-primary">${{session['transaction_values']['total_shipping']}}</span></p>
+                                <p>Tax: <span class="text-primary">${{session['transaction_values']['total_tax']}}</span></p>
+                                <p>Total: <span class="text-primary">${{session['transaction_values']['grand_total']}}</span></p>
                             </div><!-- / cart-total -->
             
                             <div class="col-md-6 cart-checkout">
@@ -104,5 +106,4 @@
 
 
 </section>
-<script type="module" src="/static/entry_points/shop/shopping_cart_delete.mjs"></script>
 {% endblock outside_content %}

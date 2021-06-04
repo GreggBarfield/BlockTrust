@@ -13,6 +13,7 @@ from core.config import SUPPORT_GENERAL_EMAIL
 
 SESSION_SHOPPING_CART = "shopping_cart"
 ALL_TOTAL_PRICE = "all_total_price"
+TRANSACTION_VALUES = "transaction_values"
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -29,7 +30,6 @@ def serve_landing():
 def serve_logout():
     auth.logout()
     return redirect('/')
-
 
 
 @bp.route('/login', methods=['GET'])
@@ -266,7 +266,7 @@ def serve_add_to_cart():
             'total_price': total_price
             }
             }
-
+        session.modified = True
         if SESSION_SHOPPING_CART in session:
 
             if prod_no in session[SESSION_SHOPPING_CART]:
@@ -284,7 +284,9 @@ def serve_add_to_cart():
         else:
             session[SESSION_SHOPPING_CART][prod_no] = product_order
             all_total_price = total_price
-        session[ALL_TOTAL_PRICE] = round(all_total_price, 2)
+        session[TRANSACTION_VALUES]["all_total_price"] = round(all_total_price, 2)
+        session[TRANSACTION_VALUES]["total_tax"] = 0
+        session[TRANSACTION_VALUES]["grand_total"] = session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"]
         return outside_render("shop/shop_homepage.html")
     except ExportException as e:
         return jsonify({"error": e})
@@ -299,20 +301,26 @@ def serve_shopping_cart():
 
 @bp.route('/shopping-cart/<code>', methods=['GET', 'POST'])
 def serve_remove_from_cart(code):
+    try:
+        all_total_price = 0
+        session.modified = True
+        for item in session[SESSION_SHOPPING_CART].items():
+            if item[0] == code:
+                session[SESSION_SHOPPING_CART].pop(code, None)
+                print("---------Popped item")
+                if SESSION_SHOPPING_CART in session:
+                    for key, value in session[SESSION_SHOPPING_CART].items():
+                        individual_price = float(session[SESSION_SHOPPING_CART][key]['total_price'])
+                        all_total_price = all_total_price + individual_price
+                break
 
-    all_total_price = 0
-    for item in session[SESSION_SHOPPING_CART].items():
-        if item[0] == code:
-            session[SESSION_SHOPPING_CART].pop(item[0], None)
-            if SESSION_SHOPPING_CART in session:
-                for key, value in session[SESSION_SHOPPING_CART].items():
-                    individual_price = float(session[SESSION_SHOPPING_CART][key]['total_price'])
-                    all_total_price = all_total_price + individual_price
-            break
-
-    session[ALL_TOTAL_PRICE] = round(all_total_price, 2)
-
-    return outside_render('shop/shopping_cart.html')
+        session[TRANSACTION_VALUES]["all_total_price"] = round(all_total_price, 2)
+        session[TRANSACTION_VALUES]["total_tax"] = 0
+        session[TRANSACTION_VALUES]["grand_total"] = session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"]
+        # return jsonify({"redirect": "/shopping-cart"})
+        return outside_render("shop/shopping_cart.html")
+    except ExportException as e:
+        return jsonify({'error': e})
 
 # Checkout and Order review pages
 
@@ -324,8 +332,8 @@ def serve_checkout():
 
 @bp.route('/checkout', methods=['POST'])
 def serve_checkout_submit():
+
     try:
-        print(request.form)
         return jsonify({"redirect": "/checkout"})
     except ExportException as e:
         return jsonify({"error": str(e)})
