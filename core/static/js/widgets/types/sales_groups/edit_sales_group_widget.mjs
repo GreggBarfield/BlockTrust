@@ -53,12 +53,26 @@ export class EditSalesGroupWidget extends Widget {
         cardBody.append(form);
         
         // Sections
+        function addTooltip(dataToggle,title,position){
+            let toolTip = document.createElement("a");
+            toolTip.href="#";
+            toolTip.className="feather icon-info";
+            toolTip.style = "color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px";
+            toolTip.setAttribute("data-toggle" ,dataToggle);
+            toolTip.setAttribute("data-placement" ,"right");
+            toolTip.setAttribute("title" ,title);
+            $(document).ready(function(){
+                $('[data-toggle='+dataToggle+']').tooltip(); 
+            });
+            position.append(toolTip);
+        }
 
         function createSection(form, name) {
 
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
+            // addTooltip(name,name,header);
     
             let row = document.createElement("div");
             row.className = "form-row";
@@ -68,7 +82,7 @@ export class EditSalesGroupWidget extends Widget {
             return row;
         }
 
-        function createGroup(row, name, htmlFor) {
+        function createGroup(row, name, htmlFor,dataToggle,tooltipText) {
             let group = document.createElement("div");
             group.className = "form-group col-md-4";
             row.append(group);
@@ -76,6 +90,7 @@ export class EditSalesGroupWidget extends Widget {
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
+            addTooltip(dataToggle,tooltipText,groupLabel);
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
@@ -83,10 +98,10 @@ export class EditSalesGroupWidget extends Widget {
             return group;
         }
 
-        function createNumber(row, name, value) {
+        function createNumber(row, name, value,dataToggle,tooltipText) {
             let id = "domuid" + window.DOMUIDNext++;
-
-            let group = createGroup(row, name, id);
+            //TODO:tooltip
+            let group = createGroup(row, name, id,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -96,10 +111,10 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createText(row, name, value) {
+        function createText(row, name, value,dataToggle,tooltipText) {
             let id = "domuid" + window.DOMUIDNext++;
-
-            let group = createGroup(row, name, id);
+            //TODO:tooltip
+            let group = createGroup(row, name, id,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -115,14 +130,14 @@ export class EditSalesGroupWidget extends Widget {
             return dateFormGroup;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder},dataToggle,tooltipText) {
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
                 values = [values];
             }
-
-            let group = createGroup(row, name, id);
+            //TODO:tooltip
+            let group = createGroup(row, name, id,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -172,6 +187,7 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
+        
 
         // Marketing
 
@@ -188,6 +204,8 @@ export class EditSalesGroupWidget extends Widget {
             this.data.auction_sale_name || null
         );
         marketingAuctionSale.getFormGroup().classList.add("col-md-4");
+        
+        addTooltip("dataToggle","title",marketingAuctionSale.getFormLabel());
 
         // Characteristics
         
@@ -528,7 +546,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
      */
     constructor(attachTo, auctionSaleID, auctionSaleName) {
         super(attachTo, "Select auction sale (i/a):");
-
+        
         this._select = document.createElement("select");
         this._select.id = this._input_id;
         this._select.className = "select2-hidden-accessible";

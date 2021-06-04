@@ -211,15 +211,6 @@ export class SalesGroupViewer {
             marketHeader.textContent ="Market Data";
             marketDataCol.append(marketHeader);
 
-            let marketTooltip = document.createElement("i");
-            marketTooltip.className="feather icon-info";
-            marketTooltip.style = "color:#2962FF;padding:10px;width:100%";
-            marketTooltip.setAttribute("data-toggle" ,"tooltip");
-            marketTooltip.setAttribute("data-placement" ,"right");
-            marketTooltip.setAttribute("title" ,"tooltip------------");
-
-            marketHeader.append(marketTooltip);
-
             let marketBody = document.createElement("div");
             marketBody.className ="card-body";
             marketDataCol.append(marketBody);
