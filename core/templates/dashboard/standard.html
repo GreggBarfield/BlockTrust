@@ -202,7 +202,7 @@
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
                             <div>
-                              {{ g.account.name() | e }}
+                              {{ g.account.company() | e }}
                             </div>
                         </div>
                         <ul class="pro-body">
@@ -266,7 +266,7 @@
                     href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
                 >
                     <span><i class="feather icon-home"></i></span>
-                    <span>{{ dashboard_standard_account.name()|e }}</span>
+                    <span>{{ dashboard_standard_account.company()|e }}</span>
                 </a>
                 {% else %}
                 <a href="/dashboard/accounts">
