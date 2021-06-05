@@ -4,7 +4,7 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-#since session objects are easily decoded, we want to use key names which make no sense
+#since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
@@ -96,9 +96,8 @@ def session_open_account():
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
         g.account = g.db.accounts.get_by_id(session[SESSION_ACCOUNT_ID_VAR])
         if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
-            # This runs on every request. Not bothering to get the account_user from db again on each request, since 
-            # we don't let users change anyone's role and therefore assuming is_admin will not change during 
-            # an active session if account remains same
+            # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
+            # role and therefore assuming is_admin will not change during an active session
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
     else:
         session[SESSION_ACCOUNT_ID_VAR] = ""
