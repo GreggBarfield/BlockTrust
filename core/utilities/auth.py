@@ -4,9 +4,10 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-
-SESSION_USER_ID_VAR = "user_id"
-SESSION_ACCOUNT_ID_VAR = "account_id"
+#since session objects are easily decoded, we use key names which make no sense
+SESSION_USER_ID_VAR = "abc"
+SESSION_ACCOUNT_ID_VAR = "def"
+SESSION_IS_ADMIN_VAR = "ghi"
 
 
 class AuthException(Exception):
@@ -71,9 +72,11 @@ def session_start_account(account_id):
     """
     g.account = None
     session[SESSION_ACCOUNT_ID_VAR] = ""
+    session[SESSION_IS_ADMIN_VAR] = ""
     attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
     if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
         session[SESSION_ACCOUNT_ID_VAR] = account_id
+        session[SESSION_IS_ADMIN_VAR] = attempt_login.is_admin()
         session_open_account()
 
 
@@ -92,6 +95,10 @@ def session_open_account():
     g.account = None
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
         g.account = g.db.accounts.get_by_id(session[SESSION_ACCOUNT_ID_VAR])
+        if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
+            # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
+            # role and therefore assuming is_admin will not change during an active session
+            g.is_admin = session[SESSION_IS_ADMIN_VAR]
     else:
         session[SESSION_ACCOUNT_ID_VAR] = ""
 

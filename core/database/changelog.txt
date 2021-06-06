@@ -225,3 +225,7 @@ values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 573874
 
 /* Rohan Sureshkumar 5/29/21 */
 ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
+
+/* Rohan Sureshkumar 5/30/2021 */
+ALTER TABLE `example_db_1`.`account_users` 
+ADD COLUMN `is_admin` TINYINT(1) NULL DEFAULT '0' AFTER `user`;
