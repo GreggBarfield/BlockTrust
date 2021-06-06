@@ -14,7 +14,7 @@ version: '2.4'
     
 networks:
   test:
-    name: fabric_test
+    name: fabric_blockchain
 
 services:
 
