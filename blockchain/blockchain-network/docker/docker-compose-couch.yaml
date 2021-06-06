@@ -29,6 +29,7 @@ services:
     networks:
       - test
     restart: unless-stopped
+    mem_limit: 100m
 
   peer0.org1.blocktrustnetwork.com:
     environment:
@@ -42,3 +43,4 @@ services:
     depends_on:
       - couchdb0
     restart: unless-stopped
+    mem_limit: 100m
