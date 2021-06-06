@@ -131,7 +131,7 @@ async function main() {
 			// This will be sent to both peers and if both peers endorse the transaction, the endorsed proposal will be sent
 			// to the orderer to be committed by each of the peer's to the channel ledger.
 			console.log('\n--> Submit Transaction: CreateRecord, creates new record with id and data arguments');
-			let result = await contract.submitTransaction('CreateRecord', 'data1');
+			let result = await contract.submitTransaction('CreateRecord', JSON.stringify('data1'));
 			console.log('*** Result: committed');
 			if (`${result}` !== '') {
 				console.log(`*** Result: ${prettyJSONString(result.toString())}`);
