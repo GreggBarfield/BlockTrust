@@ -36,3 +36,33 @@ https://ourcodeworld.com/articles/read/977/how-to-deploy-a-node-js-application-o
 
 - Good practices for db queries
 https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_as_state_database.html#good-practices-for-queries
+
+
+
+docker stats
+Increase number of calls
+check memory used by the Docker instance "peer0.org1.blocktrustnetwork.com"
+
+24.75MiB 2.52%
+
+
+Memory Monitoring:
+free -m
+top  => then shift + m
+
+pm2 monit
+
+Optimize performance
+
+https://lists.hyperledger.org/g/fabric/topic/how_to_seed_a_hyperledger/73973361
+https://adlrocha.substack.com/p/adlrocha-performance-best-practices-50a
+
+https://lists.hyperledger.org/g/fabric/topic/28802172
+
+
+Restart all running docker containers
+docker restart $(docker ps -q)
+
+
+4 Types of Memory Leaks in JavaScript and How to Get Rid Of Them
+https://codefresh.io/docker-tutorial/docker-memory-usage/
