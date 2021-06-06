@@ -88,7 +88,7 @@ class AccountUsers:
         )
         return [AccountUser(self._db, account_user) for account_user in account_users]
 
-    def add_user_to_account(self, user, account):
+    def add_user_to_account(self, user, account, is_admin=0):
         """Add a user to an account.
 
         Params:
@@ -111,12 +111,13 @@ class AccountUsers:
         self._db.execute(
             """
                 INSERT INTO account_users
-                    (user, account)
+                    (user, account, is_admin)
                     VALUES
-                        (%(user)s, %(account)s)
+                        (%(user)s, %(account)s, %(is_admin)s)
             """,
             {
                 "user": user.id(),
-                "account": account.id()
+                "account": account.id(),
+                "is_admin": is_admin
             }
         )
