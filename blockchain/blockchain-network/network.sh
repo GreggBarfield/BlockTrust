@@ -281,10 +281,10 @@ function deployCC() {
 
 # Tear down running network
 function networkDown() {
-  warnln "WARNNING!!!: This command will CLEAR all the related containers and images. Are you sure you wish to continue?"
-  read -p "Type \"yes\" to continue>> "
+  warnln "WARNNING!!!: This command will CLEAR all the related containers and images but external docker volumes. Are you sure you wish to continue?"
+  read -p "Type \"delete\" to continue>> "
   
-  if [ "$REPLY" != "yes" ]; then
+  if [ "$REPLY" != "delete" ]; then
     exit
   fi
 

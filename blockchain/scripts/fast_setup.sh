@@ -1,5 +1,6 @@
 #!/bin/bash
 # A menu driven shell script to execute commands.
+
 ## ----------------------------------
 # Step #1: Define variables
 # ----------------------------------
@@ -53,6 +54,11 @@ RedeployChaincode(){
 BingDownBlockchainNetwork(){
 	echo "BingDownBlockchainNetwork() called"
         pause
+	if [ -f /sys/hypervisor/uuid ] && [ `head -c 3 /sys/hypervisor/uuid` == ec2 ]; then
+    warnln "This is running in ec2 instance. To protect the blockchain data, you can only run these commands manually."
+		return
+	fi
+
 	cd ${BLOCKCHAIN_ROOT}/blockchain-network
 
 	infoln "Bringing down the blockchain network..."
@@ -78,9 +84,9 @@ show_menus() {
 	echo "~~~~~~~~~~~~~~~~~~~~~"	
 	echo " M A I N - M E N U"
 	echo "~~~~~~~~~~~~~~~~~~~~~"
-	echo "1. Redeploy chaincode"
-	echo "2. Bring down blockchain network"
-	echo "3. Test chaincode"
+	echo "1. Redeploy chaincode (DEV and PROD)"
+	echo "2. Bring down blockchain network (DEV)"
+	echo "3. Test chaincode (DEV)"
 	echo "4. Exit"
 	echo "~~~~~~~~~~~~~~~~~~~~~"
 }
