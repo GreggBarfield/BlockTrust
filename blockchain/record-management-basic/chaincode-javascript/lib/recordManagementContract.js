@@ -11,15 +11,16 @@ const { Contract } = require('fabric-contract-api');
 class RecordManagementContract extends Contract {
 
     // CreateRecord issues a new record to the world state with given details.
+    // data must be in json format
     async CreateRecord(ctx, data) {
-
+        const now = new Date();
         const record = {
             data: JSON.parse(data),
-            created: new Date(),
+            created: now,
         };
         const txID = ctx.stub.getTxID();
         //The transaction ID uniquely identifies the transaction within the scope of the channel.
-        ctx.stub.putState(txID, Buffer.from(JSON.stringify(record)));
+        await ctx.stub.putState(txID, Buffer.from(JSON.stringify(record)));
         record.id = txID;
         return JSON.stringify(record);
     }
