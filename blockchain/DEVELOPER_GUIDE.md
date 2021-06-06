@@ -12,8 +12,7 @@
         * [ Blockchain Network Setup ](#markdown-header-blockchain-network-setup)
         * [ Credentails Backup ](#markdown-header-credentails-backup)
         * [ Blockchain Network Restoration ](#markdown-header-blockchain-network-restoration)
-* [ Production and Development ](#markdown-header-production-and-development)
-      * [ Bring down the Blockchain Network ](#markdown-header-bring-down-the-blockchain-network)
+   * [ Bring down the Blockchain Network ](#markdown-header-bring-down-the-blockchain-network)
 * [ Local Testing ](#markdown-header-local-testing)
 * [ Important Notes ](#markdown-header-important-notes)
 * [ Client API ](#markdown-header-client-api)
@@ -26,8 +25,7 @@
 **Blockchain Network Structure**: one organization network setup with one peer, ordering service, and one certificate authority.
 
 **Note**:
-- `PROJECT_FOLDER` refers to the root directory of the whole project.   
-- Whenever you need to execute a shell script in any "scripts" folder such as `PROJECT_FOLDER/scripts` and `PROJECT_FOLDER/blockchain-network/scripts`, you need to cd into the same directory as the script. Otherwise, you may run into directory not found error.
+- Whenever you need to execute a shell script in any "scripts" folder such as [blockchain/scripts](scripts) and [blockchain/blockchain-network/scripts](blockchain-network/scripts), you need to navigate into the same directory as the script. Otherwise, you may run into directory not found error.
 
 ## **Deployment**
 
@@ -60,7 +58,7 @@ sudo yum -y install git
 ```
 Then clone the repository of the source code to the ec2 instance.
 
-Next, you can run the following commands manually or run the script [PROJECT_FOLDER/blockchain/scripts/install_packages.sh](scripts/install_packages.sh) to automatically install all required packages. You will be asked to reboot in the end to ensure that the ec2-user has permission to access Docker daemon. After you install all required packages, you can execute the script [PROJECT_FOLDER/blockchain/scripts/show_versions.sh](scripts/show_versions.sh) to display all installed packages' versions.
+Next, you can run the following commands manually or run the script [blockchain/scripts/install_packages.sh](scripts/install_packages.sh) to automatically install all required packages. You will be asked to reboot in the end to ensure that the ec2-user has permission to access Docker daemon. After you install all required packages, you can execute the script [blockchain/scripts/show_versions.sh](scripts/show_versions.sh) to display all installed packages' versions.
 
 1. Update packages on the system.  
    ```
@@ -153,11 +151,18 @@ Next, you can run the following commands manually or run the script [PROJECT_FOL
    ```
 
 ### **Checklist**
-1. Disable ports in [PROJECT_FOLDER/blockchain/blockchain-network/docker/docker-compose-couch.yaml](./blockchain-network/docker/docker-compose-couch.yaml)
-by commenting out `services.couchdb0.ports: - "5984:5984"`. This mapping exposes the CouchDB service such that you can use Fauxton user interface(visit http://127.0.0.1:5984/_utils in browser) in dev environment.If you modify this configuration after the couchdb0 container is started, then you need to run the following commands in `PROJECT_FOLDER/blockchain/blockchain-network`. This command will recreate the database container.
-``` 
-./network.sh up -s couchdb
-```
+1. Disable ports in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](./blockchain-network/docker/docker-compose-couch.yaml)
+by commenting out `services.couchdb0.ports: - "5984:5984"`. This mapping exposes the CouchDB service such that you can use Fauxton user interface(visit http://127.0.0.1:5984/_utils in browser) in dev environment.If you modify this configuration after the couchdb0 container is started, then you need to run the following commands in [blockchain/blockchain-network](blockchain-network). This command will recreate the database container.
+   ``` 
+   ./network.sh up -s couchdb
+   ```
+
+2. Make sure memory limit is set for the services `couchdb0` and `peer0.org1.blocktrustnetwork.com` in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](blockchain-network/docker/docker-compose-couch.yaml). For example, you can use `mem_limit: 100m`. If you don't set a memory limit, it may consume all available memory in the server when it accepts lots of requests. This will crash the system eventually.
+
+   Run the following command in [blockchain/blockchain-network](blockchain-network) to restart the containers with new configuration
+   ``` 
+   ./network.sh up -s couchdb
+   ```
 
 ### **Persist Ledger Data**
 
@@ -306,19 +311,19 @@ The default location for creating a docker volume is in `/var/lib/docker/volumes
 To better understand the workflow, it is recommended to read the relevant Hyperledger Fabric Tutorials:
 Running Fabric Network: https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html
 Running Fabric Application: https://hyperledger-fabric.readthedocs.io/en/latest/write_first_app.html
-You may also take a look at the `PROJECT_FOLDER/blockchain/blockchain-network/network.sh`, a script to manage all the common workflows. You can run `./network.sh -h` to see its usage. 
+You may also take a look at the [blockchain/blockchain-network/network.sh](blockchain-network/network.sh), a script to manage all the common workflows. You can run `./network.sh -h` to see its usage. 
 
 The following are the steps required to bring up a blockchain network. Steps 1 - 3 are one-time setting.
 
-1. Download docker images and binaries for Fabric v2.3.1 and Fabric CA v1.4.9. These version numbers have been set by default in the `PROJECT_FOLDER/blockchain/blockchain-network/scripts/bootstrap.sh`. This command needs to be run ONLY ONCE because the files persist even after running `./network.sh down`.
-From directory `PROJECT_FOLDER/blockchain/`, run the command:
+1. Download docker images and binaries for Fabric v2.3.1 and Fabric CA v1.4.9. These version numbers have been set by default in the [blockchain/blockchain-network/scripts/bootstrap.sh](blockchain-network/scripts/bootstrap.sh). This command needs to be run **ONLY ONCE** because the files persist even after bring down the network (by running `./network.sh down`).
+In directory [blockchain/](./), run the command:
    ```
    ./blockchain-network/scripts/bootstrap.sh -s -b
    ```
    We don't need to download everything used in the original Hyperledger Fabric examples, so we use option `-s` to bypass fabric-samples repo clone and option `-b` to bypass download of platform-specific binaries.
 
 2. Bring up the network. First, create the certificates and keys(if they don't exist in the destination folder) using Certificate Authorities. Then deploy Peer state database (CouchDB in this case).
-From directory `PROJECT_FOLDER/blockchain/blockchain-network/`, run the command:
+In directory [blockchain/blockchain-network/](blockchain-network), run the command:
    ```
    ./network.sh up createChannel -ca -s couchdb
    ```
@@ -334,7 +339,7 @@ From directory `PROJECT_FOLDER/blockchain/blockchain-network/`, run the command:
 
 3. Uses the chaincode lifecycle to package, install, query installed chaincode, approve chaincode for Org1,
 and finally commit the chaincode. These are the actions to takes to deploy a chaincode to a channel. Use any of the record-management-basic chaincodes deployed on the channel "mychannel." with the chaincode name of "basic".
-From directory `PROJECT_FOLDER/blockchain/blockchain-network/`, run the command:
+In directory [blockchain/blockchain-network/](blockchain-network/), run the command:
    ```
    ./network.sh deployCC -ccn basic -ccp ../record-management-basic/chaincode-javascript/ -ccl javascript
    ```
@@ -345,29 +350,29 @@ From directory `PROJECT_FOLDER/blockchain/blockchain-network/`, run the command:
    ```
 
 5. Install code dependencies.
-From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the command:
+In directory [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript), run the command:
    ```
    npm install
    ```
 
-6. Register and enroll admin and user for client API. A new directory named "wallet" which contains the admin user and application user's credentials will be generated in the directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript/`. From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the setup file:
+6. Register and enroll admin and user for client API. A new directory named "wallet" which contains the admin user and application user's credentials will be generated in the directory [blockchain/record-management-basic/application-javascript/](record-management-basic/application-javascript/). In directory [blockchain/record-management-basic/application-javascript/](record-management-basic/application-javascript/), run the setup file:
    ```
    node adminUserSetup.js
    ```
 
-7. Run the client application.
+7. Run the client application. There are two ways of doing this.
 
-   If it's in **development**, we only need to run the following command from directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`to launch the client application.
+   We can run the following command in [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript) to launch the client application. This way is for **development**.
    ```
-   (In development) node server.js
+   node server.js
    ```
 
-   However, we need to **keep live** our app after closing our terminal or disconnect from remote server in **production**.
-   Run the following command: 
+   In **production**, we need to **keep live** our app after closing our terminal or disconnect from remote server. We will use PM2, a process manager for the JavaScript runtime Node.js.
+   Run the following command to install PM2 package globally on server.
    ```
    npm install pm2 -g
    ```
-   It will install PM2 package globally on server. Switch to our app directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript` and run:
+   Switch to our app directory [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript) and run:
    ```
    pm2 start server.js
    ```
@@ -380,9 +385,11 @@ From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-ja
    [PM2] To setup the Startup Script, copy/paste the following command:
    sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v14.13.1/bin /home/ec2-user/.nvm/versions/node/v14.13.1/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
    ```
-   You **MUST** run the command "sudo env PATH=..." as prompted from the above output.
+   You **MUST** run the command **`sudo env PATH=...`** as prompted from the above output.
 
-   Now you can reboot the instance using sudo reboot and connect after 1 min. You can still see the app is running on port 3000 using:
+   Now you can reboot the instance using sudo reboot and connect after 1 min. 
+   
+   After the reboot, you can still see the app is running on port 3000 using:
    ```
    pm2 list
    ```
@@ -391,7 +398,7 @@ From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-ja
    ```
    pm2 show server
    ```
-   (**Optional**) To stop a running application, you can run the command:
+   (**Optional**) To stop a running application, run
    ```
    pm2 stop server
    ```
@@ -406,18 +413,20 @@ From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-ja
 
 ### **Credentails Backup**
 We need to back up the credentials files of the blockchain network because we can use these files to access the blockchain.
-From directory `PROJECT_FOLDER/blockchain/scripts`, execute the script:
+In directory [blockchain/scripts](scripts), execute the script:
    ```
    ./upload_backup_files.sh
    ```
-Executing this script will zip all important files generated during the creation of the blockchain network and the registration and enrollment of admin and user for client API application. This zip file will be saved in `PROJECT_FOLDER/blockchain/backup` with the name backup_CURRENT_DATE_TIME.zip. This zip file will also be uploaded to a private s3 bucket named `btnblockchainbackup`. Notice that this script will prompt you for AWS access key ID, secret access key, region name(us-east-2) and format(json).
+Executing this script will zip all important files generated during the creation of the blockchain network and the registration and enrollment of admin and user for client API application. This zip file will be saved in [blockchain/backup](backup) with the name `backup_CURRENT_DATE_TIME.zip`. This zip file will also be uploaded to a private s3 bucket named `btnblockchainbackup`. Notice that this script will prompt you for AWS access key ID, secret access key, region name(us-east-2) and format(json).
 
 Here is an example:
 
 **s3 bucket `btnblockchainbackup`**:  
+
 ![picture](img/s3_bucket_backup.png)  
 
-**backup file in s3 bucket**:  
+**sample backup file in s3 bucket**:  
+
 ![picture](img/s3_backup_file.png)  
 
 
@@ -434,16 +443,18 @@ In the case we terminated the ec2 instance which host the blockchain network and
       * [ Automount EBS Volume on Reboot ](#markdown-header-automount-ebs-volume-on-reboot)
       * [ Change the Default Location for Docker Volume Creation ](#markdown-header-change-the-default-location-for-docker-volume-creation)
 
-2. Download the backup from the s3 bucket named `btnblockchainbackup`. From the directory `PROJECT_FOLDER/blockchain/scripts`, execute the script:
+2. Download the backup from the s3 bucket named `btnblockchainbackup`. From the directory [blockchain/scripts](scripts), execute the script:
    ```
    ./download_backup_files.sh
    ```
-   You will be asked to enter the directory name which contains the backup_DATE_TIME.zip. For example: '25-04-2021-16:22:03' (without the quotes). Then it will download the zip file into `PROJECT_FOLDER/blockchain/backup`.
-3. Next, you need to unzip the file in `PROJECT_FOLDER/blockchain/backup`.
+   You will be asked to enter the directory name which contains the backup_DATE_TIME.zip. For example: '25-04-2021-16:22:03' (without the quotes). Then it will download the zip file into [blockchain/backup](backup).
+
+3. Next, you need to unzip the file in [blockchain/backup](backup).
    ```
    unzip YOUR_ZIP_FILE.zip
    ```
-4. After you unzip the file, you will see some directories in the same structure as the original directories `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. You need to move all the necessary files to its corresponding locations in `PROJECT_FOLDER/blockchain/blockchain-network` and `PROJECT_FOLDER/blockchain/record-management-basic`. For examples, basic.tar.gz, all files except the yaml files in the directory `organizations` and all files in directory `wallet` .
+
+4. After you unzip the file, you will see some directories in the same structure as the original directories [blockchain/blockchain-network](blockchain-network) and [blockchain/record-management-basic](record-management-basic). You need to move all the necessary files to its corresponding locations in [blockchain/blockchain-network](blockchain-network) and [blockchain/record-management-basic](record-management-basic). For examples, [blockchain/blockchain-network/basic.tar.gz](blockchain-network/basic.tar.gz), all files except the yaml files in the directory [blockchain/blockchain-network/organizations](blockchain-network/organizations) and all files in directory [blockchain/record-management-basic/application-javascript/wallet](record-management-basic/application-javascript/wallet) .
 
 **sample unzipped files/directories**:  
 ![picture](img/unzipped_backup.png)  
@@ -466,38 +477,38 @@ In the case we terminated the ec2 instance which host the blockchain network and
       docker volume inspect orderer.blocktrustnetwork.com
       ```
       You should see ` "Mountpoint": "/blockchainvolume/volumes/orderer.blocktrustnetwork.com/_data"` in the output.
-   * Install code dependencies. From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the command:
+   * Install code dependencies. In directory [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript), run the command:
       ```
       npm install
       ```
 6. Run the Client application TODO
 
-
-# ########################
-# Production and Development
-# ########################
-
 ## **Bring down the Blockchain Network**
-If you want to bring down the blockchain network, you can run the following command in `PROJECT_FOLDER/blockchain/blockchain-network/`.
+If you want to bring down the blockchain network, you can run the following command in [blockchain/blockchain-network/](blockchain-network).
 
-**WARNNING**: **DO NOT USE THIS COMMAND IN PRODUCTION!!!** You will be asked to type "yes" to confirm the action as this command will **DELETE** all the relevant containers about the blockchain network, unwanted images and generated credential materials. You can find the details in the function "networkDown" in `PROJECT_FOLDER/blockchain/blockchain-network/network.sh`.
+**WARNNING**: **DO NOT USE THIS COMMAND IN PRODUCTION!!!** You will be asked to type "yes" to confirm the action as this command will **DELETE** all the relevant containers about the blockchain network, unwanted images and generated credential materials. You can find the details in the function "networkDown" in [blockchain/blockchain-network/network.sh](blockchain-network/network.sh).
 ``` 
 ./network.sh down
 ```
-In **development**, you also need to run the following command to remove the external docker volumes. Run the following command to clean up the ledger data and snapshots stored in external docker volumes.
+In **development**, you also need to run the following command to remove the external docker volumes. Run the following command to clean up the ledger data and snapshots stored in external docker volumes. 
+
+**NEVER** run the following command in **production** because it can eliminate all data in blockchain.
 ```
 docker volume prune
 ```
 
-**Note**: If you plan to generate new credentials for the blockchain network, make sure you delete the directory 'wallet' in  Delete the `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript` before you run the client application. Otherwise you will run into an error. See "wallet" in [Important Notes](#markdown-head-important-notes).
+**Note**: If you plan to generate new credentials for the blockchain network, make sure you **DELETE** the directory '**wallet**' in directory the [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript) before you run the client application. Otherwise you will run into an error. See "**wallet**" in [Important Notes](#markdown-head-important-notes).
 
 
 
 # #######################
 # Local Testing
 # #######################
+
+**Note: the content in app.js may be outdated. You should refer to the actual deployed chaincodes in [blockchain/record-management-basic/chaincode-javascript/lib/recordManagementContract.js](record-management-basic/chaincode-javascript/lib/recordManagementContract.js)**
+
 Run the test application to see how sdk node.js works.
-From directory `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript`, run the command:
+In directory [blockchain/record-management-basic/application-javascript](record-management-basic/application-javascript), run the command:
 ```
 node app.js
 ```
@@ -634,7 +645,7 @@ If you decide to start over by taking down the network and bringing it back up a
    Failed to register user : Error: fabric-ca request register failed with errors [[ { code: 20, message: 'Authentication failure' } ]]
    ******** FAILED to run the application: Error: Identity not found in wallet: appUser
    ```
-   Delete the `PROJECT_FOLDER/blockchain/record-management-basic/application-javascript/wallet` directory and retry this application. The certificate authority must have been restarted and the saved certificates for the admin and application user are not valid. Deleting the wallet store will force these to be reset with the new certificate authority.
+   Delete the [blockchain/record-management-basic/application-javascript/wallet](record-management-basic/application-javascript/wallet) directory and retry this application. The certificate authority must have been restarted and the saved certificates for the admin and application user are not valid. Deleting the wallet store will force these to be reset with the new certificate authority.
 
 2. **CouchDB**
 In order to leverage the benefits of CouchDB, namely content-based JSON queries, your data must be modeled in JSON format. You must decide whether to use LevelDB or CouchDB before setting up your network. Switching a peer from using LevelDB to CouchDB is not supported due to data compatibility issues. All peers on the network must use the same database type. If you have a mix of JSON and binary data values, you can still use CouchDB, however the binary values can only be queried based on key, key range, and composite key queries.
@@ -647,7 +658,7 @@ The configurations shown below is for your reference in case you run into some l
 
 - **Set the Block size and Transaction** [link](https://stackoverflow.com/questions/52436847/block-size-and-transaction-per-block-in-hyperledger-fabric)\
 In the Channel configuration file: 
-[PROJECT_FOLDER/blockchain/blockchain-network/configtx/configtx.yaml](./blockchain-network/configtx/configtx.yaml), you can modify the MaxMessageCount, AbsoluteMaxBytes and PreferredMaxBytes in the Orderer section.
+[blockchain/blockchain-network/configtx/configtx.yaml](./blockchain-network/configtx/configtx.yaml), you can modify the MaxMessageCount, AbsoluteMaxBytes and PreferredMaxBytes in the Orderer section.
 Here is a snippet from the configuration file:
 ```
     # Batch Timeout: The amount of time to wait before creating a batch
