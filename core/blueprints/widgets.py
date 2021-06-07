@@ -279,7 +279,7 @@ def serve_send_message():
                             + str(message_id)
                         ),
                         'receiver': user['account_name'],
-                        'sender': g.account.name()
+                        'sender': g.account.company()
                     }
                 }
             ),

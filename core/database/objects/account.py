@@ -83,14 +83,14 @@ class Account:
         return self._row['stripe_customer_id']
 
 
-    def add_user(self, user):
+    def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
         Params:
             user: a User object to add
         """
         try:
-            self._db.account_users.add_user_to_account(user, self)
+            self._db.account_users.add_user_to_account(user, self, is_admin)
         except AccountUsersException as e:
             raise AccountException("Failed to add link: " + str(e))
 
