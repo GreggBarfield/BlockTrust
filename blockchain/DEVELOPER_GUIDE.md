@@ -38,16 +38,19 @@
 ### **ec2 Instance Setup**
 1. Choose an Amazon Machine Image (AMI): **Amazon Linux 2 AMI (HVM), SSD Volume Type 64-bit (x86)**.
 
-2. Choose an Instance Type: **t2.micro**.
+2. Choose an Instance Type: **t2.micro(dev)** or **t3.small(prod)**.
 
-3. Configure Instance Details:
+3. Choose the same subnet as other existing ec2 instances for better performance.: **us-east-2c**
+
+4. Configure Instance Details:
    - Enable **Protect against accidental termination**.
 
-4. Add Storage
+5. Add Storage
    - Volume Type: General Purpose SSD (gp2)
 
-5. Add Tags:
-   name: blockchainnetwork
+6. Add Tags:
+   name: **blockchainnetwork**
+   stack: **dev** or **prod**
 
 ### **Install Packages on ec2 Instance**
 
@@ -176,6 +179,11 @@ References:
 1. Head over to EC2 –> Volumes and create a new volume of your preferred size and type. *(e.g. Volume Type: General Purpose SSD (gp3), Size (GiB): 100)*
 **Note: Make sure the EBS volume and the instance are in the same zone.**
 
+   Add tags:  
+   **name: externalblockchainvolume  
+   stack: prod**
+
+
 2.  Select the created volume, right-click and select the “attach volume” option.
 
 3. Select the instance from the instance text box as shown below:  
@@ -185,19 +193,38 @@ References:
    ```
    lsblk
    ```
-   The above command will list the disk you attached to your instance.  
-   ![picture](img/available_disks.png)  
+   The above command will list the disk you attached to your instance.
+
+   Screenshot from t2micro. xvdf is the attached volume  
+   ![picture](img/available_disks_t2micro.png)
+   
+   Screenshot from t3. nvme1n1 is the attached volume  
+   ![picture](img/available_disks_t3.png)  
 
 
-5. Check if the volume has any data using the following command.
+5. Check if the volume has any data using the following command. Depending on the type of the instance, you may see different name for the attached volume. e.g. `xvdf` or `nvme1n1`
+
+   - Run this **IF** the volume name is **xvdf**:
    ```
    sudo file -s /dev/xvdf
    ```
    If the above command output shows “`/dev/xvdf: data`“, it means your volume is empty.
 
+   - Run this **IF** the volume name is **nvme1n1**:
+   ```
+   sudo file -s /dev/nvme1n1
+   ```
+   If the above command output shows “`/dev/nvme1n1: data`“, it means your volume is empty.
+
 6. Format the volume to the xfs filesystem using the following command.
+   - Run this **IF** the volume name is **xvdf**:
    ```
    sudo mkfs -t xfs /dev/xvdf
+   ```
+
+   - Run this **IF** the volume name is **nvme1n1**:
+   ```
+   sudo mkfs -t xfs /dev/nvme1n1
    ```
    If you get an error that mkfs.xfs is not found, use the following command to install the XFS tools and then repeat the previous command:
    ```
@@ -210,8 +237,13 @@ References:
    ```
 
 8. Mount the volume to “`blockchainvolume`” directory using the following command.
+   - Run this **IF** the volume name is **xvdf**:
    ```
    sudo mount /dev/xvdf /blockchainvolume/
+   ```
+   - Run this **IF** the volume name is **nvme1n1**:
+   ```
+   sudo mount /dev/nvme1n1 /blockchainvolume/
    ```
 
 9. cd into `blockchainvolume` directory and check the disk space for confirming the volume mount.
@@ -219,7 +251,7 @@ References:
    cd /blockchainvolume
    df -h .
    ```
-   The above command would show the free space in the blockchainvolume directory.
+   The above command should show the free space in the blockchainvolume directory.
 
 0. (***Optional***) To unmount the volume, you have to use the following command.
    ```
@@ -243,7 +275,7 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    device_name mount_point file_system_type fs_mntops fs_freq fs_passno
    ```
-   For example,
+   Make sure you are using the **CORRECT VOLUME NAME: xvdf or nvme1n1**. For example, for xvdf, it should be
    ```
    /dev/xvdf       /blockchainvolume   xfs    defaults,nofail        0       2
    ```
@@ -253,7 +285,7 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    **Note**:\
    If you ever boot your instance without this volume attached (for example, after moving the volume to another instance), the nofail mount option enables the instance to boot even if there are errors mounting the volume. Debian derivatives, including Ubuntu versions earlier than 16.04, must also add the nobootwait mount option.
 
-3. To verify that your entry works, run the following commands to unmount the device and then mount all file systems in /etc/fstab. If there are no errors, the /etc/fstab file is OK and your file system will mount automatically after it is rebooted.
+3. To verify that your entry works, run the following commands to unmount the device and then mount all file systems in /etc/fstab. If there are no errors, the /etc/fstab file is OK and your file system will mount automatically after it is rebooted. If you see an error `umount: /blockchainvolume: target is busy`, your CWD may be in /blockchainvolume, and you should go out of it.
    ```
    sudo umount /blockchainvolume
    sudo mount -a
@@ -274,7 +306,7 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    lsblk
    ```
-   Sample output:  
+   Sample output from t2micro instance:  
    ![picture](img/lsblk_sample.png)  
    Now xvdf is mounted at `/blockchainvolume` in our ec2 instance.
 
@@ -285,17 +317,21 @@ The default location for creating a docker volume is in `/var/lib/docker/volumes
 
 1. You can change where Docker stores its files including volumes by changing one of its startup parameters called `--data-root`.
 
-2. Since we are using systemd for service management, the file is usually located at /lib/systemd/system/docker.service. Edit the file as such:
+2. Since we are using systemd for service management, the file is usually located at `/lib/systemd/system/docker.service`.
+   ```
+   sudo vim /lib/systemd/system/docker.service
+   ```
+   Edit the file as such:
 
-   **Before**:
-   ```
-   ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_ADD_RUNTIMES
-   ```
-   **After**:
-   ```
-   ExecStart=/usr/bin/dockerd --data-root /blockchainvolume/ -H fd:// --containerd=/run/containerd/containerd.sock $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_ADD_RUNTIMES
-   ```
-   Notice we added **--data-root /blockchainvolume/** to the value of ExecStart.
+      **Before**:
+      ```
+      ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_ADD_RUNTIMES
+      ```
+      **After**(Note that we added **--data-root /blockchainvolume/** to the value of ExecStart.):
+      ```
+      ExecStart=/usr/bin/dockerd --data-root /blockchainvolume/ -H fd:// --containerd=/run/containerd/containerd.sock $OPTIONS $DOCKER_STORAGE_OPTIONS $DOCKER_ADD_RUNTIMES
+      ```
+      
 
 3. Restart the Docker daemon and the volumes will be under `/blockchainvolume/volumes/{volume_name}_data`. Flush changes and restart Docker:
    ```
@@ -417,7 +453,7 @@ In directory [blockchain/scripts](scripts), execute the script:
    ```
    ./upload_backup_files.sh
    ```
-Executing this script will zip all important files generated during the creation of the blockchain network and the registration and enrollment of admin and user for client API application. This zip file will be saved in [blockchain/backup](backup) with the name `backup_CURRENT_DATE_TIME.zip`. This zip file will also be uploaded to a private s3 bucket named `btnblockchainbackup`. Notice that this script will prompt you for AWS access key ID, secret access key, region name(us-east-2) and format(json).
+Executing this script will zip all important files generated during the creation of the blockchain network and the registration and enrollment of admin and user for client API application. This zip file will be saved in [blockchain/backup](backup) with the name `backup_CURRENT_DATE_TIME.zip`. This zip file will also be uploaded to a private s3 bucket named `btnblockchainbackup`. Note that this script will prompt you for AWS access key ID, secret access key, region name(us-east-2) and format(json).
 
 Here is an example:
 
@@ -464,7 +500,7 @@ In the case we terminated the ec2 instance which host the blockchain network and
       ```
       ./blockchain-network/scripts/bootstrap.sh -s -b 
       ```
-   * Bring up the network. **Notice** that we don't use **'createChannel'** option in the command because we already back up the channel file.
+   * Bring up the network. **Note** that we don't use **'createChannel'** option in the command because we already back up the channel file.
       ```
       ./network.sh up -ca -s couchdb
       ```
