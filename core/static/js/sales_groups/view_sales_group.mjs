@@ -368,7 +368,6 @@ export class SalesGroupViewer {
                     videoUrls.push(  "https://player.vimeo.com/video/"+video[1]);
                 }
             }
-            console.log(videoUrls);
 
             new BootstrapCarousel(videoUrls, embed,"video");
 

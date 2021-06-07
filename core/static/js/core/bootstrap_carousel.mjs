@@ -1,7 +1,7 @@
 import { InfoModal } from "./info_modal.mjs";
 
 export class BootstrapCarousel {
-    constructor(imageURLs, attachTo,type) {
+    constructor(imageURLs, attachTo, type) {
         let frame = attachTo;
         this.frame = frame;
         this.isFullScreen = false;
@@ -34,7 +34,7 @@ export class BootstrapCarousel {
             item.style.height = "100%";
             carouselInner.append(item);
 
-            if(type=="img"){
+            if(type == "img"){
                 let img = document.createElement("div");
                 img.style.width = "100%";
                 img.style.height = "100%";
@@ -44,16 +44,15 @@ export class BootstrapCarousel {
                 img.src = image;
                 item.append(img);
             }
-            else if(type=="video")
+            else if(type == "video")
             {
-                console.log(image)
-                let embedblock=document.createElement("div");
-                embedblock.className="embed-responsive embed-responsive-16by9";
+                let embedblock = document.createElement("div");
+                embedblock.className = "embed-responsive embed-responsive-16by9";
                 item.append(embedblock);
                 let link = document.createElement("iframe");
-                link.className="embed-responsive-item"
-                link.type="text/html";
-                link.src=image;
+                link.className = "embed-responsive-item"
+                link.type = "text/html";
+                link.src = image;
                 embedblock.append(link);
             }
             

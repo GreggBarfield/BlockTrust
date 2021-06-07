@@ -11,13 +11,10 @@ export class VideoSession{
         if (linkIDs !== null) {
             for (const linkID of linkIDs) {
                 let link_obj = {
-                    
                     "platform": linkID[0],
-                   
                     "embed":linkID[1],
                     "uploaded": false,
-                    "removed":false
-                    
+                    "removed":false 
                 };
                 if (linkID in linkAuths) {
                     link_obj["link"] = linkAuths[linkID]["link"];
@@ -41,9 +38,7 @@ export class VideoSession{
         this.addURLButton.textContent = "Add Youtube/Vimeo link"
         this.addURLButton.type = "button";
         this.addURLButton.addEventListener("click", ()=> {
-           
             this.promptURLBox(this.links);
-
         });
 
         this.linkBox.append(this.addURLButton);
@@ -53,25 +48,24 @@ export class VideoSession{
         }
 
     }
+
     getLinks() {
         // Gets all uploaded and not removed file IDs
         let result = [];
-        console.log(this.links)
         for (const link of this.links) {
-            console.log(link["removed"]);
-
             if (link["removed"])
                 continue;
-          
             result.push([link["platform"],link["embed"]]);
         }
         return result;
     }
+
     attach(attach_node) {
         this.attached = true;
         this.frame = attach_node;
         this.frame.append(this.linkBox);
     }
+
     remove(link) {
         if ("removed" in link) {
             link["removed"] = !link["removed"];
@@ -81,6 +75,7 @@ export class VideoSession{
         }
         return link["removed"];
     }
+
     updateTable() {
         for (let link of this.links) {
             let linkID = link.platform;
@@ -153,7 +148,6 @@ export class VideoSession{
             handleUrlInput(textArea.value);
             infoModal.close();
             this.updateTable();
-        
         });
         
         // Allow input multiple links
@@ -162,11 +156,13 @@ export class VideoSession{
             var match = url.match(regExp);
             return (match&&match[7].length==11)? match[7] : false;
         }
+
         function parseVimeoTokenByUri(url){
             var regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/
             var match = url.match(regExp);
             return match[5]
         }
+
         function handleUrlInput(links){
             var urls= links.split(",");
             var tag=null
@@ -192,13 +188,8 @@ export class VideoSession{
                         "removed":false
                     };
                     files.push(file_obj);
-                    console.log(files);
                 }
-               
             }
-
         }
-        
     }
-   
 }

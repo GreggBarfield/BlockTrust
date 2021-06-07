@@ -1,7 +1,6 @@
 import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
-import {promptURLBox  } from "./video_links.mjs";
 export class BasicFileEditor {
     constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
         let that = this;
@@ -53,13 +52,11 @@ export class BasicFileEditor {
         if (attach_node !== null) {
             this.attach(attach_node);
         }
-        
     }
 
     attach(attach_node) {
         this.attached = true;
         this.frame = attach_node;
-
         this.frame.append(this.ImageBox);
     }
 
