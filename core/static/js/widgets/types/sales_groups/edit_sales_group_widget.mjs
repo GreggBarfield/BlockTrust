@@ -72,8 +72,6 @@ export class EditSalesGroupWidget extends Widget {
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
-            // addTooltip(name,name,header);
-    
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
@@ -82,15 +80,17 @@ export class EditSalesGroupWidget extends Widget {
             return row;
         }
 
-        function createGroup(row, name, htmlFor,dataToggle,tooltipText) {
+        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
             let group = document.createElement("div");
             group.className = "form-group col-md-4";
             row.append(group);
 
+
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
-            addTooltip(dataToggle,tooltipText,groupLabel);
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,groupLabel);
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
@@ -98,10 +98,9 @@ export class EditSalesGroupWidget extends Widget {
             return group;
         }
 
-        function createNumber(row, name, value,dataToggle,tooltipText) {
+        function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
-            //TODO:tooltip
-            let group = createGroup(row, name, id,dataToggle,tooltipText);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -111,10 +110,9 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createText(row, name, value,dataToggle,tooltipText) {
+        function createText(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
-            //TODO:tooltip
-            let group = createGroup(row, name, id,dataToggle,tooltipText);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -124,20 +122,22 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createDate(row, name, epoch) {
+        function createDate(row, name, epoch,hasTooltip=false,dataToggle="",tooltipText="") {
             let dateFormGroup = new DateFormGroup(row, name, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
             return dateFormGroup;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder},dataToggle,tooltipText) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            //TODO:tooltip
-            let group = createGroup(row, name, id,dataToggle,tooltipText);
+            
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -194,10 +194,10 @@ export class EditSalesGroupWidget extends Widget {
         let marketingRow = createSection(form, "Marketing");
 
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
-        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
-        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
-        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
+        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
+        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
+        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
@@ -205,8 +205,6 @@ export class EditSalesGroupWidget extends Widget {
         );
         marketingAuctionSale.getFormGroup().classList.add("col-md-4");
         
-        addTooltip("dataToggle","title",marketingAuctionSale.getFormLabel());
-
         // Characteristics
         
         let characteristicsRow = createSection(form, "Characteristics");
@@ -219,9 +217,11 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Applicable Breeds"
-        });
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null);
-        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null);
+        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.");
+        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null,true,"characteristicsWeight",
+        "Please enter the average weight of the cattle in the group");
+        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null,
+        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)");
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -262,7 +262,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: true,
             placeholder: "Select Precon Program"
-        });
+        },true,"maintenancePreconditioningProgram","Please enter the pre-conditioning program this group of cattle is on or “not listed”.");
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
@@ -271,7 +271,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        });
+        },true,"maintenanceVaccinations","Please enter vaccinations given to the cattle in this group or “not listed”.");
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -280,7 +280,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Feeding Program"
-        });
+        },true,"maintenanceFeedingProgram","Please enter the feeding program this group of cattle is on or “not listed”.");
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
@@ -289,7 +289,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Implants"
-        });
+        },false,"","");
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -307,7 +307,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        });
+        },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
 
         // Media
 
@@ -330,6 +330,7 @@ export class EditSalesGroupWidget extends Widget {
         let commentsHeader = document.createElement("h6");
         commentsHeader.textContent = "Comments";
         form.append(commentsHeader);
+        addTooltip("commentsHeader","Please enter anything you want the buyers to know about this group of cattle that may not be listed in the above sections.",commentsHeader);
 
         let commentsRow = document.createElement("div");
         commentsRow.className = "form-row";
