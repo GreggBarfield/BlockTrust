@@ -198,24 +198,8 @@ def login(identifier, password="", override=False):
     Returns:
         An User object on success.
     """
-    # try:
-    #     g.db.execute_d(
-    #         """
-    #         UPDATE users
-    #         SET password=%(password)s
-    #         WHERE users.email=%(email)s
-    #         """,
-    #         {
-    #             "password": password,
-    #             "email": "email"
-    #         }
-    #         )
-    # except:
-    #     raise "????"
 
     try:
-        
-    
 
         if password is None and override is not True:
             raise LoginException("password is None")
@@ -283,18 +267,37 @@ def login(identifier, password="", override=False):
 
         # End of tries
         
-
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
+
+        unlock=False
 
         if user_row is None:
             raise LoginException(generic_error)
         if int(user_row["account_non_locked"])==0:
-            #Todo: message
-            raise LoginException("Locked")
+            if int(user_row["lock_time"])<int(round(time.time())):
+                g.db.execute_d(
+                    """
+                        UPDATE users
+                        SET failed_attempt = %(failed_attempt)s, account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
+                        WHERE
+                            users.id=%(id)s
+                    """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempt":  0,
+                        "account_non_locked": 1,
+                        "lock_time": ""
+                    }
+                )
+                unlock =True
+            else:
+                raise LoginException("Your account "+user_row["username"]+" is locked for 24 hr due to reaching the maximum 3 failed login attempts. Contact us if you're having issues.")
+        
         # Password does not match
+
         if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
-            
-            g.db.execute_d(
+            if unlock ==True:
+                g.db.execute_d(
                 """
                     UPDATE users
                     SET failed_attempt = %(failed_attempt)s
@@ -303,26 +306,39 @@ def login(identifier, password="", override=False):
                 """,
                 {
                     "id": user_row["id"],
-                    "failed_attempt":  int(user_row["failed_attempt"])+1
+                    "failed_attempt":  1
                 }
             )
-            
-            if int(user_row['failed_attempt'])+1>3:
+            else:
                 g.db.execute_d(
-                """
-                    UPDATE users
-                    SET account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
-                    WHERE
-                        users.id=%(id)s
-                """,
-                {
-                    "id": user_row["id"],
-                    "account_non_locked": 0,
-                    "lock_time": int(round(time.time()))+86400
-                }
-            )
-
+                    """
+                        UPDATE users
+                        SET failed_attempt = %(failed_attempt)s
+                        WHERE
+                            users.id=%(id)s
+                    """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempt":  int(user_row["failed_attempt"])+1
+                    }
+                )
+                
+                if int(user_row['failed_attempt'])+1>=3:
+                    g.db.execute_d(
+                    """
+                        UPDATE users
+                        SET account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
+                        WHERE
+                            users.id=%(id)s
+                    """,
+                    {
+                        "id": user_row["id"],
+                        "account_non_locked": 0,
+                        "lock_time": int(round(time.time()))+86400
+                    }
+                    )
             raise LoginException(generic_error)
+            
         # To check if the user profile being accessed has a verified email
 
         if user_row['email_verified'] == 'N':
