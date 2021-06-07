@@ -1,5 +1,3 @@
-
-
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 let loginForm = $("#login_form");
