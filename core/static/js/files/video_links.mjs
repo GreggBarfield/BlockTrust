@@ -1,8 +1,8 @@
-import {uploadFile} from "./files.mjs";
-import {Table} from "../core/table.mjs";
-import {InfoModal} from "../core/info_modal.mjs";
-export class VideoSession{
-    constructor(restrictions={}, attach_node=null, linkIDs=null, linkAuths=null) {
+import { uploadFile } from "./files.mjs";
+import { Table } from "../core/table.mjs";
+import { InfoModal } from "../core/info_modal.mjs";
+export class VideoSession {
+    constructor(restrictions = {}, attach_node = null, linkIDs = null, linkAuths = null) {
         let that = this;
         this.links = [];
         this.restrictions = restrictions;
@@ -12,9 +12,9 @@ export class VideoSession{
             for (const linkID of linkIDs) {
                 let link_obj = {
                     "platform": linkID[0],
-                    "embed":linkID[1],
+                    "embed": linkID[1],
                     "uploaded": false,
-                    "removed":false 
+                    "removed": false
                 };
                 if (linkID in linkAuths) {
                     link_obj["link"] = linkAuths[linkID]["link"];
@@ -31,13 +31,13 @@ export class VideoSession{
         this.table.attach(this.linkBox);
 
         this.table.setHeader(["Platform", "Link", "Options"]);
-        
+
         this.updateTable();
         this.addURLButton = document.createElement("button");
         this.addURLButton.className = "btn btn-sm btn-primary";
         this.addURLButton.textContent = "Add Youtube/Vimeo link"
         this.addURLButton.type = "button";
-        this.addURLButton.addEventListener("click", ()=> {
+        this.addURLButton.addEventListener("click", () => {
             this.promptURLBox(this.links);
         });
 
@@ -55,7 +55,7 @@ export class VideoSession{
         for (const link of this.links) {
             if (link["removed"])
                 continue;
-            result.push([link["platform"],link["embed"]]);
+            result.push([link["platform"], link["embed"]]);
         }
         return result;
     }
@@ -87,14 +87,14 @@ export class VideoSession{
                 linkName = link.embed;
             }
             if (!("row" in link)) {
-                
+
                 let optionsDiv = document.createElement("div");
-                
+
                 let removeButton = document.createElement("button");
                 removeButton.textContent = "Remove";
                 removeButton.className = "btn btn-sm btn-danger";
                 removeButton.type = "button";
-                removeButton.addEventListener("click", ()=>{
+                removeButton.addEventListener("click", () => {
                     if (this.remove(link)) {
                         removeButton.textContent = "Add";
                     }
@@ -104,7 +104,7 @@ export class VideoSession{
                     this.updateTable();
                 });
                 optionsDiv.append(removeButton);
-                
+
                 link["row"] = this.table.addRow([linkID, linkName, optionsDiv]);
             }
             this.table.setValue(link["row"], 0, linkID);
@@ -118,8 +118,8 @@ export class VideoSession{
             }
         }
     }
-    
-    promptURLBox(files){
+
+    promptURLBox(files) {
         let infoModal = new InfoModal("Adding video link(s) ");
         let modalBody = infoModal.getBody();
 
@@ -144,48 +144,48 @@ export class VideoSession{
         submitButton.className = "btn btn-primary";
         infoModal.getFooter().append(submitButton);
 
-        submitButton.addEventListener("click", ()=>{
+        submitButton.addEventListener("click", () => {
             handleUrlInput(textArea.value);
             infoModal.close();
             this.updateTable();
         });
-        
+
         // Allow input multiple links
-        function parseYouTubeTokenByUri(url){
+        function parseYouTubeTokenByUri(url) {
             var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             var match = url.match(regExp);
-            return (match&&match[7].length==11)? match[7] : false;
+            return (match && match[7].length == 11) ? match[7] : false;
         }
 
-        function parseVimeoTokenByUri(url){
+        function parseVimeoTokenByUri(url) {
             var regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/
             var match = url.match(regExp);
             return match[5]
         }
 
-        function handleUrlInput(links){
-            var urls= links.split(",");
-            var tag=null
-            var platform="N/A";
-            var id="";
-            for( const url of urls){
-                if(url.includes("youtube") || url.includes("vimeo")){
+        function handleUrlInput(links) {
+            var urls = links.split(",");
+            var tag = null
+            var platform = "N/A";
+            var id = "";
+            for (const url of urls) {
+                if (url.includes("youtube") || url.includes("vimeo")) {
                     tag = url.split("/");
-               
-                    if(tag[2].includes("youtube")){
-                        platform="youtube";
-                        id=parseYouTubeTokenByUri(url);
+
+                    if (tag[2].includes("youtube")) {
+                        platform = "youtube";
+                        id = parseYouTubeTokenByUri(url);
                     }
-                    else{
-                        platform="vimeo";
-                        id=parseVimeoTokenByUri(url);
-            
+                    else {
+                        platform = "vimeo";
+                        id = parseVimeoTokenByUri(url);
+
                     }
                     let file_obj = {
                         "platform": platform,
-                        "embed":id,
+                        "embed": id,
                         "uploaded": false,
-                        "removed":false
+                        "removed": false
                     };
                     files.push(file_obj);
                 }
