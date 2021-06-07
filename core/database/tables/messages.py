@@ -72,8 +72,8 @@ class Messages:
 
         rows = self._db.execute_d("""
             SELECT messages.*,
-                    from_account_table.name AS from_name,
-                    to_account_table.name AS to_name
+                    from_account_table.company AS from_name,
+                    to_account_table.company AS to_name
                 FROM messages
 				LEFT JOIN accounts AS from_account_table
 					ON messages.from_account=from_account_table.id

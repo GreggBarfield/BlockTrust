@@ -94,7 +94,6 @@ export class SalesGroupViewer {
             }
             let kvp = document.createElement("div");
             kvp.className="row";
-            
             let kvpKey = document.createElement("dt");
             kvpKey.className = "col-sm-6";
             kvpKey.textContent = key;
@@ -195,8 +194,8 @@ export class SalesGroupViewer {
             addInfo("PVP Program", this.data.reported.process_verified_program,animalBody);
 
         }
-        //Configure market data 
 
+        //Configure market data 
         {
             let marketDataCol = document.createElement("div");
             marketDataCol.className = "card";
@@ -222,6 +221,7 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
             
             addInfo("Total Count",this.data.reported.count, marketBody);
+            addInfo("Delivery Location", this.data.delivery_location, marketBody);
             
             let daysRemaining = "--";
 
@@ -421,7 +421,6 @@ export class SalesGroupViewer {
             triOpened.style.display = "none";
             triOpened.className = "fa fa-caret-down";
             tri.append(triOpened);
-
 
             let header = document.createElement("div");
             header.className = "btn btn-outline-secondary btn-sm";

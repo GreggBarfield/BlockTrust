@@ -94,17 +94,53 @@
       SubMenuTrigger: 'hover',
     });
   });
-    $(".toggler").click(function() {
+    // Find all popups
+    let popups = [];
+    $(".toggler").each(function() {
+        let localTargets = [];
+        for (const c of $(this).attr("data-toggles").split(" ")) {
+            if (c != "") {
+                localTargets.push("." + c);
+            }
+        }
+        let popup = {passedThrough: false, targets: localTargets};
+        for (const target of localTargets) {
+          $(target).click(function() {popup.passedThrough = true;});
+        }
+        popups.push(popup);
+    });
+    window.popups = popups;
+    // If a click event reaches the body, removes all targets with at least 1 is-active in the popup target set
+    $("body").click(function() {
+        for (let popup of popups) {
+            if (!popup.passedThrough) {
+                let anyActive = false;
+                for (const target of popup.targets) {
+                    if ($(target).hasClass("is-active")) anyActive = true;
+                }
+
+                if (anyActive) {
+                    for (const target of popup.targets) {
+                        $(target).removeClass("is-active");
+                    }
+                }
+            }
+            popup.passedThrough = false;
+        }
+    });
+    // Togglers turn is-active on and off for elements when clicked
+    $(".toggler").click(function(e) {
         for (const c of $(this).attr("data-toggles").split(" ")) {
             if (c != "") {
                 $("." + c).toggleClass("is-active");
             }
         }
-        return false;
+        e.preventDefault(); // Important: Don't prevent propagation as the other popups need to close
     });
-    $(".triggers-toggler").click(function() {
+    // Triggers-togglers are things that forces a trigger to fire (gray background)
+    $(".triggers-toggler").click(function(e) {
         $("." + $(this).attr("data-toggler")).click();
-        return false;
+        e.preventDefault();
     });
   });
 </script>
@@ -155,6 +191,36 @@
                     <i class="icon feather icon-mail"></i>
                     </a>
                 </li>
+                <li class="b-account-settings-li">
+                    <a
+                        href="#"
+                        class="toggler"
+                        data-toggles="b-account-settings-li b-account-settings"
+                    >
+                        <i class="icon feather icon-settings"></i>
+                    </a>
+                    <div class="b-expandable-icon b-account-settings">
+                        <div class="pro-head">
+                            <div>
+                              {{ g.account.company() | e }}
+                            </div>
+                        </div>
+                        <ul class="pro-body">
+                            {% if dashboard_standard_is_admin == 1 %}
+                            <li>
+                                <a href="#">
+                                    <i class="feather icon-user-plus"></i> Invite Users
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <a href="/dashboard/plans">
+                                    <i class="feather icon-credit-card"></i> Subscription
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
                 {% endif %}
                 <li class="b-user-settings-li">
                     <a
@@ -162,9 +228,9 @@
                         class="toggler"
                         data-toggles="b-user-settings-li b-user-settings"
                     >
-                        <i class="icon feather icon-settings"></i>
+                        <i class="icon feather icon-user"></i>
                     </a>
-                    <div class="b-user-settings">
+                    <div class="b-expandable-icon b-user-settings">
                         <div class="pro-head">
                             <img
                                 src="/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg"
@@ -177,6 +243,11 @@
                             </a>
                         </div>
                         <ul class="pro-body">
+                            <li>
+                                <a href="#">
+                                    <i class="feather icon-sliders"></i> User Settings
+                                </a>
+                            </li>
                             <li>
                                 <a href="/logout">
                                     <i class="feather icon-lock"></i> Logout
@@ -197,7 +268,7 @@
                     href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
                 >
                     <span><i class="feather icon-home"></i></span>
-                    <span>{{ dashboard_standard_account.name()|e }}</span>
+                    <span>{{ dashboard_standard_account.company()|e }}</span>
                 </a>
                 {% else %}
                 <a href="/dashboard/accounts">
@@ -205,11 +276,13 @@
                     <span>Accounts</span>
                 </a>
                 {% endif %}
+                {% if false %}
+                <!-- 5/23/21: Not visible now but retained for future use -->
                 <ul>
                     <li class=""><a href="/dashboard/accounts" class="">Switch Account</a></li>
                     <li class=""><a href="/dashboard/accounts/new-account" class="">New Account</a></li>
-                    <li class=""><a href="/dashboard/accounts/join-account" class="">Join Account</a></li>
                 </ul>
+                {% endif %}
             </li>
             {% if dashboard_standard_account is not none %}
             <li>
@@ -223,6 +296,7 @@
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                 </ul>
             </li>
+            {% if g.account.sector_name() == "Auction House" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
                     <span><i class="feather icon-award"></i></span>
@@ -233,14 +307,14 @@
                     <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
                 </ul>
             </li>
+            {% endif %}
             <li>
-                <a href="/dashboard/data">
-                    <span><i class="feather icon-box"></i></span>
-                    <span>Data</span>
+                <a href="/dashboard/reports">
+                    <span><i class="feather icon-trending-up"></i></span>
+                    <span>Reports</span>
                 </a>
                 <ul>
-                    <li><a href="/dashboard/data">Manage My Data</a></li>
-                    <li><a href="/dashboard/data/advanced">Advanced Tools</a></li>
+                    <li><a href="/dashboard/reports/carcass-trends">Carcass Data Trends</a></li>
                 </ul>
             </li>
             {% endif %}

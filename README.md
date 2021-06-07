@@ -174,3 +174,8 @@ pytest
 pytest api/translation_worker
 ```
 
+# Coding Standards
+
+Boolean values:
+Booleans are stored as tinyints in the mysql database. 0 will mean false and 1 means true. They will have the prefix of is_ in the column name.
+Further, this will help us go from a boolean value to multi-tier value (0,1,2,..) easily. For multi-tier values we will not have a prefix of is_.  
