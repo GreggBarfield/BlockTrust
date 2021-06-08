@@ -52,14 +52,14 @@ def serve_login_action():
             raise ExportException("internal error, password missing from form")
         try:
             auth.login(
-                    identifier=request.form['identifier'],
-                    password=request.form['password']
+                identifier=request.form['identifier'],
+                password=request.form['password']
                 )
             redirect_to = '/dashboard'
             if (
-                    'requestRedirectTo' in request.form and
-                    request.form['requestRedirectTo'] is not None and
-                    request.form['requestRedirectTo'] != ''
+                'requestRedirectTo' in request.form and
+                request.form['requestRedirectTo'] is not None and
+                request.form['requestRedirectTo'] != ''
             ):
                 redirect_to = request.form['requestRedirectTo']
             return jsonify({"redirect": redirect_to})
@@ -208,7 +208,6 @@ def serve_contact_form_response():
 @bp.route('/request_password_reset', methods=['GET'])
 def serve_request_password_reset():
     redirect_to = ''
-    print("Return request")
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
 
@@ -259,19 +258,17 @@ def serve_reset_password(tok):
 def serve_reset_password_action(tok):
     redirect_to = tok
     try:
-        try:
-            # Getting the requested new password from the user
-            new_password = request.form['password']
-            confirm_password = request.form['confirm_password']
-            # Getting the user eamil using the encrypted token
-            email = token.confirmToken(tok)
-            # Changing user password using email as an identifier
-            auth.change_password(email, new_password, confirm_password)
-            return jsonify({"redirect": "/login"})
-        except auth.PasswordChangeFailedException as e:
-            return jsonify({"error": str(e)})
-    except ExportException as e:
+        # Getting the requested new password from the user
+        new_password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        # Getting the user eamil using the encrypted token
+        email = token.confirmToken(tok)
+        # Changing user password using email as an identifier
+        auth.change_password(email, new_password, confirm_password)
+        return jsonify({"redirect": "/login"})
+    except auth.PasswordChangeFailedException as e:
         return jsonify({"error": str(e)})
+
 # Route for user to confirm their account
 
 
