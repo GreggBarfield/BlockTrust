@@ -54,7 +54,7 @@ def serve_login_action():
             auth.login(
                 identifier=request.form['identifier'],
                 password=request.form['password']
-                )
+            )
             redirect_to = '/dashboard'
             if (
                 'requestRedirectTo' in request.form and
