@@ -287,7 +287,8 @@ def serve_add_to_cart():
         session[TRANSACTION_VALUES]["all_total_price"] = round(all_total_price, 2)
         session[TRANSACTION_VALUES]["total_tax"] = 0
         session[TRANSACTION_VALUES]["grand_total"] = session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"]
-        return outside_render("shop/shop_homepage.html")
+        return jsonify({"redirect": "/shop"})
+        # return outside_render("shop/shop_homepage.html")
     except ExportException as e:
         return jsonify({"error": e})
 

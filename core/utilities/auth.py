@@ -346,8 +346,10 @@ def login(identifier, password="", override=False):
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
+        # Creating a session shopping cart
         session[SESSION_SHOPPING_CART] = {}
-        # session[ALL_TOTAL_PRICE] = 0.0
+        # Session object to store transaction values
+        # Shipping value is set to flat $15 which can be changed here
         session[TRANSACTION_VALUES] = {
             'all_total_price': 0.0,
             'total_tax': 0.0,
