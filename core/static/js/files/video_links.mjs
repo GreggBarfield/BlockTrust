@@ -46,7 +46,6 @@ export class VideoSession {
         if (attach_node !== null) {
             this.attach(attach_node);
         }
-
     }
 
     getLinks() {
@@ -54,6 +53,8 @@ export class VideoSession {
         let result = [];
         for (const link of this.links) {
             if (link["removed"])
+                continue;
+            if (link["embed"] == "NOT VALID")
                 continue;
             result.push([link["platform"], link["embed"]]);
         }
@@ -84,33 +85,40 @@ export class VideoSession {
             }
             let linkName = "";
             if ("embed" in link) {
+
                 linkName = link.embed;
             }
+
             if (!("row" in link)) {
 
-                let optionsDiv = document.createElement("div");
+                if (link["embed"] == "NOT VALID") {
+                    continue
+                }
+                else {
+                    let optionsDiv = document.createElement("div");
 
-                let removeButton = document.createElement("button");
-                removeButton.textContent = "Remove";
-                removeButton.className = "btn btn-sm btn-danger";
-                removeButton.type = "button";
-                removeButton.addEventListener("click", () => {
-                    if (this.remove(link)) {
-                        removeButton.textContent = "Add";
-                    }
-                    else {
-                        removeButton.textContent = "Remove";
-                    }
-                    this.updateTable();
-                });
-                optionsDiv.append(removeButton);
+                    let removeButton = document.createElement("button");
+                    removeButton.textContent = "Remove";
+                    removeButton.className = "btn btn-sm btn-danger";
+                    removeButton.type = "button";
+                    removeButton.addEventListener("click", () => {
+                        if (this.remove(link)) {
+                            removeButton.textContent = "Add";
+                        }
+                        else {
+                            removeButton.textContent = "Remove";
+                        }
+                        this.updateTable();
+                    });
+                    optionsDiv.append(removeButton);
 
-                link["row"] = this.table.addRow([linkID, linkName, optionsDiv]);
+                    link["row"] = this.table.addRow([linkID, linkName, optionsDiv]);
+                }
             }
             this.table.setValue(link["row"], 0, linkID);
             this.table.setValue(link["row"], 1, linkName);
 
-            if (link["removed"]) {
+            if (link["removed"] || link["embed"] == "NOT VALID") {
                 link["row"].style.textDecoration = "line-through";
             }
             else {
@@ -152,15 +160,27 @@ export class VideoSession {
 
         // Allow input multiple links
         function parseYouTubeTokenByUri(url) {
+            // Supported YouTube URL formats:
+            // http://www.youtube.com/watch?v=My2FRPA3Gf8
+            // https://youtube.googleapis.com/v/My2FRPA3Gf8
             var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
             var match = url.match(regExp);
+
             return (match && match[7].length == 11) ? match[7] : false;
         }
 
         function parseVimeoTokenByUri(url) {
-            var regExp = /^.*(vimeo\.com\/)((channels\/[A-z]+\/)|(groups\/[A-z]+\/videos\/))?([0-9]+)/
+            // Supported Vimeo URL formats:
+            // http://vimeo.com/25451551
+            // http://player.vimeo.com/video/25451551
+            var regExp = /(http:|https:|)\/\/(player.|www.)?(vimeo\.com)\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/
             var match = url.match(regExp);
-            return match[5]
+
+            var parseID = (match && match.length >= 6) ? match[5] : false;
+            if (!isNaN(parseID) && !isNaN(parseFloat(parseID))) {
+                return parseID;
+            }
+            return false;
         }
 
         function handleUrlInput(links) {
@@ -171,8 +191,7 @@ export class VideoSession {
             for (const url of urls) {
                 if (url.includes("youtube") || url.includes("vimeo")) {
                     tag = url.split("/");
-
-                    if (tag[2].includes("youtube")) {
+                    if (url.includes("youtube")) {
                         platform = "youtube";
                         id = parseYouTubeTokenByUri(url);
                     }
@@ -181,6 +200,8 @@ export class VideoSession {
                         id = parseVimeoTokenByUri(url);
 
                     }
+                    if (!id)
+                        id = "NOT VALID"
                     let file_obj = {
                         "platform": platform,
                         "embed": id,
