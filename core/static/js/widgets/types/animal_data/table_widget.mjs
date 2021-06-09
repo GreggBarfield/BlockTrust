@@ -7,7 +7,7 @@ export class TableWidget extends Widget {
 
     initType() {
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
-        this.accountName = this.frame.getAttribute("data-widget-account-name");
+        this.companyName = this.frame.getAttribute("data-widget-company-name");
 
         // TODO: This is a bad data request, optimize later
         this.getData(
@@ -381,7 +381,7 @@ export class TableWidget extends Widget {
         this.mainTableHeadRow0.appendChild(this.mainTableHeadRow0TH0);
 
         this.mainTableHeadRow0TH1 = document.createElement("th");
-        this.mainTableHeadRow0TH1.textContent = this.accountName;
+        this.mainTableHeadRow0TH1.textContent = this.companyName;
         this.mainTableHeadRow0.appendChild(this.mainTableHeadRow0TH1);
 
         this.mainTableHeadRow0TH2 = document.createElement("th");

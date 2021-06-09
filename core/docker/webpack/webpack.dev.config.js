@@ -26,6 +26,7 @@ module.exports = {
     outside_interactive: path.resolve(__dirname, './core/static/js/outside/interactive.mjs'),
     // https://github.com/webpack-contrib/extract-text-webpack-plugin/issues/518
     standalone_assets: path.resolve(__dirname, './core/static/css/dashboard/dashboard_main.scss'),
+    outside_main: path.resolve(__dirname, './core/static/css/outside/outside_main.scss')
   },
   devtool: 'source-map', // DISABLE IN PRODUCTION! SLOW
   output: {

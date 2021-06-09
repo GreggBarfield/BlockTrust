@@ -1,6 +1,6 @@
 {% extends "outside/standard.html" %}
 
-{% set page_title = "Shop"| string %}
+{% set page_title = "Tag Store"| string %}
 
 {% block outside_banner %}
 <link rel="stylesheet" href="/static/css/outside/old/shop_styles.css" />
@@ -13,10 +13,7 @@
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
                         <li class="breadcrumb-item">
-                            
-                                
-                                <h1 class="text-white mb-1">BlockTrust Network Shop</h1>
-                            
+                                <h1 class="text-white mb-1">BlockTrust Network Tag Store</h1>
                         </li>
                     </ol>
                 </nav>
@@ -203,12 +200,12 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="1"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
-                        <p class="mt-2 mb-0" id="cart_status_message" style="display:none;">Adding your items to cart...</p>
-                        <p class="mt-2 mb-0" style="display:none;" id="cart_error_message"></p>
+                        <p class="mt-2 mb-0 text-white" id="cart_status_message" style="display:none;">Adding your items to cart000000...</p>
+                        <p class="mt-2 mb-0" style="display:none;" id="cart_error_message">Error adding items to cart...</p>
                     </form>
             </div><!-- / modal-footer -->
             </div><!-- / modal-content -->
@@ -258,7 +255,7 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="2"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -314,7 +311,7 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="3"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -368,7 +365,7 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="4"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -422,7 +419,7 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="5"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -476,7 +473,7 @@
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="6"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->

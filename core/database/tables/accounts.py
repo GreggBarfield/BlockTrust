@@ -112,7 +112,7 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector):
+    def create_account(self, user, name, company, sector, affiliate_id, city, state, zip, phone):
         """Creates a new account with the user automatically added.
 
         Params:
@@ -120,6 +120,11 @@ class Accounts:
             name: the account name
             company: the company name
             sector: the sector number
+            affiliate_id: account number in our partners system
+            city: company's city
+            state: company's state
+            zip: company's zip
+            phone: company's phone
         
         Returns:
             An Account object
@@ -134,29 +139,48 @@ class Accounts:
 
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
+        
+        # Process phone number
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector)
+                (name, company, sector, affiliate_id, city, state, zip, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s)
+                    (%(name)s, %(company)s, %(sector)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
             """,
             {
                 "name": name,
                 "company": company,
-                "sector": sector
+                "sector": sector,
+                "affiliate_id": affiliate_id,
+                "city": city,
+                "state": state,
+                "zip": zip,
+                "phone": phone
             }
         )
 
         try:
             account = self.get_by_id(self._db.last_row_id())
-            account.add_user(user)
+            #make the first user the account admin
+            account.add_user(user, 1)
             return account
         except AccountException as e:
             raise AccountsException("Account exception: " + str(e))
 
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -187,6 +211,36 @@ class Accounts:
                             set_frags, 
                             "sector_id=:sector_id,",
                             sector_id=sector_id
+                        )
+        if affiliate_id is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "affiliate_id=:affiliate_id,",
+                            affiliate_id=affiliate_id
+                        )
+        if city is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "city=:city,",
+                            city=city
+                        )
+        if state is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "state=:state,",
+                            state=state
+                        )
+        if zip is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "zip=:zip,",
+                            zip=zip
+                        )
+        if phone is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "phone=:phone,",
+                            phone=phone
                         )
         if token is not NO_VALUE:
             set_frags = frag(

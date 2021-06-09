@@ -27,7 +27,9 @@
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
     },
     "internal_api": {
-        "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8"
+        "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8",
+        "secret_email_key":"blocktrustnetwork",
+        "email_token_salt":"blocktrustnetwork"
     },
     "support": {
         "general_email": "info@blocktrustnetwork.com"

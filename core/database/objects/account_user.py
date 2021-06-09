@@ -1,9 +1,11 @@
 from copy import deepcopy
+from .. import database
+
 
 
 class AccountUser:
 
-    def __init__(self, db, row):
+    def __init__(self, db: 'database.Database', row):
         """AccountUser constructor.
 
         Params:
@@ -21,3 +23,6 @@ class AccountUser:
 
     def account(self):
         return self._db.accounts.get_by_account_user(self)
+
+    def is_admin(self):
+        return self._row['is_admin']
