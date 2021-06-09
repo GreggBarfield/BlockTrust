@@ -147,7 +147,6 @@ ALTER TABLE accounts AUTO_INCREMENT=602;
 /* Evan Krohn 2/19/2021 */
 ALTER TABLE `example_db_1`.`api_inserts` 
 ADD INDEX `get_next` (`status` ASC, `priority` DESC, `id` ASC) VISIBLE;
-;
 
 /* Rohan Sureshkumar 3/13/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
@@ -182,3 +181,51 @@ ALTER TABLE `example_db_1`.`eid_groups`
 CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
+
+/* Rohan Sureshkumar 5/8/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
+ADD COLUMN `city` VARCHAR(50) NULL DEFAULT NULL AFTER `affiliate_id`,
+ADD COLUMN `state` VARCHAR(2) NULL DEFAULT NULL AFTER `city`,
+ADD COLUMN `zip_code` VARCHAR(10) NULL DEFAULT NULL AFTER `state`,
+ADD COLUMN `phone` BIGINT NULL DEFAULT NULL AFTER `zip_code`;
+
+/* Lydia Qiao 5/13/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
+
+/* Lydia Qiao 5/14/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
+
+/* Rohan Sureshkumar 5/26/21 */
+CREATE TABLE `example_db_1`.`partners` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `partner_id` VARCHAR(15) NOT NULL,
+  `partner_name` VARCHAR(127) NOT NULL,
+  `sector_id` INT NULL,
+  `contact_name` VARCHAR(127) NULL,
+  `email` VARCHAR(127) NULL,
+  `phone` BIGINT NULL,
+  `address` VARCHAR(255) NULL,
+  `city` VARCHAR(63) NULL,
+  `state` VARCHAR(2) NULL,
+  `zip` INT NULL,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `partner_id_UNIQUE` (`partner_id` ASC) VISIBLE)
+COMMENT = 'Table to store partners';
+
+/* Rohan Sureshkumar 5/29/21 */
+INSERT INTO partners(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
+values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ('PCALF', 'MFA Power Calf', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ('ILS', 'ILS, Inc.', 6, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+
+/* Rohan Sureshkumar 5/29/21 */
+ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
+
+/* Rohan Sureshkumar 6/6/2021 */
+ALTER TABLE `example_db_1`.`account_users` 
+ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
