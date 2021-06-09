@@ -353,10 +353,6 @@ export class SalesGroupViewer {
             thumb.className = "thumb";
             video.append(thumb);
 
-            let embed = document.createElement("div");
-            embed.className = "embed-responsive embed-responsive-16by9";
-            thumb.append(embed);
-
             let videos = this.data.reported.videos;
             var videoUrls = [];
 
@@ -369,7 +365,7 @@ export class SalesGroupViewer {
                 }
             }
 
-            new BootstrapCarousel(videoUrls, embed, "video");
+            new BootstrapCarousel(videoUrls, video, "video");
 
             videoNavLink.onclick = videoOnClick();
             photoNavLink.onclick = photoOnClick();

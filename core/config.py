@@ -45,8 +45,7 @@ CSP = {
         'fonts.googleapis.com',
         'http://localhost:5000',
         'blocktrustnetwork.com',
-        'data:',
-        's3.console.aws.amazon.com'
+        'data:'
     ]
 }
 
