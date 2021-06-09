@@ -1,5 +1,7 @@
 import json
 from ..tables import zip_codes
+
+
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -10,6 +12,7 @@ class SalesGroupsException(Exception):
             reason: the reason for the exception
         """
         super().__init__(reason)
+
 
 """
 Sales group "reported" column is for user-reported information, aka untrustworthy
@@ -95,7 +98,7 @@ class SalesGroups:
 
         Params:
             account: the account id
-        
+
         Returns:
             A list of dictionaries
 
@@ -149,7 +152,7 @@ class SalesGroups:
             delivery_location: city and state of the zip code
             start: The start time
             end: The end time
-            auction_sale: The auction sale ID 
+            auction_sale: The auction sale ID
         """
         market_location = self._db.zip_codes.get_locations(zip_code)
         self._db.execute(
@@ -166,8 +169,8 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
-                "market_location":market_location,
-                "delivery_location":delivery_location,
+                "market_location": market_location,
+                "delivery_location": delivery_location,
                 "auction_sale": auction_sale
             }
         )
@@ -187,16 +190,16 @@ class SalesGroups:
             limit: Number of records to select
             breed, minimum_weight, preconditioning_program, process_verified_program:
                 Searches in reported, None (default) to disable
-        
+
         Returns:
             A list of sales group rows
 
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
-        
-        #TODO: Optimize
-        #TODO: Add skip, limit
+
+        # TODO: Optimize
+        # TODO: Add skip, limit
 
         additionals = []
         sql_additionals_total = ""

@@ -2,7 +2,6 @@ from copy import deepcopy
 from .. import database
 
 
-
 class AccountUser:
 
     def __init__(self, db: 'database.Database', row):

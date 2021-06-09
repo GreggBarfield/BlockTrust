@@ -204,7 +204,7 @@
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
-                        <p class="mt-2 mb-0 text-white" id="cart_status_message" style="display:none;">Adding your items to cart000000...</p>
+                        <p class="mt-2 mb-0 text-white" id="cart_status_message" style="display:none;">Adding your items to cart...</p>
                         <p class="mt-2 mb-0" style="display:none;" id="cart_error_message">Error adding items to cart...</p>
                     </form>
             </div><!-- / modal-footer -->
@@ -259,6 +259,8 @@
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
+                        <p class="mt-2 mb-0 text-white" id="cart_status_message" style="display:none;">Adding your items to cart...</p>
+                        <p class="mt-2 mb-0" style="display:none;" id="cart_error_message">Error adding items to cart...</p>
                     </form>
 
             </div><!-- / modal-footer -->
@@ -475,7 +477,7 @@
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
                         <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
-                            <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
+                            <button type="submit" class="btn btn-primary m-2" onclick="document.getElementById('product6').style.display='none'">ADD TO CART</button>
                         </div><!-- / column -->
                     </form>
 

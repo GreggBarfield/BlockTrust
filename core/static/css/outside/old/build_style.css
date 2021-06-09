@@ -9870,11 +9870,7 @@ form label {
   .input-group i + .form-control {
     padding-left: 25px; }
 
-<<<<<<< HEAD
- .form-control:focus {
-=======
 .form-control:focus {
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
   border-color: #2d3037; }
 
 .form-group {
@@ -11017,9 +11013,4 @@ form label {
     font-size: 40px;
     line-height: 40px; } }
 
-<<<<<<< HEAD
 /*# sourceMappingURL=../css/style.css.map */
-
-=======
-/*# sourceMappingURL=../css/style.css.map */
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f

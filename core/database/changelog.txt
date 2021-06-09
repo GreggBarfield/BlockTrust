@@ -182,7 +182,6 @@ CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
-<<<<<<< HEAD
 /* Nisheet Thakur 05/31/2021*/
 CREATE TABLE product_table(
   prod_no INT,
@@ -234,7 +233,6 @@ CREATE TABLE transactions(
   trans_date DATE
 )
 
-=======
 /* Rohan Sureshkumar 5/8/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
@@ -282,4 +280,3 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 /* Rohan Sureshkumar 6/6/2021 */
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f

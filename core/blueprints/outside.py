@@ -92,16 +92,16 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'city':None, 'state':None, 'zip_code':None,
-            'username':None, 'email':None, 'password':None, 'confirm_password':None
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
-                raise ExportException("'" + required_field.capitalize().replace("_"," ") + "' does not have a value")
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
 
         # Sign up
         try:
@@ -113,9 +113,9 @@ def serve_signup_action():
                 last_name=required['last_name'],
                 password=required['password'],
                 confirm_password=required['confirm_password'],
-                company = required['company'],
-                affiliate_id = request.form['affiliate_id'],
-                sector = required['sector'],
+                company=required['company'],
+                affiliate_id=request.form['affiliate_id'],
+                sector=required['sector'],
                 city=required['city'],
                 state=required['state'],
                 zip_code=required['zip_code']
@@ -134,7 +134,6 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-<<<<<<< HEAD
         # Sign up worked, now log in and redirect
         try:
             auth.login(
@@ -148,11 +147,9 @@ def serve_signup_action():
             return jsonify({"redirect": "/email_not_verified"})
         except auth.UsersException as e:
             raise ExportException("internal error in Users.login")
-=======
-        
-        #TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
-        raise ExportException("Success!")
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
+
+        # TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
+        # raise ExportException("Success!")
     except ExportException as e:
         return jsonify({"error": str(e)})
 
@@ -245,17 +242,13 @@ def serve_confirm(tok):
 @bp.route('/email_not_verified', methods=['GET'])
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
-<<<<<<< HEAD
 
-=======
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
 
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
-<<<<<<< HEAD
 
 # Routes for shop, shopping cart, product and checkout pages
 
@@ -277,9 +270,11 @@ def serve_add_to_cart():
         quantity = int(request.form['quantity_1'])
         all_total_price = 0
 
+        # Getting product details from database
         price = auth.get_product_price(float(prod_no))
         product = auth.get_product_data(prod_no)
 
+        # Calculating total price and creating a key, value pair to add to SESSION_SHOPPING_CART
         total_price = round(price*quantity, 2)
         product_order = {prod_no: {
             'name': product['product'],
@@ -293,6 +288,7 @@ def serve_add_to_cart():
         if SESSION_SHOPPING_CART in session:
 
             if prod_no in session[SESSION_SHOPPING_CART]:
+                # Updating product quantity in shopping cart if product is already present in cart
                 for key, value in session[SESSION_SHOPPING_CART].items():
                     if prod_no == key:
                         old_quantity = session[SESSION_SHOPPING_CART][key]['quantity']
@@ -300,18 +296,25 @@ def serve_add_to_cart():
                         session[SESSION_SHOPPING_CART][key]['quantity'] = total_quantity
                         session[SESSION_SHOPPING_CART][key]['total_price'] = round(total_quantity * price, 2)
             else:
+                # Adding product key, value pair to SESSION_SHOPPING_CART
                 session[SESSION_SHOPPING_CART] = dict(list(session[SESSION_SHOPPING_CART].items()) + list(product_order.items()))
             for key, value in session[SESSION_SHOPPING_CART].items():
+                # Updating total price of products in cart
                 individual_price = value['total_price']
                 all_total_price = all_total_price + individual_price
         else:
+            # Creating entry if SESSION_SHOPPING_CART is not present in session
             session[SESSION_SHOPPING_CART][prod_no] = product_order
             all_total_price = total_price
+        # Updating total price, shipping and tax information
         session[TRANSACTION_VALUES]["all_total_price"] = round(all_total_price, 2)
-        session[TRANSACTION_VALUES]["total_tax"] = 0
-        session[TRANSACTION_VALUES]["grand_total"] = session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"]
-        return jsonify({"redirect": "/shop"})
-        # return outside_render("shop/shop_homepage.html")
+        total_tax = round(session[TRANSACTION_VALUES]["all_total_price"] * 0.0825, 2)
+        session[TRANSACTION_VALUES]["total_tax"] = total_tax
+        session[TRANSACTION_VALUES]["grand_total"] = round(session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"], 2)
+        if(prod_no == "1"):
+            return jsonify({"redirect": "/shop"})
+        else:
+            return outside_render("shop/shop_homepage.html")
     except ExportException as e:
         return jsonify({"error": e})
 
@@ -326,21 +329,25 @@ def serve_shopping_cart():
 @bp.route('/shopping-cart/<code>', methods=['GET', 'POST'])
 def serve_remove_from_cart(code):
     try:
-        all_total_price = 0
+        all_total_price = session[TRANSACTION_VALUES]["all_total_price"]
         session.modified = True
         for item in session[SESSION_SHOPPING_CART].items():
+            # Looking for product in SESSION_SHOPPING_CART and deleting product entry
             if item[0] == code:
+                all_total_price = 0
                 session[SESSION_SHOPPING_CART].pop(code, None)
-                print("---------Popped item")
                 if SESSION_SHOPPING_CART in session:
                     for key, value in session[SESSION_SHOPPING_CART].items():
+                        # Updating total price
                         individual_price = float(session[SESSION_SHOPPING_CART][key]['total_price'])
                         all_total_price = all_total_price + individual_price
                 break
 
+        # Updating total price, shipping and tax information
         session[TRANSACTION_VALUES]["all_total_price"] = round(all_total_price, 2)
-        session[TRANSACTION_VALUES]["total_tax"] = 0
-        session[TRANSACTION_VALUES]["grand_total"] = session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"]
+        total_tax = round(session[TRANSACTION_VALUES]["all_total_price"] * 0.0825, 2)
+        session[TRANSACTION_VALUES]["total_tax"] = total_tax
+        session[TRANSACTION_VALUES]["grand_total"] = round(session[TRANSACTION_VALUES]["all_total_price"] + session[TRANSACTION_VALUES]["total_tax"] + session[TRANSACTION_VALUES]["total_shipping"], 2)
         # return jsonify({"redirect": "/shopping-cart"})
         return outside_render("shop/shopping_cart.html")
     except ExportException as e:
@@ -356,10 +363,10 @@ def serve_checkout():
 
 @bp.route('/checkout', methods=['POST'])
 def serve_checkout_submit():
-
+    # Use this print statement to view form data submitted on checkout
+    # print(request.form)
+    # Need to implement checking functions to check validity of entered data
     try:
         return jsonify({"redirect": "/checkout"})
     except ExportException as e:
         return jsonify({"error": str(e)})
-=======
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f

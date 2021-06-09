@@ -46,30 +46,21 @@ class Account:
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
 
-<<<<<<< HEAD
-=======
-
     def affiliate_id(self):
         return self._row['affiliate_id']
-
 
     def city(self):
         return self._row['city']
 
-
     def state(self):
         return self._row['state']
-
 
     def zip(self):
         return self._row['zip']
 
-
     def phone(self):
         return self._row['phone']
 
-
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
     def stripe_paid(self):
         return self._row['stripe_paid']
 
@@ -82,12 +73,7 @@ class Account:
     def stripe_customer_id(self):
         return self._row['stripe_customer_id']
 
-<<<<<<< HEAD
-    def add_user(self, user):
-=======
-
     def add_user(self, user, is_admin=0):
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
         """Add a user to this account.
 
         Params:

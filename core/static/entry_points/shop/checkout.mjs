@@ -16,8 +16,8 @@ let form1 = new AsyncForm({
     form: checkoutForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
-    redirectmessage: "Removed from cart!",
-    loadingMessage:"Removing items from cart...", 
+    redirectmessage: "Payment details submitted",
+    loadingMessage:"Hang on, submitting your payment...", 
     getData: ()=>{
         return {
             first_name: checkoutForm.find("input[name='first-name']").val(),

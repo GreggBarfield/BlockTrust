@@ -4,19 +4,16 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-<<<<<<< HEAD
 
 SESSION_USER_ID_VAR = "user_id"
 SESSION_ACCOUNT_ID_VAR = "account_id"
 SESSION_SHOPPING_CART = "shopping_cart"
 ALL_TOTAL_PRICE = "all_total_price"
 TRANSACTION_VALUES = "transaction_values"
-=======
-#since session objects are easily decoded, we use key names which make no sense
+# since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
->>>>>>> 489780fe94bd27621f386e1ade6c04241685517f
 
 
 class AuthException(Exception):
@@ -149,7 +146,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     city = Users._format_field(city)
     state = Users._format_field(state)
     zip_code = Users._format_field(zip_code)
-
 
     # Password should equal confirm_password
 

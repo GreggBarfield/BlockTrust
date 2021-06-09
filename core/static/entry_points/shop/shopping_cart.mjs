@@ -10,6 +10,7 @@ if(cartForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=cartForm[0].getAttribute("request_redirect_to");
 }
 
+
 let form = new AsyncForm({
     action:"/shop",
     form: cartForm[0],
