@@ -34,24 +34,6 @@ export class EditSalesGroupWidget extends Widget {
 
     makeForm() {
 
-        let that = this;
-
-        let card = document.createElement("div");
-        card.className = "card";
-
-        let cardHeader = document.createElement("h5");
-        cardHeader.className = "card-header";
-        cardHeader.textContent = "Edit Sales Group " + this.salesGroupID;
-        card.append(cardHeader);
-
-        let cardBody = document.createElement("div");
-        cardBody.className = "card-body";
-        card.append(cardBody);
-
-
-        let form = document.createElement("form");
-        cardBody.append(form);
-        
         // Sections
 
         function createSection(form, name) {
@@ -59,11 +41,11 @@ export class EditSalesGroupWidget extends Widget {
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
-    
+
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
-    
+
             form.append(document.createElement("br"));
             return row;
         }
@@ -115,7 +97,7 @@ export class EditSalesGroupWidget extends Widget {
             return dateFormGroup;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}) {
+        function createSelect({ row, name, options, values, multiple, tags, placeholder }) {
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
@@ -173,6 +155,38 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
 
+        let that = this;
+        let card = document.createElement("div");
+        card.className = "card";
+
+        let cardHeader = document.createElement("h3");
+        cardHeader.className = "col-form-label";
+        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
+
+        let nameId = "domuid" + window.DOMUIDNext++;
+        let nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = this.data.group_name || null;
+        nameInput.className = "form-control col-sm-2";
+        nameInput.style = "padding-left:15px";
+        nameInput.id = nameId;
+
+        let editGroupName = document.createElement("div");
+        editGroupName.className = "card-header form-group row";
+        editGroupName.style = "padding:5px;padding-left: 15px;"
+
+        editGroupName.append(cardHeader);
+        editGroupName.append(nameInput);
+        card.append(editGroupName);
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+
+        let form = document.createElement("form");
+        cardBody.append(form);
+
         // Marketing
 
         let marketingRow = createSection(form, "Marketing");
@@ -181,7 +195,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
-        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null);
+        let marketingLocation = createText(marketingRow, "Delivery Location", this.data.delivery_location || null);
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
@@ -190,7 +204,7 @@ export class EditSalesGroupWidget extends Widget {
         marketingAuctionSale.getFormGroup().classList.add("col-md-4");
 
         // Characteristics
-        
+
         let characteristicsRow = createSection(form, "Characteristics");
 
         let characteristicBreeds = createSelect({
@@ -316,7 +330,7 @@ export class EditSalesGroupWidget extends Widget {
         let commentsRow = document.createElement("div");
         commentsRow.className = "form-row";
         form.append(commentsRow);
-        
+
         let commentsGroup = document.createElement("div")
         commentsGroup.className = "form-group col";
         commentsRow.append(commentsGroup);
@@ -339,7 +353,7 @@ export class EditSalesGroupWidget extends Widget {
         let eidsRow = document.createElement("div");
         eidsRow.className = "form-row";
         form.append(eidsRow);
-        
+
         let eidsGroup = document.createElement("div")
         eidsGroup.className = "form-group col";
         eidsRow.append(eidsGroup);
@@ -347,7 +361,7 @@ export class EditSalesGroupWidget extends Widget {
         function parseEIDs(ta) {
             let eidStr = eidsTA.value.replace(/[^0-9,]/g, "");
             let eidStrs = eidStr.split(",");
-            let eids= [];
+            let eids = [];
             for (const eidStr of eidStrs) {
                 if (!isNaN(parseInt(eidStr))) {
                     eids.push(parseInt(eidStr));
@@ -356,7 +370,7 @@ export class EditSalesGroupWidget extends Widget {
             return eids;
         }
         this.parseEIDs = parseEIDs;
-        
+
         let eidsLabel = document.createElement("label")
         eidsGroup.append(eidsLabel);
 
@@ -404,7 +418,7 @@ export class EditSalesGroupWidget extends Widget {
         this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
-        
+
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
         statusMessage.className = "mt-2 mb-0";
@@ -463,12 +477,13 @@ export class EditSalesGroupWidget extends Widget {
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
-                    auction_sale: marketingAuctionSale.getID()
+                    auction_sale: marketingAuctionSale.getID(),
+                    "group_name": nameInput.value
                 }
             }
-        });     
-        
-        submitButton.addEventListener("click", ()=>{
+        });
+
+        submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
             if (this.allGood()) {
                 function progress(perc) {
@@ -476,9 +491,9 @@ export class EditSalesGroupWidget extends Widget {
                 }
                 that.progressBar.show();
                 this.fileEditor.upload(progress)
-                .then(()=>{
-                    this.asyncForm.submit();
-                });
+                    .then(() => {
+                        this.asyncForm.submit();
+                    });
             }
         });
     }
@@ -498,15 +513,15 @@ export class EditSalesGroupWidget extends Widget {
                 }
             }
 
-            for (let i = 0; i< eids.length;i++) {
-                for (let i2 =i+1;i2<eids.length;i2++) {
+            for (let i = 0; i < eids.length; i++) {
+                for (let i2 = i + 1; i2 < eids.length; i2++) {
                     if (eids[i] == eids[i2]) {
                         throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
                     }
                 }
             }
         }
-        catch(error) {
+        catch (error) {
             this.showError(error);
             return false;
         }
@@ -563,7 +578,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
                             )
                         });
                     }
-                    return {results};
+                    return { results };
                 },
             },
             placeholder: 'Type here to search...',
@@ -571,7 +586,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
             allowClear: true
         });
     }
-    
+
     /**
      * Gets the ID of the auction sale selected.
      */
