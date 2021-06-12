@@ -6,6 +6,8 @@ export class BasicFileEditor {
     constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
         let that = this;
         this.files = [];
+        //this.restrictions is a dictionary which has following items supported:
+        //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
         this.fileAuths = fileAuths;
 
@@ -119,18 +121,39 @@ export class BasicFileEditor {
         }
     }
 
-    acceptableFile(file) {
+    acceptableFile(file, restrictions={}) {
         // Just to make it a little less confusing for the users, not for security
         if (file.size > 10 * 1000 * 1000) {
             return "Sorry, " + file.name + " is too big (" + Math.floor(file.size / (1000 * 1000)) + "MB, the limit is 10MB).";
         }
-        var allowedExtensions = 
-        /(\.jpg|\.jpeg|\.png|\.gif)$/i;
-  
-        if (!allowedExtensions.exec(file)) {
-            return "Sorry, the file " + file.name + " is not in .jpg, .jpeg, .png, or .gif format.";
-} 
+
+        const {error, message} = this.checkFileType(file, restrictions);
+
+        if(error)
+            return message;
+
         return null;
+    }
+
+    checkFileType(file, restrictions) {
+        if('filetype' in restrictions) {
+            var result = {error: true, message:""};
+            if(restrictions.filetype.includes("image"))
+            {
+                const  fileType = file['type'];
+                const validImageTypes = ['image/gif','image/jpg', 'image/jpeg', 'image/png'];
+                if (!validImageTypes.includes(fileType)) {
+                    // invalid file type code goes here.
+                    result.error = true;
+                    result.message = "Sorry, the file " + file.name + " is not in .jpg, .jpeg, .png, or .gif format.";
+                }
+                else {
+                    result.error = false;
+                    result.message = "";
+                }
+            }
+            return result;           
+        }
     }
 
     checkInput() {
@@ -138,7 +161,7 @@ export class BasicFileEditor {
         this.input.value = "";
        
         for (let file of inputFiles) {
-            let r = this.acceptableFile(file);
+            let r = this.acceptableFile(file, this.restrictions);
             if (r === null) {
                 this.files.push({
                     "name": file.name,
