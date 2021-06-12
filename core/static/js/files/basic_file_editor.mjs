@@ -136,7 +136,7 @@ export class BasicFileEditor {
 
     checkFileType(file, restrictions) {
         if('filetype' in restrictions) {
-            var result = {error: true, message:""};
+            let result = {error: true, message:""};
             if(restrictions.filetype.includes("image"))
             {
                 const  fileType = file['type'];
