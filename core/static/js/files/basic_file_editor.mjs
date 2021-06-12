@@ -128,7 +128,6 @@ export class BasicFileEditor {
         }
 
         const {error, message} = this.checkFileType(file, restrictions);
-
         if(error)
             return message;
 
