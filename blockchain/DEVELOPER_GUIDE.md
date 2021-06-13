@@ -17,6 +17,9 @@
 * [ Important Notes ](#markdown-header-important-notes)
 * [ Client API ](#markdown-header-client-api)
 * [ Other Configurations ](#markdown-header-other-configurations)
+* [ DevOps Notes ](#markdown-header-devops-notes)
+   * [ Decrease the size of EBS volume in EC2 instance ](#markdown-header-decrease-the-size-of-ebs-volume-in-ec2-instance)
+   * [ PM2 Log Management ](#markdown-header-pm2-log-management)
 
 # ###################
 # Production
@@ -253,9 +256,9 @@ References:
    ```
    The above command should show the free space in the blockchainvolume directory.
 
-0. (***Optional***) To unmount the volume, you have to use the following command.
+0. (***Optional***) *To unmount the volume, you have to use the following command*.
    ```
-   umount /dev/xvdf
+   (optional) umount /dev/xvdf
    ```
 
 
@@ -412,6 +415,14 @@ In directory [blockchain/record-management-basic/application-javascript](record-
    ```
    pm2 start server.js
    ```
+   Install log rotation
+      ```
+      pm2 install pm2-logrotate
+      ```
+   Set the max size for log rotation.
+      ```
+      pm2 set pm2-logrotate:max_size 50mb
+      ```
    Now even if you close the terminal, the app will still be running. For automatically running PM2 when the server restarts, issue the following command:
    ```
    pm2 startup
@@ -447,6 +458,33 @@ In directory [blockchain/record-management-basic/application-javascript](record-
    pm2 restart server
    ```
 
+### **Infrastructure Overview**
+After the blockchain network is deployed, we can run the following commands to examine its components. References: 
+
+Display all running docker containers by running:
+```
+docker ps -a
+```
+![picture](img/docker_containers1.png)
+![picture](img/docker_containers2.png)
+
+Each node and user that interacts with a Fabric network needs to belong to an organization in order to participate in the network. The network includes one peer organizations, Org1 (container name: `peer0.org1.blocktrustnetwork.com`). It also includes a single orderer organization(container name: `orderer.blocktrustnetwork`) that maintains the ordering service of the network. We have used Hyperledger Fabric Command Line Interface(CLI)(container name: `cli`) to set up the network and install and instantiate the chaincode. We use CouchDB as our state database(container name: `couchdb0`). The container `ca_org1` is Org1's Certificate Authority which is used to register an identity. The container `ca_orderer` is the orderer's Certificate Authority. The container `dev-peer0.org1.blocktrustnetwork.com-basic_1.0-ffxxxxxx...` is a specific 'Chain Code Container' which gets created for each peer running the network.
+
+The following are snippets from [Hyperledger-Fabric](https://hyperledger-fabric.readthedocs.io/en/release-2.2/test_network.html#the-components-of-the-test-network) which provide more details.
+```
+Peers are the fundamental components of any Fabric network. Peers store the blockchain ledger and validate transactions before they are committed to the ledger. Peers run the smart contracts that contain the business logic that is used to manage the records on the blockchain ledger.
+
+An ordering service allows peers to focus on validating transactions and committing them to the ledger. After ordering nodes receive endorsed transactions from clients, they come to consensus on the order of transactions and then add them to blocks. The blocks are then distributed to peer nodes, which add the blocks to the blockchain ledger.
+
+Every Fabric network also includes an ordering service. The network uses a single node Raft ordering service that is operated by the orderer organization.
+```
+
+Display client application by running:
+```
+pm2 server
+```
+![picture](img/node_server.png)  
+
 ### **Credentails Backup**
 We need to back up the credentials files of the blockchain network because we can use these files to access the blockchain.
 In directory [blockchain/scripts](scripts), execute the script:
@@ -464,6 +502,7 @@ Here is an example:
 **sample backup file in s3 bucket**:  
 
 ![picture](img/s3_backup_file.png)  
+
 
 
 ## **Blockchain Network Restoration**
@@ -715,3 +754,163 @@ Here is a snippet from the configuration file:
         # max bytes will result in a batch larger than preferred max bytes.
         PreferredMaxBytes: 512 KB
 ```
+
+# ##################
+# DevOps Notes
+# ##################
+
+
+## **Optional**
+### **Decrease the size of EBS volume in EC2 instance**
+
+**Notes:** The following instructions is for decreasing the **external ebs volume(which stores the docker volumes)**. If you want to decrease the system volume attached to ec2 instance, you need addtinal steps described in "Prepare new volume" in https://medium.com/@m.yunan.helmy/decrease-the-size-of-ebs-volume-in-your-ec2-instance-ea326e951bce.
+We can use some of the following steps if we want to **RESTORE** data from a volume snapshot.
+
+1. Make sure the ec2 instance is **stopped** to prevent inconsistencies.
+   - Stop server. You can see the status is **stopped**.
+   ```
+   pm2 stop server
+   ```
+   - Stop all running docker containers: 
+   ```
+   docker kill $(docker ps -q)
+   ```
+   - Make sure all containers are stopped. See their STATUS are Exited.
+   ```
+   docker ps -a
+   ```
+   - Go to the ec2 dashboard. Select the ec2 instance you want to stop. Click **Instance state** > **Stop Instance**
+   - Wait for the instance to stop.
+2. Snapshot the old volume.
+   - Go to EBS volume list from EC2 Dashboard.
+   - Right click the volume
+   - Click **Create Snapshot**
+   - Add description. e.g. snapshot-blockchain-external-volume-dev
+   - Add Tag. e.g. Key: name. value: snapshot-blockchain-external-volume-dev
+   - Click button **Create Snapshot**
+   - Wait for the process to be completed.
+
+3. Create a new smaller EBS volume
+   - Go to ELastic BLock Store > Volumes
+   - Click **Create Volume**
+   - Choose the same volume type as the old volume. e.g. **General Purpose SSD(gp3)**
+   - Enter the desired size.
+   - Choose the same availability zon as the instance. e.g. **us-east-2c**
+   - Add tag: key:name value: blockchain-external-volume-dev
+4. Attach the new volume
+   - Right click on the new volume.
+   - Click **Attach Volume**.
+   - Choose instance name.
+   - Click **Attach**
+
+5. Format the new Volume
+   - Start the instance and login to SSH.
+   - List all available volumes. Note down the old volume's label name. e.g. xvdf. We will need this label name latter when we reatteach the new volume to the device which the old volume is connected to.
+      ```
+      lsblk
+      ```
+   - View free disk space. Replace the VOLUME_LABEL with the desired ones. e.g. xvdf
+      ```
+      df -hT /dev/VOLUME_LABEL
+      ```
+   - Check whether the new volume has any data. Replace the NEW_VOLUME with your new volume.
+      ```
+      sudo file -s /dev/NEW_VOLUME
+      ```
+   - If the output is something like `/dev/xvdg: data`, that means it's empty in xvdg. Otherwise, if you see something like `/dev/xvdf: SGI XFS filesystem data (blksz 4096, inosz 512, v2 dirs)`, this means the volume xvdf has data. **DO NOT** format the one with existing data!!!
+   - Format the volume. Make sure you are formating it in the same format as the old one. In the example below, the format is xfs. You can run `df -hT /dev/VOLUME_LABEL` to check the format.
+      ```
+      sudo mkfs -t xfs /dev/NEW_VOLUME
+      ```
+6. Mount the new volume
+   - Create directory to mount.
+      ```
+      sudo mkdir /mnt/new-volume
+      ```
+   - Mount new volume into the created directory.
+      ```
+      sudo mount /dev/NEW_VOLUME /mnt/new-volume
+      ```
+   - Check volumes.
+      ```
+      df -h
+      ```
+7. Copy data from old volume to the new volume
+   - Copy data using `rysnc`.
+      ```
+      sudo rsync -axv /blockchainvolume/ /mnt/new-volume/
+      ```
+   - Wait until it's finsihed.
+8. Detach old volume.
+   - Stop the ec2 instance.
+   - Detach the old volume.
+   - Detach the new volume.
+   - Attach new volume to the device where the old volume was connected to.
+   - Start the instance.
+   - We can delete the mount point /mnt/new-volume since we use the old device name which has been attached to /blockchainvolume already.
+      ```
+      sudo rm -r /mnt/new-volume/
+      ```
+   - If you display all docker containers, you can see all the stopped containers.
+      ```
+      docker ps -a
+      ```
+   - To restart all stopped docker containers, run:
+      ```
+      docker start $(docker ps -a -q -f status=exited)
+      ```
+   - Now all the containers should be running.
+   - We could delete the old volume and the snapshot of the old volume if our system works correctly. We can also keep it for a month before deleting it just in case.
+
+### **PM2 Log Management**
+https://pm2.keymetrics.io/docs/usage/log-management/
+
+- Display all apps logs
+   ```
+   pm2 logs
+   ```
+- Display only APP_NAME application logs
+   ```
+   pm2 logs APP_NAME
+   ```
+- Install pm2-logrotate for size limited log rotation
+   ```
+   pm2 install pm2-logrotate
+   ```
+- More settings: https://github.com/keymetrics/pm2-logrotate#configure
+   ```
+   pm2 set pm2-logrotate:max_size 1K (1KB)
+   pm2 set pm2-logrotate:compress true (compress logs when rotated)
+   pm2 set pm2-logrotate:rotateInterval '*/1 * * * *' (force rotate every minute)
+   ```
+
+### **Docker Container Log Management**
+By default, Docker uses the json-file log driver and saves those logs in the overlay folder. Docker doesn’t limit the size of the files or how many log files there can be for a single container. Three ways to rotate dokcer log.
+- Use CLI
+   ```
+   docker run --log-opt max-size=10m --log-opt max-file=5 my-app:latest
+   ```
+   This sets a maximum of five log files with a max size of 10 Mb each. So at most 50 Mb of logs for that container.
+- Use Docker-compose
+   ```
+   my-app:
+    image: my-app:latest
+    logging:
+        driver: "json-file"
+        options:
+            max-file: 5
+            max-size: 10m
+   ```
+- Configure this as a default in daemon settings
+https://docs.docker.com/config/containers/logging/configure/#configure-the-logging-driver-for-a-container
+
+To view log of a contianer:
+   - Use container ID:
+   ```
+   docker logs CONTAINER_ID
+   ```
+   - Use container name:
+   ```
+   docker logs CONTAINER_NAME
+   ``` 
+   e.g. `docker logs peer0.org1.blocktrustnetwork.com`
