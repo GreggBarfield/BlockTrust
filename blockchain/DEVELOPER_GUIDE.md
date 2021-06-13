@@ -20,6 +20,7 @@
 * [ DevOps Notes ](#markdown-header-devops-notes)
    * [ Decrease the size of EBS volume in EC2 instance ](#markdown-header-decrease-the-size-of-ebs-volume-in-ec2-instance)
    * [ PM2 Log Management ](#markdown-header-pm2-log-management)
+   * [ Docker Container Log Management ](#markdown-header-docker-container-log-management)
 
 # ###################
 # Production
@@ -344,6 +345,19 @@ The default location for creating a docker volume is in `/var/lib/docker/volumes
 
 **Note:** be careful in production and also locally! You also have to move the existing data from /var/lib/docker/ to the new location for your docker install to work as expected. If we perform all the previous steps before we bring up the blockchain network for the first time, then we don't need to be worried about moving existing data to the new location because no blockchain-related data is generated yet.
 
+#### **Configure the default logging driver in daemon settings**
+This can be done by adding the following values in `/etc/docker/daemon.json`. Create this file if it doesn’t exist. Paste the following in `daemon.json`.
+   ```
+   {
+      "log-driver": "json-file",
+      "log-opts": {
+         "max-size": "10m",
+         "max-file": "3",
+         "labels": "production_status",
+         "env": "prod"
+      }
+   }
+   ```
 
 ## **Blockchain Network Setup**
 
@@ -886,11 +900,14 @@ https://pm2.keymetrics.io/docs/usage/log-management/
 
 ### **Docker Container Log Management**
 By default, Docker uses the json-file log driver and saves those logs in the overlay folder. Docker doesn’t limit the size of the files or how many log files there can be for a single container. Three ways to rotate dokcer log.
+
+**Set the log rotation parameters**
 - Use CLI
    ```
    docker run --log-opt max-size=10m --log-opt max-file=5 my-app:latest
    ```
    This sets a maximum of five log files with a max size of 10 Mb each. So at most 50 Mb of logs for that container.
+
 - Use Docker-compose
    ```
    my-app:
@@ -901,10 +918,22 @@ By default, Docker uses the json-file log driver and saves those logs in the ove
             max-file: 5
             max-size: 10m
    ```
-- Configure this as a default in daemon settings
-https://docs.docker.com/config/containers/logging/configure/#configure-the-logging-driver-for-a-container
 
-To view log of a contianer:
+- Configure the default logging driver in daemon settings
+This can be done by adding the following values in `/etc/docker/daemon.json`. Create this file if it doesn’t exist. Paste the following in `daemon.json`.
+   ```
+   {
+      "log-driver": "json-file",
+      "log-opts": {
+         "max-size": "10m",
+         "max-file": "3",
+         "labels": "production_status",
+         "env": "prod"
+      }
+   }
+   ```
+
+**View log of a contianer**
    - Use container ID:
    ```
    docker logs CONTAINER_ID
@@ -914,3 +943,10 @@ To view log of a contianer:
    docker logs CONTAINER_NAME
    ``` 
    e.g. `docker logs peer0.org1.blocktrustnetwork.com`
+
+**Find the log**  
+By default, the stdout and stderr of the container are written in a JSON file located in `/var/lib/docker/containers/[container-id]/[container-id]-json.log`. However, since we have set the docker location in external ebs volume, the log it's located in
+`/blockchainvolume/containers/[container-id]/[container-id]-json.log`
+
+Files or directories in blockchainvolume.
+![picture](img/blockchainvolume_output.png)  
