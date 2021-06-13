@@ -36,6 +36,12 @@ services:
     container_name: ca_org1
     networks:
       - test
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m
+    
 
   ca_orderer:
     image: hyperledger/fabric-ca:latest
@@ -55,3 +61,8 @@ services:
     container_name: ca_orderer
     networks:
       - test
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m

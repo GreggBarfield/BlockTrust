@@ -61,6 +61,11 @@ services:
       - 7053:7053
     networks:
       - test
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m
 
   peer0.org1.blocktrustnetwork.com:
     container_name: peer0.org1.blocktrustnetwork.com
@@ -99,6 +104,11 @@ services:
       - 7051:7051
     networks:
       - test
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m
   
   cli:
     container_name: cli
@@ -123,3 +133,8 @@ services:
       - peer0.org1.blocktrustnetwork.com
     networks:
       - test
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 5
+        max-size: 10m
