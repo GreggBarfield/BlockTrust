@@ -15,17 +15,19 @@ infoln "********** Upload backup Files (blockchain credentials, log and other se
 infoln "You can press Ctrl+C to exit...\n"
 
 infoln "Please provide the AWS configuration."
+infoln "
 # This will prompt you to enter AWS acces key and other settings.
 # Sample output: 
 # AWS Access Key ID [****************GBGK]: 
 # AWS Secret Access Key [****************jOAS]: 
 # Default region name [us-east-2]: 
-# Default output format [json]: 
+# Default output format [json]:
+" 
 aws configure
 
 # create a bucket btnblockchain
 # aws s3 mb s3://btnblockchainbackup
-destination=$(date +"%d-%m-%Y-%T")
+destination=$(date +"%m-%d-%Y-%T")
 
 echo "new dir $destination"
 
@@ -34,3 +36,5 @@ mkdir -p ../backup
 sudo zip -r ../backup/backup_$destination.zip ../blockchain-network/basic.tar.gz ../blockchain-network/log.txt ../blockchain-network/organizations ../blockchain-network/system-genesis-block ../record-management-basic/application-javascript/wallet
 infoln "Uploading backup_$destination.zip to s3 bucket: $destination"
 aws s3 cp "../backup/backup_$destination.zip" s3://btnblockchainbackup/$destination/;
+
+infoln "Make sure you can find the backup file in the s3 bucket."
