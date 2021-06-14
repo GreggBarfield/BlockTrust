@@ -6,7 +6,7 @@ import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "./messages.mjs";
 
 export class SalesGroupViewer {
-    constructor(data, attachTo=null) {
+    constructor(data, attachTo = null) {
         this.frame = null;
 
         this.box = document.createElement("div");
@@ -42,7 +42,7 @@ export class SalesGroupViewer {
 
         layout.content = document.createElement("div");
         layout.content.className = "row";
-        
+
         layout.content.style = "border:1px solid #c0c0c0;padding:15px;border-radius:25px";
         layout.format.append(layout.content);
 
@@ -73,14 +73,14 @@ export class SalesGroupViewer {
         layout.content.append(layout.tabs);
 
         layout.contact = document.createElement("div");
-        layout.contact.className= "col-12";
+        layout.contact.className = "col-12";
         layout.tabs.append(layout.contact);
 
-        layout.tags =  document.createElement("div");
+        layout.tags = document.createElement("div");
         layout.tags.className = "col-12";
         layout.tabs.append(layout.tags);
 
-        function addInfo(key, value, position, wide=false, highlighting=false) {
+        function addInfo(key, value, position, wide = false, highlighting = false) {
             let str = "";
 
             if (Array.isArray(value)) {
@@ -93,21 +93,20 @@ export class SalesGroupViewer {
                 str = "" + value;
             }
             let kvp = document.createElement("div");
-            kvp.className="row";
-
+            kvp.className = "row";
             let kvpKey = document.createElement("dt");
             kvpKey.className = "col-sm-6";
             kvpKey.textContent = key;
-            
+
             kvp.append(kvpKey);
 
             let kvpValue = document.createElement("dd");
             kvpValue.className = "col-sm-6";
             kvpValue.style.whiteSpace = "pre-wrap";
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
-            
+
             let valueText = document.createElement("p");
-            valueText.className ="text-right";
+            valueText.className = "text-right";
 
             if (highlighting) {
                 urlHighlighter(str, valueText);
@@ -120,7 +119,7 @@ export class SalesGroupViewer {
             kvp.append(kvpValue);
             position.append(kvp);
         }
-        
+
         // Configure header
         {
             let row = document.createElement("div");
@@ -135,31 +134,31 @@ export class SalesGroupViewer {
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
             salesGroupID.style = "display: inline;";
-            salesGroupID .textContent = "Sales Group "+this.data.id; 
+            salesGroupID.textContent = "Sales Group " + this.data.id;
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
-           
+
             sendMessageButton.className = "btn btn-sm btn-primary";
             sendMessageButton.style = "float:right"
             sendMessageButton.textContent = "Contact Seller";
-            sendMessageButton.addEventListener("click", ()=>{
+            sendMessageButton.addEventListener("click", () => {
                 promptNewMessage(this.data.account, this.data.account_name);
             });
             left.append(sendMessageButton);
             let location = document.createElement("div");
-            
+
             let milesAway = "--";
-            
+
             if ("context" in this.data && "milesAway" in this.data.context) {
                 milesAway = Math.floor(this.data.context.milesAway);
             }
             let milesAwayInt = "--"
-            if ( milesAway!= "--"){
+            if (milesAway != "--") {
                 milesAwayInt = parseInt(milesAway);
             }
-            
-            location.style="color:black";           
-            location.textContent = "  Location: "+ this.data.market_location+" ( "+milesAwayInt+" Miles)";
+
+            location.style = "color:black";
+            location.textContent = "  Location: " + this.data.market_location + " ( " + milesAwayInt + " Miles)";
             left.append(location);
         }
 
@@ -168,31 +167,31 @@ export class SalesGroupViewer {
 
             let animalDataCol = document.createElement("div");
             animalDataCol.className = "card";
-            animalDataCol.style ="border-radius: 5%";
+            animalDataCol.style = "border-radius: 5%";
             layout.animalData.append(animalDataCol);
 
             let animalHeader = document.createElement("div");
             animalHeader.className = "card-header";
-            animalHeader.style ="color:#8B4513; height:75px";
+            animalHeader.style = "color:#8B4513; height:75px";
             animalHeader.style.borderBottom = "solid 1px #c0c0c0";
             animalHeader.textContent = "Animal Data";
             animalDataCol.append(animalHeader);
 
             let animalBody = document.createElement("div");
-            animalBody.className ="card-body";
+            animalBody.className = "card-body";
             animalDataCol.append(animalBody);
 
-            addInfo("Breed", this.data.reported.breeds,animalBody);
-            addInfo("Base Weight", this.data.reported.weight,animalBody);
-            addInfo("Wt. Variance", this.data.reported.weight_variance,animalBody);
-            addInfo("Frame", this.data.reported.usda_frame_size,animalBody);
-            addInfo("Horns", this.data.reported.horns,animalBody);
-            addInfo("Precon Program", this.data.reported.preconditioning_program,animalBody);
-            addInfo("Implants", this.data.reported.implants,animalBody);
-            addInfo("Castrated", this.data.reported.castrated,animalBody);
-            addInfo("Vaccinations", this.data.reported.vaccinations,animalBody);
-            addInfo("Feeding Program", this.data.reported.feeding_programs,animalBody);
-            addInfo("PVP Program", this.data.reported.process_verified_program,animalBody);
+            addInfo("Breed", this.data.reported.breeds, animalBody);
+            addInfo("Base Weight", this.data.reported.weight, animalBody);
+            addInfo("Wt. Variance", this.data.reported.weight_variance, animalBody);
+            addInfo("Frame", this.data.reported.usda_frame_size, animalBody);
+            addInfo("Horns", this.data.reported.horns, animalBody);
+            addInfo("Precon Program", this.data.reported.preconditioning_program, animalBody);
+            addInfo("Implants", this.data.reported.implants, animalBody);
+            addInfo("Castrated", this.data.reported.castrated, animalBody);
+            addInfo("Vaccinations", this.data.reported.vaccinations, animalBody);
+            addInfo("Feeding Program", this.data.reported.feeding_programs, animalBody);
+            addInfo("PVP Program", this.data.reported.process_verified_program, animalBody);
 
         }
 
@@ -200,18 +199,18 @@ export class SalesGroupViewer {
         {
             let marketDataCol = document.createElement("div");
             marketDataCol.className = "card";
-            marketDataCol.style ="border-radius: 5%";
+            marketDataCol.style = "border-radius: 5%";
             layout.marketData.append(marketDataCol);
 
             let marketHeader = document.createElement("div");
             marketHeader.className = "card-header";
             marketHeader.style = "color:#8B4513; height:75px";
             marketHeader.style.borderBottom = "solid 1px #c0c0c0";
-            marketHeader.textContent ="Market Data";
+            marketHeader.textContent = "Market Data";
             marketDataCol.append(marketHeader);
 
             let marketBody = document.createElement("div");
-            marketBody.className ="card-body";
+            marketBody.className = "card-body";
             marketDataCol.append(marketBody);
 
             let marketInfo = document.createElement("div");
@@ -220,33 +219,33 @@ export class SalesGroupViewer {
 
             let marketInfoText = document.createElement("dl");
             marketInfoText.className = "dl-horizontal row";
-            
-            addInfo("Total Count",this.data.reported.count, marketBody);
+
+            addInfo("Total Count", this.data.reported.count, marketBody);
             addInfo("Delivery Location", this.data.delivery_location, marketBody);
-            
+
             let daysRemaining = "--";
 
             if ("end" in this.data && this.data.end !== null) {
-                let currentEpoch = Date.now()/1000;
+                let currentEpoch = Date.now() / 1000;
                 daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
             }
-            var date = new Date(this.data.start*1000);
-            addInfo("Sales Date",date.toDateString(),marketBody);
-            addInfo("Days Remaining",daysRemaining,marketBody);
-            
+            var date = new Date(this.data.start * 1000);
+            addInfo("Sales Date", date.toDateString(), marketBody);
+            addInfo("Days Remaining", daysRemaining, marketBody);
+
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
             commentCol.className = "card";
             marketDataCol.append(commentCol);
 
             let commentHeader = document.createElement("div");
-            commentHeader.className ="card-header";
-            commentHeader.style ="color:#8B4513";
-            commentHeader.textContent ="Comments";
+            commentHeader.className = "card-header";
+            commentHeader.style = "color:#8B4513";
+            commentHeader.textContent = "Comments";
             commentCol.append(commentHeader);
 
             let commentBody = document.createElement("div");
-            commentBody.className ="card-body";
+            commentBody.className = "card-body";
             commentBody.textContent = this.data.reported.comments;
             commentCol.append(commentBody);
         }
@@ -255,7 +254,7 @@ export class SalesGroupViewer {
         {
             let mediaDataCol = document.createElement("div");
             mediaDataCol.className = "card";
-            mediaDataCol.style ="border-radius: 5%";
+            mediaDataCol.style = "border-radius: 5%";
             layout.media.append(mediaDataCol);
 
             let mediaHeader = document.createElement("div");
@@ -266,18 +265,18 @@ export class SalesGroupViewer {
             mediaDataCol.append(mediaHeader);
 
             let mediaBody = document.createElement("div")
-            mediaBody.className="card-body";
+            mediaBody.className = "card-body";
             mediaDataCol.append(mediaBody);
 
             let mediaNav = document.createElement("ul");
             mediaNav.className = "nav nav-tabs";
-            mediaNav.id ="myTab";
-            mediaNav.setAttribute("role","tablist");
+            mediaNav.id = "myTab";
+            mediaNav.setAttribute("role", "tablist");
 
             mediaBody.append(mediaNav);
 
             let photoNav = document.createElement("li");
-            photoNav.className="nav-item";
+            photoNav.className = "nav-item";
             mediaNav.append(photoNav);
 
             let photoNavLink = document.createElement("a");
@@ -285,10 +284,10 @@ export class SalesGroupViewer {
             photoNavLink.textContent = "Photos";
             photoNavLink.id = "photo-tab";
             photoNavLink.href = "#photo";
-            photoNavLink.setAttribute("role","tab");
-            photoNavLink.setAttribute("data-toggle","tab");
-            photoNavLink.setAttribute("aria-controls","home");
-            photoNavLink.setAttribute("aria-selected","true");
+            photoNavLink.setAttribute("role", "tab");
+            photoNavLink.setAttribute("data-toggle", "tab");
+            photoNavLink.setAttribute("aria-controls", "home");
+            photoNavLink.setAttribute("aria-selected", "true");
             photoNav.append(photoNavLink);
 
             let videoNav = document.createElement("li");
@@ -300,10 +299,10 @@ export class SalesGroupViewer {
             videoNavLink.textContent = "Video";
             videoNavLink.id = "video-tab";
             videoNavLink.href = "#video";
-            videoNavLink.setAttribute("role","tab");
-            videoNavLink.setAttribute("data-toggle","tab");
-            videoNavLink.setAttribute("aria-controls","home");
-            videoNavLink.setAttribute("aria-selected","true");
+            videoNavLink.setAttribute("role", "tab");
+            videoNavLink.setAttribute("data-toggle", "tab");
+            videoNavLink.setAttribute("aria-controls", "home");
+            videoNavLink.setAttribute("aria-selected", "true");
             videoNav.append(videoNavLink);
 
             let mediaContent = document.createElement("div");
@@ -314,8 +313,8 @@ export class SalesGroupViewer {
             let photo = document.createElement("div");
             photo.className = "tab-pane fade active show";
             photo.id = "photo";
-            photo.setAttribute("role","tabpanel");
-            photo.setAttribute("aria-labelledby","photo");
+            photo.setAttribute("role", "tabpanel");
+            photo.setAttribute("aria-labelledby", "photo");
             mediaContent.append(photo);
 
             let img = document.createElement("div");
@@ -330,22 +329,77 @@ export class SalesGroupViewer {
                 if (image in this.data.file_auths) {
                     if (fileNameIsImage(this.data.file_auths[image]["name"])) {
                         images.push(this.data.file_auths[image]["get"]);
-                    }   
+                    }
                     else {
                         console.log(image + " is not an image?");
-                    }                 
+                    }
                 }
                 else {
                     console.log("Expected file auth for " + image);
                 }
             }
 
-            new BootstrapCarousel(images, img);
+            new BootstrapCarousel(images, img, "img");
+
+            //Video tab
+            let video = document.createElement("div");
+            video.className = "tab-pane fade";
+            video.id = "video";
+            video.setAttribute("role", "tabpanel");
+            video.setAttribute("aria-labelledby", "video");
+            mediaContent.append(video);
+
+            let thumb = document.createElement("div");
+            thumb.className = "thumb";
+            video.append(thumb);
+
+            let videos = this.data.reported.videos;
+            var videoUrls = [];
+
+            for (let video of videos) {
+                if (video[0] == "youtube") {
+                    videoUrls.push("https://www.youtube.com/embed/" + video[1]);
+                }
+                if (video[0] == "vimeo") {
+                    videoUrls.push("https://player.vimeo.com/video/" + video[1]);
+                }
+            }
+
+            new BootstrapCarousel(videoUrls, video, "video");
+
+            videoNavLink.onclick = videoOnClick();
+            photoNavLink.onclick = photoOnClick();
+            function photoOnClick() {
+
+                photoNavLink.className = "nav-link text-uppercase active";
+                photo.className = "tab-pane fade active show";
+                photoNavLink.setAttribute("aria-selected", "true");
+
+                videoNavLink.className = "nav-link text-uppercase";
+                videoNavLink.setAttribute("aria-selected", "false");
+                video.className = "tab-pane fade";
+
+            }
+
+            function videoOnClick() {
+
+                videoNavLink.className = "nav-link text-uppercase active";
+                video.className = "tab-pane fade active show";
+                videoNavLink.setAttribute("aria-selected", "true");
+
+                photoNavLink.className = "nav-link text-uppercase";
+                photoNavLink.setAttribute("aria-selected", "false");
+                photo.className = "tab-pane fade";
+
+            }
+
+
+
         }
 
         this.box.append(layout.content);
 
-        function createAcc(attachTo, headerText, firstOpen=null) {
+        function createAcc(attachTo, headerText, firstOpen = null) {
             let container = document.createElement("div");
             container.className = "acc-container";
             attachTo.append(container);
@@ -365,7 +419,7 @@ export class SalesGroupViewer {
 
             let header = document.createElement("div");
             header.className = "btn btn-outline-secondary btn-sm";
-            header.style ="float:left";
+            header.style = "float:left";
             header.append(tri);
             header.append(document.createTextNode(headerText));
             container.append(header);
@@ -374,13 +428,13 @@ export class SalesGroupViewer {
             body.className = "acc-body";
             body.style.display = "none";
             container.append(body);
-            
+
             let isClosed = true;
             let isFirstOpen = true;
 
-            header.addEventListener("click", ()=>{
+            header.addEventListener("click", () => {
                 if (isClosed) {
-                    triOpened.style="margin-bottom:5px;border-radius: 25px";
+                    triOpened.style = "margin-bottom:5px;border-radius: 25px";
                     triOpened.style.display = "inline-block";
                     body.style = "border:1px solid #c0c0c0;padding:15px;width:100%";
                     body.style.display = "block";
@@ -406,61 +460,61 @@ export class SalesGroupViewer {
         }
 
         {
-            let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body)=>{
-            let divTableResponsive = document.createElement("div");
-            divTableResponsive.className = "dt-responsive table-responsive";
-            divTableResponsive.style = "width:100%;padding:15px";
+            let b_tags = createAcc(layout.tags, "Tags (EIDs)", (body) => {
+                let divTableResponsive = document.createElement("div");
+                divTableResponsive.className = "dt-responsive table-responsive";
+                divTableResponsive.style = "width:100%;padding:15px";
 
-            let mainTable = document.createElement("table");
-            mainTable.className = "table table-striped table-bordered nowrap";
-            divTableResponsive.appendChild(mainTable);
+                let mainTable = document.createElement("table");
+                mainTable.className = "table table-striped table-bordered nowrap";
+                divTableResponsive.appendChild(mainTable);
 
-            // Header
+                // Header
 
-            let mainTableHead = document.createElement("thead");
-            mainTable.appendChild(mainTableHead);
+                let mainTableHead = document.createElement("thead");
+                mainTable.appendChild(mainTableHead);
 
-            let mainTableHeadRow0 = document.createElement("tr");
-            mainTableHead.appendChild(mainTableHeadRow0);
-            const headers = ["EID", "Options"];
-            for (const headerText of headers) {
-                let th = document.createElement("th");
-                th.textContent = headerText;
-                mainTableHeadRow0.appendChild(th);
-            }
-
-            // Body
-
-            let mainTableBody = document.createElement("tbody");
-            mainTable.appendChild(mainTableBody);
-
-            for (const eid of this.data.eids) {
-                let rowTag = document.createElement("tr");
-                mainTableBody.appendChild(rowTag);
-
-                let row = [];
-
-                row.push(eid);
-
-                for (const value of row) {
-                    let td = document.createElement("td");
-                    td.textContent = value;
-                    rowTag.appendChild(td);
+                let mainTableHeadRow0 = document.createElement("tr");
+                mainTableHead.appendChild(mainTableHeadRow0);
+                const headers = ["EID", "Options"];
+                for (const headerText of headers) {
+                    let th = document.createElement("th");
+                    th.textContent = headerText;
+                    mainTableHeadRow0.appendChild(th);
                 }
 
-                let tdOptions = document.createElement("td");
-                rowTag.appendChild(tdOptions);
+                // Body
 
-                let button = document.createElement("a");
-                button.className = "btn btn-outline-secondary btn-sm";
-                button.setAttribute("href", "/dashboard/animals/" + eid);
-                button.textContent = "View";
-                tdOptions.appendChild(button);
-            }
+                let mainTableBody = document.createElement("tbody");
+                mainTable.appendChild(mainTableBody);
 
-            // Put HTML in frame
+                for (const eid of this.data.eids) {
+                    let rowTag = document.createElement("tr");
+                    mainTableBody.appendChild(rowTag);
 
-            body.appendChild(divTableResponsive);
+                    let row = [];
+
+                    row.push(eid);
+
+                    for (const value of row) {
+                        let td = document.createElement("td");
+                        td.textContent = value;
+                        rowTag.appendChild(td);
+                    }
+
+                    let tdOptions = document.createElement("td");
+                    rowTag.appendChild(tdOptions);
+
+                    let button = document.createElement("a");
+                    button.className = "btn btn-outline-secondary btn-sm";
+                    button.setAttribute("href", "/dashboard/animals/" + eid);
+                    button.textContent = "View";
+                    tdOptions.appendChild(button);
+                }
+
+                // Put HTML in frame
+
+                body.appendChild(divTableResponsive);
                 $(mainTable).DataTable();
             });
         }
