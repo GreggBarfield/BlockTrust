@@ -1,17 +1,17 @@
 # **Table of Contents**
 * [ Production ](#markdown-header-production)
-    * [ Deployment ](#markdown-header-deployment)
-        * [ AWS Resources Used in Production ](markdown-header-aws-resources-used-in-production)
-        * [ Checklist ](#markdown-header-checklist)
-        * [ ec2 Instance Setup ](#markdown-header-ec2-instance-setup)
-        * [ Install Packages on ec2 Instance ](#markdown-header-package-installation-on-ec2-instance)
-        * [ Persist Ledger Data ](#markdown-header-persist-ledger-data)
-            * [ Mount an EBS Volume to EC2 Linux Instance ](#markdown-header-mount-an-ebs-volume-to-ec2-linux-instance)
-            * [ Automount EBS Volume on Reboot ](#markdown-header-automount-ebs-volume-on-reboot)
-            * [ Change the Default Location for Docker Volume Creation ](#markdown-header-change-the-default-location-for-docker-volume-creation)
-        * [ Blockchain Network Setup ](#markdown-header-blockchain-network-setup)
-        * [ Credentails Backup ](#markdown-header-credentails-backup)
-        * [ Blockchain Network Restoration ](#markdown-header-blockchain-network-restoration)
+    * [ **Deployment \***](#markdown-header-deployment)
+        * [ **AWS Resources Used in Production \***](markdown-header-aws-resources-used-in-production)
+        * [ **ec2 Instance Setup  \***](#markdown-header-ec2-instance-setup)
+        * [ **Install Packages on ec2 Instance  \***](#markdown-header-package-installation-on-ec2-instance)
+        * [ **Persist Ledger Data  \***](#markdown-header-persist-ledger-data)
+            * [ **Mount an EBS Volume to EC2 Linux Instance  \***](#markdown-header-mount-an-ebs-volume-to-ec2-linux-instance)
+            * [ **Automount EBS Volume on Reboot  \***](#markdown-header-automount-ebs-volume-on-reboot)
+            * [ **Change the Default Location for Docker Volume Creation  \***](#markdown-header-change-the-default-location-for-docker-volume-creation)
+         * [ **Checklist  \***](#markdown-header-checklist)
+         * [ **Blockchain Network Setup  \***](#markdown-header-blockchain-network-setup)
+         * [ **Credentails Backup  \***](#markdown-header-credentails-backup)
+         * [ Blockchain Network Restoration ](#markdown-header-blockchain-network-restoration)
    * [ Bring down the Blockchain Network ](#markdown-header-bring-down-the-blockchain-network)
 * [ Local Testing ](#markdown-header-local-testing)
 * [ Important Notes ](#markdown-header-important-notes)
@@ -29,6 +29,7 @@
 **Blockchain Network Structure**: one organization network setup with one peer, ordering service, and one certificate authority.
 
 **Note**:
+- If this is the **FIRST** time you create an ec2 instance to deploy blockchain network, you need to follow all the steps **in the same order** as in the sections followed by a '**\***' in [ Table of Contents ](#markdown-header-table-of-contents).
 - Whenever you need to execute a shell script in any "scripts" folder such as [blockchain/scripts](scripts) and [blockchain/blockchain-network/scripts](blockchain-network/scripts), you need to navigate into the same directory as the script. Otherwise, you may run into directory not found error.
 
 ## **Deployment**
@@ -53,8 +54,7 @@
    - Volume Type: General Purpose SSD (gp2)
 
 6. Add Tags:
-   name: **blockchainnetwork**
-   stack: **dev** or **prod**
+   Name: **btn-blockchainserver-prod**
 
 ### **Install Packages on ec2 Instance**
 
@@ -63,7 +63,7 @@ To install git on ec2, you can run
 ```
 sudo yum -y install git
 ```
-Then clone the repository of the source code to the ec2 instance.
+Then **clone** the repository of the source code to the ec2 instance.
 
 Next, you can run the following commands manually or run the script [blockchain/scripts/install_packages.sh](scripts/install_packages.sh) to automatically install all required packages. You will be asked to reboot in the end to ensure that the ec2-user has permission to access Docker daemon. After you install all required packages, you can execute the script [blockchain/scripts/show_versions.sh](scripts/show_versions.sh) to display all installed packages' versions.
 
@@ -155,20 +155,6 @@ Next, you can run the following commands manually or run the script [blockchain/
 7. Reboot the server. In some cases, you may need to reboot your instance to provide permissions for the ec2-user to access the Docker daemon.  
    ```
    sudo reboot
-   ```
-
-### **Checklist**
-1. Disable ports in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](./blockchain-network/docker/docker-compose-couch.yaml)
-by commenting out `services.couchdb0.ports: - "5984:5984"`. This mapping exposes the CouchDB service such that you can use Fauxton user interface(visit http://127.0.0.1:5984/_utils in browser) in dev environment.If you modify this configuration after the couchdb0 container is started, then you need to run the following commands in [blockchain/blockchain-network](blockchain-network). This command will recreate the database container.
-   ``` 
-   ./network.sh up -s couchdb
-   ```
-
-2. Make sure memory limit is set for the services `couchdb0` and `peer0.org1.blocktrustnetwork.com` in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](blockchain-network/docker/docker-compose-couch.yaml). For example, you can use `mem_limit: 100m`. If you don't set a memory limit, it may consume all available memory in the server when it accepts lots of requests. This will crash the system eventually.
-
-   Run the following command in [blockchain/blockchain-network](blockchain-network) to restart the containers with new configuration
-   ``` 
-   ./network.sh up -s couchdb
    ```
 
 ### **Persist Ledger Data**
@@ -357,6 +343,20 @@ This can be done by adding the following values in `/etc/docker/daemon.json`. Cr
          "env": "prod"
       }
    }
+   ```
+
+### **Checklist**
+1. Disable ports in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](./blockchain-network/docker/docker-compose-couch.yaml)
+by commenting out `services.couchdb0.ports: - "5984:5984"`. This mapping exposes the CouchDB service such that you can use Fauxton user interface(visit http://127.0.0.1:5984/_utils in browser) in dev environment.If you modify this configuration after the couchdb0 container is started, then you need to run the following commands in [blockchain/blockchain-network](blockchain-network). This command will recreate the database container.
+   ``` 
+   ./network.sh up -s couchdb
+   ```
+
+2. Make sure memory limit is set for the services `couchdb0` and `peer0.org1.blocktrustnetwork.com` in [blockchain/blockchain-network/docker/docker-compose-couch.yaml](blockchain-network/docker/docker-compose-couch.yaml). For example, you can use `mem_limit: 100m`. If you don't set a memory limit, it may consume all available memory in the server when it accepts lots of requests. This will crash the system eventually.
+
+   Run the following command in [blockchain/blockchain-network](blockchain-network) to restart the containers with new configuration
+   ``` 
+   ./network.sh up -s couchdb
    ```
 
 ## **Blockchain Network Setup**
@@ -594,6 +594,17 @@ docker volume prune
 # Local Testing
 # #######################
 
+## **Test chaincode**
+In [blockchain/record-management-basic/chaincode-javascript](record-management-basic/chaincode-javascript/), run the following command.
+   ```
+   npm test
+   ```
+   Sample output after running `npm test`.
+   ![picture](img/chaincode_test.png)  
+
+
+
+## **Examine Chaincode Usage**
 **Note: the content in app.js may be outdated. You should refer to the actual deployed chaincodes in [blockchain/record-management-basic/chaincode-javascript/lib/recordManagementContract.js](record-management-basic/chaincode-javascript/lib/recordManagementContract.js)**
 
 Run the test application to see how sdk node.js works.
@@ -775,6 +786,53 @@ Here is a snippet from the configuration file:
 
 
 ## **Optional**
+
+### **Increase the size of EBS volume in EC2 instance**
+We have an **external EBS volume** attached to a EC2 instance. We may come to a time when we don't have enough disk space for blockchain data. Therefore we need to expand it. The following it's not for exending the ec2's 
+0. Make sure the translation worker is stopped and all pending jobs on the blockchain server are done.
+1. Create the snapshot of the volume in case something bad happens.
+   - Go to EBS volume list from EC2 Dashboard.
+   - Right click the volume.
+   - Click **Create Snapshot**.
+   - Add description.
+   - Add Tag: key: Name, value: snapshot-my-volume
+   - Click **Create snapshot**
+   - Wait for it to be finished.
+2. Increase the volume
+   - Right click on the volume.
+   - Type the desired size.
+   - Click **Modify**.
+   - Click **Yes** to confirm that you may need to extend the OS file system.
+   - You **MUST** wait for the process to be finished.
+3. Extend OS file system  
+**AFTER** the process of increasing the volume finishes, you need to extend OS file system in order to see your increased volume size. The example below is for Ubuntu OS.
+   - SSH into your ec2 instance.
+   - Check the original volume size. In the following example, xvdf has 30GB befor modifying its size.
+      ```
+      df -h
+      ```
+      ![picture](img/before_increasing_volume_size.png)  
+
+   - Check the increased volume size. You can see xvdf has 31 GB since we increased 1 GB.
+      ```
+      lsblk
+      ```
+      ![picture](img/after_increasing_volume_size.png)
+   - Extend the partition. Replace the `VOLUME_LABEL` with the desired one. In the example above, we use xvdf.
+   We use `xfs_growfs` for **XFS** file system. For other types of file systems, see what commands to use in https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/recognize-expanded-volume-linux.html
+      ```
+      sudo xfs_growfs /dev/VOLUME_LABEL
+      ```
+      You will see the following output after running the command.  
+      ![picture](img/extend_file_system_output.png)
+      Check the volume size. In the example, the size of dev/xvdf is updated to 31 GB.
+      ```
+      df -h
+      ```
+      ![picture](img/extend_file_system_output2.png)
+
+     
+
 ### **Decrease the size of EBS volume in EC2 instance**
 
 **Notes:** The following instructions is for decreasing the **external ebs volume(which stores the docker volumes)**. If you want to decrease the system volume attached to ec2 instance, you need addtinal steps described in "Prepare new volume" in https://medium.com/@m.yunan.helmy/decrease-the-size-of-ebs-volume-in-your-ec2-instance-ea326e951bce.
@@ -800,7 +858,7 @@ We can use some of the following steps if we want to **RESTORE** data from a vol
    - Right click the volume
    - Click **Create Snapshot**
    - Add description. e.g. snapshot-blockchain-external-volume-dev
-   - Add Tag. e.g. Key: name. value: snapshot-blockchain-external-volume-dev
+   - Add Tag. e.g. Key: Name. value: snapshot-blockchain-external-volume-dev
    - Click button **Create Snapshot**
    - Wait for the process to be completed.
 
@@ -810,7 +868,7 @@ We can use some of the following steps if we want to **RESTORE** data from a vol
    - Choose the same volume type as the old volume. e.g. **General Purpose SSD(gp3)**
    - Enter the desired size.
    - Choose the same availability zon as the instance. e.g. **us-east-2c**
-   - Add tag: key:name value: blockchain-external-volume-dev
+   - Add tag: key: Name value: blockchain-external-volume-dev
 4. Attach the new volume
    - Right click on the new volume.
    - Click **Attach Volume**.
@@ -901,25 +959,25 @@ https://pm2.keymetrics.io/docs/usage/log-management/
 ### **Docker Container Log Management**
 By default, Docker uses the json-file log driver and saves those logs in the overlay folder. Docker doesn’t limit the size of the files or how many log files there can be for a single container. Three ways to rotate dokcer log.
 
-**Set the log rotation parameters**
-- Use CLI
+#### **Set the log rotation parameters**
+- **Use CLI**
    ```
    docker run --log-opt max-size=10m --log-opt max-file=5 my-app:latest
    ```
    This sets a maximum of five log files with a max size of 10 Mb each. So at most 50 Mb of logs for that container.
 
-- Use Docker-compose
+- **Use Docker-compose**
    ```
    my-app:
     image: my-app:latest
     logging:
         driver: "json-file"
         options:
-            max-file: 5
-            max-size: 10m
+            max-file: '5'
+            max-size: '10m'
    ```
 
-- Configure the default logging driver in daemon settings
+- **Configure the default logging driver in daemon settings**  
 This can be done by adding the following values in `/etc/docker/daemon.json`. Create this file if it doesn’t exist. Paste the following in `daemon.json`.
    ```
    {
@@ -944,7 +1002,7 @@ This can be done by adding the following values in `/etc/docker/daemon.json`. Cr
    ``` 
    e.g. `docker logs peer0.org1.blocktrustnetwork.com`
 
-**Find the log**  
+**Locate the log**  
 By default, the stdout and stderr of the container are written in a JSON file located in `/var/lib/docker/containers/[container-id]/[container-id]-json.log`. However, since we have set the docker location in external ebs volume, the log it's located in
 `/blockchainvolume/containers/[container-id]/[container-id]-json.log`
 
