@@ -163,20 +163,19 @@ export class VideoSession {
             // Supported YouTube URL formats:
             // http://www.youtube.com/watch?v=My2FRPA3Gf8
             // https://youtube.googleapis.com/v/My2FRPA3Gf8
-            var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            var regExp = /^.*(youtu.be\/|v\/|\/u\/\w\/|embed\/|watch\?)\??v?=?([^#&?]*).*/;
             var match = url.match(regExp);
-
-            return (match && match[7].length == 11) ? match[7] : false;
+            return (match && match[2].length == 11) ? match[2] : false;
         }
 
         function parseVimeoTokenByUri(url) {
             // Supported Vimeo URL formats:
             // http://vimeo.com/25451551
             // http://player.vimeo.com/video/25451551
-            var regExp = /(http:|https:|)\/\/(player.|www.)?(vimeo\.com)\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/
+            var regExp = /(http:|https:|)\/\/(player.|www.)?vimeo\.com\/(video\/|embed\/|watch\?v=|v\/)?([A-Za-z0-9._%-]*)(\&\S+)?/
             var match = url.match(regExp);
-
-            var parseID = (match && match.length >= 6) ? match[5] : false;
+            
+            var parseID = (match && match.length == 6) ? match[4] : false;
             if (!isNaN(parseID) && !isNaN(parseFloat(parseID))) {
                 return parseID;
             }
