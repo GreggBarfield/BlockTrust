@@ -1,0 +1,87 @@
+
+
+{% extends "outside/standard.html" %}
+
+{% set page_title ="Checkout"| string %}
+
+{% block outside_banner %}
+<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-white mb-1">Checkout</h1>
+                 
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock outside_banner %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <section id="checkout" class="bg-white">
+        <div class="container">
+            <div class="row checkout-screen">
+                <div class="col-md-9">
+                    <div class="col-lg-6 mb-2 login-form">
+                        <h3>Sign In</h3>
+                    <form class="bg-white shadow p-3" id="login_form" method="POST"
+                
+                    request_redirect_to="{{ redirect_to }}"
+                
+                > {# method="POST" is important in case preventDefault fails #}
+                    <div class="form-group">
+                        <label for="login_username">Username, Email, or User ID</label>
+                        <input type="text" class="form-control" placeholder="JohnDoe6" name="identifier" id="login_username">
+                        <span class="focus-border"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login_password">Password</label>
+                        <input type="password" class="form-control" placeholder="App623Ten!HHW" name="password" id="login_password">
+                        <span class="focus-border"></span>
+                    </div>
+                    {#
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                            <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+                        </div>
+                    #}
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
+                    {% if redirect_to != '' and redirect_to is not none %}
+                    <p class="mt-2 mb-0">Once you log in, you'll be taken back to where you left off: {{ redirect_to }}</p>
+                    {% endif %}
+                    <p class="mt-2 mb-0">Looking to register?<a href="/checkout_register"> Right this way</a></p>
+                    {#
+                        <div class="login-social-media mt-4 text-center">
+                            <div class="d-block">
+                                <h5 class="mb-2 font-weight-bold">Sign in with:</h5>
+                                <a class="btn facebook-bg social-bg-hover mb-2 mb-sm-0" href="#"><span><i class="fab fa-facebook-f pr-1"></i>Facebook</span></a>
+                                <a class="btn twitter-bg social-bg-hover mb-2 mb-sm-0" href="#"><span><i class="fab fa-twitter pr-1"></i>Twitter</span></a>
+                                <a class="btn google-bg social-bg-hover mb-2 mb-sm-0" href="#"><span><i class="fab fa-google pr-1"></i>Google</span></a>
+                            </div>
+                        </div>
+                    #}
+                </form>
+                </div>
+                </div><!-- / login-form -->
+
+                <div class="col-md-3 checkout-total">
+                    <h4>CART TOTAL: <span class="text-primary">$ {{session["transaction_values"]["grand_total"]}}</span></h4>
+                    <p class="text-sm">*The price includes shipping and taxes.</p>
+                    <div class="cart-total-footer">
+                        <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
+                        <a href="/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
+                    </div><!-- / cart-total-footer -->
+                </div><!-- / checkout-total -->
+
+            </div><!-- / row -->
+        </div><!-- / container -->
+    </section><!-- / checkout -->
+
+
+
+</section>
+<script type="module" src="/static/entry_points/outside/login.mjs"></script>
+{% endblock outside_content %}

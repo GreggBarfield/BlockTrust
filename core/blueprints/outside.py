@@ -134,20 +134,7 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-        # Sign up worked, now log in and redirect
-        try:
-            auth.login(
-                identifier=required['username'],
-                password=required['password']
-            )
-            return jsonify({"redirect": "/dashboard"})
-        except auth.LoginException as e:
-            raise ExportException("Sorry, we created your account but had difficulties logging you in. Contact us for help.")
-        except auth.EmailNotVerifiedException as e:
-            return jsonify({"redirect": "/email_not_verified"})
-        except auth.UsersException as e:
-            raise ExportException("internal error in Users.login")
-
+        return jsonify({"redirect": "/email_not_verified"})
         # TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
         # raise ExportException("Success!")
     except ExportException as e:
@@ -318,6 +305,7 @@ def serve_add_to_cart():
     except ExportException as e:
         return jsonify({"error": e})
 
+
 # Routes for shopping cart page
 
 
@@ -356,6 +344,18 @@ def serve_remove_from_cart(code):
 # Checkout and Order review pages
 
 
+@bp.route('/checkout_login', methods=['GET'])
+def serve_checkout_login():
+    return outside_render('shop/checkout_login.html')
+
+
+@bp.route('/checkout_register', methods=['GET'])
+def serve_checkout_register():
+    return outside_render('shop/checkout_register.html', {
+        "sectors_by_id": sectors_by_id
+    })
+
+
 @bp.route('/checkout', methods=['GET'])
 def serve_checkout():
     return outside_render('shop/checkout.html')
@@ -370,3 +370,5 @@ def serve_checkout_submit():
         return jsonify({"redirect": "/checkout"})
     except ExportException as e:
         return jsonify({"error": str(e)})
+
+

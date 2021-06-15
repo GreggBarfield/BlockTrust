@@ -25,6 +25,7 @@
 
 {% block outside_content %}
 <section id="gallery" class="p-0 line-effect">
+    <script type="text/javascript" src="static/js/outside/shopping_cart1.js"></script>
     <div class="container">
             <div class="col-md-12 text-right">
                 <a href="/shopping-cart" class="btn btn-primary m-2">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></a>
@@ -56,8 +57,6 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-                    
-                    
                     <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
                         <figure class="gallery-item effect-bubba">
                             <img src="/static/images/shop/match_pair_hdx_lg.png" alt="">
@@ -74,8 +73,6 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-                    
-                    
                     <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
                         <figure class="gallery-item effect-bubba">
                             <img src="/static/images/shop/840_fdx_lg.png" alt="">
@@ -92,8 +89,6 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-                    
-                    
                     <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
                         <figure class="gallery-item effect-bubba">
                             <img src="/static/images/shop/840_hdx_lg.png" alt="">
@@ -110,8 +105,6 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-
-
                     <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
                         <figure class="gallery-item effect-bubba">
                             <img src="/static/images/shop/MFA_HT_red_lg.png" alt="">
@@ -128,8 +121,6 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-
-
                     <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
                         <figure class="gallery-item effect-bubba">
                             <img src="/static/images/shop/MFA_HT_UHF_lg.png" alt="">
@@ -146,19 +137,10 @@
                             </figcaption>
                         </figure><!-- / gallery-item -->
                     </li>
-
-
-                    
-                    
-                    
                     <!-- / gallery -->
                     </ul>
             </div>
-            
-            </div><div class="container">
-
-            </div>
-          
+            </div>     
     </div>
 
 
@@ -212,9 +194,6 @@
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
     <!-- / product1-modal -->
-
-    
-
     <!-- product2-modal -->
     <div class="modal fade product-modal" id="product2" tabindex="-1" role="dialog">
         <div class="modal-dialog">
@@ -267,10 +246,7 @@
             </div><!-- / modal-content -->
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
-    <!-- / product2-modal -->
-
-
-    
+    <!-- / product2-modal --> 
     <!-- product3-modal -->
     <div class="modal fade product-modal" id="product3" tabindex="-1" role="dialog">
         <div class="modal-dialog">
@@ -324,9 +300,6 @@
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
     <!-- / product3-modal -->
-
-
-    
     <!-- product4-modal -->
     <div class="modal fade product-modal" id="product4" tabindex="-1" role="dialog">
         <div class="modal-dialog">
@@ -364,8 +337,9 @@
                     </div><!-- / container-fluid -->
                 </div><!-- / modal-body -->
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
-                    <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
+                    <form class="form-inline"  id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="4"/>
+                        <input type="hidden" name="price" value="63.7"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
                         <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
@@ -378,9 +352,6 @@
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
     <!-- / product4-modal -->
-
-
-    
     <!-- product5-modal -->
     <div class="modal fade product-modal" id="product5" tabindex="-1" role="dialog">
         <div class="modal-dialog">
@@ -420,6 +391,7 @@
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="5"/>
+                        <input type="hidden" name="price" value="4"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
                         <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
@@ -432,9 +404,6 @@
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
     <!-- / product5-modal -->
-
-
-    
     <!-- product6-modal -->
     <div class="modal fade product-modal" id="product6" tabindex="-1" role="dialog">
         <div class="modal-dialog">
@@ -472,24 +441,35 @@
                     </div><!-- / container-fluid -->
                 </div><!-- / modal-body -->
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
-                    <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
+
+                    <div class="product-description" data-name="Wine #1" data-price="5">
+                            <p class="product-price">5</p>
+                            <form class="add-to-cart" id="add-to-cart" method="post">
+                                <div>
+                                    <label for="qty-1">Quantity</label>
+                                    <input type="text" name="qty-1" id="qty-1" class="qty" value="1" />
+                                </div>
+                                <p><input type="submit" value="Add to cart" class="btn" /></p>
+                            </form>
+                    </div>
+
+
+                 <!--   <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="6"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
                         <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2" onclick="document.getElementById('product6').style.display='none'">ADD TO CART</button>
-                        </div><!-- / column -->
+                        </div>
                     </form>
-
+                -->
             </div><!-- / modal-footer -->
             </div><!-- / modal-content -->
         </div><!-- / modal-dialog -->
     </div><!-- / modal -->
     <!-- / product6-modal -->
 
-    <p class="mt-2 mb-0" id="cart_status_message" style="display:none;">Adding your items to cart...</p>
-    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="cart_error_message">Items could not be added...</p>
 
 </section>
-<script type="module" src="/static/entry_points/shop/shopping_cart.mjs"></script>
+
 {% endblock outside_content %}
