@@ -54,13 +54,16 @@
                         <input type="password" class="form-control" placeholder="App623Ten!HHW" name="password" id="login_password">
                         <span class="focus-border"></span>
                     </div>
+
+                    <label class="checkbox">
+                        <input type="checkbox" value="remember-me" id="remember_me"> Remember me
+                    </label>
                     {#
                         <div class="form-group form-check">
                             <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                            <label class="form-check-label" for="exampleCheck1">Remember Me</label>
                         </div>
                     #}
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p><button type="submit" class="btn btn-primary">Login</button></p>
                     <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
                     {% if redirect_to != '' and redirect_to is not none %}
@@ -85,4 +88,5 @@
     </div>
 </section>
 <script type="module" src="/static/entry_points/outside/login.mjs"></script>
+<script type="module" src="/static/entry_points/outside/remember_me.mjs"></script>
 {% endblock outside_content %}
