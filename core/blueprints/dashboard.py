@@ -243,3 +243,8 @@ def serve_plans():
 @crut.require_account
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
+
+@bp.route('/dashboard/sustainablity', methods=['GET'])
+@crut.require_account
+def serve_sustainablity():
+    return dashboard_render("sustainablity/sustainablity_questionaire.html")
