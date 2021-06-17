@@ -25,19 +25,11 @@
 
 {% block outside_content %}
 <section id="gallery" class="p-0 line-effect">
-    <script type="text/javascript" src="static/js/outside/shopping_cart1.js"></script>
+    <!--<script type="text/javascript" src="static/js/outside/shopping_cart1.js"></script> -->
     <div class="container">
             <div class="col-md-12 text-right">
                 <a href="/shopping-cart" class="btn btn-primary m-2">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></a>
-            </div><!-- / column -->
-            
-            <ul class="gallery-filter list-inline text-center">
-                <li><a href="#" data-group="all" class="active ml-2">SEE ALL</a></li>
-                <li><a href="#" data-group="applicators">APPLICATORS</a></li>
-                <li><a href="#" data-group="readers">READERS</a></li>
-                <li><a href="#" data-group="tags">TAGS</a></li>
-            </ul>
-            
+            </div><!-- / column -->            
             <div class="container">
                 <ul class="row gallery line-effect list-unstyled mb-0" id="grid">
                     <!-- gallery -->
@@ -181,8 +173,9 @@
                 <div class="modal-footer"> <!-- / Footer class where POST request is made for adding to cart-->
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="1"/>
+                        <input type="hidden" name="price" value="3.63"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -233,8 +226,9 @@
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="2"/>
+                        <input type="hidden" name="price" value="4.26"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -277,7 +271,6 @@
 
                                     <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
 
-                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
 
                                   
                                 </div><!-- / product-info -->
@@ -288,8 +281,9 @@
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
                     <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
                         <input type="hidden" name="code" value="3"/>
+                        <input type="hidden" name="price" value="55.9"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -330,7 +324,6 @@
 
                                     <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
 
-                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
                                 </div><!-- / product-info -->
                             </div><!-- / column -->
                         </div><!-- / row -->
@@ -341,7 +334,7 @@
                         <input type="hidden" name="code" value="4"/>
                         <input type="hidden" name="price" value="63.7"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -382,18 +375,17 @@
 
                                     <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
 
-                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
                                 </div><!-- / product-info -->
                             </div><!-- / column -->
                         </div><!-- / row -->
                     </div><!-- / container-fluid -->
                 </div><!-- / modal-body -->
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
-                    <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
+                    <form class="form-inline" id="shop_homepage_form">
                         <input type="hidden" name="code" value="5"/>
-                        <input type="hidden" name="price" value="4"/>
+                        <input type="hidden" name="price" value="0"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
                             <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div><!-- / column -->
@@ -434,35 +426,23 @@
 
                                     <p class="mb-3"><i class="far fa-smile text-muted mr-1"></i> Rating: <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="far fa-star"></i></p>
 
-                                    <p class="mb-0 pt-1"><b>Select Quantity:</b></p>
                                 </div><!-- / product-info -->
                             </div><!-- / column -->
                         </div><!-- / row -->
                     </div><!-- / container-fluid -->
                 </div><!-- / modal-body -->
                 <div class="modal-footer"><!--Footer class where POST request is made for adding to cart-->
-
-                    <div class="product-description" data-name="Wine #1" data-price="5">
-                            <p class="product-price">5</p>
-                            <form class="add-to-cart" id="add-to-cart" method="post">
-                                <div>
-                                    <label for="qty-1">Quantity</label>
-                                    <input type="text" name="qty-1" id="qty-1" class="qty" value="1" />
-                                </div>
-                                <p><input type="submit" value="Add to cart" class="btn" /></p>
-                            </form>
-                    </div>
-
-
-                 <!--   <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
+                    <form class="form-inline" id="shop_homepage_form">
                         <input type="hidden" name="code" value="6"/>
+                        <input type="hidden" name="price" value="0"/>
                         <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity_1"/>
+                        <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                         <div class="col-md-4 text-right">
-                            <button type="submit" class="btn btn-primary m-2" onclick="document.getElementById('product6').style.display='none'">ADD TO CART</button>
+                            <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                         </div>
+                        <span></span>
                     </form>
-                -->
+                
             </div><!-- / modal-footer -->
             </div><!-- / modal-content -->
         </div><!-- / modal-dialog -->
@@ -471,5 +451,5 @@
 
 
 </section>
-
+<script type="module" src="/static/entry_points/shop/shop_homepage.mjs"></script>
 {% endblock outside_content %}
