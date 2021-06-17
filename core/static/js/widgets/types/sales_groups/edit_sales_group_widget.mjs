@@ -5,7 +5,7 @@ import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
-
+import { VideoSession } from '../../../files/video_links.mjs';
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -33,6 +33,24 @@ export class EditSalesGroupWidget extends Widget {
     }
 
     makeForm() {
+
+        let that = this;
+
+        let card = document.createElement("div");
+        card.className = "card";
+
+        let cardHeader = document.createElement("h5");
+        cardHeader.className = "card-header";
+        cardHeader.textContent = "Edit Sales Group " + this.salesGroupID;
+        card.append(cardHeader);
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+
+
+        let form = document.createElement("form");
+        cardBody.append(form);
 
         // Sections
 
@@ -147,7 +165,7 @@ export class EditSalesGroupWidget extends Widget {
                 // Patch
                 $(select).val([options[0]]);
                 $(select).trigger('change');
-                setTimeout(function(){
+                setTimeout(function () {
                     $(select).val([]);
                     $(select).trigger('change');
                 }, 1);
@@ -307,7 +325,7 @@ export class EditSalesGroupWidget extends Widget {
 
         // Media
 
-        let mediaRow = createSection(form, "Media");
+        let mediaRow = createSection(form, "Image");
 
         let mediaGroup = document.createElement("div");
         mediaGroup.className = "form-group col-12";
@@ -320,6 +338,23 @@ export class EditSalesGroupWidget extends Widget {
         let fileEditorFrame = document.createElement("div");
         this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
+
+
+        //Video
+
+        let videoRow = createSection(form, "Video");
+
+        let videoGroup = document.createElement("div");
+        videoGroup.className = "form-group col-12";
+        videoRow.append(videoGroup);
+
+        let videoLabel = document.createElement("label");
+        videoLabel.textContent = "Add Youtube/Vimeo links here to make the post look more attractive!";
+        videoGroup.append(videoLabel);
+
+        let videoText = document.createElement("div");
+        this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
+        videoGroup.append(videoText);
 
         // Comments
 
@@ -472,6 +507,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        videos: that.VideoEditor.getLinks(),
                     },
                     "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
