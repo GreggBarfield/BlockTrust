@@ -1,7 +1,6 @@
 import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
-
 export class BasicFileEditor {
     constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
         let that = this;
@@ -26,32 +25,31 @@ export class BasicFileEditor {
 
         this.attached = false;
         this.frame = null;
-        this.box = document.createElement("div");
-        this.input = document.createElement("input");
-        this.input.type = "file";
-        this.input.multiple = true;
-        this.input.style.display = "none";
-        document.body.append(this.input);
-        this.input.addEventListener("input", () => {
+        this.ImageBox = document.createElement("div");
+        this.ImageInput = document.createElement("input");
+        this.ImageInput.type = "file";
+        this.ImageInput.multiple = true;
+        this.ImageInput.style.display = "none";
+        document.body.append(this.ImageInput);
+        this.ImageInput.addEventListener("input", () => {
             that.checkInput();
         });
 
         this.table = new Table();
-        this.table.attach(this.box);
+        this.table.attach(this.ImageBox);
 
         this.table.setHeader(["ID", "Name", "Options"]);
 
         this.updateTable();
 
-        this.addFilesButton = document.createElement("button");
-        this.addFilesButton.className = "btn btn-sm btn-primary";
-        this.addFilesButton.textContent = "Add Files"
-        this.addFilesButton.type = "button";
-        this.addFilesButton.addEventListener("click", function(e) {
-            that.input.dispatchEvent(new MouseEvent("click"));
+        this.addImageButton = document.createElement("button");
+        this.addImageButton.className = "btn btn-sm btn-primary";
+        this.addImageButton.textContent = "Add Files"
+        this.addImageButton.type = "button";
+        this.addImageButton.addEventListener("click", function(e) {
+            that.ImageInput.dispatchEvent(new MouseEvent("click"));
         });
-        this.box.append(this.addFilesButton);
-        
+        this.ImageBox.append(this.addImageButton);
 
         if (attach_node !== null) {
             this.attach(attach_node);
@@ -61,8 +59,7 @@ export class BasicFileEditor {
     attach(attach_node) {
         this.attached = true;
         this.frame = attach_node;
-
-        this.frame.append(this.box);
+        this.frame.append(this.ImageBox);
     }
 
     remove(file) {
@@ -156,9 +153,9 @@ export class BasicFileEditor {
     }
 
     checkInput() {
-        let inputFiles = Array.from(this.input.files);
-        this.input.value = "";
-       
+        let inputFiles = Array.from(this.ImageInput.files);
+        this.ImageInput.value = "";
+
         for (let file of inputFiles) {
             let r = this.acceptableFile(file, this.restrictions);
             if (r === null) {
