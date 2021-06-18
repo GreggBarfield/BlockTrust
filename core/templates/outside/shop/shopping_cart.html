@@ -29,7 +29,7 @@
 {% block outside_content %}
 <section style="background-color: white;">
                 <div class="container"> 
-                    <table class="shopping-cart">
+                    <table class="shopping-cart" id="shopping-cart">
                         <thead>
                             <tr>
                                 <th>PRODUCT</th>
@@ -40,24 +40,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for key, val in session["shopping_cart"].items() %}
-					        {% set quantity = session["shopping_cart"][key]['quantity'] %}
-					        {% set price = session["shopping_cart"][key]['price'] %}
-					        {% set item_price = session["shopping_cart"][key]['total_price'] %}
-                            {% set prod_no = key %}
-                            <tr>
-                                <input type="hidden" name="code" value="{{prod_no}}"/>
-                                <td style="text-align: left;"><img src="" class="cart-item-image" />{{ session["shopping_cart"][key]['name'] }}</td>
-                                <td>{{ quantity }}</td>
-                                <td>$ {{ price }}</td>
-                                <td>$ {{ item_price }}</td>
-                                <td style="text-align:center;">
-                                    <a href="{{url_for('.serve_remove_from_cart',code=session['shopping_cart'][key]['prod_no'])}}" class="btnRemoveAction">
-                                        <i class="far fa-trash-alt" alt="Remove Item"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
                         </tbody>
                     </table>    
                 </div><!-- / container -->
@@ -77,10 +59,10 @@
                             </div><!-- / update-cart -->
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
-                                <p>Subtotal: <span class="text-primary">${{session['transaction_values']['all_total_price']}}</span></p>
-                                <p>Shipping: <span class="text-primary">${{session['transaction_values']['total_shipping']}}</span></p>
-                                <p>Tax: <span class="text-primary">${{session['transaction_values']['total_tax']}}</span></p>
-                                <p>Total: <span class="text-primary">${{session['transaction_values']['grand_total']}}</span></p>
+                                <p>Subtotal: <span class="text-primary" id="subtotal"></span></p>
+                                <p>Shipping: <span class="text-primary" id="shipping"></span></p>
+                                <p>Tax: <span class="text-primary" id="tax"></span></p>
+                                <p>Total: <span class="text-primary" id="grandTotal"></span></p>
                             </div><!-- / cart-total -->
                             <div class="col-md-6 cart-checkout">
                                 <a href="/checkout_login" class="btn btn-primary mt-1 mb-1"><i class="lnr lnr-exit"></i> <span>PROCEED TO CHECKOUT</span></a>
@@ -89,5 +71,5 @@
                     </div><!-- / container -->
                 </section><!-- / cart-features -->
 </section>
-<script type="module" src="/static/entry_points/outside/signup.mjs"></script>
+<script type="module" src="/static/entry_points/shop/shopping_cart.mjs"></script>
 {% endblock outside_content %}

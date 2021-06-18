@@ -1,29 +1,28 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
+$(document).ready(function() {
+    if(localStorage.shoppingCart){
+    var shopCartString=localStorage.getItem('shoppingCart');
+    var shopCart= JSON.parse(shopCartString)
 
-let cartForm=$("#shopping_cart_form");
-let statusMessage=cartForm.find("#cart_status_message");
-let errorMessage=cartForm.find("#cart_error_message");
+    Object.values(shopCart).forEach(val=>{
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>'+ val.price +'</td><td>'+ val.price*val.quantity +'</td><td><a href="/shopping-cart"><button href="/shopping-cart" class="removeItem" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+    });
+    $("#subtotal").text(localStorage.getItem('totalPrice'))
+    $("#shipping").text(localStorage.getItem('shipping'))
+    $("#tax").text(localStorage.getItem('totalTax'))
+    $("#grandTotal").text(localStorage.getItem('grandTotal'))
 
-let requestRedirectTo=null;
 
-if(cartForm[0].hasAttribute("request_redirect_to")){
-    requestRedirectTo=cartForm[0].getAttribute("request_redirect_to");
+    $(".removeItem").click(function(e){
+        var idClicked=e.target.value;
+        var shopCartString=localStorage.getItem('shoppingCart');
+        var shopCart= JSON.parse(shopCartString);
+        delete shopCart[idClicked];
+        localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
+        //$('#shopping-cart>tbody').empty();
+        //Object.values(shopCart).forEach(val=>{
+        //    $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>'+ val.price +'</td><td>'+ val.price*val.quantity +'</td><td><button class="removeItem" value="'+ val.prod_no +'">Remove</button></td></tr>');
+        //});
+    });
+
 }
-
-
-let form = new AsyncForm({
-    action:"/shop",
-    form: cartForm[0],
-    status: statusMessage[0],
-    error: errorMessage[0],
-    redirectmessage: "Added to cart!",
-    loadingMessage:"Adding your items to cart...", 
-    getData: ()=>{
-        return {
-            code: cartForm.find("input[name='code']").val(),
-            quantity_1: cartForm.find("input[name='quantity_1']").val()
-        }
-    },
-    requestRedirectTo: requestRedirectTo
 });
-
