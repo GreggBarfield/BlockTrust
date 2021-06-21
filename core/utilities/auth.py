@@ -103,7 +103,7 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, affiliate_id, sector, city, state, zip_code):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, city, state, zip_code):
     """Create new user account.
 
     Params:
@@ -135,6 +135,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
     company = Users._format_field(company)
+    partner = Users._format_field(partner)
     affiliate_id = Users._format_field(affiliate_id)
     sector = Users._format_field(sector)
     city = Users._format_field(city)
@@ -157,17 +158,24 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         email_verified="N"
     )
 
-    g.db.accounts.create_account(
-        user=user,
-        name="",
-        company=company,
-        sector=sector,
-        affiliate_id=affiliate_id,
-        city=city,
-        state=state,
-        zip=zip_code,
-        phone=phone
-    )
+    try:
+        g.db.accounts.create_account(
+            user=user,
+            name="",
+            company=company,
+            sector=sector,
+            partner=partner,
+            affiliate_id=affiliate_id,
+            city=city,
+            state=state,
+            zip=zip_code,
+            phone=phone
+        )
+    except Exception as e:
+        #Delete the user if there are errors in account creation. This will let them register again.
+        g.db.users.delete_by_user(user)
+        raise e
+
 
 
 def logout():

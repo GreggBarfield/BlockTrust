@@ -218,7 +218,7 @@ CREATE TABLE `example_db_1`.`partners` (
 COMMENT = 'Table to store partners';
 
 /* Rohan Sureshkumar 5/29/21 */
-INSERT INTO partners(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
+INSERT INTO `example_db_1`.`partners`(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
 values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ('PCALF', 'MFA Power Calf', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ('ILS', 'ILS, Inc.', 6, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
@@ -229,3 +229,12 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 /* Rohan Sureshkumar 6/6/2021 */
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
+
+/* Rohan Sureshkumar 6/7/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `partner` VARCHAR(15) NULL AFTER `sector`;
+
+/* Rohan Sureshkumar 6/8/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+ADD COLUMN `partner` VARCHAR(15) NULL AFTER `account`,
+CHANGE COLUMN `uid` `uid` VARCHAR(127) NULL ;
