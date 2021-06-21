@@ -208,6 +208,73 @@ def serve_contact_form_response():
     )
     return {}
 
+# Request a password reset
+
+
+@bp.route('/request_password_reset', methods=['GET'])
+def serve_request_password_reset():
+    redirect_to = ''
+    if 'redirect' in request.args:
+        redirect_to = request.args['redirect']
+
+    return outside_render('request_password_reset.html', {"redirect_to": redirect_to})
+
+# Request password reset action
+
+
+@bp.route('/request_password_reset', methods=['POST'])
+def serve_password_request_action():
+
+    # Generating token identifier for changing password securely
+    userToken = token.generateConfirmationToken(request.form['email'])
+    # Creating URL for user to access change password functionality
+    password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
+    # Sending an email to user with the Blocktrust email template and including password change link
+    send_email(
+            "BlockTrust Network Password change",
+            render_email("forgot_password.html", {
+                'password_reset_url': password_reset_url
+            }), request.form['email']
+    )
+    return outside_render('password_reset_message.html')
+
+# Passowrd reset message page
+
+
+@bp.route('/password_reset_message', methods=['GET'])
+def serve_password_reset_message():
+    return outside_render('password_reset_message.html')
+
+
+# Reset Password
+
+
+@bp.route('/reset_password/<tok>', methods=['GET'])
+def serve_reset_password(tok):
+    # Redirecting to password change page
+    redirect_to = tok
+    try:
+        email = token.confirmToken(tok)
+        return outside_render('reset_password.html', {"redirect_to": redirect_to})
+    except ExportException as e:
+        return outside_render('login.html')
+
+
+@bp.route('/reset_password/<tok>', methods=['POST'])
+def serve_reset_password_action(tok):
+    redirect_to = tok
+    try:
+        # Getting the requested new password from the user
+        new_password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        # Getting the user eamil using the encrypted token
+        email = token.confirmToken(tok)
+        # Changing user password using email as an identifier
+        auth.change_password(email, new_password, confirm_password)
+        return jsonify({"redirect": "/login"})
+    except auth.PasswordChangeFailedException as e:
+        return jsonify({"error": str(e)})
+
 # Route for user to confirm their account
 
 
@@ -229,6 +296,7 @@ def serve_confirm(tok):
 @bp.route('/email_not_verified', methods=['GET'])
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
+
 
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
