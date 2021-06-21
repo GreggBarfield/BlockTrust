@@ -62,19 +62,3 @@ class Partners:
             Partner(self._db, partner_row)
             for partner_row in partner_rows
         ]
-
-    def get_no_partner(self):
-        """Gets the no partner entry in database. No partner record only has a partner id , partner name and nothing else. 
-        
-        Returns:
-            One Partner() object
-        """
-        partner_rows = self._db.execute_d(
-            """SELECT * FROM partners
-                WHERE sector_id IS NULL
-            """
-        )
-        if len(partner_rows) > 0:
-            return Partner(self._db, partner_rows[0])
-        else:
-            raise PartnersException("No Partner partner doesn't exist in the database and needs to be added.")
