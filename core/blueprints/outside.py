@@ -5,6 +5,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.partners import Partners
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
@@ -81,7 +82,7 @@ def serve_login_action():
 def serve_signup():
     #Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
-    partners = g.db.partners.get_by_sector_id(cow_calf_sector_id)
+    partners = Partners().get_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
         "sectors_by_id": sectors_by_id,
         "partners": partners

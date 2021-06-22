@@ -1,4 +1,5 @@
 from ..objects.partner import Partner
+from flask import g
 
 class PartnersException(Exception):
     """Partner generic exception."""
@@ -12,9 +13,13 @@ class PartnersException(Exception):
         super().__init__(reason)
 
 class Partners:
-
-    def __init__(self, db):
-        self._db = db
+    """
+    This represents partners table and has operations related to that table. 
+    This doesn't have a database object as an attribute. I am little concerned as to how db keeps growing in size with every table added
+    db is also stored in g.db and g.db initialized on every request, hence it is not efficient to keep adding tables to it. 
+    There is also a circular reference with db referring to the table object and the table object internally storing db
+    Because of the above concerns I haven't added db attribute to this class and will be directly importing and using g.db here. 
+    """
 
     def get_by_id(self, partner_id):
         """Gets a partner by an ID.
@@ -28,7 +33,7 @@ class Partners:
         Raises:
             PartnersException on ID not found
         """
-        partner_rows = self._db.execute_d(
+        partner_rows = g.db.execute_d(
             """SELECT * FROM partners
                 WHERE partner_id=%(partner_id)s
             """,
@@ -38,7 +43,8 @@ class Partners:
         )
         if len(partner_rows) != 1:
             raise PartnersException("No partner found with that ID.")
-        return Partner(self._db, partner_rows[0])
+
+        return Partner(partner_rows[0])
 
     def get_by_sector_id(self, sector_id):
         """Gets a partner by an sector id.
@@ -49,7 +55,7 @@ class Partners:
         Returns:
             Zero or more Partner() objects
         """
-        partner_rows = self._db.execute_d(
+        partner_rows = g.db.execute_d(
             """SELECT * FROM partners
                 WHERE sector_id=%(sector_id)s
             """,
@@ -59,6 +65,6 @@ class Partners:
         )
         
         return [
-            Partner(self._db, partner_row)
+            Partner(partner_row)
             for partner_row in partner_rows
         ]

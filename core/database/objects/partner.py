@@ -3,14 +3,14 @@ from ...sectors import sectors_by_id
 
 class Partner:
 
-    def __init__(self, db, row):
-        """Partner constructor.
+    def __init__(self, row):
+        """Partner constructor. This doesn't have a db object as an attribute due to concerns mentioned in partners.py.
+        Please use g.db for any database operations
 
         Params:
-            db: Database object
             row: A 'partner' row dictionary
         """
-        self._db = db
+        #self._db = db
         self._row = deepcopy(row)
 
     def id(self):
