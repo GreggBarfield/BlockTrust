@@ -50,7 +50,7 @@
                     <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
                     {% if redirect_to != '' and redirect_to is not none %}
-                    <p class="mt-2 mb-0">Once you log in, you'll be taken back to where you left off: {{ redirect_to }}</p>
+                    <p class="mt-2 mb-0">Once you log in, you'll be taken back to where you left off</p>
                     {% endif %}
                     <p class="mt-2 mb-0">Looking to register?<a href="/checkout_register"> Right this way</a></p>
                     {#
@@ -68,7 +68,7 @@
                 </div><!-- / login-form -->
 
                 <div class="col-md-3 checkout-total">
-                    <h4>CART TOTAL: <span class="text-primary">$ {{session["transaction_values"]["grand_total"]}}</span></h4>
+                    <h4>CART TOTAL: <span class="text-primary" id="grandTotal"></span></h4>
                     <p class="text-sm">*The price includes shipping and taxes.</p>
                     <div class="cart-total-footer">
                         <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
@@ -84,4 +84,5 @@
 
 </section>
 <script type="module" src="/static/entry_points/outside/login.mjs"></script>
+<script type="module" src="/static/entry_points/shop/checkout_login.mjs"></script>
 {% endblock outside_content %}

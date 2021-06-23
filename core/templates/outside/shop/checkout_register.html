@@ -25,7 +25,7 @@
                 <div class="col-md-9 checkout-form">
                     <h4>Register</h4>
                     <div class="col-lg-8">
-                        <form class="bg-white shadow p-3" id="signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
+                        <form class="bg-white shadow p-3" id="signup_form" method="POST" request_redirect_to="{{ redirect_to }}"> {# POST so that if JS fails the password doesn't get leaked #}
                             <div class="row">
                                 <div class="col-lg-12 form-group">
                                     <small class="text-muted"><span style="color: red;">*Required</span></small>
@@ -191,6 +191,9 @@
                                 account...</p>
                             <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
                                 error...</p>
+                                {% if redirect_to != '' and redirect_to is not none %}
+                                <p class="mt-2 mb-0">Once you sign up, you'll be taken to checkout</p>
+                                {% endif %}
                             <p class="mt-2 mb-0">Looking to sign in?<a href="/login"> Right this way</a></p>
                         </form>
         
@@ -198,7 +201,7 @@
                 </div><!-- / checkout-form -->
 
                 <div class="col-md-3 checkout-total">
-                    <h4>CART TOTAL: <span class="text-primary">$ {{session["transaction_values"]["grand_total"]}}</span></h4>
+                    <h4>CART TOTAL: <span class="text-primary" id="grandTotal"></span></h4>
                     <p class="text-sm">*The price includes shipping and taxes.</p>
                     <div class="cart-total-footer">
                         <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
@@ -213,5 +216,5 @@
 
 
 </section>
-<script type="module" src="/static/entry_points/shop/checkout.mjs"></script>
+<script type="module" src="/static/entry_points/shop/checkout_signup.mjs"></script>
 {% endblock outside_content %}

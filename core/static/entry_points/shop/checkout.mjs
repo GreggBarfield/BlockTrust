@@ -38,3 +38,5 @@ let form1 = new AsyncForm({
     },
     requestRedirectTo: requestRedirectTo
 });
+
+$("#grandTotal").text(localStorage.getItem('grandTotal'))

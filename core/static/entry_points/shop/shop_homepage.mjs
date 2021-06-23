@@ -11,14 +11,7 @@ $( ".form-inline" ).submit(function( event ) {
     }
     if(!localStorage.totalPrice){
     localStorage.setItem('totalPrice', 0);
-    }/*
-    if(!localStorage.totalTax){
-        localStorage.setItem('tax', 0)
     }
-    if(!localStorage.grandTotal){
-        localStorage.setItem('grandTotal', 0)
-    }
-    */
 
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString)
@@ -50,7 +43,7 @@ $( ".form-inline" ).submit(function( event ) {
     // Calculating tax
     var total_tax=Math.round(total_price*0.0825*100)/100;
     // Grand total after adding total price, total tax and shipping
-    var grand_total=total_price+total_tax+15;
+    var grand_total=Math.round((total_price+total_tax+15)*100)/100;
     
     localStorage.setItem('totalPrice', total_price);
     localStorage.setItem('totalTax', total_tax);
