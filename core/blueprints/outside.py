@@ -389,6 +389,7 @@ def serve_checkout_register_action():
         return jsonify({"error": str(e)})
 
 
+# Checkout form to get user information and payment information
 @bp.route('/checkout', methods=['GET'])
 def serve_checkout():
     return outside_render('shop/checkout.html')
@@ -400,6 +401,12 @@ def serve_checkout_submit():
     # print(request.form)
     # Need to implement checking functions to check validity of entered data
     try:
-        return jsonify({"redirect": "/checkout"})
+        return jsonify({"redirect": "/invoice"})
     except ExportException as e:
         return jsonify({"error": str(e)})
+
+
+# Invoice routes
+@bp.route('/invoice', methods=['GET'])
+def serve_invoice():
+    return outside_render('shop/invoice.html')
