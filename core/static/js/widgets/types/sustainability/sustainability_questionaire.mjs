@@ -10,12 +10,14 @@ export class SustainabilityQuestionaireWidget extends Widget {
     }
 
     initType() {
-        
+
         this.frame.innerHTML = "";
 
-        this.inputs = {};
+        this.inputs = [];
 
         this.generate();
+
+
 
 
     }
@@ -83,6 +85,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
         let airBody = document.createElement("div");
         airBody.className = "card-body";
         air.append(airBody);
+
 
         let q1 = createQuestion(airBody, "air1", "Are all employees trained through the LMA Guide to Animal Handling & Employee Training?", "The principles of the LMA Guide are followed and there is some training provided.",
             "No training is given and the topic is not addressed.", "Supervisors and employees are fully trained by recognized trainers and remain up-to-date.");
@@ -188,7 +191,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
 
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
-        submitButton.textContent = "Save";
+        submitButton.textContent = "Submit";
         // submitButton.style="right: align-right";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
@@ -210,6 +213,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
         this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(this.internalErrorMessage);
 
+
         this.asyncForm = new AsyncForm({
             action: "/widgets/data/save_sustainability",
             form: form,
@@ -221,7 +225,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
             getData: () => {
 
                 return {
-                    
+
                     response: {
                         1: $(q1).val(),
                         2: $(q2).val(),
@@ -242,13 +246,39 @@ export class SustainabilityQuestionaireWidget extends Widget {
         });
 
         submitButton.addEventListener("click", () => {
-           
+            this.inputs = [$(q1).val(),
+                $(q2).val(),
+                $(q3).val(),
+                $(q4).val(),
+                $(q5).val(),
+                $(q6).val(),
+                $(q7).val(),
+                $(q8).val(),
+                $(q9).val(),
+                $(q10).val(),
+                $(q11).val(),
+                $(q12).val(),
+                $(q13).val()]
+            if (this.allAnswered()){
+                this.internalErrorMessage.style.display = "none";
+                this.asyncForm.submit();
+            }
             
-                
-                        this.asyncForm.submit();
-     
+
         });
 
+
+    }
+    allAnswered() {
+        
+        for (var i of this.inputs) {
+            if (i == 'Any') {
+                this.internalErrorMessage.style.display = "block";
+                this.internalErrorMessage.textContent = "Please complete the questionnaire";
+                return false
+            }
+        }
+        return true
 
     }
 
