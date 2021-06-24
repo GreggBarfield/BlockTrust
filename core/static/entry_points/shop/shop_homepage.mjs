@@ -19,7 +19,6 @@ $( ".form-inline" ).submit(function( event ) {
     var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value)};
     var product_no=values[0].value;
     // Checking if product is already present in the localStorage and performing necessary actions
-    console.log("Calculating")
     if(!(product_no in shopCart)){
     shopCart[product_no]=product;
     localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
@@ -44,5 +43,10 @@ $( ".form-inline" ).submit(function( event ) {
     localStorage.setItem('totalPrice', total_price);
     localStorage.setItem('totalTax', total_tax);
     localStorage.setItem('grandTotal', grand_total); 
+    //Closing the modal and removing the modal backdrop 
+    var modalID='#product'+product_no
+    $(modalID).modal('hide');
+    $('body').removeClass('modal-open');
+    $('.modal-backdrop').remove();
   });
 
