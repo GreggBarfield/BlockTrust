@@ -4,7 +4,6 @@ let signupForm = $("#signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
 
-
 let username = signupForm.find("#signup_form_username");
 let email = signupForm.find("#signup_form_email");
 let password = signupForm.find("#signup_form_password");

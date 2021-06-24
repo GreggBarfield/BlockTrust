@@ -309,10 +309,8 @@ def serve_contact_email():
 
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
-    if g.user is None:
-        return outside_render("shop/shop_homepage.html")
-    else:
-        return outside_render("shop/shop_homepage.html")
+    return outside_render("shop/shop_homepage.html")
+
 
 # Routes for adding and deleting cart items
 

@@ -132,9 +132,6 @@
     -webkit-animation: loading 2s infinite ease;
     animation: loading 2s infinite ease;
   }
-
- 
-  
   @-webkit-keyframes loading {
     0% {
       -webkit-transform: rotate(0deg);
@@ -160,5 +157,3 @@
       width: 80vw;
     }
   }
-
-
