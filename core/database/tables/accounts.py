@@ -45,6 +45,31 @@ class Accounts:
         if len(account_rows) != 1:
             raise AccountsException("No account found with that ID.")
         return Account(self._db, account_rows[0])
+        
+    def get_partners_by_sector_id(self, sector_id):
+        """Gets an patners in the accounts table using sector ID.
+
+        Params:
+            id: the sector id
+        
+        Returns:
+            One or more partner Account() object
+
+        Raises:
+            AccountsException on ID not found
+        """
+        partner_rows = self._db.execute_d(
+            """SELECT * FROM accounts
+                WHERE sector=%(id)s AND is_partner=1
+            """,
+            {
+                "id": sector_id
+            }
+        )
+        return [
+            Account(self._db, partner_row)
+            for partner_row in partner_rows
+        ]
 
 
     def get_by_account_user(self, account_user):
@@ -112,7 +137,7 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector, partner, affiliate_id, city, state, zip, phone):
+    def create_account(self, user, name, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account with the user automatically added.
 
         Params:
@@ -122,6 +147,7 @@ class Accounts:
             sector: the sector number
             partner: partner id
             affiliate_id: account number in our partners system
+            address: company's address
             city: company's city
             state: company's state
             zip: company's zip
@@ -156,9 +182,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector, partner, affiliate_id, city, state, zip, phone)
+                (name, company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+                    (%(name)s, %(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
             """,
             {
                 "name": name,
@@ -166,6 +192,7 @@ class Accounts:
                 "sector": sector,
                 "partner":partner,
                 "affiliate_id": affiliate_id,
+                "address": address,
                 "city": city,
                 "state": state,
                 "zip": zip,

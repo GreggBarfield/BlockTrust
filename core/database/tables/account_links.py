@@ -182,7 +182,7 @@ class AccountLinks:
             """
                 UPDATE account_links
                 SET account=%(account)s
-                WHERE account_links.partner=%(partner)s AND account_links.uid=%(uid)s
+                WHERE account_links.partner_account=%(partner)s AND account_links.uid=%(uid)s
             """,
                 {
                     "account": account,

@@ -47,7 +47,7 @@ class Account:
         return sectors_by_id[self._row['sector']]
 
     def partner(self):
-        return self._row['partner']
+        return self._row['partner_account']
 
     def affiliate_id(self):
         return self._row['affiliate_id']
