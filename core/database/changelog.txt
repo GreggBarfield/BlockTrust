@@ -280,3 +280,22 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 /* Rohan Sureshkumar 6/6/2021 */
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
+
+/* Nisheet Thakur 06/24/2021 */
+ALTER TABLE product_table RENAME TO products;
+ALTER TABLE products RENAME COLUMN prod_no TO product_no;
+ALTER TABLE products RENAME COLUMN cc_charge TO creditcard_charge;
+ALTER TABLE products RENAME COLUMN orig_price TO original_price;
+
+ALTER TABLE transactions RENAME TO orders;
+ALTER TABLE orders RENAME COLUMN trans_no TO transaction_no;
+ALTER TABLE orders RENAME COLUMN acct_no TO account_no;
+ALTER TABLE orders RENAME COLUMN tot_tax TO total_tax;
+ALTER TABLE orders RENAME COLUMN tot_ship TO total_shipping;
+ALTER TABLE orders RENAME COLUMN tot_cart TO total_cart;
+ALTER TABLE orders RENAME COLUMN appr_code TO approval_code;
+ALTER TABLE orders RENAME COLUMN sess_flag TO session_flag;
+ALTER TABLE orders RENAME COLUMN grand_tot TO grand_total;
+ALTER TABLE orders RENAME COLUMN trans_date TO transaction_date;
+
+

@@ -7,9 +7,6 @@ from ..database.objects.account import Account
 
 SESSION_USER_ID_VAR = "user_id"
 SESSION_ACCOUNT_ID_VAR = "account_id"
-SESSION_SHOPPING_CART = "shopping_cart"
-ALL_TOTAL_PRICE = "all_total_price"
-TRANSACTION_VALUES = "transaction_values"
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
@@ -355,17 +352,6 @@ def login(identifier, password="", override=False):
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
-        # Creating a session shopping cart
-        session[SESSION_SHOPPING_CART] = {}
-        # Session object to store transaction values
-        # Shipping value is set to flat $15 which can be changed here
-        session[TRANSACTION_VALUES] = {
-            'all_total_price': 0.0,
-            'total_tax': 0.0,
-            'total_shipping': 15.0,
-            'grand_total': 0.0
-        }
-
         return g.user
     except LoginException as e:
         raise e

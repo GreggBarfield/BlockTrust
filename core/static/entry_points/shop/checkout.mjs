@@ -11,6 +11,11 @@ if(checkoutForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=checkoutForm[0].getAttribute("request_redirect_to");
 }
 
+let shoppingCartString=""
+if(localStorage.shoppingCart){
+shoppingCartString=localStorage.getItem("shoppingCart")
+}
+
 let form1 = new AsyncForm({
     action:"/checkout",
     form: checkoutForm[0],
@@ -33,7 +38,8 @@ let form1 = new AsyncForm({
             exp_month: checkoutForm.find("input[name='exp-month']").val(),
             exp_year: checkoutForm.find("input[name='exp-year']").val(),
             cvv: checkoutForm.find("input[name='cvv']").val(),
-            message: checkoutForm.find("input[name='message']").val()
+            message: checkoutForm.find("input[name='message']").val(),
+            shoppingCart: shoppingCartString
         }
     },
     requestRedirectTo: requestRedirectTo

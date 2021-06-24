@@ -335,7 +335,10 @@ def serve_shopping_cart():
 
 @bp.route('/checkout_login', methods=['GET', 'POST'])
 def serve_checkout_login():
-    return outside_render('shop/checkout_login.html', {"redirect_to": '/checkout'})
+    if g.user is None:
+        return outside_render('shop/checkout_login.html', {"redirect_to": '/checkout'})
+    else:
+        return outside_render('shop/checkout.html')
 
 
 @bp.route('/checkout_register', methods=['GET'])
@@ -396,7 +399,7 @@ def serve_checkout():
 @bp.route('/checkout', methods=['POST'])
 def serve_checkout_submit():
     # Use this print statement to view form data submitted on checkout
-    # print(request.form)
+    print(request.form)
     # Need to implement checking functions to check validity of entered data
     try:
         return jsonify({"redirect": "/invoice"})

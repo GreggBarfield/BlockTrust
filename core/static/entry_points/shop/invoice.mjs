@@ -2,10 +2,11 @@ $(document).ready(function() {
     if(localStorage.shoppingCart){
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString)
-
+    // Printing out the shopping cart information
     Object.values(shopCart).forEach(val=>{
         $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>'+ val.price +'</td><td>'+ val.price*val.quantity +'</td></tr>');
     });
+    //Printing out subtotals and other transaction values
     $("#subtotal").text(localStorage.getItem('totalPrice'))
     $("#shipping").text(localStorage.getItem('shipping'))
     $("#tax").text(localStorage.getItem('totalTax'))
@@ -19,7 +20,7 @@ $(document).ready(function() {
     today = mm + '/' + dd + '/' + yyyy;
     $("#date").text(today)
     }
-
+    // Generating Invoice report
     function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
         var WinPrint = window.open('', '', 'width=900,height=650');
@@ -28,6 +29,7 @@ $(document).ready(function() {
         WinPrint.focus();
         WinPrint.print();
         WinPrint.close();
+        
         console.log("printing")
     }
 
