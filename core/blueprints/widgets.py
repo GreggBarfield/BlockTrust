@@ -236,7 +236,7 @@ def serve_save_sustainability():
         g.account.id(),
         request.json["response"]
     )
-    return {}, 200
+    return { "redirect": "/dashboard/sustainability/summary"}
     
 
 
