@@ -245,8 +245,8 @@ CHANGE COLUMN `uid` `uid` VARCHAR(127) NULL ;
 /* Rohan Sureshkumar 6/24/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `address` VARCHAR(255) NULL DEFAULT NULL AFTER `affiliate_id`,
-ADD COLUMN `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_customer_id`,
-ADD COLUMN `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `create_timestamp`,
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_customer_id`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`,
 ADD COLUMN `partner_contact_name` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `is_partner`,
 ADD COLUMN `partner_contact_email` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `partner_contact_name`;
 
