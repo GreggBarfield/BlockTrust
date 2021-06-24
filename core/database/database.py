@@ -55,7 +55,6 @@ class Database:
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
-        self.partners = Partners(self)
 
     def connect(self):
         try:
