@@ -221,8 +221,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
             getData: () => {
 
                 return {
-                    id: 1,
-                    username: "test",
+                    
                     response: {
                         1: $(q1).val(),
                         2: $(q2).val(),

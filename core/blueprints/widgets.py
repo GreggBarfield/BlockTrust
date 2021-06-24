@@ -233,7 +233,7 @@ def serve_save_sales_group():
 @crut.require_account
 def serve_save_sustainability():
     g.db.sustainability.insert(
-        request.json["username"],
+        g.account.id(),
         request.json["response"]
     )
     return {}, 200

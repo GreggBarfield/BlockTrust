@@ -234,6 +234,6 @@ ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
 /* Lydia Qiao 6/17/2021 */
 CREATE TABLE `example_db_1`.`sustainability` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(127) NULL DEFAULT NULL,
+  `account` VARCHAR(127) NULL DEFAULT NULL,
   `response` JSON NULL DEFAULT NULL,
   PRIMARY KEY (`id`));
