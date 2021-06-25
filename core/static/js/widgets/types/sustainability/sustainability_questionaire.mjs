@@ -1,9 +1,6 @@
 import { Widget } from "../../widget.mjs";
 import { ProgressBar } from "../../../core/progress_bar.mjs";
 import { AsyncForm } from "../../../../global/async_form.mjs";
-import { SalesGroupViewer } from "../../../sales_groups/view_sales_group.mjs";
-import { SalesGroupFields } from "../../../sales_groups/sales_group_fields.mjs";
-// import { } from "../../../../questionnaire";
 
 export class SustainabilityQuestionaireWidget extends Widget {
     constructor(frame) {
@@ -261,7 +258,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
             }
         });
     }
-    
+
     allAnswered() {
         for (var i in this.submitResponse) {
             if (this.submitResponse[i] == "Any") {
