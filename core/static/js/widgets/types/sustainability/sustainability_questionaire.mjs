@@ -1,8 +1,9 @@
-import { Widget } from '../../widget.mjs';
-import { ProgressBar } from '../../../core/progress_bar.mjs';
-import { AsyncForm } from '../../../../global/async_form.mjs';
-import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
-import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { Widget } from "../../widget.mjs";
+import { ProgressBar } from "../../../core/progress_bar.mjs";
+import { AsyncForm } from "../../../../global/async_form.mjs";
+import { SalesGroupViewer } from "../../../sales_groups/view_sales_group.mjs";
+import { SalesGroupFields } from "../../../sales_groups/sales_group_fields.mjs";
+// import { } from "../../../../questionnaire";
 
 export class SustainabilityQuestionaireWidget extends Widget {
     constructor(frame) {
@@ -10,21 +11,125 @@ export class SustainabilityQuestionaireWidget extends Widget {
     }
 
     initType() {
-
         this.frame.innerHTML = "";
 
         this.inputs = [];
 
         this.generate();
-
-
-
-
     }
 
+    selectSection = {};
+
+    submitResponse = {};
+
+    questions = {
+        questions: {
+            air: {
+                1: "Do you have a grazing management plan (GMP)?",
+                2: "Do you, or does your grazing management plan (GMP), consider livestock distribution and/or stocking rate for optimal forage health?",
+                3: "Do you identify high use areas and/or strive to reduce soil erosion?",
+            },
+            animal: {
+                1: "Do you utilize the Beef Quality Assurance (BQA) Program principles?",
+                2: "Do you have a herd health plan developed through a Veterinary-Client Patient Relationship (VCPR)?",
+                3: "Do you implement a disease prevention plan that includes vaccination, biosecurity and nutrition protocols, which improves cattle health and reduces the need for antibiotics?",
+            },
+            efficiency: {
+                1: "Have you measured pounds weaned per cow or a similar production efficiency measurement and compared it from year to year?",
+                2: "When determining mating decisions are you selecting bulls based on a breeding plan that includes marketing goals and considers your cowherd's strengths and weaknesses?",
+                3: "Does your operation record revenues and expenses throughout the year in an accounting format?",
+            },
+            safety: {
+                1: "Have employees been trained on stockmanship techniques and their importance?",
+                2: "Do you conduct safety trainings for all employees?",
+                3: "Does your operation actively try to mitigate or remove safety hazards in facilities and equipment?",
+            },
+            land: {
+                1: "Is the operation setup in an estate plan or other type of succession plan that keeps it in working lands?",
+                2: "Do you have a grazing management plan (GMP) that includes contingency plans for natural disasters (whatever is applicable in your region: drought, flood, fire, hurricane, blizzard)?",
+                3: "Do you have a grazing management plan (GMP) that considers protection of local endangered species and reduction of invasive plants?",
+                4: "Is wildlife conservation taken into account in your GMP?",
+            },
+            water: {
+                1: "Have you leveraged outside resources to help you protect existing, or develop new water resources? (examples may include: private technical service providers, Cooperative)",
+                2: "Do you or does your grazing management plan (GMP) identify wetland areas or navigable waterways on your operation and manage grazing to protect and/or improve them?",
+                3: "Do you have a plan to improve water resources, distribution and access for your cattle? (examples may be: spring development, solar wells, rotational grazing, alternative water)",
+            },
+        },
+        answers: {
+            air: {
+                "1a": "Yes, we manage our grazing with a plan, but it is not a written plan.",
+                "1b": "I don't have a formal grazing management plan.",
+                "1c": "Yes, we have a written grazing management plan.",
+                "2a": "Both are analyzed annually, but no written records are kept.",
+                "2b": "We stock our grazing land at generally the same level each year.",
+                "2c": "Both are analyzed annually, and records are kept to evaluate long term.",
+                "3a": "No, we are not working to reduce erosion at this time.",
+                "3b": "Yes, we identify erosion prone areas and work to limit erosion.",
+                "3c": "Yes, we are making plans to manage erosion-prone areas.",
+            },
+            animal: {
+                "1a": "We are not certified but follow BQA principles.",
+                "1b": "We don't follow BQA principles.",
+                "1c": "All animal handlers are BQA certified.",
+                "2a": "The veterinarian visits routinely and is familiar with our operation and animals.",
+                "2b": "We call the veterinarian for emergencies, but not for routine procedures.",
+                "2c": "We handle most issues on-site without vet consultation.",
+                "3a": "We don't have a formal plan that addresses these areas.",
+                "3b": "Our plan includes all these components.",
+                "3c": "Our plan includes some of these protocols, but not all.",
+            },
+            efficiency: {
+                "1a": "Yes",
+                "1b": "No",
+                "1c": "",
+                "2a": "I usually get a bull based on visual appraisal, but I don't use EPDs or performance information.",
+                "2b": "Yes, I select sires to use in an AI program based on EPDs and/or performance of my cowherd as well as the bull.",
+                "2c": "I trust my breeder to select a bull for me that fits my needs.",
+                "3a": "We keep track of expenses and evaluate periodically.",
+                "3b": "We reconcile our accounts when it becomes important.",
+                "3c": "We use an accounting program to accurately track revenues and expenses in real time.",
+            },
+            safety: {
+                "1a": "We have not gone through any trainings, and do not intend to.",
+                "1b": "Everyone who handles livestock has been trained or certified and implements these techniques consistently.",
+                "1c": "Some, but not all, who handle livestock have been through trainings on stockmanship.",
+                "2a": "New employees are provided with safety training in the tasks they perform.",
+                "2b": "We have no official training or safety protocol.",
+                "2c": "We conduct or attend safety trainings for all employees at least annually.",
+                "3a": "Yes, where possible we conduct an analysis of hazards and try to eliminate or reduce risk.",
+                "3b": "No, it is up to each person to operate machinery, handle livestock, or do other hazardous jobs in a safe manner.",
+                "3c": "",
+            },
+            land: {
+                "1a": "Yes, we have a legal arrangement for the operation to remain a working landscape through ownership transfer.",
+                "1b": "We have a will and the heirs will decide what to do with the property.",
+                "1c": "We intend to get a succession plan put together at some point.",
+                "2a": "We do not have a written grazing management plan.",
+                "2b": "Contingency plans are incorporated into our grazing management plan for natural disasters that occur in our area.",
+                "2c": "Our grazing management plan does not currently address disasters/contingency plans.",
+                "3a": "Yes, our GMP does specifically address these and we implement measures for both endangered species and invasive plants.",
+                "3b": "Our GMP addresses one of these considerations.",
+                "3c": "Our GMP does not currently address either of these topics or we don't have a GMP.",
+                "4a": "Wildlife is not a concern on our operation.",
+                "4b": "Wildlife management is a priority in my grazing management plan.these topics or we don't have a GMP.",
+                "4c": "I leave food and cover for wildlife when possible.",
+            },
+            water: {
+                "1a": "Yes",
+                "1b": "No",
+                "1c": "",
+                "2a": "We do not have wetland areas on our operation.",
+                "2b": "We do not have a GMP and we don't manage water features on our operation.",
+                "2c": "Yes, we have done an inventory of wetlands on our property and manage cattle grazing to protect or improve them.",
+                "3a": "Yes",
+                "3b": "No, we do not have a GMP or it doesn't involve water source improvements.",
+                "3c": "",
+            },
+        },
+    };
 
     generate() {
-
         function createOption(input, value, text) {
             let option = document.createElement("option");
             option.value = value;
@@ -32,10 +137,11 @@ export class SustainabilityQuestionaireWidget extends Widget {
             input.append(option);
             return option;
         }
+
         function createQuestion(card, id, question, a, b, c) {
-            let row = document.createElement("div")
-            row.className = "form-row"
-            card.append(row)
+            let row = document.createElement("div");
+            row.className = "form-row";
+            card.append(row);
 
             let group = document.createElement("div");
             group.className = "form-group col-md-12";
@@ -46,144 +152,60 @@ export class SustainabilityQuestionaireWidget extends Widget {
             group.append(label);
 
             let input = document.createElement("select");
-            // input.type = "option";
             input.className = "form-control";
             input.id = id;
             group.append(input);
 
-            createOption(input, "Any", "Please Choose")
-            createOption(input, id + "A", a)
-            createOption(input, id + "B", b)
+            createOption(input, "Any", "Please Choose");
+            createOption(input, id + "A", a);
+            createOption(input, id + "B", b);
             if (c != "") {
-                createOption(input, id + "C", c)
-
+                createOption(input, id + "C", c);
             }
-
-
-
             return input;
         }
 
-        //Air & Greenhouse Gas Emissions
+        function createSection(header, name, form) {
+            let card = document.createElement("div");
+            card.className = "card";
+
+            let cardHeader = document.createElement("div");
+            cardHeader.className = "card-header";
+            card.append(cardHeader);
+
+            let cardHeaderText = document.createElement("div");
+            cardHeaderText.className = "h4";
+            cardHeaderText.textContent = header;
+            cardHeader.append(cardHeaderText);
+
+            let cardBody = document.createElement("div");
+            cardBody.className = "card-body";
+            card.append(cardBody);
+
+            for (var n in that.questions["questions"][name]) {
+                that.selectSection[name + n] = createQuestion(
+                    cardBody,
+                    name,
+                    that.questions["questions"][name][n],
+                    that.questions["answers"][name][n + "a"],
+                    that.questions["answers"][name][n + "b"],
+                    that.questions["answers"][name][n + "c"]
+                );
+            }
+            form.append(card);
+        }
+
         let that = this;
+
         let form = document.createElement("form");
-        this.frame.append(form)
-        // cardBody.append(form);
+        this.frame.append(form);
 
-        let air = document.createElement("div");
-        air.className = "card";
-
-        let airHeader = document.createElement("div");
-        airHeader.className = "card-header";
-        air.append(airHeader);
-
-        let airHeaderText = document.createElement("div");
-        airHeaderText.className = "h4";
-        airHeaderText.textContent = "Air & Greenhouse Gas Emissions";
-        airHeader.append(airHeaderText);
-
-        let airBody = document.createElement("div");
-        airBody.className = "card-body";
-        air.append(airBody);
-
-
-        let q1 = createQuestion(airBody, "air1", "Are all employees trained through the LMA Guide to Animal Handling & Employee Training?", "The principles of the LMA Guide are followed and there is some training provided.",
-            "No training is given and the topic is not addressed.", "Supervisors and employees are fully trained by recognized trainers and remain up-to-date.");
-        let q2 = createQuestion(airBody, "air2", "Is there proper training and oversight in place to prohibit animal abuse?",
-            "We have some training but there isn’t a process for reporting or even what to report.", "No training is provided.", "Yes, we have the training and we empower our employees at all levels to watch for issues.")
-        let q3 = createQuestion(airBody, "air3", "Does the auction have protocols for non-ambulatory animals and euthanasia?", "No protocol and it is up to the supervisors to take care of these issues.",
-            "Yes, only persons trained are allowed to euthanize animals.", "We don’t have a protocol but we do report down animals to our supervisor and they take care of it.")
-
-        let q4 = createQuestion(airBody, "air4", "Are all the proper facilities recommendations implemented at the auction to reduce animal stress and injury?",
-            "The facility was designed based on the guidelines at the time.",
-            "The facility is in need of significant updates to come in line with current recommendations.", "All facilities are in line with the LMA guidelines for facilities and are monitored for potential injury-causing issues.")
-
-        let q5 = createQuestion(airBody, "air5", "Does the auction emphasize the BQA Transportation Guidelines to its customers?",
-            "Yes",
-            "No", "")
-
-        // this.frame.append(air);
-        form.append(air);
-
-        //Employee Safety & Well-Being
-
-        let employee = document.createElement("div");
-        employee.className = "card";
-
-        let employeeHeader = document.createElement("div");
-        employeeHeader.className = "card-header";
-        employee.append(employeeHeader);
-
-        let employeeHeaderText = document.createElement("div");
-        employeeHeaderText.className = "h4";
-        employeeHeaderText.textContent = "Employee Safety & Well-Being";
-        employeeHeader.append(employeeHeaderText);
-
-        let employeeBody = document.createElement("div");
-        employeeBody.className = "card-body";
-        employee.append(employeeBody);
-
-        let q6 = createQuestion(employeeBody, "employee1", "Does the auction have a written safety plan and is it provided to the employees?",
-            "Nothing written but accidents are strongly discouraged.",
-            "Yes, we have a fully developed plan that is updated regularly along with mandatory training.",
-            "We have a written safety plan that we got from a state or industry labor group.")
-
-        let q7 = createQuestion(employeeBody, "employee2", "Are regular safety meetings held and is job-specific training provided?",
-            "We have training and some specific training is done but it isn’t mandatory.",
-            "A few times a year someone comes by and talks about safety.",
-            "Regular mandatory meetings are held and additional area-specific training is provided.")
-        let q8 = createQuestion(employeeBody, "employee3", "Are accidents and injuries documented and reported to OSHA if needed?",
-            "We report our serious accidents if worker’s compensation is needed.",
-            "We are fully compliant with OSHA reporting, have robust records, and review internally.",
-            "We report our required OSHA accidents and have a compliant system for reporting.")
-
-        // this.frame.append(employee);
-        form.append(employee);
-
-
-        //Water Resources
-
-
-        let water = document.createElement("div");
-        water.className = "card";
-
-        let waterHeader = document.createElement("div");
-        waterHeader.className = "card-header";
-        water.append(waterHeader);
-
-        let waterHeaderText = document.createElement("div");
-        waterHeaderText.className = "h4";
-        waterHeaderText.textContent = "Water Resources";
-        waterHeader.append(waterHeaderText);
-
-        let waterBody = document.createElement("div");
-        waterBody.className = "card-body";
-        water.append(waterBody);
-
-        let q9 = createQuestion(waterBody, "water1", "Does the auction or parent organizations support community activities and encourage employee involvement?",
-            "No formal process but we support our local community, and allow employees to take time to participate.",
-            "We don’t have any sort of program to speak of.",
-            "We have a structured support/donation policy and encourage our employees to participate.")
-
-        let q10 = createQuestion(waterBody, "water2", "If required for the facility does the auction have a waste water permit and is it in compliance with the permit?",
-            "I believe we have permits or are exempt from them but haven’t really checked.",
-            "We have a permit or confirmed exemption and compliance is assured by our trained staff.",
-            "We have a permit and with help we keep the permit in compliance.")
-        let q11 = createQuestion(waterBody, "water3", "Does the auction have a nutrient management plan and is it being implemented?",
-            "Yes",
-            "No", "")
-        let q12 = createQuestion(waterBody, "water4", "Does the auction have a written water management strategy including measures to prevent leaks and protect water quality?",
-
-            "Yes, we have an extensive strategy and we adopt new technology whenever possible.",
-            "We have a water strategy and we try to check it periodically.",
-            "No real strategy.")
-        let q13 = createQuestion(waterBody, "water5", "Are employees with environmental responsibilities regularly trained?",
-            "Annually.",
-            "Less than annually.", "Rarely or not at all.")
-
-        // this.frame.append(water);
-        form.append(water)
-
+        createSection("Air & Greenhouse Gas Emissions", "air", form);
+        createSection("Animal Health & Well-Being", "animal", form);
+        createSection("Efficiency & Yield", "efficiency", form);
+        createSection("Employee Safety & Well-Being", "safety", form);
+        createSection("Land Resources", "land", form);
+        createSection("Water Resources", "water", form);
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
@@ -192,7 +214,6 @@ export class SustainabilityQuestionaireWidget extends Widget {
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
         submitButton.textContent = "Submit";
-        // submitButton.style="right: align-right";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
 
@@ -204,15 +225,16 @@ export class SustainabilityQuestionaireWidget extends Widget {
         statusMessage.style.display = "none";
         statusMessage.className = "mt-2 mb-0";
         form.append(statusMessage);
+
         let errorMessage = document.createElement("p");
         errorMessage.style.display = "none";
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
+
         this.internalErrorMessage = document.createElement("p");
         this.internalErrorMessage.style.display = "none";
         this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(this.internalErrorMessage);
-
 
         this.asyncForm = new AsyncForm({
             action: "/widgets/data/save_sustainability",
@@ -223,65 +245,32 @@ export class SustainabilityQuestionaireWidget extends Widget {
             loadingMessage: "Saving...",
             asJSON: true,
             getData: () => {
-
                 return {
-
-                    response: {
-                        1: $(q1).val(),
-                        2: $(q2).val(),
-                        3: $(q3).val(),
-                        4: $(q4).val(),
-                        5: $(q5).val(),
-                        6: $(q6).val(),
-                        7: $(q7).val(),
-                        8: $(q8).val(),
-                        9: $(q9).val(),
-                        10: $(q10).val(),
-                        11: $(q11).val(),
-                        12: $(q12).val(),
-                        13: $(q13).val()
-                    }
-                }
-            }
+                    response: that.submitResponse,
+                };
+            },
         });
 
         submitButton.addEventListener("click", () => {
-            this.inputs = [$(q1).val(),
-                $(q2).val(),
-                $(q3).val(),
-                $(q4).val(),
-                $(q5).val(),
-                $(q6).val(),
-                $(q7).val(),
-                $(q8).val(),
-                $(q9).val(),
-                $(q10).val(),
-                $(q11).val(),
-                $(q12).val(),
-                $(q13).val()]
-            if (this.allAnswered()){
+            for (var i in that.selectSection) {
+                that.submitResponse[i] = $(that.selectSection[i]).val();
+            }
+            if (this.allAnswered()) {
                 this.internalErrorMessage.style.display = "none";
                 this.asyncForm.submit();
             }
-            
-
         });
-
-
     }
+    
     allAnswered() {
-        
-        for (var i of this.inputs) {
-            if (i == 'Any') {
+        for (var i in this.submitResponse) {
+            if (this.submitResponse[i] == "Any") {
                 this.internalErrorMessage.style.display = "block";
-                this.internalErrorMessage.textContent = "Please complete the questionnaire";
-                return false
+                this.internalErrorMessage.textContent =
+                    "Please complete the questionnaire";
+                return false;
             }
         }
-        return true
-
+        return true;
     }
-
-
-
 }
