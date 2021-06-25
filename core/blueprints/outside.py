@@ -13,9 +13,6 @@ from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id
 
-SESSION_SHOPPING_CART = "shopping_cart"
-ALL_TOTAL_PRICE = "all_total_price"
-TRANSACTION_VALUES = "transaction_values"
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -309,7 +306,8 @@ def serve_contact_email():
 
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
-    return outside_render("shop/shop_homepage.html")
+    allProductData = auth.get_all_products()
+    return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
 # Routes for adding and deleting cart items

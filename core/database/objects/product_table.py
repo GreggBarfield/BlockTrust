@@ -14,7 +14,7 @@ class ProductTable:
         self._db = db
         self._row = deepcopy(row)
 
-    def prod_no(self):
+    def product_no(self):
         return self._row['prod_no']
 
     def menu1(self):
@@ -56,10 +56,10 @@ class ProductTable:
     def unit(self):
         return self._row['unit']
 
-    def cc_charge(self):
+    def creditcard_charge(self):
         return self._row['cc_charge']
 
-    def orig_price(self):
+    def original_price(self):
         return self._row['orig_price']
 
     def number_y_n(self):

@@ -415,5 +415,5 @@ def get_transaction_data(id):
     return g.db.transactions.getTransactionByID(id)
 
 
-def add_transaction_data():
-    return 1
+def get_all_products():
+    return g.db.product_table.get_all_products()
