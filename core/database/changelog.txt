@@ -183,8 +183,8 @@ ALTER TABLE `example_db_1`.`eid_group_eids`
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
 /* Nisheet Thakur 05/31/2021*/
-CREATE TABLE product_table(
-  prod_no INT,
+CREATE TABLE products(
+  product_no INT,
   menu1 CHAR(40),
   m1_short CHAR(20),
   menu2 CHAR(35),
@@ -199,8 +199,8 @@ CREATE TABLE product_table(
   subheader CHAR(50),
   details VARCHAR(500),
   unit CHAR(20),
-  cc_charge FLOAT,
-  orig_price FLOAT,
+  creditcard_charge FLOAT,
+  original_price FLOAT,
   number_y_n CHAR(1),
   start_no INT,
   end_no INT,
@@ -219,18 +219,16 @@ VALUES (2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_
 /* Nisheet Thakur 06/04/2021*/
 
 CREATE TABLE transactions(
-  trans_no INT,
-  acct_no INT,
-  tot_tax INT,
-  tot_ship INT,
-  tot_cart INT,
+  transaction_no INT,
+  account_no INT,
+  total_tax INT,
+  total_shipping INT,
+  total_cart INT,
   approved CHAR(10),
-  appr_code CHAR(20),
-  fname CHAR(10),
-  lname CHAR(10),
-  sess_flag CHAR(10),
-  grand_tot INT,
-  trans_date DATE
+  approval_code CHAR(20),
+  session_flag CHAR(10),
+  grand_total INT,
+  transaction_date DATE
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -280,22 +278,5 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 /* Rohan Sureshkumar 6/6/2021 */
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
-
-/* Nisheet Thakur 06/24/2021 */
-ALTER TABLE product_table RENAME TO products;
-ALTER TABLE products RENAME COLUMN prod_no TO product_no;
-ALTER TABLE products RENAME COLUMN cc_charge TO creditcard_charge;
-ALTER TABLE products RENAME COLUMN orig_price TO original_price;
-
-ALTER TABLE transactions RENAME TO orders;
-ALTER TABLE orders RENAME COLUMN trans_no TO transaction_no;
-ALTER TABLE orders RENAME COLUMN acct_no TO account_no;
-ALTER TABLE orders RENAME COLUMN tot_tax TO total_tax;
-ALTER TABLE orders RENAME COLUMN tot_ship TO total_shipping;
-ALTER TABLE orders RENAME COLUMN tot_cart TO total_cart;
-ALTER TABLE orders RENAME COLUMN appr_code TO approval_code;
-ALTER TABLE orders RENAME COLUMN sess_flag TO session_flag;
-ALTER TABLE orders RENAME COLUMN grand_tot TO grand_total;
-ALTER TABLE orders RENAME COLUMN trans_date TO transaction_date;
 
 

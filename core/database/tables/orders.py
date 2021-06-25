@@ -10,32 +10,32 @@ class TransactionException(Exception):
         super().__init__(reason)
 
 
-class Transactions:
+class Orders:
 
     def __init__(self, db):
         self._db = db
 
-    def getTransactionByID(self, user_id):
+    def getOrdersByAccountNumber(self, account_no):
         """Gets the transactions by a user.
 
         Params:
-            user_id: User's ID
+            account_no: User account number
 
         Returns:
             A Transaction object array on success, or None on no match.
         """
-        matching_transactions = self._db.execute_d(
+        matching_orders = self._db.execute_d(
             """
-                SELECT * FROM transactions
+                SELECT * FROM orders
                 WHERE
-                    acct_no=%(acct_no)s
+                    account_no=%(account_no)s
             """,
             {
-                "acct_no": user_id
+                "account_no": account_no
             }
         )
 
-        if len(matching_transactions) < 1:
+        if len(matching_orders) < 1:
             raise TransactionException()
 
-        return matching_transactions
+        return matching_orders

@@ -1,4 +1,4 @@
-from ..objects.product_table import ProductTable
+from ..objects.product import ProductTable
 
 
 class ProductTableException(Exception):
@@ -58,7 +58,7 @@ class ProductTable:
         )
 
         if len(matching_products) != 1:
-            raise ProductTableException()
+            return {}
         return matching_products[0]
 
     def get_price_by_id(self, product_no):

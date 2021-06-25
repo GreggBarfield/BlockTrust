@@ -385,7 +385,7 @@ def get_product_data(id):
     Returns:
         Object containing product data
     """
-    return g.db.product_table.get_by_id(id)
+    return g.db.products.get_by_id(id)
 
 
 def get_product_price(id):
@@ -397,7 +397,7 @@ def get_product_price(id):
     Returns:
         Price of the requested product
     """
-    return g.db.product_table.get_price_by_id(id)
+    return g.db.products.get_price_by_id(id)
 
 
 def get_transaction_data(id):
@@ -412,8 +412,8 @@ def get_transaction_data(id):
     Returns:
         Array containing transaction objects for the praticular user
     """
-    return g.db.transactions.getTransactionByID(id)
+    return g.db.orders.getOrdersByAccountNumber(account_no)
 
 
 def get_all_products():
-    return g.db.product_table.get_all_products()
+    return g.db.products.get_all_products()
