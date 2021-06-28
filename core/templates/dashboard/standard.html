@@ -202,15 +202,17 @@
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
                             <div>
-                              {{ g.account.name() | e }}
+                              {{ g.account.company() | e }}
                             </div>
                         </div>
                         <ul class="pro-body">
+                            {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="#">
                                     <i class="feather icon-user-plus"></i> Invite Users
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/dashboard/plans">
                                     <i class="feather icon-credit-card"></i> Subscription
@@ -230,12 +232,7 @@
                     </a>
                     <div class="b-expandable-icon b-user-settings">
                         <div class="pro-head">
-                            <img
-                                src="/static/css/dashboard/flashable/flash_able_old/images/user/avatar-1.jpg"
-                                class="img-radius"
-                                alt="User-Profile-Image"
-                            >
-                            <span>{{dashboard_standard_user_first}} {{dashboard_standard_user_last}}</span>
+                            <span>{{dashboard_standard_user_first}} {{dashboard_standard_user_last}}</span> 
                             <a href="/logout" title="Logout">
                                 <i class="feather icon-log-out"></i>
                             </a>
@@ -266,7 +263,7 @@
                     href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
                 >
                     <span><i class="feather icon-home"></i></span>
-                    <span>{{ dashboard_standard_account.name()|e }}</span>
+                    <span>{{ dashboard_standard_account.company()|e }}</span>
                 </a>
                 {% else %}
                 <a href="/dashboard/accounts">
@@ -307,9 +304,9 @@
             </li>
             {% endif %}
             <li>
-                <a href="/dashboard/reports">
+                <a href="/dashboard/sustainablity">
                     <span><i class="feather icon-trending-up"></i></span>
-                    <span>Reports</span>
+                    <span>Sustainablity</span>
                 </a>
                 <ul>
                     <li><a href="/dashboard/reports/carcass-trends">Carcass Data Trends</a></li>
