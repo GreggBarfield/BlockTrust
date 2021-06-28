@@ -123,7 +123,7 @@ def serve_signup_action():
                 zip_code=required['zip_code']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
-            raise ExportException("Signup failed. " + str(e))
+            raise ExportException("Signup failed: " + str(e))
 
         # Generating token identifier for user for email verification
         userToken = token.generateConfirmationToken(required['email'])

@@ -47,7 +47,7 @@ class Accounts:
         return Account(self._db, account_rows[0])
         
     def get_partners_by_sector_id(self, sector_id):
-        """Gets an patners in the accounts table using sector ID.
+        """Gets an partners in the accounts table using sector ID.
 
         Params:
             id: the sector id
