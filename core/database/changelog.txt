@@ -280,6 +280,7 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
 
+
 /* Rohan Sureshkumar 6/24/2021 */
 /* Partners will be stored in accounts table itself. This has already been built into the system and we will have to do to much rework 
    at this point, if we want to create a separate partners table, is_partner column will indicate if account is a partner */
@@ -308,3 +309,11 @@ INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_conta
 values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+    
+/* Nisheet Thakur 6/28/2021 */
+
+CREATE TABLE OrderProducts(
+order_no INT,
+product_no INT,
+product_quantity INT
+)
