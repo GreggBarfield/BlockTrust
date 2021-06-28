@@ -46,6 +46,9 @@ class Account:
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
 
+    def partner(self):
+        return self._row['partner_account']
+
     def affiliate_id(self):
         return self._row['affiliate_id']
 
@@ -82,7 +85,7 @@ class Account:
         try:
             self._db.account_users.add_user_to_account(user, self, is_admin)
         except AccountUsersException as e:
-            raise AccountException("Failed to add link: " + str(e))
+            raise AccountException("Failed to add user to the account: " + str(e))
 
     def account_links(self, allow_cache=True):
         """Get account's account links
@@ -96,3 +99,13 @@ class Account:
         if not allow_cache or not self._account_links:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
+
+    def update_account_links(self):
+        """Update the account links table with the matching account 
+
+         Returns:
+            None
+        """
+        if self.partner() != None and self.affiliate_id() != None:
+            self._db.account_links.add_account_to_account_link(self.partner(), self.affiliate_id(), self.id())
+      
