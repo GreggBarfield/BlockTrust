@@ -209,8 +209,9 @@ CREATE TABLE products(
 
 /* Nisheet Thakur 05/31/2021*/
 
-INSERT INTO product_table (prod_no,product,pic_1,pic_2,price,orders,post,subheader,unit,details)
-VALUES (2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_detail.png",4.26,0,"Y","ANXLCHSet33**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with HDX 840 EID tag" )
+INSERT INTO products (product_no,product,pic_1,pic_2,price,orders,post,subheader,unit,details)
+VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_detail.png",3.63,0,"ANXLCHSet22**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with FDX 840 EID tag.")
+,(2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_detail.png",4.26,0,"Y","ANXLCHSet33**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with HDX 840 EID tag." )
 ,(3,"FDX USDA 840","840_fdx_lg.png","840_fdx_lg_detail.png",55.9,0,"Y","tag","Bags of 25","Destron Fearing USDA 840 FDX EID tag with small male. Full Duplex (FDX) technology offers a slightly lower read distance vs HDX (up to to 75cm)." )
 ,(4,"HDX USDA 840","840_hdx_lg.png","840_fdx_lg_detail.png",63.7,0,"Y","EID tag with small male","Bags of 25","Destron Fearing USDA 840 HDX EID tag with small male. Half Duplex (HDX) technology offers the greatest possible read distance (up to100cm). " )
 ,(5,"MFA HT Nested Pair","MFA_HT_red_lg.png","MFA_HT_red_lg_detail.png",0,0,"Y","MFA Health Track Allflex Nested Pair","Each Set","MFA Health Track is a Vac 45 preconditioning verification program for beef calves administered by MFA Incorporated for our Cow/Calf producer customers. MFA Incorporated is uniquely qualified for this role due to our ability to supply and verify the purchase." )
@@ -218,7 +219,7 @@ VALUES (2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_
 
 /* Nisheet Thakur 06/04/2021*/
 
-CREATE TABLE transactions(
+CREATE TABLE orders(
   transaction_no INT,
   account_no INT,
   total_tax INT,

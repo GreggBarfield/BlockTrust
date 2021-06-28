@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 
-class ProductTable:
+class Product:
     def __init__(self, db, row):
         """
         Product constructor

@@ -1,4 +1,4 @@
-from ..objects.product import ProductTable
+from ..objects.product import Product
 
 
 class ProductTableException(Exception):
