@@ -184,7 +184,8 @@ class Users:
             raise ValueError("field can't be None")
         if b'\x00' in field.encode("utf-8"):
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
-        return field.strip(" \n\r\t")
+        field.strip(" \n\r\t")
+        return field if field != '' else None
     
     
     def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
@@ -307,3 +308,41 @@ class Users:
         )
         user = self.get_by_username(username)
         return user
+
+    def is_user_deletable(self, user):
+        """This runs checks to find if a user record is deletable.
+
+        Params:
+            id: The user object
+
+        Returns:
+            True Or False
+        """
+        account_users = self._db.account_users.get_by_user(user)
+        if len(account_users) > 0:
+            return False
+        else:
+            return True
+
+    def delete_by_user(self, user):
+        """Delete a user record if it is deletable
+
+        Params:
+            user: The user's object
+
+        Returns:
+            True if success else False
+        """
+        if self.is_user_deletable(user):
+            self._db.execute_d(
+                """
+                    DELETE FROM users
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": user.id()
+                }
+            )
+
+        

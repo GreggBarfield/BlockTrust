@@ -16,6 +16,7 @@ from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
+from .tables.partners import Partners
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
