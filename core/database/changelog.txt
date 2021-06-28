@@ -218,7 +218,7 @@ CREATE TABLE `example_db_1`.`partners` (
 COMMENT = 'Table to store partners';
 
 /* Rohan Sureshkumar 5/29/21 */
-INSERT INTO partners(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
+INSERT INTO `example_db_1`.`partners`(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
 values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ('PCALF', 'MFA Power Calf', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ('ILS', 'ILS, Inc.', 6, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
@@ -233,3 +233,32 @@ ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
 /* Lydia Qiao 6/9/2021 */
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `group_name` VARCHAR(255) NULL DEFAULT NULL AFTER `eid_group`;
+
+/* Rohan Sureshkumar 6/24/2021 */
+/* Partners will be stored in accounts table itself. This has already been built into the system and we will have to do to much rework 
+   at this point, if we want to create a separate partners table, is_partner column will indicate if account is a partner */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `is_partner` TINYINT NULL DEFAULT 0 AFTER `sector`,
+ADD COLUMN `partner_account` INT NULL DEFAULT NULL AFTER `is_partner`;
+
+/* Rohan Sureshkumar 6/24/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+ADD COLUMN `partner_account` INT NULL DEFAULT NULL AFTER `account`,
+CHANGE COLUMN `uid` `uid` VARCHAR(127) NULL ;
+
+/* Rohan Sureshkumar 6/24/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `address` VARCHAR(255) NULL DEFAULT NULL AFTER `affiliate_id`,
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_customer_id`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`,
+ADD COLUMN `partner_contact_name` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `is_partner`,
+ADD COLUMN `partner_contact_email` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `partner_contact_name`;
+
+/* Rohan Sureshkumar 6/24/2021 */
+/* Adding partners. Don't run on dev server it already has this data. */
+/* Note ids of partners on dev server: 582 - MFA PowerCalf, 603 - ILS, 604 - MFA HealthTrack, 605 - BTN1. You will see the same ids in the 
+   api_inserts table depending on who the data came from */
+INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
