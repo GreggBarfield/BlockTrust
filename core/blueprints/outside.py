@@ -184,3 +184,10 @@ def serve_contact_form_response():
         SUPPORT_GENERAL_EMAIL
     )
     return {}
+
+
+@bp.route('/outside/contact-email', methods=['GET'])
+def serve_contact_email():
+    return jsonify(
+        contactEmail=SUPPORT_GENERAL_EMAIL
+    )
