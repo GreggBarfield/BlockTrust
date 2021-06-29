@@ -446,6 +446,7 @@ class Matches:
         Returns:
             All the matches table rows containing the visual id matches
         """
+        visual_id = str(visual_id)
         return self._db.execute_d(
             """
                 SELECT matches.*
