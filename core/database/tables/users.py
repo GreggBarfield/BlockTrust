@@ -330,14 +330,19 @@ class Users:
 
         """
         username = Users._format_field(username)
-        if len(password) < 10:
-            raise UsersException("Password must be at least 10 characters.")
 
-        if len(password.encode("utf-8")) > 60:
-            raise UsersException("Your password is too long.")
+        password = Users._format_field(password)
+        if password != None and len(password) > 0:
+            if len(password) < 10:
+                raise UsersException("Password must be at least 10 characters.")
 
-        if (password != confirm_password):
-            raise UsersException("Your passwords are not the same!")
+            if len(password.encode("utf-8")) > 60:
+                raise UsersException("Your password is too long.")
+
+            if (password != confirm_password):
+                raise UsersException("Password and Confirm password are not the same!")
+        else:
+            password=NO_VALUE
 
         # Process phone number
         digits = ''.join(chr(ord('0') + i) for i in range(10))

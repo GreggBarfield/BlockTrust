@@ -17,7 +17,7 @@ let form = new AsyncForm({
     form: edituserForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
-    redirectMessage: "update successfully!",
+    redirectMessage: "Updated successfully!",
     loadingMessage: "Hang on, we're updating your account...",
     getData: () => {
         return {

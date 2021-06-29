@@ -259,7 +259,7 @@ def serve_edit_edituser():
                         password=request.form["password"],
                         confirm_password= request.form["confirm_password"]
                         )
-            return {"redirect": "/dashboard"}
+            return {"redirect": "/dashboard/edit/edituser"}
         except  UsersException as e:
             return {"error": str(e)}
     elif request.method == 'GET':
