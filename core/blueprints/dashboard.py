@@ -11,6 +11,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
 
@@ -243,3 +244,26 @@ def serve_plans():
 @crut.require_account
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
+
+# edit user profile
+@bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
+@crut.require_user
+def serve_edit_edituser():
+    if request.method == 'POST':
+        try:
+            g.db.users.update_user(
+                        username=g.user.username(),
+                        first=request.form["first"],
+                        last=request.form["last"],
+                        phone=request.form["phone"],
+                        password=request.form["password"],
+                        confirm_password= request.form["confirm_password"]
+                        )
+            return {"redirect": "/dashboard/edit/edituser"}
+        except  UsersException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        user = g.db.users.get_by_username(g.user.username())
+        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
+        
+    
