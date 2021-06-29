@@ -243,3 +243,18 @@ def serve_plans():
 @crut.require_account
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
+
+@bp.route('/dashboard/sustainability', methods=['GET'])
+@crut.require_account
+def serve_sustainability():
+    return dashboard_render("sustainability.html")
+
+@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@crut.require_account
+def serve_retained_ownership():
+    return dashboard_render("retained-ownership.html")
+
+@bp.route('/dashboard/data/upload-tags', methods=['GET'])
+@crut.require_account
+def serve_upload_tags():
+    return dashboard_render("data/upload-tags.html")
