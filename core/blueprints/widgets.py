@@ -25,6 +25,7 @@ from ..data_requests.router import unauth_route
 
 from time import time
 
+from ..database.tables import zip_codes
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -52,16 +53,17 @@ def serve_sales_group():
     sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
-    eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
     return {
         "id": sales_group_row["id"],
         "reported": sales_group_row["reported"],
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "eids": eids,
+        "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
+        "market_location": sales_group_row["market_location"],
+        "delivery_location":sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -80,7 +82,6 @@ def serve_search_sales_groups():
     results = []
 
     for sales_group_row in sales_group_rows:
-        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
         if sales_group_row["account"] == g.account.id():
             results.append({
                 "id": sales_group_row["id"],
@@ -88,9 +89,11 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": eids,
+                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
+                "market_location": sales_group_row["market_location"],
+                "delivery_location":sales_group_row["delivery_location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -121,20 +124,21 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
-        eids = [row["eid"] for row in g.db.sales_group_eids.rows_by_sales_group(sales_group_row["id"])]
         results.append({
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": eids,
+            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
                 else None
             ),
             "zip": sales_group_row["zip"],
+            "market_location": sales_group_row["market_location"],
+            "delivery_location":sales_group_row["delivery_location"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {
@@ -208,14 +212,14 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
 
-    g.db.sales_group_eids.delete_sales_group(request.json["id"])
-    g.db.sales_group_eids.insert_multiple(request.json["eids"], request.json["id"])
-    
+    g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+
     g.db.sales_groups.update(
         request.json["id"],
         request.json["reported"],
         request.json["published"],
         request.json["zip"],
+        request.json["delivery_location"],
         request.json["start"],
         request.json["end"],
         request.json["auction_sale"]
@@ -275,7 +279,7 @@ def serve_send_message():
                             + str(message_id)
                         ),
                         'receiver': user['account_name'],
-                        'sender': g.account.name()
+                        'sender': g.account.company()
                     }
                 }
             ),

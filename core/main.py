@@ -62,6 +62,7 @@ def before_request():
     
     g.user = None
     g.account = None
+    g.is_admin = None
     auth.session_open()
 
 

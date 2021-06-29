@@ -1,8 +1,10 @@
 from copy import deepcopy
+from .. import database
+
 
 class User:
 
-    def __init__(self, db, row):
+    def __init__(self, db: 'database.Database', row):
         """User constructor.
 
         Params:
@@ -27,3 +29,6 @@ class User:
 
     def email(self):
         return self._row['email']
+
+    def email_verified(self):
+        return self._row('email_verified')

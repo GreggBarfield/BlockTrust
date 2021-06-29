@@ -37,6 +37,8 @@ CSP = {
         'https://js.stripe.com',
         'https://polyfill.io',
         'https://i.imgur.com',
+        'https://player.vimeo.com/',
+        'https://www.youtube.com/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -57,6 +59,10 @@ INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+
+EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
+
+EMAIL_SECRET_KEY = config_file["internal_api"]["secret_email_key"]
 STRIPE_SECRET_KEY = config_file["stripe"]["secret_key"]
 STRIPE_PUBLISHABLE_KEY = config_file["stripe"]["publishable_key"]
 STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
