@@ -10,8 +10,10 @@ export class CertificatesWidget extends Widget {
         this.showPDF()
     }
     showPDF(){
-        let placeHolder = document.createElement("div");
-        placeHolder.textContent="placeholder";
-        this.frame.append(placeHolder)
+
+        let pdf = document.createElement("embed");
+        pdf.type="application/x-google-chrome-pdf"
+        pdf.src=""
+        this.frame.append(pdf)
     }
 }
