@@ -10,6 +10,19 @@ class Sustainability:
             """,
             {
                 "account": account,
-                "response": json.dumps(response),  # Does this need to be converted to a string first?
+                "response": json.dumps(response),  
             }
         )
+    
+    # Get the last questionnaire the user submit
+    def getResponse(self,account):
+        response= self._db.execute_d(
+            """
+            SELECT sustainability.response AS response
+            FROM sustainability WHERE account=%(account)s ORDER BY (id) DESC LIMIT 1
+            """,
+            {
+                "account": account,
+            }
+        )
+        return response[0]

@@ -154,10 +154,10 @@ export class SustainabilityQuestionaireWidget extends Widget {
             group.append(input);
 
             createOption(input, "Any", "Please Choose");
-            createOption(input, id + "A", a);
-            createOption(input, id + "B", b);
+            createOption(input,  "A", a);
+            createOption(input, "B", b);
             if (c != "") {
-                createOption(input, id + "C", c);
+                createOption(input,  "C", c);
             }
             return input;
         }

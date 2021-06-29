@@ -70,6 +70,17 @@ def serve_sales_group():
         "auction_sale_name": sales_group_row["auction_sale_name"]
     }
 
+@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability():
+    # print("id"+g.account.id())
+    response = g.db.sustainability.getResponse(
+        g.account.id(),
+    )
+    print(response)
+    return response
+    
+    
 
 @bp.route('/widgets/data/search_sales_groups', methods=['POST'])
 @crut.require_account
@@ -237,7 +248,6 @@ def serve_save_sustainability():
         request.json["response"]
     )
     return { "redirect": "/dashboard/sustainability/summary"}
-    
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
