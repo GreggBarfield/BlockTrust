@@ -225,7 +225,7 @@ class SalesGroups:
                         %s <= end AND end <= %s
                     )
                     AND sales_groups.published > 0
-                    AND zip IN (""" + sql_zip_codes + """)
+                    AND sales_groups.zip IN (""" + sql_zip_codes + """)
                     """ + sql_additionals_total + """
         """
 
