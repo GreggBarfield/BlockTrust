@@ -13,6 +13,7 @@ def block_key(insert):
 
 def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     account = insert["account"]
+    print("insert[fields]", insert["fields"])
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",
         "FarmID": "farmid",
@@ -45,14 +46,14 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         "First14DayFeedMethod": "first14da1",
         "Second31DayFeedMethod": "second31d1",
     })
-
+    print("fields", fields)
     try:
         patronid = int(fields["patronid"])
     except ValueError as e:
         raise ExecutionException("while converting patron id: " + str(e))
     account_link = db.account_links.get_by_uid(patronid, 0, insert=True)[0].id()
     eid = int(fields["electronic"])
-
+    print('eid :', eid)
     db.matches.types.insert_visual_id(
         visual_id=fields["visualid"],
         account=account,

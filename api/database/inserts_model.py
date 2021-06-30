@@ -106,7 +106,7 @@ class InsertsModel:
         rows = self._cur.fetchall()
         return InsertsModel._process_row(rows[0]) if rows else None
 
-    def set_status(self, insert_id, status_name):
+    def set_status(self, insert_id, status_name, status_details=None):
         """Sets the status.
 
         Params:
@@ -115,10 +115,11 @@ class InsertsModel:
         """
         self._cur.execute(
             """
-                UPDATE api_inserts SET status=%(status)s WHERE id=%(insert_id)s;
+                UPDATE api_inserts SET status=%(status)s, status_details=%(status_details)s WHERE id=%(insert_id)s;
             """,
             {
                 'status': statuses_by_name[status_name],
+                'status_details': status_details,
                 'insert_id': insert_id
             }
         )
