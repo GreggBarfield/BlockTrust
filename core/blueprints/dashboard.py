@@ -262,6 +262,8 @@ def serve_retained_ownership():
 @crut.require_account
 def serve_upload_tags():
     return dashboard_render("data/upload-tags.html")
+
+
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
 @crut.require_user
