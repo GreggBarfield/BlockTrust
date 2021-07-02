@@ -37,6 +37,8 @@ CSP = {
         'https://js.stripe.com',
         'https://polyfill.io',
         'https://i.imgur.com',
+        'https://player.vimeo.com/',
+        'https://www.youtube.com/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',

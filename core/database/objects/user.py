@@ -41,3 +41,6 @@ class User:
 
     def lock_time(self):
         return self._row['lock_time']
+        
+    def phone(self):
+            return self._row['phone']
