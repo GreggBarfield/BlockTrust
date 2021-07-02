@@ -1,25 +1,20 @@
 $(function() {
-    if (localStorage.chkbx && localStorage.chkbx != '') {
+    if ("rememberMe" in localStorage && localStorage.rememberMe) {
         $('#remember_me').attr('checked', 'checked');
-        $('#login_username').val(localStorage.usrname);
-        $('#login_password').val(localStorage.pass);
+        $('#login_username').val(localStorage.username);
+        $('#login_password').val(localStorage.password);
     } else {
         $('#remember_me').removeAttr('checked');
         $('#login_username').val('');
         $('#login_password').val('');
     }
 
-    $('#remember_me').click(function() {
-
+    $("form").submit(function(){
         if ($('#remember_me').is(':checked')) {
             // save username and password
-            localStorage.usrname = $('#login_username').val();
-            localStorage.pass = $('#login_password').val();
-            localStorage.chkbx = $('#remember_me').val();
-        } else {
-            localStorage.usrname = '';
-            localStorage.pass = '';
-            localStorage.chkbx = '';
+            localStorage.username = $('#login_username').val();
+            localStorage.password = $('#login_password').val();
+            localStorage.rememberMe = true;
         }
     });
 });
