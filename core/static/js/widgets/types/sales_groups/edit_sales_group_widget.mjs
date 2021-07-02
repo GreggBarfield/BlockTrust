@@ -31,7 +31,7 @@ export class EditSalesGroupWidget extends Widget {
         });
 
     }
-
+    
     makeForm() {
 
         let that = this;
@@ -61,11 +61,12 @@ export class EditSalesGroupWidget extends Widget {
             toolTip.setAttribute("data-toggle" ,dataToggle);
             toolTip.setAttribute("data-placement" ,"right");
             toolTip.setAttribute("title" ,title);
-            $(document).ready(function(){
-                $('[data-toggle='+dataToggle+']').tooltip(); 
-            });
             position.append(toolTip);
         }
+       
+        $(document).ready(function(){
+            $('[data-toggle='+dataToggle+']').tooltip(); 
+        });
 
         function createSection(form, name) {
 

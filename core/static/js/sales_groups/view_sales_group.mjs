@@ -213,7 +213,6 @@ export class SalesGroupViewer {
             marketBody.className = "card-body";
             marketDataCol.append(marketBody);
 
-
             let marketInfo = document.createElement("div");
             marketInfo.className = "col-sm-12";
             marketBody.append(marketInfo);
