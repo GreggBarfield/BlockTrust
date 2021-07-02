@@ -360,13 +360,13 @@ def login(identifier, password="", override=False):
                 g.db.execute_d(
                     """
                         UPDATE users
-                        SET failed_attempt = %(failed_attempt)s, is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
+                        SET failed_attempts = %(failed_attempts)s, is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
                         WHERE
                             users.id=%(id)s
                     """,
                     {
                         "id": user_row["id"],
-                        "failed_attempt":  0,
+                        "failed_attempts":  0,
                         "is_user_locked": 0,
                         "locked_until_time": None
                     }
@@ -382,30 +382,30 @@ def login(identifier, password="", override=False):
                 g.db.execute_d(
                 """
                     UPDATE users
-                    SET failed_attempt = %(failed_attempt)s
+                    SET failed_attempts = %(failed_attempts)s
                     WHERE
                         users.id=%(id)s
                 """,
                 {
                     "id": user_row["id"],
-                    "failed_attempt":  1
+                    "failed_attempts":  1
                 }
             )
             else:
                 g.db.execute(
                     """
                         UPDATE users
-                        SET failed_attempt = %(failed_attempt)s
+                        SET failed_attempts = %(failed_attempts)s
                         WHERE
                             users.id=%(id)s
                     """,
                     {
                         "id": user_row["id"],
-                        "failed_attempt":  int(user_row["failed_attempt"])+1
+                        "failed_attempts":  int(user_row["failed_attempts"])+1
                     }
                 )
                 
-                if int(user_row['failed_attempt'])+1>=3:
+                if int(user_row['failed_attempts'])+1>=3:
                     g.db.execute_d(
                     """
                         UPDATE users
