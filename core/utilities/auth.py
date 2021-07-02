@@ -53,6 +53,19 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
+class PasswordChangeFailedException(AuthException):
+    """Password Change failed."""
+    def __init__(self, reason):
+        """Constructor for PasswordChangeFailedException.
+
+        Params:
+            reason: The reason why password could not be changed.
+                This will likely end up getting printed to the user,
+                so be careful.
+        """
+        super().__init__(reason)
+
+
 def session_open():
     """Load session into app context."""
     session_open_user()
@@ -103,7 +116,7 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, affiliate_id, sector, city, state, zip_code):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code):
     """Create new user account.
 
     Params:
@@ -135,8 +148,10 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
     company = Users._format_field(company)
+    partner = Users._format_field(partner)
     affiliate_id = Users._format_field(affiliate_id)
     sector = Users._format_field(sector)
+    address = Users._format_field(address)
     city = Users._format_field(city)
     state = Users._format_field(state)
     zip_code = Users._format_field(zip_code)
@@ -157,17 +172,25 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         email_verified="N"
     )
 
-    g.db.accounts.create_account(
-        user=user,
-        name="",
-        company=company,
-        sector=sector,
-        affiliate_id=affiliate_id,
-        city=city,
-        state=state,
-        zip=zip_code,
-        phone=phone
-    )
+    try:
+        g.db.accounts.create_account(
+            user=user,
+            name="",
+            company=company,
+            sector=sector,
+            partner=partner,
+            affiliate_id=affiliate_id,
+            address=address,
+            city=city,
+            state=state,
+            zip=zip_code,
+            phone=phone
+        )
+    except Exception as e:
+        #Delete the user if there are errors in account creation. This will let them register again.
+        g.db.users.delete_by_user(user)
+        raise e
+
 
 
 def logout():
@@ -175,6 +198,63 @@ def logout():
     g.user = None
     session[SESSION_USER_ID_VAR] = ""
     session.clear()
+
+
+def change_password(email, new_password, confirm_password):
+    """
+    Changing the password in the user database
+
+    Params:
+        email: The user email for which the password needs to be updated
+        new_password: The new password which needs to be set
+
+    Returns: None
+
+    Raises:
+        PasswordChangeFailedException on failure with the reason.
+    """
+    try:
+        new_password = Users._format_field(new_password)
+        confirm_password = Users._format_field(confirm_password)
+        password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+
+        # Check if password reset link is valid. As token.py returns false if link is Invalid
+
+        if email is False:
+            raise PasswordChangeFailedException("Password reset link is Invalid")
+
+        # Password should not be blank
+
+        if new_password == "":
+            raise PasswordChangeFailedException("Password field is blank")
+
+        # Password must be at least 10 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(new_password) < 10:
+            raise PasswordChangeFailedException("Password must be at least 10 characters.")
+        if len(new_password.encode("utf-8")) > 60:
+            raise PasswordChangeFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        # Password should equal confirm_password
+
+        if new_password != confirm_password:
+            raise PasswordChangeFailedException("The passwords you entered were not identical.")
+
+        g.db.execute_d(
+            """
+            UPDATE users
+            SET password=%(password)s
+            WHERE users.email=%(email)s
+            """,
+            {
+                "password": password,
+                "email": email
+            }
+            )
+    except PasswordChangeFailedException as e:
+        raise e
 
 
 def confirm(email):

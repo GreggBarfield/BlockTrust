@@ -5,7 +5,7 @@ import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
-
+import { VideoSession } from '../../../files/video_links.mjs';
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -51,7 +51,7 @@ export class EditSalesGroupWidget extends Widget {
 
         let form = document.createElement("form");
         cardBody.append(form);
-        
+
         // Sections
         function addTooltip(dataToggle,title,position){
             let toolTip = document.createElement("a");
@@ -75,7 +75,7 @@ export class EditSalesGroupWidget extends Widget {
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
-    
+
             form.append(document.createElement("br"));
             return row;
         }
@@ -131,6 +131,7 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
+
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
@@ -180,7 +181,7 @@ export class EditSalesGroupWidget extends Widget {
                 // Patch
                 $(select).val([options[0]]);
                 $(select).trigger('change');
-                setTimeout(function(){
+                setTimeout(function () {
                     $(select).val([]);
                     $(select).trigger('change');
                 }, 1);
@@ -198,6 +199,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
+
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
@@ -206,7 +208,7 @@ export class EditSalesGroupWidget extends Widget {
         marketingAuctionSale.getFormGroup().classList.add("col-md-4");
         
         // Characteristics
-        
+
         let characteristicsRow = createSection(form, "Characteristics");
 
         let characteristicBreeds = createSelect({
@@ -311,7 +313,7 @@ export class EditSalesGroupWidget extends Widget {
 
         // Media
 
-        let mediaRow = createSection(form, "Media");
+        let mediaRow = createSection(form, "Image");
 
         let mediaGroup = document.createElement("div");
         mediaGroup.className = "form-group col-12";
@@ -322,8 +324,25 @@ export class EditSalesGroupWidget extends Widget {
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
+        this.fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
+
+
+        //Video
+
+        let videoRow = createSection(form, "Video");
+
+        let videoGroup = document.createElement("div");
+        videoGroup.className = "form-group col-12";
+        videoRow.append(videoGroup);
+
+        let videoLabel = document.createElement("label");
+        videoLabel.textContent = "Add Youtube/Vimeo links here to make the post look more attractive!";
+        videoGroup.append(videoLabel);
+
+        let videoText = document.createElement("div");
+        this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
+        videoGroup.append(videoText);
 
         // Comments
 
@@ -335,7 +354,7 @@ export class EditSalesGroupWidget extends Widget {
         let commentsRow = document.createElement("div");
         commentsRow.className = "form-row";
         form.append(commentsRow);
-        
+
         let commentsGroup = document.createElement("div")
         commentsGroup.className = "form-group col";
         commentsRow.append(commentsGroup);
@@ -358,7 +377,7 @@ export class EditSalesGroupWidget extends Widget {
         let eidsRow = document.createElement("div");
         eidsRow.className = "form-row";
         form.append(eidsRow);
-        
+
         let eidsGroup = document.createElement("div")
         eidsGroup.className = "form-group col";
         eidsRow.append(eidsGroup);
@@ -366,7 +385,7 @@ export class EditSalesGroupWidget extends Widget {
         function parseEIDs(ta) {
             let eidStr = eidsTA.value.replace(/[^0-9,]/g, "");
             let eidStrs = eidStr.split(",");
-            let eids= [];
+            let eids = [];
             for (const eidStr of eidStrs) {
                 if (!isNaN(parseInt(eidStr))) {
                     eids.push(parseInt(eidStr));
@@ -375,7 +394,7 @@ export class EditSalesGroupWidget extends Widget {
             return eids;
         }
         this.parseEIDs = parseEIDs;
-        
+
         let eidsLabel = document.createElement("label")
         eidsGroup.append(eidsLabel);
 
@@ -423,7 +442,7 @@ export class EditSalesGroupWidget extends Widget {
         this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
-        
+
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
         statusMessage.className = "mt-2 mb-0";
@@ -477,6 +496,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        videos: that.VideoEditor.getLinks(),
                     },
                     "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
@@ -485,9 +505,9 @@ export class EditSalesGroupWidget extends Widget {
                     auction_sale: marketingAuctionSale.getID()
                 }
             }
-        });     
-        
-        submitButton.addEventListener("click", ()=>{
+        });
+
+        submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
             if (this.allGood()) {
                 function progress(perc) {
@@ -495,9 +515,9 @@ export class EditSalesGroupWidget extends Widget {
                 }
                 that.progressBar.show();
                 this.fileEditor.upload(progress)
-                .then(()=>{
-                    this.asyncForm.submit();
-                });
+                    .then(() => {
+                        this.asyncForm.submit();
+                    });
             }
         });
     }
@@ -517,15 +537,15 @@ export class EditSalesGroupWidget extends Widget {
                 }
             }
 
-            for (let i = 0; i< eids.length;i++) {
-                for (let i2 =i+1;i2<eids.length;i2++) {
+            for (let i = 0; i < eids.length; i++) {
+                for (let i2 = i + 1; i2 < eids.length; i2++) {
                     if (eids[i] == eids[i2]) {
                         throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
                     }
                 }
             }
         }
-        catch(error) {
+        catch (error) {
             this.showError(error);
             return false;
         }
@@ -582,7 +602,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
                             )
                         });
                     }
-                    return {results};
+                    return { results };
                 },
             },
             placeholder: 'Type here to search...',
@@ -590,7 +610,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
             allowClear: true
         });
     }
-    
+
     /**
      * Gets the ID of the auction sale selected.
      */

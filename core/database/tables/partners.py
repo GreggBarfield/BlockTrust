@@ -39,3 +39,26 @@ class Partners:
         if len(partner_rows) != 1:
             raise PartnersException("No partner found with that ID.")
         return Partner(self._db, partner_rows[0])
+
+    def get_by_sector_id(self, sector_id):
+        """Gets a partner by an sector id.
+
+        Params:
+            sector_id: the sector id
+        
+        Returns:
+            Zero or more Partner() objects
+        """
+        partner_rows = self._db.execute_d(
+            """SELECT * FROM partners
+                WHERE sector_id=%(sector_id)s
+            """,
+            {
+                "sector_id": sector_id
+            }
+        )
+        
+        return [
+            Partner(self._db, partner_row)
+            for partner_row in partner_rows
+        ]

@@ -47,12 +47,26 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
+                                <label for="signup_form_partner">Partner</label>
+                                <select class="form-control" id="signup_form_partner">                                    
+                                    <option value="">No Partner</option>
+                                    {% for p in partners %}
+                                    <option value="{{p.id()}}">{{p.company()|e}}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
                                 <label for="signup_form_affiliate_id">Affiliate ID</label>
                                 <input type="text" class="form-control" placeholder="Affiliate ID#" id="signup_form_affiliate_id">
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
                             <div class="form-group required">
                                 <label for="signup_form_company">Company</label>
                                 <input type="text" class="form-control" placeholder="Blue Ranch, LLC" id="signup_form_company" required>
@@ -75,7 +89,7 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="signup_form_phone">Phone</label>
+                                <label for="signup_form_phone">Company Phone</label>
                                 <input type="text" class="form-control" placeholder="1234567890" id="signup_form_phone">
                                 <span class="focus-border"></span>
                             </div>
@@ -96,6 +110,11 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
+                    </div>
+                    <div class="form-group required">
+                        <label for="signup_form_address">Address</label>
+                        <input type="text" class="form-control" placeholder="100 ABC Street" id="signup_form_address" required>
+                        <span class="focus-border"></span>
                     </div>
                     <div class="row">
                         <div class="col-lg-4">
