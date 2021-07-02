@@ -353,19 +353,19 @@ def login(identifier, password="", override=False):
 
         if user_row is None:
             raise LoginException(generic_error)
-        if int(user_row["account_non_locked"])==0:
+        if int(user_row["is_user_locked"])==1:
             if int(user_row["lock_time"])<int(round(time.time())):
                 g.db.execute_d(
                     """
                         UPDATE users
-                        SET failed_attempt = %(failed_attempt)s, account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
+                        SET failed_attempt = %(failed_attempt)s, is_user_locked = %(is_user_locked)s, lock_time = %(lock_time)s
                         WHERE
                             users.id=%(id)s
                     """,
                     {
                         "id": user_row["id"],
                         "failed_attempt":  0,
-                        "account_non_locked": 1,
+                        "is_user_locked": 0,
                         "lock_time": ""
                     }
                 )
@@ -407,13 +407,13 @@ def login(identifier, password="", override=False):
                     g.db.execute_d(
                     """
                         UPDATE users
-                        SET account_non_locked = %(account_non_locked)s, lock_time = %(lock_time)s
+                        SET is_user_locked = %(is_user_locked)s, lock_time = %(lock_time)s
                         WHERE
                             users.id=%(id)s
                     """,
                     {
                         "id": user_row["id"],
-                        "account_non_locked": 0,
+                        "is_user_locked": 1,
                         "lock_time": int(round(time.time()))+86400
                     }
                     )
