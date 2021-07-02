@@ -336,30 +336,34 @@ def serve_shopping_cart():
 # Checkout Login and Checkout Register pages 
 
 
-@bp.route('/checkout_login', methods=['GET', 'POST'])
-def serve_checkout_login():
-    if g.user is None:
-        return outside_render('shop/checkout_login.html', {"redirect_to": '/checkout'})
-    else:
-        return outside_render('shop/checkout.html')
+@bp.route('/checkout_payment', methods=['GET', 'POST'])
+def serve_checkout_payment():
+    return outside_render('shop/checkout_payment.html')
 
 
-@bp.route('/checkout_register', methods=['GET'])
+@bp.route('/checkout_loggedIn', methods=['GET'])
 def serve_checkout_register():
+    if g.user is not None:
+        return outside_render('shop/checkout_loggedIn.html')
 
-    return outside_render('shop/checkout_register.html', {
-        "sectors_by_id": sectors_by_id,
-        "redirect_to": '/checkout'
-    })
+
+@bp.route('/checkout_loggedIn', methods=['POST'])
+def serve_loggedIn_checkout():
+    # print(request.form)
+    # Need to modify this to update shipping address incase of change by logged in user
+    return outside_render('shop/checkout_payment.html')
 
 
 @bp.route('/checkout_register/action', methods=['POST'])
 def serve_checkout_register_action():
     try:
+        print("Registering new user")
+        print(request.form)
         required = {
             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-            'city': None, 'state': None, 'zip_code': None,
-            'username': None, 'email': None, 'password': None, 'confirm_password': None
+            'city': None, 'state': None, 'zip_code': None, 'address': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None, 'affiliate_id': None,
+            'address': None, 'partner': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -379,16 +383,18 @@ def serve_checkout_register_action():
                 password=required['password'],
                 confirm_password=required['confirm_password'],
                 company=required['company'],
-                affiliate_id=request.form['affiliate_id'],
+                affiliate_id=required['affiliate_id'],
                 sector=required['sector'],
+                address=required['address'],
                 city=required['city'],
                 state=required['state'],
-                zip_code=required['zip_code']
+                zip_code=required['zip_code'],
+                partner=required['partner']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
     # We can send out an email for verification if needed. The verification method has been implemented above in signup
-        return jsonify({"redirect": "/checkout"})
+        return jsonify({"redirect": "/checkout_payment"})
     except ExportException as e:
         return jsonify({"error": str(e)})
 
@@ -396,18 +402,10 @@ def serve_checkout_register_action():
 # Checkout form to get user information and payment information
 @bp.route('/checkout', methods=['GET'])
 def serve_checkout():
-    return outside_render('shop/checkout.html')
-
-
-@bp.route('/checkout', methods=['POST'])
-def serve_checkout_submit():
-    # Use this print statement to view form data submitted on checkout
-    print(request.form)
-    # Need to implement checking functions to check validity of entered data
-    try:
-        return jsonify({"redirect": "/invoice"})
-    except ExportException as e:
-        return jsonify({"error": str(e)})
+    return outside_render('shop/checkout.html', {
+        "sectors_by_id": sectors_by_id,
+        "redirect_to": '/checkout'
+        })
 
 
 # Invoice routes

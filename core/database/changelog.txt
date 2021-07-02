@@ -221,7 +221,7 @@ VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_d
 
 CREATE TABLE orders(
   transaction_no INT,
-  account_no INT,
+  account INT,
   total_tax INT,
   total_shipping INT,
   total_cart INT,
@@ -315,5 +315,6 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 CREATE TABLE OrderProducts(
 order_no INT,
 product_no INT,
+
 product_quantity INT
 )

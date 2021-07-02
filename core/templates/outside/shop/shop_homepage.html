@@ -39,13 +39,14 @@
                                     <p class="gallery-info text-center text-white">
                                         <span class="gallery-icons">
                                             <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product{{product.product_no}}"><i class="fas fa-plus"></i></a>
-                                            <a href="/shopping-cart" class="gallery-button"><i class="fas fa-shopping-cart"></i></a>
                                         </span>
                                     </p>
                                 </div>
                             </figcaption>
                         </figure>
+                        <span><h4 class="text-center text-black">{{product.product}}</h4></span>
                     </li>
+
                     {% endfor %}
                 </ul> 
             </div>
@@ -75,7 +76,7 @@
                                         </ul>
                                         <div class="product-info pb-3 pt-3">
         
-                                            <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>{{product.price}}</b></span></p>
+                                            <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>${{product.price}}</b></span></p>
         
                                             <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>{{product.unit}}</b></span></p>
            

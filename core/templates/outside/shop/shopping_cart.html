@@ -59,10 +59,21 @@
                             </div><!-- / update-cart -->
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
-                                <p>Subtotal: <span class="text-primary" id="subtotal"></span></p>
-                                <p>Shipping: <span class="text-primary" id="shipping"></span></p>
-                                <p>Tax: <span class="text-primary" id="tax"></span></p>
-                                <p>Total: <span class="text-primary" id="grandTotal"></span></p>
+                                <div class="row">
+                                    <div class="col-md-3 sub-col-left">
+                                        <p>Subtotal: </p>
+                                        <p>Shipping: </p>
+                                        <p>Tax: </p>
+                                        <p>Total: </p>
+                                        
+                                    </div>
+                                    <div class="col-md-3 sub-col-right">
+                                        <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                                        <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                                        <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                                        <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
+                                    </div>
+                                </div><!-- / row -->
                             </div><!-- / cart-total -->
                             <div class="col-md-6 cart-checkout">
                                 <button class="btn btn-primary mt-1 mb-1" id="proceedButton">PROCEED TO CHECKOUT</button>

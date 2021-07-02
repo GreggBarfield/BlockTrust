@@ -15,11 +15,11 @@ class Orders:
     def __init__(self, db):
         self._db = db
 
-    def getOrdersByAccountNumber(self, account_no):
+    def getOrdersByAccountNumber(self, account):
         """Gets the transactions by a user.
 
         Params:
-            account_no: User account number
+            account: User account number
 
         Returns:
             A Transaction object array on success, or None on no match.
@@ -28,10 +28,10 @@ class Orders:
             """
                 SELECT * FROM orders
                 WHERE
-                    account_no=%(account_no)s
+                    account=%(account)s
             """,
             {
-                "account_no": account_no
+                "account": account
             }
         )
 

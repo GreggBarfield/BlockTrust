@@ -194,7 +194,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         raise e
 
 
-
 def logout():
     """Clear session of user info and remove g user."""
     g.user = None
@@ -426,4 +425,9 @@ def get_transaction_data(id):
 
 
 def get_all_products():
+    """
+    Gets all the products stored in the database 
+    Returns:
+        Array containing object data
+    """
     return g.db.products.get_all_products()
