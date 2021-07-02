@@ -1,4 +1,3 @@
-from os import times
 import bcrypt
 from flask import g, session
 from ..database.tables.users import Users, NoUserFoundException
@@ -353,6 +352,9 @@ def login(identifier, password="", override=False):
 
         if user_row is None:
             raise LoginException(generic_error)
+
+        # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
+
         if int(user_row["is_user_locked"])==1:
             if int(user_row["locked_until_time"])<int(round(time.time())):
                 g.db.execute_d(
@@ -390,7 +392,7 @@ def login(identifier, password="", override=False):
                 }
             )
             else:
-                g.db.execute_d(
+                g.db.execute(
                     """
                         UPDATE users
                         SET failed_attempt = %(failed_attempt)s
