@@ -304,7 +304,7 @@ export class EditSalesGroupWidget extends Widget {
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
+        this.fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
 
 
