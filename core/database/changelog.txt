@@ -269,4 +269,5 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 ALTER TABLE `example_db_1`.`users` 
 CHANGE COLUMN `failed_attempt` `failed_attempts` INT NULL DEFAULT '0' ,
 CHANGE COLUMN `account_non_locked` `is_user_locked` TINYINT NULL DEFAULT '0' ,
-CHANGE COLUMN `lock_time` `lock_date_time` DATETIME NULL DEFAULT NULL ;
+DROP COLUMN `lock_time`;
+ADD COLUMN `locked_until_time` INT NULL DEFAULT NULL AFTER `locked_until`;

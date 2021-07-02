@@ -354,11 +354,11 @@ def login(identifier, password="", override=False):
         if user_row is None:
             raise LoginException(generic_error)
         if int(user_row["is_user_locked"])==1:
-            if int(user_row["lock_time"])<int(round(time.time())):
+            if int(user_row["locked_until_time"])<int(round(time.time())):
                 g.db.execute_d(
                     """
                         UPDATE users
-                        SET failed_attempt = %(failed_attempt)s, is_user_locked = %(is_user_locked)s, lock_time = %(lock_time)s
+                        SET failed_attempt = %(failed_attempt)s, is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
                         WHERE
                             users.id=%(id)s
                     """,
@@ -366,7 +366,7 @@ def login(identifier, password="", override=False):
                         "id": user_row["id"],
                         "failed_attempt":  0,
                         "is_user_locked": 0,
-                        "lock_time": ""
+                        "locked_until_time": None
                     }
                 )
                 unlock =True
@@ -407,14 +407,14 @@ def login(identifier, password="", override=False):
                     g.db.execute_d(
                     """
                         UPDATE users
-                        SET is_user_locked = %(is_user_locked)s, lock_time = %(lock_time)s
+                        SET is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
                         WHERE
                             users.id=%(id)s
                     """,
                     {
                         "id": user_row["id"],
                         "is_user_locked": 1,
-                        "lock_time": int(round(time.time()))+86400
+                        "locked_until_time": int(round(time.time()))+86400
                     }
                     )
             raise LoginException(generic_error)
