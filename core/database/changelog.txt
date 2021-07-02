@@ -270,4 +270,4 @@ ALTER TABLE `example_db_1`.`users`
 CHANGE COLUMN `failed_attempt` `failed_attempts` INT NULL DEFAULT '0' ,
 CHANGE COLUMN `account_non_locked` `is_user_locked` TINYINT NULL DEFAULT '0' ,
 DROP COLUMN `lock_time`;
-ADD COLUMN `locked_until_time` INT NULL DEFAULT NULL AFTER `locked_until`;
+ADD COLUMN `locked_until_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;

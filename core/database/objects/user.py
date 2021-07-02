@@ -39,8 +39,8 @@ class User:
     def failed_attempt(self):
         return self._row['failed_attempt']
 
-    def lock_time(self):
-        return self._row['lock_time']
+    def locked_until_time(self):
+        return self._row['locked_until_time']
 
     def phone(self):
             return self._row['phone']
