@@ -198,12 +198,6 @@ ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
 
-/*Lydia Qiao 5/20/2021 */
-ALTER TABLE `example_db_1`.`users` 
-ADD COLUMN `failed_attempt` INT NULL DEFAULT 0 AFTER `email_verified`,
-ADD COLUMN `account_non_locked` TINYINT(4) NULL DEFAULT 1 AFTER `failed_attempt`,
-ADD COLUMN `lock_time` DATETIME NULL DEFAULT NULL AFTER `account_non_locked`;
-
 /* Rohan Sureshkumar 5/26/21 */
 CREATE TABLE `example_db_1`.`partners` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -267,7 +261,7 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 
 /*Lydia Qiao 7/1/2021 */
 ALTER TABLE `example_db_1`.`users` 
-CHANGE COLUMN `failed_attempt` `failed_attempts` INT NULL DEFAULT '0' ,
-CHANGE COLUMN `account_non_locked` `is_user_locked` TINYINT NULL DEFAULT '0' ,
-DROP COLUMN `lock_time`;
+ADD COLUMN `failed_attempts` INT NULL DEFAULT 0 AFTER `email_verified`,
+ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempt`,
 ADD COLUMN `locked_until_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;
+

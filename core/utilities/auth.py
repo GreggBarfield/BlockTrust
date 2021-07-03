@@ -357,7 +357,7 @@ def login(identifier, password="", override=False):
 
         if int(user_row["is_user_locked"])==1:
             if int(user_row["locked_until_time"])<int(round(time.time())):
-                g.db.execute_d(
+                g.db.execute(
                     """
                         UPDATE users
                         SET failed_attempts = %(failed_attempts)s, is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
@@ -406,7 +406,7 @@ def login(identifier, password="", override=False):
                 )
                 
                 if int(user_row['failed_attempts'])+1>=3:
-                    g.db.execute_d(
+                    g.db.execute(
                     """
                         UPDATE users
                         SET is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
