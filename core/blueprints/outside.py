@@ -11,7 +11,7 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id
+from ..sectors import sectors_by_id, sectors_by_name
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -79,8 +79,12 @@ def serve_login_action():
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
+    #Only add cowcalf partners
+    cow_calf_sector_id = sectors_by_name['Cow-Calf']
+    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
-        "sectors_by_id": sectors_by_id
+        "sectors_by_id": sectors_by_id,
+        "partners": partners
     })
 
 
@@ -89,7 +93,7 @@ def serve_signup_action():
     try:
         required = {
             'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'city':None, 'state':None, 'zip_code':None,
+            'address':None, 'city':None, 'state':None, 'zip_code':None,
             'username':None, 'email':None, 'password':None, 'confirm_password':None
         }
         for required_field in required:
@@ -110,8 +114,10 @@ def serve_signup_action():
                 password=required['password'],
                 confirm_password=required['confirm_password'],
                 company = required['company'],
+                partner = request.form['partner'],
                 affiliate_id = request.form['affiliate_id'],
                 sector = required['sector'],
+                address = required['address'],
                 city=required['city'],
                 state=required['state'],
                 zip_code=required['zip_code']
@@ -131,10 +137,9 @@ def serve_signup_action():
             }), required['email'], override=True
         )
         
-        #TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
-        raise ExportException("Success!")
+        return {"redirect": "/email_not_verified"}
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
 # About us
 

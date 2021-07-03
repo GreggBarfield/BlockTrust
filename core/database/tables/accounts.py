@@ -45,6 +45,31 @@ class Accounts:
         if len(account_rows) != 1:
             raise AccountsException("No account found with that ID.")
         return Account(self._db, account_rows[0])
+        
+    def get_partners_by_sector_id(self, sector_id):
+        """Gets an partners in the accounts table using sector ID.
+
+        Params:
+            id: the sector id
+        
+        Returns:
+            One or more partner Account() object
+
+        Raises:
+            AccountsException on ID not found
+        """
+        partner_rows = self._db.execute_d(
+            """SELECT * FROM accounts
+                WHERE sector=%(id)s AND is_partner=1
+            """,
+            {
+                "id": sector_id
+            }
+        )
+        return [
+            Account(self._db, partner_row)
+            for partner_row in partner_rows
+        ]
 
 
     def get_by_account_user(self, account_user):
@@ -112,7 +137,7 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector, affiliate_id, city, state, zip, phone):
+    def create_account(self, user, name, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account with the user automatically added.
 
         Params:
@@ -120,7 +145,9 @@ class Accounts:
             name: the account name
             company: the company name
             sector: the sector number
+            partner: partner id
             affiliate_id: account number in our partners system
+            address: company's address
             city: company's city
             state: company's state
             zip: company's zip
@@ -135,48 +162,49 @@ class Accounts:
         try:
             sector = int(sector)
         except Exception as e:
-            raise AccountsException("Sector number is invalid.")
+            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
 
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
         
         # Process phone number
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector, affiliate_id, city, state, zip, phone)
+                (name, company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s, %(affiliate_id)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+                    (%(name)s, %(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
             """,
             {
                 "name": name,
                 "company": company,
                 "sector": sector,
+                "partner":partner,
                 "affiliate_id": affiliate_id,
+                "address": address,
                 "city": city,
                 "state": state,
                 "zip": zip,
                 "phone": phone
             }
-        )
-
-        try:
-            account = self.get_by_id(self._db.last_row_id())
-            #make the first user the account admin
-            account.add_user(user, 1)
-            return account
-        except AccountException as e:
-            raise AccountsException("Account exception: " + str(e))
+        )            
+        account = self.get_by_id(self._db.last_row_id())
+        #make the first user the account admin
+        account.add_user(user, 1)
+        #Link the account appropriately in the database
+        account.update_account_links()
+        return account
 
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
