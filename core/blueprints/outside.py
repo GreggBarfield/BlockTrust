@@ -414,10 +414,13 @@ def serve_checkout_register_action():
 # Checkout form to get user information and payment information
 @bp.route('/checkout', methods=['GET'])
 def serve_checkout():
-    return outside_render('shop/checkout.html', {
-        "sectors_by_id": sectors_by_id,
-        "redirect_to": '/checkout'
-        })
+    if g.user is not None:
+        return redirect('/checkout_loggedIn')
+    else:
+        return outside_render('shop/checkout.html', {
+            "sectors_by_id": sectors_by_id,
+            "redirect_to": '/checkout'
+            })
 
 
 # Invoice routes
