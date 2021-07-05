@@ -24,6 +24,7 @@
             <div class="row checkout-screen">
                 <div class="col-md-9">
                     <h4>PAYMENT DETAILS</h4>
+                    <form id="payment_form" method="POST" request_redirect_to="{{ redirect_to }}">
                     <div class="row">
                     <div class="col-md-6 sub-col-left">
                         <input type="text" class="form-control mb-3" name="card-type" placeholder="Card Type" required="">
@@ -44,15 +45,29 @@
                         <input type="text" class="form-control mb-3" name="cvv" placeholder="CVV" required="">
                     </div>
                     </div><!-- / row -->
-
+                    <p><input type="checkbox" id="same_address" name="same_address">&nbsp;Check this if billing address is same as shipping address</p>
                     <button type="submit" class="btn btn-primary rectangle mt-2">CHECKOUT</button>
-                    <p class="mt-2 mb-0" id="cart_status_message" style="display:none;">Hang on, submitting your payment...</p>
-                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="cart_error_message">Payment error...</p>
+                    <p class="mt-2 mb-0" id="payment_status_message" style="display:none;">Hang on, submitting your payment...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="payment_error_message">Payment error...</p>
+                </form>
                 </div><!-- / login-form -->
 
                 <div class="col-md-3 checkout-total">
-                    <h4>CART TOTAL: <span class="text-primary" id="grandTotal"></span></h4>
-                    <p class="text-sm">*The price includes shipping and taxes.</p>
+                    <h4 class="pb-3">CART TOTAL</h4>
+                    <div class="row">
+                        <div class="col-md-3 sub-col-left">
+                            <p>Subtotal: </p>
+                            <p>Shipping: </p>
+                            <p>Tax: </p>
+                            <p>Total: </p>   
+                        </div>
+                        <div class="col-md-3 sub-col-right">
+                            <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                            <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                            <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                            <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
+                        </div>
+                    </div><!-- / row -->
                     <div class="cart-total-footer">
                         <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
                         <a href="/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
@@ -66,6 +81,5 @@
 
 
 </section>
-<script type="module" src="/static/entry_points/outside/login.mjs"></script>
-<script type="module" src="/static/entry_points/shop/checkout_login.mjs"></script>
+<script type="module" src="/static/entry_points/shop/checkout_payment.mjs"></script>
 {% endblock outside_content %}

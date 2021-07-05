@@ -74,7 +74,6 @@
                             <input type="text" class="form-control mb-3" name="zip_code" placeholder="*Zip Code" required="">
                         </div>
                     </div><!-- / row -->
-                    {% if g.user is none %}
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
                             <input type="password" class="form-control" placeholder="*Password" id="password" required="">
@@ -83,7 +82,6 @@
                             <input type="password" class="form-control" placeholder="*Confirm Password" id="confirm_password" required="">
                         </div>
                     </div><!-- / row -->
-                    {% endif %}
                     <input type="hidden" name="sector" value="4"/>
                     <input type="hidden" name="affiliate_id" value="1"/>
                     <input type="hidden" name="partner" value="1"/>

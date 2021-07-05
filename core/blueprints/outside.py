@@ -336,29 +336,41 @@ def serve_shopping_cart():
 # Checkout Login and Checkout Register pages 
 
 
-@bp.route('/checkout_payment', methods=['GET', 'POST'])
+@bp.route('/checkout_payment', methods=['GET'])
 def serve_checkout_payment():
     return outside_render('shop/checkout_payment.html')
+
+
+@bp.route('/checkout_payment', methods=['POST'])
+def serve_payment():
+    print(request.form)
+    # return outside_render('shop/invoice.html')
+    return redirect('/invoice')
 
 
 @bp.route('/checkout_loggedIn', methods=['GET'])
 def serve_checkout_register():
     if g.user is not None:
-        return outside_render('shop/checkout_loggedIn.html')
+        return outside_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
 
 
 @bp.route('/checkout_loggedIn', methods=['POST'])
 def serve_loggedIn_checkout():
-    # print(request.form)
-    # Need to modify this to update shipping address incase of change by logged in user
-    return outside_render('shop/checkout_payment.html')
+    try:
+        print(request.form)
+        redirect_to = ''
+        if 'redirect' in request.args:
+            redirect_to = request.args['redirect']
+        # Need to modify this to update shipping address incase of change by logged in user
+        return redirect('/checkout_payment')
+        # return outside_render('shop/checkout_payment.html')
+    except ExportException as e:
+        return jsonify({"error": str(e)})
 
 
 @bp.route('/checkout_register/action', methods=['POST'])
 def serve_checkout_register_action():
     try:
-        print("Registering new user")
-        print(request.form)
         required = {
             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
             'city': None, 'state': None, 'zip_code': None, 'address': None,
