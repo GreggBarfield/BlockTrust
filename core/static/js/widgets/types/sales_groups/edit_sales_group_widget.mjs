@@ -43,11 +43,12 @@ export class EditSalesGroupWidget extends Widget {
             toolTip.setAttribute("data-placement" ,"right");
             toolTip.setAttribute("title" ,title);
             position.append(toolTip);
-            $(document).ready(function(){
-                $('[data-toggle='+dataToggle+']').tooltip(); 
-            });
         }
        
+        $(document).ready(function(){
+            $('[data-toggle='+dataToggle+']').tooltip(); 
+        });
+
         function createSection(form, name) {
 
             let header = document.createElement("h6");
