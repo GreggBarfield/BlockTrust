@@ -189,8 +189,7 @@ class Users:
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
         field.strip(" \n\r\t")
         return field if field != '' else None
-    
-    
+
     def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
         """Creates a new user
 
@@ -202,14 +201,14 @@ class Users:
             last_name: last name of the user
             phone: phone of the user
             email_verified: is email verified
-        
+
         Returns:
             An User object
 
         Raises:
             UsersException
         """
-        
+
         # Correct symbols
         # This is VERY IMPORTANT, otherwise auth.login() could have difficulties
         # if someone uses an integer for a username for example.
@@ -289,7 +288,7 @@ class Users:
         # If phone is empty it is NULL
         if phone == "":
             phone = None
-        
+
         # We don't really care whether or not the phone is being used more than once
 
         self._db.execute(
@@ -433,5 +432,3 @@ class Users:
                     "id": user.id()
                 }
             )
-
-        

@@ -4,7 +4,10 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-#since session objects are easily decoded, we use key names which make no sense
+
+SESSION_USER_ID_VAR = "user_id"
+SESSION_ACCOUNT_ID_VAR = "account_id"
+# since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
@@ -156,7 +159,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     state = Users._format_field(state)
     zip_code = Users._format_field(zip_code)
 
-
     # Password should equal confirm_password
 
     if password != confirm_password:
@@ -190,7 +192,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         #Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
         raise e
-
 
 
 def logout():
@@ -360,7 +361,6 @@ def login(identifier, password="", override=False):
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
-
         return g.user
     except LoginException as e:
         raise e
@@ -383,3 +383,51 @@ def get_email_verified_value(email):
        True if user email is verified. False if user is unverified.
     """
     return g.db.users.get_email_verified_status(email)
+
+
+def get_product_data(id):
+    """
+    Gets the product data from the product table
+    Params:
+        id: The prod_no of the product requested
+
+    Returns:
+        Object containing product data
+    """
+    return g.db.products.get_by_id(id)
+
+
+def get_product_price(id):
+    """
+    Gets the price of the product
+    Params:
+        id: The prod_no of the requested product
+
+    Returns:
+        Price of the requested product
+    """
+    return g.db.products.get_price_by_id(id)
+
+
+def get_transaction_data(id):
+    """
+    Gets the transaction records for a particular user
+    Params:
+        id: The user_id of the user whose transactions are required
+
+    Raise:
+        TransactionException if user is not found
+
+    Returns:
+        Array containing transaction objects for the praticular user
+    """
+    return g.db.orders.getOrdersByAccountNumber(account_no)
+
+
+def get_all_products():
+    """
+    Gets all the products stored in the database 
+    Returns:
+        Array containing object data
+    """
+    return g.db.products.get_all_products()

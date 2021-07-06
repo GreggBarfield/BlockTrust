@@ -16,7 +16,8 @@ from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
-from .tables.partners import Partners
+from .tables.products import ProductTable
+from .tables.orders import Orders
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -55,6 +56,8 @@ class Database:
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
+        self.products = ProductTable(self)
+        self.transactions = Orders(self)
 
     def connect(self):
         try:

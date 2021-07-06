@@ -13,6 +13,7 @@ from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
 
+
 bp = Blueprint('outside_bp', __name__)
 
 
@@ -101,7 +102,7 @@ def serve_signup_action():
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
-                raise ExportException("'" + required_field.capitalize().replace("_"," ") + "' does not have a value")
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
 
         # Sign up
         try:
@@ -113,11 +114,11 @@ def serve_signup_action():
                 last_name=required['last_name'],
                 password=required['password'],
                 confirm_password=required['confirm_password'],
-                company = required['company'],
-                partner = request.form['partner'],
-                affiliate_id = request.form['affiliate_id'],
-                sector = required['sector'],
-                address = required['address'],
+                company=required['company'],
+                partner=request.form['partner'],
+                affiliate_id=request.form['affiliate_id'],
+                sector=required['sector'],
+                address=required['address'],
                 city=required['city'],
                 state=required['state'],
                 zip_code=required['zip_code']
@@ -304,3 +305,138 @@ def serve_contact_email():
     return jsonify(
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
+
+# Routes for shop, shopping cart, product and checkout pages
+
+
+@bp.route('/shop', methods=['GET'])
+def serve_shop():
+    allProductData = auth.get_all_products()
+    return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
+
+
+# Routes for adding and deleting cart items
+
+
+@bp.route('/shop', methods=['POST'])
+def serve_add_to_cart():
+    try:
+        return outside_render("shop/shop_homepage.html")
+    except ExportException as e:
+        return jsonify({"error": e})
+
+
+# Routes for shopping cart page
+
+
+@bp.route('/shopping-cart', methods=['GET'])
+def serve_shopping_cart():
+    return outside_render("shop/shopping_cart.html")
+
+# Checkout Login and Checkout Register pages 
+
+
+@bp.route('/checkout_payment', methods=['GET'])
+def serve_checkout_payment():
+    return outside_render('shop/checkout_payment.html')
+
+
+@bp.route('/checkout_payment', methods=['POST'])
+def serve_payment():
+    print(request.form)
+    # return outside_render('shop/invoice.html')
+    return redirect('/invoice')
+
+
+@bp.route('/checkout_loggedIn', methods=['GET'])
+def serve_checkout_register():
+    if g.user is not None:
+        return outside_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
+
+
+@bp.route('/checkout_loggedIn', methods=['POST'])
+def serve_loggedIn_checkout():
+    try:
+        print(request.form)
+        redirect_to = ''
+        if 'redirect' in request.args:
+            redirect_to = request.args['redirect']
+        # Need to modify this to update shipping address incase of change by logged in user
+        return redirect('/checkout_payment')
+        # return outside_render('shop/checkout_payment.html')
+    except ExportException as e:
+        return jsonify({"error": str(e)})
+
+
+@bp.route('/checkout_register/action', methods=['POST'])
+def serve_checkout_register_action():
+    try:
+        required = {
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'city': None, 'state': None, 'zip_code': None, 'address': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None, 'affiliate_id': None,
+            'address': None, 'partner': None
+        }
+        for required_field in required:
+            if required_field not in request.form:
+                raise ExportException("internal error, {} missing from form".format(required_field))
+            required[required_field] = request.form[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+
+        # Sign up
+        try:
+            auth.signup(
+                username=required['username'],
+                email=required['email'],
+                phone=request.form['phone'],
+                first_name=required['first_name'],
+                last_name=required['last_name'],
+                password=required['password'],
+                confirm_password=required['confirm_password'],
+                company=required['company'],
+                affiliate_id=required['affiliate_id'],
+                sector=required['sector'],
+                address=required['address'],
+                city=required['city'],
+                state=required['state'],
+                zip_code=required['zip_code'],
+                partner=required['partner']
+            )
+        except (auth.SignupFailedException, AccountsException, UsersException) as e:
+            raise ExportException("Signup failed: " + str(e))
+    # We can send out an email for verification if needed. The verification method has been implemented above in signup
+        return jsonify({"redirect": "/checkout_payment"})
+    except ExportException as e:
+        return jsonify({"error": str(e)})
+
+
+# Checkout form to get user information and payment information
+@bp.route('/checkout', methods=['GET'])
+def serve_checkout():
+    if g.user is not None:
+        return redirect('/checkout_loggedIn')
+    else:
+        return outside_render('shop/checkout.html', {
+            "sectors_by_id": sectors_by_id,
+            "redirect_to": '/checkout'
+            })
+
+
+# Invoice routes
+@bp.route('/invoice', methods=['GET'])
+def serve_invoice():
+    return outside_render('shop/invoice.html')
+
+
+# Routes for shop homepage and cart iframes
+
+@bp.route('/external/shop', methods=['GET'])
+def serve_external_shop():
+    allProductData = auth.get_all_products()
+    return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
+
+
+@bp.route('/external/cart', methods=['GET'])
+def serve_external_cart():
+    return outside_render('shop_iframe/shopping_cart.html')
