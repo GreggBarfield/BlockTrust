@@ -71,7 +71,11 @@ class USDAReports:
                     avg_weight_min, avg_weight_max, avg_weight, avg_price_min, 
                     avg_price_max, avg_price, weight_break_low, weight_break_high, 
                     receipts, receipts_week_ago, receipts_year_ago, 
-                    comments_commodity, report_narrative, final_ind)
+                    comments_commodity, report_narrative, final_ind,
+                    purchase_selling_desc, class_desc, grade_desc,
+                    weight_range_low, weight_range_high, dressed_pct,
+                    price_range_low, price_range_high, wtd_avg_price,
+                    region, current_volume)
                     VALUES
                         (%(date)s, %(begin_date)s, %(end_date)s, %(publish_date)s, 
                         %(office_name)s, %(office_state)s, %(office_city)s, %(office_code)s,
@@ -87,7 +91,10 @@ class USDAReports:
                         %(avg_price_max)s, %(avg_price)s, %(weight_break_low)s,
                         %(weight_break_high)s, %(receipts)s, %(receipts_week_ago)s, 
                         %(receipts_year_ago)s, %(comments_commodity)s, %(report_narrative)s, 
-                        %(final_ind)s) 
+                        %(final_ind)s, %(purchase_selling_desc)s, %(class_desc)s,
+                        %(grade_desc)s, %(weight_range_low)s, %(weight_range_high)s,
+                        %(dressed_pct)s, %(price_range_low)s, %(price_range_high)s,
+                        %(wtd_avg_price)s, %(region)s, %(current_volume)s) 
             """,
             {
                 "date" : report.reportDate(),
@@ -137,6 +144,17 @@ class USDAReports:
                 "comments_commodity" : report.commentsCommodity(),
                 "report_narrative" : report.reportNarrative(),
                 "final_ind" : report.finalInd(),
+                "purchase_selling_desc" : report.purchaseSellingDesc(),
+                "class_desc" : report.classDesc(),
+                "grade_desc" : report.gradeDesc(),
+                "weight_range_low" : report.weightRangeLow(),
+                "weight_range_high" : report.weightRangeHigh(),
+                "dressed_pct" : report.dressedPct(),
+                "price_range_low" : report.priceRangeLow(),
+                "price_range_high" : report.priceRangeHigh(),
+                "wtd_avg_price" : report.wtdAvgPrice(),
+                "region" : report.region(),
+                "current_volume" : report.currentVolume(),
             }
         )
 
