@@ -19,7 +19,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
 
     submitResponse = {};
 
-    questions = {
+    sustainabilityForm = {
         questions: {
             air: {
                 1: "Do you have a grazing management plan (GMP)?",
@@ -179,14 +179,14 @@ export class SustainabilityQuestionaireWidget extends Widget {
             cardBody.className = "card-body";
             card.append(cardBody);
 
-            for (var n in that.questions["questions"][name]) {
+            for (var n in that.sustainabilityForm["questions"][name]) {
                 that.selectSection[name + n] = createQuestion(
                     cardBody,
                     name,
-                    that.questions["questions"][name][n],
-                    that.questions["answers"][name][n + "a"],
-                    that.questions["answers"][name][n + "b"],
-                    that.questions["answers"][name][n + "c"]
+                    that.sustainabilityForm["questions"][name][n],
+                    that.sustainabilityForm["answers"][name][n + "a"],
+                    that.sustainabilityForm["answers"][name][n + "b"],
+                    that.sustainabilityForm["answers"][name][n + "c"]
                 );
             }
             form.append(card);
