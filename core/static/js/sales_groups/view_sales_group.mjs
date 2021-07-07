@@ -134,7 +134,7 @@ export class SalesGroupViewer {
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
             salesGroupID.style = "display: inline;";
-            salesGroupID.textContent = "Sales Group " + this.data.id;
+            salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
 

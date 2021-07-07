@@ -34,28 +34,9 @@ export class EditSalesGroupWidget extends Widget {
     
     makeForm() {
 
-        let that = this;
-
-        let card = document.createElement("div");
-        card.className = "card";
-
-        let cardHeader = document.createElement("h5");
-        cardHeader.className = "card-header";
-        cardHeader.textContent = "Edit Sales Group " + this.salesGroupID;
-        card.append(cardHeader);
-
-        let cardBody = document.createElement("div");
-        cardBody.className = "card-body";
-        card.append(cardBody);
-
-
-        let form = document.createElement("form");
-        cardBody.append(form);
-
         // Sections
         function addTooltip(dataToggle,title,position){
             let toolTip = document.createElement("a");
-            toolTip.href="#";
             toolTip.className="feather icon-info";
             toolTip.style = "color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px";
             toolTip.setAttribute("data-toggle" ,dataToggle);
@@ -190,6 +171,36 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
         
+
+        let that = this;
+        let card = document.createElement("div");
+        card.className = "card";
+
+        let cardHeader = document.createElement("h3");
+        cardHeader.className = "col-form-label";
+        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
+
+        let nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = this.data.group_name || null;
+        nameInput.className = "form-control col-sm-2";
+        nameInput.style = "padding-left:15px";
+
+        let editGroupName = document.createElement("div");
+        editGroupName.className = "card-header form-group row";
+        editGroupName.style = "padding:5px;padding-left: 15px;"
+
+        editGroupName.append(cardHeader);
+        editGroupName.append(nameInput);
+        card.append(editGroupName);
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+
+        let form = document.createElement("form");
+        cardBody.append(form);
 
         // Marketing
 
@@ -503,7 +514,8 @@ export class EditSalesGroupWidget extends Widget {
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
-                    auction_sale: marketingAuctionSale.getID()
+                    auction_sale: marketingAuctionSale.getID(),
+                    "group_name": nameInput.value
                 }
             }
         });
