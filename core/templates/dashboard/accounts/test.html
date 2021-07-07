@@ -1,0 +1,60 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Test" %}
+{% set dashboard_locations = [("/dashboard", "Test")] %}
+
+{% block dashboard_content_header %}
+Welcome to BlockTrust Network
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-2"></div>
+    <div class="col" style='text-align:center;'>
+        <h1>Welcome to BlockTrust Network!</h1>
+    </div>
+</div>
+<div class="row" style='height:20px;'></div>
+<div class="row">
+    <button class="btn btn-primary" onclick="importer.requestDataFromUser().then(function(results) { 
+        // do something with the results
+       // console.log(results);
+
+    importer.displaySuccess('Thanks for uploading your data!')
+    console.log(results.$data);
+    fetch('/dashboard/import-tags', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+                eids: results.$data
+              }),
+    });
+      
+    })">Start Import</button>
+</div>
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+    
+<script>
+function DoPost()
+{
+
+}
+const importer = new FlatfileImporter('{{license}}', {
+  type: "EID import",
+  title: "EID import",
+  managed: true,
+  fields: [
+      {key: "EID", label: "Tag",
+      validators: [
+          { validate: "required" },
+          { validate: "unique" }
+      ]}
+    ]
+});
+
+importer.setCustomer({userId: '{{user.id()}}' });
+</script>
+{% endblock dashboard_content %}

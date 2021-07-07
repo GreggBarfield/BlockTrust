@@ -39,11 +39,14 @@ CSP = {
         'https://i.imgur.com',
         'https://player.vimeo.com/',
         'https://www.youtube.com/',
+        'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
+        'https://portal-2.flatfile.io/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'http://localhost:5000',
+        'http://localhost:5001/api/flatfile',
         'blocktrustnetwork.com',
         'data:'
     ]

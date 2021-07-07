@@ -16,6 +16,7 @@ from ..database.tables.users import UsersException
 from ..renderers.email import render_email
 
 from ..utilities import crut, auth
+import json
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -244,6 +245,39 @@ def serve_plans():
 @crut.require_account
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
+
+@bp.route('/dashboard/test', methods=['GET'])
+@crut.require_account
+def serve_test():
+    return dashboard_render("accounts/test.html",  {"account": g.account,"user":g.user, "license":"59cef5be-e3d4-4687-a687-79f0a3e2aaba"})
+
+
+@bp.route('/dashboard/import-tags', methods=['POST'])
+def insert_eids():
+    data = json.loads(request.data)
+    try:
+        if g.account is not None:
+            for row in data["eids"]:
+                g.db.execute(
+                    """INSERT INTO api_inserts
+                        (account, namespace, type, fields)
+                        VALUES
+                            (%(account)s, %(namespace)s, %(type)s, %(fields)s)
+                    """,
+                    {
+                        "account": g.account.id(),
+                        "namespace": "BTN1",
+                        "type": "OnlySighting",
+                        "fields": json.dumps({"EID": row["data"]["EID"]})
+                    }
+                )
+            #insert into table
+            return "", 200
+        else:
+            return {'error':{'message': "No account selected"}}, 400
+    except Exception as e:
+        return {'error':{'message': str(e)}}, 400
+
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])

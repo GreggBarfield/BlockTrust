@@ -2,7 +2,7 @@ from .types.MFA import Animal
 from .types.TestNS import TestTY
 from .types.ILS import Packer
 from .types.BTN1 import (
-    AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
+    AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV, OnlySighting
 )
 from ..database.inserts_model import statuses_by_name, BlockNotAvailable
 
@@ -23,6 +23,7 @@ types = {
         "MatchTableCSV": MatchTableCSV,
         "ProcessingCSV": ProcessingCSV,
         "TreatmentCSV": TreatmentCSV,
+        "OnlySighting": OnlySighting
     }
 }
 
