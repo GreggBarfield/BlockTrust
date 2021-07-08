@@ -138,7 +138,7 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale):
+    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name):
         """Updates a row.
 
         Params:
@@ -156,7 +156,7 @@ class SalesGroups:
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
                     start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
-                    auction_sale=%(auction_sale)s
+                    auction_sale=%(auction_sale)s, group_name=%(group_name)s
                 WHERE id=%(id)s
             """,
             {
@@ -168,7 +168,8 @@ class SalesGroups:
                 "zip": zip_code,
                 "market_location":market_location,
                 "delivery_location":delivery_location,
-                "auction_sale": auction_sale
+                "auction_sale": auction_sale,
+                "group_name": group_name
             }
         )
 
@@ -225,7 +226,7 @@ class SalesGroups:
                         %s <= end AND end <= %s
                     )
                     AND sales_groups.published > 0
-                    AND zip IN (""" + sql_zip_codes + """)
+                    AND sales_groups.zip IN (""" + sql_zip_codes + """)
                     """ + sql_additionals_total + """
         """
 
