@@ -84,3 +84,25 @@ class ProductTable:
         if len(matching_products) != 1:
             raise ProductTableException()
         return matching_products[0]['price']
+
+    def get_partner_products(self, partner):
+        """Gets products by a particular partner.
+
+        Params:
+            partner: Partner name
+
+        Returns:
+            A Product array on success.
+        """
+        matching_products = self._db.execute_d(
+            """
+                SELECT * FROM products
+                WHERE
+                    partner=%(partner)s
+            """,
+            {
+                "partner": partner
+            }
+        )
+
+        return matching_products

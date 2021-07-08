@@ -4,29 +4,13 @@
 
 {% set page_title ="Checkout"| string %}
 
-{% block outside_banner %}
-<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <h1 class="text-white mb-1">Checkout</h1>
-                 
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock outside_banner %}
-
 {% block outside_content %}
 <section style="background-color: white;">
     <section id="checkout" class="bg-white">
         <div class="container">
             <div class="row checkout-screen">
                 <div class="col-md-9 checkout-form">
-                    <h4>REGISTRATION & CHECKOUT</h4>
-                    {% if g.user is none %}
-                    <p class="have-account space-bottom">Already have an account? <a href="#x" data-toggle="modal" data-target=".login-modal"><span>Login</span></a></p>
-                    {% endif %}
+                    <h4>CHECKOUT</h4>
                     <form id="checkout_form" method="POST" request_redirect_to="{{ redirect_to }}">
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
@@ -48,9 +32,6 @@
                         <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
                         </div>
-                        <div class="col-md-6 sub-col-right">
-                            <input type="text" class="form-control mb-3" name="username" placeholder="*Username" required="">
-                        </div>
                     </div><!-- / row -->
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
@@ -61,33 +42,21 @@
                         </div>
                     </div><!-- / row -->
                     <div class="row">
-                        <div class="col-md-6 sub-col-right">
+                        <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="state" placeholder="*State" required="">
                         </div>
-                        <div class="col-md-6 sub-col-left">
+                        <div class="col-md-6 sub-col-right">
                             <input type="text" class="form-control mb-3" name="country" placeholder="*Country" required="">
                         </div>
                     </div><!-- / row -->
                     <div class="row">
-
-                        <div class="col-md-6 sub-col-right">
+                        <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="zip_code" placeholder="*Zip Code" required="">
                         </div>
                     </div><!-- / row -->
-                    <div class="row">
-                        <div class="col-md-6 sub-col-left">
-                            <input type="password" class="form-control" placeholder="*Password" id="password" required="">
-                        </div>
-                        <div class="col-md-6 sub-col-right">
-                            <input type="password" class="form-control" placeholder="*Confirm Password" id="confirm_password" required="">
-                        </div>
-                    </div><!-- / row -->
-                    <input type="hidden" name="sector" value="4"/>
-                    <input type="hidden" name="affiliate_id" value="1"/>
-                    <input type="hidden" name="partner" value="1"/>
                     <button type="submit" class="btn btn-primary rectangle mt-2">PROCEED TO PAYMENT</button>
-                    <p class="mt-2 mb-0" id="signup_status_message" style="display:none;">Hang on, we're setting up youraccount...</p>
-                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading error...</p>
+                    <p class="mt-2 mb-0" id="checkout_status_message" style="display:none;">Hang on, we're setting up your account...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="checkout_error_message">Loading error...</p>
                 </form>
                 </div><!-- / checkout-form -->
                 <div class="col-md-3 checkout-total">
@@ -107,8 +76,8 @@
                         </div>
                     </div><!-- / row -->
                     <div class="cart-total-footer">
-                        <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
-                        <a href="/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
+                        <a href="/external/cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
+                        <a href="/external/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
                     </div><!-- / cart-total-footer -->
                 </div><!-- / checkout-total -->
             </div><!-- / row -->
@@ -116,53 +85,6 @@
     </section><!-- / checkout -->
 
 
-
-    <div class="modal fade login-modal" tabindex="-1" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">LOG IN</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div><!-- / modal-header -->
-                <div class="modal-body">
-                    <div class="custom-form">
-                        <form class="bg-white shadow p-3" id="login_form" method="POST"
-                
-                        request_redirect_to="/checkout_loggedIn"
-                    
-                    > {# method="POST" is important in case preventDefault fails #}
-                        <div class="form-group">
-                            <label for="login_username">Username, Email, or User ID</label>
-                            <input type="text" class="form-control" placeholder="JohnDoe6" name="identifier" id="login_username">
-                            <span class="focus-border"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="login_password">Password</label>
-                            <input type="password" class="form-control" placeholder="App623Ten!HHW" name="password" id="login_password">
-                            <span class="focus-border"></span>
-                        </div>
-                        {#
-                            <div class="form-group form-check">
-                                <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                <label class="form-check-label" for="exampleCheck1">Remember Me</label>
-                            </div>
-                        #}
-                        <button type="submit" class="btn btn-primary">Login</button>
-                        <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
-                        <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
-                        <p class="mt-2 mb-0"><a href="/request_password_reset"> Forgot your password?</a></p>
-
-                    </form>
-                    </div><!-- / custom-form -->
-                </div><!-- / modal-body -->
-            </div><!-- / modal-content -->
-        </div><!-- / modal-dialog -->
-    </div><!-- / modal -->
-
-
 </section>
-<script type="module" src="/static/entry_points/shop/checkout_signup.mjs"></script>
-<script type="module" src="/static/entry_points/outside/login.mjs"></script>
+<script type="module" src="/static/entry_points/shop_iframe/checkout.mjs"></script>
 {% endblock outside_content %}

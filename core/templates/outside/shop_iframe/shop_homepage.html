@@ -2,25 +2,6 @@
 
 {% set page_title = "Tag Store"| string %}
 
-{% block outside_banner %}
-<link rel="stylesheet" href="/static/css/outside/shop/shop_styles.css" />
-<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
-                        <li class="breadcrumb-item">
-                                <h1 class="text-white mb-1">BlockTrust Network Tag Store</h1>
-                        </li>
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock outside_banner %}
-
 {% block outside_content %}
 <section id="gallery" class="p-0 line-effect">
     <div class="container">
@@ -105,5 +86,5 @@
     
 
 </section>
-<script type="module" src="/static/entry_points/shop/shop_homepage.mjs"></script>
+<script type="module" src="/static/entry_points/shop_iframe/shop_homepage.mjs"></script>
 {% endblock outside_content %}

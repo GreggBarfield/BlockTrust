@@ -2,30 +2,6 @@
 
 {% set page_title = "Shopping Cart" | string %} 
 
-{% block outside_banner %}
-
-<link rel="stylesheet" href="/static/css/outside/shop/shop_styles.css" />
-<link href="statis/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
-
-
-<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
-                        <li class="breadcrumb-item">
-                            <h1 class="text-white mb-1">Shopping Cart</h1>
-                        </li>
-                        
-                    </ol>
-                </nav>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock outside_banner %}
-
 {% block outside_content %}
 <section style="background-color: white;">
                 <div class="container"> 
@@ -55,7 +31,7 @@
                                 </div>
                             </div><!-- / input-group -->
                             <div class="update-cart col-md-6 mt-1 mb-1">
-                                <a href="/shop" class="btn btn-primary" ><span>CONTINUE SHOPPING</span></a>
+                                <a href="/external/shop" class="btn btn-primary" ><span>CONTINUE SHOPPING</span></a>
                             </div><!-- / update-cart -->
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
@@ -82,5 +58,5 @@
                     </div><!-- / container -->
                 </section><!-- / cart-features -->
 </section>
-<script type="module" src="/static/entry_points/shop/shopping_cart.mjs"></script>
+<script type="module" src="/static/entry_points/shop_iframe/shopping_cart.mjs"></script>
 {% endblock outside_content %}

@@ -4,7 +4,8 @@ $(document).ready(function() {
     var shopCart= JSON.parse(shopCartString)
 
     Object.values(shopCart).forEach(val=>{
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>$'+ val.price +'</td><td>$'+ val.price*val.quantity +'</td><td><a href="/shopping-cart"><button href="/shopping-cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        var total_product_price=Math.round((val.price*val.quantity)*100)/100;
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>$'+ val.price +'</td><td>$'+ total_product_price +'</td><td><a href="/shopping-cart"><button href="/shopping-cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
     });
     $("#subtotal").text(localStorage.getItem('totalPrice'))
     $("#shipping").text(localStorage.getItem('shipping'))

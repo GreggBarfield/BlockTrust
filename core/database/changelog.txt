@@ -229,7 +229,14 @@ CREATE TABLE orders(
   approval_code CHAR(20),
   session_flag CHAR(10),
   grand_total INT,
-  transaction_date DATE
+  transaction_date DATE,
+  shipping_address varchar(127),
+  shipping_city varchar(127),
+  shipping_state varchar(127),
+  shipping_country varchar(127),
+  shipping_zipcode varchar(127),
+  first_name varchar(127),
+  last_name varchar(127)
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -323,6 +330,6 @@ product_quantity INT
 ALTER TABLE products ADD COLUMN partner varchar(127);
 
 INSERT INTO products (product_no,product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
-VALUES (7,"Strip Tag","card_placeholder.jpg","modal_placeholder.jpg",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace")
-,(8,"Large Panel Tag","card_placeholder.jpg","modal_placeholder.jpg",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number. Prefix options available for USDA 840 ADT compliant or commercial 999","cattletrace")
-,(9,"Large Panel Feedlot Tag","card_placeholder.jpg","modal_placeholder.jpg",2.20,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.","cattletrace")
+VALUES (7,"Strip Tag","tag-page-1smal.png","tag-page-1smal.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace")
+,(8,"Large Panel Tag","tag-page-2small.png","tag-page-2small.png",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number. Prefix options available for USDA 840 ADT compliant or commercial 999","cattletrace")
+,(9,"Large Panel Feedlot Tag","tag-page-3small.png","tag-page-3small.png",2.20,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.","cattletrace")

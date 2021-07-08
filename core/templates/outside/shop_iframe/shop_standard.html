@@ -1,8 +1,7 @@
 {% extends "common.html" %}
 
 {% block head_section %}
-<link rel="stylesheet"
-href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i,700,700i&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i,700,700i&display=swap">
 <link rel="stylesheet" href="/static/libs/font-awesome/css/all.min.css" />
 <link rel="stylesheet" href="/static/libs/flaticon/css/flaticon.css" />
 <link rel="stylesheet" href="/static/libs/themify/css/themify-icons.min.css" />
@@ -22,22 +21,26 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 <script src="/static/build/build_outside_interactive.min.mjs"></script>
 {% endblock scripts %}
 
+{% block header %}
+{% endblock header %}
 
-{% block content %}
 {% block outside_banner %}
-Needs outside banner
 {% endblock outside_banner %}
 
+
+{% block content %}
 {% block outside_content %}
 Needs outside content
 {% endblock outside_content %}
-
 {% endblock content %}
 
+{% block footer %}
+{% endblock footer %}
 
 {% block features %}
 <div id="back-to-top" class="back-to-top">
   <a href="#"><i class="fas fa-angle-up"></i> </a>
 </div>
 {% endblock features %}
+
 

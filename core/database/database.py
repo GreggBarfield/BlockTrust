@@ -57,7 +57,7 @@ class Database:
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
         self.products = ProductTable(self)
-        self.transactions = Orders(self)
+        self.orders = Orders(self)
 
     def connect(self):
         try:

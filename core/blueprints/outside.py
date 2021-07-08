@@ -80,7 +80,7 @@ def serve_login_action():
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
-    #Only add cowcalf partners
+    # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
     partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
@@ -344,7 +344,6 @@ def serve_checkout_payment():
 @bp.route('/checkout_payment', methods=['POST'])
 def serve_payment():
     print(request.form)
-    # return outside_render('shop/invoice.html')
     return redirect('/invoice')
 
 
@@ -357,7 +356,6 @@ def serve_checkout_register():
 @bp.route('/checkout_loggedIn', methods=['POST'])
 def serve_loggedIn_checkout():
     try:
-        print(request.form)
         redirect_to = ''
         if 'redirect' in request.args:
             redirect_to = request.args['redirect']
@@ -428,15 +426,3 @@ def serve_checkout():
 def serve_invoice():
     return outside_render('shop/invoice.html')
 
-
-# Routes for shop homepage and cart iframes
-
-@bp.route('/external/shop', methods=['GET'])
-def serve_external_shop():
-    allProductData = auth.get_all_products()
-    return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
-
-
-@bp.route('/external/cart', methods=['GET'])
-def serve_external_cart():
-    return outside_render('shop_iframe/shopping_cart.html')

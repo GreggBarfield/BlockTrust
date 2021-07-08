@@ -431,3 +431,12 @@ def get_all_products():
         Array containing object data
     """
     return g.db.products.get_all_products()
+
+
+def get_partner_products(partner):
+    """
+    Gets products by a particular partner
+    Returns:
+    Arrays containing object data
+    """
+    return g.db.products.get_partner_products(partner)
