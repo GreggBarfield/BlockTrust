@@ -3,7 +3,7 @@ import json
 class Sustainability:
     def __init__(self, db):
         self._db = db
-        
+
     def insert(self,account, response):
         self._db.execute(
             """INSERT INTO sustainability
@@ -26,10 +26,8 @@ class Sustainability:
             })
         
         if(row is None):
-            print("insert")
             self.insert(account,response)
         else:
-            print("hi")
             self.update(account,response)
 
     def update(self,account, response):
