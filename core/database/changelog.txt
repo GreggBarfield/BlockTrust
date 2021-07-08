@@ -230,6 +230,10 @@ ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
 ALTER TABLE `example_db_1`.`account_users` 
 ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
 
+/* Lydia Qiao 6/9/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `group_name` VARCHAR(255) NULL DEFAULT NULL AFTER `eid_group`;
+
 /* Rohan Sureshkumar 6/24/2021 */
 /* Partners will be stored in accounts table itself. This has already been built into the system and we will have to do to much rework 
    at this point, if we want to create a separate partners table, is_partner column will indicate if account is a partner */
