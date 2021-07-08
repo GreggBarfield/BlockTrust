@@ -1,0 +1,26 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+
+{% set page_title = "Market Data" %}
+{% set dashboard_locations = [("/dashboard/market-data", "Market Data")] %}
+
+{% block dashboard_content_header %}
+Market Data
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Market Data</h5>
+            <div class="card-body widget" data-widget-type="market data table">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

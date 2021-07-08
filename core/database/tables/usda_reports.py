@@ -45,6 +45,20 @@ class USDAReports:
 
         return USDAReport(self._db, matching_reports[0])
 
+    def get_all(self):
+        """Gets all USDA Reports
+
+        Returns:
+            A list of USDAReport objects on success, or None on no match.
+        """
+        all_reports = self._db.execute_d(
+            """
+                SELECT * FROM usda_report_data
+            """
+        )
+
+        return all_reports
+
     def create_report(self, report: USDAReport):
         """Creates a new USDA report
 

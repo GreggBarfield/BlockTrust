@@ -18,6 +18,7 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 
 
 // Immediately invoked
@@ -52,6 +53,7 @@ import { SubscribeWidget } from './types/stripe/subscribe.mjs';
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    attach("market data table", MarketDataTableWidget);
 
     // Find widgets
     $(".widget").each(function () {

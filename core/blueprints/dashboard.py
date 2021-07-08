@@ -264,6 +264,12 @@ def serve_upload_tags():
     return dashboard_render("data/upload-tags.html")
 
 
+@bp.route('/dashboard/data/market-data', methods=['GET'])
+@crut.require_account
+def serve_market_data():
+    return dashboard_render("data/market-data.html")
+
+
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
 @crut.require_user

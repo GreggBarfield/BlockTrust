@@ -363,3 +363,11 @@ def serve_get_account_type_visibilities():
             g.account.id()
         )
     }
+
+
+@bp.route('/widgets/data/get_market_data', methods=['POST'])
+@crut.require_account
+def serve_get_market_data():
+    return {
+        'market_data': g.db.usda_reports.get_all()
+    }, 200
