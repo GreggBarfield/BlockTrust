@@ -1,4 +1,3 @@
-from functools import total_ordering
 import json
 class Sustainability:
     def __init__(self, db):
