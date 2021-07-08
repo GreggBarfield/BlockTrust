@@ -154,10 +154,10 @@ export class SustainabilityQuestionaireWidget extends Widget {
             group.append(input);
 
             createOption(input, "Any", "Please Choose");
-            createOption(input, id + "A", a);
-            createOption(input, id + "B", b);
+            createOption(input, id + "a", a);
+            createOption(input, id + "b", b);
             if (c != "") {
-                createOption(input, id + "C", c);
+                createOption(input, id + "c", c);
             }
             return input;
         }
@@ -180,14 +180,14 @@ export class SustainabilityQuestionaireWidget extends Widget {
             card.append(cardBody);
 
             for (var n in that.sustainabilityForm["questions"][name]) {
-                that.selectSection[name + n] = createQuestion(
+                that.selectSection[name + n] = (createQuestion(
                     cardBody,
-                    name,
+                    n,
                     that.sustainabilityForm["questions"][name][n],
                     that.sustainabilityForm["answers"][name][n + "a"],
                     that.sustainabilityForm["answers"][name][n + "b"],
                     that.sustainabilityForm["answers"][name][n + "c"]
-                );
+                ))
             }
             form.append(card);
         }
@@ -249,25 +249,39 @@ export class SustainabilityQuestionaireWidget extends Widget {
         });
 
         submitButton.addEventListener("click", () => {
-            for (var i in that.selectSection) {
-                that.submitResponse[i] = $(that.selectSection[i]).val();
+            that.submitResponse = {}
+            var tempData = []
+            var curName = ""
+            var allAnswered = true
+            for (var [i, j] of Object.entries(that.selectSection)) {
+
+                if ($(j).val() == "Any") {
+                    allAnswered = false
+                    break
+                }
+                if (tempData.length == 0 && curName == "") {
+                    curName = i.slice(0, -1)
+                }
+
+                if (curName != "" && curName != i.slice(0, -1)) {
+                    that.submitResponse[curName] = tempData;
+                    tempData = []
+                    curName = i.slice(0, -1)
+                }
+                tempData.push($(j).val())
             }
-            if (this.allAnswered()) {
+
+            that.submitResponse[curName] = tempData;
+
+            if (allAnswered) {
                 this.internalErrorMessage.style.display = "none";
                 this.asyncForm.submit();
             }
-        });
-    }
-
-    allAnswered() {
-        for (var i in this.submitResponse) {
-            if (this.submitResponse[i] == "Any") {
+            else {
                 this.internalErrorMessage.style.display = "block";
                 this.internalErrorMessage.textContent =
                     "Please complete the questionnaire";
-                return false;
             }
-        }
-        return true;
+        });
     }
 }

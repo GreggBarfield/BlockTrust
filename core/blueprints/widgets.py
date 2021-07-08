@@ -236,7 +236,7 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
-    g.db.sustainability.insert(
+    g.db.sustainability.check(
         g.account.id(),
         request.json["response"]
     )
