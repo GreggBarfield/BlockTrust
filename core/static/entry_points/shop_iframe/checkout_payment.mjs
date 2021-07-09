@@ -21,8 +21,8 @@ let form = new AsyncForm({
     form: paymentForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
-    redirectMessage: "Signed up successfully!",
-    loadingMessage: "Hang on, we're setting up your account...",
+    redirectMessage: "Payment successfull!",
+    loadingMessage: "Hang on, we're processing your payment...",
     getData: () => {
         return {
             card_type: paymentForm.find("input[name='card_type']").val(),

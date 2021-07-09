@@ -45,7 +45,6 @@ def serve_external_checkout():
 @bp.route('/external/checkout', methods=['POST'])
 def serve_external_checkoutinfo():
     try:
-        print(request.form)
         order = {
             'first_name': None, 'last_name': None, 'email': None, 'tel': None, 'company': None,
             'address_line': None, 'city': None, 'state': None, 'country': None, 'zip_code': None,
@@ -58,8 +57,6 @@ def serve_external_checkoutinfo():
             if len(order[order_field].strip()) == 0:
                 raise ExportException("'" + order_field.capitalize().replace("_", " ") + "' does not have a value")
         session[SESSION_CHECKOUT_INFO] = order
-        print(order)
-        g.db.orders.addOrder(order)
         return jsonify({"redirect": "/external/checkout_payment"})
     except ExportException as e:
         return jsonify({"error": str(e)})
@@ -72,18 +69,24 @@ def serve_external_payment():
 
 @bp.route('/external/checkout_payment', methods=['POST'])
 def serve_external_paymentinfo():
-    print(request.form)
+    try:
+        #  print(request.form)
+        # We need to implement stripe payment function here
+        # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
+        # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
-    # We need to implement stripe payment function here
-    # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
-    # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
-    # Updating the orders table
+        # Updating the orders table
+        order = session[SESSION_CHECKOUT_INFO]
+        g.db.orders.addOrder(order)
 
-    # Once payment goes through sending email to confirm order to buyer and seller
+        # Once payment goes through sending email to confirm order to buyer and seller
 
-    return redirect('/external/invoice')
+        return jsonify({"redirect": "/external/invoice"})
+    except ExportException as e:
+        return jsonify({"error": str(e)})
 
 
 @bp.route('/external/invoice', methods=['GET'])
 def serve_external_invoice():
-    return outside_render('shop_iframe/invoice.html')
+    order = session[SESSION_CHECKOUT_INFO]
+    return outside_render('shop_iframe/invoice.html', {'order': order})

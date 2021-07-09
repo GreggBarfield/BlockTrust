@@ -137,7 +137,7 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-        
+
         return {"redirect": "/email_not_verified"}
     except ExportException as e:
         return {"error": str(e)}
