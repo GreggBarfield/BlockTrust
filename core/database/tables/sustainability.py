@@ -24,7 +24,7 @@ class Sustainability:
                 "account": account,
             })
         
-        if(row is None):
+        if(len(row)==0):
             self.insert(account,response)
         else:
             self.update(account,response)

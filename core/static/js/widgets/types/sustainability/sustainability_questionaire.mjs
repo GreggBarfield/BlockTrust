@@ -180,7 +180,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
             card.append(cardBody);
 
             for (var n in that.sustainabilityForm["questions"][name]) {
-                that.selectSection[name + n] = (createQuestion(
+                that.selectSection[name+n]=(createQuestion(
                     cardBody,
                     n,
                     that.sustainabilityForm["questions"][name][n],
@@ -249,39 +249,40 @@ export class SustainabilityQuestionaireWidget extends Widget {
         });
 
         submitButton.addEventListener("click", () => {
-            that.submitResponse = {}
+            that.submitResponse={}
             var tempData = []
-            var curName = ""
-            var allAnswered = true
-            for (var [i, j] of Object.entries(that.selectSection)) {
+            var curName=""
+            var allAnswered= true
+            for (var [i,j] of Object.entries(that.selectSection)) {
 
-                if ($(j).val() == "Any") {
-                    allAnswered = false
-                    break
+                if ( $(j).val()=="Any")
+                {
+                    allAnswered=false
+                    break}
+                if( tempData.length==0 && curName==""){
+                    curName=i.slice(0,-1)
                 }
-                if (tempData.length == 0 && curName == "") {
-                    curName = i.slice(0, -1)
-                }
-
-                if (curName != "" && curName != i.slice(0, -1)) {
+                
+                if(curName!="" && curName!=i.slice(0,-1)){
                     that.submitResponse[curName] = tempData;
-                    tempData = []
-                    curName = i.slice(0, -1)
+                    tempData=[]
+                    curName=i.slice(0,-1)
                 }
-                tempData.push($(j).val())
+                tempData.push ( $(j).val())
             }
 
             that.submitResponse[curName] = tempData;
-
+            
             if (allAnswered) {
                 this.internalErrorMessage.style.display = "none";
                 this.asyncForm.submit();
             }
-            else {
+            else{
                 this.internalErrorMessage.style.display = "block";
                 this.internalErrorMessage.textContent =
                     "Please complete the questionnaire";
             }
         });
     }
+
 }
