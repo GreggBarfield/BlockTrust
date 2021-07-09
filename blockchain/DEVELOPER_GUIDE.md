@@ -170,9 +170,7 @@ References:
 **Note: Make sure the EBS volume and the instance are in the same zone.**
 
    Add tags:  
-   **name: externalblockchainvolume  
-   stack: prod**
-
+   **Name: btn-external-blockchain-volume-prod**  
 
 2.  Select the created volume, right-click and select the “attach volume” option.
 
@@ -216,7 +214,7 @@ References:
    ```
    sudo mkfs -t xfs /dev/nvme1n1
    ```
-   If you get an error that mkfs.xfs is not found, use the following command to install the XFS tools and then repeat the previous command:
+   (**Optional**)If you get an error that mkfs.xfs is not found, use the following command to install the XFS tools and then repeat the previous command:
    ```
    sudo yum install xfsprogs
    ```
@@ -265,7 +263,7 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
    ```
    device_name mount_point file_system_type fs_mntops fs_freq fs_passno
    ```
-   Make sure you are using the **CORRECT VOLUME NAME: xvdf or nvme1n1**. For example, for xvdf, it should be
+   Make sure you are using the **CORRECT VOLUME NAME: xvdf or nvme1n1**. For example, for **xvdf**, it should be
    ```
    /dev/xvdf       /blockchainvolume   xfs    defaults,nofail        0       2
    ```
@@ -277,6 +275,7 @@ By default on every reboot, the  EBS volumes other than root volume will get unm
 
 3. To verify that your entry works, run the following commands to unmount the device and then mount all file systems in /etc/fstab. If there are no errors, the /etc/fstab file is OK and your file system will mount automatically after it is rebooted. If you see an error `umount: /blockchainvolume: target is busy`, your CWD may be in /blockchainvolume, and you should go out of it.
    ```
+   cd /
    sudo umount /blockchainvolume
    sudo mount -a
    ```
@@ -329,10 +328,14 @@ The default location for creating a docker volume is in `/var/lib/docker/volumes
    sudo systemctl restart docker
    ```
 
-**Note:** be careful in production and also locally! You also have to move the existing data from /var/lib/docker/ to the new location for your docker install to work as expected. If we perform all the previous steps before we bring up the blockchain network for the first time, then we don't need to be worried about moving existing data to the new location because no blockchain-related data is generated yet.
+**Note:** If we perform all the previous steps before we bring up the blockchain network(See the next section **Blockchain Network Setup**) for the very first time, then we don't need to be worried about moving existing data to the new location because no blockchain-related data is generated yet. However, you must move the existing data from /var/lib/docker/ to the new location for your docker install to work as expected. 
 
 #### **Configure the default logging driver in daemon settings**
-This can be done by adding the following values in `/etc/docker/daemon.json`. Create this file if it doesn’t exist. Paste the following in `daemon.json`.
+This can be done by adding the following values in `/etc/docker/daemon.json`. Create this file if it doesn’t exist.
+   ```
+   sudo vim /etc/docker/daemon.json
+   ```
+Paste the following in `daemon.json`.
    ```
    {
       "log-driver": "json-file",
@@ -463,11 +466,11 @@ In directory [blockchain/record-management-basic/application-javascript](record-
    ```
    pm2 stop server
    ```
-   To delete it, run
+   (**Optional**)To delete it, run
    ```
    pm2 delete server
    ```
-   To restart it, run
+   (**Optional**)To restart it, run
    ```
    pm2 restart server
    ```
@@ -803,7 +806,7 @@ We have an **external EBS volume** attached to a EC2 instance. We may come to a 
    - Type the desired size.
    - Click **Modify**.
    - Click **Yes** to confirm that you may need to extend the OS file system.
-   - You **MUST** wait for the process to be finished.
+   - **Refresh** the page to check the status of the modified volume. You **MUST** wait for the process to be finished.
 3. Extend OS file system  
 **AFTER** the process of increasing the volume finishes, you need to extend OS file system in order to see your increased volume size. The example below is for Ubuntu OS.
    - SSH into your ec2 instance.

@@ -84,7 +84,7 @@ show_menus() {
 	echo "~~~~~~~~~~~~~~~~~~~~~"	
 	echo " M A I N - M E N U"
 	echo "~~~~~~~~~~~~~~~~~~~~~"
-	echo "1. Redeploy chaincode (DEV and PROD)"
+	echo "1. Redeploy chaincode (DEV and PROD. Do this if all the required packages are installed and the blockchain network was run successfully once.)"
 	echo "2. Bring down blockchain network (DEV)"
 	echo "3. Test chaincode (DEV)"
 	echo "4. Exit"

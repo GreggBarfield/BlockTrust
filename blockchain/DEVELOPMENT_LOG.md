@@ -66,3 +66,13 @@ docker restart $(docker ps -q)
 
 4 Types of Memory Leaks in JavaScript and How to Get Rid Of Them
 https://codefresh.io/docker-tutorial/docker-memory-usage/
+
+
+5. Automating Amazon EBS Volume-resizing with AWS Step Functions and AWS Systems Manager
+https://aws.amazon.com/blogs/storage/automating-amazon-ebs-volume-resizing-with-aws-step-functions-and-aws-systems-manager/
+
+6. How To Restore EC2 From Snapshot? 
+https://www.edureka.co/blog/restore-ec2-from-snapshot/
+
+7. Change the instance type
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html
