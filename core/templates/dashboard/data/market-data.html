@@ -5,7 +5,10 @@
 
 
 {% set page_title = "Market Data" %}
-{% set dashboard_locations = [("/dashboard/market-data", "Market Data")] %}
+{% set dashboard_locations = [
+    ("/dashboard/data/market", "Market State Data"), 
+    ("/dashboard/data/market/" + state, "Market City Data"),
+    ("/dashboard/data/market/" + state + "/" + slug_id|string, "Market Data")] %}
 
 {% block dashboard_content_header %}
 Market Data
@@ -17,7 +20,7 @@ Market Data
     <div class="col-md">
         <div class="card">
             <h5 class="card-header">Market Data</h5>
-            <div class="card-body widget" data-widget-type="market data table">
+            <div class="card-body widget" data-widget-type="market data table" slug_id={{slug_id}}>
             </div>
         </div>
     </div>

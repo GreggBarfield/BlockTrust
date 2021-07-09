@@ -264,10 +264,35 @@ def serve_upload_tags():
     return dashboard_render("data/upload-tags.html")
 
 
-@bp.route('/dashboard/data/market-data', methods=['GET'])
+@bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
-def serve_market_data():
-    return dashboard_render("data/market-data.html")
+def serve_market_state_data():
+    return dashboard_render("data/market-data-states.html")
+
+
+@bp.route('/dashboard/data/market/<string:state>', methods=['GET'])
+@crut.require_account
+def serve_market_city_data(state):
+    stateLabel = {'market_location_state': state}
+    market_states = g.db.usda_reports.get_all_states()
+
+    if stateLabel in market_states:
+        return dashboard_render("data/market-data-cities.html", {"state": state})
+    raise Exception("Invalid state")
+
+@bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
+@crut.require_account
+def serve_market_data(state, slug_id):
+    stateLabel = {'market_location_state': state}
+    market_states = g.db.usda_reports.get_all_states()
+
+    if stateLabel in market_states:
+        return dashboard_render("data/market-data.html", 
+            {
+                "slug_id": slug_id,
+                "state": state
+            })
+    raise Exception("Invalid state")
 
 
 # edit user profile

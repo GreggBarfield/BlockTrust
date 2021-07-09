@@ -6,9 +6,10 @@ export class MarketDataTableWidget extends Widget {
     }
 
     initType() {
-        this.count = 0;
+        this.slug_id = this.frame.getAttribute('slug_id');
+
         this.getData(
-            "get_market_data",
+            "get_market_data/" + this.slug_id,
             {}
         ).then((data) => {
             this.match_rows = data.market_data;
@@ -52,7 +53,11 @@ export class MarketDataTableWidget extends Widget {
             for (const item in this.match_rows[row]) {
                 let td = document.createElement("td");
                 rowTag.append(td);
-                td.textContent = this.match_rows[row][item];
+                if (item.includes('price') && this.match_rows[row][item] != null){
+                    td.textContent = '$' + this.match_rows[row][item];
+                } else {
+                    td.textContent = this.match_rows[row][item];
+                }
             }
         }
 
