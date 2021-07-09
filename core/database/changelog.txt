@@ -239,6 +239,8 @@ CREATE TABLE `example_db_1`.`sustainability` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `account` VARCHAR(127) NULL DEFAULT NULL,
   `response` JSON NULL DEFAULT NULL,
+  `created_timestamp` INT NULL,
+  `last_updated_timestamp` INT NULL,
   PRIMARY KEY (`id`));
 
 /* Rohan Sureshkumar 6/24/2021 */
