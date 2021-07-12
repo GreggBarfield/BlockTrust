@@ -12,6 +12,7 @@ from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
+import uuid
 
 
 bp = Blueprint('shop_bp', __name__)
@@ -23,6 +24,7 @@ SESSION_CHECKOUT_INFO = "session_checkout_info"
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
     allProductData = auth.get_partner_products(tok)
+    print(allProductData)
     return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
 
 
@@ -75,12 +77,22 @@ def serve_external_paymentinfo():
         # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
         # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
-        # Updating the orders table
+        # Updating the orders table if payment goes through
+        # Assigning unique transaction id to retrieve order id from table
+        transaction_id = str(uuid.uuid4())
         order = session[SESSION_CHECKOUT_INFO]
-        g.db.orders.addOrder(order)
+        order['transaction_id'] = transaction_id
+        g.db.orders.add_order(order)
+        # Getting order id from orders table
+        order_no = g.db.orders.get_order_ID(transaction_id)
+        # Getting the cart details
+        cart = eval(order['shoppingCart'])
+        # Adding product data and quantities to the OrderProducts table
+        for key, value in cart.items():
+            g.db.order_products.add_order_product(order_no, value["product_name"], value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-
+        
         return jsonify({"redirect": "/external/invoice"})
     except ExportException as e:
         return jsonify({"error": str(e)})

@@ -18,6 +18,7 @@ from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
 from .tables.products import ProductTable
 from .tables.orders import Orders
+from .tables.order_products import OrderProducts
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -58,6 +59,7 @@ class Database:
         self.eid_groups = EIDGroups(self)
         self.products = ProductTable(self)
         self.orders = Orders(self)
+        self.order_products = OrderProducts(self)
 
     def connect(self):
         try:

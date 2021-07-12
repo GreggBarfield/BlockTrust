@@ -184,6 +184,7 @@ CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
 /* Nisheet Thakur 05/31/2021*/
 CREATE TABLE products(
+  id INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
   product_no INT,
   menu1 CHAR(40),
   m1_short CHAR(20),
@@ -204,13 +205,14 @@ CREATE TABLE products(
   number_y_n CHAR(1),
   start_no INT,
   end_no INT,
-  num_text CHAR(25)
+  num_text CHAR(25),
+  partner VARCHAR(127)
 )
 
 /* Nisheet Thakur 05/31/2021*/
 
 INSERT INTO products (product_no,product,pic_1,pic_2,price,orders,post,subheader,unit,details)
-VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_detail.png",3.63,0,"ANXLCHSet22**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with FDX 840 EID tag.")
+VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_detail.png",3.63,0,"Y","ANXLCHSet22**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with FDX 840 EID tag.")
 ,(2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_detail.png",4.26,0,"Y","ANXLCHSet33**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with HDX 840 EID tag." )
 ,(3,"FDX USDA 840","840_fdx_lg.png","840_fdx_lg_detail.png",55.9,0,"Y","tag","Bags of 25","Destron Fearing USDA 840 FDX EID tag with small male. Full Duplex (FDX) technology offers a slightly lower read distance vs HDX (up to to 75cm)." )
 ,(4,"HDX USDA 840","840_hdx_lg.png","840_fdx_lg_detail.png",63.7,0,"Y","EID tag with small male","Bags of 25","Destron Fearing USDA 840 HDX EID tag with small male. Half Duplex (HDX) technology offers the greatest possible read distance (up to100cm). " )
@@ -220,7 +222,8 @@ VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_d
 /* Nisheet Thakur 06/04/2021*/
 
 CREATE TABLE orders(
-  transaction_no INT,
+  id INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  transaction_id VARCHAR(127),
   account INT,
   total_tax INT,
   total_shipping INT,
@@ -322,7 +325,6 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 CREATE TABLE OrderProducts(
 order_no INT,
 product_no INT,
-
 product_quantity INT
 )
 

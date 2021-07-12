@@ -15,40 +15,36 @@ class Orders:
     def __init__(self, db):
         self._db = db
 
-    def getOrdersByAccountNumber(self, account):
+    def get_order_ID(self, transaction_id):
         """
-        Gets the transactions by a user.
+        Gets the id of a transaction.
 
         Params:
-            account: User account number
+            transaction_id: Unique transaction id
 
         Returns:
-            A Transaction object array on success, or None on no match.
+            Order ID corresponding to transaction id
         """
-        matching_orders = self._db.execute_d(
+        match = self._db.execute_d(
             """
-                SELECT * FROM orders
+                SELECT id FROM orders
                 WHERE
-                    account=%(account)s
+                    transaction_id=%(transaction_id)s
             """,
             {
-                "account": account
+                "transaction_id": transaction_id
             }
         )
+        return match[0]["id"]
 
-        if len(matching_orders) < 1:
-            raise TransactionException()
-
-        return matching_orders
-
-    def addOrder(self, order):
+    def add_order(self, order):
         """
         Adds a new order to the orders table
 
         Params:
             order : An object which has all order details
         """
-        transaction_no = 1
+        transaction_id = order['transaction_id']
         total_tax = order["total_tax"]
         total_shipping = order["shipping"]
         total_cart = order["total_price"]
@@ -63,12 +59,12 @@ class Orders:
         self._db.execute(
             """
                 INSERT INTO orders
-                    (transaction_no, total_tax, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_country, shipping_zipcode, first_name, last_name)
+                    (transaction_id, total_tax, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_country, shipping_zipcode, first_name, last_name)
                     VALUES
-                        (%(transaction_no)s, %(total_tax)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_country)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s)
+                        (%(transaction_id)s, %(total_tax)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_country)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s)
             """,
             {
-                "transaction_no": transaction_no,
+                "transaction_id": transaction_id,
                 "total_tax": total_tax,
                 "total_shipping": total_shipping,
                 "total_cart": total_cart,
