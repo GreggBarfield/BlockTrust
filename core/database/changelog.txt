@@ -262,3 +262,8 @@ INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_conta
 values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+
+/* Rohan Sureshkumar 7/7/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
+ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `data`;
