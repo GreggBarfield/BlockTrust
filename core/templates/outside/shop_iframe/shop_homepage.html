@@ -19,7 +19,7 @@
                                     <h2 class="hover-title text-center text-white">{{product.product}}</h2>
                                     <p class="gallery-info text-center text-white">
                                         <span class="gallery-icons">
-                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product{{product.product_no}}"><i class="fas fa-plus"></i></a>
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product{{product.id}}"><i class="fas fa-plus"></i></a>
                                         </span>
                                     </p>
                                 </div>
@@ -34,7 +34,7 @@
             </div>    
             
             {% for product in allProductData %}
-            <div class="modal fade product-modal" id="product{{product.product_no}}" tabindex="-1" role="dialog">
+            <div class="modal fade product-modal" id="product{{product.id}}" tabindex="-1" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -68,7 +68,7 @@
                         </div>
                         <div class="modal-footer">
                             <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
-                                <input type="hidden" name="code" value="{{product.product_no}}"/>
+                                <input type="hidden" name="code" value="{{product.id}}"/>
                                 <input type="hidden" name="price" value="{{product.price}}"/>
                                 <input type="hidden" name="product_name" value="{{product.product}}"/>
                                 <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>

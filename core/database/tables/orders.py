@@ -21,7 +21,7 @@ class Orders:
 
         Params:
             order : An object which has all order details
-        
+
         Returns:
             Order number assigned to current order
         """

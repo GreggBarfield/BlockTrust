@@ -4,7 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
-from ..utilities import auth
+from ..utilities import shop
 from ..utilities.email import send_email
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
@@ -18,14 +18,15 @@ bp = Blueprint('shop_bp', __name__)
 
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
-    allProductData = auth.get_partner_products(tok)
+    allProductData = shop.get_partner_products(tok)
     print(allProductData)
     return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
 
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
-    allProductData = auth.get_all_products()
+    allProductData = shop.get_all_products()
+    print(allProductData)
     return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
 
 
@@ -48,8 +49,6 @@ def serve_external_checkoutinfo():
             'total_price': None, 'total_tax': None, 'shipping': None, 'grand_total': None, 'shoppingCart': None
         }
         for order_field in order:
-            # if order_field not in request.form:
-            #  raise ExportException("internal error, {} missing from form".format(order_field))
             order[order_field] = request.form[order_field]
             if len(order[order_field].strip()) == 0:
                 raise ExportException("'" + order_field.capitalize().replace("_", " ") + "' does not have a value")
@@ -66,13 +65,12 @@ def serve_external_payment():
 @bp.route('/external/checkout_payment', methods=['POST'])
 def serve_external_paymentinfo():
     try:
-        print(request.form)
+        # print(request.form)
         # We need to implement stripe payment function here
         # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
         # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
         # Updating the orders table if payment goes through
-        # Assigning unique transaction id to retrieve order id from table
         order = eval(request.form["order_details"])
         # Adding order to orders table and getting current order id from orders table
         order_number = g.db.orders.add_order(order)
