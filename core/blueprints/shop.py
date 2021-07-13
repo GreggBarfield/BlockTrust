@@ -3,12 +3,9 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.users import UsersException
-from ..database.tables.accounts import AccountsException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
-from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
@@ -92,7 +89,16 @@ def serve_external_paymentinfo():
             g.db.order_products.add_order_product(order_no, value["product_name"], value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-        
+        send_email(
+            "Tag Store Purchase Summary",
+            render_email("purchase_summary.html", {
+                'first': order['first_name'],
+                'last': order['last_name'],
+                'grand_total': order['grand_total'],
+                'cart': cart
+            }),
+            "nisheet.thakur@blocktrustnetwork.com"
+        )
         return jsonify({"redirect": "/external/invoice"})
     except ExportException as e:
         return jsonify({"error": str(e)})
