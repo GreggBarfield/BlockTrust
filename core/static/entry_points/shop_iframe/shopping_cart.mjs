@@ -40,7 +40,6 @@ $(document).ready(function() {
         var shopCartString=localStorage.getItem('shoppingCart');
         var shopCart= JSON.parse(shopCartString);
         var size = Object.keys(shopCart).length;
-        console.log("proceed")
         if(size>0){
             window.location.href = '/external/checkout';
             return false;

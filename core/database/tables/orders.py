@@ -15,36 +15,16 @@ class Orders:
     def __init__(self, db):
         self._db = db
 
-    def get_order_ID(self, transaction_id):
-        """
-        Gets the id of a transaction.
-
-        Params:
-            transaction_id: Unique transaction id
-
-        Returns:
-            Order ID corresponding to transaction id
-        """
-        match = self._db.execute_d(
-            """
-                SELECT id FROM orders
-                WHERE
-                    transaction_id=%(transaction_id)s
-            """,
-            {
-                "transaction_id": transaction_id
-            }
-        )
-        return match[0]["id"]
-
     def add_order(self, order):
         """
         Adds a new order to the orders table
 
         Params:
             order : An object which has all order details
+        
+        Returns:
+            Order number assigned to current order
         """
-        transaction_id = order['transaction_id']
         total_tax = order["total_tax"]
         total_shipping = order["shipping"]
         total_cart = order["total_price"]
@@ -59,12 +39,11 @@ class Orders:
         self._db.execute(
             """
                 INSERT INTO orders
-                    (transaction_id, total_tax, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_country, shipping_zipcode, first_name, last_name)
+                    (total_tax, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_country, shipping_zipcode, first_name, last_name)
                     VALUES
-                        (%(transaction_id)s, %(total_tax)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_country)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s)
+                        ( %(total_tax)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_country)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s)
             """,
             {
-                "transaction_id": transaction_id,
                 "total_tax": total_tax,
                 "total_shipping": total_shipping,
                 "total_cart": total_cart,
@@ -78,3 +57,4 @@ class Orders:
                 "last_name": last_name,
             }
         )
+        return self._db.last_row_id()
