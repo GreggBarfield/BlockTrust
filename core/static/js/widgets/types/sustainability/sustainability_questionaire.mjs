@@ -198,11 +198,11 @@ export class SustainabilityQuestionaireWidget extends Widget {
         this.frame.append(form);
 
         createSection("Air & Greenhouse Gas Emissions", "air", form);
-        createSection("Animal Health & Well-Being", "animal", form);
-        createSection("Efficiency & Yield", "efficiency", form);
-        createSection("Employee Safety & Well-Being", "safety", form);
         createSection("Land Resources", "land", form);
         createSection("Water Resources", "water", form);
+        createSection("Animal Health & Well-Being", "animal", form);
+        createSection("Employee Safety & Well-Being", "safety", form);
+        createSection("Efficiency & Yield", "efficiency", form);
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
@@ -253,6 +253,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
             var tempData = []
             var curName=""
             var allAnswered= true
+            console.log(JSON.stringify(that.selectSection))
             for (var [i,j] of Object.entries(that.selectSection)) {
 
                 if ( $(j).val()=="Any")
@@ -264,6 +265,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
                 }
                 
                 if(curName!="" && curName!=i.slice(0,-1)){
+                    console.log(curName)
                     that.submitResponse[curName] = tempData;
                     tempData=[]
                     curName=i.slice(0,-1)
