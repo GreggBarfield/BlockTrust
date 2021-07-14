@@ -19,25 +19,23 @@ bp = Blueprint('shop_bp', __name__)
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
     allProductData = shop.get_partner_products(tok)
-    print(allProductData)
-    return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
+    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
     allProductData = shop.get_all_products()
-    print(allProductData)
-    return outside_render('shop_iframe/shop_homepage.html', {"allProductData": allProductData})
+    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
 @bp.route('/external/cart', methods=['GET'])
 def serve_external_cart():
-    return outside_render('shop_iframe/shopping_cart.html')
+    return outside_render('shop-iframe/shopping-cart.html')
 
 
 @bp.route('/external/checkout', methods=['GET'])
 def serve_external_checkout():
-    return outside_render('shop_iframe/checkout.html')
+    return outside_render('shop-iframe/checkout.html')
 
 
 @bp.route('/external/checkout', methods=['POST'])
@@ -59,7 +57,7 @@ def serve_external_checkoutinfo():
 
 @bp.route('/external/checkout_payment', methods=['GET'])
 def serve_external_payment():
-    return outside_render('shop_iframe/checkout_payment.html')
+    return outside_render('shop-iframe/checkout-payment.html')
 
 
 @bp.route('/external/checkout_payment', methods=['POST'])
@@ -71,14 +69,15 @@ def serve_external_paymentinfo():
         # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
         # Updating the orders table if payment goes through
-        order = eval(request.form["order_details"])
+        order_details = eval(request.form["order_details"])
+        print(order_details)
         # Adding order to orders table and getting current order id from orders table
-        order_number = g.db.orders.add_order(order)
+        order_id = g.db.orders.add_order(order_details)
         # Getting the cart details
-        cart = eval(order['shoppingCart'])
+        cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-            g.db.order_products.add_order_product(order_number, key, value["quantity"])
+            g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
         """
@@ -100,4 +99,4 @@ def serve_external_paymentinfo():
 
 @bp.route('/external/invoice', methods=['GET'])
 def serve_external_invoice():
-    return outside_render('shop_iframe/invoice.html')
+    return outside_render('shop-iframe/invoice.html')

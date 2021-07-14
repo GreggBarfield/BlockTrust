@@ -237,7 +237,9 @@ CREATE TABLE orders(
   shipping_country varchar(127),
   shipping_zipcode varchar(127),
   first_name varchar(127),
-  last_name varchar(127)
+  last_name varchar(127),
+  email varchar(127),
+  phone varchar(127)
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -320,14 +322,13 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
     
 /* Nisheet Thakur 6/28/2021 */
 
-CREATE TABLE OrderProducts(
-order_no INT,
+CREATE TABLE order_products(
+`order` INT,
 product_no INT,
 product_quantity INT
 )
 
 /* Nisheet Thakur 7/6/2021 */
-ALTER TABLE products ADD COLUMN partner varchar(127);
 
 INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
 VALUES ("Strip Tag","tag-page-1smal.png","tag-page-1smal.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace",1)
