@@ -37,24 +37,6 @@ def serve_external_cart():
 def serve_external_checkout():
     return outside_render('shop-iframe/checkout.html')
 
-
-@bp.route('/external/checkout', methods=['POST'])
-def serve_external_checkoutinfo():
-    try:
-        order = {
-            'first_name': None, 'last_name': None, 'email': None, 'phone': None, 'company': None,
-            'address': None, 'city': None, 'state': None, 'country': None, 'zip_code': None,
-            'total_price': None, 'total_tax': None, 'shipping': None, 'grand_total': None, 'shoppingCart': None
-        }
-        for order_field in order:
-            order[order_field] = request.form[order_field]
-            if len(order[order_field].strip()) == 0:
-                raise ExportException("'" + order_field.capitalize().replace("_", " ") + "' does not have a value")
-        return jsonify({"redirect": "/external/checkout_payment"})
-    except ExportException as e:
-        return jsonify({"error": str(e)})
-
-
 @bp.route('/external/checkout_payment', methods=['GET'])
 def serve_external_payment():
     return outside_render('shop-iframe/checkout-payment.html')
