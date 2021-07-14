@@ -6,8 +6,7 @@
 
 {% set page_title = "Market Data" %}
 {% set dashboard_locations = [
-    ("/dashboard/data/market", "Market State Data"), 
-    ("/dashboard/data/market/" + state, "Market City Data"),
+    ("/dashboard/data/market", "Market Data Filter"), 
     ("/dashboard/data/market/" + state + "/" + slug_id|string, "Market Data")] %}
 
 {% block dashboard_content_header %}
