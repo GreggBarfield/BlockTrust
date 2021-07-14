@@ -4,6 +4,7 @@ import random
 import sys
 import argparse
 from threading import Thread
+import traceback
 
 sys.path = [
     os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
@@ -23,7 +24,7 @@ parser = argparse.ArgumentParser(description='Start an instance of the translati
 
 parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
 parser.add_argument('-i', '--id', help='Run ID (regardless of status) (exits after finishing)', type=int, default=None)
-parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=30)
+parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=15)
 
 args = parser.parse_args()
 
@@ -37,7 +38,7 @@ def threaded_function():
             insert_id=args.id
         )
     except BaseException as e:
-        print(e)
+        print(e, traceback.print_exc())
         print("Thread excepted, killing program")
         exit()
 
