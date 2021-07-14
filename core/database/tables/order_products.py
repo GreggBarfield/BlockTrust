@@ -4,12 +4,12 @@ class OrderProducts:
     def __init__(self, db):
         self._db = db
 
-    def add_order_product(self, order_no, product_id, product_quantity):
+    def add_order_product(self, order_id, product_id, product_quantity):
         """
         Adds product entry to database
 
         Params:
-            order_no: Order ID
+            order_id: Order ID
             product_id: ID of the product
             product_quantity: Quantity of specified product
 
@@ -18,13 +18,13 @@ class OrderProducts:
         """
         self._db.execute(
             """
-            INSERT INTO orderproducts
-                (order, product_id, product_quantity)
+            INSERT INTO order_products
+                (`order`, product_id, product_quantity)
             VALUES
-                (%(order_no)s,%(product_id)s,%(product_quantity)s)
+                (%(order_id)s,%(product_id)s,%(product_quantity)s)
             """,
             {
-                "order": order_no,
+                "order_id": order_id,
                 "product_id": product_id,
                 "product_quantity": product_quantity
             }
@@ -42,12 +42,12 @@ class OrderProducts:
         """
         matching_orders = self._db.execute_d(
             """
-                SELECT * FROM orderproducts
+                SELECT * FROM order_products
                 WHERE
-                    order_no=%(order_no)s
+                    order=%(order_no)s
             """,
             {
-                "order_no": order_no
+                "order": order_no
             }
         )
 

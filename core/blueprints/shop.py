@@ -42,8 +42,8 @@ def serve_external_checkout():
 def serve_external_checkoutinfo():
     try:
         order = {
-            'first_name': None, 'last_name': None, 'email': None, 'tel': None, 'company': None,
-            'address_line': None, 'city': None, 'state': None, 'country': None, 'zip_code': None,
+            'first_name': None, 'last_name': None, 'email': None, 'phone': None, 'company': None,
+            'address': None, 'city': None, 'state': None, 'country': None, 'zip_code': None,
             'total_price': None, 'total_tax': None, 'shipping': None, 'grand_total': None, 'shoppingCart': None
         }
         for order_field in order:
