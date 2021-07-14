@@ -19,12 +19,12 @@ class OrderProducts:
         self._db.execute(
             """
             INSERT INTO orderproducts
-                (order_no, product_id, product_quantity)
+                (order, product_id, product_quantity)
             VALUES
                 (%(order_no)s,%(product_id)s,%(product_quantity)s)
             """,
             {
-                "order_no": order_no,
+                "order": order_no,
                 "product_id": product_id,
                 "product_quantity": product_quantity
             }
