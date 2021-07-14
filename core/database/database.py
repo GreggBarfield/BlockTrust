@@ -1,3 +1,4 @@
+from core.database.tables.sustainability import Sustainability
 import mysql.connector as mysql
 from mysql.connector.errors import Error
 
@@ -16,6 +17,7 @@ from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
+from .tables.sustainability import Sustainability
 from .tables.partners import Partners
 
 # all SQL should be in tables/ and in this file
@@ -55,6 +57,7 @@ class Database:
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
+        self.sustainability = Sustainability(self)
 
     def connect(self):
         try:

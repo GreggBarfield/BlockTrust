@@ -233,6 +233,16 @@ def serve_save_sales_group():
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@crut.require_account
+def serve_save_sustainability():
+    g.db.sustainability.check(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/summary"}
+    
+
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
