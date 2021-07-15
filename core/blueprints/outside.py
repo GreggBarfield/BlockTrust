@@ -25,7 +25,7 @@ def serve_landing():
 @bp.route('/pull-data', methods=['GET'])
 def serve_usda():
     UsdaDataRetriever().getUsdaData()
-    return 1
+    return 'finished'
 
 
 @bp.route('/logout', methods=['GET'])
