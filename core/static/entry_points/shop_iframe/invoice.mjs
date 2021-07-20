@@ -18,11 +18,11 @@ $(document).ready(function() {
     //Printing out account details and address
     $("#account_name").text(orderDetails.first_name+" "+orderDetails.last_name)
     $("#account_address").text(orderDetails.address_line)
-    $("#account_address_continued").text(orderDetails.city+" "+orderDetails.state+"-"+orderDetails.zip_code)
+    $("#account_address_continued").text(orderDetails.city+", "+orderDetails.state+" "+orderDetails.zip_code)
     //Printing out shipping details and address
     $("#shipping_name").text(orderDetails.first_name+" "+orderDetails.last_name)
     $("#shipping_address").text(orderDetails.address_line)
-    $("#shipping_address_continued").text(orderDetails.city+" "+orderDetails.state+"-"+orderDetails.zip_code)
+    $("#shipping_address_continued").text(orderDetails.city+", "+orderDetails.state+" "+orderDetails.zip_code)
     //Printing out current date
     var today = new Date();
     var dd = String(today.getDate()).padStart(2, '0');

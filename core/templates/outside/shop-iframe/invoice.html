@@ -8,10 +8,9 @@
 <section style="background-color: white;">
 
 <div class="container" id="invoice">
-
-<h3>Thank you for your order.If you have any questions please <a href="/about-us/contact-us"><u>contact us</u></a>.</h3>
+<h3>Order Confirmation</h3>
+<h5>Thank you for your order.If you have any questions please <a href="/about-us/contact-us"><u>contact us</u></a>.</h5>
 <br>
-<h4>Invoice</h4>
 <div class="card card-body cart-total mb50">
 
 <div class="row mb30 no-margin">
@@ -70,7 +69,6 @@
                 <th>QUANTITY</th>
                 <th>PRICE PER UNIT</th>
                 <th>TOTAL</th>
-                <th>&nbsp;</th>
             </tr>
         </thead>
         <tbody>
@@ -80,19 +78,29 @@
 
 <div class="spacer-1x">&nbsp;</div>
 
- <div class="row mb30 no-margin">
 
 
-                <div class="col-sm-6 col-grid" style="background-color:#fff">
-                    <div class="col-md-6 cart-total">
+
+
+                    <div class="col-md-6 checkout-total">
                         <h4 class="pb-3">CART TOTAL</h4>
-                        <p>Subtotal: <span class="text-primary" id="subtotal"></span></p>
-                        <p>Shipping: <span class="text-primary" id="shipping"></span></p>
-                        <p>Tax: <span class="text-primary" id="tax"></span></p>
-                        <p>Total: <span class="text-primary" id="grandTotal"></span></p>
+                        <div class="row">
+                            <div class="col-md-3 sub-col-left">
+                                <p>Subtotal: </p>
+                                <p>Shipping: </p>
+                                <p>Tax: </p>
+                                <p>Total: </p>   
+                            </div>
+                            <div class="col-md-3 sub-col-right">
+                                <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                                <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                                <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                                <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
+                            </div>
+                        </div><!-- / row -->
                     </div><!-- / cart-total -->
-                </div>
-</div>
+                
+
             </div>   
 
 

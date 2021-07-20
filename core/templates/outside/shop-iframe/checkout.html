@@ -10,7 +10,7 @@
         <div class="container">
             <div class="row checkout-screen">
                 <div class="col-md-9 checkout-form">
-                    <h4>CHECKOUT</h4>
+                    <h4>BILLING INFORMATION</h4>
                     <form id="checkout_form" request_redirect_to="{{ redirect_to }}">
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
@@ -22,18 +22,9 @@
                     </div><!-- / row -->
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
-                            <input type="text" class="form-control mb-3" name="phone" placeholder="*Phone" required="">
-                        </div>
-                        <div class="col-md-6 sub-col-right">
                             <input type="text" class="form-control mb-3" name="company" placeholder="*Company" required="">
                         </div>
                     </div><!-- / row -->
-                    <div class="row">
-                        <div class="col-md-6 sub-col-left">
-                            <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
-                        </div>
-                    </div><!-- / row -->
-                    <h4>BILLING ADDRESS</h4>
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="address" placeholder="*Address" required="">
@@ -47,14 +38,17 @@
                             <input type="text" class="form-control mb-3" name="state" placeholder="*State" required="">
                         </div>
                         <div class="col-md-6 sub-col-right">
-                            <input type="text" class="form-control mb-3" name="country" placeholder="*Country" required="">
-                        </div>
-                    </div><!-- / row -->
-                    <div class="row">
-                        <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="zip_code" placeholder="*Zip Code" required="">
                         </div>
                     </div><!-- / row -->
+                    <div class="row">
+                    <div class="col-md-6 sub-col-left">
+                        <input type="text" class="form-control mb-3" name="phone" placeholder="*Phone" required="">
+                    </div>
+                    <div class="col-md-6 sub-col-left">
+                        <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
+                    </div>
+                    </div>
                     <button type="submit" class="btn btn-primary rectangle mt-2" id="checkout1" href="/external/checkout_payment">PROCEED TO PAYMENT</button>
                     <p class="mt-2 mb-0" id="checkout_status_message" style="display:none;">Hang on, we're setting up your account...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="checkout_error_message">Loading error...</p>

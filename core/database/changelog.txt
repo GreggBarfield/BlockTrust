@@ -352,3 +352,13 @@ VALUES ("Strip Tag","tag-page-1smal.png","tag-page-1smal.png",2.20,0,"Y","2-piec
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `data`;
+
+
+/* Nisheet Thakur 7/20/2021 */
+
+ALTER TABLE partners ADD COLUMN coupon_code VARCHAR(127)
+
+ALTER TABLE partners ADD COLUMN discount_percentage INT
+
+INSERT INTO partners(partner_id, partner_name, sector_id, email, phone, address, city, state, zip, coupon_code, discount_percentage)
+values('USCT', 'U.S. CattleTrace', 4, 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457, "USCT", 10)

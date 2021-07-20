@@ -35,13 +35,32 @@ let form = new AsyncForm({
             exp_year: paymentForm.find("input[name='exp-year']").val(),
             cvv: paymentForm.find("input[name='cvv']").val(),
             address_checkbox: paymentForm.find("input[name='same_address']").val(),
-            address_line: paymentForm.find("input[name='address']").val(),
-            city: paymentForm.find("input[name='city']").val(),
-            state: paymentForm.find("input[name='state']").val(),
-            country: paymentForm.find("input[name='country']").val(),
-            zip_code: paymentForm.find("input[name='zip_code']").val(),
+            shipping_address_line: paymentForm.find("input[name='address']").val(),
+            shipping_city: paymentForm.find("input[name='city']").val(),
+            shipping_state: paymentForm.find("input[name='state']").val(),
+            shipping_zip_code: paymentForm.find("input[name='zip_code']").val(),
             order_details: orderDetailsString
         }
     },
     requestRedirectTo: requestRedirectTo
+});
+
+$(document).ready(function(){
+    var orderDetailsString=localStorage.getItem('orderDetails');
+    var orderDetails=JSON.parse(orderDetailsString)
+    $("input[name='same_address']").click(function(){
+        if($(this).is(":checked")){
+            console.log("Checkbox is checked.");
+            $("#address").val(orderDetails.address_line); 
+            $("#city").val(orderDetails.city);
+            $("#state").val(orderDetails.state);
+            $("#zip_code").val(orderDetails.zip_code);
+        }
+        else if($(this).is(":not(:checked)")){
+            $("#address").val(""); 
+            $("#city").val("");
+            $("#state").val("");
+            $("#zip_code").val("");
+        }
+    });
 });

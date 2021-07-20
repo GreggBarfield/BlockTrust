@@ -11,6 +11,15 @@ $( ".form-inline" ).submit(function( event ) {
     if(!localStorage.totalPrice){
     localStorage.setItem('totalPrice', 0);
     }
+    if(!localStorage.discount){  
+    localStorage.setItem('discount', 0);
+    }
+    if(!localStorage.discountPercentage){  
+        localStorage.setItem('discountPercentage', 0);
+    }
+    if(!localStorage.discountApplied){  
+        localStorage.setItem('discountApplied', "N");
+    }
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString)
     // Get input values to add products to cart
@@ -31,18 +40,21 @@ $( ".form-inline" ).submit(function( event ) {
         localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
     }
     // Recalculating the total price of all products on addition of new product
-    var total_price=0
+    var total_price=0   
+    var discountPercentage=parseFloat(localStorage.getItem('discountPercentage'));
     Object.values(shopCart).forEach(val=>{
     total_price=total_price+(val.price*val.quantity)
     });
     total_price=Math.round(total_price*100)/100;
-    // Calculating tax
-    var total_tax=Math.round(total_price*0.0825*100)/100;
+    // Calculating tax and discount   
+    var total_discount=Math.round(total_price*discountPercentage*100/100)/100;
+    var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
     // Grand total after adding total price, total tax and shipping
-    var grand_total=Math.round((total_price+total_tax+15)*100)/100;
+    var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
     localStorage.setItem('totalPrice', total_price);
     localStorage.setItem('totalTax', total_tax);
-    localStorage.setItem('grandTotal', grand_total); 
+    localStorage.setItem('grandTotal', grand_total);
+    localStorage.setItem('discount', total_discount);
     //Closing the modal and removing the modal backdrop 
     var modalID='#product'+product_no
     $(modalID).modal('hide');

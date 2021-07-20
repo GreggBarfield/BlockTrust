@@ -64,6 +64,7 @@ class Database:
         self.orders = Orders(self)
         self.order_products = OrderProducts(self)
         self.sustainability = Sustainability(self)
+        self.partners = Partners(self)
 
     def connect(self):
         try:

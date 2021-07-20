@@ -4,6 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
+from ..database.tables.partners import PartnersException
 from ..utilities import shop
 from ..utilities.email import send_email
 from ..renderers.email import render_email
@@ -33,6 +34,20 @@ def serve_external_cart():
     return outside_render('shop-iframe/shopping-cart.html')
 
 
+@bp.route('/external/cart', methods=['POST'])
+def serve_apply_coupon():
+    try:
+        print("-----------------------------------------------------------------")
+        print(request.form)
+        # discount = shop.get_partner_discount(request.form['coupon-code'])
+        discount = g.db.partners.get_discount_percentage(request.form['coupon_code'])
+        print(discount)
+        return jsonify({"discount_percentage": discount["discount_percentage"]})
+        # return outside_render('shop-iframe/shopping-cart.html', {"discount_percentage": discount["discount_percentage"], "error": ""})
+    except PartnersException as e:
+        # raise ExportException(str(e))
+        return jsonify({"error": str(e)})
+
 @bp.route('/external/checkout', methods=['GET'])
 def serve_external_checkout():
     return outside_render('shop-iframe/checkout.html')
@@ -45,15 +60,15 @@ def serve_external_payment():
 @bp.route('/external/checkout_payment', methods=['POST'])
 def serve_external_paymentinfo():
     try:
-        # print(request.form)
         # We need to implement stripe payment function here
         # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
         # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
         # Updating the orders table if payment goes through
         order_details = eval(request.form["order_details"])
-        print(order_details)
+        print(request.form)
         # Adding order to orders table and getting current order id from orders table
+
         order_id = g.db.orders.add_order(order_details)
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
@@ -82,3 +97,4 @@ def serve_external_paymentinfo():
 @bp.route('/external/invoice', methods=['GET'])
 def serve_external_invoice():
     return outside_render('shop-iframe/invoice.html')
+

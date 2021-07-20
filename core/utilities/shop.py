@@ -53,6 +53,18 @@ def get_partner_products(partner):
     """
     Gets products by a particular partner
     Returns:
-    Arrays containing object data
+        Arrays containing object data
     """
     return g.db.products.get_partner_products(partner)
+
+
+def get_partner_discount(coupon_code):
+    """
+    Gets the discount for a particular partner based on coupon code
+    Params:
+        coupon_code: Coupon code entered by the user
+
+    Returns:
+        discount: Discount percentage to be applied to the cart
+    """
+    return g.db.partners.get_discount_percentage(coupon_code)
