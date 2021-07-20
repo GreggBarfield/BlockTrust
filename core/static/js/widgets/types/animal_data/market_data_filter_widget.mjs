@@ -29,7 +29,7 @@ export class MarketDataFilterWidget extends Widget {
         return row;
     }
 
-    createSelect(group, name, values, val_ids="") {
+    createSelect(group, name, values, placeholder, isCity=false) {
         if (!Array.isArray(values)) {
             values = [values];
         }
@@ -45,14 +45,14 @@ export class MarketDataFilterWidget extends Widget {
 
         let optionsStacked = [];
         for (const value of values) {
-            if (val_ids == "") {
+            if (isCity) {
                 optionsStacked.push({
-                    id: value,
-                    text: value
+                    id: value.slug_id,
+                    text: value.city + " (id: " + value.slug_id + ")"
                 });
             } else {
                 optionsStacked.push({
-                    id: val_ids[value],
+                    id: value,
                     text: value
                 });
             }
@@ -62,7 +62,7 @@ export class MarketDataFilterWidget extends Widget {
             data: optionsStacked,
             multiple: false,
             tags: false,
-            placeholder: "Select a State"
+            placeholder: placeholder
         });
 
         // Patch
@@ -76,6 +76,16 @@ export class MarketDataFilterWidget extends Widget {
         return select;
     }
 
+    compareItem(left, right) {
+        if (left.city < right.city){
+            return -1;
+        }
+        if (left.city > right.city){
+            return 1;
+        }
+        return 0;
+    }
+
     getCityData() {
         this.getData(
             "get_market_city_data/" + this.state,
@@ -86,14 +96,18 @@ export class MarketDataFilterWidget extends Widget {
             this.divCityDropDown.innerHTML = "";
 
             let values = [];
-            let val_ids = {};
             for (const row in this.city_rows) {
-                let item = this.city_rows[row]['market_location_city'];
+                // let item = this.city_rows[row]['market_location_city'];
+                let item = {
+                    'city' : this.city_rows[row]['market_location_city'],
+                    'slug_id' : this.city_rows[row]['slug_id']
+                    }
                 values.push(item);
-                val_ids[item] = this.city_rows[row]['slug_id'];
+                // val_ids[item] = this.city_rows[row]['slug_id'];
             }
-            values.sort();
-            let select = this.createSelect(this.divCityDropDown, "City", values, val_ids);
+            values.sort(this.compareItem);
+            let select = this.createSelect(this.divCityDropDown, "City", 
+                values, "Select a city", true);
 
             let that = this;
             function createBtn() {
@@ -140,7 +154,8 @@ export class MarketDataFilterWidget extends Widget {
         values.sort();
 
         this.row = this.createSection(this.form, "Filter")
-        let select = this.createSelect(this.divStateDropDown, "State", values)
+        let select = this.createSelect(this.divStateDropDown, "State", 
+            values, "Select a State")
 
         let that = this;
         function makeCityDropDown() {

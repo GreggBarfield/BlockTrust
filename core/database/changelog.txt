@@ -326,5 +326,10 @@ CREATE TABLE `usda_report_data` (
   `wtd_avg_price` float DEFAULT NULL,
   `region` varchar(30) DEFAULT NULL,
   `current_volume` mediumint DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CREATE INDEX `state_idx` (`market_location_state` ASC) VISIBLE,
+  CREATE INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC) VISIBLE,
+  CREATE INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
+  CREATE INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
+  CREATE INDEX `published_date_idx` (`published_date` ASC, `slug_id` ASC) VISIBLE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

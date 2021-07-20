@@ -1,5 +1,6 @@
 from .. import database
 from ..objects.usda_report import USDAReport
+from datetime import datetime
 
 
 class USDAReportsException(Exception):
@@ -248,3 +249,26 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
+
+    def delete_old_reports(self):
+        """Deletes any reports older than 1 year in DB
+
+        Returns:
+            Nothing
+        """
+        current_year = datetime.today().year
+        last_year = current_year - 1
+        result = self._db.execute_d(
+            """
+                DELETE
+                FROM usda_report_data
+                WHERE published_date NOT LIKE %(current_year)s
+                AND published_date NOT LIKE %(last_year)s
+            """,
+            {
+                "current_year" : '%' + str(current_year) + '%',
+                "last_year" : '%' + str(last_year) + '%'
+            }
+        )
+
+        return result

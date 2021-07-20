@@ -189,12 +189,18 @@ class USDAReport:
 
     def avgWeightMax(self):
         if 'avg_weight_max' in self._row:
-            return self._row['avg_weight_max']
+            if isinstance(self._row['avg_weight_max'], str):
+                return self._row['avg_weight_max'].replace(',', '')
+            else:
+                return self._row['avg_weight_max']
         return None
 
     def avgWeight(self):
         if 'avg_weight' in self._row:
-            return self._row['avg_weight']
+            if isinstance(self._row['avg_weight'], str):
+                return self._row['avg_weight'].replace(',', '')
+            else:
+                return self._row['avg_weight']
         return None
 
     def avgPriceMin(self):

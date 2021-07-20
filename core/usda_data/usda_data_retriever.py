@@ -4,10 +4,27 @@ from ..database.tables.usda_reports import USDAReports
 from ..database.objects.usda_report import USDAReport
 from ..database.database import Database
 from ..config import USDA_API_KEY
+from datetime import datetime
 
 
 class UsdaDataRetriever:
     """Class that gets the Data from the USDA APIs and adds them to the database"""
+
+    def __init__(self):
+        super().__init__()
+        self.current_year = str(datetime.today().year)
+        self.last_year = str(int(self.current_year) - 1)
+
+    def isWithinAYear(self, row):
+        """Checks if the published_date is within a year old.
+
+        Returns:
+        True is it is younger than a year, or False if not.
+        """
+        if (self.last_year in row['published_date'] 
+            or self.current_year in row['published_date']):
+            return True
+        return False
 
     def getMandatoryReports(self):
         """Gets the 'mandatory reports' from API and adds to database"""
@@ -43,13 +60,19 @@ class UsdaDataRetriever:
             print("Size of cattle report id " + str(item) 
                 + ": " + str(len(json_response['results'])))
 
+            count = 0
             for row in json_response['results']:
-                try:
-                    report = USDAReport(row)
-                    g.db.usda_reports.create_report(report)
-                except Exception as e:
-                    print(row)
-                    raise Exception(e)
+                if self.isWithinAYear(row):
+                    try:
+                        report = USDAReport(row)
+                        g.db.usda_reports.create_report(report)
+                        count += 1
+                    except Exception as e:
+                        print(row)
+                        raise Exception(e)
+            
+            print("Size of report id " + str(item) + " added: " + str(count))
+
 
     def getPublicReports(self):
         """Gets the public report data from API and adds it to the database"""
@@ -82,15 +105,21 @@ class UsdaDataRetriever:
 
             print("Size of report id " + str(item) + ": " + str(len(json_response['results'])))
 
+            count = 0
             for row in json_response['results']:
-                try:
-                    report = USDAReport(row)
-                    g.db.usda_reports.create_report(report)
-                except Exception as e:
-                    print(row)
-                    raise Exception(e)
+                if self.isWithinAYear(row):
+                    try:
+                        report = USDAReport(row)
+                        g.db.usda_reports.create_report(report)
+                        count += 1
+                    except Exception as e:
+                        print(row)
+                        raise Exception(e)
+
+            print("Size of report id " + str(item) + " added: " + str(count))
 
     def getUsdaData(self):
         """Encapsulates the different report calls and calls everything once"""
+        g.db.usda_reports.delete_old_reports()
         self.getPublicReports()
         self.getMandatoryReports()
