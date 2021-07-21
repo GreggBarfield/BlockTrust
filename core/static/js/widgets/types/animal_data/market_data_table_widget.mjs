@@ -49,16 +49,41 @@ export class MarketDataTableWidget extends Widget {
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
         const headers = Object.keys(this.match_rows[0]);
+        const headerAlias = {
+            "report_date": "date",
+            "commodity": "commodity",
+            "class": "class",
+            "frame": "frame",
+            "muscle_grade": "musc_grad",
+            "quality_grade_name": "qual_grad",
+            "lot_desc": "lot_desc",
+            "price_unit": "price",
+            "age": "age",
+            "pregnancy_stage": "preg_st",
+            "weight_collect": "wgt_coll",
+            "offspring_weight_est": "offspr_wgt",
+            "dressing": "dressing",
+            "yield_grade": "yld_grad",
+            "head_count": "hd_cnt",
+            "avg_weight": "avg_wgt",
+            "avg_price": "avg_price"
+        }
         for (const headerText of headers) {
             if (headerText != "report_narrative") {
                 let th = document.createElement("th");
-                th.textContent = headerText;
+                th.textContent = headerAlias[headerText];
+                th.setAttribute("data-toggle" ,headerText);
+                th.setAttribute("data-placement" ,"top");
+                th.setAttribute("title" ,headerText);
+                $(document).ready(function(){
+                    $('[data-toggle='+headerText+']').tooltip(); 
+                });
                 this.mainTableHeadRow0.appendChild(th);
             }
         }
 
         let th = document.createElement("th");
-        th.textContent = "Notes";
+        th.textContent = "Info";
         this.mainTableHeadRow0.appendChild(th);
 
         // Body
@@ -74,7 +99,7 @@ export class MarketDataTableWidget extends Widget {
                 if (item != "report_narrative") {
                     let td = document.createElement("td");
                     rowTag.append(td);
-                    if (item.includes('price') && this.match_rows[row][item] != null){
+                    if (item == "avg_price" && this.match_rows[row][item] != null){
                         td.textContent = '$' + this.match_rows[row][item];
                     } else {
                         td.textContent = this.match_rows[row][item];
@@ -85,8 +110,7 @@ export class MarketDataTableWidget extends Widget {
             let notesTD = document.createElement("td");
             rowTag.append(notesTD);
             let toolTipText = this.match_rows[row]["report_narrative"];
-            console.log(toolTipText);
-            this.addTooltip("Notes", toolTipText, notesTD);            
+            this.addTooltip("Info", toolTipText, notesTD);            
         }
 
         // Put HTML in frame

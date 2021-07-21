@@ -112,7 +112,7 @@ class USDAReports:
                     quality_grade_name, lot_desc, price_unit, age,
                     pregnancy_stage, weight_collect, offspring_weight_est,
                     dressing, yield_grade, head_count, avg_weight,
-                    avg_price, report_narrative, final_ind
+                    avg_price, report_narrative
                 FROM usda_report_data 
                 WHERE slug_id=%(slug_id)s
             """,
