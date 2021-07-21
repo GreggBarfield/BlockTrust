@@ -19,6 +19,20 @@ export class MarketDataTableWidget extends Widget {
         });
     }
 
+    // Sections
+    addTooltip(dataToggle,title,position){
+        let toolTip = document.createElement("a");
+        toolTip.className="feather icon-info";
+        toolTip.style = "color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px";
+        toolTip.setAttribute("data-toggle" ,dataToggle);
+        toolTip.setAttribute("data-placement" ,"right");
+        toolTip.setAttribute("title" ,title);
+        position.append(toolTip);           
+        $(document).ready(function(){
+            $('[data-toggle='+dataToggle+']').tooltip(); 
+        });
+    }
+
     makeTable() {
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
@@ -36,10 +50,16 @@ export class MarketDataTableWidget extends Widget {
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
         const headers = Object.keys(this.match_rows[0]);
         for (const headerText of headers) {
-            let th = document.createElement("th");
-            th.textContent = headerText;
-            this.mainTableHeadRow0.appendChild(th);
+            if (headerText != "report_narrative") {
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                this.mainTableHeadRow0.appendChild(th);
+            }
         }
+
+        let th = document.createElement("th");
+        th.textContent = "Notes";
+        this.mainTableHeadRow0.appendChild(th);
 
         // Body
 
@@ -51,14 +71,22 @@ export class MarketDataTableWidget extends Widget {
             this.mainTableBody.appendChild(rowTag);
 
             for (const item in this.match_rows[row]) {
-                let td = document.createElement("td");
-                rowTag.append(td);
-                if (item.includes('price') && this.match_rows[row][item] != null){
-                    td.textContent = '$' + this.match_rows[row][item];
-                } else {
-                    td.textContent = this.match_rows[row][item];
+                if (item != "report_narrative") {
+                    let td = document.createElement("td");
+                    rowTag.append(td);
+                    if (item.includes('price') && this.match_rows[row][item] != null){
+                        td.textContent = '$' + this.match_rows[row][item];
+                    } else {
+                        td.textContent = this.match_rows[row][item];
+                    }
                 }
             }
+            
+            let notesTD = document.createElement("td");
+            rowTag.append(notesTD);
+            let toolTipText = this.match_rows[row]["report_narrative"];
+            console.log(toolTipText);
+            this.addTooltip("Notes", toolTipText, notesTD);            
         }
 
         // Put HTML in frame

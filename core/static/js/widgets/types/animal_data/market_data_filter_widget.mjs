@@ -97,19 +97,18 @@ export class MarketDataFilterWidget extends Widget {
 
             let values = [];
             for (const row in this.city_rows) {
-                // let item = this.city_rows[row]['market_location_city'];
                 let item = {
                     'city' : this.city_rows[row]['market_location_city'],
                     'slug_id' : this.city_rows[row]['slug_id']
                     }
                 values.push(item);
-                // val_ids[item] = this.city_rows[row]['slug_id'];
             }
             values.sort(this.compareItem);
             let select = this.createSelect(this.divCityDropDown, "City", 
                 values, "Select a city", true);
 
             let that = this;
+            let button = document.createElement("a");
             function createBtn() {
                 console.log(this.value);
                 console.log(this.options.selectedIndex);
@@ -119,7 +118,6 @@ export class MarketDataFilterWidget extends Widget {
                 let selectedItem = this.options[this.options.selectedIndex];
                 console.log(selectedItem.value);
 
-                let button = document.createElement("a");
                 button.className = "btn btn-outline-secondary btn-sm mb-0";
                 button.setAttribute("href", "/dashboard/data/market/" + 
                     that.state + "/" + selectedItem.value);
@@ -127,12 +125,12 @@ export class MarketDataFilterWidget extends Widget {
 
                 // Put HTML in frame
                 that.divBtn.append(button);
-                that.row.append(that.divBtn);
             }
             $(select).on("change", createBtn);
-
+            
             // Put HTML in frame
             this.row.append(this.divCityDropDown);
+            this.row.append(that.divBtn);
         });
     }
 
@@ -165,6 +163,7 @@ export class MarketDataFilterWidget extends Widget {
             }
             that.state = this.value;
 
+            that.divBtn.innerHTML = '';
             that.divCityDropDown.innerHTML = '\
             <div class="d-flex justify-content-center">\
                 <div class="spinner-border" role="status">\

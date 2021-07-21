@@ -15,14 +15,29 @@ class UsdaDataRetriever:
         self.current_year = str(datetime.today().year)
         self.last_year = str(int(self.current_year) - 1)
 
+    def canSkipRow(self, row):
+        """Checks if the row has data we care about"""
+        return self.isWithinAYear(row) and self.hasData(row)
+
     def isWithinAYear(self, row):
-        """Checks if the published_date is within a year old.
+        """Checks if the report_date is within a year old.
 
         Returns:
-        True is it is younger than a year, or False if not.
+        True if it is younger than a year, or False if not.
         """
-        if (self.last_year in row['published_date'] 
-            or self.current_year in row['published_date']):
+        if (self.last_year in row['report_date'] 
+            or self.current_year in row['report_date']):
+            return True
+        return False
+
+    def hasData(self, row):
+        """Checks if the row has a head_count and thus more information.
+
+        Returns:
+        True if the row has data in 'head_count', or False if not.
+        """
+        if (row['head_count'] != None 
+            and row['report_date'] != ''):
             return True
         return False
 
@@ -34,14 +49,14 @@ class UsdaDataRetriever:
         json_response = response.json()
 
         cattleReports = dict()
-        published_dates = g.db.usda_reports.get_all_published_dates()
+        report_dates = g.db.usda_reports.get_all_report_dates()
         for row in json_response:
             if 'Cattle' in row['market_types'][0]:
                 item = {
-                    'published_date' : row['published_date'],
+                    'report_date' : row['report_date'],
                     'slug_id' : int(row['slug_id'])
                     }
-                if item not in published_dates:
+                if item not in report_dates:
                     cattleReports[row['slug_id']] = row
 
         print("Size of unique new cattle reports: " + str(len(cattleReports)))
@@ -62,7 +77,7 @@ class UsdaDataRetriever:
 
             count = 0
             for row in json_response['results']:
-                if self.isWithinAYear(row):
+                if self.canSkipRow(row):
                     try:
                         report = USDAReport(row)
                         g.db.usda_reports.create_report(report)
@@ -81,7 +96,7 @@ class UsdaDataRetriever:
         API_ENDPOINT = 'https://marsapi.ams.usda.gov/services/v1.2/'
 
         reports = dict()
-        published_dates = g.db.usda_reports.get_all_published_dates()
+        report_dates = g.db.usda_reports.get_all_report_dates()
         for id in marketTypeIDs:
             response = requests.get(API_ENDPOINT + 'marketTypes/' + str(id), 
                 auth=(USDA_API_KEY, ''))
@@ -89,11 +104,11 @@ class UsdaDataRetriever:
 
             for row in json_response['results']:
                 item = {
-                    'published_date' : row['published_date'],
+                    'report_date' : row['report_date'],
                     'slug_id' : int(row['slug_id'])
                     }
                 
-                if item not in published_dates:
+                if item not in report_dates:
                     reports[row['slug_id']] = row
         
         print("Size of unique new reports: " + str(len(reports)))
@@ -107,7 +122,7 @@ class UsdaDataRetriever:
 
             count = 0
             for row in json_response['results']:
-                if self.isWithinAYear(row):
+                if self.canSkipRow(row):
                     try:
                         report = USDAReport(row)
                         g.db.usda_reports.create_report(report)

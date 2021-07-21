@@ -276,10 +276,12 @@ def serve_market_data(state, slug_id):
     market_states = g.db.usda_reports.get_all_states()
 
     if stateLabel in market_states:
+        title = g.db.usda_reports.get_title_by_slug_id(slug_id)
         return dashboard_render("data/market-data.html", 
             {
                 "slug_id": slug_id,
-                "state": state
+                "state": state,
+                "report_title": title[0]['report_title']
             })
     raise Exception("Invalid state")
 

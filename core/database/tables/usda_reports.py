@@ -107,7 +107,12 @@ class USDAReports:
         """
         result = self._db.execute_d(
             """
-                SELECT *
+                SELECT 
+                    report_date, commodity, class, frame, muscle_grade,
+                    quality_grade_name, lot_desc, price_unit, age,
+                    pregnancy_stage, weight_collect, offspring_weight_est,
+                    dressing, yield_grade, head_count, avg_weight,
+                    avg_price, report_narrative, final_ind
                 FROM usda_report_data 
                 WHERE slug_id=%(slug_id)s
             """,
@@ -118,16 +123,36 @@ class USDAReports:
 
         return result
 
-    def get_all_published_dates(self):
-        """Gets all the unique published date/slug_id combinations
+    def get_title_by_slug_id(self, slug_id):
+        """Gets report title based on the given slug_id
 
         Returns:
-            A list of published dates and slug_ids
+            A list of titles of a report based on the slug_id
             on success, or None on no match.
         """
         result = self._db.execute_d(
             """
-                SELECT DISTINCT slug_id, published_date
+                SELECT DISTINCT report_title
+                FROM usda_report_data 
+                WHERE slug_id=%(slug_id)s
+            """,
+            {
+                "slug_id" : slug_id
+            }
+        )
+
+        return result
+
+    def get_all_report_dates(self):
+        """Gets all the unique report date/slug_id combinations
+
+        Returns:
+            A list of report dates and slug_ids
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT slug_id, report_date
                 FROM usda_report_data 
             """
         )
@@ -262,8 +287,8 @@ class USDAReports:
             """
                 DELETE
                 FROM usda_report_data
-                WHERE published_date NOT LIKE %(current_year)s
-                AND published_date NOT LIKE %(last_year)s
+                WHERE report_date NOT LIKE %(current_year)s
+                AND report_date NOT LIKE %(last_year)s
             """,
             {
                 "current_year" : '%' + str(current_year) + '%',

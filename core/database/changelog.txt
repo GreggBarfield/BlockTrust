@@ -331,5 +331,5 @@ CREATE TABLE `usda_report_data` (
   CREATE INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC) VISIBLE,
   CREATE INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
   CREATE INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
-  CREATE INDEX `published_date_idx` (`published_date` ASC, `slug_id` ASC) VISIBLE
+  CREATE INDEX `report_date_idx` (`report_date` ASC, `slug_id` ASC) VISIBLE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
