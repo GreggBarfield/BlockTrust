@@ -1,6 +1,7 @@
 $("#subtotal").text(localStorage.getItem('totalPrice'))
 $("#shipping").text(localStorage.getItem('shipping'))
 $("#tax").text(localStorage.getItem('totalTax'))
+$("#discount").text(localStorage.getItem('discount'))
 $("#grandTotal").text(localStorage.getItem('grandTotal'))
 
 $( "#checkout_form" ).submit(function( event ) { 
@@ -13,6 +14,7 @@ $( "#checkout_form" ).submit(function( event ) {
     let totalPriceString=""
     let totalTaxString=""
     let shippingString=""
+    let discountString=""
     let grandTotalString=""
     if(localStorage.shoppingCart){
         shoppingCartString=localStorage.getItem('shoppingCart')
@@ -29,6 +31,9 @@ $( "#checkout_form" ).submit(function( event ) {
     if(localStorage.grandTotal){
         grandTotalString=localStorage.getItem("grandTotal")
     }
+    if(localStorage.discount){
+        discountString=localStorage.getItem("discount")
+    }
     var values = $(this).serializeArray();
     var order={
         first_name: values[0].value,
@@ -43,6 +48,7 @@ $( "#checkout_form" ).submit(function( event ) {
         shoppingCart: shoppingCartString,
         total_price:totalPriceString,
         total_tax:totalTaxString,
+        discount:discountString,
         shipping:shippingString,
         grand_total:grandTotalString
     }

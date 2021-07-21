@@ -7,12 +7,13 @@ $(document).ready(function() {
     // Printing out the shopping cart information
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>'+ val.price +'</td><td>'+ total_product_price +'</td></tr>');
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag(s) of 20</td><td>'+ val.price +'</td><td>'+ total_product_price +'</td></tr>');
     });
     //Printing out subtotals and other transaction values
     $("#subtotal").text(localStorage.getItem('totalPrice'))
     $("#shipping").text(localStorage.getItem('shipping'))
     $("#tax").text(localStorage.getItem('totalTax'))
+    $("#discount").text(localStorage.getItem('discount'))
     $("#grandTotal").text(localStorage.getItem('grandTotal'))
     $("#payment").text(localStorage.getItem('grandTotal'))
     //Printing out account details and address

@@ -344,9 +344,9 @@ product_quantity INT
 /* Nisheet Thakur 7/6/2021 */
 
 INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
-VALUES ("Strip Tag","tag-page-1smal.png","tag-page-1smal.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace",1)
-,("Large Panel Tag","tag-page-2small.png","tag-page-2small.png",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number. Prefix options available for USDA 840 ADT compliant or commercial 999","cattletrace",1)
-,("Large Panel Feedlot Tag","tag-page-3small.png","tag-page-3small.png",2.20,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.","cattletrace",1)
+VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace",1)
+,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number. Prefix options available for USDA 840 ADT compliant or commercial 999","cattletrace",1)
+,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1",2.20,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.","cattletrace",1)
 
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 

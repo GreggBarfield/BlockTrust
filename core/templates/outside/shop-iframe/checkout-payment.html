@@ -20,7 +20,7 @@
                     <div class="col-md-6 sub-col-right">
                         <input type="text" class="form-control mb-3" name="card-number" placeholder="Card Number" required="">
                     </div>
-                     </div><!-- / row -->
+                     </div>
 
                     <div class="row">
                     <div class="col-md-3 sub-col-left">
@@ -32,7 +32,7 @@
                     <div class="col-md-3 sub-col-right">
                         <input type="text" class="form-control mb-3" name="cvv" placeholder="CVV" required="">
                     </div>
-                    </div><!-- / row -->
+                    </div>
                     <h4>SHIPPING ADDRESS</h4>
                     <p><input type="checkbox" id="same_address" name="same_address">&nbsp;Check this if shipping address is same as billing address</p>
                     <div class="row">
@@ -42,7 +42,7 @@
                         <div class="col-md-6 sub-col-right">
                             <input type="text" class="form-control mb-3" name="city" placeholder="City" id="city">
                         </div>
-                    </div><!-- / row -->
+                    </div>
                     <div class="row">
                         <div class="col-md-6 sub-col-left">
                             <input type="text" class="form-control mb-3" name="state" placeholder="State" id="state">
@@ -50,12 +50,12 @@
                         <div class="col-md-6 sub-col-right">
                             <input type="text" class="form-control mb-3" name="zip_code" placeholder="Zip Code" id="zip_code">
                         </div>
-                    </div><!-- / row -->
+                    </div>
                     <button type="submit" class="btn btn-primary rectangle mt-2">CHECKOUT</button>
                     <p class="mt-2 mb-0" id="payment_status_message" style="display:none;">Hang on, submitting your payment...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="payment_error_message">Payment error...</p>
                 </form>
-                </div><!-- / login-form -->
+                </div>
 
                 <div class="col-md-3 checkout-total">
                     <h4 class="pb-3">CART TOTAL</h4>
@@ -64,23 +64,22 @@
                             <p>Subtotal: </p>
                             <p>Shipping: </p>
                             <p>Tax: </p>
+                            <p>Discount: </p>
                             <p>Total: </p>   
                         </div>
                         <div class="col-md-3 sub-col-right">
                             <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
                             <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
                             <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                            <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
                             <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
                         </div>
-                    </div><!-- / row -->
-                </div><!-- / checkout-total -->
+                    </div>
+                </div>
 
-            </div><!-- / row -->
-        </div><!-- / container -->
-    </section><!-- / checkout -->
-
-
-
+            </div>
+        </div>
+    </section>
 </section>
 <script type="module" src="/static/entry_points/shop_iframe/checkout_payment.mjs"></script>
 {% endblock outside_content %}

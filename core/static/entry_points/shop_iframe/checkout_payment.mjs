@@ -3,6 +3,7 @@ import {AsyncForm} from '/static/global/async_form.mjs';
 $("#subtotal").text(localStorage.getItem('totalPrice'))
 $("#shipping").text(localStorage.getItem('shipping'))
 $("#tax").text(localStorage.getItem('totalTax'))
+$("#discount").text(localStorage.getItem('discount'))
 $("#grandTotal").text(localStorage.getItem('grandTotal'))
 
 let paymentForm = $("#payment_form");
@@ -50,7 +51,6 @@ $(document).ready(function(){
     var orderDetails=JSON.parse(orderDetailsString)
     $("input[name='same_address']").click(function(){
         if($(this).is(":checked")){
-            console.log("Checkbox is checked.");
             $("#address").val(orderDetails.address_line); 
             $("#city").val(orderDetails.city);
             $("#state").val(orderDetails.state);

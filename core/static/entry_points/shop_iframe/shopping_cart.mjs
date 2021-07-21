@@ -4,11 +4,9 @@ $(document).ready(function() {
     if(localStorage.shoppingCart){
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString);
-    console.log(this.data)
-
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>$'+ val.price +'</td><td>$'+ total_product_price +'</td><td><a href="/external/cart"><button href="/external/cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag(s) of 20</td><td>$'+ val.price +'</td><td>$'+ total_product_price +'</td><td><a href="/external/cart"><button href="/external/cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
     });
     $("#subtotal").text(localStorage.getItem('totalPrice'))
     $("#shipping").text(localStorage.getItem('shipping'))
@@ -37,6 +35,7 @@ $(document).ready(function() {
         var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
         // Grand total after adding total price, total tax and shipping
         var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
+        //Setting new values in localStorage
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
@@ -55,6 +54,33 @@ $(document).ready(function() {
         else{
             alert("Shopping Cart is empty!"); 
         }
+    })
+
+    $('#remove-coupon').click(function(e){
+        //Checking if discount is applied or not
+        if(localStorage.getItem('discountApplied')==="Y"){
+        var shopCartString=localStorage.getItem('shoppingCart');
+        var shopCart= JSON.parse(shopCartString);
+        //Reset the values of discount localStorage data
+        localStorage.setItem('discount', 0);
+        localStorage.setItem('discountApplied', "N");    
+        localStorage.setItem('discountPercentage', 0);
+        // Recalculating the total price of all products on removing coupon
+        var total_price=0
+        Object.values(shopCart).forEach(val=>{
+        total_price=total_price+(val.price*val.quantity)
+        });
+        total_price=Math.round(total_price*100)/100;
+        // Calculating tax
+        var total_tax=Math.round((total_price)*0.0825*100)/100;
+        // Grand total after adding total price, total tax and shipping
+        var grand_total=Math.round((total_price+total_tax+15)*100)/100;     
+        //Setting new values in localStorage
+        localStorage.setItem('totalPrice', total_price);
+        localStorage.setItem('totalTax', total_tax);
+        localStorage.setItem('grandTotal', grand_total);
+        window.location.href = '/external/cart';
+    }
     })
 
 }
@@ -83,8 +109,9 @@ let form = new AsyncForm({
     },
     requestRedirectTo: requestRedirectTo,
     onFinished: (data) =>{
+        console.log(data);
         //Checking if discount is already applied
-        if(localStorage.getItem('discountApplied')==="N"){
+        if(localStorage.getItem('discountApplied')==="N" && !('error' in data)){
         var discountPercentage=data.discount_percentage;
         //Setting the discount percentage in localStorage
         localStorage.setItem('discountPercentage', discountPercentage);

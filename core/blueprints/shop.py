@@ -37,20 +37,19 @@ def serve_external_cart():
 @bp.route('/external/cart', methods=['POST'])
 def serve_apply_coupon():
     try:
-        print("-----------------------------------------------------------------")
-        print(request.form)
         # discount = shop.get_partner_discount(request.form['coupon-code'])
         discount = g.db.partners.get_discount_percentage(request.form['coupon_code'])
-        print(discount)
         return jsonify({"discount_percentage": discount["discount_percentage"]})
         # return outside_render('shop-iframe/shopping-cart.html', {"discount_percentage": discount["discount_percentage"], "error": ""})
     except PartnersException as e:
         # raise ExportException(str(e))
         return jsonify({"error": str(e)})
 
+
 @bp.route('/external/checkout', methods=['GET'])
 def serve_external_checkout():
     return outside_render('shop-iframe/checkout.html')
+
 
 @bp.route('/external/checkout_payment', methods=['GET'])
 def serve_external_payment():
