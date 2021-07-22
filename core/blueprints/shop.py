@@ -97,3 +97,20 @@ def serve_external_paymentinfo():
 def serve_external_invoice():
     return outside_render('shop-iframe/invoice.html')
 
+
+@bp.route('/external/testshop', methods=['GET'])
+def serve_email():
+    testdata = {
+        'first': "Nisheet",
+        'last': "Thakur",
+        'total_price': 10,
+        'total_tax': 10,
+        'discount': 3,
+        'grand_total': 10,
+        'shipping_address_line': "XYZ",
+        'shipping_city': "ABC",
+        'shipping_state': "NJ",
+        'shipping_zip_code': "07306",
+        'cart': {"1": {"prod_no": "7", "price": 44, "product_name": "Strip Tag", "quantity": 5}, "2": {"prod_no": "8", "price": 44, "product_name": "Large Panel Tag", "quantity": 5}}
+    }
+    return outside_render('testemail/purchase_summary.html', testdata)

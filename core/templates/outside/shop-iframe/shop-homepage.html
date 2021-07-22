@@ -25,7 +25,7 @@
                                 </div>
                             </figcaption>
                         </figure>
-                        <span><h4 class="text-center text-black">{{product.product}}</h4></span>
+                        <h4 class="text-center text-black">{{product.product}}</h4>
                     </li>
 
                     {% endfor %}
@@ -50,18 +50,16 @@
                                     </div>
                                     <div class="col-md-6">
                                         <h4 class="single-product-title">{{product.product}}</h4>
-                                        
+                                        <h5>{{product.subheader}}</h5>
                                         <ul style="display:inline-table; list-style-type: square;">
-                                            <li>{{product.details}}</li> 
-                                            
+                                            {% set list1=product.details.split(';') %}
+                                            {% for item in list1 %}
+                                            <li>{{item}}</li>
+                                            {% endfor %}
                                         </ul>
-                                        <div class="product-info pb-3 pt-3">
-        
                                             <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>${{product.price}}</b></span></p>
         
                                             <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>{{product.unit}}</b></span></p>
-           
-                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -223,13 +223,13 @@ VALUES ("Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_det
 CREATE TABLE orders(
   id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   account INT,
-  total_tax INT,
-  total_shipping INT,
-  total_cart INT,
+  total_tax FLOAT,
+  total_shipping FLOAT,
+  total_cart FLOAT,
   approved CHAR(10),
   approval_code CHAR(20),
   session_flag CHAR(10),
-  grand_total INT,
+  grand_total FLOAT,
   transaction_date DATE,
   shipping_address varchar(127),
   shipping_city varchar(127),
@@ -239,7 +239,8 @@ CREATE TABLE orders(
   first_name varchar(127),
   last_name varchar(127),
   email varchar(127),
-  phone varchar(127)
+  phone varchar(127),
+  discount FLOAT
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -344,8 +345,8 @@ product_quantity INT
 /* Nisheet Thakur 7/6/2021 */
 
 INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
-VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number with a 999 prefix","cattletrace",1)
-,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","Each tag has a unique 15 digit number. Prefix options available for USDA 840 ADT compliant or commercial 999","cattletrace",1)
+VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",2.20,0,"Y","2-piece, Tamper Evident","2-Piece","3.75 inches long.;Each Tag has a unique 15-digit number with a 999 prefix. ;Priced at $2.20 per individual tag* (*Prior to U.S. CattleTrace member discount).; Ultra-High Frequency (UHF).;Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers.;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers.","cattletrace",1)
+,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",3.54,0,"Y","2-piece, Tamper Evident","2-Piece","4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers","cattletrace",1)
 ,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1",2.20,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.","cattletrace",1)
 
 /* Rohan Sureshkumar 7/7/2021 */
