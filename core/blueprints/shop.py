@@ -67,8 +67,11 @@ def serve_external_paymentinfo():
         order_details = eval(request.form["order_details"])
         print(request.form)
         # Adding order to orders table and getting current order id from orders table
-
-        order_id = g.db.orders.add_order(order_details)
+        shipping_address_line = request.form['shipping_address_line']
+        shipping_city = request.form['shipping_city']
+        shipping_state = request.form['shipping_state']
+        shipping_zip_code = request.form['shipping_zip_code']
+        order_id = g.db.orders.add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
@@ -76,13 +79,43 @@ def serve_external_paymentinfo():
             g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-        """
+
         send_email(
             "Tag Store Purchase Summary",
-            render_email("purchase_summary.html", {
-                'first': order['first_name'],
-                'last': order['last_name'],
-                'grand_total': order['grand_total'],
+            render_email("purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            }),
+            "nisheet.thakur@blocktrustnetwork.com",
+            override=True
+        )
+        # Sending email to seller with order ID
+        """
+        send_email(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': order_id,
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
             "nisheet.thakur@blocktrustnetwork.com"
@@ -101,11 +134,13 @@ def serve_external_invoice():
 @bp.route('/external/testshop', methods=['GET'])
 def serve_email():
     testdata = {
+        'order_id': 1,
         'first': "Nisheet",
         'last': "Thakur",
         'total_price': 10,
         'total_tax': 10,
         'discount': 3,
+        'shipping': 15,
         'grand_total': 10,
         'shipping_address_line': "XYZ",
         'shipping_city': "ABC",
@@ -113,4 +148,4 @@ def serve_email():
         'shipping_zip_code': "07306",
         'cart': {"1": {"prod_no": "7", "price": 44, "product_name": "Strip Tag", "quantity": 5}, "2": {"prod_no": "8", "price": 44, "product_name": "Large Panel Tag", "quantity": 5}}
     }
-    return outside_render('testemail/purchase_summary.html', testdata)
+    return outside_render('testemail/purchase_summary_customer.html', testdata)

@@ -51,13 +51,13 @@ $(document).ready(function(){
     var orderDetails=JSON.parse(orderDetailsString)
     $("input[name='same_address']").click(function(){
         if($(this).is(":checked")){
-            $("#address").val(orderDetails.address_line); 
+            $("#address").val(orderDetails.address_line).trigger("change"); 
             $("#city").val(orderDetails.city);
             $("#state").val(orderDetails.state);
             $("#zip_code").val(orderDetails.zip_code);
         }
         else if($(this).is(":not(:checked)")){
-            $("#address").val(""); 
+            $("#address").val("").trigger("change"); 
             $("#city").val("");
             $("#state").val("");
             $("#zip_code").val("");

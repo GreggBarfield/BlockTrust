@@ -15,7 +15,7 @@ class Orders:
     def __init__(self, db):
         self._db = db
 
-    def add_order(self, order):
+    def add_order(self, order, shipping_address_line, shipping_city, shipping_state, shipping_zip_code):
         """
         Adds a new order to the orders table
 
@@ -30,10 +30,10 @@ class Orders:
         total_shipping = order["shipping"]
         total_cart = order["total_price"]
         grand_total = order["grand_total"]
-        shipping_address = order["address_line"]
-        shipping_city = order["city"]
-        shipping_state = order["state"]
-        shipping_zipcode = order["zip_code"]
+        shipping_address = shipping_address_line
+        shipping_city = shipping_city
+        shipping_state = shipping_state
+        shipping_zipcode = shipping_zip_code
         first_name = order["first_name"]
         last_name = order["last_name"]
         email = order["email"]
