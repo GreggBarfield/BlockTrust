@@ -72,6 +72,8 @@ class Partners:
 
         Returns:
             discount: The discount percentage to be applied to the users cart amount
+        Raises:
+            PartnersException on ID not found
         """
         try:
             discount = self._db.execute_d(

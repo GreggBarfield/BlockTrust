@@ -8,6 +8,7 @@
 <section style="background-color: white;">
 
 <div class="container" id="invoice">
+
 <h3>Order Confirmation</h3>
 <h5>Thank you for your order.If you have any questions please <a href="/about-us/contact-us"><u>contact us</u></a>.</h5>
 <br>
@@ -26,18 +27,14 @@
 </div>
 </div>   
 <hr>
-<div class="row mb30 no-margin">
+<div class="col-sm-3 col-grid" style="background-color:#fff">
+    <h6>Date</h6>
+    <span id="date"></span><br>
+</div>
     <div class="col-sm-3 col-grid" style="background-color:#fff">
-    <h6>Invoice</h6>
-	60<br>
-	</div>
-	 <div class="col-sm-3 col-grid" style="background-color:#fff">
-  
                 </div>
                 <div class="col-sm-3 col-grid" style="background-color:#fff">
-                <h6>Date</h6>
-                    <span id="date"></span>
-                </div>
+
                 <div class="col-sm-3 col-grid" style="background-color:#fff">
                   
                 </div>
@@ -107,14 +104,16 @@
 <script>
         function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
-        var WinPrint = window.open('', '', 'width=900,height=650');
+        var WinPrint = window.open('', '', 'width=1100,height=900');
+        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.css" /></head><body>');
         WinPrint.document.write(printContent.innerHTML);
+        WinPrint.document.write('</body></html>');
         WinPrint.document.close();
         WinPrint.focus();
-        WinPrint.print();
-        WinPrint.close();
-        
-        console.log("printing")
+        setTimeout(function() {
+            WinPrint.print();
+            WinPrint.close();
+        }, 1000);
     }
 </script>
 {% endblock outside_content %}

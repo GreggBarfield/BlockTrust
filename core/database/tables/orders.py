@@ -1,4 +1,4 @@
-class TransactionException(Exception):
+class OrderException(Exception):
     """Generic Transaction exception."""
 
     def __init__(self, reason="unspecified"):

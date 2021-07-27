@@ -1,4 +1,4 @@
-{% extends "email/standard_USCT.html" %}
+{% extends "outside/testemail/standard_USCT.html" %}
 
 {% block email_standard_center %}
 <head>
@@ -25,6 +25,13 @@
 </head>
 <div>
 <div class="col-sm-4 col-grid" style="background-color:#fff">
+    <div class="col-sm-6 col-grid" style="background-color:#fff">
+    <b>U.S. CattleTrace</b><br>
+	414 Lincoln Ave<br>
+	Wamego, KS 66475<br>
+    785-456-8472<br>
+    info@uscattletrace.org
+    </div>
     <h4>Shipping Information: </h4>
     Customer name: {{first}} {{last}}<br>
     Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>

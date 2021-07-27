@@ -39,7 +39,18 @@ def serve_apply_coupon():
     try:
         # discount = shop.get_partner_discount(request.form['coupon-code'])
         discount = g.db.partners.get_discount_percentage(request.form['coupon_code'])
-        return jsonify({"discount_percentage": discount["discount_percentage"]})
+        # Getting the discounts applcable for the coupon code supplied
+        discounts = g.db.product_discounts.get_discounts(request.form['coupon_code'])
+        #Crating new object to store discount values
+        discount_percentages = {}
+        print(discounts)
+        # Creating browser friendly object to calculate discounts
+        for product_discount in discounts:
+            product_id = product_discount["product_id"]
+            discount_percentage = product_discount["discount_percentage"]
+            discount_percentages[product_id] = discount_percentage
+        print(discount_percentages)
+        return jsonify({"discount_percentages": discount_percentages})
         # return outside_render('shop-iframe/shopping-cart.html', {"discount_percentage": discount["discount_percentage"], "error": ""})
     except PartnersException as e:
         # raise ExportException(str(e))
@@ -96,6 +107,7 @@ def serve_external_paymentinfo():
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
+            # tags@blocktrustnetwork.com
             "nisheet.thakur@blocktrustnetwork.com",
             override=True
         )
@@ -118,6 +130,7 @@ def serve_external_paymentinfo():
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
+            # cattletrace@fort-supply.com
             "nisheet.thakur@blocktrustnetwork.com"
         )
         """

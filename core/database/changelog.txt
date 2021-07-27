@@ -363,3 +363,15 @@ ALTER TABLE partners ADD COLUMN discount_percentage INT
 
 INSERT INTO partners(partner_id, partner_name, sector_id, email, phone, address, city, state, zip, coupon_code, discount_percentage)
 values('USCT', 'U.S. CattleTrace', 4, 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457, "USCT", 10)
+
+/* Nisheet Thakur 7/27/2021 */
+
+CREATE TABLE product_discounts(
+coupon_code VARCHAR(127),
+product_id INT,
+discount_percentage INT
+);
+
+INSERT INTO product_discounts(coupon_code,product_id,discount_percentage)
+VALUES ("USCT",8,50)
+,("USCT",7,20);

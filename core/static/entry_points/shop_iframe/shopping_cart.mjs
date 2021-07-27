@@ -21,7 +21,8 @@ $(document).ready(function() {
         var idClicked=e.target.value;
         var shopCartString=localStorage.getItem('shoppingCart');
         var shopCart= JSON.parse(shopCartString);
-        var discountPercentage=parseFloat(localStorage.getItem('discountPercentage'));
+        var discountPercentageString=localStorage.getItem('discountPercentage');
+        var discountPercentages=JSON.parse(discountPercentageString);
         delete shopCart[idClicked];
         localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
         // Recalculating the total price of all products on deletion of product
@@ -30,8 +31,16 @@ $(document).ready(function() {
         total_price=total_price+(val.price*val.quantity)
         });
         total_price=Math.round(total_price*100)/100;
-        // Calculating tax and discount   
-        var total_discount=Math.round(total_price*discountPercentage*100/100)/100;
+        // Calculating tax and discount
+        var total_discount = 0;
+        for(var key in shopCart){
+            // Checking if product is applicable for discount
+            if(discountPercentages.hasOwnProperty(key)){
+                var product_price=shopCart[key].price*shopCart[key].quantity;
+                total_discount=total_discount+product_price*discountPercentages[key]/100;
+            }
+        }
+        total_discount=Math.round(total_discount*100)/100;
         var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
         // Grand total after adding total price, total tax and shipping
         var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
@@ -64,7 +73,7 @@ $(document).ready(function() {
         //Reset the values of discount localStorage data
         localStorage.setItem('discount', 0);
         localStorage.setItem('discountApplied', "N");    
-        localStorage.setItem('discountPercentage', 0);
+        localStorage.setItem('discountPercentage', "{}");
         // Recalculating the total price of all products on removing coupon
         var total_price=0
         Object.values(shopCart).forEach(val=>{
@@ -112,19 +121,29 @@ let form = new AsyncForm({
         console.log(data);
         //Checking if discount is already applied
         if(localStorage.getItem('discountApplied')==="N" && !('error' in data)){
-        var discountPercentage=data.discount_percentage;
+        
+        var discountPercentages=data.discount_percentages;
+        console.log(discountPercentages)
         //Setting the discount percentage in localStorage
-        localStorage.setItem('discountPercentage', discountPercentage);
+        localStorage.setItem('discountPercentage', JSON.stringify(discountPercentages));
         //Changing total price based on discount and recomputing tax
         var total_price=parseFloat(localStorage.getItem('totalPrice'));
         // Calculating discount
-        var total_discount=Math.round(total_price*discountPercentage*100/100)/100;
+        //var total_discount=Math.round(total_price*discountPercentage*100/100)/100;
+        var total_discount = 0;
+        var shopCartString=localStorage.getItem('shoppingCart');
+        var shopCart= JSON.parse(shopCartString);
+        for(var key in shopCart){
+            // Checking if product is applicable for discount
+            if(discountPercentages.hasOwnProperty(key)){
+                var product_price=shopCart[key].price*shopCart[key].quantity;
+                total_discount=total_discount+product_price*discountPercentages[key]/100;
+            }
+        }
+        total_discount=Math.round(total_discount*100)/100;
         // Calculating tax
         var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
-        // Grand total after adding total price, total tax and shipping
-        console.log(typeof(total_price));
-        console.log(typeof(total_tax));
-        console.log(typeof(total_discount));        
+        // Grand total after adding total price, total tax and shipping      
         var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
         localStorage.setItem('discount', total_discount);
         localStorage.setItem('totalTax', total_tax);
