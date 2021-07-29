@@ -16,13 +16,20 @@ $(document).ready(function() {
     if(localStorage.getItem("discountApplied")==="Y"){
     $("#coupon_applied").text("Coupon applied!")
     }
-
+    let hours=1;
+    let saved=localStorage.getItem('saved');
+    if(saved && (new Date().getTime()-saved>hours*60*60*1000)){
+        localStorage.clear();
+    }
     $(".removeItem").click(function(e){
         var idClicked=e.target.value;
         var shopCartString=localStorage.getItem('shoppingCart');
         var shopCart= JSON.parse(shopCartString);
+        var discountApplied=localStorage.getItem('discountApplied');
+        if(discountApplied==="Y"){
         var discountPercentageString=localStorage.getItem('discountPercentage');
         var discountPercentages=JSON.parse(discountPercentageString);
+        }
         delete shopCart[idClicked];
         localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
         // Recalculating the total price of all products on deletion of product
@@ -33,12 +40,14 @@ $(document).ready(function() {
         total_price=Math.round(total_price*100)/100;
         // Calculating tax and discount
         var total_discount = 0;
+        if(discountApplied==="Y"){
         for(var key in shopCart){
             // Checking if product is applicable for discount
             if(discountPercentages.hasOwnProperty(key)){
                 var product_price=shopCart[key].price*shopCart[key].quantity;
                 total_discount=total_discount+product_price*discountPercentages[key]/100;
             }
+        }
         }
         total_discount=Math.round(total_discount*100)/100;
         var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;

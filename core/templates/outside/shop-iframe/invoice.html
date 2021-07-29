@@ -82,27 +82,28 @@
                                 <p>Shipping: </p>
                                 <p>Tax: </p>
                                 <p>Discount: </p>
-                                <p>Total: </p>   
+                                <p><b>Total:</b> </p>  
                             </div>
                             <div class="col-md-3 sub-col-right">
                                 <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
                                 <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
                                 <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
                                 <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
-                                <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
+                                <p><b><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></b></p>
                             </div>
                         </div>
                     </div>
             </div>   
 
 
+            <a href="javascript:void(0);" class="btn btn-outline-primary m-1 float-right" id="return-button">Return to Shop</a>
 </div>
 </div>
 
 </section>
 <script type="module" src="/static/entry_points/shop_iframe/invoice.mjs"></script>
 <script>
-        function printPageArea(areaID){
+    function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
         var WinPrint = window.open('', '', 'width=1100,height=900');
         WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.css" /></head><body>');

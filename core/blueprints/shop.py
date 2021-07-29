@@ -4,7 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
-from ..database.tables.partners import PartnersException
+from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities import shop
 from ..utilities.email import send_email
 from ..renderers.email import render_email
@@ -37,23 +37,17 @@ def serve_external_cart():
 @bp.route('/external/cart', methods=['POST'])
 def serve_apply_coupon():
     try:
-        # discount = shop.get_partner_discount(request.form['coupon-code'])
-        discount = g.db.partners.get_discount_percentage(request.form['coupon_code'])
         # Getting the discounts applcable for the coupon code supplied
         discounts = g.db.product_discounts.get_discounts(request.form['coupon_code'])
-        #Crating new object to store discount values
+        # Creating a new object to store discount values
         discount_percentages = {}
-        print(discounts)
-        # Creating browser friendly object to calculate discounts
+        # Creating a browser friendly object to calculate discounts
         for product_discount in discounts:
             product_id = product_discount["product_id"]
             discount_percentage = product_discount["discount_percentage"]
             discount_percentages[product_id] = discount_percentage
-        print(discount_percentages)
         return jsonify({"discount_percentages": discount_percentages})
-        # return outside_render('shop-iframe/shopping-cart.html', {"discount_percentage": discount["discount_percentage"], "error": ""})
-    except PartnersException as e:
-        # raise ExportException(str(e))
+    except ProductDiscountException as e:
         return jsonify({"error": str(e)})
 
 
@@ -71,17 +65,17 @@ def serve_external_payment():
 def serve_external_paymentinfo():
     try:
         # We need to implement stripe payment function here
-        # Cart and user information is stored in session[SESSION_CHECKOUT_INFO]
+        # Cart and user information is stored in request.form
         # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
 
         # Updating the orders table if payment goes through
+        # Getting order details and shipping address from form
         order_details = eval(request.form["order_details"])
-        print(request.form)
-        # Adding order to orders table and getting current order id from orders table
         shipping_address_line = request.form['shipping_address_line']
         shipping_city = request.form['shipping_city']
         shipping_state = request.form['shipping_state']
         shipping_zip_code = request.form['shipping_zip_code']
+        # Adding order to orders table and getting current order id from orders table
         order_id = g.db.orders.add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
@@ -111,7 +105,7 @@ def serve_external_paymentinfo():
             "nisheet.thakur@blocktrustnetwork.com",
             override=True
         )
-        # Sending email to seller with order ID
+        # Sending email to seller including order ID
         """
         send_email(
             "New order summary",

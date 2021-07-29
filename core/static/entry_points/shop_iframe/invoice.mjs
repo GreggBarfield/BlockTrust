@@ -31,20 +31,17 @@ $(document).ready(function() {
     var yyyy = today.getFullYear();
     today = mm + '/' + dd + '/' + yyyy;
     $("#date").text(today)
+    }
+    //Clearing out localStorage on completion of transaction
+    $("#return-button").click(function(e){
+        localStorage.clear();
+        window.location.href = '/external/shop/1';
+    });
 
-    }
-    // Generating Invoice report
-    function printPageArea(areaID){
-        var printContent = document.getElementById(areaID);
-        var WinPrint = window.open('', '', 'width=900,height=650');
-        WinPrint.document.write(printContent.innerHTML);
-        WinPrint.document.close();
-        WinPrint.focus();
-        WinPrint.print();
-        WinPrint.close();
-        
-        console.log("printing")
-    }
+    $(window).bind('beforeunload',function(){
+        alert("Please make sure to save your order confirmation");
+       localStorage.clear();
+   });
 
 });
 

@@ -20,6 +20,14 @@ $( ".form-inline" ).submit(function( event ) {
     if(!localStorage.discountApplied){  
         localStorage.setItem('discountApplied', "N");
     }
+    let hours=1;
+    let saved=localStorage.getItem('saved');
+    if(saved===null){
+        localStorage.setItem('saved', new Date().getTime())  
+    }
+    if(saved && (new Date().getTime()-saved>hours*60*60*1000)){
+        localStorage.clear();
+    }
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString)
     // Get input values to add products to cart
@@ -40,21 +48,26 @@ $( ".form-inline" ).submit(function( event ) {
         localStorage.setItem('shoppingCart', JSON.stringify(shopCart));
     }
     // Recalculating the total price of all products on addition of new product
-    var total_price=0   
+    var total_price=0;
+    var discountApplied=localStorage.getItem('discountApplied');
+    if(discountApplied==="Y"){   
     var discountPercentageString=localStorage.getItem('discountPercentage');
     var discountPercentages=JSON.parse(discountPercentageString);
+    }
     Object.values(shopCart).forEach(val=>{
     total_price=total_price+(val.price*val.quantity)
     });
     total_price=Math.round(total_price*100)/100;
     // Calculating tax and discount
     var total_discount = 0;
+    if(discountApplied==="Y"){
     for(var key in shopCart){
         // Checking if product is applicable for discount
         if(discountPercentages.hasOwnProperty(key)){
             var product_price=shopCart[key].price*shopCart[key].quantity;
             total_discount=total_discount+product_price*discountPercentages[key]/100;
         }
+    }
     }
     total_discount=Math.round(total_discount*100)/100;
     var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
