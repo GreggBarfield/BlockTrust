@@ -1,5 +1,5 @@
 class ProductDiscountException(Exception):
-    """Partner generic exception."""
+    """ProductDiscount generic exception."""
 
     def __init__(self, reason):
         """Constructor for ProductDiscountException.
@@ -29,18 +29,15 @@ class ProductDiscounts:
             ProductDiscountException if coupon code not found
 
         """
-        try:
-            discounts = self._db.execute_d(
-                """
-                    SELECT product_id, discount_percentage FROM product_discounts
-                    WHERE coupon_code=%(coupon_code)s
-                """,
-                {
-                    "coupon_code": coupon_code
-                }
-            )
-            if len(discounts) < 1:
-                raise ProductDiscountException("Coupon code invalid")
-            return discounts
-        except ProductDiscountException as e:
-            raise e
+        discounts = self._db.execute_d(
+            """
+                SELECT product_id, discount_percentage FROM product_discounts
+                WHERE coupon_code=%(coupon_code)s
+            """,
+            {
+                "coupon_code": coupon_code
+            }
+        )
+        if len(discounts) < 1:
+            raise ProductDiscountException("Coupon code invalid")
+        return discounts

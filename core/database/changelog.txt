@@ -337,8 +337,9 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 /* Nisheet Thakur 6/28/2021 */
 
 CREATE TABLE order_products(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 `order` INT,
-product_no INT,
+product_id INT,
 product_quantity INT
 )
 
@@ -357,12 +358,8 @@ ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `data`;
 
 /* Nisheet Thakur 7/20/2021 */
 
-ALTER TABLE partners ADD COLUMN coupon_code VARCHAR(127)
-
-ALTER TABLE partners ADD COLUMN discount_percentage INT
-
-INSERT INTO partners(partner_id, partner_name, sector_id, email, phone, address, city, state, zip, coupon_code, discount_percentage)
-values('USCT', 'U.S. CattleTrace', 4, 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457, "USCT", 10)
+INSERT INTO partners(partner_id, partner_name, sector_id, email, phone, address, city, state, zip)
+values('USCT', 'U.S. CattleTrace', 4, 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457)
 
 /* Nisheet Thakur 7/27/2021 */
 

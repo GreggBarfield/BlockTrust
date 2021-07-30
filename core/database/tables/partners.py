@@ -63,29 +63,3 @@ class Partners:
             for partner_row in partner_rows
         ]
 
-    def get_discount_percentage(self, coupon_code):
-        """
-        Gets the discount percentage for a particular coupon code(Related to each partner)
-
-        Params:
-            coupon_code: The coupon code entered by the user
-
-        Returns:
-            discount: The discount percentage to be applied to the users cart amount
-        Raises:
-            PartnersException on ID not found
-        """
-        try:
-            discount = self._db.execute_d(
-                """SELECT discount_percentage FROM partners
-                    WHERE coupon_code=%(coupon_code)s
-                """,
-                {
-                    "coupon_code": coupon_code
-                }
-            )
-            if len(discount) != 1:
-                raise PartnersException("Coupon code invalid")
-            return discount[0]
-        except PartnersException as e:
-            raise e
