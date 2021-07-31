@@ -18,6 +18,7 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+// import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 
 
@@ -53,6 +54,7 @@ import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs"
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    // attach("sustainability questionaire", SustainabilityQuestionaireWidget);
     attach("certificates", CertificatesWidget);
 
     // Find widgets

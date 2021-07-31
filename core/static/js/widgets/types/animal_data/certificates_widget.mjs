@@ -8,13 +8,12 @@ export class CertificatesWidget extends Widget {
         this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
         this.frame.innerHTML = "";
         this.getData(
-            "report",
-            {
-                eid:this.animal
-            }
+            "update_certificates",
+            {}
         ).then((data)=>
         {
             this.data=data;
+            console.log(data)
             this.showPDF();
         })
         
@@ -26,7 +25,7 @@ export class CertificatesWidget extends Widget {
 
         let pdf = document.createElement("embed");
         pdf.type="application/pdf";
-        pdf.src="test_output.pdf";
+        pdf.src=this.data;
         placeHolder.append(pdf)
     }
 }
