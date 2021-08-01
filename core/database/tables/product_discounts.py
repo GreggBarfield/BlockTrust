@@ -31,7 +31,7 @@ class ProductDiscounts:
         """
         discounts = self._db.execute_d(
             """
-                SELECT product_id, discount_percentage FROM product_discounts
+                SELECT product, discount_percentage FROM product_discounts
                 WHERE coupon_code=%(coupon_code)s
             """,
             {

@@ -363,11 +363,12 @@ values('USCT', 'U.S. CattleTrace', 4, 'info@uscattletrace.org', 7854568472, '414
 /* Nisheet Thakur 7/27/2021 */
 
 CREATE TABLE product_discounts(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 coupon_code VARCHAR(127),
-product_id INT,
+product INT,
 discount_percentage INT
 );
 
-INSERT INTO product_discounts(coupon_code,product_id,discount_percentage)
-VALUES ("USCT",8,50)
-,("USCT",7,20);
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",1,50)
+,("USCT",2,20);
