@@ -239,8 +239,7 @@ CREATE TABLE orders(
   first_name varchar(127),
   last_name varchar(127),
   email varchar(127),
-  phone varchar(127),
-  discount FLOAT
+  phone varchar(127)
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -339,7 +338,7 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
 CREATE TABLE order_products(
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 `order` INT,
-product_id INT,
+product INT,
 product_quantity INT
 )
 
