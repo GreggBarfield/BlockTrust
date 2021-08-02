@@ -49,7 +49,7 @@ $(document).ready(function() {
     //Clearing out localStorage on completion of transaction
     $("#return-button").click(function(e){
         localStorage.clear();
-        window.location.href = '/external/shop/1';
+        window.location.href = '/external/shop/618';
     });
 
     $(window).bind('beforeunload',function(){

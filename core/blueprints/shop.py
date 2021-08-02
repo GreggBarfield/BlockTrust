@@ -43,7 +43,7 @@ def serve_apply_coupon():
         discount_percentages = {}
         # Creating a browser friendly object to calculate discounts
         for product_discount in discounts:
-            product_id = product_discount["product_id"]
+            product_id = product_discount["product"]
             discount_percentage = product_discount["discount_percentage"]
             discount_percentages[product_id] = discount_percentage
         return jsonify({"discount_percentages": discount_percentages})
