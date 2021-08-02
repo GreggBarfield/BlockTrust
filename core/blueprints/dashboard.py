@@ -279,6 +279,30 @@ def insert_eids():
         return {'error':{'message': str(e)}}, 400
 
 
+@bp.route('/dashboard/sustainability', methods=['GET'])
+@crut.require_account
+def serve_sustainability():
+    return dashboard_render("sustainability/sustainability_questionaire.html")
+
+
+@bp.route('/dashboard/sustainability/summary', methods=['GET'])
+@crut.require_account
+def serve_sustainability_summary():
+    return dashboard_render("sustainability/sustainability_summary.html")
+
+
+@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@crut.require_account
+def serve_retained_ownership():
+    return dashboard_render("retained-ownership.html")
+
+
+@bp.route('/dashboard/data/upload-tags', methods=['GET'])
+@crut.require_account
+def serve_upload_tags():
+    return dashboard_render("data/upload-tags.html")
+
+
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
 @crut.require_user
