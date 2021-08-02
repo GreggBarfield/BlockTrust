@@ -1,10 +1,20 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
-$("#subtotal").text(localStorage.getItem('totalPrice'))
-$("#shipping").text(localStorage.getItem('shipping'))
-$("#tax").text(localStorage.getItem('totalTax'))
-$("#discount").text(localStorage.getItem('discount'))
-$("#grandTotal").text(localStorage.getItem('grandTotal'))
+var subTotal=parseFloat(localStorage.getItem('totalPrice'));
+var subTotalDisplay=subTotal.toFixed(2);
+var ship=parseFloat(localStorage.getItem('shipping'));
+var shipDisplay=ship.toFixed(2);
+var tax=parseFloat(localStorage.getItem('totalTax'));
+var taxDisplay=tax.toFixed(2);
+var discount=parseFloat(localStorage.getItem('discount'));
+var discountDisplay=discount.toFixed(2);
+var grandTotal=parseFloat(localStorage.getItem('grandTotal'));
+var grandTotalDisplay=grandTotal.toFixed(2);
+$("#subtotal").text(subTotalDisplay);
+$("#shipping").text(shipDisplay);
+$("#tax").text(taxDisplay);
+$("#discount").text(discountDisplay);
+$("#grandTotal").text(grandTotalDisplay);
 
 let paymentForm = $("#payment_form");
 let statusMessage = paymentForm.find("#payment_status_message");

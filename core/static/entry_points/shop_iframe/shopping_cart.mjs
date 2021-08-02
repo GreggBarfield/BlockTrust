@@ -6,13 +6,29 @@ $(document).ready(function() {
     var shopCart= JSON.parse(shopCartString);
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag(s) of 20</td><td>$'+ val.price +'</td><td>$'+ total_product_price +'</td><td><a href="/external/cart"><button href="/external/cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        if(val.quantity===1){
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag of 20</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/external/cart"><button href="/external/cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        }
+        else{        
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bags of 20</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/external/cart"><button href="/external/cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        }
     });
-    $("#subtotal").text(localStorage.getItem('totalPrice'))
-    $("#shipping").text(localStorage.getItem('shipping'))
-    $("#tax").text(localStorage.getItem('totalTax'))
-    $("#discount").text(localStorage.getItem('discount'))
-    $("#grandTotal").text(localStorage.getItem('grandTotal'))
+    var subTotal=parseFloat(localStorage.getItem('totalPrice'));
+    var subTotalDisplay=subTotal.toFixed(2);
+    var ship=parseFloat(localStorage.getItem('shipping'));
+    var shipDisplay=ship.toFixed(2);
+    var tax=parseFloat(localStorage.getItem('totalTax'));
+    var taxDisplay=tax.toFixed(2);
+    var discount=parseFloat(localStorage.getItem('discount'));
+    var discountDisplay=discount.toFixed(2);
+    var grandTotal=parseFloat(localStorage.getItem('grandTotal'));
+    var grandTotalDisplay=grandTotal.toFixed(2);
+    $("#subtotal").text(subTotalDisplay);
+    $("#shipping").text(shipDisplay);
+    $("#tax").text(taxDisplay);
+    $("#discount").text(discountDisplay);
+    $("#grandTotal").text(grandTotalDisplay);
+
     if(localStorage.getItem("discountApplied")==="Y"){
     $("#coupon_applied").text("Coupon applied!")
     }

@@ -7,15 +7,29 @@ $(document).ready(function() {
     // Printing out the shopping cart information
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag(s) of 20</td><td>'+ val.price +'</td><td>'+ total_product_price +'</td></tr>');
+        if(val.quantity===1){
+            $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bag of 20</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td></tr>');
+        }
+        else{        
+            $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + ' Bags of 20</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td></tr>');
+        }
     });
     //Printing out subtotals and other transaction values
-    $("#subtotal").text(localStorage.getItem('totalPrice'))
-    $("#shipping").text(localStorage.getItem('shipping'))
-    $("#tax").text(localStorage.getItem('totalTax'))
-    $("#discount").text(localStorage.getItem('discount'))
-    $("#grandTotal").text(localStorage.getItem('grandTotal'))
-    $("#payment").text(localStorage.getItem('grandTotal'))
+    var subTotal=parseFloat(localStorage.getItem('totalPrice'));
+    var subTotalDisplay=subTotal.toFixed(2);
+    var ship=parseFloat(localStorage.getItem('shipping'));
+    var shipDisplay=ship.toFixed(2);
+    var tax=parseFloat(localStorage.getItem('totalTax'));
+    var taxDisplay=tax.toFixed(2);
+    var discount=parseFloat(localStorage.getItem('discount'));
+    var discountDisplay=discount.toFixed(2);
+    var grandTotal=parseFloat(localStorage.getItem('grandTotal'));
+    var grandTotalDisplay=grandTotal.toFixed(2);
+    $("#subtotal").text(subTotalDisplay)
+    $("#shipping").text(shipDisplay)
+    $("#tax").text(taxDisplay)
+    $("#discount").text(discountDisplay)
+    $("#grandTotal").text(grandTotalDisplay)
     //Printing out account details and address
     $("#account_name").text(orderDetails.first_name+" "+orderDetails.last_name)
     $("#account_address").text(orderDetails.address_line)

@@ -6,7 +6,7 @@ $( ".form-inline" ).submit(function( event ) {
     }
     // Adding total price, shipping, tax and grand total to local storage if not present
     if(!localStorage.shipping){
-    localStorage.setItem('shipping', 15)
+    localStorage.setItem('shipping', 15.00)
     }
     if(!localStorage.totalPrice){
     localStorage.setItem('totalPrice', 0);
@@ -82,5 +82,11 @@ $( ".form-inline" ).submit(function( event ) {
     $(modalID).modal('hide');
     $('body').removeClass('modal-open');
     $('.modal-backdrop').remove();
+  });
+
+  $(".discountDetails").text(function(e){
+      if(e.target.value===8){
+          return "50%"
+      }
   });
 

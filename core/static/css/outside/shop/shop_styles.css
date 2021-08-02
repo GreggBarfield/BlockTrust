@@ -43,6 +43,9 @@
     min-height: 100%;
     opacity: 1;
     background-color: #fff;
+    border: 2px;
+    border-style: solid;
+    border-color: #c0c0c0;
   }
   
   .gallery.line-effect figure figcaption::before,
@@ -82,7 +85,6 @@
   
   .effect-bubba {
     background-color: black;
-  }
   
   .effect-bubba img {
     opacity: 1;
@@ -99,7 +101,7 @@
     position: absolute;
     top: 30px;
     right: 30px;
-    bottom: 80px;
+    bottom: 115px;
     left: 30px;
     content: '';
     opacity: 0;
