@@ -20,11 +20,17 @@ export class CertificatesWidget extends Widget {
     }
     showPDF(){
         let placeHolder = document.createElement("div");
-        placeHolder.textContent="placeholder";
+        placeHolder.style="width: 450px; height: height:400px;"
+        placeHolder.style.height= "100%"
+        placeHolder.style.width="100%"
         this.frame.append(placeHolder)
 
         let pdf = document.createElement("embed");
+        pdf.id="plugin"
         pdf.type="application/pdf";
+        pdf.style.height= "100%"
+        pdf.style.width="100%"
+        // ="width: 450px; height: height:400px;"
         pdf.src=this.data;
         placeHolder.append(pdf)
     }
