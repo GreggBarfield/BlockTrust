@@ -239,7 +239,8 @@ CREATE TABLE orders(
   first_name varchar(127),
   last_name varchar(127),
   email varchar(127),
-  phone varchar(127)
+  phone varchar(127),
+  discount FLOAT
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
