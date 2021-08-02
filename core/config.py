@@ -46,6 +46,10 @@ CSP = {
         'http://localhost:5000',
         'blocktrustnetwork.com',
         'data:'
+    ],
+    'frame-ancestors': [
+        'blocktrustnetwork.com',
+        'uscattletrace.org'
     ]
 }
 
