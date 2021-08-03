@@ -20,7 +20,7 @@ bp = Blueprint('shop_bp', __name__)
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
     allProductData = shop.get_partner_products(tok)
-    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
+    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id":tok})
 
 
 @bp.route('/external/shop', methods=['GET'])
@@ -29,9 +29,9 @@ def serve_external_shop():
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
-@bp.route('/external/cart', methods=['GET'])
-def serve_external_cart():
-    return outside_render('shop-iframe/shopping-cart.html')
+@bp.route('/external/cart/<partner_id>', methods=['GET'])
+def serve_external_cart(partner_id):
+    return outside_render('shop-iframe/shopping-cart.html', {"partner_id":partner_id})
 
 
 @bp.route('/external/cart', methods=['POST'])
@@ -51,18 +51,18 @@ def serve_apply_coupon():
         return jsonify({"error": str(e)})
 
 
-@bp.route('/external/checkout', methods=['GET'])
-def serve_external_checkout():
-    return outside_render('shop-iframe/checkout.html')
+@bp.route('/external/checkout/<partner_id>', methods=['GET'])
+def serve_external_checkout(partner_id):
+    return outside_render('shop-iframe/checkout.html', {'partner_id': partner_id})
 
 
-@bp.route('/external/checkout_payment', methods=['GET'])
-def serve_external_payment():
-    return outside_render('shop-iframe/checkout-payment.html')
+@bp.route('/external/checkout_payment/<partner_id>', methods=['GET'])
+def serve_external_payment(partner_id):
+    return outside_render('shop-iframe/checkout-payment.html', {'partner_id': partner_id})
 
 
-@bp.route('/external/checkout_payment', methods=['POST'])
-def serve_external_paymentinfo():
+@bp.route('/external/checkout_payment/<partner_id>', methods=['POST'])
+def serve_external_paymentinfo(partner_id):
     try:
         # We need to implement stripe payment function here
         # Cart and user information is stored in request.form
@@ -128,14 +128,14 @@ def serve_external_paymentinfo():
             "nisheet.thakur@blocktrustnetwork.com"
         )
         """
-        return jsonify({"redirect": "/external/invoice"})
+        return jsonify({"redirect": "/external/invoice/"+partner_id})
     except ExportException as e:
         return jsonify({"error": str(e)})
 
 
-@bp.route('/external/invoice', methods=['GET'])
-def serve_external_invoice():
-    return outside_render('shop-iframe/invoice.html')
+@bp.route('/external/invoice/<partner_id>', methods=['GET'])
+def serve_external_invoice(partner_id):
+    return outside_render('shop-iframe/invoice.html', {'partner_id':partner_id})
 
 
 @bp.route('/external/testshop', methods=['GET'])

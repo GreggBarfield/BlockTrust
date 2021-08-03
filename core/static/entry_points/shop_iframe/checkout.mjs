@@ -63,6 +63,7 @@ $( "#checkout_form" ).submit(function( event ) {
         grand_total:grandTotalString
     }
     localStorage.setItem('orderDetails', JSON.stringify(order));
-    window.location.href = '/external/checkout_payment';
+    //partner_id must be set in the parent page
+    window.location.href = '/external/checkout_payment/'+partner_id;
     return false;
 });

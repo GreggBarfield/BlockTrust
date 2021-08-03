@@ -49,7 +49,8 @@ $(document).ready(function() {
     //Clearing out localStorage on completion of transaction
     $("#return-button").click(function(e){
         localStorage.clear();
-        window.location.href = '/external/shop/618';
+        //partner_id must be set in the parent page
+        window.location.href = '/external/shop/'+partner_id;
     });
 
     $(window).bind('beforeunload',function(){

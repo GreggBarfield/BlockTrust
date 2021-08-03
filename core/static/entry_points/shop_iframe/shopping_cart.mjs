@@ -82,7 +82,8 @@ $(document).ready(function() {
         var shopCart= JSON.parse(shopCartString);
         var size = Object.keys(shopCart).length;
         if(size>0){
-            window.location.href = '/external/checkout';
+            //partner id has to be set in the parent page
+            window.location.href = '/external/checkout/'+ partner_id;
             return false;
         }
         else{
@@ -113,7 +114,7 @@ $(document).ready(function() {
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
-        window.location.href = '/external/cart';
+        window.location.href = '/external/cart/'+partner_id;
     }
     })
 
@@ -174,7 +175,7 @@ let form = new AsyncForm({
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total); 
         localStorage.setItem('discountApplied', "Y");
-        window.location.href = '/external/cart';
+        window.location.href = '/external/cart/'+partner_id;
         }
     }
 });
