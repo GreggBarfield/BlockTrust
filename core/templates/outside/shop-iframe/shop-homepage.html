@@ -6,7 +6,7 @@
 <section id="gallery" class="p-0 line-effect">
     <div class="container">
             <div class="col-md-12 text-right">
-                <a href="/external/cart/{{partner_id}}" class="btn btn-primary m-2">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></a>
+                <button id="proceedButton" class="btn btn-primary m-2">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></button>
             </div>           
             <div class="container">
                 <ul  class="row gallery line-effect list-unstyled mb-0" id="grid">
@@ -26,14 +26,14 @@
                             </figcaption>
                         </figure>
                         <h4 class="text-center text-black">{{product.product}}</h4>
-                        <h6 class="text-center text-black">
-                            {% if product.id==7 %}
-                            <span><i>(Price for CattleTrace members: $35.20 for a Bag of 20)</i></span>
+                        <h5 class="text-center text-black">
+                            {% if product.id==5 %}
+                            <span><i>CattleTrace members: $35.20 for a Bag of 20</i></span>
                             {% endif %}
-                            {% if product.id==8 %}
-                            <span><i>(Price for CattleTrace members: $35.40 for a Bag of 20)</i></span>
+                            {% if product.id==4 %}
+                            <span><i>CattleTrace members: $35.40 for a Bag of 20</i></span>
                             {% endif %}
-                        </h6>
+                        </h5>
                     </li>
 
                     {% endfor %}
@@ -92,5 +92,8 @@
     
 
 </section>
+<script type="text/javascript">
+    var partner_id = '{{ partner_id }}'
+</script>
 <script type="module" src="/static/entry_points/shop_iframe/shop_homepage.mjs"></script>
 {% endblock outside_content %}

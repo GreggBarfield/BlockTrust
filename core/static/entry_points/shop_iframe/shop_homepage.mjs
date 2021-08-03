@@ -84,9 +84,24 @@ $( ".form-inline" ).submit(function( event ) {
     $('.modal-backdrop').remove();
   });
 
-  $(".discountDetails").text(function(e){
-      if(e.target.value===8){
-          return "50%"
-      }
-  });
+  $(document).ready(function() {
+  $("#proceedButton").click(function(e){
+    // Retrieve cart and check if it is not empty and redirect or alert user
+    var shopCartString=localStorage.getItem('shoppingCart');
+    if(shopCartString==null){
+        alert("Shopping Cart is Empty!");
+        return;
+    }
+    var shopCart= JSON.parse(shopCartString);
+    var size = Object.keys(shopCart).length;
+    if(size>0){
+        //partner id has to be set in the parent page
+        window.location.href = '/external/cart/'+ partner_id;
+        return false;
+    }
+    else{
+        alert("Shopping Cart is empty!"); 
+    }
+    })
+});
 

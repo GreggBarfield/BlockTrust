@@ -20,7 +20,7 @@ bp = Blueprint('shop_bp', __name__)
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
     allProductData = shop.get_partner_products(tok)
-    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id":tok})
+    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id": tok})
 
 
 @bp.route('/external/shop', methods=['GET'])
@@ -31,7 +31,7 @@ def serve_external_shop():
 
 @bp.route('/external/cart/<partner_id>', methods=['GET'])
 def serve_external_cart(partner_id):
-    return outside_render('shop-iframe/shopping-cart.html', {"partner_id":partner_id})
+    return outside_render('shop-iframe/shopping-cart.html', {"partner_id": partner_id})
 
 
 @bp.route('/external/cart', methods=['POST'])
@@ -135,24 +135,4 @@ def serve_external_paymentinfo(partner_id):
 
 @bp.route('/external/invoice/<partner_id>', methods=['GET'])
 def serve_external_invoice(partner_id):
-    return outside_render('shop-iframe/invoice.html', {'partner_id':partner_id})
-
-
-@bp.route('/external/testshop', methods=['GET'])
-def serve_email():
-    testdata = {
-        'order_id': 1,
-        'first': "Nisheet",
-        'last': "Thakur",
-        'total_price': 10,
-        'total_tax': 10,
-        'discount': 3,
-        'shipping': 15,
-        'grand_total': 10,
-        'shipping_address_line': "XYZ",
-        'shipping_city': "ABC",
-        'shipping_state': "NJ",
-        'shipping_zip_code': "07306",
-        'cart': {"1": {"prod_no": "7", "price": 44, "product_name": "Strip Tag", "quantity": 5}, "2": {"prod_no": "8", "price": 44, "product_name": "Large Panel Tag", "quantity": 5}}
-    }
-    return outside_render('testemail/purchase_summary_customer.html', testdata)
+    return outside_render('shop-iframe/invoice.html', {'partner_id': partner_id})
