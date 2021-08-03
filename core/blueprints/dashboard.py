@@ -246,10 +246,10 @@ def serve_plans():
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
-@bp.route('/dashboard/test', methods=['GET'])
+@bp.route('/dashboard/bucket', methods=['GET'])
 @crut.require_account
-def serve_test():
-    return dashboard_render("accounts/test.html",  {"account": g.account,"user":g.user, "license":"59cef5be-e3d4-4687-a687-79f0a3e2aaba"})
+def serve_bucket():
+    return dashboard_render("accounts/bucket.html",  {"account": g.account,"user":g.user, "license":"59cef5be-e3d4-4687-a687-79f0a3e2aaba"})
 
 
 @bp.route('/dashboard/import-tags', methods=['POST'])
