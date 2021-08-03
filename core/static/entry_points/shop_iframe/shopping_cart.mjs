@@ -114,7 +114,7 @@ $(document).ready(function() {
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
-        window.location.href = '/external/cart';
+        window.location.href = '/external/cart/'+partner_id;
     }
     })
 
@@ -175,7 +175,7 @@ let form = new AsyncForm({
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total); 
         localStorage.setItem('discountApplied', "Y");
-        window.location.href = '/external/cart';
+        window.location.href = '/external/cart/'+partner_id;
         }
     }
 });

@@ -240,7 +240,9 @@ CREATE TABLE orders(
   last_name varchar(127),
   email varchar(127),
   phone varchar(127),
-  discount FLOAT
+  discount FLOAT,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -340,7 +342,9 @@ CREATE TABLE order_products(
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 `order` INT,
 product INT,
-product_quantity INT
+product_quantity INT,
+`create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
 /* Nisheet Thakur 7/6/2021 */
@@ -367,5 +371,5 @@ discount_percentage INT
 );
 
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
-VALUES ("USCT",1,50)
-,("USCT",2,20);
+VALUES ("USCT",4,50)
+,("USCT",5,20);
