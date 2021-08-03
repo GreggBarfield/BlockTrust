@@ -32,7 +32,7 @@ if (paymentForm[0].hasAttribute("request_redirect_to")) {
 
 
 let form = new AsyncForm({
-    action: "/external/checkout_payment",
+    action: "/external/checkout_payment/" + partner_id,
     form: paymentForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

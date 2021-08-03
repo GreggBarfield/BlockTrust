@@ -82,7 +82,8 @@ $(document).ready(function() {
         var shopCart= JSON.parse(shopCartString);
         var size = Object.keys(shopCart).length;
         if(size>0){
-            window.location.href = '/external/checkout';
+            //partner id has to be set in the parent page
+            window.location.href = '/external/checkout/'+ partner_id;
             return false;
         }
         else{
