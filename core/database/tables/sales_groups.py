@@ -180,7 +180,7 @@ class SalesGroups:
         self, zip_code, miles, start, end, skip=0, limit=10,
         breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
     ):
-        """Searches for sales groups.
+        """Searches for sales groups.+
 
         Params:
             zip_code: Origin zip code
