@@ -354,7 +354,7 @@ SELECT id FROM accounts WHERE company = 'U.S. CattleTrace' INTO @partner_id;
 INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
 VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",44.0,0,"Y","2-piece, Tamper Evident","2-Piece","3.75 inches long.;Each Tag has a unique 15-digit number with a 999 prefix. ;Priced at $2.20 per individual tag* (*Prior to U.S. CattleTrace member discount).; Ultra-High Frequency (UHF).;Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers.;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers.", @partner_id)
 ,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",70.8,0,"Y","2-piece, Tamper Evident","2-Piece","4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers", @partner_id)
-,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1",44.0,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.", @partner_id)
+,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1.png",44.0,0,"Y","1-piece, Pin Insertion","2-Piece","Each tag has a unique 15 digit number with a 988 prefix.", @partner_id)
 
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
@@ -373,3 +373,13 @@ discount_percentage INT
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
 VALUES ("USCT",4,50)
 ,("USCT",5,20);
+
+/* Nisheet Thakur 8/4/2021 */
+
+UPDATE products
+SET pic_2="overlap_1.png"
+WHERE product="Large Panel Feedlot Tag"
+
+UPDATE products 
+SET details="4.25 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Priced at $2.20 per individual tag;Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers"
+WHERE product="Large Panel Feedlot Tag";
