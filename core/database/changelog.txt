@@ -226,11 +226,7 @@ CREATE TABLE orders(
   total_tax FLOAT,
   total_shipping FLOAT,
   total_cart FLOAT,
-  approved CHAR(10),
-  approval_code CHAR(20),
-  session_flag CHAR(10),
   grand_total FLOAT,
-  transaction_date DATE,
   shipping_address varchar(127),
   shipping_city varchar(127),
   shipping_state varchar(127),
@@ -381,3 +377,8 @@ ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ALTER TABLE `example_db_1`.`product_discounts` 
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `discount_percentage`,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`orders` 
+ADD COLUMN `stripe_payment_intent` VARCHAR(256) NULL DEFAULT NULL AFTER `discount`,
+ADD COLUMN `stripe_paid` TINYINT NULL DEFAULT NULL AFTER `stripe_payment_intent`;
