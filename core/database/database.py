@@ -1,3 +1,4 @@
+from core.database.tables.sustainability import Sustainability
 import mysql.connector as mysql
 from mysql.connector.errors import Error
 
@@ -16,8 +17,13 @@ from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
+<<<<<<< HEAD
 from .tables.products import ProductTable
 from .tables.orders import Orders
+=======
+from .tables.sustainability import Sustainability
+from .tables.partners import Partners
+>>>>>>> 4cecae72c2e2b3d54b5624c64efc942c878a2c41
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -58,6 +64,7 @@ class Database:
         self.eid_groups = EIDGroups(self)
         self.products = ProductTable(self)
         self.transactions = Orders(self)
+        self.sustainability = Sustainability(self)
 
     def connect(self):
         try:

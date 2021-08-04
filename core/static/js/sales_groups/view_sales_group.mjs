@@ -134,7 +134,7 @@ export class SalesGroupViewer {
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
             salesGroupID.style = "display: inline;";
-            salesGroupID.textContent = "Sales Group " + this.data.id;
+            salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
 
@@ -325,20 +325,21 @@ export class SalesGroupViewer {
 
             let images = [];
 
-            for (const image of this.data.reported.images) {
-                if (image in this.data.file_auths) {
-                    if (fileNameIsImage(this.data.file_auths[image]["name"])) {
-                        images.push(this.data.file_auths[image]["get"]);
+            if (this.data.reported.images != undefined) {
+                for (const image of this.data.reported.images) {
+                    if (image in this.data.file_auths) {
+                        if (fileNameIsImage(this.data.file_auths[image]["name"])) {
+                            images.push(this.data.file_auths[image]["get"]);
+                        }
+                        else {
+                            console.log(image + " is not an image?");
+                        }
                     }
                     else {
-                        console.log(image + " is not an image?");
+                        console.log("Expected file auth for " + image);
                     }
                 }
-                else {
-                    console.log("Expected file auth for " + image);
-                }
             }
-
             new BootstrapCarousel(images, img, "img");
 
             //Video tab
@@ -355,16 +356,16 @@ export class SalesGroupViewer {
 
             let videos = this.data.reported.videos;
             var videoUrls = [];
-
-            for (let video of videos) {
-                if (video[0] == "youtube") {
-                    videoUrls.push("https://www.youtube.com/embed/" + video[1]);
-                }
-                if (video[0] == "vimeo") {
-                    videoUrls.push("https://player.vimeo.com/video/" + video[1]);
+            if (videos != undefined) {
+                for (let video of videos) {
+                    if (video[0] == "youtube") {
+                        videoUrls.push("https://www.youtube.com/embed/" + video[1]);
+                    }
+                    if (video[0] == "vimeo") {
+                        videoUrls.push("https://player.vimeo.com/video/" + video[1]);
+                    }
                 }
             }
-
             new BootstrapCarousel(videoUrls, video, "video");
 
             videoNavLink.onclick = videoOnClick();
@@ -390,10 +391,7 @@ export class SalesGroupViewer {
                 photoNavLink.className = "nav-link text-uppercase";
                 photoNavLink.setAttribute("aria-selected", "false");
                 photo.className = "tab-pane fade";
-
             }
-
-
 
         }
 
