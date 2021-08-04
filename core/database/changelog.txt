@@ -226,11 +226,7 @@ CREATE TABLE orders(
   total_tax FLOAT,
   total_shipping FLOAT,
   total_cart FLOAT,
-  approved CHAR(10),
-  approval_code CHAR(20),
-  session_flag CHAR(10),
   grand_total FLOAT,
-  transaction_date DATE,
   shipping_address varchar(127),
   shipping_city varchar(127),
   shipping_state varchar(127),
@@ -383,3 +379,16 @@ WHERE product="Large Panel Feedlot Tag"
 UPDATE products 
 SET details="4.25 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Priced at $2.20 per individual tag;Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers"
 WHERE product="Large Panel Feedlot Tag";
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`products` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+ALTER TABLE `example_db_1`.`product_discounts` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `discount_percentage`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`orders` 
+ADD COLUMN `stripe_payment_intent` VARCHAR(256) NULL DEFAULT NULL AFTER `discount`,
+ADD COLUMN `stripe_paid` TINYINT NULL DEFAULT NULL AFTER `stripe_payment_intent`;
