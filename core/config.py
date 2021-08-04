@@ -49,7 +49,9 @@ CSP = {
     ],
     'frame-ancestors': [
         'blocktrustnetwork.com',
-        'uscattletrace.org'
+        'uscattletrace.org',
+        'www.uscattletrace.org',
+        'www-uscattletrace-org.filesusr.com'
     ]
 }
 
