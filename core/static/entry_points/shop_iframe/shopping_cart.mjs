@@ -1,9 +1,20 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 $(document).ready(function() {
+    var shopCartString=localStorage.getItem('shoppingCart');
+    if(shopCartString==null){
+        window.location.href = '/external/shop/'+ partner_id;
+        return false;
+    }
     if(localStorage.shoppingCart){
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString);
+    var size = Object.keys(shopCart).length;
+    if(size==0){
+        //partner id has to be set in the parent page
+        window.location.href = '/external/shop/'+ partner_id;
+        return false;
+    }
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
         if(val.quantity===1){
