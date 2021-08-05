@@ -333,7 +333,6 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
       ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
     
 /* Nisheet Thakur 6/28/2021 */
-
 CREATE TABLE order_products(
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 `order` INT,
@@ -365,10 +364,12 @@ coupon_code VARCHAR(127),
 product INT,
 discount_percentage INT
 );
-
+SELECT id FROM products WHERE product = 'Strip Tag' INTO @product_id;
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
-VALUES ("USCT",4,50)
-,("USCT",5,20);
+VALUES ("USCT",@product_id,20);
+SELECT id FROM products WHERE product = 'Large Panel Tag' INTO @product_id;
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,50);
 
 /* Nisheet Thakur 8/4/2021 */
 
