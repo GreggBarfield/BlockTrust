@@ -1,4 +1,4 @@
-{% extends "outside/testemail/standard_USCT.html" %}
+{% extends "email/standard_USCT.html" %}
 
 {% block email_standard_center %}
 <head>
@@ -47,8 +47,8 @@
         <tr>    
             <td>{{value.product_name}}</td>
             <td>{{value.quantity}}</td>
-            <td>{{value.price}}</td>
-            <td>{{value.quantity*value.price}}</td>
+            <td>{{"$%.2f"|format(value.price)}}</td>
+            <td>{{"$%.2f"|format(value.quantity*value.price)}}</td>
         </tr>
         {% endfor %}
     </table>
@@ -56,23 +56,23 @@
     <table>
         <tr>
             <th>Total Price: </th>
-            <td>{{total_price}}</td>
+            <td>{{"$%.2f"|format(total_price|float)}}</td>
         </tr>
         <tr>
             <th>Total Tax: </th>
-            <td>{{total_tax}}</td>
+            <td>{{"$%.2f"|format(total_tax|float)}}</td>
         </tr>
         <tr>
             <th>Shipping: </th>
-            <td>{{shipping}}</td>
+            <td>{{"$%.2f"|format(shipping|float)}}</td>
         </tr>
         <tr>
             <th>Discount: </th>
-            <td>{{discount}}</td>
+            <td>-{{"$%.2f"|format(discount|float)}}</td>
         </tr>
         <tr>
             <th>Grand Total: </th>
-            <td>{{grand_total}}</td>
+            <td>{{"$%.2f"|format(grand_total|float)}}</td>
         </tr>
     </table>
 

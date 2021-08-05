@@ -26,17 +26,17 @@
                             </figcaption>
                         </figure>
                         <h4 class="text-center text-black">{{product.product}}</h4>
-                        <h5 class="text-center text-black">
+                        <h6 class="text-center text-black">
                             {% if product.id==4 %}
-                            <span><i>CattleTrace members: $35.20 for a Bag of 20</i></span>
+                            <span><i>Regular Price- $44.00/bag of 20 tags<br>U.S. CattleTrace Member Price- $35.20/bag of 20 tags</i></span>
                             {% endif %}
                             {% if product.id==5 %}
-                            <span><i>CattleTrace members: $35.40 for a Bag of 20</i></span>
+                            <span><i>Regular Price- $70.80/bag of 20 tags<br>U.S. CattleTrace Member Price- $35.40/bag of 20 tags</i></span>
                             {% endif %}
                             {% if product.id==6 %}
-                            <span><i>CattleTrace members: $44.00 for a Bag of 20</i></span>
+                            <span><i>Regular Price- $44.00/bag of 20 tags<br>U.S. CattleTrace Member Price- $44.00/bag of 20 tags</i></span>
                             {% endif %}
-                        </h5>
+                        </h6>
                     </li>
 
                     {% endfor %}
@@ -68,8 +68,7 @@
                                             <li>{{item}}</li>
                                             {% endfor %}
                                         </ul>
-                                            <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>${{product.price}}</b></span></p>
-        
+                                            <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>{{"$%.2f"|format(product.price|float)}}</b></span></p>
                                             <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>{{product.unit}}</b></span></p>
                                     </div>
                                 </div>
@@ -83,7 +82,7 @@
                                 <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
                                 <input class="form-control qty m-2 text-white input-lg" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                                 <div class="col-md-4 text-right">
-                                    <button type="submit" class="btn btn-outline-primary rectangle m-1">ADD TO CART</button>
+                                    <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                                 </div>
                             </form>
                     </div>

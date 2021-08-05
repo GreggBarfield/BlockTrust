@@ -84,7 +84,6 @@ def serve_external_paymentinfo(partner_id):
             g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-
         send_email(
             "Tag Store Purchase Summary",
             render_email("purchase_summary_customer.html", {
@@ -102,11 +101,10 @@ def serve_external_paymentinfo(partner_id):
                 'cart': cart
             }),
             # tags@blocktrustnetwork.com
-            "nisheet.thakur@blocktrustnetwork.com",
+            order_details["email"],
             override=True
         )
         # Sending email to seller including order ID
-        """
         send_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
@@ -124,10 +122,49 @@ def serve_external_paymentinfo(partner_id):
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
-            # cattletrace@fort-supply.com
-            "nisheet.thakur@blocktrustnetwork.com"
+            "cattletrace@fort-supply.com",
+            override=True
         )
-        """
+        send_email(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': order_id,
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            }),
+            "klangvardt@uscattletrace.org",
+            override=True
+        )
+        send_email(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': order_id,
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            }),
+            "gregg.barfield@ledgerspace.net",
+            override=True
+        )
         return jsonify({"redirect": "/external/invoice/"+partner_id})
     except ExportException as e:
         return jsonify({"error": str(e)})

@@ -26,7 +26,7 @@
 <div>
 <div class="col-sm-4 col-grid" style="background-color:#fff">
     <h4>Shipping Information: </h4>
-    Order ID: {{order_id}}
+    Order ID: {{order_id}}<br>
     Customer name: {{first}} {{last}}<br>
     Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
     <h4>Order Information: </h4>
@@ -41,8 +41,8 @@
         <tr>    
             <td>{{value.product_name}}</td>
             <td>{{value.quantity}}</td>
-            <td>{{value.price}}</td>
-            <td>{{value.quantity*value.price}}</td>
+            <td>{{"$%.2f"|format(value.price)}}</td>
+            <td>{{"$%.2f"|format(value.quantity*value.price)}}</td>
         </tr>
         {% endfor %}
     </table>
@@ -50,23 +50,23 @@
     <table>
         <tr>
             <th>Total Price: </th>
-            <td>{{total_price}}</td>
+            <td>{{"$%.2f"|format(total_price|float)}}</td>
         </tr>
         <tr>
             <th>Total Tax: </th>
-            <td>{{total_tax}}</td>
+            <td>{{"$%.2f"|format(total_tax|float)}}</td>
         </tr>
         <tr>
             <th>Shipping: </th>
-            <td>{{shipping}}</td>
+            <td>{{"$%.2f"|format(shipping|float)}}</td>
         </tr>
         <tr>
             <th>Discount: </th>
-            <td>{{discount}}</td>
+            <td>-{{"$%.2f"|format(discount|float)}}</td>
         </tr>
         <tr>
             <th>Grand Total: </th>
-            <td>{{grand_total}}</td>
+            <td>{{"$%.2f"|format(grand_total|float)}}</td>
         </tr>
     </table>
 

@@ -388,3 +388,11 @@ ADD COLUMN `partner_stripe_secret_key` VARCHAR(256) NULL DEFAULT NULL AFTER `par
 UPDATE accounts SET partner_stripe_publishable_key = 'pk_test_51ICSTOJVSPxeonkIN24Vg7xOuNmTaBkf6ZwTw9Fk47O32ly7P6d2s6IC2KtcMo8jDOg3vKCT4ZJi6oPiKp88WXbG001i4XduPe', 
 partner_stripe_secret_key = 'sk_test_51ICSTOJVSPxeonkI9eexQHujFaqh4Xv3YPrm0oT9xZ9cH6cSvL0U9HlW7hGamc6wmgnRUasKU4nKa58jVohZP6fj00VwnI58PB' 
 WHERE company = 'U.S. CattleTrace' AND is_partner=1;
+
+/* Nisheet Thakur 8/5/2021*/
+UPDATE products
+SET unit="Bags of 20 Each"
+WHERE product="Strip Tag" OR product="Large Panel Tag" OR product="Large Panel Feedlot Tag";
+UPDATE products 
+SET details="4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers;840 Compliant and serves as an official form of identification for USDA."
+WHERE product="Large Panel Tag"
