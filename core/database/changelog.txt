@@ -378,3 +378,11 @@ ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ALTER TABLE `example_db_1`.`orders` 
 ADD COLUMN `stripe_payment_intent` VARCHAR(256) NULL DEFAULT NULL AFTER `discount`,
 ADD COLUMN `stripe_paid` TINYINT NULL DEFAULT NULL AFTER `stripe_payment_intent`;
+
+/* Rohan Sureshkumar 8/5/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `partner_stripe_publishable_key` VARCHAR(256) NULL DEFAULT NULL AFTER `stripe_customer_id`,
+ADD COLUMN `partner_stripe_secret_key` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_stripe_publishable_key`;
+UPDATE accounts SET partner_stripe_publishable_key = 'pk_test_51ICSTOJVSPxeonkIN24Vg7xOuNmTaBkf6ZwTw9Fk47O32ly7P6d2s6IC2KtcMo8jDOg3vKCT4ZJi6oPiKp88WXbG001i4XduPe', 
+partner_stripe_secret_key = 'sk_test_51ICSTOJVSPxeonkI9eexQHujFaqh4Xv3YPrm0oT9xZ9cH6cSvL0U9HlW7hGamc6wmgnRUasKU4nKa58jVohZP6fj00VwnI58PB' 
+WHERE company = 'U.S. CattleTrace' AND is_partner=1;
