@@ -1,12 +1,13 @@
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
-
+from ..utilities.aws.aws import get_ses_client
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities import shop
 from ..utilities.email import send_email
+from ..utilities.email_tag_store import send_tag_store_email
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
@@ -84,7 +85,47 @@ def serve_external_paymentinfo(partner_id):
             g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-        send_email(
+        """
+        html = render_email("purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            })
+        get_ses_client().send_email(
+            Destination={
+                'ToAddresses': [
+                    order_details["email"],
+                ],
+            },
+            Message={
+                'Body': {
+                    'Html': {
+                        'Charset': "UTF-8",
+                        'Data': html,
+                    },
+                    'Text': {
+                        'Charset': "UTF-8",
+                        'Data': "Please use an email client that supports HTML email to view this email.",
+                    },
+                },
+                'Subject': {
+                    'Charset': "UTF-8",
+                    'Data': "Tag Store Purchase Summary",
+                },
+            },
+            Source="U.S. CattleTrace Purchase <info@uscattletrace.org>"
+        )
+        """
+        send_tag_store_email(
             "Tag Store Purchase Summary",
             render_email("purchase_summary_customer.html", {
                 'first': order_details["first_name"],
@@ -100,12 +141,11 @@ def serve_external_paymentinfo(partner_id):
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
-            # tags@blocktrustnetwork.com
-            order_details["email"],
-            override=True
+            order_details["email"]
         )
         # Sending email to seller including order ID
-        send_email(
+        """
+        send_tag_store_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
                 'order_id': order_id,
@@ -122,10 +162,9 @@ def serve_external_paymentinfo(partner_id):
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
-            "cattletrace@fort-supply.com",
-            override=True
+            "cattletrace@fort-supply.com"
         )
-        send_email(
+        send_tag_store_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
                 'order_id': order_id,
@@ -142,10 +181,9 @@ def serve_external_paymentinfo(partner_id):
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
-            "klangvardt@uscattletrace.org",
-            override=True
+            "klangvardt@uscattletrace.org"
         )
-        send_email(
+        send_tag_store_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
                 'order_id': order_id,
@@ -162,9 +200,9 @@ def serve_external_paymentinfo(partner_id):
                 'shipping_zip_code': shipping_zip_code,
                 'cart': cart
             }),
-            "gregg.barfield@ledgerspace.net",
-            override=True
+            "gregg.barfield@ledgerspace.net"
         )
+        """
         return jsonify({"redirect": "/external/invoice/"+partner_id})
     except ExportException as e:
         return jsonify({"error": str(e)})

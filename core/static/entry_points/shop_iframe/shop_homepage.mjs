@@ -70,7 +70,7 @@ $( ".form-inline" ).submit(function( event ) {
     }
     }
     total_discount=Math.round(total_discount*100)/100;
-    var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
+    var total_tax=Math.round((total_price-total_discount)*0.065*100)/100;
     // Grand total after adding total price, total tax and shipping
     var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
     localStorage.setItem('totalPrice', total_price);
