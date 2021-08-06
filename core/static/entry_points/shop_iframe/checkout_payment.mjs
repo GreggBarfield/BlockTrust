@@ -1,5 +1,3 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
-
 var subTotal=parseFloat(localStorage.getItem('totalPrice'));
 var subTotalDisplay=subTotal.toFixed(2);
 var ship=parseFloat(localStorage.getItem('shipping'));
@@ -15,13 +13,16 @@ $("#shipping").text(shipDisplay);
 $("#tax").text(taxDisplay);
 $("#discount").text(discountDisplay);
 $("#grandTotal").text(grandTotalDisplay);
+$("#grand-total-warning-text").text(localStorage.getItem('grandTotal')) 
 
-let paymentForm = $("#payment_form");
+let paymentForm = $("#payment-form");
 let statusMessage = paymentForm.find("#payment_status_message");
 let errorMessage = paymentForm.find("#payment_error_message");
 let orderDetailsString=""
 if(localStorage.orderDetails){
-    orderDetailsString=localStorage.getItem("orderDetails")
+    orderDetailsString=localStorage.getItem("orderDetails") 
+    let orderDetails = JSON.parse(orderDetailsString)
+    $("#name").val(orderDetails['first_name'] + " " + orderDetails['last_name'])
 }
 
 let requestRedirectTo = null;
@@ -31,46 +32,135 @@ if (paymentForm[0].hasAttribute("request_redirect_to")) {
 }
 
 
-let form = new AsyncForm({
-    action: "/external/checkout_payment/" + partner_id,
-    form: paymentForm[0],
-    status: statusMessage[0],
-    error: errorMessage[0],
-    redirectMessage: "Payment successfull!",
-    loadingMessage: "Hang on, we're processing your payment...",
-    getData: () => {
-        return {
-            card_type: paymentForm.find("input[name='card-type']").val(),
-            card_number: paymentForm.find("input[name='card-number']").val(),
-            exp_month: paymentForm.find("input[name='exp-month']").val(),
-            exp_year: paymentForm.find("input[name='exp-year']").val(),
-            cvv: paymentForm.find("input[name='cvv']").val(),
-            address_checkbox: paymentForm.find("input[name='same_address']").val(),
-            shipping_address_line: paymentForm.find("input[name='address']").val(),
-            shipping_city: paymentForm.find("input[name='city']").val(),
-            shipping_state: paymentForm.find("input[name='state']").val(),
-            shipping_zip_code: paymentForm.find("input[name='zip_code']").val(),
-            order_details: orderDetailsString
+document.addEventListener('DOMContentLoaded', async () => {
+    const {publishableKey} = await fetch('/stripe/config/'+partner_id).then((r) => r.json());
+    if (!publishableKey) {
+      addMessage(
+        'No publishable key returned from the server. Please contact system administrator'
+      );
+      alert('Something is wrong. Please contact system administrator');
+    }
+  
+    const stripe = Stripe(publishableKey);
+    // , {
+    //     apiVersion: '2020-08-27',
+    //   }
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    card.mount('#card-element');
+  
+    const form = document.getElementById('payment-form');
+    let submitted = false;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      // Disable double submission of the form
+      if(submitted) { return; }
+      submitted = true;
+      form.querySelector('button').disabled = true;
+      form.querySelector('button').textContent = "Processing...";
+      
+    // Make a call to the server to create a new order
+    const {error, orderId} = await fetch(
+        '/external/create-order',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderDetails: localStorage.getItem("orderDetails"),
+          }),
         }
-    },
-    requestRedirectTo: requestRedirectTo
-});
+      ).then((r) => r.json());
+    
+      if (error) {
+        addMessage(error);
+  
+        // reenable the form.
+        submitted = false;
+        form.querySelector('button').disabled = false;
+        form.querySelector('button').textContent = "Pay";
+        return;
+      }
 
-$(document).ready(function(){
-    var orderDetailsString=localStorage.getItem('orderDetails');
-    var orderDetails=JSON.parse(orderDetailsString)
-    $("input[name='same_address']").click(function(){
-        if($(this).is(":checked")){
-            $("#address").val(orderDetails.address_line).trigger("change"); 
-            $("#city").val(orderDetails.city);
-            $("#state").val(orderDetails.state);
-            $("#zip_code").val(orderDetails.zip_code);
+      // Make a call to the server to create a new payment intent and store its client_secret.
+      const {error: backendError, clientSecret} = await fetch(
+        '/stripe/create-payment-intent/'+partner_id,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            currency: 'usd',
+            paymentMethodType: 'card',
+            amount: localStorage.getItem('grandTotal'),
+            orderId: orderId
+          }),
         }
-        else if($(this).is(":not(:checked)")){
-            $("#address").val("").trigger("change"); 
-            $("#city").val("");
-            $("#state").val("");
-            $("#zip_code").val("");
+      ).then((r) => r.json());
+  
+      if (backendError) {
+        addMessage(backendError.message);
+  
+        // reenable the form.
+        submitted = false;
+        form.querySelector('button').disabled = false;
+        form.querySelector('button').textContent = "Pay";
+        return;
+      }
+  
+      const nameInput = document.querySelector('#name');
+  
+      // Confirm the card payment given the clientSecret from the payment intent that was just created on the server
+      const {error: stripeError, paymentIntent} = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: card,
+            billing_details: {
+              name: nameInput.value,
+            },
+          },
         }
+      );
+  
+      if (stripeError) {
+        addMessage(stripeError.message);
+  
+        // reenable the form.
+        submitted = false;
+        form.querySelector('button').disabled = false;
+        form.querySelector('button').textContent = "Pay";
+        return;
+      }
+  
+      if(paymentIntent.status === 'succeeded'){
+        //Not using the error or success here. Just sending the POST request
+        const {error, success} = await fetch(
+          '/external/update-order',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              orderId: orderId,
+              paymentIntent: paymentIntent.id,
+              orderDetails: localStorage.getItem("orderDetails")
+            }),
+          }
+        ).then((r) => r.json());
+      }
+      form.querySelector('button').textContent = "Paid! Redirecting...";
+      //partner_id must be set in the parent page
+      window.location.href = '/external/invoice/'+partner_id;
     });
-});
+  });
+  
+  const addMessage = (message) => {
+    const messagesDiv = document.querySelector('#messages');
+    messagesDiv.style.display = 'block';
+    messagesDiv.innerHTML += `${message}<br>`;
+    console.log(`Debug: ${message}`);
+  };

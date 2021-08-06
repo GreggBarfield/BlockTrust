@@ -39,3 +39,36 @@ def send_email(subject, html, to_address, override=False):
             },
             Source=EMAIL_SENDER
         )
+
+    
+def send_email_to_many(subject, html, to_addresses):
+    """Sends an email.
+    Params:
+        subject: Subject for the email which needs to be sent
+        html: The file which needs to be displayed as a part of the email body
+        to_address: The list of email addresses to which the email is being sent
+    Raises:
+        botocore.exceptions.ClientError on failure
+    """
+    get_ses_client().send_email(
+        Destination={
+            'BccAddresses': to_addresses,
+        },
+        Message={
+            'Body': {
+                'Html': {
+                    'Charset': "UTF-8",
+                    'Data': html,
+                },
+                'Text': {
+                    'Charset': "UTF-8",
+                    'Data': "Please use an email client that supports HTML email to view this email.",
+                },
+            },
+            'Subject': {
+                'Charset': "UTF-8",
+                'Data': subject,
+            },
+        },
+        Source=EMAIL_SENDER
+    )
