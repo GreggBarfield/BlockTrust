@@ -9,7 +9,16 @@ export class CertificatesWidget extends Widget {
         this.frame.innerHTML = "";
         this.getData(
             "update_certificates",
-            {}
+            {
+                request: {
+                    type: 'matches_by_eids',
+                    params: {
+                        eids: [this.animal],
+                        ljoin_account_links: true,
+                        types: ["Medical"]
+                    }
+                }
+            }
         ).then((data)=>
         {
             this.data=data;
