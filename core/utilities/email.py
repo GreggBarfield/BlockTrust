@@ -40,7 +40,7 @@ def send_email(subject, html, to_address, override=False):
             Source=EMAIL_SENDER
         )
 
-    
+
 def send_email_to_many(subject, html, to_addresses):
     """Sends an email.
     Params:

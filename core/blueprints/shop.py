@@ -6,7 +6,7 @@ from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities import shop
-from ..utilities.email_tag_store import send_tag_store_email
+from ..utilities.email_tag_store import send_tag_store_email, send_multiple_tag_store_email
 from ..utilities.email import send_email, send_email_to_many
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
@@ -59,16 +59,16 @@ def create_order():
         order_details = eval(data["orderDetails"])
         # Adding order to orders table and getting current order id from orders table
         order_id = g.db.orders.add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
-          order_details["zip_code"])
+        order_details["zip_code"])
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-             g.db.order_products.add_order_product(order_id, key, value["quantity"])
+            g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         return {"orderId": order_id}
     except Exception as e:
-         return {"error": str(e)}, 400
+        return {"error": str(e)}, 400
 
 
 @bp.route('/external/update-order', methods=['POST'])
@@ -117,10 +117,53 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"])
             }),
             ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
-        )       
-        return {"success":True}
+        )
+        
+        """
+        # Please use these functions to send tag store emails as the sender email is "info@uscattletrace.org"
+        # Once payment goes through sending email to confirm order to buyer
+        send_tag_store_email(
+            "Tag Store Purchase Summary",
+            render_email("purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            }),
+            order_details["email"]
+        )
+        # Once payment goes through sending email to confirm order to seller
+        send_multiple_tag_store_email(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': order_id,
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': shipping_address_line,
+                'shipping_city': shipping_city,
+                'shipping_state': shipping_state,
+                'shipping_zip_code': shipping_zip_code,
+                'cart': cart
+            }),
+            ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+        )
+        """
+        return {"success": True}
     except Exception as e:
-         return {"error": str(e)}, 400
+        return {"error": str(e)}, 400
 
 
 @bp.route('/external/checkout/<partner_id>', methods=['GET'])
@@ -156,124 +199,6 @@ def serve_external_paymentinfo(partner_id):
             g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
-        """
-        html = render_email("purchase_summary_customer.html", {
-                'first': order_details["first_name"],
-                'last': order_details["last_name"],
-                'total_price': order_details["total_price"],
-                'total_tax': order_details["total_tax"],
-                'discount': order_details["discount"],
-                'shipping': order_details["shipping"],
-                'grand_total': order_details["grand_total"],
-                'shipping_address_line': shipping_address_line,
-                'shipping_city': shipping_city,
-                'shipping_state': shipping_state,
-                'shipping_zip_code': shipping_zip_code,
-                'cart': cart
-            })
-        get_ses_client().send_email(
-            Destination={
-                'ToAddresses': [
-                    order_details["email"],
-                ],
-            },
-            Message={
-                'Body': {
-                    'Html': {
-                        'Charset': "UTF-8",
-                        'Data': html,
-                    },
-                    'Text': {
-                        'Charset': "UTF-8",
-                        'Data': "Please use an email client that supports HTML email to view this email.",
-                    },
-                },
-                'Subject': {
-                    'Charset': "UTF-8",
-                    'Data': "Tag Store Purchase Summary",
-                },
-            },
-            Source="U.S. CattleTrace Purchase <info@uscattletrace.org>"
-        )
-        """
-        send_tag_store_email(
-            "Tag Store Purchase Summary",
-            render_email("purchase_summary_customer.html", {
-                'first': order_details["first_name"],
-                'last': order_details["last_name"],
-                'total_price': order_details["total_price"],
-                'total_tax': order_details["total_tax"],
-                'discount': order_details["discount"],
-                'shipping': order_details["shipping"],
-                'grand_total': order_details["grand_total"],
-                'shipping_address_line': shipping_address_line,
-                'shipping_city': shipping_city,
-                'shipping_state': shipping_state,
-                'shipping_zip_code': shipping_zip_code,
-                'cart': cart
-            }),
-            order_details["email"]
-        )
-        # Sending email to seller including order ID
-        """
-        send_tag_store_email(
-            "New order summary",
-            render_email("purchase_summary_seller.html", {
-                'order_id': order_id,
-                'first': order_details["first_name"],
-                'last': order_details["last_name"],
-                'total_price': order_details["total_price"],
-                'total_tax': order_details["total_tax"],
-                'discount': order_details["discount"],
-                'shipping': order_details["shipping"],
-                'grand_total': order_details["grand_total"],
-                'shipping_address_line': shipping_address_line,
-                'shipping_city': shipping_city,
-                'shipping_state': shipping_state,
-                'shipping_zip_code': shipping_zip_code,
-                'cart': cart
-            }),
-            "cattletrace@fort-supply.com"
-        )
-        send_tag_store_email(
-            "New order summary",
-            render_email("purchase_summary_seller.html", {
-                'order_id': order_id,
-                'first': order_details["first_name"],
-                'last': order_details["last_name"],
-                'total_price': order_details["total_price"],
-                'total_tax': order_details["total_tax"],
-                'discount': order_details["discount"],
-                'shipping': order_details["shipping"],
-                'grand_total': order_details["grand_total"],
-                'shipping_address_line': shipping_address_line,
-                'shipping_city': shipping_city,
-                'shipping_state': shipping_state,
-                'shipping_zip_code': shipping_zip_code,
-                'cart': cart
-            }),
-            "klangvardt@uscattletrace.org"
-        )
-        send_tag_store_email(
-            "New order summary",
-            render_email("purchase_summary_seller.html", {
-                'order_id': order_id,
-                'first': order_details["first_name"],
-                'last': order_details["last_name"],
-                'total_price': order_details["total_price"],
-                'total_tax': order_details["total_tax"],
-                'discount': order_details["discount"],
-                'shipping': order_details["shipping"],
-                'grand_total': order_details["grand_total"],
-                'shipping_address_line': shipping_address_line,
-                'shipping_city': shipping_city,
-                'shipping_state': shipping_state,
-                'shipping_zip_code': shipping_zip_code,
-                'cart': cart
-            }),
-            "gregg.barfield@ledgerspace.net"
-        )
-        """
         return jsonify({"redirect": "/external/invoice/"+partner_id})
     except ExportException as e:
         return jsonify({"error": str(e)})
