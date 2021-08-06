@@ -76,6 +76,12 @@ class Account:
     def stripe_customer_id(self):
         return self._row['stripe_customer_id']
 
+    def partner_stripe_publishable_key(self):
+        return self._row['partner_stripe_publishable_key']
+
+    def partner_stripe_secret_key(self):
+        return self._row['partner_stripe_secret_key']
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
