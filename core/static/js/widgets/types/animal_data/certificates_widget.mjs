@@ -15,7 +15,7 @@ export class CertificatesWidget extends Widget {
                     params: {
                         eids: [this.animal],
                         ljoin_account_links: true,
-                        types: ["Medical"]
+                        types: ["Medical","Weaned","First Birth"]
                     }
                 }
             }
