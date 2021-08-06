@@ -6,12 +6,12 @@ from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities import shop
-from ..utilities.email import send_email
 from ..utilities.email_tag_store import send_tag_store_email
+from ..utilities.email import send_email, send_email_to_many
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
-
+import json
 
 bp = Blueprint('shop_bp', __name__)
 
@@ -50,6 +50,77 @@ def serve_apply_coupon():
         return jsonify({"discount_percentages": discount_percentages})
     except ProductDiscountException as e:
         return jsonify({"error": str(e)})
+
+@bp.route('/external/create-order', methods=['POST'])
+def create_order():
+    try:
+        data = json.loads(request.data)
+
+        order_details = eval(data["orderDetails"])
+        # Adding order to orders table and getting current order id from orders table
+        order_id = g.db.orders.add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
+          order_details["zip_code"])
+        # Getting the cart details
+        cart = eval(order_details['shoppingCart'])
+        # Adding product data and quantities to the OrderProducts table
+        for key, value in cart.items():
+             g.db.order_products.add_order_product(order_id, key, value["quantity"])
+
+        return {"orderId": order_id}
+    except Exception as e:
+         return {"error": str(e)}, 400
+
+
+@bp.route('/external/update-order', methods=['POST'])
+def update_order():
+    try:
+        data = json.loads(request.data)
+        # Updating the orders table if payment goes through
+        g.db.orders.update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+
+        order_details = eval(data["orderDetails"])
+        send_email(
+            "Tag Store Purchase Summary",
+            render_email("purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': eval(order_details["shoppingCart"])
+            }),
+            # tags@blocktrustnetwork.com
+            order_details["email"],
+            override=True
+        )
+        send_email_to_many(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': data["orderId"],
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': eval(order_details["shoppingCart"])
+            }),
+            ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+        )       
+        return {"success":True}
+    except Exception as e:
+         return {"error": str(e)}, 400
 
 
 @bp.route('/external/checkout/<partner_id>', methods=['GET'])

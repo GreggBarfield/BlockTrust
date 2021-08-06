@@ -7,54 +7,36 @@
 {% block outside_content %}
 <section style="background-color: white;">
     <section id="checkout" class="bg-white">
-        <h3 style="text-align:center">PAYMENT AND SHIPPING</h3>
         <div class="container">
             <div class="row checkout-screen">
                 <div class="col-md-9">
                     <h4>PAYMENT DETAILS</h4>
-                    <form id="payment_form" method="POST" request_redirect_to="{{ redirect_to }}">
-                    <div class="row">
-                    <div class="col-md-6 sub-col-left">
-                        <input type="text" class="form-control mb-3" name="card-type" placeholder="Card Type" required="">
-                    </div>
-                    <div class="col-md-6 sub-col-right">
-                        <input type="text" class="form-control mb-3" name="card-number" placeholder="Card Number" required="">
-                    </div>
-                     </div>
-
-                    <div class="row">
-                    <div class="col-md-3 sub-col-left">
-                        <input type="text" class="form-control mb-3" name="exp-month" placeholder="Exp Month" required="">
-                    </div>
-                    <div class="col-md-3 sub-col-right">
-                        <input type="text" class="form-control mb-3" name="exp-year" placeholder="Exp Year" required="">
-                    </div>
-                    <div class="col-md-3 sub-col-right">
-                        <input type="text" class="form-control mb-3" name="cvv" placeholder="CVV" required="">
-                    </div>
-                    </div>
-                    <h4>SHIPPING ADDRESS</h4>
-                    <p><input type="checkbox" id="same_address" name="same_address">&nbsp;Check this if shipping address is same as billing address</p>
-                    <div class="row">
-                        <div class="col-md-6 sub-col-left">
-                            <input type="text" class="form-control mb-3" name="address" placeholder="Address" id="address" required>
+                    <h5 class="text-warning"><strong> You will be charged: $<span id="grand-total-warning-text"></span></strong></h5>
+                    <form id="payment-form" method="POST" request_redirect_to="{{ redirect_to }}">
+                        <div class="form-row">                        	
+                            <div class="form-group col-md-6">                          
+                                <label for="name">
+                                    Name
+                                </label>
+                                <input id="name" placeholder="John Doe" value="{{name}}" required />
+                            </div>
                         </div>
-                        <div class="col-md-6 sub-col-right">
-                            <input type="text" class="form-control mb-3" name="city" placeholder="City" id="city" value="" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 sub-col-left">
-                            <input type="text" class="form-control mb-3" name="state" placeholder="State" id="state" value="" required>
-                        </div>
-                        <div class="col-md-6 sub-col-right">
-                            <input type="text" class="form-control mb-3" name="zip_code" placeholder="Zip Code" id="zip_code" value="" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary rectangle m-1">CHECKOUT</button>
-                    <p class="mt-2 mb-0" id="payment_status_message" style="display:none;">Hang on, submitting your payment...</p>
-                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="payment_error_message">Payment error...</p>
-                </form>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="card-element">
+                                    Credit Card
+                                </label>
+                                <div id="card-element">
+                                <!-- Elements will create input elements here -->
+                                </div>
+                            </div>
+                            <!-- We'll put the error messages in this element -->                       
+                            <div id="card-errors" role="alert"></div>    	
+                        </div>               	
+                        <button id="submit" class="btn btn-outline-primary rectangle mt-2">Pay</button>
+                    </form>
+                    <br/>
+                    <div id="messages" class="alert alert-danger" style="display: none;"></div> 
                 </div>
 
                 <div class="col-md-3 cart-total">
@@ -81,6 +63,7 @@
         </div>
     </section>
 </section>
+<script src="https://js.stripe.com/v3/"></script> 
 <script type="text/javascript">
     var partner_id = '{{ partner_id }}'
 </script>
