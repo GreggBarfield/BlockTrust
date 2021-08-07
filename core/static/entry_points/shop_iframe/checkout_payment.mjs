@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         ).then((r) => r.json());
       }
-      form.querySelector('button').textContent = "Paid! Redirecting...";
+      form.querySelector('button').textContent = "Success! Redirecting...";
       //partner_id must be set in the parent page
       window.location.href = '/external/invoice/'+partner_id;
     });
