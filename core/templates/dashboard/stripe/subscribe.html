@@ -1,0 +1,24 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Subscribe" %}
+{% set dashboard_locations = [("/dashboard/subscribe", "Subscribe")] %}
+
+{% block dashboard_content_header %}
+Subscribe
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<script src="https://js.stripe.com/v3/"></script>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Subscribe</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="subscribe"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

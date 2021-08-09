@@ -16,6 +16,9 @@ import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_
 import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match_visibility_settings_widget.mjs';
 import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
+import { PlansWidget } from './types/stripe/plans.mjs';
+import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 
 
 // Immediately invoked
@@ -48,6 +51,9 @@ import { InfoModal } from '../core/info_modal.mjs';
     attach("view upcoming auction sales", ViewUpcomingAuctionsWidget);
     attach("match visibility settings", MatchVisibilitySettingsWidget);
     attach("source summary", SourceSummaryWidget);
+    attach("plans", PlansWidget);
+    attach("subscribe", SubscribeWidget);
+    attach("sustainability questionaire", SustainabilityQuestionaireWidget);
 
     // Find widgets
     $(".widget").each(function () {

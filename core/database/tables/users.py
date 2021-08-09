@@ -1,5 +1,10 @@
 from ..objects.user import User
+from .. import database
+import bcrypt
+from ..no_value import NoValue
+from ..frag import frag
 
+NO_VALUE = NoValue()
 
 class UsersException(Exception):
     """Generic user exception."""
@@ -20,7 +25,7 @@ class NoUserFoundException(UsersException):
 
 class Users:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def get(self, user_id):
@@ -122,6 +127,55 @@ class Users:
         )
         return rows
 
+    def verify_email(self, email):
+        """
+            Confirms a user profile and marks it as verified
+
+            Params:
+            email: User email to be verified
+
+            Returns:
+            None
+            """
+
+        self._db.execute_d(
+                """
+                UPDATE users
+                SET email_verified="Y"
+                WHERE users.email=%(email)s
+                """,
+                {
+                    "email": email
+                }
+                )
+
+    def get_email_verified_status(self, email):
+        """
+        Confirms if the user email is verified
+
+        Params:
+            email:User email which needs to be looked up for verification status
+
+        Returns:
+            True if user is verified. False if not verified.
+        """
+        matching_user = self._db.execute_d(
+            """
+                SELECT * FROM users
+                WHERE
+                    email=%(email)s
+            """,
+            {
+                "email": Users._format_field(email)
+            }
+        )
+        if len(matching_user) != 1:
+            raise NoUserFoundException()
+        if matching_user[0]['email_verified'] == "Y":
+            return True
+        else:
+            return False
+
     @staticmethod
     def _format_field(field):
         """Format a user info field.
@@ -133,4 +187,251 @@ class Users:
             raise ValueError("field can't be None")
         if b'\x00' in field.encode("utf-8"):
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
-        return field.strip(" \n\r\t")
+        field.strip(" \n\r\t")
+        return field if field != '' else None
+    
+    
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
+        """Creates a new user
+
+        Params:
+            username: username to login
+            password: password to login
+            email: email of the user
+            first_name: first name of the user
+            last_name: last name of the user
+            phone: phone of the user
+            email_verified: is email verified
+        
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+        
+        # Correct symbols
+        # This is VERY IMPORTANT, otherwise auth.login() could have difficulties
+        # if someone uses an integer for a username for example.
+
+        # Username must exist, not be all digits (so it does't look like an ID),
+        # be in proper char set
+        # and not contain an '@' (so it doesn't look like an email)
+        # (the '@' is just an explicit check)
+
+        if '@' in username:
+            raise UsersException("'@' cannot be in the username.")
+
+        # Confusing when a user gets ' ' cannot be in username, so be more specific with spaces
+        if ' ' in username:
+            raise UsersException("Spaces cannot be in the username.")
+        if len(username) == 0:
+            raise UsersException("Username is blank.")
+        # Double-usage
+        try:
+            self.get_by_username(username)
+            raise UsersException("Username is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        all_digits = True
+        for c in username:
+            if c not in digits:
+                all_digits = False
+
+        if all_digits:
+            raise UsersException("Username cannot be all digits.")
+
+        valid_chars = (
+            digits +  # Digits
+            ''.join(chr(ord('a') + i) for i in range(26)) +  # Lowercase chars
+            ''.join(chr(ord('A') + i) for i in range(26)) +  # Uppercase chars
+            '_'  # Other
+        )
+
+        for c in username:
+            if c not in valid_chars:
+                raise UsersException("Invalid character '" + c + "' in username.")
+
+        # Email must exist and contain an '@'
+
+        if len(email) == 0:
+            raise UsersException("Email is blank.")
+        if '@' not in email or '.' not in email or len(email) < 5:
+            raise UsersException("The email you entered is incomplete.")
+        # Double-usage
+        try:
+            self.get_by_email(email)
+            raise UsersException("Email is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # Password must be at least 10 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(password) < 10:
+            raise UsersException("Password must be at least 10 characters.")
+
+        if len(password.encode("utf-8")) > 60:
+            raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        # Process phone number
+
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
+        
+        # We don't really care whether or not the phone is being used more than once
+
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, email, phone, first, last, email_verified)
+                    VALUES
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first)s, %(last)s, %(email_verified)s)
+            """,
+            {
+                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "username": username,
+                "phone": phone,
+                "email": email,
+                "first": first_name,
+                "last": last_name,
+                "email_verified": email_verified
+            }
+        )
+        user = self.get_by_username(username)
+        return user
+
+    def  update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
+        """Updates user information.
+
+        Params:
+            username: This is the user id, just the user can see it
+            email: email address of user,just the user can see it
+            password: This is corresponding password used to login
+            phone: phone number of user
+            first: first name of the user.
+            last: last name of the user.
+        Returns:
+            None
+        
+        Raises:
+            UsersException
+
+        """
+        username = Users._format_field(username)
+
+        password = Users._format_field(password)
+        if password != None and len(password) > 0:
+            if len(password) < 10:
+                raise UsersException("Password must be at least 10 characters.")
+
+            if len(password.encode("utf-8")) > 60:
+                raise UsersException("Your password is too long.")
+
+            if (password != confirm_password):
+                raise UsersException("Password and Confirm password are not the same!")
+        else:
+            password=NO_VALUE
+
+        # Process phone number
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
+        
+        set_frags = frag()
+        if first is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "first=:first,",
+                             first=first
+                        )           
+        if last is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "last=:last,",
+                             last=last
+                        )
+        if phone is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "phone=:phone,",
+                             phone=phone
+                        )
+        if password is not NO_VALUE:
+            set_frags = frag(
+                            set_frags, 
+                            "password=:password,",
+                            password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                        )
+        
+        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
+            #check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1],set_frags[1])
+
+            self._db.exec_frag(   
+                frag(
+                    "UPDATE users SET",
+                    set_frags,
+                    frag(
+                        "WHERE username=:username",
+                         username= username
+                    )               
+                )
+            )
+
+    def is_user_deletable(self, user):
+        """This runs checks to find if a user record is deletable.
+
+        Params:
+            id: The user object
+
+        Returns:
+            True Or False
+        """
+        account_users = self._db.account_users.get_by_user(user)
+        if len(account_users) > 0:
+            return False
+        else:
+            return True
+
+    def delete_by_user(self, user):
+        """Delete a user record if it is deletable
+
+        Params:
+            user: The user's object
+
+        Returns:
+            True if success else False
+        """
+        if self.is_user_deletable(user):
+            self._db.execute_d(
+                """
+                    DELETE FROM users
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": user.id()
+                }
+            )
+
+        

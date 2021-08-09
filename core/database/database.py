@@ -1,3 +1,4 @@
+from core.database.tables.sustainability import Sustainability
 import mysql.connector as mysql
 from mysql.connector.errors import Error
 
@@ -8,7 +9,6 @@ from .tables.users import Users
 from .tables.matches import Matches
 from .tables.animals import Animals
 from .tables.sales_groups import SalesGroups
-from .tables.sales_group_eids import SalesGroupEIDs
 from .tables.sales_group_intervals import SalesGroupIntervals
 from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
@@ -16,6 +16,9 @@ from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
 from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
+from .tables.eid_groups import EIDGroups
+from .tables.sustainability import Sustainability
+from .tables.partners import Partners
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -47,13 +50,14 @@ class Database:
         self.animals = Animals(self)
         self.account_links = AccountLinks(self)
         self.sales_groups = SalesGroups(self)
-        self.sales_group_eids = SalesGroupEIDs(self)
         self.files = Files(self)
         self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
+        self.eid_groups = EIDGroups(self)
+        self.sustainability = Sustainability(self)
 
     def connect(self):
         try:

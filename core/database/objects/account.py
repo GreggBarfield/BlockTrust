@@ -30,26 +30,43 @@ class Account:
 
     def id(self):
         return self._row['id']
-    
 
     def name(self):
         return self._row['name']
 
-
     def company(self):
         return self._row['company']
-
 
     def token(self):
         return self._row['token']
 
-
     def sector_id(self):
         return self._row['sector']
 
-
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
+
+    def partner(self):
+        return self._row['partner_account']
+
+    def affiliate_id(self):
+        return self._row['affiliate_id']
+
+
+    def city(self):
+        return self._row['city']
+
+
+    def state(self):
+        return self._row['state']
+
+
+    def zip(self):
+        return self._row['zip']
+
+
+    def phone(self):
+        return self._row['phone']
 
 
     def stripe_paid(self):
@@ -68,27 +85,36 @@ class Account:
         return self._row['stripe_customer_id']
 
 
-    def add_user(self, user):
+    def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
         Params:
             user: a User object to add
         """
         try:
-            self._db.account_users.add_user_to_account(user, self)
+            self._db.account_users.add_user_to_account(user, self, is_admin)
         except AccountUsersException as e:
-            raise AccountException("Failed to add link: " + str(e))
-
+            raise AccountException("Failed to add user to the account: " + str(e))
 
     def account_links(self, allow_cache=True):
         """Get account's account links
 
         Params:
             allow_cache: Allow this to come from the cache (default True)
-        
+
         Returns:
             a (possibly empty) list of AccountLink objects
         """
         if not allow_cache or not self._account_links:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
+
+    def update_account_links(self):
+        """Update the account links table with the matching account 
+
+         Returns:
+            None
+        """
+        if self.partner() != None and self.affiliate_id() != None:
+            self._db.account_links.add_account_to_account_link(self.partner(), self.affiliate_id(), self.id())
+      
