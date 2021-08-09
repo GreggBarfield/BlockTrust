@@ -4,9 +4,10 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-
-SESSION_USER_ID_VAR = "user_id"
-SESSION_ACCOUNT_ID_VAR = "account_id"
+#since session objects are easily decoded, we use key names which make no sense
+SESSION_USER_ID_VAR = "abc"
+SESSION_ACCOUNT_ID_VAR = "def"
+SESSION_IS_ADMIN_VAR = "ghi"
 
 
 class AuthException(Exception):
@@ -52,6 +53,19 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
+class PasswordChangeFailedException(AuthException):
+    """Password Change failed."""
+    def __init__(self, reason):
+        """Constructor for PasswordChangeFailedException.
+
+        Params:
+            reason: The reason why password could not be changed.
+                This will likely end up getting printed to the user,
+                so be careful.
+        """
+        super().__init__(reason)
+
+
 def session_open():
     """Load session into app context."""
     session_open_user()
@@ -71,9 +85,11 @@ def session_start_account(account_id):
     """
     g.account = None
     session[SESSION_ACCOUNT_ID_VAR] = ""
+    session[SESSION_IS_ADMIN_VAR] = ""
     attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
     if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
         session[SESSION_ACCOUNT_ID_VAR] = account_id
+        session[SESSION_IS_ADMIN_VAR] = attempt_login.is_admin()
         session_open_account()
 
 
@@ -92,24 +108,32 @@ def session_open_account():
     g.account = None
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
         g.account = g.db.accounts.get_by_id(session[SESSION_ACCOUNT_ID_VAR])
+        if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
+            # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
+            # role and therefore assuming is_admin will not change during an active session
+            g.is_admin = session[SESSION_IS_ADMIN_VAR]
     else:
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first, last, password, confirm_password):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code):
     """Create new user account.
 
     Params:
         username: new username
         email: new email
-        phone: new phone number (must be at least blank string)
+        phone: company phone number (must be at least blank string)
         first: first name
         last: last name (must be at least blank string)
         password: password
         confirm_password: the confirmed password
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
-
+        company: company name
+        affiliate_id: affliate id
+        city: city
+        state: state
+        zip: zip
     Returns:
         Nothing
 
@@ -119,118 +143,54 @@ def signup(username, email, phone, first, last, password, confirm_password):
     username = Users._format_field(username)
     email = Users._format_field(email)
     phone = Users._format_field(phone)
-    first = Users._format_field(first)
-    last = Users._format_field(last)
+    first_name = Users._format_field(first_name)
+    last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
+    company = Users._format_field(company)
+    partner = Users._format_field(partner)
+    affiliate_id = Users._format_field(affiliate_id)
+    sector = Users._format_field(sector)
+    address = Users._format_field(address)
+    city = Users._format_field(city)
+    state = Users._format_field(state)
+    zip_code = Users._format_field(zip_code)
 
-    # Double-usage
-
-    try:
-        g.db.users.get_by_email(email)
-        raise SignupFailedException("Email is already being used.")
-    except NoUserFoundException:
-        pass
-
-    try:
-        g.db.users.get_by_username(username)
-        raise SignupFailedException("Username is already being used.")
-    except NoUserFoundException:
-        pass
-
-    # We don't really care whether or not the phone is being used more than once
-
-    # Correct symbols
-    # This is VERY IMPORTANT, otherwise login() could have difficulties
-    # if someone uses an integer for a username for example.
-
-    # Username must exist, not be all digits (so it does't look like an ID),
-    # be in proper char set
-    # and not contain an '@' (so it doesn't look like an email)
-    # (the '@' is just an explicit check)
-
-    if '@' in username:
-        raise SignupFailedException("'@' cannot be in the username.")
-
-    # Confusing when a user gets ' ' cannot be in username, so be more specific with spaces
-    if ' ' in username:
-        raise SignupFailedException("Spaces cannot be in the username.")
-
-    if len(username) == 0:
-        raise SignupFailedException("Username is blank.")
-        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
-    digits = ''.join(chr(ord('0') + i) for i in range(10))
-    all_digits = True
-    for c in username:
-        if c not in digits:
-            all_digits = False
-
-    if all_digits:
-        raise SignupFailedException("Username cannot be all digits.")
-
-    valid_chars = (
-        digits +  # Digits
-        ''.join(chr(ord('a') + i) for i in range(26)) +  # Lowercase chars
-        ''.join(chr(ord('A') + i) for i in range(26)) +  # Uppercase chars
-        '_'  # Other
-    )
-
-    for c in username:
-        if c not in valid_chars:
-            raise SignupFailedException("Invalid character '" + c + "' in username.")
-
-    # Email must exist and contain an '@'
-
-    if len(email) == 0:
-        raise SignupFailedException("Email is blank.")
-
-    if '@' not in email or '.' not in email or len(email) < 5:
-        raise SignupFailedException("The email you entered is incomplete.")
-
-    # Password must be at least 10 characters in unicode
-    # and be no more than 60 characters in UTF-8
-    # and can't contain the null byte when in UTF-8
-
-    if len(password) < 10:
-        raise SignupFailedException("Password must be at least 10 characters.")
-
-    if len(password.encode("utf-8")) > 60:
-        raise SignupFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
     # Password should equal confirm_password
 
     if password != confirm_password:
         raise SignupFailedException("The passwords you entered were not identical.")
 
-    # Process phone number
-
-    temp_phone = ""
-    for c in phone:
-        if c in digits:
-            temp_phone += c
-    phone = temp_phone
-
-    # If phone is empty it is -1
-    if phone == "":
-        phone = "-1"
-
-    g.db.execute(
-        """
-            INSERT INTO users
-                (password, username, email, phone, first, last, email_verified)
-                VALUES
-                    (%(password)s, %(username)s, %(email)s, %(phone)s, %(first)s, %(last)s, %(email_verified)s)
-        """,
-        {
-            "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
-            "username": username,
-            "email": email,
-            "phone": phone,
-            "first": first,
-            "last": last,
-            "email_verified": "N"
-        }
+    user = g.db.users.create_user(
+        username=username,
+        password=password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        phone="",
+        email_verified="N"
     )
+
+    try:
+        g.db.accounts.create_account(
+            user=user,
+            name="",
+            company=company,
+            sector=sector,
+            partner=partner,
+            affiliate_id=affiliate_id,
+            address=address,
+            city=city,
+            state=state,
+            zip=zip_code,
+            phone=phone
+        )
+    except Exception as e:
+        #Delete the user if there are errors in account creation. This will let them register again.
+        g.db.users.delete_by_user(user)
+        raise e
+
 
 
 def logout():
@@ -238,6 +198,63 @@ def logout():
     g.user = None
     session[SESSION_USER_ID_VAR] = ""
     session.clear()
+
+
+def change_password(email, new_password, confirm_password):
+    """
+    Changing the password in the user database
+
+    Params:
+        email: The user email for which the password needs to be updated
+        new_password: The new password which needs to be set
+
+    Returns: None
+
+    Raises:
+        PasswordChangeFailedException on failure with the reason.
+    """
+    try:
+        new_password = Users._format_field(new_password)
+        confirm_password = Users._format_field(confirm_password)
+        password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+
+        # Check if password reset link is valid. As token.py returns false if link is Invalid
+
+        if email is False:
+            raise PasswordChangeFailedException("Password reset link is Invalid")
+
+        # Password should not be blank
+
+        if new_password == "":
+            raise PasswordChangeFailedException("Password field is blank")
+
+        # Password must be at least 10 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(new_password) < 10:
+            raise PasswordChangeFailedException("Password must be at least 10 characters.")
+        if len(new_password.encode("utf-8")) > 60:
+            raise PasswordChangeFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        # Password should equal confirm_password
+
+        if new_password != confirm_password:
+            raise PasswordChangeFailedException("The passwords you entered were not identical.")
+
+        g.db.execute_d(
+            """
+            UPDATE users
+            SET password=%(password)s
+            WHERE users.email=%(email)s
+            """,
+            {
+                "password": password,
+                "email": email
+            }
+            )
+    except PasswordChangeFailedException as e:
+        raise e
 
 
 def confirm(email):

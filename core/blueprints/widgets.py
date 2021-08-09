@@ -25,6 +25,7 @@ from ..data_requests.router import unauth_route
 
 from time import time
 
+from ..database.tables import zip_codes
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -61,10 +62,13 @@ def serve_sales_group():
         "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
+        "market_location": sales_group_row["market_location"],
+        "delivery_location":sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
-        "auction_sale_name": sales_group_row["auction_sale_name"]
+        "auction_sale_name": sales_group_row["auction_sale_name"],
+        "group_name": sales_group_row["group_name"]
     }
 
 
@@ -89,10 +93,13 @@ def serve_search_sales_groups():
                 "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
+                "market_location": sales_group_row["market_location"],
+                "delivery_location":sales_group_row["delivery_location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
-                "auction_sale_name": sales_group_row["auction_sale_name"]
+                "auction_sale_name": sales_group_row["auction_sale_name"],
+                "group_name": sales_group_row["group_name"]
             })
 
     return {
@@ -132,6 +139,8 @@ def serve_search_sales_groups_2():
                 else None
             ),
             "zip": sales_group_row["zip"],
+            "market_location": sales_group_row["market_location"],
+            "delivery_location":sales_group_row["delivery_location"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "context": {
@@ -141,7 +150,8 @@ def serve_search_sales_groups_2():
                 ))
             },
             "auction_sale": sales_group_row["auction_sale"],
-            "auction_sale_name": sales_group_row["auction_sale_name"]
+            "auction_sale_name": sales_group_row["auction_sale_name"],
+            
         })
 
     return {
@@ -212,14 +222,26 @@ def serve_save_sales_group():
         request.json["reported"],
         request.json["published"],
         request.json["zip"],
+        request.json["delivery_location"],
         request.json["start"],
         request.json["end"],
-        request.json["auction_sale"]
+        request.json["auction_sale"],
+        request.json["group_name"]
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
+
+@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@crut.require_account
+def serve_save_sustainability():
+    g.db.sustainability.check(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/summary"}
+    
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
@@ -271,7 +293,7 @@ def serve_send_message():
                             + str(message_id)
                         ),
                         'receiver': user['account_name'],
-                        'sender': g.account.name()
+                        'sender': g.account.company()
                     }
                 }
             ),

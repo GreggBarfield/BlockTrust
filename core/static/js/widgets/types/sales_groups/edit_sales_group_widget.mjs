@@ -5,7 +5,7 @@ import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
-
+import { VideoSession } from '../../../files/video_links.mjs';
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -31,51 +31,48 @@ export class EditSalesGroupWidget extends Widget {
         });
 
     }
-
+    
     makeForm() {
 
-        let that = this;
-
-        let card = document.createElement("div");
-        card.className = "card";
-
-        let cardHeader = document.createElement("h5");
-        cardHeader.className = "card-header";
-        cardHeader.textContent = "Edit Sales Group " + this.salesGroupID;
-        card.append(cardHeader);
-
-        let cardBody = document.createElement("div");
-        cardBody.className = "card-body";
-        card.append(cardBody);
-
-
-        let form = document.createElement("form");
-        cardBody.append(form);
-        
         // Sections
+        function addTooltip(dataToggle,title,position){
+            let toolTip = document.createElement("a");
+            toolTip.className="feather icon-info";
+            toolTip.style = "color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px";
+            toolTip.setAttribute("data-toggle" ,dataToggle);
+            toolTip.setAttribute("data-placement" ,"right");
+            toolTip.setAttribute("title" ,title);
+            position.append(toolTip);           
+            $(document).ready(function(){
+                $('[data-toggle='+dataToggle+']').tooltip(); 
+            });
+        }
+       
 
         function createSection(form, name) {
 
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
-    
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
-    
+
             form.append(document.createElement("br"));
             return row;
         }
 
-        function createGroup(row, name, htmlFor) {
+        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
             let group = document.createElement("div");
             group.className = "form-group col-md-4";
             row.append(group);
 
+
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,groupLabel);
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
@@ -83,10 +80,9 @@ export class EditSalesGroupWidget extends Widget {
             return group;
         }
 
-        function createNumber(row, name, value) {
+        function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
-
-            let group = createGroup(row, name, id);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -96,10 +92,9 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createText(row, name, value) {
+        function createText(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
-
-            let group = createGroup(row, name, id);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -109,20 +104,23 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createDate(row, name, epoch) {
+        function createDate(row, name, epoch,hasTooltip=false,dataToggle="",tooltipText="") {
             let dateFormGroup = new DateFormGroup(row, name, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
             return dateFormGroup;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
+
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
                 values = [values];
             }
-
-            let group = createGroup(row, name, id);
+            
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -165,31 +163,64 @@ export class EditSalesGroupWidget extends Widget {
                 // Patch
                 $(select).val([options[0]]);
                 $(select).trigger('change');
-                setTimeout(function(){
+                setTimeout(function () {
                     $(select).val([]);
                     $(select).trigger('change');
                 }, 1);
             }
             return select;
         }
+        
+
+        let that = this;
+        let card = document.createElement("div");
+        card.className = "card";
+
+        let cardHeader = document.createElement("h3");
+        cardHeader.className = "col-form-label";
+        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
+
+        let nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = this.data.group_name || null;
+        nameInput.className = "form-control col-sm-2";
+        nameInput.style = "padding-left:15px";
+
+        let editGroupName = document.createElement("div");
+        editGroupName.className = "card-header form-group row";
+        editGroupName.style = "padding:5px;padding-left: 15px;"
+
+        editGroupName.append(cardHeader);
+        editGroupName.append(nameInput);
+        card.append(editGroupName);
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+
+        let form = document.createElement("form");
+        cardBody.append(form);
 
         // Marketing
 
         let marketingRow = createSection(form, "Marketing");
 
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null);
-        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null);
-        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
+        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
+        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
+        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
+
         let marketingAuctionSale = new SelectAuctionSaleFormGroup(
             marketingRow,
             this.data.auction_sale || null,
             this.data.auction_sale_name || null
         );
         marketingAuctionSale.getFormGroup().classList.add("col-md-4");
-
-        // Characteristics
         
+        // Characteristics
+
         let characteristicsRow = createSection(form, "Characteristics");
 
         let characteristicBreeds = createSelect({
@@ -200,9 +231,11 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Applicable Breeds"
-        });
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null);
-        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null);
+        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.");
+        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null,true,"characteristicsWeight",
+        "Please enter the average weight of the cattle in the group");
+        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null,
+        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)");
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -243,7 +276,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: true,
             placeholder: "Select Precon Program"
-        });
+        },true,"maintenancePreconditioningProgram","Please enter the pre-conditioning program this group of cattle is on or “not listed”.");
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
@@ -252,7 +285,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        });
+        },true,"maintenanceVaccinations","Please enter vaccinations given to the cattle in this group or “not listed”.");
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -261,7 +294,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Feeding Program"
-        });
+        },true,"maintenanceFeedingProgram","Please enter the feeding program this group of cattle is on or “not listed”.");
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
@@ -270,7 +303,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Implants"
-        });
+        },false,"","");
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -288,11 +321,11 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        });
+        },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
 
         // Media
 
-        let mediaRow = createSection(form, "Media");
+        let mediaRow = createSection(form, "Image");
 
         let mediaGroup = document.createElement("div");
         mediaGroup.className = "form-group col-12";
@@ -303,19 +336,37 @@ export class EditSalesGroupWidget extends Widget {
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
+        this.fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.data.reported.images || [], this.data.file_auths);
         mediaGroup.append(fileEditorFrame);
+
+
+        //Video
+
+        let videoRow = createSection(form, "Video");
+
+        let videoGroup = document.createElement("div");
+        videoGroup.className = "form-group col-12";
+        videoRow.append(videoGroup);
+
+        let videoLabel = document.createElement("label");
+        videoLabel.textContent = "Add Youtube/Vimeo links here to make the post look more attractive!";
+        videoGroup.append(videoLabel);
+
+        let videoText = document.createElement("div");
+        this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
+        videoGroup.append(videoText);
 
         // Comments
 
         let commentsHeader = document.createElement("h6");
         commentsHeader.textContent = "Comments";
         form.append(commentsHeader);
+        addTooltip("commentsHeader","Please enter anything you want the buyers to know about this group of cattle that may not be listed in the above sections.",commentsHeader);
 
         let commentsRow = document.createElement("div");
         commentsRow.className = "form-row";
         form.append(commentsRow);
-        
+
         let commentsGroup = document.createElement("div")
         commentsGroup.className = "form-group col";
         commentsRow.append(commentsGroup);
@@ -338,7 +389,7 @@ export class EditSalesGroupWidget extends Widget {
         let eidsRow = document.createElement("div");
         eidsRow.className = "form-row";
         form.append(eidsRow);
-        
+
         let eidsGroup = document.createElement("div")
         eidsGroup.className = "form-group col";
         eidsRow.append(eidsGroup);
@@ -346,7 +397,7 @@ export class EditSalesGroupWidget extends Widget {
         function parseEIDs(ta) {
             let eidStr = eidsTA.value.replace(/[^0-9,]/g, "");
             let eidStrs = eidStr.split(",");
-            let eids= [];
+            let eids = [];
             for (const eidStr of eidStrs) {
                 if (!isNaN(parseInt(eidStr))) {
                     eids.push(parseInt(eidStr));
@@ -355,7 +406,7 @@ export class EditSalesGroupWidget extends Widget {
             return eids;
         }
         this.parseEIDs = parseEIDs;
-        
+
         let eidsLabel = document.createElement("label")
         eidsGroup.append(eidsLabel);
 
@@ -403,7 +454,7 @@ export class EditSalesGroupWidget extends Widget {
         this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
-        
+
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
         statusMessage.className = "mt-2 mb-0";
@@ -457,16 +508,19 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        videos: that.VideoEditor.getLinks(),
                     },
+                    "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
-                    auction_sale: marketingAuctionSale.getID()
+                    auction_sale: marketingAuctionSale.getID(),
+                    "group_name": nameInput.value
                 }
             }
-        });     
-        
-        submitButton.addEventListener("click", ()=>{
+        });
+
+        submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
             if (this.allGood()) {
                 function progress(perc) {
@@ -474,9 +528,9 @@ export class EditSalesGroupWidget extends Widget {
                 }
                 that.progressBar.show();
                 this.fileEditor.upload(progress)
-                .then(()=>{
-                    this.asyncForm.submit();
-                });
+                    .then(() => {
+                        this.asyncForm.submit();
+                    });
             }
         });
     }
@@ -496,15 +550,15 @@ export class EditSalesGroupWidget extends Widget {
                 }
             }
 
-            for (let i = 0; i< eids.length;i++) {
-                for (let i2 =i+1;i2<eids.length;i2++) {
+            for (let i = 0; i < eids.length; i++) {
+                for (let i2 = i + 1; i2 < eids.length; i2++) {
                     if (eids[i] == eids[i2]) {
                         throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
                     }
                 }
             }
         }
-        catch(error) {
+        catch (error) {
             this.showError(error);
             return false;
         }
@@ -526,7 +580,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
      */
     constructor(attachTo, auctionSaleID, auctionSaleName) {
         super(attachTo, "Select auction sale (i/a):");
-
+        
         this._select = document.createElement("select");
         this._select.id = this._input_id;
         this._select.className = "select2-hidden-accessible";
@@ -561,7 +615,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
                             )
                         });
                     }
-                    return {results};
+                    return { results };
                 },
             },
             placeholder: 'Type here to search...',
@@ -569,7 +623,7 @@ class SelectAuctionSaleFormGroup extends FormGroup {
             allowClear: true
         });
     }
-    
+
     /**
      * Gets the ID of the auction sale selected.
      */
