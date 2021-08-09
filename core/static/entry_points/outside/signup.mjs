@@ -12,7 +12,7 @@ let first_name = signupForm.find("#signup_form_first");
 let last_name = signupForm.find("#signup_form_last");
 let phone = signupForm.find("#signup_form_phone");
 let partner = signupForm.find("#signup_form_partner");
-let affiliate_id = signupForm.find("#signup_form_affiliate_id");
+let partner_id = signupForm.find("#signup_form_partner_id");
 let company = signupForm.find("#signup_form_company");
 let sector = signupForm.find("#signup_form_sector");
 let address = signupForm.find("#signup_form_address");
@@ -37,7 +37,7 @@ let form = new AsyncForm({
             last_name: last_name.val(),
             phone: phone.val(),
             partner: partner.val(),
-            affiliate_id: affiliate_id.val(),
+            partner_id: partner_id.val(),
             sector: sector.val(),
             company: company.val(),
             address: address.val(),

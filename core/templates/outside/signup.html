@@ -50,6 +50,7 @@
                                 <label for="signup_form_partner">Partner</label>
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
+                                    <option value="">No Partner2</option>
                                     {% for p in partners %}
                                     <option value="{{p.id()}}">{{p.company()|e}}</option>
                                     {% endfor %}
@@ -59,8 +60,8 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="signup_form_affiliate_id">Affiliate ID</label>
-                                <input type="text" class="form-control" placeholder="Affiliate ID#" id="signup_form_affiliate_id">
+                                <label for="signup_form_partner_id">Partner ID</label>
+                                <input type="text" class="form-control" placeholder="Partner ID#" id="signup_form_partner_id" disabled=true>
                                 <span class="focus-border"></span>
                             </div>
                         </div>
@@ -231,4 +232,15 @@
     </div>
 </section>
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
+<script>
+    $('#signup_form_partner').on('change', function() {
+        console.log($('#signup_form_partner').find(":selected").text());
+        if ($('#signup_form_partner').find(":selected").text() == "No Partner") {
+            $('#signup_form_partner_id').prop('disabled', true);
+        } else {
+            $('#signup_form_partner_id').prop('disabled', false);
+        }
+    });
+</script>
+
 {% endblock outside_content %}
