@@ -23,7 +23,7 @@ export class PlansWidget extends Widget {
  
          this.mainTableHeadRow0 = document.createElement("tr");
          this.mainTableHead.appendChild(this.mainTableHeadRow0);
-         const headers = ["Cow calf base plan", "Enterprise"];
+         const headers = ["Cow-Calf Base Plan", "Cow-Calf Premium Plan", "Enterprise Plan"];
          for (const headerText of headers) {
              let th = document.createElement("th");
              th.textContent = headerText;
@@ -39,13 +39,18 @@ export class PlansWidget extends Widget {
          let rowTag = document.createElement("tr");
          this.mainTableBody.appendChild(rowTag);
          let cowCalfFeaturesTD = document.createElement("td");
-         let {price} = await fetch("/stripe/price/basic").then(r => r.json());
-         cowCalfFeaturesTD.innerHTML = "1.Feature <br/> 2.Feature <br/> 3.Feature <br/><br/> <h6>Price: " + price + " per year</h6>";
+         //let {price} = await fetch("/stripe/price/basic").then(r => r.json());
+         cowCalfFeaturesTD.innerHTML = "a. Carcass Data<br/>b. Access to In-Network Feeders and Auction Markets<br/>c. Secure Messaging in Network<br/><br/> <h6>Price: FREE</h6>";
          rowTag.appendChild(cowCalfFeaturesTD);
+
+         let cowCalfFeaturesPremium = document.createElement("td");
+         let {price} = await fetch("/stripe/price/basic").then(r => r.json());
+         cowCalfFeaturesPremium.innerHTML = "a. Carcass Data<br/>b. Access to In-Network Feeders and Auction Markets<br/>c. Secure Messaging in Network<br/>d. Access to MarketTrust Cattle Sales System<br/>e. Access to Real-time Market Prices and Futures Prices<br/>f. Retained Ownership Dashboard<br/><br/> <h6>Price: $9.95 per month (billed annually)</h6>";
+         rowTag.appendChild(cowCalfFeaturesPremium);
 
          let enterpriseFeaturesTD = document.createElement("td");
          let {contactEmail} = await fetch("/outside/contact-email").then(r => r.json());
-         enterpriseFeaturesTD.innerHTML = "Please contact us directly at " + contactEmail;
+         enterpriseFeaturesTD.innerHTML = "Please contact us.";
          rowTag.appendChild(enterpriseFeaturesTD);
          
          //2nd row
@@ -53,8 +58,16 @@ export class PlansWidget extends Widget {
          this.mainTableBody.appendChild(rowTag);
          let tdOptions = document.createElement("td");
          rowTag.appendChild(tdOptions);
-
+         
          let button = document.createElement("a");
+         button.className = "btn btn-primary btn-md";
+        button.setAttribute("href", "");
+         button.textContent = "Select";
+         tdOptions.appendChild(button);
+         
+         tdOptions = document.createElement("td");
+         rowTag.appendChild(tdOptions);
+         button = document.createElement("a");
          button.className = "btn btn-primary btn-md";
          button.setAttribute("href", "/dashboard/subscribe?price=basic");
          button.textContent = "Select";
