@@ -51,7 +51,7 @@ def serve_apply_coupon():
         return jsonify({"error": str(e)})
 
 
-@bp.route('/external/create-order', methods=['POST'])
+@bp.route('/shop/external/create-order', methods=['POST'])
 def create_order():
     try:
         data = json.loads(request.data)
@@ -71,7 +71,7 @@ def create_order():
         return {"error": str(e)}, 400
 
 
-@bp.route('/external/update-order', methods=['POST'])
+@bp.route('/shop/external/update-order', methods=['POST'])
 def update_order():
     try:
         data = json.loads(request.data)

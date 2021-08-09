@@ -13,7 +13,7 @@ $("#shipping").text(shipDisplay);
 $("#tax").text(taxDisplay);
 $("#discount").text(discountDisplay);
 $("#grandTotal").text(grandTotalDisplay);
-$("#grand-total-warning-text").text(localStorage.getItem('grandTotal')) 
+$("#grand-total-warning-text").text(grandTotalDisplay) 
 
 let paymentForm = $("#payment-form");
 let statusMessage = paymentForm.find("#payment_status_message");
@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
     // Make a call to the server to create a new order
     const {error, orderId} = await fetch(
-        '/external/create-order',
+        '/shop/external/create-order',
         {
           method: 'POST',
           headers: {
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if(paymentIntent.status === 'succeeded'){
         //Not using the error or success here. Just sending the POST request
         const {error, success} = await fetch(
-          '/external/update-order',
+          '/shop/external/update-order',
           {
             method: 'POST',
             headers: {
