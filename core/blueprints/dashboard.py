@@ -2,6 +2,7 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect
 )
 
+from core.config import FLATFILE_LICENSE
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id
@@ -246,11 +247,6 @@ def serve_plans():
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
-@bp.route('/dashboard/bucket', methods=['GET'])
-@crut.require_account
-def serve_bucket():
-    return dashboard_render("accounts/bucket.html",  {"account": g.account,"user":g.user, "license":"59cef5be-e3d4-4687-a687-79f0a3e2aaba"})
-
 
 @bp.route('/dashboard/import-tags', methods=['POST'])
 def insert_eids():
@@ -300,7 +296,7 @@ def serve_retained_ownership():
 @bp.route('/dashboard/data/upload-tags', methods=['GET'])
 @crut.require_account
 def serve_upload_tags():
-    return dashboard_render("data/upload-tags.html")
+    return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
 
 
 # edit user profile
