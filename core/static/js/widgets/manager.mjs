@@ -20,6 +20,7 @@ import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 // import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
+import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 
 
 // Immediately invoked
@@ -56,6 +57,7 @@ import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs"
     attach("subscribe", SubscribeWidget);
     // attach("sustainability questionaire", SustainabilityQuestionaireWidget);
     attach("certificates", CertificatesWidget);
+    attach("sustainability questionaire", SustainabilityQuestionaireWidget);
 
     // Find widgets
     $(".widget").each(function () {

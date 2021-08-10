@@ -70,7 +70,8 @@ def serve_sales_group():
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
-        "auction_sale_name": sales_group_row["auction_sale_name"]
+        "auction_sale_name": sales_group_row["auction_sale_name"],
+        "group_name": sales_group_row["group_name"]
     }
 
 
@@ -100,7 +101,8 @@ def serve_search_sales_groups():
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
-                "auction_sale_name": sales_group_row["auction_sale_name"]
+                "auction_sale_name": sales_group_row["auction_sale_name"],
+                "group_name": sales_group_row["group_name"]
             })
 
     return {
@@ -151,7 +153,8 @@ def serve_search_sales_groups_2():
                 ))
             },
             "auction_sale": sales_group_row["auction_sale"],
-            "auction_sale_name": sales_group_row["auction_sale_name"]
+            "auction_sale_name": sales_group_row["auction_sale_name"],
+            
         })
 
     return {
@@ -225,12 +228,23 @@ def serve_save_sales_group():
         request.json["delivery_location"],
         request.json["start"],
         request.json["end"],
-        request.json["auction_sale"]
+        request.json["auction_sale"],
+        request.json["group_name"]
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
+
+@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@crut.require_account
+def serve_save_sustainability():
+    g.db.sustainability.check(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/summary"}
+    
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
