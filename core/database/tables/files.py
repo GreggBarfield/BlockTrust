@@ -43,11 +43,12 @@ class Files:
             expires_in: The number of seconds before the link is no longer available
                 (default 1 hour (3600))
         """
+        key= "animal_certificates/"+str(folder_name)+"/"+str(file_id)+".pdf"
         return aws.get_s3_client().generate_presigned_url(
             ClientMethod="get_object",
             Params={
                 "Bucket": config.AWS_S3_BUCKET,
-                "Key": "animal_certificates/"+str(folder_name)+"/" + str(int(file_id))+".pdf"
+                "Key": key
             },
             ExpiresIn=expires_in,
         )

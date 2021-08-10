@@ -14,14 +14,15 @@ export class CertificatesWidget extends Widget {
                     type: 'matches_by_eids',
                     params: {
                         eids: [this.animal],
-                        ljoin_account_links: true,
-                        types: ["Medical","Weaned","First Birth"]
+                        // ljoin_account_links: true,
+                        types: ["Weaned","First Birth","Medical"]
                     }
                 }
             }
         ).then((data)=>
         {
             this.data=data;
+            console.log("finished with",data)
             console.log(data)
             this.showPDF();
         })

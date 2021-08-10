@@ -28,6 +28,7 @@ from time import time
 from ..database.tables import zip_codes
 
 from ..reports.pdf_generator import generate_pdf
+# from ..reports.pdf_generator import *
 bp = Blueprint('widgets_bp', __name__)
 
 
@@ -365,7 +366,10 @@ def serve_get_account_type_visibilities():
 @bp.route('/widgets/data/update_certificates', methods=['POST'])
 @crut.require_account
 def serve_update_certificates():
-    medical_data =(unauth_route(request.json['request']),200)
-    print("Medical_data Success",medical_data)
-    # generate_pdf(medical_data)
-    return g.db.files.get_pdf_url("reported_certificates","982000418411463")
+    print("eids",request.json['request']['params']['eids'][0])
+    # print("update----------------------------------")
+    print("??????????????????????????????????????????")
+    medical_data =unauth_route(request.json['request'])
+
+    generate_pdf(medical_data,request.json['request']['params']['eids'][0])
+    return g.db.files.get_pdf_url("reported_certificates/",str(request.json['request']['params']['eids'][0]))
