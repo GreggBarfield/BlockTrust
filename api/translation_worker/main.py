@@ -10,13 +10,13 @@ sys.path = [
     os.path.abspath(os.path.join(os.path.abspath(__file__), "..", "..", ".."))
 ] + sys.path
 
+
 try:
     __name__ = "api.translation_worker.main"
 
     from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG  # noqa
     from core.database.database import Database  # noqa
     from core.database.tables.error_logs import ErrorLogs
-
     from .logistics import run  # noqa
     from ..database.inserts_model import InsertsModel  # noqa
 
@@ -24,10 +24,9 @@ try:
 
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     parser.add_argument('-i', '--id', help='Run ID (regardless of status) (exits after finishing)', type=int, default=None)
-    parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=1)
+    parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=15)
 
     args = parser.parse_args()
-    print("args:",args)
 
     def threaded_function():
         try:
@@ -38,11 +37,9 @@ try:
                 insert_id=args.id
             )
         except BaseException as e:
-            print(e)
-            ErrorLogs(Database(MYSQL_CONFIG)).insert_error_log("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+            print(e, traceback.print_exc())
             print("Thread excepted, killing program")
             exit()
-
 
     threads = []
     thread_count = args.threads

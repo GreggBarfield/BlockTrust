@@ -14,6 +14,7 @@ def block_key(insert):
 def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     account = insert["account"]
     print("insert[fields]", insert["fields"])
+    api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",
         "FarmID": "farmid",
@@ -53,12 +54,20 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         raise ExecutionException("while converting patron id: " + str(e))
     account_link = db.account_links.get_by_uid(patronid, 0, insert=True)[0].id()
     eid = int(fields["electronic"])
-    print('eid :', eid)
+
+    grouping_id = 0
+    if "ApplicationID" in fields.keys():
+        grouping_id = int(fields["ApplicationID"])
+    elif "applicatio" in fields.keys():
+        grouping_id = int(fields["applicatio"])
+
     db.matches.types.insert_visual_id(
         visual_id=fields["visualid"],
         account=account,
         account_link=account_link,
         eid=eid,
+        grouping_id=grouping_id,
+        api_insert=api_insert
     )
 
     weaned_object = {}
@@ -87,14 +96,18 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account=account,
         account_link=account_link,
         data=weaned_object,
-        eid=eid
+        eid=eid,
+        grouping_id=grouping_id,
+        api_insert=api_insert
     )
 
     db.matches.types.insert_born(
         time=all_to_unix(fields["firstbirth"]),
         account=account,
         account_link=account_link,
-        eid=eid
+        eid=eid,
+        grouping_id=grouping_id,
+        api_insert=api_insert
     )
 
     sold_object = {}
@@ -112,5 +125,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             account_link=account_link,
             eid=eid,
             time=all_to_unix(fields["marketingd"]),
-            data=sold_object
+            data=sold_object,
+            grouping_id=grouping_id,
+            api_insert=api_insert
         )
