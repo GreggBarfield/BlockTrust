@@ -137,14 +137,14 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account(self, user, name, company, partner, affiliate_id, address, city, state, zip, phone, sector=4):
         """Creates a new account with the user automatically added.
 
         Params:
             user: a User object (assumed to be safe)
             name: the account name
             company: the company name
-            sector: the sector number
+            sector: the sector number, default is 4 (Cow-Calf)
             partner: partner id
             affiliate_id: account number in our partners system
             address: company's address

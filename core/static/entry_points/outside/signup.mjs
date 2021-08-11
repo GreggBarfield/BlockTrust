@@ -36,12 +36,20 @@ let form = new AsyncForm({
             phone: phone.val(),
             partner: partner.val(),
             affiliate_id: partner_id.val(),
-            sector: 4,
             company: company.val(),
             address: address.val(),
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val()
         }
+    }
+});
+
+partner.on('change', function() {
+    console.log(partner.find(":selected").text());
+    if (partner.find(":selected").text() == "No Partner") {
+        partner_id.prop('disabled', true);
+    } else {
+        partner_id.prop('disabled', false);
     }
 });

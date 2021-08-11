@@ -236,15 +236,5 @@
     </div>
 </section>
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
-<script>
-    $('#signup_form_partner').on('change', function() {
-        console.log($('#signup_form_partner').find(":selected").text());
-        if ($('#signup_form_partner').find(":selected").text() == "No Partner") {
-            $('#signup_form_partner_id').prop('disabled', true);
-        } else {
-            $('#signup_form_partner_id').prop('disabled', false);
-        }
-    });
-</script>
 
 {% endblock outside_content %}

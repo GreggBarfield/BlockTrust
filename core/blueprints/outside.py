@@ -91,7 +91,7 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
+            'company':None, 'first_name':None, 'last_name':None,
             'address':None, 'city':None, 'state':None, 'zip_code':None,
             'username':None, 'email':None, 'password':None, 'confirm_password':None
         }
@@ -115,7 +115,6 @@ def serve_signup_action():
                 company = required['company'],
                 partner = request.form['partner'],
                 affiliate_id = request.form['affiliate_id'],
-                sector = required['sector'],
                 address = required['address'],
                 city=required['city'],
                 state=required['state'],

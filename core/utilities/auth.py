@@ -116,7 +116,7 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, address, city, state, zip_code):
     """Create new user account.
 
     Params:
@@ -150,7 +150,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     company = Users._format_field(company)
     partner = Users._format_field(partner)
     affiliate_id = Users._format_field(affiliate_id)
-    sector = Users._format_field(sector)
     address = Users._format_field(address)
     city = Users._format_field(city)
     state = Users._format_field(state)
@@ -177,7 +176,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             user=user,
             name="",
             company=company,
-            sector=sector,
             partner=partner,
             affiliate_id=affiliate_id,
             address=address,
