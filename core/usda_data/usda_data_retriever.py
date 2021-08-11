@@ -17,11 +17,17 @@ class UsdaDataRetriever:
         json_response = response.json()
 
         cattleReports = dict()
-        for item in json_response:
-            if 'Cattle' in item['market_types'][0]:
-                cattleReports[item['slug_id']] = item
+        published_dates = g.db.usda_reports.get_all_published_dates()
+        for row in json_response:
+            if 'Cattle' in row['market_types'][0]:
+                item = {
+                    'published_date' : row['published_date'],
+                    'slug_id' : int(row['slug_id'])
+                    }
+                if item not in published_dates:
+                    cattleReports[row['slug_id']] = row
 
-        print("Size of unique cattle reports: " + str(len(cattleReports)))
+        print("Size of unique new cattle reports: " + str(len(cattleReports)))
 
         for item in cattleReports:
             response = requests.get(API_ENDPOINT + str(item) + '/Detail', 
@@ -52,15 +58,22 @@ class UsdaDataRetriever:
         API_ENDPOINT = 'https://marsapi.ams.usda.gov/services/v1.2/'
 
         reports = dict()
+        published_dates = g.db.usda_reports.get_all_published_dates()
         for id in marketTypeIDs:
             response = requests.get(API_ENDPOINT + 'marketTypes/' + str(id), 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
             for row in json_response['results']:
-                reports[row['slug_id']] = row
+                item = {
+                    'published_date' : row['published_date'],
+                    'slug_id' : int(row['slug_id'])
+                    }
+                
+                if item not in published_dates:
+                    reports[row['slug_id']] = row
         
-        print("Size of unique reports: " + str(len(reports)))
+        print("Size of unique new reports: " + str(len(reports)))
 
         for item in reports:
             response = requests.get(API_ENDPOINT + 'reports/' + str(item), 
@@ -81,6 +94,3 @@ class UsdaDataRetriever:
         """Encapsulates the different report calls and calls everything once"""
         self.getPublicReports()
         self.getMandatoryReports()
-
-
-

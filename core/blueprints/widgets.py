@@ -375,9 +375,25 @@ def serve_get_account_type_visibilities():
     }
 
 
-@bp.route('/widgets/data/get_market_data', methods=['POST'])
+@bp.route('/widgets/data/get_market_state_data', methods=['POST'])
 @crut.require_account
-def serve_get_market_data():
+def serve_get_market_state_data():
     return {
-        'market_data': g.db.usda_reports.get_all()
+        'market_data': g.db.usda_reports.get_all_states()
+    }, 200
+
+
+@bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
+@crut.require_account
+def serve_get_market_city_data(state):
+    return {
+        'market_data': g.db.usda_reports.get_all_city_by_state(state)
+    }, 200
+
+
+@bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
+@crut.require_account
+def serve_get_market_data(slug_id):
+    return {
+        'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
     }, 200
