@@ -12,7 +12,7 @@ from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
-from ..usda_data.get_data import getUsdaData
+from ..usda_data.usda_data_retriever import UsdaDataRetriever
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -24,7 +24,7 @@ def serve_landing():
 
 @bp.route('/pull-data', methods=['GET'])
 def serve_usda():
-    getUsdaData()
+    UsdaDataRetriever().getUsdaData()
     return 1
 
 
