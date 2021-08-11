@@ -1,5 +1,6 @@
+from core.renderers.outside import outside_render
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
 from ..renderers.dashboard import dashboard_render
@@ -16,6 +17,8 @@ from ..database.tables.users import UsersException
 from ..renderers.email import render_email
 
 from ..utilities import crut, auth
+from ..utilities import token
+from ..utilities.email import send_email
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -249,7 +252,7 @@ def serve_subscribe():
 @crut.require_account
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
-    
+
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
 def serve_sustainability_summary():
@@ -279,13 +282,82 @@ def serve_edit_edituser():
                         last=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
-                        confirm_password= request.form["confirm_password"]
+                        confirm_password=request.form["confirm_password"]
                         )
             return {"redirect": "/dashboard/edit/edituser"}
-        except  UsersException as e:
+        except UsersException as e:
             return {"error": str(e)}
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
-        
-    
+        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+
+
+@bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])
+@crut.require_user
+def serve_invite_user():
+    if request.method == 'POST':
+        try:
+            user_email = request.form["email"]
+            current_account = request.form["current_account"]
+            invite_object = {"user_email": user_email, "current_account": current_account}
+            invite_string = str(invite_object)
+            # Generating token identifier with account and user email informatiom
+            userToken = token.generateConfirmationToken(invite_string)
+            # Creating URL for user to join an account
+            confirm_url = url_for('dashboard_bp.serve_add_user', tok=userToken, _external=True)
+            # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
+            send_email(
+                "BlockTrust Network Email Confirmation",
+                render_email("invite_user.html", {
+                    'confirm_url': confirm_url,
+                    'current_account': current_account
+                }), user_email, override=True
+            )
+            return {"redirect": "/dashboard"}
+        except ExportException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        return dashboard_render("/dashboard/accounts/invite_user.html")
+
+
+@bp.route('/dashboard/adduser/<tok>', methods=['GET', 'POST'])
+def serve_add_user(tok):
+    if request.method == 'GET':
+        try:
+            print("GET")
+            invite_string = token.confirmToken(tok)
+            invite_object = eval(invite_string)
+            user_email = invite_object["user_email"]
+            account_name = invite_object["current_account"]
+            print(invite_object)
+            return outside_render("/outside/invited-user-signup.html", {"user_email": user_email, "account_name": account_name})
+        except ExportException as e:
+            return outside_render("/outside/error.html")
+
+
+@bp.route('/dashboard/adduser', methods=['POST'])
+def serve_add_user1():
+    try:
+        print(request.form["account_name"])
+        account_details = g.db.accounts.get_by_name(request.form["account_name"])
+        print(type(account_details.phone()))
+        auth.signup(
+            username=request.form['user_email'],
+            email=request.form['user_email'],
+            phone=str(account_details.phone()),
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            password=request.form['password'],
+            confirm_password=request.form['confirm_password'],
+            company=request.form['account_name'],
+            partner=str(account_details.partner()),
+            affiliate_id=account_details.affiliate_id(),
+            sector=account_details.sector_name(),
+            address=account_details.address(),
+            city=account_details.city(),
+            state=account_details.state(),
+            zip_code=str(account_details.zip())
+        )
+        return {"redirect": "/login"}
+    except (auth.SignupFailedException, AccountsException, UsersException) as e:
+        raise ExportException("Signup failed: " + str(e))
