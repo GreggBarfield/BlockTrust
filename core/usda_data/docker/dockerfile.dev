@@ -13,7 +13,6 @@ RUN python3 -m pip install -r requirements.txt
 
 # Set app dir
 WORKDIR /home/ubuntu
-COPY ../get-data.py .
 
 # Run
-CMD exec python3 get_data.py
+CMD exec python3 core/usda_data/usda_data_retriever.py

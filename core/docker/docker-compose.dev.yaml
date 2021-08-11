@@ -24,3 +24,11 @@ services:
       dockerfile: dockerfile.dev
     volumes:
       - ../:/home/ubuntu/core
+  usdadata:
+    build:
+      context: ../usda_data/docker
+      dockerfile: dockerfile.dev
+    ports:
+      - "127.0.0.1:5001:5001"
+    volumes:
+      - ../:/home/ubuntu/core

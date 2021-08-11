@@ -83,4 +83,7 @@ class UsdaDataRetriever:
         self.getMandatoryReports()
 
 
-
+if __name__ == "__main__":
+    if False:
+        UsdaDataRetriever.getUsdaData()
+    print("Testing, got to the main! it worked")
