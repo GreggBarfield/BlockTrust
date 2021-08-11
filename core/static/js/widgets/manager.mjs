@@ -19,6 +19,7 @@ import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
+import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 
 
 // Immediately invoked
@@ -54,6 +55,7 @@ import { MarketDataTableWidget } from './types/animal_data/market_data_table_wid
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("market data table", MarketDataTableWidget);
+    attach("sustainability questionaire", SustainabilityQuestionaireWidget);
 
     // Find widgets
     $(".widget").each(function () {
