@@ -78,7 +78,7 @@ class Orders:
         return self._db.last_row_id()
 
     def update_order_as_stripe_paid(self, id, payment_intent):
-        """Updates an auction sale.
+        """Updates an order with the payment intent from stripe.
 
         Params:
             id: The ID of the order 
