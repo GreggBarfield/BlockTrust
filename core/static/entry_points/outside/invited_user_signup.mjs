@@ -1,8 +1,8 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 let invitedUserSignup = $("#invited_user_form");
-let statusMessage = invitedUserSignup.find("#login_status_message");
-let errorMessage = invitedUserSignup.find("#login_error_message");
+let statusMessage = invitedUserSignup.find("#inviteduser_status_message");
+let errorMessage = invitedUserSignup.find("#inviteduser_error_message");
 
 let requestRedirectTo = null;
 if (invitedUserSignup[0].hasAttribute("request_redirect_to")) {
@@ -11,6 +11,7 @@ if (invitedUserSignup[0].hasAttribute("request_redirect_to")) {
 
 let first_name = invitedUserSignup.find("#invite_first");
 let last_name = invitedUserSignup.find("#invite_last");
+let username = invitedUserSignup.find("#invite_username");
 let password = invitedUserSignup.find("#invite_password");
 let confirm_password = invitedUserSignup.find("#invite_confirm_password");
 let user_email = invitedUserSignup.find("#user_email");
@@ -27,6 +28,7 @@ let form = new AsyncForm({
         return {
             first_name: first_name.val(),
             last_name: last_name.val(),
+            username: username.val(),
             password: password.val(),
             confirm_password: confirm_password.val(),
             user_email: user_email.val(),

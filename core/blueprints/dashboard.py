@@ -336,13 +336,11 @@ def serve_add_user(tok):
 
 
 @bp.route('/dashboard/adduser', methods=['POST'])
-def serve_add_user1():
+def serve_add_invited_user():
     try:
-        print(request.form["account_name"])
         account_details = g.db.accounts.get_by_name(request.form["account_name"])
-        print(type(account_details.phone()))
-        auth.signup(
-            username=request.form['user_email'],
+        auth.invited_signup(
+            username=request.form['username'],
             email=request.form['user_email'],
             phone=str(account_details.phone()),
             first_name=request.form['first_name'],
@@ -352,12 +350,13 @@ def serve_add_user1():
             company=request.form['account_name'],
             partner=str(account_details.partner()),
             affiliate_id=account_details.affiliate_id(),
-            sector=account_details.sector_name(),
+            sector=str(account_details.sector_id()),
             address=account_details.address(),
             city=account_details.city(),
             state=account_details.state(),
-            zip_code=str(account_details.zip())
+            zip_code=str(account_details.zip()),
+            account=request.form['account_name']
         )
         return {"redirect": "/login"}
-    except (auth.SignupFailedException, AccountsException, UsersException) as e:
-        raise ExportException("Signup failed: " + str(e))
+    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
+        return {"error": str(e)}
