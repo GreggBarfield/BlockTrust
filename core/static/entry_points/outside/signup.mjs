@@ -47,7 +47,6 @@ let form = new AsyncForm({
 });
 
 partner.on('change', function() {
-    console.log(partner.find(":selected").text());
     if (partner.find(":selected").text() == "No Partner") {
         partner_id.prop('disabled', true);
     } else {
