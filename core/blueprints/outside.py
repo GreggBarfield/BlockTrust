@@ -83,6 +83,7 @@ def serve_signup():
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
     partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
+        "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners
     })
 
@@ -91,7 +92,7 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'first_name':None, 'last_name':None,
+            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
             'address':None, 'city':None, 'state':None, 'zip_code':None,
             'username':None, 'email':None, 'password':None, 'confirm_password':None
         }
@@ -115,6 +116,7 @@ def serve_signup_action():
                 company = required['company'],
                 partner = request.form['partner'],
                 affiliate_id = request.form['affiliate_id'],
+                sector = required['sector'],
                 address = required['address'],
                 city=required['city'],
                 state=required['state'],

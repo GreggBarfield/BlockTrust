@@ -36,6 +36,7 @@ let form = new AsyncForm({
             phone: phone.val(),
             partner: partner.val(),
             affiliate_id: partner_id.val(),
+            sector: sector_id, //must be set in the parent page
             company: company.val(),
             address: address.val(),
             city: city.val(),

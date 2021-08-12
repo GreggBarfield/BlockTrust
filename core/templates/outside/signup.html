@@ -203,7 +203,7 @@
                         </div>
                     </div>
                     <div class="form-group required">
-                        <label for="signup_form_email">Email address</label>
+                        <label for="signup_form_email">Email address (will also be your User ID)</label>
                         <input type="email" class="form-control" placeholder="johndoe@example.com" id="signup_form_email" required>
                         <span class="focus-border"></span>
                     </div>
@@ -235,6 +235,9 @@
         </div>
     </div>
 </section>
+<script type="text/javascript">
+    var sector_id = '{{ default_sector_id }}'
+</script>
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
 
 {% endblock outside_content %}
