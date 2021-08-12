@@ -67,4 +67,6 @@ STRIPE_SECRET_KEY = config_file["stripe"]["secret_key"]
 STRIPE_PUBLISHABLE_KEY = config_file["stripe"]["publishable_key"]
 STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
 
-USDA_API_KEY = config_file["usda_api_key"]
+USDA_API_KEY = config_file["usda"]["api_key"]
+USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
+USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]

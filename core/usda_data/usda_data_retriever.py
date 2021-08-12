@@ -3,7 +3,7 @@ import requests
 from ..database.tables.usda_reports import USDAReports
 from ..database.objects.usda_report import USDAReport
 from ..database.database import Database
-from ..config import USDA_API_KEY
+from ..config import USDA_API_KEY, USDA_PUBLIC_ENDPOINT, USDA_MANDATORY_ENDPOINT
 
 
 class UsdaDataRetriever:
@@ -12,8 +12,7 @@ class UsdaDataRetriever:
     def getMandatoryReports(self):
         """Gets the 'mandatory reports' from API and adds to database"""
 
-        API_ENDPOINT = 'https://mpr.datamart.ams.usda.gov/services/v1.1/reports/'
-        response = requests.get(API_ENDPOINT, auth=(USDA_API_KEY, ''))
+        response = requests.get(USDA_MANDATORY_ENDPOINT, auth=(USDA_API_KEY, ''))
         json_response = response.json()
 
         cattleReports = dict()
@@ -24,13 +23,13 @@ class UsdaDataRetriever:
         print("Size of unique cattle reports: " + str(len(cattleReports)))
 
         for item in cattleReports:
-            response = requests.get(API_ENDPOINT + str(item) + '/Detail', 
+            response = requests.get(USDA_MANDATORY_ENDPOINT + str(item) + '/Detail', 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
             if 'message' in json_response:
                 print('Got smaller data for: ' + str(item))
-                response = requests.get(API_ENDPOINT + str(item), 
+                response = requests.get(USDA_MANDATORY_ENDPOINT + str(item), 
                     auth=(USDA_API_KEY, ''))
                 json_response = response.json()
 
@@ -49,11 +48,10 @@ class UsdaDataRetriever:
         """Gets the public report data from API and adds it to the database"""
         # query market type for livestock. Should give 500ish results
         marketTypeIDs = [1000, 1010, 1011, 1012, 1013, 1031, 1085]
-        API_ENDPOINT = 'https://marsapi.ams.usda.gov/services/v1.2/'
 
         reports = dict()
         for id in marketTypeIDs:
-            response = requests.get(API_ENDPOINT + 'marketTypes/' + str(id), 
+            response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(id), 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
@@ -63,7 +61,7 @@ class UsdaDataRetriever:
         print("Size of unique reports: " + str(len(reports)))
 
         for item in reports:
-            response = requests.get(API_ENDPOINT + 'reports/' + str(item), 
+            response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(item), 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
