@@ -214,57 +214,25 @@ class Users:
         # This is VERY IMPORTANT, otherwise auth.login() could have difficulties
         # if someone uses an integer for a username for example.
 
-        # Username must exist, not be all digits (so it does't look like an ID),
-        # be in proper char set
-        # and not contain an '@' (so it doesn't look like an email)
-        # (the '@' is just an explicit check)
-
-        if '@' in username:
-            raise UsersException("'@' cannot be in the username.")
-
-        # Confusing when a user gets ' ' cannot be in username, so be more specific with spaces
-        if ' ' in username:
-            raise UsersException("Spaces cannot be in the username.")
-        if len(username) == 0:
-            raise UsersException("Username is blank.")
-        # Double-usage
-        try:
-            self.get_by_username(username)
-            raise UsersException("Username is already being used.")
-        except NoUserFoundException:
-            pass
-
-        # .isdigit and .isalpha is NOT safe (subscripts and stuff can count as digit)
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        all_digits = True
-        for c in username:
-            if c not in digits:
-                all_digits = False
-
-        if all_digits:
-            raise UsersException("Username cannot be all digits.")
-
-        valid_chars = (
-            digits +  # Digits
-            ''.join(chr(ord('a') + i) for i in range(26)) +  # Lowercase chars
-            ''.join(chr(ord('A') + i) for i in range(26)) +  # Uppercase chars
-            '_'  # Other
-        )
-
-        for c in username:
-            if c not in valid_chars:
-                raise UsersException("Invalid character '" + c + "' in username.")
-
         # Email must exist and contain an '@'
 
         if len(email) == 0:
             raise UsersException("Email is blank.")
         if '@' not in email or '.' not in email or len(email) < 5:
             raise UsersException("The email you entered is incomplete.")
+        if ' ' in email:
+            raise UsersException("Spaces cannot be in the email.")
         # Double-usage
         try:
             self.get_by_email(email)
             raise UsersException("Email is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
+        try:
+            self.get_by_username(username)
+            raise UsersException("Username is already being used.")
         except NoUserFoundException:
             pass
 
@@ -312,7 +280,7 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def  update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
+    def update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
         """Updates user information.
 
         Params:

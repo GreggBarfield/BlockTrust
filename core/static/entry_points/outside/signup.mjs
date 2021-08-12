@@ -4,7 +4,6 @@ let signupForm = $("#signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
 
-let username = signupForm.find("#signup_form_username");
 let email = signupForm.find("#signup_form_email");
 let password = signupForm.find("#signup_form_password");
 let confirm_password = signupForm.find("#signup_form_confirm_password");
@@ -12,9 +11,8 @@ let first_name = signupForm.find("#signup_form_first");
 let last_name = signupForm.find("#signup_form_last");
 let phone = signupForm.find("#signup_form_phone");
 let partner = signupForm.find("#signup_form_partner");
-let affiliate_id = signupForm.find("#signup_form_affiliate_id");
+let partner_id = signupForm.find("#signup_form_partner_id");
 let company = signupForm.find("#signup_form_company");
-let sector = signupForm.find("#signup_form_sector");
 let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
@@ -29,7 +27,7 @@ let form = new AsyncForm({
     loadingMessage: "Hang on, we're setting up your account...",
     getData: () => {
         return {
-            username: username.val(),
+            username: email.val(), //the email will be stored here in the backend
             password: password.val(),
             email: email.val(),
             confirm_password: confirm_password.val(),
@@ -37,13 +35,22 @@ let form = new AsyncForm({
             last_name: last_name.val(),
             phone: phone.val(),
             partner: partner.val(),
-            affiliate_id: affiliate_id.val(),
-            sector: sector.val(),
+            affiliate_id: partner_id.val(),
+            sector: sector_id, //must be set in the parent page
             company: company.val(),
             address: address.val(),
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val()
         }
+    }
+});
+
+partner.on('change', function() {
+    console.log(partner.find(":selected").text());
+    if (partner.find(":selected").text() == "No Partner") {
+        partner_id.prop('disabled', true);
+    } else {
+        partner_id.prop('disabled', false);
     }
 });
