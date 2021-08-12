@@ -7,7 +7,6 @@ from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
 from ..common_exceptions import ExportException
 from ..utilities import auth
-from ..utilities import shop
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
@@ -312,7 +311,7 @@ def serve_contact_email():
 
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
-    allProductData = shop.get_all_products()
+    allProductData = g.db.products.get_all_products()
     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 

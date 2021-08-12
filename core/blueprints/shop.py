@@ -5,7 +5,6 @@ from ..utilities.aws.aws import get_ses_client
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_discounts import ProductDiscountException
-from ..utilities import shop
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
@@ -19,13 +18,13 @@ bp = Blueprint('shop_bp', __name__)
 
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
-    allProductData = shop.get_partner_products(tok)
+    allProductData = g.db.products.get_partner_products(tok)
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id": tok})
 
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
-    allProductData = shop.get_all_products()
+    allProductData = g.db.products.get_all_products()
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
