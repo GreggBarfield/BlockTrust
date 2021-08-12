@@ -11,7 +11,7 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id, sectors_by_name
+from ..sectors import sectors_by_name
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -83,7 +83,7 @@ def serve_signup():
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
     partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
-        "sectors_by_id": sectors_by_id,
+        "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners
     })
 
