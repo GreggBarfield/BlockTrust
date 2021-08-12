@@ -29,7 +29,7 @@ def run(db, inserts_model, verbose=False, insert_id=None):
         else:
             print("Running insert", insert['id'])
             try:
-                raise Exception('HiThere')
+                #raise Exception('HiThere')
                 handle_insert(db, inserts_model, insert)
             except Exception as e:
                 #max col size to store exception is 5000

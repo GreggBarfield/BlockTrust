@@ -279,14 +279,14 @@ ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 
 /* Rohan Sureshkumar 6/25/2021 */
 ALTER TABLE `example_db_1`.`api_inserts` 
-ADD COLUMN `status_details` VARCHAR(5000) NULL DEFAULT NULL AFTER `status`;
+ADD COLUMN `status_details` VARCHAR(3000) NULL DEFAULT NULL AFTER `status`;
 
 /* Rohan Sureshkumar 6/25/2021 */
 CREATE TABLE `example_db_1`.`error_logs` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `component` VARCHAR(100) NULL,
   `short_error` VARCHAR(100) NULL,
-  `long_error` VARCHAR(10000) NULL,
+  `long_error` VARCHAR(5000) NULL,
   `column_name` VARCHAR(100) NULL,
   `column_value` VARCHAR(1000) NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -47,7 +47,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         "First14DayFeedMethod": "first14da1",
         "Second31DayFeedMethod": "second31d1",
     })
-    print("fields", fields)
+
     try:
         patronid = int(fields["patronid"])
     except ValueError as e:
