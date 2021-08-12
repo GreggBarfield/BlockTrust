@@ -220,10 +220,19 @@ class Users:
             raise UsersException("Email is blank.")
         if '@' not in email or '.' not in email or len(email) < 5:
             raise UsersException("The email you entered is incomplete.")
+        if ' ' in email:
+            raise UsersException("Spaces cannot be in the email.")
         # Double-usage
         try:
             self.get_by_email(email)
             raise UsersException("Email is already being used.")
+        except NoUserFoundException:
+            pass
+
+        # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
+        try:
+            self.get_by_username(username)
+            raise UsersException("Username is already being used.")
         except NoUserFoundException:
             pass
 
