@@ -1,9 +1,10 @@
-from flask import g
 import requests
-from ..database.tables.usda_reports import USDAReports
-from ..database.objects.usda_report import USDAReport
-from ..database.database import Database
-from ..config import USDA_API_KEY, USDA_PUBLIC_ENDPOINT, USDA_MANDATORY_ENDPOINT
+from flask import g
+
+from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT,
+                      USDA_PUBLIC_ENDPOINT)
+from core.database.objects.usda_report import USDAReport
+from core.database.tables.usda_reports import USDAReports
 
 
 class UsdaDataRetriever:
@@ -82,6 +83,5 @@ class UsdaDataRetriever:
 
 
 if __name__ == "__main__":
-    if False:
-        UsdaDataRetriever.getUsdaData()
-    print("Testing, got to the main! it worked")
+    retriever = UsdaDataRetriever()
+    retriever.getUsdaData()

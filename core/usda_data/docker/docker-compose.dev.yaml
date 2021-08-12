@@ -1,0 +1,10 @@
+services:
+  usdadata:
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    ports:
+      - "127.0.0.1:5001:5001"
+    volumes:
+      - ../../:/home/ubuntu/core
+      - ../../../local/mysql:/home/ubuntu/mysql

@@ -7,12 +7,14 @@ RUN apt update -y && apt upgrade -y
 WORKDIR /home/ubuntu
 
 # Finish installing
-
 COPY requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
 # Set app dir
 WORKDIR /home/ubuntu
+
+# Help Python with local imports
+ENV PYTHONPATH /home/ubuntu/
 
 # Run
 CMD exec python3 core/usda_data/usda_data_retriever.py

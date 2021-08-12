@@ -1,4 +1,3 @@
-from .. import database
 from ..objects.usda_report import USDAReport
 
 
