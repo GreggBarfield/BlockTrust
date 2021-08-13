@@ -121,3 +121,20 @@ class AccountUsers:
                 "is_admin": is_admin
             }
         )
+
+    def check_user_in_account(self, user_id, account_id):
+        account_users = self._db.execute_d(
+            """
+                SELECT * FROM account_users
+                    WHERE user=%(user)s
+                        AND account=%(account)s
+            """,
+            {
+                "user": user_id,
+                "account": account_id
+            }
+        )
+        if len(account_users) >= 1:
+            return True
+        else:
+            return False

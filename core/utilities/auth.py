@@ -415,7 +415,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     # Password should equal confirm_password
     if password != confirm_password:
         raise SignupFailedException("The passwords you entered were not identical.")
-    if g.db.users.get_by_email(email) is None:
+    if check_email_exists(email) is False:
         user = g.db.users.create_user(
             username=username,
             password=password,
@@ -429,3 +429,20 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         user = g.db.users.get_by_email(email)
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
+
+
+def check_email_exists(email):
+    email_results = g.db.execute_d(
+        """
+            SELECT * FROM users
+            WHERE
+                email=%(email)s
+        """,
+        {
+            "email": email
+        }
+    )
+    if len(email_results) >= 1:
+        return True
+    else:
+        return False

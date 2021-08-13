@@ -12,7 +12,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
-from ..database.tables.users import UsersException
+from ..database.tables.users import UsersException, NoUserFoundException
 
 from ..renderers.email import render_email
 
@@ -330,6 +330,12 @@ def serve_add_user(tok):
             user_email = invite_object["user_email"]
             account_name = invite_object["current_account"]
             account_id = invite_object["current_account_id"]
+            if auth.check_email_exists(email=user_email) is True:
+                user = g.db.users.get_by_email(user_email)
+                account_details = g.db.accounts.get_by_id(account_id)
+                if g.db.account_users.check_user_in_account(user_id=user.id(), account_id=account_details.id()) is False:
+                    g.db.account_users.add_user_to_account(user, account=account_details)
+                return redirect("/login")
             return outside_render("/outside/invited-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
         except ExportException as e:
             return outside_render("/outside/error.html")
