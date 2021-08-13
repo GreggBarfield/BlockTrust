@@ -1,14 +1,19 @@
 import requests
-from flask import g
+
+from core.database.database import Database
 
 from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT,
-                      USDA_PUBLIC_ENDPOINT)
+                      USDA_PUBLIC_ENDPOINT, MYSQL_CONFIG)
 from core.database.objects.usda_report import USDAReport
 from core.database.tables.usda_reports import USDAReports
 
 
 class UsdaDataRetriever:
     """Class that gets the Data from the USDA APIs and adds them to the database"""
+
+    def __init__(self):
+        super().__init__()
+        self.db = Database(MYSQL_CONFIG)
 
     def getMandatoryReports(self):
         """Gets the 'mandatory reports' from API and adds to database"""
@@ -40,7 +45,7 @@ class UsdaDataRetriever:
             for row in json_response['results']:
                 try:
                     report = USDAReport(row)
-                    g.db.usda_reports.create_report(report)
+                    self.db.usda_reports.create_report(report)
                 except Exception as e:
                     print(row)
                     raise Exception(e)
@@ -71,7 +76,7 @@ class UsdaDataRetriever:
             for row in json_response['results']:
                 try:
                     report = USDAReport(row)
-                    g.db.usda_reports.create_report(report)
+                    self.db.usda_reports.create_report(report)
                 except Exception as e:
                     print(row)
                     raise Exception(e)
