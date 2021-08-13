@@ -16,6 +16,7 @@ let password = invitedUserSignup.find("#invite_password");
 let confirm_password = invitedUserSignup.find("#invite_confirm_password");
 let user_email = invitedUserSignup.find("#user_email");
 let account_name = invitedUserSignup.find("#account_name");
+let account_id = invitedUserSignup.find("#account_id");
 
 let form = new AsyncForm({
     action: "/dashboard/adduser",
@@ -32,7 +33,8 @@ let form = new AsyncForm({
             password: password.val(),
             confirm_password: confirm_password.val(),
             user_email: user_email.val(),
-            account_name: account_name.val()
+            account_name: account_name.val(),
+            account_id: account_id.val()
         }
     },
     requestRedirectTo: requestRedirectTo

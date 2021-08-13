@@ -299,7 +299,8 @@ def serve_invite_user():
         try:
             user_email = request.form["email"]
             current_account = request.form["current_account"]
-            invite_object = {"user_email": user_email, "current_account": current_account}
+            current_account_id = request.form["current_account_id"]
+            invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
@@ -324,13 +325,12 @@ def serve_invite_user():
 def serve_add_user(tok):
     if request.method == 'GET':
         try:
-            print("GET")
             invite_string = token.confirmToken(tok)
             invite_object = eval(invite_string)
             user_email = invite_object["user_email"]
             account_name = invite_object["current_account"]
-            print(invite_object)
-            return outside_render("/outside/invited-user-signup.html", {"user_email": user_email, "account_name": account_name})
+            account_id = invite_object["current_account_id"]
+            return outside_render("/outside/invited-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
         except ExportException as e:
             return outside_render("/outside/error.html")
 
@@ -338,7 +338,7 @@ def serve_add_user(tok):
 @bp.route('/dashboard/adduser', methods=['POST'])
 def serve_add_invited_user():
     try:
-        account_details = g.db.accounts.get_by_name(request.form["account_name"])
+        account_details = g.db.accounts.get_by_id(request.form["account_id"])
         auth.invited_signup(
             username=request.form['username'],
             email=request.form['user_email'],
@@ -347,15 +347,8 @@ def serve_add_invited_user():
             last_name=request.form['last_name'],
             password=request.form['password'],
             confirm_password=request.form['confirm_password'],
-            company=request.form['account_name'],
-            partner=str(account_details.partner()),
-            affiliate_id=account_details.affiliate_id(),
-            sector=str(account_details.sector_id()),
-            address=account_details.address(),
-            city=account_details.city(),
-            state=account_details.state(),
-            zip_code=str(account_details.zip()),
-            account=request.form['account_name']
+            account_name=request.form['account_name'],
+            account_id=request.form['account_id']
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:

@@ -18,7 +18,8 @@ let form = new AsyncForm({
     getData: () => {
         return {
             email: email.val(),
-            current_account : current_account
+            current_account : current_account,
+            current_account_id: current_account_id
         }
     }
 });

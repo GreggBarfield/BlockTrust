@@ -385,7 +385,7 @@ def get_email_verified_value(email):
     return g.db.users.get_email_verified_status(email)
 
 
-def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, account):
+def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id):
     """Add a user to an existing account.
 
     Params:
@@ -398,11 +398,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         confirm_password: the confirmed password
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
-        company: company name
-        affiliate_id: affliate id
-        city: city
-        state: state
-        zip: zip
+        account: Account number of the inviting account
     Returns:
         Nothing
 
@@ -416,19 +412,20 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
-
     # Password should equal confirm_password
     if password != confirm_password:
         raise SignupFailedException("The passwords you entered were not identical.")
-
-    user = g.db.users.create_user(
-        username=username,
-        password=password,
-        email=email,
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        email_verified="Y"
-    )
-    account_details = g.db.accounts.get_by_name(account)
+    if g.db.users.get_by_email(email) is None:
+        user = g.db.users.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone,
+            email_verified="Y"
+        )
+    else:
+        user = g.db.users.get_by_email(email)
+    account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)

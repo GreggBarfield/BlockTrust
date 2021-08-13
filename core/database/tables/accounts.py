@@ -310,28 +310,3 @@ class Accounts:
                     )
                 )
             )
-
-    def get_by_name(self, account_name):
-        """Gets an account by an account name.
-
-        Params:
-            name: the account name
-
-        Returns:
-            An Account() object
-
-        Raises:
-            AccountsException on ID not found
-        """
-        # TODO: Add account_links caching option
-        account_rows = self._db.execute_d(
-            """SELECT * FROM accounts
-                WHERE name=%(account_name)s
-            """,
-            {
-                "account_name": account_name
-            }
-        )
-        if len(account_rows) < 1:
-            raise AccountsException("No account found with that name.")
-        return Account(self._db, account_rows[0])
