@@ -11,8 +11,27 @@ $( ".form-inline" ).submit(function( event ) {
     if(!localStorage.totalPrice){
     localStorage.setItem('totalPrice', 0);
     }
+    if(!localStorage.discount){
+    localStorage.setItem("discount", 0);
+    }
+    if(!localStorage.discountPercentage){
+        localStorage.setItem('discountPercentage', {});
+    }
+    if(!localStorage.discountApplied){
+        localStorage.setItem('discountApplied', "N");
+    }
+    //Timeout the cart after 1 hour
+    let hours=1;
+    let saved=localStorage.getItem('saved');
+    if(saved===null){
+        localStorage.setItem('saved', new Date().getTime());
+    }
+    if(saved && (new Date().getTime()-saved>hours*60*60*1000)){
+        localStorage.clear();
+    }
+
     var shopCartString=localStorage.getItem('shoppingCart');
-    var shopCart= JSON.parse(shopCartString)
+    var shopCart= JSON.parse(shopCartString);
     // Get input values to add products to cart
     var values = $(this).serializeArray();
     // Create tuple to add to shoppingCart object in localStorage
@@ -32,17 +51,33 @@ $( ".form-inline" ).submit(function( event ) {
     }
     // Recalculating the total price of all products on addition of new product
     var total_price=0
+    var discountApplied=localStorage.getItem('discountApplied');
+    if(discountApplied==="Y"){
+        var discountPercentagesString=localStorage.getItem('discountPercentage');
+        var discountPercentages=JSON.parse(discountPercentagesString);
+    }
     Object.values(shopCart).forEach(val=>{
     total_price=total_price+(val.price*val.quantity)
     });
     total_price=Math.round(total_price*100)/100;
+    var total_discount=0;
+    if(discountApplied=="Y"){
+        for(key in shopCart){
+            if(discountPercentages.hasOwnProperty(key)){
+                var product_price=shopCart[key].price*shopCart[key].quantity;
+                total_discount=total_discount+product_price*discountPercentages[key]/100;
+            }
+        }
+    }
+    total_discount=Math.round((total_discount)*100)/100;
     // Calculating tax
-    var total_tax=Math.round(total_price*0.0825*100)/100;
+    var total_tax=Math.round((total_price-total_discount)*0.0825*100)/100;
     // Grand total after adding total price, total tax and shipping
     var grand_total=Math.round((total_price+total_tax+15)*100)/100;
     localStorage.setItem('totalPrice', total_price);
     localStorage.setItem('totalTax', total_tax);
     localStorage.setItem('grandTotal', grand_total); 
+    localStorage.setItem('discount', total_discount);
     //Closing the modal and removing the modal backdrop 
     var modalID='#product'+product_no
     $(modalID).modal('hide');
@@ -50,3 +85,22 @@ $( ".form-inline" ).submit(function( event ) {
     $('.modal-backdrop').remove();
   });
 
+
+  $(document).ready(function(){
+      $("#proceedButton").click(function(e){
+        var shopCartString=localStorage.getItem('shoppingCart');
+        if(shopCartString===null){
+            alert("Shopping Cart is Empty!");
+            return;
+        }
+        var shopCart= JSON.parse(shopCartString);
+        var size = Object.keys(shopCart).length;
+        if(size>0){
+            window.location.href = "/shopping-cart";
+            return false;
+        }
+        else{
+            alert("Shopping cart is empty!");
+        }
+    })
+  })

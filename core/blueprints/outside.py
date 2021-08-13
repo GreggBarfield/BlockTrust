@@ -312,6 +312,7 @@ def serve_contact_email():
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
     allProductData = auth.get_all_products()
+    print(allProductData)
     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
