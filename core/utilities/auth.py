@@ -416,14 +416,6 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
-    company = Users._format_field(company)
-    partner = Users._format_field(partner)
-    affiliate_id = Users._format_field(affiliate_id)
-    sector = Users._format_field(sector)
-    address = Users._format_field(address)
-    city = Users._format_field(city)
-    state = Users._format_field(state)
-    zip_code = Users._format_field(zip_code)
 
     # Password should equal confirm_password
     if password != confirm_password:
