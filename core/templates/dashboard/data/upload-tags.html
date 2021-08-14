@@ -83,14 +83,19 @@ const importer = new FlatfileImporter('{{license}}', {
           { validate: "unique" }
       ]},
       { 
-        key: "patronid", label: "Tag",
+        key: "patronid", label: "Patron ID",
         validators: [
 
       ]},
       { 
         key: "zipcode", label: "Zip Code",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '^\\d{1,10}$',
+          error:
+            'Only can be number and must not be more than 10 digits in length.'
+        }
       ]},
       { 
         key: "electronic", label: "Electronic",
@@ -130,7 +135,12 @@ const importer = new FlatfileImporter('{{license}}', {
       { 
         key: "sex", label: "Sex",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '^(?:m|M|male|Male|f|F|female|Female)$',
+          error:
+            'Only can be male or female (m/f).'
+        }
       ]},
       { 
         key: "calfbirthd", label: "Calf Birth Date",

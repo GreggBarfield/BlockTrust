@@ -254,17 +254,50 @@ def insert_eids():
     try:
         if g.account is not None:
             for row in data["eids"]:
-                g.db.execute(
-                    """INSERT INTO api_inserts
-                        (account, namespace, type, fields)
+                g.db.execute_d(
+                    """
+                        INSERT INTO temp
+                            (eid, tag, zip_code,
+                            electronic, visual_id, application,
+                            app_date, wean_weight, first_birth,
+                            wean_date, sex, calf_birth_date,
+                            birth_weight, calf_desc, creep_feed,
+                            first_14_days, marketingd, number_of_calves,
+                            marketingm, sale_location, estimateds,
+                            weaingstr)
                         VALUES
-                            (%(account)s, %(namespace)s, %(type)s, %(fields)s)
+                            (%(eid)s, %(tag)s, %(zip_code)s, 
+                            %(electronic)s, %(visual_id)s, %(application)s, 
+                            %(app_date)s, %(wean_weight)s, %(first_birth)s, 
+                            %(wean_date)s, %(sex)s, %(calf_birth_date)s, 
+                            %(birth_weight)s, %(calf_desc)s, %(creep_feed)s, 
+                            %(first_14_days)s, %(marketingd)s, %(number_of_calves)s, 
+                            %(marketingm)s, %(sale_location)s, %(estimateds)s, 
+                            %(weaingstr)s)
                     """,
                     {
-                        "account": g.account.id(),
-                        "namespace": "BTN1",
-                        "type": "OnlySighting",
-                        "fields": json.dumps({"EID": row["data"]["EID"]})
+                        "eid": row["data"]["electronic"],
+                        "tag": row["data"]["patronid"],
+                        "zip_code": row["data"]["zipcode"],
+                        "electronic": row["data"]["electronic"],
+                        "visual_id": row["data"]["visualid"],
+                        "application": row["data"]["applicatio"],
+                        "app_date": row["data"]["appdate"],
+                        "wean_weight": row["data"]["weanweight"],
+                        "first_birth": row["data"]["firstbirth"],
+                        "wean_date": row["data"]["weandate"],
+                        "sex": row["data"]["sex"],
+                        "calf_birth_date": row["data"]["calfbirthd"],
+                        "birth_weight": row["data"]["birthweigh"],
+                        "calf_desc": row["data"]["calfdescri"],
+                        "creep_feed": row["data"]["creepfeed"],
+                        "first_14_days": row["data"]["first14day"],
+                        "marketingd": row["data"]["marketingd"],
+                        "number_of_calves": row["data"]["numberofca"],
+                        "marketingm": row["data"]["marketingm"],
+                        "sale_location": row["data"]["salelocati"],
+                        "estimateds": row["data"]["estimateds"],
+                        "weaingstr": row["data"]["weaningstr"],
                     }
                 )
             #insert into table
