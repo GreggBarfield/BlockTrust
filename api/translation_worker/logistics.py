@@ -138,6 +138,7 @@ def run(
             batch_insert_ids=batch_insert_ids,
             batch_emitted_matches=batch_emitted_matches,
             batch_emitted_blocks=batch_emitted_blocks,
+            blockchain_uploads=BLOCKCHAIN_TRANSLATION_WORKER_UPLOADS,
         )
 
         # No infinite loop if single insert
