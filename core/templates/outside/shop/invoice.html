@@ -23,7 +23,7 @@
 
 <div class="container" id="invoice">
 
-<h3>Thank you for your order.    If you have any questions please <a href="/about-us/contact-us">contact us</a>.</h3>
+<h3>Thank you for your order.    If you have any questions please <a href="/about-us/contact-us"><u>contact us</u></a>.</h3>
 <br>
 <h4>Invoice</h4>
 <div class="card card-body cart-total mb50">
@@ -42,13 +42,6 @@
 <hr>
 <div class="row mb30 no-margin">
                 <div class="col-sm-3 col-grid" style="background-color:#fff">
-                <h6>Invoice</h6>
-	60<br>
-	</div>
-	 <div class="col-sm-3 col-grid" style="background-color:#fff">
-  
-                </div>
-                <div class="col-sm-3 col-grid" style="background-color:#fff">
                 <h6>Date</h6>
                     <span id="date"></span>
                 </div>
@@ -62,16 +55,16 @@
  <div class="row mb30 no-margin">
                 <div class="col-sm-6 col-grid" style="background-color:#fff">
                 <h6>Account Information</h6>
-	Gregg A Barfield<br>
-	3716 Bridle Ct.<br>
-	College Station,	TX 77845
+                <span class="text-primary" id="account_name"></span><br>
+	            <span class="text-primary" id="account_address"></span><br>
+	            <span class="text-primary" id="account_address_continued"></span>
                 </div>
                 
                 <div class="col-sm-6 col-grid" style="background-color:#fff">
-                     <h6>Shipping Information</h6>
-	Gregg A Barfield<br>
-	3716 Bridle Ct.<br>
-	College Station, TX 77845
+                <h6>Shipping Information</h6>
+                <span class="text-primary" id="shipping_name"></span><br>
+                <span class="text-primary" id="shipping_address"></span><br>
+                <span class="text-primary" id="shipping_address_continued"></span>
                 </div>
                
             </div><div class="spacer-3x">&nbsp;</div>
@@ -91,21 +84,27 @@
     </table> 
 
 
-<div class="spacer-1x">&nbsp;</div>
-
- <div class="row mb30 no-margin">
-
-
-                <div class="col-sm-6 col-grid" style="background-color:#fff">
-                    <div class="col-md-6 cart-total">
-                        <h4 class="pb-3">CART TOTAL</h4>
-                        <p>Subtotal: <span class="text-primary" id="subtotal"></span></p>
-                        <p>Shipping: <span class="text-primary" id="shipping"></span></p>
-                        <p>Tax: <span class="text-primary" id="tax"></span></p>
-                        <p>Total: <span class="text-primary" id="grandTotal"></span></p>
-                    </div><!-- / cart-total -->
-                </div>
-</div>
+    <div class="spacer-1x">&nbsp;</div>
+    <div class="col-md-6 checkout-total">
+        <h4 class="pb-3">CART TOTAL</h4>
+        <div class="row">
+            <div class="col sub-col-left">
+                <p>Subtotal: </p>
+                <p>Shipping: </p>
+                <p>Tax: </p>
+                <p>Discount: </p>
+                <p><b>Total:</b> </p>  
+            </div>
+            <div class="col sub-col-right">
+                <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
+                <p><b><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></b></p>
+            </div>
+        </div>
+    </div>
+</div>  
             </div>   
 
 
@@ -115,16 +114,18 @@
 </section>
 <script type="module" src="/static/entry_points/shop/invoice.mjs"></script>
 <script>
-        function printPageArea(areaID){
+    function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
-        var WinPrint = window.open('', '', 'width=900,height=650');
+        var WinPrint = window.open('', '', 'width=1100,height=900');
+        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" /></head><body>');
         WinPrint.document.write(printContent.innerHTML);
+        WinPrint.document.write('</body></html>');
         WinPrint.document.close();
         WinPrint.focus();
-        WinPrint.print();
-        WinPrint.close();
-        
-        console.log("printing")
+        setTimeout(function() {
+            WinPrint.print();
+            WinPrint.close();
+        }, 1000);
     }
 </script>
 {% endblock outside_content %}

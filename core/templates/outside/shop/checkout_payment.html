@@ -10,7 +10,6 @@
         <div class="row">
             <div class="col-12">
                 <h1 class="text-white mb-1">Checkout</h1>
-                 
             </div>
         </div>
     </div>
@@ -46,7 +45,7 @@
                     </div>
                     </div><!-- / row -->
                     <p><input type="checkbox" id="same_address" name="same_address">&nbsp;Check this if billing address is same as shipping address</p>
-                    <button type="submit" class="btn btn-primary rectangle mt-2">CHECKOUT</button>
+                    <button type="submit" class="btn btn-outline-primary rectangle m-1">CHECKOUT</button>
                     <p class="mt-2 mb-0" id="payment_status_message" style="display:none;">Hang on, submitting your payment...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="payment_error_message">Payment error...</p>
                 </form>
@@ -55,22 +54,24 @@
                 <div class="col-md-3 checkout-total">
                     <h4 class="pb-3">CART TOTAL</h4>
                     <div class="row">
-                        <div class="col-md-3 sub-col-left">
+                        <div class="col sub-col-left">
                             <p>Subtotal: </p>
                             <p>Shipping: </p>
                             <p>Tax: </p>
-                            <p>Total: </p>   
+                            <p>Discount: </p>
+                            <p><b>Total:</b> </p>  
                         </div>
-                        <div class="col-md-3 sub-col-right">
+                        <div class="col sub-col-right">
                             <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
                             <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
                             <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
-                            <p><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></p>
+                            <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
+                            <p><b><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></b></p>
                         </div>
-                    </div><!-- / row -->
+                    </div>
                     <div class="cart-total-footer">
-                        <a href="/shopping-cart" class="btn btn-primary rectangle mt-2"><span>BACK TO CART</span></a>
-                        <a href="/shop" class="btn btn-primary rectangle mt-2"><span>CONTINUE SHOPPING</span></a>
+                        <a href="/shopping-cart" class="btn btn-outline-primary rectangle m-1"><span>BACK TO CART</span></a>
+                        <a href="/shop" class="btn btn-outline-primary rectangle m-1"><span>CONTINUE SHOPPING</span></a>
                     </div><!-- / cart-total-footer -->
                 </div><!-- / checkout-total -->
 

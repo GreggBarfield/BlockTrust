@@ -312,7 +312,6 @@ def serve_contact_email():
 @bp.route('/shop', methods=['GET'])
 def serve_shop():
     allProductData = auth.get_all_products()
-    print(allProductData)
     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
@@ -344,9 +343,8 @@ def serve_checkout_payment():
 
 @bp.route('/checkout_payment', methods=['POST'])
 def serve_payment():
-    print(request.form)
     # return outside_render('shop/invoice.html')
-    return redirect('/invoice')
+    return jsonify({"redirect": "/invoice"})
 
 
 @bp.route('/checkout_loggedIn', methods=['GET'])
@@ -358,7 +356,7 @@ def serve_checkout_register():
 @bp.route('/checkout_loggedIn', methods=['POST'])
 def serve_loggedIn_checkout():
     try:
-        print(request.form)
+        # print(request.form)
         redirect_to = ''
         if 'redirect' in request.args:
             redirect_to = request.args['redirect']
