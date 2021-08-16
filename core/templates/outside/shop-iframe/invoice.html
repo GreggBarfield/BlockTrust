@@ -109,7 +109,7 @@
     function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
         var WinPrint = window.open('', '', 'width=1100,height=900');
-        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.css" /></head><body>');
+        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" /></head><body>');
         WinPrint.document.write(printContent.innerHTML);
         WinPrint.document.write('</body></html>');
         WinPrint.document.close();
