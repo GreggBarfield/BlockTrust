@@ -4,9 +4,6 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-
-SESSION_USER_ID_VAR = "user_id"
-SESSION_ACCOUNT_ID_VAR = "account_id"
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"

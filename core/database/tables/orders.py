@@ -26,7 +26,7 @@ class Orders:
             }
         )
         if len(order_rows) != 1:
-            raise Exception("No account found with that ID.")
+            raise Exception("No order found with that ID.")
         return Order(self._db, order_rows[0])
 
     def add_order(self, order, shipping_address_line, shipping_city, shipping_state, shipping_zip_code):

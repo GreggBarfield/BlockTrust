@@ -24,55 +24,51 @@
     </style>
 </head>
 <div>
-<div class="col-sm-4 col-grid" style="background-color:#fff">
-    <h4>Shipping Information: </h4>
-    Order ID: {{order_id}}<br>
-    Customer name: {{first}} {{last}}<br>
-    Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
-    <h4>Order Information: </h4>
-    <table>
-        <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-        </tr>
-        {% for key, value in cart.items() %}
-        <tr>    
-            <td>{{value.product_name}}</td>
-            <td>{{value.quantity}}</td>
-            <td>{{"$%.2f"|format(value.price)}}</td>
-            <td>{{"$%.2f"|format(value.quantity*value.price)}}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="col-sm-4 col-grid" style="background-color:#fff">
+        <h4>Shipping Information: </h4>
+        Order ID: {{order_id}}<br>
+        Customer name: {{first}} {{last}}<br>
+        Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
+        <h4>Order Information: </h4>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+            {% for key, value in cart.items() %}
+            <tr>    
+                <td>{{value.product_name}}</td>
+                <td>{{value.quantity}}</td>
+                <td>{{"$%.2f"|format(value.price)}}</td>
+                <td>{{"$%.2f"|format(value.quantity*value.price)}}</td>
+            </tr>
+            {% endfor %}
+        </table>
 
-    <table>
-        <tr>
-            <th>Total Price: </th>
-            <td>{{"$%.2f"|format(total_price|float)}}</td>
-        </tr>
-        <tr>
-            <th>Total Tax: </th>
-            <td>{{"$%.2f"|format(total_tax|float)}}</td>
-        </tr>
-        <tr>
-            <th>Shipping: </th>
-            <td>{{"$%.2f"|format(shipping|float)}}</td>
-        </tr>
-        <tr>
-            <th>Discount: </th>
-            <td>-{{"$%.2f"|format(discount|float)}}</td>
-        </tr>
-        <tr>
-            <th>Grand Total: </th>
-            <td>{{"$%.2f"|format(grand_total|float)}}</td>
-        </tr>
-    </table>
-
-
-    </span>
-</div>
-
+        <table>
+            <tr>
+                <th>Total Price: </th>
+                <td>{{"$%.2f"|format(total_price|float)}}</td>
+            </tr>
+            <tr>
+                <th>Total Tax: </th>
+                <td>{{"$%.2f"|format(total_tax|float)}}</td>
+            </tr>
+            <tr>
+                <th>Shipping: </th>
+                <td>{{"$%.2f"|format(shipping|float)}}</td>
+            </tr>
+            <tr>
+                <th>Discount: </th>
+                <td>-{{"$%.2f"|format(discount|float)}}</td>
+            </tr>
+            <tr>
+                <th>Grand Total: </th>
+                <td>{{"$%.2f"|format(grand_total|float)}}</td>
+            </tr>
+        </table>
+    </div>
 </div>
 {% endblock email_standard_center %}

@@ -309,21 +309,21 @@ def serve_contact_email():
 # Routes for shop, shopping cart, product and checkout pages
 
 
-@bp.route('/shop', methods=['GET'])
-def serve_shop():
-    allProductData = g.db.products.get_all_products()
-    return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
+# @bp.route('/shop', methods=['GET'])
+# def serve_shop():
+#     allProductData = g.db.products.get_all_products()
+#     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
 # Routes for adding and deleting cart items
 
 
-@bp.route('/shop', methods=['POST'])
-def serve_add_to_cart():
-    try:
-        return outside_render("shop/shop_homepage.html")
-    except ExportException as e:
-        return jsonify({"error": e})
+# @bp.route('/shop', methods=['POST'])
+# def serve_add_to_cart():
+#     try:
+#         return outside_render("shop/shop_homepage.html")
+#     except ExportException as e:
+#         return jsonify({"error": e})
 
 
 # Routes for shopping cart page

@@ -30,12 +30,12 @@ class OrderProducts:
             }
         )
 
-    def get_order(self, order_no):
+    def get_order_products(self, order_no):
         """
-        Gets the producst associated with a particular order number
+        Gets the producst associated with a particular order
 
         Params:
-            order_no: Order number
+            order_no: Order id
 
         Returns:
             matching_orders: Array with order product details
