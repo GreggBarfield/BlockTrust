@@ -61,7 +61,7 @@ class ProductTable:
             return {}
         return matching_products[0]
 
-    def get_price_by_id(self, id):
+    def get_product_by_id(self, id):
         """Gets a product price by their ID.
 
         Params:
@@ -82,7 +82,7 @@ class ProductTable:
         )
 
         if len(matching_products) != 1:
-            raise ProductTableException()
+            raise ProductTableException("No product found with that ID.")
         return matching_products[0]['price']
 
     def get_partner_products(self, partner):
