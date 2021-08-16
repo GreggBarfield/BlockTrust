@@ -4,7 +4,7 @@ from ..database.tables.users import Users, NoUserFoundException
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
-#since session objects are easily decoded, we use key names which make no sense
+# since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
@@ -156,7 +156,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     state = Users._format_field(state)
     zip_code = Users._format_field(zip_code)
 
-
     # Password should equal confirm_password
 
     if password != confirm_password:
@@ -190,7 +189,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         #Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
         raise e
-
 
 
 def logout():
@@ -360,7 +358,6 @@ def login(identifier, password="", override=False):
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
-
         return g.user
     except LoginException as e:
         raise e
