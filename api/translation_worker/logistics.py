@@ -29,10 +29,9 @@ def run(db, inserts_model, verbose=False, insert_id=None):
         else:
             print("Running insert", insert['id'])
             try:
-                #raise Exception('HiThere')
                 handle_insert(db, inserts_model, insert)
             except Exception as e:
-                #max col size to store exception is 5000
+                #max col size to store exception is 3000
                 inserts_model.set_status(insert['id'], "Exception",  e.__class__.__name__ + ": " + str(e) + ", Stacktrace: " + traceback.format_exc())
 
                 if verbose:

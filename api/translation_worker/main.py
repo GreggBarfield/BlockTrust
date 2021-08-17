@@ -24,7 +24,7 @@ try:
 
     parser.add_argument('-v', '--verbose', help='Verbose', action='store_true')
     parser.add_argument('-i', '--id', help='Run ID (regardless of status) (exits after finishing)', type=int, default=None)
-    parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=15)
+    parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=1)
 
     args = parser.parse_args()
 
