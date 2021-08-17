@@ -21,7 +21,15 @@ def serve_stripe_test():
 @bp.route('/stripe/config', methods=['GET'])
 def serve_stripe_config():
     return  {
-        'publishableKey':STRIPE_PUBLISHABLE_KEY
+        'publishableKey': STRIPE_PUBLISHABLE_KEY
+    }
+
+
+@bp.route('/stripe/config/<partner_id>', methods=['GET'])
+def serve_stripe_config_for_partner(partner_id):
+    account = g.db.accounts.get_by_id(partner_id)
+    return  {
+        'publishableKey': account.partner_stripe_publishable_key() 
     }
 
 
@@ -32,7 +40,6 @@ def serve_stripe_price(priceLookupKey):
             price = stripe.Price.retrieve(
                 STRIPE_BASIC_PRICE,
             )
-            print(price)  
             return {
                 'price': "${:,.2f}".format(price['unit_amount']/100)
             }
@@ -141,3 +148,35 @@ def create_subscription():
             return {'error':{'message': 'No or incorrect price selected'}}, 400
     except Exception as e:
         return {'error':{'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-payment-intent/<partner_id>', methods=['POST'])
+def create_payment(partner_id):
+    data = json.loads(request.data)
+    try:    
+        account = g.db.accounts.get_by_id(partner_id)
+        if account is not None:
+            stripe.api_key = account.partner_stripe_secret_key()
+            # Some example payment method types include `card`, `ideal`, and `alipay`.
+            payment_method_type = data['paymentMethodType']
+            currency = data['currency']
+            order_id = data['orderId']
+            amount = float(data['amount'])*100
+            amount = int(amount)
+            # Create a PaymentIntent with the amount, currency, and a payment method type.
+            params = {
+                'payment_method_types': [payment_method_type],
+                'amount': amount,
+                'currency': currency,
+                'metadata': {'order_id':order_id}
+            }
+            intent = stripe.PaymentIntent.create(**params)
+
+            # Send PaymentIntent details to the front end.
+            return {'clientSecret': intent.client_secret}
+        else:
+            raise Exception("Incorrect partner id.")
+    except stripe.error.StripeError as e:
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400

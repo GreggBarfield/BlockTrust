@@ -49,6 +49,12 @@ CSP = {
         'http://localhost:5001/api/flatfile',
         'blocktrustnetwork.com',
         'data:'
+    ],
+    'frame-ancestors': [
+        'blocktrustnetwork.com',
+        'uscattletrace.org',
+        'www.uscattletrace.org',
+        'www-uscattletrace-org.filesusr.com'
     ]
 }
 
