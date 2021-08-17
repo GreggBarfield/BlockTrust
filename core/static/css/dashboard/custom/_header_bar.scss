@@ -65,7 +65,7 @@ $nav-small-gap: 10px;
         position: fixed;
         right: 10px;
         z-index: 6;
-        top: ($header-top-size - 54px)/2;
+        top: math.div($header-top-size - 54px, 2);
     }
 
     .b-header {
