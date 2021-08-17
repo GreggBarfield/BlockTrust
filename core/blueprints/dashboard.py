@@ -248,6 +248,12 @@ def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
 
+def getTagInRow(row, tag):
+    if tag in row:
+        return row[tag]
+    else:
+        return None
+
 @bp.route('/dashboard/import-tags', methods=['POST'])
 def insert_eids():
     data = json.loads(request.data)
@@ -257,47 +263,47 @@ def insert_eids():
                 g.db.execute_d(
                     """
                         INSERT INTO temp
-                            (eid, tag, zip_code,
-                            electronic, visual_id, application,
+                            (eid, patron_id, zip_code,
+                            electronic_id, visual_id, application_id,
                             app_date, wean_weight, first_birth,
                             wean_date, sex, calf_birth_date,
                             birth_weight, calf_desc, creep_feed,
-                            first_14_days, marketingd, number_of_calves,
-                            marketingm, sale_location, estimateds,
-                            weaingstr)
+                            first_14_days, marketing_date, number_of_calves,
+                            marketing_method, sale_location, 
+                            estimated_sale_weight, weaning_strategy)
                         VALUES
-                            (%(eid)s, %(tag)s, %(zip_code)s, 
-                            %(electronic)s, %(visual_id)s, %(application)s, 
+                            (%(eid)s, %(patron_id)s, %(zip_code)s, 
+                            %(electronic_id)s, %(visual_id)s, %(application_id)s, 
                             %(app_date)s, %(wean_weight)s, %(first_birth)s, 
                             %(wean_date)s, %(sex)s, %(calf_birth_date)s, 
                             %(birth_weight)s, %(calf_desc)s, %(creep_feed)s, 
-                            %(first_14_days)s, %(marketingd)s, %(number_of_calves)s, 
-                            %(marketingm)s, %(sale_location)s, %(estimateds)s, 
-                            %(weaingstr)s)
+                            %(first_14_days)s, %(marketing_date)s, %(number_of_calves)s, 
+                            %(marketing_method)s, %(sale_location)s, 
+                            %(estimated_sale_weight)s, %(weaning_strategy)s)
                     """,
                     {
-                        "eid": row["data"]["electronic"],
-                        "tag": row["data"]["patronid"],
-                        "zip_code": row["data"]["zipcode"],
-                        "electronic": row["data"]["electronic"],
-                        "visual_id": row["data"]["visualid"],
-                        "application": row["data"]["applicatio"],
-                        "app_date": row["data"]["appdate"],
-                        "wean_weight": row["data"]["weanweight"],
-                        "first_birth": row["data"]["firstbirth"],
-                        "wean_date": row["data"]["weandate"],
-                        "sex": row["data"]["sex"],
-                        "calf_birth_date": row["data"]["calfbirthd"],
-                        "birth_weight": row["data"]["birthweigh"],
-                        "calf_desc": row["data"]["calfdescri"],
-                        "creep_feed": row["data"]["creepfeed"],
-                        "first_14_days": row["data"]["first14day"],
-                        "marketingd": row["data"]["marketingd"],
-                        "number_of_calves": row["data"]["numberofca"],
-                        "marketingm": row["data"]["marketingm"],
-                        "sale_location": row["data"]["salelocati"],
-                        "estimateds": row["data"]["estimateds"],
-                        "weaingstr": row["data"]["weaningstr"],
+                        "eid": getTagInRow(row, "eid"),
+                        "patron_id": getTagInRow(row, "patronid"),
+                        "zip_code": getTagInRow(row, "zipcode"),
+                        "electronic_id": getTagInRow(row, "electronic"),
+                        "visual_id": getTagInRow(row, "visualid"),
+                        "application_id": getTagInRow(row, "applicatio"),
+                        "app_date": getTagInRow(row, "appdate"),
+                        "wean_weight": getTagInRow(row, "weanweight"),
+                        "first_birth": getTagInRow(row, "firstbirth"),
+                        "wean_date": getTagInRow(row, "weandate"),
+                        "sex": getTagInRow(row, "sex"),
+                        "calf_birth_date": getTagInRow(row, "calfbirthd"),
+                        "birth_weight": getTagInRow(row, "birthweigh"),
+                        "calf_desc": getTagInRow(row, "calfdescri"),
+                        "creep_feed": getTagInRow(row, "creepfeed"),
+                        "first_14_days": getTagInRow(row, "first14day"),
+                        "marketing_date": getTagInRow(row, "marketingd"),
+                        "number_of_calves": getTagInRow(row, "numberofca"),
+                        "marketing_method": getTagInRow(row, "marketingm"),
+                        "sale_location": getTagInRow(row, "salelocati"),
+                        "estimated_sale_weight": getTagInRow(row, "estimateds"),
+                        "weaning_strategy": getTagInRow(row, "weaningstr")
                     }
                 )
             #insert into table

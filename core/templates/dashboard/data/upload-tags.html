@@ -54,7 +54,7 @@ Upload Tag Data
                         'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                                eids: results.$data
+                                eids: results.data
                             }),
                     });
                 })">Start Upload</button>
@@ -79,8 +79,11 @@ const importer = new FlatfileImporter('{{license}}', {
       { 
         key: "EID", label: "Tag",
         validators: [
-          { validate: "required" },
-          { validate: "unique" }
+        {
+          validate: 'regex_matches',
+          regex: '^\\d{1,15}$',
+          error: 'Only can be number and must be more than 15 digits in length.'
+        }
       ]},
       { 
         key: "patronid", label: "Patron ID",
@@ -93,12 +96,11 @@ const importer = new FlatfileImporter('{{license}}', {
         {
           validate: 'regex_matches',
           regex: '^\\d{1,10}$',
-          error:
-            'Only can be number and must not be more than 10 digits in length.'
+          error: 'Only can be number and must not be more than 10 digits in length.'
         }
       ]},
       { 
-        key: "electronic", label: "Electronic",
+        key: "electronic", label: "Electronic ID",
         validators: [
 
       ]},
@@ -108,22 +110,26 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "applicatio", label: "Application",
+        key: "applicatio", label: "Application ID",
         validators: [
 
       ]},
       { 
-        key: "appdate", label: "appdate", // **********
+        key: "appdate", label: "Application Date",
         validators: [
 
       ]},
       { 
         key: "weanweight", label: "Wean Weight",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
       ]},
       { 
-        key: "firstbirth", label: "First Birth",
+        key: "firstbirth", label: "First Birth Date",
         validators: [
 
       ]},
@@ -138,8 +144,7 @@ const importer = new FlatfileImporter('{{license}}', {
         {
           validate: 'regex_matches',
           regex: '^(?:m|M|male|Male|f|F|female|Female)$',
-          error:
-            'Only can be male or female (m/f).'
+          error: 'Only can be male or female (m/f).'
         }
       ]},
       { 
@@ -150,7 +155,11 @@ const importer = new FlatfileImporter('{{license}}', {
       { 
         key: "birthweigh", label: "Birth Weight",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
       ]},
       { 
         key: "calfdescri", label: "Calf Description",
@@ -158,27 +167,31 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "creepfeed", label: "creepfeed", //***************
+        key: "creepfeed", label: "Creep Feed",
         validators: [
 
       ]},
       { 
-        key: "first14day", label: "First 14 Days",
+        key: "first14day", label: "First 14 Day Feed Method",
         validators: [
 
       ]},
       { 
-        key: "marketingd", label: "marketingd", //**********
+        key: "marketingd", label: "Marketing Date",
         validators: [
 
       ]},
       { 
         key: "numberofca", label: "Number of Calves",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '^[0-9]*$',
+          error: 'Only can be a number.'
+        }
       ]},
       { 
-        key: "marketingm", label: "marketingm", //************
+        key: "marketingm", label: "Marketing Method Name",
         validators: [
 
       ]},
@@ -188,12 +201,16 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "estimateds", label: "estimateds", //**************
+        key: "estimateds", label: "Estimated Sale Weight",
         validators: [
-
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
       ]},
       { 
-        key: "weaningstr", label: "weaningstr", //********************
+        key: "weaningstr", label: "Weaning Strategy",
         validators: [
 
       ]}
