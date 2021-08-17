@@ -1,4 +1,4 @@
-#Singleton Pattern
+# Singleton Pattern
 class NoValue:
     _instance = None
 

@@ -1,0 +1,98 @@
+{% extends "outside/shop-iframe/shop-standard.html" %}
+
+{% set page_title = "Tag Store"| string %}
+
+{% block outside_content %}
+<section id="gallery" class="p-0 line-effect">
+    <div class="container">
+            <div class="col-md-12 text-right">
+                <button id="proceedButton" class="btn btn-outline-primary rectangle m-1">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></button>
+            </div>           
+            <div class="container">
+                <ul  class="row gallery line-effect list-unstyled mb-0" id="grid">
+                    {% for product in allProductData %}
+                    <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
+                        <figure class="gallery-item effect-bubba">
+                            <img src="/static/images/shop/{{product.pic_1}}" style="border:2px;border-style:solid;border-color:#c0c0c0" alt="">
+                            <figcaption>
+                                <div class="hover-content">
+                                    <h2 class="hover-title text-center text-white">{{product.product}}</h2>
+                                    <p class="gallery-info text-center text-white">
+                                        <span class="gallery-icons">
+                                            <a href="#x" class="gallery-button" data-toggle="modal" data-target="#product{{product.id}}"><i class="fas fa-plus"></i></a>
+                                        </span>
+                                    </p>
+                                </div>
+                            </figcaption>
+                        </figure>
+                        <h4 class="text-center text-black">{{product.product}}</h4>
+                        <h6 class="text-center text-black">
+                            {% if product.id==4 %}
+                            <span><i>Regular Price- $44.00/bag of 20 tags<br>U.S. CattleTrace Member Price- $35.20/bag of 20 tags</i></span>
+                            {% endif %}
+                            {% if product.id==5 %}
+                            <span><i>Regular Price- $70.80/bag of 20 tags<br>U.S. CattleTrace Member Price- $35.40/bag of 20 tags</i></span>
+                            {% endif %}
+                            {% if product.id==6 %}
+                            <span><i>Regular Price- $44.00/bag of 20 tags<br>U.S. CattleTrace Member Price- $44.00/bag of 20 tags</i></span>
+                            {% endif %}
+                        </h6>
+                    </li>
+
+                    {% endfor %}
+                </ul> 
+            </div>
+            </div>    
+            
+            {% for product in allProductData %}
+            <div class="modal fade product-modal" id="product{{product.id}}" tabindex="-1" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row vcenter">
+                                    <div class="col-md-6">
+                                        <img src="/static/images/shop/{{product.pic_2}}" style="border:2px;border-style:solid;border-color:#c0c0c0;width:80%;max-width:80%;height:auto" alt="">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4 class="single-product-title">{{product.product}}</h4>
+                                        <h5>{{product.subheader}}</h5>
+                                        <ul style="display:inline-table; list-style-type: square;">
+                                            {% set list1=product.details.split(';') %}
+                                            {% for item in list1 %}
+                                            <li>{{item}}</li>
+                                            {% endfor %}
+                                        </ul>
+                                            <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>{{"$%.2f"|format(product.price|float)}}</b></span></p>
+                                            <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>{{product.unit}}</b></span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <form class="form-inline" id="shopping_cart_form" method="POST" request_redirect_to="{{ redirect_to }}">
+                                <input type="hidden" name="code" value="{{product.id}}"/>
+                                <input type="hidden" name="price" value="{{product.price}}"/>
+                                <input type="hidden" name="product_name" value="{{product.product}}"/>
+                                <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
+                                <input class="form-control qty m-2 text-white input-lg" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
+                                <div class="col-md-4 text-right">
+                                    <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
+                                </div>
+                            </form>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+</section>
+<script type="text/javascript">
+    var partner_id = '{{ partner_id }}'
+</script>
+<script type="module" src="/static/entry_points/shop_iframe/shop_homepage.mjs"></script>
+{% endblock outside_content %}
