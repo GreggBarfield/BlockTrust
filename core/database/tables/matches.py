@@ -1,6 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag, frag_insert_into
+from ..frag import frag, frag_insert_into, frag_insert_single_where
 from ..objects.match import Match, MatchException
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
@@ -121,8 +121,8 @@ class Matches:
         ))
 
     def insert(
-        self, eid, type_int, data=None, account=None, account_link=None,
-        lat=None, lon=None, time=None, raw_identifier=None
+        self, eid, type_int, grouping_id=None, data=None, account=None, account_link=None,
+        lat=None, lon=None, time=None, raw_identifier=None, api_insert=None
     ):
         """Insert a new row into matches.
 
@@ -145,23 +145,59 @@ class Matches:
         if not isinstance(type_int, int):
             raise MatchesException("type_int should be an int")
 
+        row = {
+            "eid": eid,
+            "type": type_int,
+            "grouping_id": grouping_id,
+            "data": None if data is None else json.dumps(data),
+            "account": account,
+            "account_link": account_link,
+            "lat": lat,
+            "lon": lon,
+            "time": time,
+            "created": int(time_module.time()),
+            "raw_identifier": raw_identifier,
+            "api_insert": api_insert
+        }
+
         self._db.exec_frag(
-            frag_insert_into(
+            frag_insert_single_where(
                 'matches',
-                [
-                    {
-                        "eid": eid,
-                        "type": type_int,
-                        "data": None if data is None else json.dumps(data),
-                        "account": account,
-                        "account_link": account_link,
-                        "lat": lat,
-                        "lon": lon,
-                        "time": time,
-                        "created": int(time_module.time()),
-                        "raw_identifier": raw_identifier
-                    }
-                ]
+                row,
+                frag(
+                    "(",
+                    frag(
+                        "SELECT COUNT(*) FROM matches",
+                        "WHERE",
+                        "eid<=>:eid",
+                        "AND",
+                        "type<=>:type",
+                        "AND",
+                        "grouping_id<=>:grouping_id",
+                        "AND",
+                        "data<=>CAST(:data AS JSON)",
+                        "AND",
+                        "account<=>:account",
+                        "AND",
+                        "account_link<=>:account_link",
+                        "AND",
+                        "lat<=>:lat",
+                        "AND",
+                        "lon<=>:lon",
+                        "AND",
+                        "time<=>:time",
+                        eid=row["eid"],
+                        type=row["type"],
+                        grouping_id = row["grouping_id"],
+                        data=row["data"],
+                        account=row["account"],
+                        account_link=row["account_link"],
+                        lat=row["lat"],
+                        lon=row["lon"],
+                        time=row["time"]
+                    ),
+                    ") = 0",
+                )
             )
         )
 
@@ -195,7 +231,6 @@ class Matches:
                 matches
             """
         )
-        a
         # Data from last 3 years, and USDAQualityGrade
         return tuple(
             row['eid'] for row in
@@ -367,8 +402,8 @@ class Matches:
                 """
                     FROM auction_sales
                     LEFT JOIN sales_groups ON sales_groups.auction_sale=auction_sales.id
-                    LEFT JOIN sales_group_eids ON sales_group_eids.sales_group=sales_groups.id
-                    LEFT JOIN matches ON sales_group_eids.eid=matches.eid
+                    LEFT JOIN eid_group_eids ON eid_group_eids.eid_group=sales_groups.eid_group
+                    LEFT JOIN matches ON eid_group_eids.eid=matches.eid
                     LEFT JOIN account_links ON matches.account_link=account_links.id
                 """,
                 Matches._left_join_visibility,
@@ -405,6 +440,38 @@ class Matches:
                 )
             ),
         )[0]['count']
+   
+    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
+        """Gets matches data associated with an visual id if visible.
+
+        Params:
+            visual_id: The visual id to look up
+            account_id: current active account
+
+        Returns:
+            All the matches table rows containing the visual id matches
+        """
+        visual_id = str(visual_id)
+        return self._db.execute_d(
+            """
+                SELECT matches.*
+                FROM matches
+                LEFT JOIN account_links on matches.account_link=account_links.id
+                LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
+                WHERE matches.type=%(visual_id_type)s 
+                AND (
+                    (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
+                    OR 
+                    (matches.account=%(account_id)s)
+                )
+                AND matches.data=%(visual_id)s
+            """,
+            {
+                "visual_id_type": match_types_by_name["Visual ID"],
+                "account_id": account_id,
+                "visual_id": visual_id
+            }
+        )
 
     @staticmethod
     def _load_rows(rows):

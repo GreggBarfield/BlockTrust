@@ -4,3 +4,5 @@ flask-cors
 mysql-connector-python
 bcrypt
 boto3
+stripe
+pyzipcode

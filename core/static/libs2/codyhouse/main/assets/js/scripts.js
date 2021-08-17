@@ -326,6 +326,8 @@ function resetFocusTabsStyle() {
       this.animationDelta = '-150px';
       initVTimeline(this);
     };
+
+    window.VTimeline = VTimeline; // In-code monkey patch
   
     function initVTimeline(element) {
       if(!element.animate) return;

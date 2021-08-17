@@ -1,4 +1,5 @@
 from ...match_types import match_types_by_name
+from . import matches
 
 
 class MatchTypes:
@@ -9,7 +10,7 @@ class MatchTypes:
     
     """
 
-    def __init__(self, matches):
+    def __init__(self, matches: 'matches.Matches'):
         self._matches = matches
 
     def insert_sighting(self, **kwargs):
@@ -174,8 +175,8 @@ class MatchTypes:
         )
 
     def _generic_insert(
-        self, eid, type_int, account, data=None, account_link=None, lat=None,
-        lon=None, time=None, raw_identifier=None
+        self, eid, type_int, account,  grouping_id=None, data=None, account_link=None, lat=None,
+        lon=None, time=None, raw_identifier=None, api_insert=None
     ):
         """Passes data to Matches.insert
 
@@ -185,11 +186,13 @@ class MatchTypes:
         self._matches.insert(
             eid=eid,
             type_int=type_int,
+            grouping_id = grouping_id,
             data=data,
             account=account,
             account_link=account_link,
             lat=lat,
             lon=lon,
             time=time,
-            raw_identifier=raw_identifier
+            raw_identifier=raw_identifier,
+            api_insert=api_insert
         )

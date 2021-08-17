@@ -9870,12 +9870,16 @@ form label {
   .input-group i + .form-control {
     padding-left: 25px; }
 
-> .form-control:focus {
+.form-control:focus {
   border-color: #2d3037; }
 
 .form-group {
   position: relative; }
 
+.form-group.required label:after { 
+    content:" *";
+    color:red;
+  }
 /*********************
     Dropdown
 *********************/

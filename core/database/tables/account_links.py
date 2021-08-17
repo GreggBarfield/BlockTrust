@@ -170,3 +170,24 @@ class AccountLinks:
 
         if self._db.row_count() != 1:
             raise AccountLinksException("Conflict with another account link")
+
+    def add_account_to_account_link(self, partner, uid, account):
+        """Updates a account link with the account id
+
+        Params:
+            partner: Partner ID 
+            uid: UID or partron id
+            account: Account ID to bind
+        """
+        self._db.execute(
+            """
+                UPDATE account_links
+                SET account=%(account)s
+                WHERE account_links.partner_account=%(partner)s AND account_links.uid=%(uid)s
+            """,
+                {
+                    "account": account,
+                    "partner": partner,
+                    "uid": uid
+                }
+        )

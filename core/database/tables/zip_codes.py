@@ -1,6 +1,7 @@
 from ..const.zip_codes_data import ZIP_CODES
 from ..const.spatial_math import distance, miles_to_meters
 from ...common_exceptions import ExportException
+from pyzipcode import ZipCodeDatabase
 
 
 class ZIPCodesException(Exception):
@@ -56,3 +57,9 @@ class ZIPCodes:
             results.append(zip_code)
         
         return results
+
+    def get_locations(self, zip_code):    
+        zcdb = ZipCodeDatabase()
+        info = zcdb[zip_code]
+        result = info.city+","+info.state
+        return result

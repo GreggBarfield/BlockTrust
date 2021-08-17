@@ -11,6 +11,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
 
@@ -37,7 +38,7 @@ def serve_dashboard():
 
 # Accounts
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
@@ -45,7 +46,7 @@ def serve_accounts_new_account():
         "sectors_by_id": sectors_by_id
     })
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
 @crut.require_user
 def serve_accounts_new_account_action():
@@ -80,7 +81,7 @@ def serve_accounts_new_account_action():
     except ExportException as e:
         return {"error": str(e)}
 
-
+# 6/3/21 Deprecated
 @bp.route('/dashboard/accounts/join-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_join_account():
@@ -231,3 +232,60 @@ def serve_auction_sales_new():
 @crut.require_account
 def serve_data():
     return dashboard_render("data/index.html")
+
+
+@bp.route('/dashboard/plans', methods=['GET'])
+@crut.require_account
+def serve_plans():
+    return dashboard_render("stripe/plans.html")
+
+
+@bp.route('/dashboard/subscribe', methods=['GET'])
+@crut.require_account
+def serve_subscribe():
+    return dashboard_render("stripe/subscribe.html")
+
+@bp.route('/dashboard/sustainability', methods=['GET'])
+@crut.require_account
+def serve_sustainability():
+    return dashboard_render("sustainability/sustainability_questionaire.html")
+    
+@bp.route('/dashboard/sustainability/summary', methods=['GET'])
+@crut.require_account
+def serve_sustainability_summary():
+    return dashboard_render("sustainability/sustainability_summary.html")
+
+@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@crut.require_account
+def serve_retained_ownership():
+    return dashboard_render("retained-ownership.html")
+
+
+@bp.route('/dashboard/data/upload-tags', methods=['GET'])
+@crut.require_account
+def serve_upload_tags():
+    return dashboard_render("data/upload-tags.html")
+
+
+# edit user profile
+@bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
+@crut.require_user
+def serve_edit_edituser():
+    if request.method == 'POST':
+        try:
+            g.db.users.update_user(
+                        username=g.user.username(),
+                        first=request.form["first"],
+                        last=request.form["last"],
+                        phone=request.form["phone"],
+                        password=request.form["password"],
+                        confirm_password= request.form["confirm_password"]
+                        )
+            return {"redirect": "/dashboard/edit/edituser"}
+        except  UsersException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        user = g.db.users.get_by_username(g.user.username())
+        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
+        
+    

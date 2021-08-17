@@ -27,9 +27,17 @@
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
     },
     "internal_api": {
-        "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8"
+        "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8",
+        "secret_email_key":"blocktrustnetwork",
+        "email_token_salt":"blocktrustnetwork"
     },
     "support": {
         "general_email": "info@blocktrustnetwork.com"
+    },
+    "stripe": {
+        "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR",
+        "secret_key": "sk_test_51HRTwoGWRtomrLg3A2oqpP5mS60M5OAJyjpoUNGm4YjgGmhAWMFBaKx9ezdtk5DGfExhpSrPgd0ESgcbc9hOCpiR0023awyPeX",
+        "publishable_key": "pk_test_51HRTwoGWRtomrLg3eckt8XeKxqtfdfAT1hZh5C2hnfyJFyjM0l0UGnCYVSv6CS6M8Rs8rcBu4Mm03xqf9WmWaIXr00jI2Eqsmh",
+        "basic": "price_1IHjY1GWRtomrLg3OifgDsmq"
     }
 }
