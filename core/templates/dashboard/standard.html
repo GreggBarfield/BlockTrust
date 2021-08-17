@@ -279,7 +279,18 @@
                 </ul>
                 {% endif %}
             </li>
-            {% if dashboard_standard_account is not none %}
+            {% if g.account.sector_name() == "Feedlot" %}
+            <li>
+                <a href="/dashboard/auction-sales/manage">
+                    <span><i class="feather icon-award"></i></span>
+                    <span>MarketTrust</span>
+                </a>
+                <ul>
+                    <li><a href="/dashboard/sales-groups">Search</a></li>
+                </ul>
+            </li>
+            {% endif %}
+            {% if g.account.sector_name() != "Feedlot"%}
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
@@ -303,6 +314,8 @@
                 </ul>
             </li>
             {% endif %}
+            {% endif %}
+            {% if dashboard_standard_account is not none %}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
