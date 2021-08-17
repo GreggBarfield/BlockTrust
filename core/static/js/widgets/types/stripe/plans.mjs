@@ -39,7 +39,6 @@ export class PlansWidget extends Widget {
          let rowTag = document.createElement("tr");
          this.mainTableBody.appendChild(rowTag);
          let cowCalfFeaturesTD = document.createElement("td");
-         //let {price} = await fetch("/stripe/price/basic").then(r => r.json());
          cowCalfFeaturesTD.innerHTML = "a. Carcass Data<br/>b. Access to In-Network Feeders and Auction Markets<br/>c. Secure Messaging in Network<br/><br/> <h6>Price: FREE</h6>";
          rowTag.appendChild(cowCalfFeaturesTD);
 
@@ -49,7 +48,6 @@ export class PlansWidget extends Widget {
          rowTag.appendChild(cowCalfFeaturesPremium);
 
          let enterpriseFeaturesTD = document.createElement("td");
-         let {contactEmail} = await fetch("/outside/contact-email").then(r => r.json());
          enterpriseFeaturesTD.innerHTML = "Please contact us.";
          rowTag.appendChild(enterpriseFeaturesTD);
          
@@ -61,7 +59,7 @@ export class PlansWidget extends Widget {
          
          let button = document.createElement("a");
          button.className = "btn btn-primary btn-md";
-        button.setAttribute("href", "");
+         button.setAttribute("href", "");
          button.textContent = "Select";
          tdOptions.appendChild(button);
          
@@ -77,6 +75,7 @@ export class PlansWidget extends Widget {
          rowTag.appendChild(tdOptions);
          button = document.createElement("a");
          button.className = "btn btn-info btn-md";
+         let {contactEmail} = await fetch("/outside/contact-email").then(r => r.json());
          button.setAttribute("href", "mailto:" + contactEmail);
          button.textContent = "Contact us";
          tdOptions.appendChild(button);
