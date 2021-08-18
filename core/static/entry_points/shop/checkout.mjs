@@ -43,8 +43,3 @@ let form1 = new AsyncForm({
     },
     requestRedirectTo: requestRedirectTo
 });
-
-//$("#subtotal").text(localStorage.getItem('totalPrice'))
-//$("#shipping").text(localStorage.getItem('shipping'))
-//$("#tax").text(localStorage.getItem('totalTax'))
-//$("#grandTotal").text(localStorage.getItem('grandTotal'))

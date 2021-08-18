@@ -184,7 +184,7 @@ CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
 /* Nisheet Thakur 05/31/2021*/
 CREATE TABLE products(
-  product_no INT,
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   menu1 CHAR(40),
   m1_short CHAR(20),
   menu2 CHAR(35),
@@ -197,39 +197,37 @@ CREATE TABLE products(
   orders INT,
   post CHAR(10),
   subheader CHAR(50),
-  details VARCHAR(500),
+  details VARCHAR(1000),
   unit CHAR(20),
   creditcard_charge FLOAT,
   original_price FLOAT,
   number_y_n CHAR(1),
   start_no INT,
   end_no INT,
-  num_text CHAR(25)
+  num_text CHAR(25),
+  partner INT
 )
 
-/* Nisheet Thakur 05/31/2021*/
-
-INSERT INTO products (product_no,product,pic_1,pic_2,price,orders,post,subheader,unit,details)
-VALUES (1,"Visual matched  840 FDX","match_pair_fdx_lg.png","match_pair_fdx_lg_detail.png",3.63,0,"ANXLCHSet22**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with FDX 840 EID tag.")
-,(2,"Visual matched  840  HDX","match_pair_hdx_lg.png","match_pair_hdx_lg_detail.png",4.26,0,"Y","ANXLCHSet33**02L","Each Set","Set contains 1 small button tag and a large floppy tag that you can put whatever number you want. Yellow Extra Large USDA Official visual tag matched with HDX 840 EID tag." )
-,(3,"FDX USDA 840","840_fdx_lg.png","840_fdx_lg_detail.png",55.9,0,"Y","tag","Bags of 25","Destron Fearing USDA 840 FDX EID tag with small male. Full Duplex (FDX) technology offers a slightly lower read distance vs HDX (up to to 75cm)." )
-,(4,"HDX USDA 840","840_hdx_lg.png","840_fdx_lg_detail.png",63.7,0,"Y","EID tag with small male","Bags of 25","Destron Fearing USDA 840 HDX EID tag with small male. Half Duplex (HDX) technology offers the greatest possible read distance (up to100cm). " )
-,(5,"MFA HT Nested Pair","MFA_HT_red_lg.png","MFA_HT_red_lg_detail.png",0,0,"Y","MFA Health Track Allflex Nested Pair","Each Set","MFA Health Track is a Vac 45 preconditioning verification program for beef calves administered by MFA Incorporated for our Cow/Calf producer customers. MFA Incorporated is uniquely qualified for this role due to our ability to supply and verify the purchase." )
-,(6,"MFA UHF Tag","MFA_HT_UHF_lg.png","MFA_HT_UHF_lg_detail.png",0,0,"Y","MFA Health Track Allflex Ultra High Frequency","Each set","MFA Health Track is a Vac 45 preconditioning verification program for beef calves administered by MFA Incorporated for our Cow/Calf producer customers. MFA Incorporated is uniquely qualified for this role due to our ability to supply and verify the purchase." )
-
 /* Nisheet Thakur 06/04/2021*/
-
 CREATE TABLE orders(
-  transaction_no INT,
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   account INT,
-  total_tax INT,
-  total_shipping INT,
-  total_cart INT,
-  approved CHAR(10),
-  approval_code CHAR(20),
-  session_flag CHAR(10),
-  grand_total INT,
-  transaction_date DATE
+  total_tax FLOAT,
+  total_shipping FLOAT,
+  total_cart FLOAT,
+  grand_total FLOAT,
+  shipping_address varchar(127),
+  shipping_city varchar(127),
+  shipping_state varchar(127),
+  shipping_country varchar(127),
+  shipping_zip varchar(127),
+  first_name varchar(127),
+  last_name varchar(127),
+  email varchar(127),
+  phone varchar(127),
+  discount FLOAT,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
 /* Rohan Sureshkumar 5/8/2021 */
@@ -324,15 +322,68 @@ values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, 
       ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
     
 /* Nisheet Thakur 6/28/2021 */
-
-CREATE TABLE OrderProducts(
-order_no INT,
-product_no INT,
-
-product_quantity INT
+CREATE TABLE order_products(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+`order` INT,
+product INT,
+product_quantity INT,
+`create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
+
+/* Nisheet Thakur 7/6/2021 */
+INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values( 'U.S. CattleTrace', 4, 1, '', 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457);
+SELECT id FROM accounts WHERE company = 'U.S. CattleTrace' INTO @partner_id;
+INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
+VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",44.0,0,"Y","2-piece, Tamper Evident","2-Piece","3.75 inches long.;Each Tag has a unique 15-digit number with a 999 prefix. ;Priced at $2.20 per individual tag* (*Prior to U.S. CattleTrace member discount).; Ultra-High Frequency (UHF).;Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers.;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers.", @partner_id)
+,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",70.8,0,"Y","2-piece, Tamper Evident","2-Piece","4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers", @partner_id)
+,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1.png",44.0,0,"Y","1-piece, Pin Insertion","2-Piece","4.25 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Priced at $2.20 per individual tag;Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers", @partner_id)
 
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `data`;
+
+/* Nisheet Thakur 7/27/2021 */
+CREATE TABLE product_discounts(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+coupon_code VARCHAR(127),
+product INT,
+discount_percentage INT
+);
+SELECT id FROM products WHERE product = 'Strip Tag' INTO @product_id;
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,20);
+SELECT id FROM products WHERE product = 'Large Panel Tag' INTO @product_id;
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,50);
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`products` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+ALTER TABLE `example_db_1`.`product_discounts` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `discount_percentage`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`orders` 
+ADD COLUMN `stripe_payment_intent` VARCHAR(256) NULL DEFAULT NULL AFTER `discount`,
+ADD COLUMN `stripe_paid` TINYINT NULL DEFAULT NULL AFTER `stripe_payment_intent`;
+
+/* Rohan Sureshkumar 8/5/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `partner_stripe_publishable_key` VARCHAR(256) NULL DEFAULT NULL AFTER `stripe_customer_id`,
+ADD COLUMN `partner_stripe_secret_key` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_stripe_publishable_key`;
+UPDATE accounts SET partner_stripe_publishable_key = 'pk_test_51ICSTOJVSPxeonkIN24Vg7xOuNmTaBkf6ZwTw9Fk47O32ly7P6d2s6IC2KtcMo8jDOg3vKCT4ZJi6oPiKp88WXbG001i4XduPe', 
+partner_stripe_secret_key = 'sk_test_51ICSTOJVSPxeonkI9eexQHujFaqh4Xv3YPrm0oT9xZ9cH6cSvL0U9HlW7hGamc6wmgnRUasKU4nKa58jVohZP6fj00VwnI58PB' 
+WHERE company = 'U.S. CattleTrace' AND is_partner=1;
+
+/* Nisheet Thakur 8/5/2021*/
+UPDATE products
+SET unit="Bags of 20 Each"
+WHERE product="Strip Tag" OR product="Large Panel Tag" OR product="Large Panel Feedlot Tag";
+UPDATE products 
+SET details="4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers;840 Compliant and serves as an official form of identification for USDA."
+WHERE product="Large Panel Tag"

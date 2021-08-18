@@ -11,7 +11,7 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id, sectors_by_name
+from ..sectors import sectors_by_name
 
 
 bp = Blueprint('outside_bp', __name__)
@@ -80,11 +80,11 @@ def serve_login_action():
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
-    #Only add cowcalf partners
+    # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
     partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
-        "sectors_by_id": sectors_by_id,
+        "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners
     })
 
@@ -93,9 +93,9 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'address':None, 'city':None, 'state':None, 'zip_code':None,
-            'username':None, 'email':None, 'password':None, 'confirm_password':None
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'address': None, 'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -137,7 +137,7 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-        
+
         return {"redirect": "/email_not_verified"}
     except ExportException as e:
         return {"error": str(e)}
@@ -307,23 +307,23 @@ def serve_contact_email():
     )
 
 # Routes for shop, shopping cart, product and checkout pages
+# TODO: These need to be fixed as part of BTN-254
 
-
-@bp.route('/shop', methods=['GET'])
-def serve_shop():
-    allProductData = auth.get_all_products()
-    return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
+# @bp.route('/shop', methods=['GET'])
+# def serve_shop():
+#     allProductData = g.db.products.get_all_products()
+#     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
 # Routes for adding and deleting cart items
 
 
-@bp.route('/shop', methods=['POST'])
-def serve_add_to_cart():
-    try:
-        return outside_render("shop/shop_homepage.html")
-    except ExportException as e:
-        return jsonify({"error": e})
+# @bp.route('/shop', methods=['POST'])
+# def serve_add_to_cart():
+#     try:
+#         return outside_render("shop/shop_homepage.html")
+#     except ExportException as e:
+#         return jsonify({"error": e})
 
 
 # Routes for shopping cart page
@@ -333,7 +333,7 @@ def serve_add_to_cart():
 def serve_shopping_cart():
     return outside_render("shop/shopping_cart.html")
 
-# Checkout Login and Checkout Register pages 
+# Checkout Login and Checkout Register pages
 
 
 @bp.route('/checkout_payment', methods=['GET'])
@@ -422,7 +422,3 @@ def serve_checkout():
             })
 
 
-# Invoice routes
-@bp.route('/invoice', methods=['GET'])
-def serve_invoice():
-    return outside_render('shop/invoice.html')

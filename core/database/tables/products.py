@@ -37,11 +37,11 @@ class ProductTable:
         )
         return all_products
 
-    def get_by_id(self, product_no):
+    def get_by_id(self, id):
         """Gets a product by their ID.
 
         Params:
-            product_no: Product's ID number
+            id: Product's ID number
 
         Returns:
             A Product object on success, or None on no match.
@@ -50,10 +50,10 @@ class ProductTable:
             """
                 SELECT * FROM products
                 WHERE
-                    product_no=%(product_no)s
+                    id=%(id)s
             """,
             {
-                "product_no": product_no
+                "id": id
             }
         )
 
@@ -61,11 +61,11 @@ class ProductTable:
             return {}
         return matching_products[0]
 
-    def get_price_by_id(self, product_no):
+    def get_product_by_id(self, id):
         """Gets a product price by their ID.
 
         Params:
-            product_no: Product's ID number
+            id: Product's ID number
 
         Returns:
             Product price on success, or None on no match.
@@ -74,13 +74,35 @@ class ProductTable:
             """
                 SELECT * FROM products
                 WHERE
-                    product_no=%(product_no)s
+                    id=%(id)s
             """,
             {
-                "product_no": product_no
+                "id": id
             }
         )
 
         if len(matching_products) != 1:
-            raise ProductTableException()
+            raise ProductTableException("No product found with that ID.")
         return matching_products[0]['price']
+
+    def get_partner_products(self, partner):
+        """Gets products by a particular partner.
+
+        Params:
+            partner: Partner name
+
+        Returns:
+            A Product array on success.
+        """
+        matching_products = self._db.execute_d(
+            """
+                SELECT * FROM products
+                WHERE
+                    partner=%(partner)s
+            """,
+            {
+                "partner": partner
+            }
+        )
+
+        return matching_products

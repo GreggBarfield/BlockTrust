@@ -47,7 +47,15 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="signup_form_partner">Partner</label>
+                                <label for="signup_form_partner">
+                                    Partner
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="These are cattle producer organizations or cooperatives where you may be a member.   If you don’t see yours on the list, please choose “No Partner”.">
+                                    </a>
+                                </label>
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
                                     {% for p in partners %}
@@ -59,31 +67,33 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="signup_form_affiliate_id">Affiliate ID</label>
-                                <input type="text" class="form-control" placeholder="Affiliate ID#" id="signup_form_affiliate_id">
+                                <label for="signup_form_affiliate_id">
+                                    Partner ID
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”.   If you do not know, put ‘9999’. ">
+                                    </a>
+                                </label>
+                                <input type="text" class="form-control" placeholder="Partner ID#" id="signup_form_partner_id" disabled=true>
                                 <span class="focus-border"></span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-12">
+                        <div class="col-lg-6">
                             <div class="form-group required">
-                                <label for="signup_form_company">Company</label>
+                                <label for="signup_form_company">
+                                    Company
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="This is the name of your company or your ranch.  This will identify your account, even if you have multiple users.">
+                                    </a>
+                                </label>
                                 <input type="text" class="form-control" placeholder="Blue Ranch, LLC" id="signup_form_company" required>
-                                <span class="focus-border"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6">    
-                            <div class="form-group required">
-                                <label for="signup_form_sector">Sector</label>
-                                <select class="js-example-basic-single form-control" id="signup_form_sector" required>
-                                    <option value=""></option>
-                                    {% for sector_id, sector in sectors_by_id.items() %}
-                                    <option value="{{sector_id}}">{{sector|e}}</option>
-                                    {% endfor %}
-                                </select>
                                 <span class="focus-border"></span>
                             </div>
                         </div>
@@ -94,7 +104,7 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                    </div>            
+                    </div>         
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
@@ -193,12 +203,7 @@
                         </div>
                     </div>
                     <div class="form-group required">
-                        <label for="signup_form_username">Username</label>
-                        <input type="text" class="form-control" placeholder="JohnDoe6" id="signup_form_username" required>
-                        <span class="focus-border"></span>
-                    </div>
-                    <div class="form-group required">
-                        <label for="signup_form_email">Email address</label>
+                        <label for="signup_form_email">Email address (will also be your User ID)</label>
                         <input type="email" class="form-control" placeholder="johndoe@example.com" id="signup_form_email" required>
                         <span class="focus-border"></span>
                     </div>
@@ -230,5 +235,9 @@
         </div>
     </div>
 </section>
+<script type="text/javascript">
+    var sector_id = '{{ default_sector_id }}'
+</script>
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
+
 {% endblock outside_content %}
