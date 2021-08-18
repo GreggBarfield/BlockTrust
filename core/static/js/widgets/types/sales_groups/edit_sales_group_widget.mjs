@@ -398,8 +398,8 @@ export class EditSalesGroupWidget extends Widget {
                     { validate: "unique" },
                     {
                         validate: 'regex_matches',
-                        regex: '^[0-9]*$',
-                        error: 'Only can be number'
+                        regex: '^[0-9]{15}$',
+                        error: 'Only can be a number with 15 digits.'
                     }
                 ]}
             ],
@@ -485,7 +485,7 @@ export class EditSalesGroupWidget extends Widget {
                     return Math.floor(parseFloat(v));
                 }
 
-                console.log(that.data);
+                console.log("this should not be called yet...")
 
                 return {
                     id: that.salesGroupID,
@@ -521,14 +521,16 @@ export class EditSalesGroupWidget extends Widget {
 
         submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
-            function progress(perc) {
-                that.progressBar.setProgress(perc);
+            if (this.allGood()) {
+                function progress(perc) {
+                    that.progressBar.setProgress(perc);
+                }
+                that.progressBar.show();
+                this.fileEditor.upload(progress)
+                    .then(() => {
+                        this.asyncForm.submit();
+                    });
             }
-            that.progressBar.show();
-            this.fileEditor.upload(progress)
-                .then(() => {
-                    this.asyncForm.submit();
-                });
         });
     }
 
@@ -537,6 +539,29 @@ export class EditSalesGroupWidget extends Widget {
         this.internalErrorMessage.textContent = error;
     }
 
+    allGood() {
+        try {
+            let eids = this.data.eids;
+            for (const eid of eids) {
+                let str = eid.toString();
+                if (str.length != 15) {
+                    throw "The following EID is invalid, please check it: " + eid;
+                }
+            }
+            for (let i = 0; i < eids.length; i++) {
+                for (let i2 = i + 1; i2 < eids.length; i2++) {
+                    if (eids[i] == eids[i2]) {
+                        throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
+                    }
+                }
+            }
+        }
+        catch (error) {
+            this.showError(error);
+            return false;
+        }
+        return true;
+    }
 }
 
 /**
