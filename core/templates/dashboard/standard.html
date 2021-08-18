@@ -279,6 +279,7 @@
                 </ul>
                 {% endif %}
             </li>
+            {% if dashboard_standard_account is not none %}
             {% if g.account.sector_name() == "Feedlot" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
@@ -289,8 +290,7 @@
                     <li><a href="/dashboard/sales-groups">Search</a></li>
                 </ul>
             </li>
-            {% endif %}
-            {% if g.account.sector_name() != "Feedlot"%}
+            {% else %}
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
@@ -302,6 +302,7 @@
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                 </ul>
             </li>
+            {% endif %}        
             {% if g.account.sector_name() == "Auction House" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
@@ -314,8 +315,6 @@
                 </ul>
             </li>
             {% endif %}
-            {% endif %}
-            {% if dashboard_standard_account is not none %}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
