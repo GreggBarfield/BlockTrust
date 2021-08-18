@@ -422,6 +422,7 @@ export class EditSalesGroupWidget extends Widget {
         let eidButton = document.createElement("button");
         eidButton.className = "btn btn-primary";
         eidButton.textContent = "Add EID's";
+        eidButton.type = "button";
         form.append(eidButton);
 
         eidButton.addEventListener("click", () => importer.requestDataFromUser().then(function(results) { 
@@ -484,8 +485,6 @@ export class EditSalesGroupWidget extends Widget {
                     }
                     return Math.floor(parseFloat(v));
                 }
-
-                console.log("this should not be called yet...")
 
                 return {
                     id: that.salesGroupID,
