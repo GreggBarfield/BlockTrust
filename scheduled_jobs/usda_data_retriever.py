@@ -12,7 +12,6 @@ class UsdaDataRetriever:
     """Class that gets the Data from the USDA APIs and adds them to the database"""
 
     def __init__(self):
-        super().__init__()
         self.db = Database(MYSQL_CONFIG)
 
     def getMandatoryReports(self):
