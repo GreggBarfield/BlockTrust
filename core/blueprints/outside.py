@@ -345,8 +345,8 @@ def serve_checkout_payment():
 
 @bp.route('/checkout_payment', methods=['POST'])
 def serve_payment():
-    # return outside_render('shop/invoice.html')
-    return jsonify({"redirect": "/invoice"})
+    return outside_render('shop/invoice.html')
+    # return jsonify({"redirect": "/invoice"})
 
 
 @bp.route('/checkout_loggedIn', methods=['GET'])
