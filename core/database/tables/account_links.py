@@ -12,7 +12,7 @@ class AccountLinksException(Exception):
         """
         super().__init__(reason)
 
-
+# account link is the link between the account in our accounts table and the account in our partner's database
 class AccountLinks:
 
     def __init__(self, db):
@@ -96,7 +96,7 @@ class AccountLinks:
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_uid(self, uid, uid_type, insert=False, data_race_protection=True):
+    def get_by_uid(self, uid, uid_type, partner_account=None, insert=False, data_race_protection=True):
         """Gets all account links that match a uid.
 
         Params:
@@ -109,16 +109,17 @@ class AccountLinks:
         """
         account_link_rows = self._db.execute_d(
             """SELECT * FROM account_links
-                WHERE uid=%(uid)s AND uid_type=%(uid_type)s
+                WHERE uid=%(uid)s AND uid_type=%(uid_type)sx AND partner_account=%(partner_account)s
             """,
             {
                 "uid": uid,
-                "uid_type": uid_type
+                "uid_type": uid_type,
+                "partner_account": partner_account
             }
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(uid=uid, uid_type=uid_type)
+                self.insert(partner_account=partner_account, uid=uid, uid_type=uid_type)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
@@ -132,7 +133,7 @@ class AccountLinks:
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def insert(self, account=None, uid_type=None, uid=None, company=None, sector=None):
+    def insert(self, account=None, uid_type=None, uid=None, company=None, sector=None, partner_account=None):
         """Inserts a new account link.
 
         Params:
@@ -155,15 +156,16 @@ class AccountLinks:
         self._db.execute(
             """
                 INSERT IGNORE INTO account_links
-                    (account, uid_type, uid, company, sector)
-                    VALUES (%(account)s, %(uid_type)s, %(uid)s, %(company)s, %(sector)s)
+                    (account, uid_type, uid, company, sector, partner_account)
+                    VALUES (%(account)s, %(uid_type)s, %(uid)s, %(company)s, %(sector)s, %(partner_account)s)
             """,
             {
                 "account": account,
                 "uid_type": uid_type,
                 "uid": uid,
                 "company": company,
-                "sector": sector
+                "sector": sector,
+                "partner_account": partner_account
             }
         )
 

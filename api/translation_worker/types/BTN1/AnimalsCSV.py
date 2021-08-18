@@ -52,7 +52,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         patronid = int(fields["patronid"])
     except ValueError as e:
         raise ExecutionException("while converting patron id: " + str(e))
-    account_link = db.account_links.get_by_uid(patronid, 0, insert=True)[0].id()
+    account_link = db.account_links.get_by_uid(patronid, 0, partner_account=account, insert=True)[0].id()
     eid = int(fields["electronic"])
 
     grouping_id = 0
