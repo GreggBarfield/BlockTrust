@@ -43,11 +43,22 @@ let form = new AsyncForm({
     requestRedirectTo: requestRedirectTo
 });
 
-$("#subtotal").text(localStorage.getItem('totalPrice'))
-$("#shipping").text(localStorage.getItem('shipping'))
-$("#tax").text(localStorage.getItem('totalTax'))
-$("#grandTotal").text(localStorage.getItem('grandTotal'))
-
+//Displaying all the values
+    var subTotal=parseFloat(localStorage.getItem('totalPrice'));
+    var subTotalDisplay=subTotal.toFixed(2);
+    var ship=parseFloat(localStorage.getItem('shipping'));
+    var shipDisplay=ship.toFixed(2);
+    var tax=parseFloat(localStorage.getItem('totalTax'));
+    var taxDisplay=tax.toFixed(2);
+    var discount=parseFloat(localStorage.getItem('discount'));
+    var discountDisplay=discount.toFixed(2);
+    var grandTotal=parseFloat(localStorage.getItem('grandTotal'));
+    var grandTotalDisplay=grandTotal.toFixed(2);
+    $("#subtotal").text(subTotalDisplay);
+    $("#shipping").text(shipDisplay);
+    $("#tax").text(taxDisplay);
+    $("#discount").text(discountDisplay);
+    $("#grandTotal").text(grandTotalDisplay);
 
 $( "#checkout_form" ).submit(function( event ) { 
     event.preventDefault();

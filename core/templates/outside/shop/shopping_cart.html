@@ -47,12 +47,20 @@
                     <div class="container">
                         <div class="row cart-footer">
                             <div class="coupon col-md-6 mt-1 mb-1">
-                                <div class="input-group">
-                                    <input type="text" class="form-control form-control-sm" id="coupon-code" placeholder="Coupon Code">
-                                    <span class="input-group-btn">
-                                    <button class="btn btn-outline-primary rectangle m-1" type="button"><span>APPLY COUPON</span></button>
-                                    </span>
-                                </div>
+                                <form class="form-inline" id="coupon_form" method="POST" request_redirect_to="/external/cart">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control form-control-sm" id="coupon-code" name="coupon-code" placeholder="Coupon Code">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-outline-primary rectangle ml-3" type="submit"><span>APPLY COUPON</span></button>
+                                        <button class="btn btn-outline-primary rectangle ml-3" type="button" id="remove-coupon"><span>REMOVE COUPON</span></button>
+                                        </span>
+                                    </div>
+                                        <div class="input-group">
+                                        <p class="mt-1 mb-0 input-lg" id="coupon_status_message" style="display:none;text-align:left">Applying coupon...</p>
+                                        <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="coupon_error_message">Coupon code error</p>
+                                        <p><span class="text-primary" id="coupon_applied" style="text-align:left"></span></p>
+                                        </div>
+                                </form>
                             </div><!-- / input-group -->
                             <div class="update-cart col-md-6 mt-1 mb-1">
                                 <a href="/shop" class="btn btn-outline-primary rectangle m-1" ><span>CONTINUE SHOPPING</span></a>

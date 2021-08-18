@@ -12,6 +12,7 @@ from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_name
+from ..sectors import sectors_by_id
 
 
 bp = Blueprint('outside_bp', __name__)
@@ -309,10 +310,11 @@ def serve_contact_email():
 # Routes for shop, shopping cart, product and checkout pages
 # TODO: These need to be fixed as part of BTN-254
 
-# @bp.route('/shop', methods=['GET'])
-# def serve_shop():
-#     allProductData = g.db.products.get_all_products()
-#     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
+
+@bp.route('/shop', methods=['GET'])
+def serve_shop():
+    allProductData = g.db.products.get_all_products()
+    return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
 
 
 # Routes for adding and deleting cart items
@@ -420,5 +422,3 @@ def serve_checkout():
             "sectors_by_id": sectors_by_id,
             "redirect_to": '/checkout'
             })
-
-
