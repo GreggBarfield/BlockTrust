@@ -2,6 +2,7 @@ $navbar-gray: #1b1c1d;
 $navbar-thick-gray: #676767;
 $navbar-blue: #3949AB;
 
+@use 'sass:math';
 @use "../../common/common" as common;
 @use "../../common/colors" as *;
 @use "../../common/reset" as reset;
