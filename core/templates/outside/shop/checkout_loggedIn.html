@@ -27,10 +27,10 @@
                     <form id="loggedInCheckoutForm" request_redirect_to="/checkout_payment">
                         <div class="row">
                             <div class="col-md-6 sub-col-left">
-                                <input type="text" class="form-control mb-3" name="first_name" placeholder="*First Name" required="">
+                                <input type="text" class="form-control mb-3" name="first_name" placeholder="*First Name" required="" value={{g.user.first()}}>
                             </div>
                             <div class="col-md-6 sub-col-right">
-                                <input type="text" class="form-control mb-3" name="last_name" placeholder="*Last Name" required="">
+                                <input type="text" class="form-control mb-3" name="last_name" placeholder="*Last Name" required="" value={{g.user.last()}}>
                             </div>
                         </div><!-- / row -->
                         <div class="row">
@@ -43,7 +43,7 @@
                         </div><!-- / row -->
                         <div class="row">
                             <div class="col-md-6 sub-col-left">
-                                <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
+                                <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="" value={{g.user.email()}}>
                             </div>
                         </div><!-- / row -->
                         <div class="row">

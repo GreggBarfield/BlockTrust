@@ -34,4 +34,4 @@ class User:
         return self._row('email_verified')
 
     def phone(self):
-            return self._row['phone']
+        return self._row['phone']
