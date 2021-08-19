@@ -280,29 +280,23 @@
                 {% endif %}
             </li>
             {% if dashboard_standard_account is not none %}
-            {% if g.account.sector_name() == "Feedlot" %}
-            <li>
-                <a href="/dashboard/auction-sales/manage">
-                    <span><i class="feather icon-award"></i></span>
-                    <span>MarketTrust</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/sales-groups">Search</a></li>
-                </ul>
-            </li>
-            {% else %}
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
+                    {% if g.account.sector_name() == "Feedlot" %}
+                    <span>MarketTrust</span>
+                    {% else %}
                     <span>Sales Groups</span>
+                    {% endif %}
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
+                    {% if g.account.sector_name() != "Feedlot" %}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
+                    {% endif %}
                 </ul>
             </li>
-            {% endif %}        
             {% if g.account.sector_name() == "Auction House" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
