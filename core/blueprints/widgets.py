@@ -70,7 +70,10 @@ def serve_sales_group():
         "auction_sale_name": sales_group_row["auction_sale_name"],
         "group_name": sales_group_row["group_name"],
         "license": FLATFILE_LICENSE,
-        "userID": g.user.id()
+        "userID": g.user.id(),
+        "name": g.user.first() + ' ' + g.user.last(),
+        "companyId": g.account.id(),
+        "company": g.account.company()
     }
 
 

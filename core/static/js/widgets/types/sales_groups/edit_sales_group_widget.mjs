@@ -417,7 +417,7 @@ export class EditSalesGroupWidget extends Widget {
             }
         });
 
-        importer.setCustomer({userId: this.data.userID });
+        importer.setCustomer({userId: this.data.userID, name: this.data.name, companyName: this.data.company, companyId: this.data.companyId });
 
         let eidButton = document.createElement("button");
         eidButton.className = "btn btn-primary";
@@ -429,8 +429,6 @@ export class EditSalesGroupWidget extends Widget {
             that.data.eids = results.data.map(function (obj) { return obj.EID; });
         
             importer.displaySuccess('Thanks for uploading your data!')
-            console.log(that.data.eids);
-            console.log(results.$data);
         }));
 
         // Publish
@@ -520,16 +518,14 @@ export class EditSalesGroupWidget extends Widget {
 
         submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
-            if (this.allGood()) {
-                function progress(perc) {
-                    that.progressBar.setProgress(perc);
-                }
-                that.progressBar.show();
-                this.fileEditor.upload(progress)
-                    .then(() => {
-                        this.asyncForm.submit();
-                    });
+            function progress(perc) {
+                that.progressBar.setProgress(perc);
             }
+            that.progressBar.show();
+            this.fileEditor.upload(progress)
+                .then(() => {
+                    this.asyncForm.submit();
+                });
         });
     }
 
@@ -538,29 +534,30 @@ export class EditSalesGroupWidget extends Widget {
         this.internalErrorMessage.textContent = error;
     }
 
-    allGood() {
-        try {
-            let eids = this.data.eids;
-            for (const eid of eids) {
-                let str = eid.toString();
-                if (str.length != 15) {
-                    throw "The following EID is invalid, please check it: " + eid;
-                }
-            }
-            for (let i = 0; i < eids.length; i++) {
-                for (let i2 = i + 1; i2 < eids.length; i2++) {
-                    if (eids[i] == eids[i2]) {
-                        throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
-                    }
-                }
-            }
-        }
-        catch (error) {
-            this.showError(error);
-            return false;
-        }
-        return true;
-    }
+    //TODO: retained in case needed in future. Can be removed once we are comfortable using FlatFile JS since it takes care of these validations.
+    // allGood() {
+    //     try {
+    //         let eids = this.data.eids;
+    //         for (const eid of eids) {
+    //             let str = eid.toString();
+    //             if (str.length != 15) {
+    //                 throw "The following EID is invalid, please check it: " + eid;
+    //             }
+    //         }
+    //         for (let i = 0; i < eids.length; i++) {
+    //             for (let i2 = i + 1; i2 < eids.length; i2++) {
+    //                 if (eids[i] == eids[i2]) {
+    //                     throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     catch (error) {
+    //         this.showError(error);
+    //         return false;
+    //     }
+    //     return true;
+    // }
 }
 
 /**
