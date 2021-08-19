@@ -7,7 +7,7 @@ $(document).ready(function() {
     //Printing out the shopping cart
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/shopping-cart"><button href="/shopping-cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
+        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity + '</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/dashboard/shopping-cart"><button href="/dashboard/shopping-cart" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
     });
     //Displaying all the values
     var subTotal=parseFloat(localStorage.getItem('totalPrice'));
@@ -80,7 +80,7 @@ $(document).ready(function() {
         var size = Object.keys(shopCart).length;
         console.log("proceed")
         if(size>0){
-            window.location.href = '/checkout';
+            window.location.href = '/dashboard/checkout';
             return false;
         }
         else{
@@ -111,7 +111,7 @@ $(document).ready(function() {
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
-        window.location.href = '/shopping-cart';
+        window.location.href = '/dashboard/shopping-cart';
     }
     })
 
@@ -173,7 +173,7 @@ let form = new AsyncForm({
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total); 
         localStorage.setItem('discountApplied', "Y");
-        window.location.href = '/shopping-cart';
+        window.location.href = '/dashboard/shopping-cart';
         }
     }
 });

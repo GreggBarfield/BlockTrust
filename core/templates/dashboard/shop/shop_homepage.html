@@ -1,8 +1,8 @@
-{% extends "outside/standard.html" %}
+{% extends "dashboard/standard.html" %}
 
 {% set page_title = "Tag Store"| string %}
 
-{% block outside_banner %}
+{% block dashboard_banner %}
 <link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" />
 <div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
     <div class="container">
@@ -19,9 +19,9 @@
         </div>
     </div>
 </div>
-{% endblock outside_banner %}
+{% endblock dashboard_banner %}
 
-{% block outside_content %}
+{% block dashboard_content %}
 <section id="gallery" class="p-0 line-effect">
     <div class="container">
             <div class="col-md-12 text-right">
@@ -70,17 +70,15 @@
                                     </div>
                                     <div class="col-md-6">
                                         <h4 class="single-product-title">{{product.product}}</h4>
-                                        
+                                        <h5>{{product.subheader}}</h5>
                                         <ul style="display:inline-table; list-style-type: square;">
-                                            <li>{{product.details}}</li> 
-                                            
+                                            {% set list1=product.details.split(';') %}
+                                            {% for item in list1 %}
+                                            <li>{{item}}</li>
+                                            {% endfor %}
                                         </ul>
-                                        <div class="product-info pb-3 pt-3">
-        
                                             <p class="mb-3"><i class="far fa-bookmark text-muted mr-1"></i> Price: <span class="text-black"><b>{{"$%.2f"|format(product.price|float)}}</b></span></p>
-        
                                             <p class="mb-3"><i class="fas fa-shopping-bag text-muted mr-1"></i> Units: <span class="text-black"><b>{{product.unit}}</b></span></p>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -92,7 +90,7 @@
                                 <input type="hidden" name="price" value="{{product.price}}"/>
                                 <input type="hidden" name="product_name" value="{{product.product}}"/>
                                 <p class="mb-0 pt-1 text-white" ><b>Select Quantity:</b></p>
-                                <input class="form-control qty m-2 text-white" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
+                                <input class="form-control qty m-2 text-black" value="1" type="number" min=1 id="number-input-3" name="quantity"/>
                                 <div class="col-md-4 text-right">
                                     <button type="submit" class="btn btn-primary m-2">ADD TO CART</button>
                                 </div>
@@ -106,5 +104,5 @@
     
 
 </section>
-<script type="module" src="/static/entry_points/shop/shop_homepage.mjs"></script>
-{% endblock outside_content %}
+<script type="module" src="/static/entry_points/dashboard/shop/shop_homepage.mjs"></script>
+{% endblock dashboard_content %}

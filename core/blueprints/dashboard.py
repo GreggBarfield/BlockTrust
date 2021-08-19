@@ -249,7 +249,7 @@ def serve_subscribe():
 @crut.require_account
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
-    
+  
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
 def serve_sustainability_summary():
@@ -279,13 +279,77 @@ def serve_edit_edituser():
                         last=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
-                        confirm_password= request.form["confirm_password"]
+                        confirm_password=request.form["confirm_password"]
                         )
             return {"redirect": "/dashboard/edit/edituser"}
-        except  UsersException as e:
+        except UsersException as e:
             return {"error": str(e)}
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
-        
-    
+        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+
+
+# Routes for shop, shopping cart, product and checkout pages
+# TODO: These need to be fixed as part of BTN-254
+
+
+@bp.route('/dashboard/shop', methods=['GET'])
+def serve_shop():
+    allProductData = g.db.products.get_all_products()
+    return dashboard_render('shop/shop_homepage.html', {"allProductData": allProductData})
+
+
+# Routes for adding and deleting cart items
+# Routes for shopping cart page
+
+
+@bp.route('/dashboard/shopping-cart', methods=['GET'])
+def serve_shopping_cart():
+    return dashboard_render("shop/shopping_cart.html")
+
+# Checkout page
+
+
+@bp.route('/dashboard/checkout', methods=['GET'])
+def serve_checkout_register():
+    if g.user is not None:
+        return dashboard_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
+
+
+@bp.route('/dashboard/checkout_payment', methods=['GET'])
+def serve_checkout_payment():
+    return dashboard_render('shop/checkout_payment.html')
+
+
+@bp.route('/dashboard/checkout_payment', methods=['POST'])
+def serve_payment():
+    try:
+        # We need to implement stripe payment function here
+        # Cart and user information is stored in request.form
+        # If billing address is same as shipping address then request.form["address_checkbox"]=="on"
+
+        # Updating the orders table if payment goes through
+        # Getting order details and shipping address from form
+        order_details = eval(request.form["order_details"])
+        print(order_details)
+        shipping_address_line = request.form['shipping_address_line']
+        shipping_city = request.form['shipping_city']
+        shipping_state = request.form['shipping_state']
+        shipping_zip_code = request.form['shipping_zip_code']
+        # Adding order to orders table and getting current order id from orders table
+        order_id = g.db.orders.add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
+        # Getting the cart details
+        cart = eval(order_details['shoppingCart'])
+        # Adding product data and quantities to the OrderProducts table
+        for key, value in cart.items():
+            g.db.order_products.add_order_product(order_id, key, value["quantity"])
+
+        # Once payment goes through sending email to confirm order to buyer and seller
+        return jsonify({"redirect": "/dashboard/invoice"})
+    except ExportException as e:
+        return jsonify({"error": str(e)})
+
+
+@bp.route('/dashboard/invoice', methods=['GET'])
+def serve_external_invoice():
+    return dashboard_render('shop/invoice.html')

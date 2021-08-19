@@ -1,10 +1,10 @@
 
 
-{% extends "outside/standard.html" %}
+{% extends "dashboard/standard.html" %}
 
 {% set page_title ="Checkout"| string %}
 
-{% block outside_banner %}
+{% block dashboard_banner %}
 <div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
     <div class="container">
         <div class="row">
@@ -15,9 +15,9 @@
         </div>
     </div>
 </div>
-{% endblock outside_banner %}
+{% endblock dashboard_banner %}
 
-{% block outside_content %}
+{% block dashboard_content %}
 <section style="background-color: white;">
     <section id="checkout" class="bg-white">
         <div class="container">
@@ -55,7 +55,7 @@
                             </div>
                         </div><!-- / row -->
                         <div class="row">
-                            <div class="col-md-6 sub-col-right">
+                            <div class="col-md-6 sub-col-left">
                                 <input type="text" class="form-control mb-3" name="state" placeholder="*State" required="">
                             </div>
                             <div class="col-md-6 sub-col-right">
@@ -87,8 +87,8 @@
                         </div>
                     </div>
                     <div class="cart-total-footer">
-                        <a href="/shopping-cart" class="btn btn-outline-primary rectangle m-1"><span>BACK TO CART</span></a>
-                        <a href="/shop" class="btn btn-outline-primary rectangle m-1"><span>CONTINUE SHOPPING</span></a>
+                        <a href="/dashboard/shopping-cart" class="btn btn-outline-primary rectangle m-1"><span>BACK TO CART</span></a>
+                        <a href="/dashboard/shop" class="btn btn-outline-primary rectangle m-1"><span>CONTINUE SHOPPING</span></a>
                     </div><!-- / cart-total-footer -->
                 </div><!-- / checkout-total -->
 
@@ -99,5 +99,5 @@
 
 
 </section>
-<script type="module" src="/static/entry_points/shop/checkout_loggedIn.mjs"></script>
-{% endblock outside_content %}
+<script type="module" src="/static/entry_points/dashboard/shop/checkout_loggedIn.mjs"></script>
+{% endblock dashboard_content %}

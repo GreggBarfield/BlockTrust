@@ -55,7 +55,7 @@ class Orders:
         self._db.execute(
             """
                 INSERT INTO orders
-                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_zip, first_name, last_name, email, phone)
+                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_zipcode, first_name, last_name, email, phone)
                     VALUES
                         ( %(total_tax)s, %(discount)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s, %(email)s, %(phone)s)
             """,

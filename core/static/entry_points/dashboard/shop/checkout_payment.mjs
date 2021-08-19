@@ -22,7 +22,7 @@ let errorMessage = paymentForm.find("#payment_error_message");
 let orderDetailsString=""
 if(localStorage.orderDetails){
     orderDetailsString=localStorage.getItem("orderDetails") 
-    let orderDetails = JSON.parse(orderDetailsString)
+    var orderDetails = JSON.parse(orderDetailsString)
     $("#name").val(orderDetails['first_name'] + " " + orderDetails['last_name'])
 }
 let requestRedirectTo = null;
@@ -33,7 +33,7 @@ if (paymentForm[0].hasAttribute("request_redirect_to")) {
 
 
 let form = new AsyncForm({
-    action: "/checkout_payment",
+    action: "/dashboard/checkout_payment",
     form: paymentForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
@@ -46,7 +46,12 @@ let form = new AsyncForm({
             exp_month: paymentForm.find("input[name='exp_month']").val(),
             exp_year: paymentForm.find("input[name='exp_year']").val(),
             cvv: paymentForm.find("input[name='cvv']").val(),
-            address_checkbox: paymentForm.find("input[name='same_address']").val()
+            address_checkbox: paymentForm.find("input[name='same_address']").val(),
+            order_details: orderDetailsString,
+            shipping_address_line: orderDetails.address_line,
+            shipping_city: orderDetails.city,
+            shipping_state: orderDetails.state, 
+            shipping_zip_code: orderDetails.zip_code
         }
     },
     requestRedirectTo: requestRedirectTo

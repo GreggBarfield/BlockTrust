@@ -1,10 +1,10 @@
 
 
-{% extends "outside/standard.html" %}
+{% extends "dashboard/standard.html" %}
 
 {% set page_title ="Invoice"| string %}
 
-{% block outside_banner %}
+{% block dashboard_banner %}
 <link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" />
 <div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
     <div class="container">
@@ -16,9 +16,9 @@
         </div>
     </div>
 </div>
-{% endblock outside_banner %}
+{% endblock dashboard_banner %}
 
-{% block outside_content %}
+{% block dashboard_content %}
 <section style="background-color: white;">
 
 <div class="container" id="invoice">
@@ -112,12 +112,12 @@
 </div>
 
 </section>
-<script type="module" src="/static/entry_points/shop/invoice.mjs"></script>
+<script type="module" src="/static/entry_points/dashboard/shop/invoice.mjs"></script>
 <script>
     function printPageArea(areaID){
         var printContent = document.getElementById(areaID);
         var WinPrint = window.open('', '', 'width=1100,height=900');
-        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" /></head><body>');
+        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_dashboard_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" /></head><body>');
         WinPrint.document.write(printContent.innerHTML);
         WinPrint.document.write('</body></html>');
         WinPrint.document.close();
@@ -128,4 +128,4 @@
         }, 1000);
     }
 </script>
-{% endblock outside_content %}
+{% endblock dashboard_content %}

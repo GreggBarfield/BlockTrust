@@ -62,7 +62,7 @@ $( ".form-inline" ).submit(function( event ) {
     total_price=Math.round(total_price*100)/100;
     var total_discount=0;
     if(discountApplied=="Y"){
-        for(key in shopCart){
+        for(var key in shopCart){
             if(discountPercentages.hasOwnProperty(key)){
                 var product_price=shopCart[key].price*shopCart[key].quantity;
                 total_discount=total_discount+product_price*discountPercentages[key]/100;
@@ -96,7 +96,7 @@ $( ".form-inline" ).submit(function( event ) {
         var shopCart= JSON.parse(shopCartString);
         var size = Object.keys(shopCart).length;
         if(size>0){
-            window.location.href = "/shopping-cart";
+            window.location.href = "/dashboard/shopping-cart";
             return false;
         }
         else{

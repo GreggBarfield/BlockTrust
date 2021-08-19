@@ -1,5 +1,3 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
-
 var subTotal=parseFloat(localStorage.getItem('totalPrice'));
 var subTotalDisplay=subTotal.toFixed(2);
 var ship=parseFloat(localStorage.getItem('shipping'));
@@ -65,6 +63,6 @@ $( "#loggedInCheckoutForm" ).submit(function( event ) {
     }
     localStorage.setItem('orderDetails', JSON.stringify(order));
     //partner_id must be set in the parent page
-    window.location.href = '/checkout_payment';
+    window.location.href = '/dashboard/checkout_payment';
     return false;
 });

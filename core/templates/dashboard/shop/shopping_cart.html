@@ -1,8 +1,8 @@
-{% extends "outside/standard.html" %}
+{% extends "dashboard/standard.html" %}
 
 {% set page_title = "Shopping Cart" | string %}
 
-{% block outside_banner %}
+{% block dashboard_banner %}
 
 <link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" />
 <link href="statis/libs/bootstrap/bootstrap.min.css" rel="stylesheet">
@@ -24,9 +24,9 @@
         </div>
     </div>
 </div>
-{% endblock outside_banner %}
+{% endblock dashboard_banner %}
 
-{% block outside_content %}
+{% block dashboard_content %}
 <section style="background-color: white;">
                 <div class="container"> 
                     <table class="shopping-cart" id="shopping-cart">
@@ -63,7 +63,7 @@
                                 </form>
                             </div><!-- / input-group -->
                             <div class="update-cart col-md-6 mt-1 mb-1">
-                                <a href="/shop" class="btn btn-outline-primary rectangle m-1" ><span>CONTINUE SHOPPING</span></a>
+                                <a href="/dashboard/shop" class="btn btn-outline-primary rectangle m-1" ><span>CONTINUE SHOPPING</span></a>
                             </div><!-- / update-cart -->
                             <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
@@ -91,5 +91,5 @@
                     </div><!-- / container -->
                 </section><!-- / cart-features -->
 </section>
-<script type="module" src="/static/entry_points/shop/shopping_cart.mjs"></script>
-{% endblock outside_content %}
+<script type="module" src="/static/entry_points/dashboard/shop/shopping_cart.mjs"></script>
+{% endblock dashboard_content %}
