@@ -6,6 +6,7 @@ import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
+
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -386,54 +387,49 @@ export class EditSalesGroupWidget extends Widget {
         eidsHeader.textContent = "EIDs";
         form.append(eidsHeader);
 
-        let eidsRow = document.createElement("div");
-        eidsRow.className = "form-row";
-        form.append(eidsRow);
-
-        let eidsGroup = document.createElement("div")
-        eidsGroup.className = "form-group col";
-        eidsRow.append(eidsGroup);
-
-        function parseEIDs(ta) {
-            let eidStr = eidsTA.value.replace(/[^0-9,]/g, "");
-            let eidStrs = eidStr.split(",");
-            let eids = [];
-            for (const eidStr of eidStrs) {
-                if (!isNaN(parseInt(eidStr))) {
-                    eids.push(parseInt(eidStr));
-                }
+        const importer = new FlatfileImporter(this.data.license, {
+            type: "EID import",
+            title: "EID import",
+            managed: true,
+            fields: [
+                {key: "EID", label: "Tag",
+                validators: [
+                    { validate: "required" },
+                    { validate: "unique" },
+                    {
+                        validate: 'regex_matches',
+                        regex: '^[0-9]{15}$',
+                        error: 'Only can be a number with 15 digits.'
+                    }
+                ]}
+            ],
+            theme: {
+                buttons: {
+                    primary: {
+                        backgroundColor: "#8b4513",
+                        border: "1px solid #8b4513",
+                        ":hover": {
+                            backgroundColor: "#722C00",
+                            border: "1px solid #722C00"
+                        }
+                    }
+                },
             }
-            return eids;
-        }
-        this.parseEIDs = parseEIDs;
+        });
 
-        let eidsLabel = document.createElement("label")
-        eidsGroup.append(eidsLabel);
+        importer.setCustomer({userId: this.data.userID, name: this.data.name, companyName: this.data.company, companyId: this.data.companyId });
 
-        let eidsTA = document.createElement("textarea");
-        this.eidsTA = eidsTA;
-        eidsTA.maxLength = 10000;
-        eidsTA.className = "form-control max-textarea";
-        eidsTA.rows = 4;
-        eidsTA.placeholder = "Ex. 982000418411463, 982000423277824, 982000423277825"
-        eidsTA.value = (this.data.eids || []).join(", ");
-        function eidsTALabelChange() {
-            eidsLabel.textContent = "Enter your animals' EIDs below.";
-            let eids = parseEIDs(eidsTA);
-            if (eids.length > 0) {
-                eidsLabel.textContent = eids.length + " EIDs entered";
-                let v = parseInt(marketingCount.value);
-                if (!isNaN(v) && eids.length != v) {
-                    eidsLabel.textContent += " (not equal to the total number of animals, which is " + v + ")";
-                }
-            }
-        }
-        eidsTA.addEventListener("change", eidsTALabelChange);
-        marketingCount.addEventListener("change", eidsTALabelChange);
-        eidsGroup.append(eidsTA);
-        eidsTALabelChange();
+        let eidButton = document.createElement("button");
+        eidButton.className = "btn btn-primary";
+        eidButton.textContent = "Add EID's";
+        eidButton.type = "button";
+        form.append(eidButton);
 
-        form.append(document.createElement("br"));
+        eidButton.addEventListener("click", () => importer.requestDataFromUser().then(function(results) { 
+            that.data.eids = results.data.map(function (obj) { return obj.EID; });
+        
+            importer.displaySuccess('Thanks for uploading your data!')
+        }));
 
         // Publish
 
@@ -491,7 +487,7 @@ export class EditSalesGroupWidget extends Widget {
                 return {
                     id: that.salesGroupID,
                     published: publishSwitch.isChecked(),
-                    eids: parseEIDs(eidsTA),
+                    eids: that.data.eids,
                     reported: {
                         comments: commentsTA.value,
                         count: safeInt(marketingCount.value),
@@ -522,16 +518,14 @@ export class EditSalesGroupWidget extends Widget {
 
         submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
-            if (this.allGood()) {
-                function progress(perc) {
-                    that.progressBar.setProgress(perc);
-                }
-                that.progressBar.show();
-                this.fileEditor.upload(progress)
-                    .then(() => {
-                        this.asyncForm.submit();
-                    });
+            function progress(perc) {
+                that.progressBar.setProgress(perc);
             }
+            that.progressBar.show();
+            this.fileEditor.upload(progress)
+                .then(() => {
+                    this.asyncForm.submit();
+                });
         });
     }
 
@@ -540,30 +534,30 @@ export class EditSalesGroupWidget extends Widget {
         this.internalErrorMessage.textContent = error;
     }
 
-    allGood() {
-        try {
-            let eids = this.parseEIDs();
-            for (const eid of eids) {
-                let str = eid.toString();
-                if (str.length != 15) {
-                    throw "The following EID is invalid, please check it: " + eid;
-                }
-            }
-
-            for (let i = 0; i < eids.length; i++) {
-                for (let i2 = i + 1; i2 < eids.length; i2++) {
-                    if (eids[i] == eids[i2]) {
-                        throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
-                    }
-                }
-            }
-        }
-        catch (error) {
-            this.showError(error);
-            return false;
-        }
-        return true;
-    }
+    //TODO: retained in case needed in future. Can be removed once we are comfortable using FlatFile JS since it takes care of these validations.
+    // allGood() {
+    //     try {
+    //         let eids = this.data.eids;
+    //         for (const eid of eids) {
+    //             let str = eid.toString();
+    //             if (str.length != 15) {
+    //                 throw "The following EID is invalid, please check it: " + eid;
+    //             }
+    //         }
+    //         for (let i = 0; i < eids.length; i++) {
+    //             for (let i2 = i + 1; i2 < eids.length; i2++) {
+    //                 if (eids[i] == eids[i2]) {
+    //                     throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     catch (error) {
+    //         this.showError(error);
+    //         return false;
+    //     }
+    //     return true;
+    // }
 }
 
 /**
