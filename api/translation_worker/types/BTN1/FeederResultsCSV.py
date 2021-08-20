@@ -14,6 +14,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     time = all_to_unix(fields["killdate"])
     account = insert["account"]
     eid = int(fields["eid"])
+    api_insert = insert["id"]
 
     account_link = db.account_links.get_by_company(
         fields["packer"].strip(),
@@ -30,6 +31,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=time,
             account_link=account_link,
             account=account,
+            api_insert=api_insert
         )
 
     if fields["grade1"].strip() != "":
@@ -40,6 +42,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=time,
             account_link=account_link,
             account=account,
+            api_insert=api_insert
         )
 
     if int(fields["side1yiel1"]) != 0:
@@ -49,7 +52,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             eid=eid,
             time=time,
             account_link=account_link,
-            account=account
+            account=account,
+            api_insert=api_insert
         )
 
     if int(fields["railedind"]) != 0:
@@ -57,7 +61,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             eid=eid,
             time=time,
             account_link=account_link,
-            account=account
+            account=account,
+            api_insert=api_insert
         )
 
     if fields["packer"].strip() != "":
@@ -67,7 +72,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=time,
             account_link=account_link,
             account=account,
-            packer_str=packer_str
+            packer_str=packer_str,
+            api_insert=api_insert
         )
     if died:
         db.matches.types.insert_died(
@@ -75,7 +81,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=time,
             account_link=account_link,
             account=account,
-            reason=None
+            reason=None,
+            api_insert=api_insert
         )
     elif int(fields["deadind"]) != 0:
         s = "Died before being packed"
@@ -86,5 +93,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             time=time,
             account_link=account_link,
             account=account,
-            reason=s
+            reason=s,
+            api_insert=api_insert
         )
