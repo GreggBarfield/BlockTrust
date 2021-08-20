@@ -79,10 +79,12 @@ const importer = new FlatfileImporter('{{license}}', {
       { 
         key: "EID", label: "Tag",
         validators: [
+        { validate: "required" },
+        { validate: "unique" },
         {
           validate: 'regex_matches',
-          regex: '^\\d{1,15}$',
-          error: 'Only can be number and must be more than 15 digits in length.'
+          regex: '^[0-9]{15}$',
+          error: 'Only can be a unique number and must be 15 digits in length.'
         }
       ]},
       { 
