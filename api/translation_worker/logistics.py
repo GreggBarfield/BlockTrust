@@ -3,6 +3,7 @@ from .exceptions import ExecutionException
 from core.reports.query import execute_query
 from core.common_exceptions import ExportException
 from .insert_handler import handle_insert
+import traceback
 
 
 def run(db, inserts_model, verbose=False, insert_id=None):
@@ -29,11 +30,12 @@ def run(db, inserts_model, verbose=False, insert_id=None):
             print("Running insert", insert['id'])
             try:
                 handle_insert(db, inserts_model, insert)
-            except ExecutionException as e:
-                inserts_model.set_status(insert['id'], "Exception")
+            except Exception as e:
+                #max col size to store exception is 3000
+                inserts_model.set_status(insert['id'], "Exception",  e.__class__.__name__ + ": " + str(e) + ", Stacktrace: " + traceback.format_exc())
 
                 if verbose:
-                    print("ExecutionException", str(e))
+                    print("ExecutionException",  str(e))
 
         if insert_id is not None:
             break
