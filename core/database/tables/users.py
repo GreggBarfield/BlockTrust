@@ -246,7 +246,8 @@ class Users:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
-
+        
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
         temp_phone = ""
         for c in phone:
             if c in digits:

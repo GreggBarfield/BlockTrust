@@ -3,9 +3,6 @@ import {AsyncForm} from '/static/global/async_form.mjs';
 let inviteUserForm = $("#invite_user_form");
 let statusMessage = inviteUserForm.find("#inviteuser_status_message");
 let errorMessage = inviteUserForm.find("#inviteuser_error_message");
-if (inviteUserForm[0].hasAttribute("request_redirect_to")) {
-    let requestRedirectTo = inviteUserForm[0].getAttribute("request_redirect_to");
-}
 let email = inviteUserForm.find("#invite_user_email");
 
 let form = new AsyncForm({

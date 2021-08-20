@@ -4,11 +4,6 @@ let invitedUserSignup = $("#invited_user_form");
 let statusMessage = invitedUserSignup.find("#inviteduser_status_message");
 let errorMessage = invitedUserSignup.find("#inviteduser_error_message");
 
-let requestRedirectTo = null;
-if (invitedUserSignup[0].hasAttribute("request_redirect_to")) {
-    requestRedirectTo = invitedUserSignup[0].getAttribute("request_redirect_to");
-}
-
 let first_name = invitedUserSignup.find("#invite_first");
 let last_name = invitedUserSignup.find("#invite_last");
 let username = invitedUserSignup.find("#invite_username");
@@ -19,7 +14,7 @@ let account_name = invitedUserSignup.find("#account_name");
 let account_id = invitedUserSignup.find("#account_id");
 
 let form = new AsyncForm({
-    action: "/dashboard/adduser",
+    action: "/adduser",
     form: invitedUserSignup[0],
     status: statusMessage[0],
     error: errorMessage[0],
@@ -36,6 +31,5 @@ let form = new AsyncForm({
             account_name: account_name.val(),
             account_id: account_id.val()
         }
-    },
-    requestRedirectTo: requestRedirectTo
+    }
 });

@@ -293,22 +293,24 @@ def serve_edit_edituser():
 
 
 @bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])
-@crut.require_user
+@crut.require_account
 def serve_invite_user():
     if request.method == 'POST':
         try:
             user_email = request.form["email"]
-            current_account = request.form["current_account"]
-            current_account_id = request.form["current_account_id"]
+            if auth.check_email_exists(email=user_email) is True:
+                raise ExportException("Email already exists!")
+            current_account = g.account.name()
+            current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
             # Creating URL for user to join an account
-            confirm_url = url_for('dashboard_bp.serve_add_user', tok=userToken, _external=True)
+            confirm_url = url_for('outside_bp.serve_add_user', tok=userToken, _external=True)
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
-                "BlockTrust Network Email Confirmation",
+                "BlockTrust Network Account Invite",
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
                     'current_account': current_account
@@ -319,43 +321,3 @@ def serve_invite_user():
             return {"error": str(e)}
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
-
-
-@bp.route('/dashboard/adduser/<tok>', methods=['GET', 'POST'])
-def serve_add_user(tok):
-    if request.method == 'GET':
-        try:
-            invite_string = token.confirmToken(tok)
-            invite_object = eval(invite_string)
-            user_email = invite_object["user_email"]
-            account_name = invite_object["current_account"]
-            account_id = invite_object["current_account_id"]
-            if auth.check_email_exists(email=user_email) is True:
-                user = g.db.users.get_by_email(user_email)
-                account_details = g.db.accounts.get_by_id(account_id)
-                if g.db.account_users.check_user_in_account(user_id=user.id(), account_id=account_details.id()) is False:
-                    g.db.account_users.add_user_to_account(user, account=account_details)
-                return redirect("/login")
-            return outside_render("/outside/invited-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
-        except ExportException as e:
-            return outside_render("/outside/error.html")
-
-
-@bp.route('/dashboard/adduser', methods=['POST'])
-def serve_add_invited_user():
-    try:
-        account_details = g.db.accounts.get_by_id(request.form["account_id"])
-        auth.invited_signup(
-            username=request.form['username'],
-            email=request.form['user_email'],
-            phone=str(account_details.phone()),
-            first_name=request.form['first_name'],
-            last_name=request.form['last_name'],
-            password=request.form['password'],
-            confirm_password=request.form['confirm_password'],
-            account_name=request.form['account_name'],
-            account_id=request.form['account_id']
-        )
-        return {"redirect": "/login"}
-    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
-        return {"error": str(e)}
