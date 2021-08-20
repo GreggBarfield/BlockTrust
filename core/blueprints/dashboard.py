@@ -15,6 +15,7 @@ from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
 
+from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..utilities import crut, auth
 
 bp = Blueprint('dashboard_bp', __name__)
@@ -312,8 +313,7 @@ def serve_shopping_cart():
 
 @bp.route('/dashboard/checkout', methods=['GET'])
 def serve_checkout_register():
-    if g.user is not None:
-        return dashboard_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
+    return dashboard_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
 
 
 @bp.route('/dashboard/checkout_payment', methods=['GET'])
@@ -331,7 +331,6 @@ def serve_payment():
         # Updating the orders table if payment goes through
         # Getting order details and shipping address from form
         order_details = eval(request.form["order_details"])
-        print(order_details)
         shipping_address_line = request.form['shipping_address_line']
         shipping_city = request.form['shipping_city']
         shipping_state = request.form['shipping_state']
@@ -344,7 +343,25 @@ def serve_payment():
         for key, value in cart.items():
             g.db.order_products.add_order_product(order_id, key, value["quantity"])
 
-        # Once payment goes through sending email to confirm order to buyer and seller
+        # Once payment goes through sending email to confirm order to buyer
+        send_tag_store_email(
+            "Tag Store Purchase Summary",
+            render_email("purchase_summary_internal.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': eval(order_details["shoppingCart"])
+            }),
+            order_details["email"]
+        )
         return jsonify({"redirect": "/dashboard/invoice"})
     except ExportException as e:
         return jsonify({"error": str(e)})

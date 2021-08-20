@@ -42,4 +42,10 @@ var yyyy = today.getFullYear();
 today = mm + '/' + dd + '/' + yyyy;
 $("#date").text(today)
 }
+
+$(window).bind('beforeunload',function(){
+    alert("Please make sure to save your order confirmation");
+   localStorage.clear();
+});
+
 });

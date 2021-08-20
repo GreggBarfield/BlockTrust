@@ -186,7 +186,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             phone=phone
         )
     except Exception as e:
-        #Delete the user if there are errors in account creation. This will let them register again.
+        # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
         raise e
 
