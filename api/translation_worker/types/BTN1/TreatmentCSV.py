@@ -27,6 +27,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     time = all_to_unix(fields["treat_dt"])
     account = insert["account"]
     eid = int(fields["electronic"])  # This might fail!
+    api_insert = insert["id"]
 
     if time is None:
         return
@@ -47,5 +48,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         time=time,
         data=medical_data,
         eid=eid,
-        account=account
+        account=account,
+        api_insert=api_insert
     )

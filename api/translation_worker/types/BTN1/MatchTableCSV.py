@@ -13,7 +13,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     fields = insert["fields"]
     eid = int(fields["eid"])  # This might fail!
     account = insert["account"]
-
+    api_insert = insert["id"]
+    
     sectors = ["cc", "fd", "pk", "au"]
     sectors_by_abbreviation = {
         "au": "Auction House",
@@ -43,5 +44,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
                     insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
                     insert=True
                 )[0].id()
-            )
+            ),
+            api_insert=api_insert
         )

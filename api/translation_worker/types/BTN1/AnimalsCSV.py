@@ -13,6 +13,7 @@ def block_key(insert):
 
 def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     account = insert["account"]
+    print("insert[fields]", insert["fields"])
     api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",
@@ -65,7 +66,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account=account,
         account_link=account_link,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -96,7 +97,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account_link=account_link,
         data=weaned_object,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -105,7 +106,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account=account,
         account_link=account_link,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -125,6 +126,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             eid=eid,
             time=all_to_unix(fields["marketingd"]),
             data=sold_object,
-            grouping_id = grouping_id,
+            grouping_id=grouping_id,
             api_insert=api_insert
         )
