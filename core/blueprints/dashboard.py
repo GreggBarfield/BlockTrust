@@ -287,5 +287,3 @@ def serve_edit_edituser():
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
         return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
-        
-    

@@ -3,7 +3,7 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.users import UsersException
+from ..database.tables.users import UsersException, NoUserFoundException
 from ..database.tables.accounts import AccountsException
 from ..common_exceptions import ExportException
 from ..utilities import auth
@@ -226,20 +226,25 @@ def serve_request_password_reset():
 
 @bp.route('/request_password_reset', methods=['POST'])
 def serve_password_request_action():
-
-    # Generating token identifier for changing password securely
-    userToken = token.generateConfirmationToken(request.form['email'])
-    # Creating URL for user to access change password functionality
-    password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
-    # Sending an email to user with the Blocktrust email template and including password change link
-    send_email(
-            "BlockTrust Network Password change",
-            render_email("forgot_password.html", {
-                'password_reset_url': password_reset_url
-            }), request.form['email']
-    )
-    return outside_render('password_reset_message.html')
-
+    try:
+        if g.db.users.get_by_email(request.form['email']):
+            print("Exists")
+        # Generating token identifier for changing password securely
+        userToken = token.generateConfirmationToken(request.form['email'])
+        # Creating URL for user to access change password functionality
+        password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
+        # Sending an email to user with the Blocktrust email template and including password change link
+        send_email(
+                "BlockTrust Network Password change",
+                render_email("forgot_password.html", {
+                    'password_reset_url': password_reset_url
+                }), request.form['email'],
+                override=True
+        )
+        return {"redirect": "/password_reset_message"}
+        # return outside_render('password_reset_message.html')
+    except NoUserFoundException as e:
+        return {"error": "Sorry, we couldn't find this email address"}
 # Passowrd reset message page
 
 
