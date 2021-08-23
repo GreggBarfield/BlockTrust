@@ -248,62 +248,23 @@ def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
 
-def getTagInRow(row, tag):
-    if tag in row:
-        return row[tag]
-    else:
-        return None
-
 @bp.route('/dashboard/import-tags', methods=['POST'])
 def insert_eids():
     data = json.loads(request.data)
     try:
         if g.account is not None:
             for row in data["eids"]:
-                g.db.execute_d(
-                    """
-                        INSERT INTO temp
-                            (eid, patron_id, zip_code,
-                            electronic_id, visual_id, application_id,
-                            app_date, wean_weight, first_birth,
-                            wean_date, sex, calf_birth_date,
-                            birth_weight, calf_desc, creep_feed,
-                            first_14_days, marketing_date, number_of_calves,
-                            marketing_method, sale_location, 
-                            estimated_sale_weight, weaning_strategy)
+                g.db.execute(
+                    """INSERT INTO api_inserts
+                        (account, namespace, type, fields)
                         VALUES
-                            (%(eid)s, %(patron_id)s, %(zip_code)s, 
-                            %(electronic_id)s, %(visual_id)s, %(application_id)s, 
-                            %(app_date)s, %(wean_weight)s, %(first_birth)s, 
-                            %(wean_date)s, %(sex)s, %(calf_birth_date)s, 
-                            %(birth_weight)s, %(calf_desc)s, %(creep_feed)s, 
-                            %(first_14_days)s, %(marketing_date)s, %(number_of_calves)s, 
-                            %(marketing_method)s, %(sale_location)s, 
-                            %(estimated_sale_weight)s, %(weaning_strategy)s)
+                            (%(account)s, %(namespace)s, %(type)s, %(fields)s)
                     """,
                     {
-                        "eid": getTagInRow(row, "eid"),
-                        "patron_id": getTagInRow(row, "patronid"),
-                        "zip_code": getTagInRow(row, "zipcode"),
-                        "electronic_id": getTagInRow(row, "electronic"),
-                        "visual_id": getTagInRow(row, "visualid"),
-                        "application_id": getTagInRow(row, "applicatio"),
-                        "app_date": getTagInRow(row, "appdate"),
-                        "wean_weight": getTagInRow(row, "weanweight"),
-                        "first_birth": getTagInRow(row, "firstbirth"),
-                        "wean_date": getTagInRow(row, "weandate"),
-                        "sex": getTagInRow(row, "sex"),
-                        "calf_birth_date": getTagInRow(row, "calfbirthd"),
-                        "birth_weight": getTagInRow(row, "birthweigh"),
-                        "calf_desc": getTagInRow(row, "calfdescri"),
-                        "creep_feed": getTagInRow(row, "creepfeed"),
-                        "first_14_days": getTagInRow(row, "first14day"),
-                        "marketing_date": getTagInRow(row, "marketingd"),
-                        "number_of_calves": getTagInRow(row, "numberofca"),
-                        "marketing_method": getTagInRow(row, "marketingm"),
-                        "sale_location": getTagInRow(row, "salelocati"),
-                        "estimated_sale_weight": getTagInRow(row, "estimateds"),
-                        "weaning_strategy": getTagInRow(row, "weaningstr")
+                        "account": g.account.id(),
+                        "namespace": "BTN1",
+                        "type": "OnlySighting",
+                        "fields": json.dumps(row)
                     }
                 )
             #insert into table

@@ -410,34 +410,6 @@ UPDATE products
 SET details="4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers;840 Compliant and serves as an official form of identification for USDA."
 WHERE product="Large Panel Tag"
 
-/* Conner Charles 8/13/2021 */
-CREATE TABLE `temp` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `eid` varchar(15) DEFAULT NULL,
-  `patron_id` varchar(10) DEFAULT NULL,
-  `zip_code` varchar(10) DEFAULT NULL,
-  `electronic_id` varchar(10) DEFAULT NULL,
-  `visual_id` varchar(10) DEFAULT NULL,
-  `application_id` varchar(10) DEFAULT NULL,
-  `app_date` varchar(30) DEFAULT NULL,
-  `wean_weight` float DEFAULT NULL,
-  `first_birth` varchar(30) DEFAULT NULL,
-  `wean_date` varchar(30) DEFAULT NULL,
-  `sex` varchar(10) DEFAULT NULL,
-  `calf_birth_date` varchar(30) DEFAULT NULL,
-  `birth_weight` float DEFAULT NULL,
-  `calf_desc` text DEFAULT NULL,
-  `creep_feed` varchar(30) DEFAULT NULL,
-  `first_14_days` varchar(50) DEFAULT NULL,
-  `marketing_date` varchar(30) DEFAULT NULL,
-  `number_of_calves` int DEFAULT NULL,
-  `marketing_method` varchar(30) DEFAULT NULL,
-  `sale_location` varchar(50) DEFAULT NULL,
-  `estimated_sale_weight` float DEFAULT NULL,
-  `weaning_strategy` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 /* Rohan Sureshkumar 8/17/2021 */
 ALTER TABLE `example_db_1`.`account_links`
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
