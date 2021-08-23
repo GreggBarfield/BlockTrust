@@ -209,12 +209,7 @@ class Users:
             UsersException
         """
 
-        # Correct symbols
-        # This is VERY IMPORTANT, otherwise auth.login() could have difficulties
-        # if someone uses an integer for a username for example.
-
         # Email must exist and contain an '@'
-
         if len(email) == 0:
             raise UsersException("Email is blank.")
         if '@' not in email or '.' not in email or len(email) < 5:
@@ -401,3 +396,19 @@ class Users:
                     "id": user.id()
                 }
             )
+
+    def check_user_with_email_exists(self, email):
+        email_results = self._db.execute_d(
+            """
+                SELECT * FROM users
+                WHERE
+                    email=%(email)s
+            """,
+            {
+                "email": email
+            }
+        )
+        if len(email_results) >= 1:
+            return True
+        else:
+            return False
