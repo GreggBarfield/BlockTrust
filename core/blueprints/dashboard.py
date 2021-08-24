@@ -130,6 +130,11 @@ def serve_animal_eid(animal_eid):
 
     return dashboard_render("animals/animal.html", {"animal": animal})
 
+@bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
+@crut.require_user
+def serve_animal_cert(animal_eid):
+    animal = g.db.animals.get_by_eid(animal_eid)
+    return dashboard_render("animals/animal_certificate.html", {"animal": animal})
 
 @bp.route('/dashboard/accounts', methods=['GET'])
 @crut.require_user

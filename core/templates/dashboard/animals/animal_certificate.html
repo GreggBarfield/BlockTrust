@@ -1,0 +1,63 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section %}
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/fonts/fontawesome/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/animation/css/animate.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/prism/css/prism.min.css">
+<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css">
+<style>
+    .nav-link {
+        cursor: pointer;
+    }
+</style>
+<link rel="stylesheet" href="/static/jvm/jquery-jvectormap-2.0.5.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/DataTables/datatables.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/select2/select2.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/codyhouse/main/assets/css/style.css" type="text/css" media="screen" />
+<style>
+    .jvectormap-container {
+        background-color: #13598a !important;
+    }
+
+    .jvectormap-tip {
+        padding: 5px !important;
+        border: solid 1px #404040 !important;
+        background-color: white !important;
+        color: black;
+    }
+
+    .jvectormap-tip p {
+        margin: 0px !important;
+    }
+</style>
+<script src="/static/js/jquery-3.5.1.min.js"></script>
+<script src="/static/global/global.mjs" type="module"></script>
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+{% endblock head_section %}
+{% block header %}
+{% endblock header %}
+{% set page_title = "Animal Certificates" %}
+
+
+{% set dashboard_locations = [("/dashboard", "Animals"), ("/dashboard/animals/" + eid | string +"certificates", "Animal " + eid | string +"Certificates")] %}
+{% block content %}
+{% block dashboard_content %}
+<style>
+    :root .card .card-header {
+        background-color: #f9f9f9;
+    }
+</style>
+<div>
+    <div class="col-xl-12">
+        <div class="card">
+            <h5 class="card-header">Certificates</h5>
+            <div class="card-body">
+                <h2 style="text-align: center;margin-top: 10px;">MFA Health Track Processing and Feed Report</h1>
+                <p class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid() }}"style='height:400px;'></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}
+{% endblock content %}

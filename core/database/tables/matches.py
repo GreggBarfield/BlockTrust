@@ -70,7 +70,7 @@ class Matches:
                     eid=eids
                 ),
                 frag(
-                    "AND matches.type IN (:types)",
+                    "AND matches.type IN :types",
                     types=restrict_types
                 ) if restrict_types else ""
             )
