@@ -1,6 +1,6 @@
 import bcrypt
 from flask import g, session
-from ..database.tables.users import Users, NoUserFoundException
+from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.objects.account import Account
 

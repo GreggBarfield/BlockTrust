@@ -12,7 +12,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
-from ..database.tables.users import UsersException, NoUserFoundException, Users
+from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
 
@@ -298,8 +298,8 @@ def serve_invite_user():
     if request.method == 'POST':
         try:
             user_email = request.form["email"]
-            if Users(g.db).check_user_with_email_exists(user_email):
-                raise ExportException("Email already exists!")
+            if g.db.users.get_by_email(user_email) is not None:
+                raise ExportException("A user with that email already exists!")
             current_account = g.account.name()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}

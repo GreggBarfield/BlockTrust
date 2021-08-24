@@ -6,6 +6,7 @@ from ..frag import frag
 
 NO_VALUE = NoValue()
 
+
 class UsersException(Exception):
     """Generic user exception."""
 
@@ -16,11 +17,6 @@ class UsersException(Exception):
             reason: The reason it failed.
         """
         super().__init__(reason)
-
-
-class NoUserFoundException(UsersException):
-    """User was not found."""
-    pass
 
 
 class Users:
@@ -73,8 +69,8 @@ class Users:
             }
         )
 
-        if len(matching_users) != 1:
-            raise NoUserFoundException()
+        if len(matching_users) == 0:
+            return None
         return User(self._db, matching_users[0])
 
     def get_by_username(self, username):
@@ -98,7 +94,7 @@ class Users:
         )
 
         if len(matching_users) != 1:
-            raise NoUserFoundException()
+            return None
         return User(self._db, matching_users[0])
 
     def get_rows_by_account(self, account_id):
@@ -169,9 +165,7 @@ class Users:
                 "email": Users._format_field(email)
             }
         )
-        if len(matching_user) != 1:
-            raise NoUserFoundException()
-        if matching_user[0]['email_verified'] == "Y":
+        if len(matching_user) > 0 and matching_user[0]['email_verified'] == "Y":
             return True
         else:
             return False
@@ -217,18 +211,15 @@ class Users:
         if ' ' in email:
             raise UsersException("Spaces cannot be in the email.")
         # Double-usage
-        try:
-            self.get_by_email(email)
+        user = self.get_by_email(email)
+        if user is not None:
             raise UsersException("Email is already being used.")
-        except NoUserFoundException:
-            pass
+
 
         # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
-        try:
-            self.get_by_username(username)
+        user = self.get_by_username(username)
+        if user is not None:
             raise UsersException("Username is already being used.")
-        except NoUserFoundException:
-            pass
 
         # Password must be at least 10 characters in unicode
         # and be no more than 60 characters in UTF-8
@@ -397,18 +388,3 @@ class Users:
                 }
             )
 
-    def check_user_with_email_exists(self, email):
-        email_results = self._db.execute_d(
-            """
-                SELECT * FROM users
-                WHERE
-                    email=%(email)s
-            """,
-            {
-                "email": email
-            }
-        )
-        if len(email_results) >= 1:
-            return True
-        else:
-            return False
