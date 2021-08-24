@@ -52,6 +52,9 @@ class Account:
     def affiliate_id(self):
         return self._row['affiliate_id']
 
+    def address(self):
+        return self._row['address']
+
     def city(self):
         return self._row['city']
 
