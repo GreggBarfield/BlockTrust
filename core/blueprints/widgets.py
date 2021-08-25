@@ -17,7 +17,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 
-from ..config import ROOT as WEBSITE_ROOT
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 
 from ..utilities import crut
 
@@ -69,7 +69,12 @@ def serve_sales_group():
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
         "auction_sale_name": sales_group_row["auction_sale_name"],
-        "group_name": sales_group_row["group_name"]
+        "group_name": sales_group_row["group_name"],
+        "license": FLATFILE_LICENSE,
+        "userID": g.user.id(),
+        "name": g.user.first() + ' ' + g.user.last(),
+        "companyId": g.account.id(),
+        "company": g.account.company()
     }
 
 

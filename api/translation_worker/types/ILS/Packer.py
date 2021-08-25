@@ -43,7 +43,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
 
     account = insert["account"]
     eid = int(fields["EIDNum"])
-
+    api_insert = insert["id"]
     # Sighting
     db.matches.types.insert_sighting(
         eid=eid,
@@ -52,7 +52,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             "ILS",
             insert_sector=sectors_by_name["Feedlot"],
             insert=True
-        )[0].id()
+        )[0].id(),
+        api_insert=api_insert
     )
 
     # Born
@@ -77,7 +78,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
                 fields["Company"],
                 insert_sector=sectors_by_name["Packer"],
                 insert=True
-            )[0].id()
+            )[0].id(),
+            api_insert=api_insert
         )
 
         # USDAYieldGrade
@@ -85,7 +87,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_usda_yield_grade(
             int(float(fields["USDAYieldGrade"])),
             eid=eid,
-            account=account
+            account=account,
+            api_insert=api_insert
         )
 
         # USDAQualityGrade
@@ -93,7 +96,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_usda_quality_grade(
             fields["USDAQualityGrade"],
             eid=eid,
-            account=account
+            account=account,
+            api_insert=api_insert
         )
 
         # Packer, PlantID (Sighting, Packer)
@@ -104,5 +108,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_packer(
             fields["Packer"].strip() + ";" + str(fields["PlantID"]).strip(),
             eid=eid,
-            account=account
+            account=account,
+            api_insert=api_insert
         )

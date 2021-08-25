@@ -110,6 +110,10 @@ class Database:
         self.execute(code, params)
         return self.fetch_all()
 
+    def execute_fetch_one(self, code, params=tuple()):
+        self.execute(code, params)
+        return self._cursor.fetchone()
+
     def exec_frag_d(self, kvs):
         """Executes a frag() style return value.
 

@@ -152,7 +152,7 @@ class Accounts:
             state: company's state
             zip: company's zip
             phone: company's phone
-        
+
         Returns:
             An Account object
 
@@ -166,7 +166,7 @@ class Accounts:
 
         if sector not in sectors_by_id:
             raise AccountsException("Sector number is not listed internally.")
-        
+
         # Process phone number
         if phone != None:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
@@ -198,17 +198,17 @@ class Accounts:
                 "zip": zip,
                 "phone": phone
             }
-        )            
+        )
         account = self.get_by_id(self._db.last_row_id())
-        #make the first user the account admin
+        # make the first user the account admin
         account.add_user(user, 1)
-        #Link the account appropriately in the database
+        # Link the account appropriately in the database
         account.update_account_links()
         return account
 
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+        phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -217,7 +217,7 @@ class Accounts:
             company: the company name
             sector: the sector number
             token: token that we give the customer to use our apis
-            stripe_paid: indicates if this account has an active subscription in stripe 
+            stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
@@ -227,86 +227,86 @@ class Accounts:
                             set_frags,
                             "name=:name,",
                             name=name
-                        )           
+                        )
         if company is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "company=:company,",
                             company=company
                         )
         if sector_id is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "sector_id=:sector_id,",
                             sector_id=sector_id
                         )
         if affiliate_id is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "affiliate_id=:affiliate_id,",
                             affiliate_id=affiliate_id
                         )
         if city is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "city=:city,",
                             city=city
                         )
         if state is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "state=:state,",
                             state=state
                         )
         if zip is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "zip=:zip,",
                             zip=zip
                         )
         if phone is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "phone=:phone,",
                             phone=phone
                         )
         if token is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "token=:token,",
                             token=token
                         )
         if stripe_paid is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "stripe_paid=:stripe_paid,",
                             stripe_paid=stripe_paid
-                        ) 
+                        )
         if manual_paid is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "manual_paid=:manual_paid,",
                             manual_paid=manual_paid
-                        )         
+                        )
         if stripe_customer_id is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "stripe_customer_id=:stripe_customer_id",
                             stripe_customer_id=stripe_customer_id
                         )
-        
-        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
-            #check if last character in SQL is , and remove it if so
-            if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1],set_frags[1])
 
-            self._db.exec_frag(   
+        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
+            #  check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1], set_frags[1])
+
+            self._db.exec_frag(
                 frag(
                     "UPDATE accounts SET",
                     set_frags,
                     frag(
                         "WHERE id=:id",
                         id=account_id
-                    )               
+                    )
                 )
             )

@@ -39,6 +39,8 @@ CSP = {
         'https://i.imgur.com',
         'https://player.vimeo.com/',
         'https://www.youtube.com/',
+        'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
+        'https://portal-2.flatfile.io/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -72,3 +74,4 @@ EMAIL_SECRET_KEY = config_file["internal_api"]["secret_email_key"]
 STRIPE_SECRET_KEY = config_file["stripe"]["secret_key"]
 STRIPE_PUBLISHABLE_KEY = config_file["stripe"]["publishable_key"]
 STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
+FLATFILE_LICENSE = config_file["flatfile_license"]
