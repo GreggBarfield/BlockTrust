@@ -14,18 +14,80 @@ export class SustainabilitySummaryWidget extends Widget {
             this.frame.innerHTML = "";
             console.log(data['results']);
             this.data = JSON.parse(data['results']);
-            this.generate();
+            this.prepData();
+            this.makeAverageScoreGraph();
+            this.makeOtherPieGraphs();
         });
     }
 
-    generate() {
+    makeAverageScoreGraph() {
+        let row = document.createElement("div");
+        row.className = "row";
+        this.frame.appendChild(row);
+
+        // Sustainability Score Card
+        let susWrapper = document.createElement("div");
+        susWrapper.className = "col-md-6";
+        let susCard = document.createElement("div");
+        susCard.className = "card";
+        susWrapper.append(susCard);
+        row.append(susWrapper);
+
+        let susCardHeader = document.createElement("div");
+        susCardHeader.className = "card-header";
+        let susCardHeaderLabel = document.createElement("h5");
+        susCardHeaderLabel.textContent = "Sustainability Score";
+        susCardHeader.append(susCardHeaderLabel);
+        susCard.append(susCardHeader);
+        
+        let susCardBody = document.createElement("div");
+        susCardBody.className = "card-body";
+        susCard.append(susCardBody);
+
+        let susCardTabs = document.createElement("ul");
+        susCardTabs.className = "nav nav-tabs";
+        susCardTabs.id = "susTabs";
+        susCardTabs.innerHTML = `
+            <ul class="nav nav-tabs" id="susTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active text-uppercase" href="#sector" id="sector-tab" data-toggle="tab"
+                        role="tab" aria-controls="sector" aria-selected="true">This Sector</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-uppercase" href="#supply-chain" id="supply-chain-tab"
+                        data-toggle="tab" role="tab" aria-controls="supply-chain" aria-selected="false">
+                        Supply Chain</a>
+                </li>
+            </ul>
+        `;
+
+        susCardBody.append(susCardTabs);
+
+        let susTabContent = document.createElement("div");
+        susTabContent.className = "tab-content";
+        susCardBody.append(susTabContent);
+
+        let susGraph = document.createElement("div");
+        susGraph.id = "sector";
+        susGraph.className = "tab-pane fade show active";
+        susTabContent.append(susGraph);
+        this.makeGraph(susGraph, "all");
+
+        let supplyChainGraph = document.createElement("div");
+        supplyChainGraph.id = "supply-chain";
+        supplyChainGraph.className = "tab-pane fade";
+        susTabContent.append(supplyChainGraph);
+        this.makeGraph(supplyChainGraph, "all");
+    }
+
+    makeOtherPieGraphs() {
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
 
         // Air Card
         let airGraphWrapper = document.createElement("div");
-        airGraphWrapper.className = "col-sm-4";
+        airGraphWrapper.className = "col-md-4";
         let airGraphCard = document.createElement("div");
         airGraphCard.className = "card";
         airGraphWrapper.append(airGraphCard);
@@ -39,11 +101,11 @@ export class SustainabilitySummaryWidget extends Widget {
         let airGraph = document.createElement("div");
         airGraph.className = "card-body";
         airGraphCard.append(airGraph);
-        this.makeGraph(airGraph, this.data.air);
+        this.makeGraph(airGraph, "air");
 
         // Animal Card
         let animalGraphWrapper = document.createElement("div");
-        animalGraphWrapper.className = "col-sm-4";
+        animalGraphWrapper.className = "col-md-4";
         let animalGraphCard = document.createElement("div");
         animalGraphCard.className = "card";
         animalGraphWrapper.append(animalGraphCard);
@@ -57,11 +119,11 @@ export class SustainabilitySummaryWidget extends Widget {
         let animalGraph = document.createElement("div");
         animalGraph.className = "card-body";
         animalGraphCard.append(animalGraph);
-        this.makeGraph(animalGraph, this.data.animal);
+        this.makeGraph(animalGraph, "animal");
 
         // Efficiency Card
         let efficiencyGraphWrapper = document.createElement("div");
-        efficiencyGraphWrapper.className = "col-sm-4";
+        efficiencyGraphWrapper.className = "col-md-4";
         let efficiencyGraphCard = document.createElement("div");
         efficiencyGraphCard.className = "card";
         efficiencyGraphWrapper.append(efficiencyGraphCard);
@@ -75,11 +137,11 @@ export class SustainabilitySummaryWidget extends Widget {
         let efficiencyGraph = document.createElement("div");
         efficiencyGraph.className = "card-body";
         efficiencyGraphCard.append(efficiencyGraph);
-        this.makeGraph(efficiencyGraph, this.data.efficiency);
+        this.makeGraph(efficiencyGraph, "efficiency");
 
         // Safety Card
         let safetyGraphWrapper = document.createElement("div");
-        safetyGraphWrapper.className = "col-sm-4";
+        safetyGraphWrapper.className = "col-md-4";
         let safetyGraphCard = document.createElement("div");
         safetyGraphCard.className = "card";
         safetyGraphWrapper.append(safetyGraphCard);
@@ -93,11 +155,11 @@ export class SustainabilitySummaryWidget extends Widget {
         let safetyGraph = document.createElement("div");
         safetyGraph.className = "card-body";
         safetyGraphCard.append(safetyGraph);
-        this.makeGraph(safetyGraph, this.data.safety);
+        this.makeGraph(safetyGraph, "safety");
 
         // Land Card
         let landGraphWrapper = document.createElement("div");
-        landGraphWrapper.className = "col-sm-4";
+        landGraphWrapper.className = "col-md-4";
         let landGraphCard = document.createElement("div");
         landGraphCard.className = "card";
         landGraphWrapper.append(landGraphCard);
@@ -111,11 +173,11 @@ export class SustainabilitySummaryWidget extends Widget {
         let landGraph = document.createElement("div");
         landGraph.className = "card-body";
         landGraphCard.append(landGraph);
-        this.makeGraph(landGraph, this.data.land);
+        this.makeGraph(landGraph, "land");
 
         // Water Card
         let waterGraphWrapper = document.createElement("div");
-        waterGraphWrapper.className = "col-sm-4";
+        waterGraphWrapper.className = "col-md-4";
         let waterGraphCard = document.createElement("div");
         waterGraphCard.className = "card";
         waterGraphWrapper.append(waterGraphCard);
@@ -129,85 +191,123 @@ export class SustainabilitySummaryWidget extends Widget {
         let waterGraph = document.createElement("div");
         waterGraph.className = "card-body";
         waterGraphCard.append(waterGraph);
-        this.makeGraph(waterGraph, this.data.water);
+        this.makeGraph(waterGraph, "water");
     }
 
-    prepData(data) {
-        let dataCounter = {
+    prepData() {
+        this.dataCounter = {
+            "air": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+            "animal": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+            "efficiency": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+            "safety": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+            "land": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+            "water": {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            },
+        };
+
+        let totals = {
             "excellent": 0, 
             "acceptable": 0,
             "needsWork": 0
         };
-        
-        for(const item of data){
-            if (item.includes('a')) {
-                dataCounter.excellent += 1;
-            } else if (item.includes('b')) {
-                dataCounter.acceptable += 1;
-            } else if (item.includes('c')) {
-                dataCounter.needsWork += 1;
+
+        for(const item in this.data){
+            for(const response of this.data[item]){
+                if (response.includes('a')) {
+                    this.dataCounter[item].excellent += 1;
+                    totals.excellent += 1;
+                } else if (response.includes('b')) {
+                    this.dataCounter[item].acceptable += 1;
+                    totals.acceptable += 1;
+                } else if (response.includes('c')) {
+                    this.dataCounter[item].needsWork += 1;
+                    totals.needsWork += 1;
+                }
             }
         }
 
+        this.dataCounter["all"] = totals;
+        this.data["all"] = [totals.excellent, totals.acceptable, totals.needsWork];
+
+        console.log(this.dataCounter);
+    }
+
+    getGraphableData(dataType) {
         let graphableData = [{
-            "sector": "Excellent",
-            "size": dataCounter.excellent,
-        },
-        {
-            "sector": "Acceptable",
-            "size": dataCounter.acceptable,
-        },
-        {
-            "sector": "Needs Work",
-            "size": dataCounter.needsWork,
+                "sector": "Excellent",
+                "size": this.dataCounter[dataType].excellent,
+                "color": am4core.color("#008000")
+            },
+            {
+                "sector": "Acceptable",
+                "size": this.dataCounter[dataType].acceptable,
+                "color": am4core.color("#0000FF")
+            },
+            {
+                "sector": "Needs Work",
+                "size": this.dataCounter[dataType].needsWork,
+                "color": am4core.color("#C00000")
         }];
 
         return graphableData;
     }
 
-    makeGraph(container, data) {
-        if (data === null) {
+    makeGraph(container, dataType) {
+        if (this.data[dataType] == null) {
             container.textContent = "Data is not available yet.";
         }
-        else if (data.length == 0) {
+        else if (this.data[dataType].length == 0) {
             container.textContent = "(no data)";
         }
         else {
             let that = this;
             am4core.ready(function() {
                 am4core.useTheme(am4themes_animated);
-                // var chart = am4core.create(that.container, am4charts.PieChart);
                 var chart = am4core.create(container, am4charts.PieChart);
 
-                chart.data = that.prepData(data);
+                chart.data = that.getGraphableData(dataType);
                 
                 chart.innerRadius = am4core.percent(30);
                 
                 var pieSeries = chart.series.push(new am4charts.PieSeries());
                 pieSeries.dataFields.value = "size";
                 pieSeries.dataFields.category = "sector";
+                pieSeries.slices.template.propertyFields.fill = "color";
                 pieSeries.slices.template.stroke = am4core.color("#fff");
-                // pieSeries.slices.template.strokeWidth = 2;
-                // pieSeries.slices.template.strokeOpacity = 1;
 
                 pieSeries.colors.step = 2;
-                // pieSeries.slices.template.propertyFields.fill = "color";
 
                 pieSeries.labels.template.disabled = true;
                 pieSeries.ticks.template.disabled = true;
-                
-                // pieSeries.hiddenState.properties.opacity = 1;
-                // pieSeries.hiddenState.properties.endAngle = -90;
-                // pieSeries.hiddenState.properties.startAngle = -90;
 
                 chart.legend = new am4charts.Legend();
                 chart.legend.position = "left";
                 chart.legend.markers.template.width = 10;
                 chart.legend.markers.template.height = 10;
                 chart.legend.markers.template.children.getIndex(0).cornerRadius(20, 20, 20, 20);
-                // chart.legend.maxHeight = 150;
-                // chart.legend.maxWidth = 150;
-
             });
         }
     }
