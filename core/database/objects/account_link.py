@@ -51,21 +51,21 @@ class AccountLink:
         """
         return self._row['company']
 
-    def affilate_id(self):
-        """Gets the affilate_id attached to the link
+    def affiliate_id(self):
+        """Gets the affiliate_id attached to the link
 
         Returns:
             An int or None
         """
-        return self._row['affilate_id']
+        return self._row['affiliate_id']
 
-    def affilate_id_type(self):
-        """Gets the affilate_id Type attached to the link
+    def affiliate_id_type(self):
+        """Gets the affiliate_id Type attached to the link
 
         Returns:
             An int or None
         """
-        return self._row['affilate_id_type']
+        return self._row['affiliate_id_type']
 
     def sector(self):
         """Gets the sector ID attached to the link.

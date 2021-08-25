@@ -97,10 +97,10 @@ class AccountLinks:
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
     def get_by_affiliate_id(self, affiliate_id, partner_account=None, insert=False, data_race_protection=True):
-        """Gets all account links that match a affilate_id.
+        """Gets all account links that match a affiliate_id.
 
         Params:
-            affilate_id: affilate_id to search
+            affiliate_id: affiliate_id to search
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
         
         Returns:
@@ -136,13 +136,13 @@ class AccountLinks:
 
         Params:
             account: Account ID to bind to (optional)
-            affilate_id_type: affilate_id
+            affiliate_id_type: affiliate_id
 
         Raises:
             AccountLinksException
         """
         # if affiliate_id_type is not None and affiliate_id is None or affiliate_id_type is None and affiliate_id is not None:
-        #     raise AccountLinksException("affilate_id and affilate_id type mismatch")
+        #     raise AccountLinksException("affiliate_id and affiliate_id type mismatch")
 
         where_clause_statements = []
 
@@ -173,7 +173,7 @@ class AccountLinks:
 
         Params:
             partner: Partner ID 
-            affilate_id: affilate_id or partron id
+            affiliate_id: affiliate_id or partron id
             account: Account ID to bind
         """
         self._db.execute(
