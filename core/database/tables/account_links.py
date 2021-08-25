@@ -96,7 +96,7 @@ class AccountLinks:
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_affiliate_id(self, affiliate_id, partner_account=None, insert=False, data_race_protection=True):
+    def get_by_affiliate_id(self, affiliate_id, partner_account=None, api_insert=None, insert=False, data_race_protection=True):
         """Gets all account links that match a affiliate_id.
 
         Params:
@@ -117,13 +117,14 @@ class AccountLinks:
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(partner_account=partner_account, affiliate_id=affiliate_id)
+                self.insert(partner_account=partner_account, affiliate_id=affiliate_id, api_insert=api_insert)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
                     return self.get_by_affiliate_id(
                         affiliate_id=affiliate_id,
                         partner_account=partner_account,
+                        api_insert=api_insert,
                         insert=insert,
                         data_race_protection=False
                     )
@@ -131,7 +132,7 @@ class AccountLinks:
             return [self.get_by_id(self._db.last_row_id())]
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def insert(self, account=None, affiliate_id_type=None, affiliate_id=None, company=None, sector=None, partner_account=None):
+    def insert(self, account=None, affiliate_id_type=None, affiliate_id=None, company=None, sector=None, partner_account=None, api_insert=None):
         """Inserts a new account link.
 
         Params:
@@ -152,8 +153,8 @@ class AccountLinks:
         self._db.execute(
             """
                 INSERT IGNORE INTO account_links
-                    (account, affiliate_id_type, affiliate_id, company, sector, partner_account)
-                    VALUES (%(account)s, %(affiliate_id_type)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s)
+                    (account, affiliate_id_type, affiliate_id, company, sector, partner_account, api_insert)
+                    VALUES (%(account)s, %(affiliate_id_type)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s, %(api_insert)s)
             """,
             {
                 "account": account,
@@ -161,12 +162,13 @@ class AccountLinks:
                 "affiliate_id": affiliate_id,
                 "company": company,
                 "sector": sector,
-                "partner_account": partner_account
+                "partner_account": partner_account,
+                "api_insert": api_insert
             }
         )
 
         if self._db.row_count() != 1:
-            raise AccountLinksException("Conflict with another account link. Affiliate_id", affiliate_id, "Partner_account:", partner_account)
+            raise AccountLinksException("Conflict with another account link. Affiliate_id", affiliate_id, "Partner_account:", partner_account, "API_INSERT:", api_insert)
 
     def add_account_to_account_link(self, partner, affiliate_id, account):
         """Updates a account link with the account id
