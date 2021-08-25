@@ -12,6 +12,28 @@ Animal {{ animal.eid()|e }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script> -->
+<!-- jQuery library -->
+<script src="../../../static/libs/jquery/jquery-3.4.1.min.js"></script>
+
+<!-- jsPDF library -->
+<script src="../../../static/libs/jspdf/jspdf.min.js"></script>
+<script>
+function generatePDF(){
+    var doc = new jsPDF();
+    var elementHTML = $('#cert').html();
+    var specialElementHandlers = {
+        '#editor': function (element, renderer) {
+            return true;
+        }
+    };
+    doc.fromHTML(elementHTML, 15, 15, {
+        'width': 170,
+        'elementHandlers': specialElementHandlers
+    });
+    doc.save('sample-document.pdf');
+}
+</script>
 <style>
     :root .card .card-header {
         background-color: #f9f9f9;
@@ -29,10 +51,17 @@ Animal {{ animal.eid()|e }}
     </div>
     <div class="col-xl-6">
         <div class="card">
-            <h5 class="card-header">Certificates</h5>
-            <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid() }}"style='height:400px;'></p>
+            <div class="row"style="width:100%;margin-left: 0px;">
+                <h5 class="card-header"style="width:80%;">Certificates</h5>
+                <div id="editor"></div>
+                <button id ="cmd" class="mb-0 widget" style="width:20%;height: inherit;" onclick= "console.log('clicked'); generatePDF();">Print Certificate</button>
             </div>
+            
+            <div class="card-body">
+                <p id = "cert" class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid() }}"></p>
+            </div>
+
+            
         </div>
     </div>
 </div>

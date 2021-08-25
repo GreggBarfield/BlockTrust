@@ -37,54 +37,57 @@ def get_pdf_url(folder_name,file_id,expires_in=3600):
       },
       ExpiresIn=expires_in,
   )
-# def local_generate():
-#   medical_data={'type': 'matches_by_eids', 'params': {'eids': [982000418411463], 'ljoin_account_links': True, 'types': ['Medical']}, 'result': {'matches': [{'id': 1791334, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cavalry 9', 'location': 'Left & Right Neck'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791335, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Pyramid 5+Presponse SQ', 'location': 'Left & Right Neck'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791336, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Safe-Guard Suspension', 'location': 'Mouth'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791337, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cylence', 'location': 'Back'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791338, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Component E-C', 'location': 'Right Ear'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791339, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Knife'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791340, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1521090000, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cavalry 9', 'location': 'Left & Right Neck'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791341, 'account': 4, 'account_link': None, 'eid': 982000418411463, 'lat': None, 'lon': None, 'time': 1521090000, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Pyramid 5+Presponse SQ', 'location': 'Left & Right Neck'}, 'visibility': True, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}], 'blocked_matches': []}}
-#   qp =FoxitQuick.PDFLibrary("C:\Program Files (x86)\Foxit Software\Quick PDF Library 18\DLL")
-#   licenseKey = "jd4pi7ez76e5z89ad7em5jb7y"
-#   if qp.UnlockKey(licenseKey) == 1:
-#     qp.LoadFromFile("Blank_Health_Track_Certificate_no_grid.pdf","")
-#     # qp.SetTextSize(5)
-#     qp.SetPageSize("Letter Landscape")
-#     # print(medical_data['result'],type(medical_data['result']))
-#     row_c = len(medical_data['result']['matches'])
-#     print("ROW_C",row_c)
+def local_generate():
+  medical_data={'type': 'matches_by_eids', 'params': {'eids': [982000418411463], 'ljoin_account_links': True, 'types': ['Weaned', 'First Birth', 'Medical']}, 'result': {'matches': [{'id': 66982, 'account': 3, 'account_link': 375, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1518760800, 'created': 1604981226, 'type': 11, 'raw_identifier': '516619', 'data': {'at': 'Ranch of Origin', 'creep_feed': 'Cattle Charge R w/ Shield', 'second_31_feed': 'Trendsetter', 'first_14_method': 'Hand Fed', 'second_31_method': 'Hand Fed'}, 'api_insert': None, 'visibility': None, 'account_links.id': 375, 'account_links.account': 4, 'account_links.uid_type': '0', 'account_links.uid': '516619', 'account_links.company': None, 'account_links.sector': None}, {'id': 1791334, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cavalry 9', 'location': 'Left & Right Neck'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791335, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Pyramid 5+Presponse SQ', 'location': 'Left & Right Neck'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791336, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Safe-Guard Suspension', 'location': 'Mouth'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 
+'account_links.sector': None}, {'id': 1791337, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cylence', 'location': 'Back'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791338, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Component E-C', 'location': 'Right Ear'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791339, 'account': 3, 'account_link': 
+None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1519365600, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Knife'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}, {'id': 1791340, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1521090000, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Cavalry 9', 'location': 'Left & Right Neck'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 
+'account_links.sector': None}, {'id': 1791341, 'account': 3, 'account_link': None, 'eid': 982000418411463, 'grouping_id': None, 'lat': None, 'lon': None, 'time': 1521090000, 'created': 1604985815, 'type': 20, 'raw_identifier': None, 'data': {'product': 'Pyramid 5+Presponse SQ', 'location': 'Left & Right Neck'}, 'api_insert': None, 'visibility': None, 'account_links.id': None, 'account_links.account': None, 'account_links.uid_type': None, 'account_links.uid': None, 'account_links.company': None, 'account_links.sector': None}], 'blocked_matches': []}}
+  qp =FoxitQuick.PDFLibrary("C:\Program Files (x86)\Foxit Software\Quick PDF Library 18\DLL")
+  licenseKey = "jd4pi7ez76e5z89ad7em5jb7y"
+  if qp.UnlockKey(licenseKey) == 1:
+    qp.LoadFromFile("Blank_Health_Track_Certificate_no_grid.pdf","")
+    # qp.SetTextSize(5)
+    qp.SetPageSize("Letter Landscape")
+    # print(medical_data['result'],type(medical_data['result']))
+    row_c = len(medical_data['result']['matches'])-1
+    print("ROW_C",row_c)
   
-#     medical_table=qp.CreateTable(row_c,4)
-#     qp.SetTableBorderColor(medical_table, 0, 0.34, 0.204, 0)
-#     qp.SetTableBorderWidth(medical_table, 0, 0.2)
-#     qp.SetTableRowHeight(medical_table,1, row_c,16)
-#     qp.SetTableColumnWidth(medical_table, 1, 4, 160)
-#     qp.SetTableCellBackgroundColor(medical_table, 1, 1, 1, 4, 0.847, 0.176, 0.223)
-#     qp.SetTableCellAlignment(medical_table, 1, 1, 1, 4, 0)
+    medical_table=qp.CreateTable(row_c,4)
+    qp.SetTableBorderColor(medical_table, 0, 0.34, 0.204, 0)
+    qp.SetTableBorderWidth(medical_table, 0, 0.2)
+    qp.SetTableRowHeight(medical_table,1, row_c,16)
+    qp.SetTableColumnWidth(medical_table, 1, 4, 160)
+    qp.SetTableCellBackgroundColor(medical_table, 1, 1, 1, 4, 0.847, 0.176, 0.223)
+    qp.SetTableCellAlignment(medical_table, 1, 1, 1, 4, 0)
     
-#     qp.SetTableCellContent(medical_table, 1, 1, "<b>Date</b>")
-#     qp.SetTableCellContent(medical_table, 1, 2, "<b>Product Name</b>")
-#     qp.SetTableCellContent(medical_table, 1, 3, "<b>Location</b>")
-#     qp.SetTableCellContent(medical_table, 1, 4, "<b>Admin Route</b>")
-#     row_counter=2
+    qp.SetTableCellContent(medical_table, 1, 1, "<b>Date</b>")
+    qp.SetTableCellContent(medical_table, 1, 2, "<b>Product Name</b>")
+    qp.SetTableCellContent(medical_table, 1, 3, "<b>Location</b>")
+    qp.SetTableCellContent(medical_table, 1, 4, "<b>Admin Route</b>")
+    row_counter=2
     
-#     for match_row in medical_data['result']['matches']:
-#       print(match_row['data'].keys())
-#       data_obj = match_row['data']
-#       key=match_row['data'].keys()
-#       if 'product' in key:
-#         product= str(data_obj['product'])
-#       else:
-#         product="NA"
-#       if 'location' in key:
-#         location= str(data_obj['location'])
-#       else:
-#         location="NA"
-#       # create_row(qp,medical_table,row_counter,match_row['time'],data_obj['product'],data_obj['location'],'')
-#       qp.SetTableCellContent(medical_table, row_counter, 1, str(match_row['time']))
-#       qp.SetTableCellContent(medical_table, row_counter, 2,product)
-#       qp.SetTableCellContent(medical_table, row_counter, 3, location)
-#       qp.SetTableCellContent(medical_table, row_counter, 4,'')
-#       row_counter+=1
-#     qp.DrawTableRows(medical_table, 47, 463, 400, 1, 0)
-#     qp.SaveToFile("test.pdf")
+    for match_row in medical_data['result']['matches']:
+      print(match_row['data'].keys())
+      data_obj = match_row['data']
+      key=match_row['data'].keys()
+      if 'product' in key:
+        product= str(data_obj['product'])
+      else:
+        product="NA"
+      if 'location' in key:
+        location= str(data_obj['location'])
+      else:
+        location="NA"
+      # create_row(qp,medical_table,row_counter,match_row['time'],data_obj['product'],data_obj['location'],'')
+      qp.SetTableCellContent(medical_table, row_counter, 1, str(match_row['time']))
+      qp.SetTableCellContent(medical_table, row_counter, 2,product)
+      qp.SetTableCellContent(medical_table, row_counter, 3, location)
+      qp.SetTableCellContent(medical_table, row_counter, 4,'')
+      row_counter+=1
+    qp.DrawTableRows(medical_table, 47, 463, 400, 1, 0)
+    qp.SaveToFile("test.pdf")
 
-# local_generate()
+local_generate()
 
 def generate_pdf(medical_data,eid):
   print("In generater--------------------",medical_data)

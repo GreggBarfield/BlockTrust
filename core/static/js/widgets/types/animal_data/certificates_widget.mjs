@@ -1,5 +1,6 @@
 import { Widget } from '../../widget.mjs';
 
+
 export class CertificatesWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -58,11 +59,13 @@ export class CertificatesWidget extends Widget {
         // placeHolder.style.height= "100%"
         // placeHolder.style.width="100%"
         let certHeader = document.createElement("h2");
-        // certHeader.textContent=this.wean_data
+        certHeader.style="text-align: center;margin-top: 10px;"
+        certHeader.textContent= "MFA Health Track Processing and Feed Report"
         this.frame.append(certHeader)
 
         let row =  document.createElement("div");
         row.className= "row"
+        row.style="margin: auto;padding-left:20px"
         this.frame.append(row);
 
         let appNo =document.createElement("div");
@@ -103,6 +106,7 @@ export class CertificatesWidget extends Widget {
         //table
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "table-responsive";
+        this.divTableResponsive.style = "margin: auto;padding:10px;width:100%;";
 
         this.mainTable = document.createElement("table");
         this.mainTable.className = "table table-xs";
@@ -174,6 +178,7 @@ export class CertificatesWidget extends Widget {
         // Put HTML in frame
 
         this.frame.appendChild(this.divTableResponsive);
+        
     }
         
     

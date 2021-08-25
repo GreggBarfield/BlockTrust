@@ -27,8 +27,6 @@ from time import time
 
 from ..database.tables import zip_codes
 
-from ..reports.pdf_generator import generate_pdf
-# from ..reports.pdf_generator import *
 bp = Blueprint('widgets_bp', __name__)
 
 
