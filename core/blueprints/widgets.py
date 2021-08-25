@@ -184,6 +184,7 @@ def serve_search_by_eid_and_visual_id():
             "matches": []
     }
 
+
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group():
@@ -238,6 +239,7 @@ def serve_save_sales_group():
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
@@ -246,7 +248,18 @@ def serve_save_sustainability():
         request.json["response"]
     )
     return { "redirect": "/dashboard/sustainability/summary"}
-    
+
+
+@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability():
+    response = g.db.sustainability.get(g.account.id())
+    if response is not None:
+        response = response[0]['response']
+        
+    return { 
+        "results": response
+    }, 200
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])

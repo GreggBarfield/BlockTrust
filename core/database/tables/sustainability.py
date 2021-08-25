@@ -44,3 +44,13 @@ class Sustainability:
                 "response": json.dumps(response),  # Does this need to be converted to a string first?
             }
         )
+
+    def get(self, account):
+        data = self._db.execute_d(
+            """SELECT * FROM sustainability 
+            WHERE account=%(account)s
+            """,
+            {
+                "account": account,
+            })
+        return data
