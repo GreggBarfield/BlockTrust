@@ -23,7 +23,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "uid_type", "uid", "company", "sector")
+    _account_links_cols = ("id", "account", "affiliate_id_type", "affiliate_id", "company", "sector")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
