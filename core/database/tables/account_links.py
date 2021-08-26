@@ -137,7 +137,7 @@ class AccountLinks:
 
         Params:
             account: Account ID to bind to (optional)
-            affiliate_id_type: affiliate_id
+            affiliate_id_type: affiliate id type (not being used right now)
 
         Raises:
             AccountLinksException

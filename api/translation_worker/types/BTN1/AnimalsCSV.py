@@ -143,6 +143,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
                     db.account_links.get_by_affiliate_id(
                         affiliate_id=patronid,
                         partner_account=account,
+                        api_insert=api_insert,
                         insert=True
                     )[0].id()
                 )
