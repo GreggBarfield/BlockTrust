@@ -41,7 +41,7 @@ export let promptNewMessage = (toAccount, toAccountName=null) => {
         submitButton.disabled = true;
         submitButton.textContent = "Sending";
         $.ajax({
-            url: "/widgets/data",
+            url: "/widgets/data/send_message",
             data: JSON.stringify({
                 "action": "send_message",
                 "params": {

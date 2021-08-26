@@ -269,6 +269,13 @@ def serve_get_upload_config():
     }
 
 
+@bp.route('/widgets/data/get_accounts_list', methods=['POST'])
+@crut.require_account
+def serve_get_accounts_list():
+    return {
+        "accounts": g.db.accounts.get_accounts_list()
+    }
+
 @bp.route('/widgets/data/get_account_messages', methods=['POST'])
 @crut.require_account
 def serve_get_account_messages():
@@ -282,10 +289,10 @@ def serve_get_account_messages():
 def serve_send_message():
     message_id = g.db.messages.insert_message(
         g.account.id(),
-        request.json["to_account"],
-        request.json["data"]
+        request.json["params"]["to_account"],
+        request.json["params"]["data"]
     )
-    send_to_users = g.db.users.get_rows_by_account(request.json["to_account"])
+    send_to_users = g.db.users.get_rows_by_account(request.json["params"]["to_account"])
     for user in send_to_users:
         send_email(
             "New Message",
