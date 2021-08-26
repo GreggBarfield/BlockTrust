@@ -121,7 +121,8 @@ def serve_signup_action():
                 address=required['address'],
                 city=required['city'],
                 state=required['state'],
-                zip_code=required['zip_code']
+                zip_code=required['zip_code'],
+                personal_phone=request.form['personal_phone']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))

@@ -17,6 +17,7 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
+let personal_phone = signupForm.find("#signup_form_personal_phone")
 
 let form = new AsyncForm({
     action: "/signup/action",
@@ -41,7 +42,8 @@ let form = new AsyncForm({
             address: address.val(),
             city: city.val(),
             state: state.val(),
-            zip_code: zip_code.val()
+            zip_code: zip_code.val(),
+            personal_phone: personal_phone.val()
         }
     }
 });
