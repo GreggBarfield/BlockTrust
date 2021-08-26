@@ -16,11 +16,11 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     eid = int(fields["eid"])
     api_insert = insert["id"]
 
-    account_link = db.account_links.get_by_company(
-        fields["packer"].strip(),
-        insert_sector=sectors_by_name["Packer"],
-        insert=True
-    )[0].id()
+    # account_link = db.account_links.get_by_company(
+    #     fields["packer"].strip(),
+    #     insert_sector=sectors_by_name["Packer"],
+    #     insert=True
+    # )[0].id()
 
     died = False
     if int(float(fields["hotwt"])) != 0:
@@ -29,7 +29,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             weight=int(float(fields["hotwt"])),
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             api_insert=api_insert
         )
@@ -40,7 +39,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             grade=fields["grade1"].strip(),
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             api_insert=api_insert
         )
@@ -51,7 +49,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             grade=int(fields["side1yiel1"]),
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             api_insert=api_insert
         )
@@ -60,7 +57,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_railed(
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             api_insert=api_insert
         )
@@ -70,7 +66,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_packer(
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             packer_str=packer_str,
             api_insert=api_insert
@@ -79,7 +74,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_died(
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             reason=None,
             api_insert=api_insert
@@ -91,7 +85,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_died(
             eid=eid,
             time=time,
-            account_link=account_link,
             account=account,
             reason=s,
             api_insert=api_insert
