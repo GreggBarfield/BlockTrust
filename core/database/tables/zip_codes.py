@@ -3,6 +3,7 @@ from ..const.spatial_math import distance, miles_to_meters
 from ...common_exceptions import ExportException
 from pyzipcode import ZipCodeDatabase
 
+
 class ZIPCodesException(Exception):
     """ZIPCodes generic exception."""
 
@@ -14,10 +15,28 @@ class ZIPCodesException(Exception):
         """
         super().__init__(reason)
 
+
 class ZIPCodes:
 
     def __init__(self, db):
         self._db = db
+
+    def get_lat_lon(self, zip_code):
+
+        """Gets the lattitude and longitude for a zip code.
+
+        Params:
+            zip_code: The zip code (integer)
+
+        Returns:
+            Tuple float (lat, lon)
+
+        """
+
+        if zip_code not in ZIP_CODES:
+            raise ExportException("ZIP Code not recognized.")
+
+        return ZIP_CODES[zip_code]["lat"], ZIP_CODES[zip_code]["lon"]
 
     def zips_nearby_zip(self, zip_code, dist):
         """Gets ZIP codes nearby a ZIP code.
@@ -39,7 +58,7 @@ class ZIPCodes:
 
         if zip_code not in results:
             results.append(zip_code)
-        
+
         return results
 
     def get_locations(self, zip_code):    
