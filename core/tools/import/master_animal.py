@@ -7,11 +7,10 @@ from ...config import MYSQL_CONFIG
 from ...match_types import match_types_by_name
 
 def insert_helper(db, eid, patronid, type, data=None, time=None):
-
+    #account_link=db.account_links.get_by_affiliate_id(affiliate_id=patronid, insert=True)[0].id(),
     db.matches.insert(
         eid=eid,
-        type_int=match_types_by_name[type],
-        account_link=db.account_links.get_by_uid(patronid, 0, insert=True)[0].id(),
+        type_int=match_types_by_name[type],     
         raw_identifier=patronid,
         data=data,
         time=time

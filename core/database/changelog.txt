@@ -414,3 +414,9 @@ WHERE product="Large Panel Tag"
 ALTER TABLE `example_db_1`.`account_links`
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Rohan Sureshkumar 8/25/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
+CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
+ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
