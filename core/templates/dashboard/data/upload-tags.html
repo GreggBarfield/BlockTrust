@@ -21,16 +21,42 @@ Upload Tag Data
                     so you can track your animals up and down the beef supply 
                     chain.</p>
                 <p>Currently we are accepting the following data fields automatically:</p>
-                <ul>
-                    <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
-                    <li>Visual Tag Number</li>
-                    <li>Date of Birth</li>
-                    <li>Weaning Date</li>
-                    <li>Breed</li>
-                    <li>Weight</li>
-                    <li>Sire</li>
-                    <li>Dam</li>
+                <ul class="mb-0">
+                  <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
+                  <li>Visual Tag Number</li>
+                  <li>Date of Birth</li>
+                  <li>Weaning Date</li>
+                  <li>Breed</li>
+                  <li>Weight</li>
+                  <li>Sire</li>
+                  <li>Dam</li>
                 </ul>
+                <details class="mb-3">
+                  <summary>See Complete List</summary>
+                  <ul>
+                    <li>Patron ID</li>
+                    <li>Zip Code</li>
+                    <li>Electronic ID</li>
+                    <li>Visual Tag Number</li>
+                    <li>Application ID</li>
+                    <li>Application Date</li>
+                    <li>Wean Weight</li>
+                    <li>First Birth Date</li>
+                    <li>Wean Date</li>
+                    <li>Sex</li>
+                    <li>Calf Birth Date</li>
+                    <li>Birth Weight</li>
+                    <li>Calf Description</li>
+                    <li>Creep Feed</li>
+                    <li>First 14 Day Feed Method</li>
+                    <li>Marketing Date</li>
+                    <li>Number of Calves</li>
+                    <li>Marketing Method Name</li>
+                    <li>Sale Location</li>
+                    <li>Estimated Sale Weight</li>
+                    <li>Weaning Strategy</li>
+                  </ul>
+                </details>
                 <p>If there are other data points you want to add, please Contact Us</p>
                 <p>
                     To begin, you must have your data in a data file (Excel Spreadsheet 
@@ -48,7 +74,7 @@ Upload Tag Data
             
                     importer.displaySuccess('Thanks for uploading your data!')
                     console.log(results.$data);
-                    fetch('/dashboard/import-tags', {
+                    fetch('/dashboard/upload-tags', {
                         method: 'POST',
                         headers: {
                         'Content-Type': 'application/json',

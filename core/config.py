@@ -46,7 +46,6 @@ CSP = {
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'http://localhost:5000',
-        'http://localhost:5001/api/flatfile',
         'blocktrustnetwork.com',
         'data:'
     ],

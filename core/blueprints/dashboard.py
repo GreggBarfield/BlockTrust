@@ -252,31 +252,19 @@ def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
 
-@bp.route('/dashboard/import-tags', methods=['POST'])
-def insert_eids():
-    data = json.loads(request.data)
-    try:
-        if g.account is not None:
+@bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
+@crut.require_account
+def serve_upload_tags():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        try:
             for row in data["eids"]:
-                g.db.execute(
-                    """INSERT INTO api_inserts
-                        (account, namespace, type, fields)
-                        VALUES
-                            (%(account)s, %(namespace)s, %(type)s, %(fields)s)
-                    """,
-                    {
-                        "account": g.account.id(),
-                        "namespace": "BTN1",
-                        "type": "OnlySighting",
-                        "fields": json.dumps(row)
-                    }
-                )
-            #insert into table
+                g.db.api_inserts.insert(g.account.id(), row)
             return "", 200
-        else:
-            return {'error':{'message': "No account selected"}}, 400
-    except Exception as e:
-        return {'error':{'message': str(e)}}, 400
+        except Exception as e:
+            return {'error':{'message': str(e)}}, 400
+    elif request.method == 'GET':
+        return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
 
 
 @bp.route('/dashboard/sustainability', methods=['GET'])
@@ -295,12 +283,6 @@ def serve_sustainability_summary():
 @crut.require_account
 def serve_retained_ownership():
     return dashboard_render("retained-ownership.html")
-
-
-@bp.route('/dashboard/data/upload-tags', methods=['GET'])
-@crut.require_account
-def serve_upload_tags():
-    return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
 
 
 # edit user profile
