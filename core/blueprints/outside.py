@@ -429,3 +429,36 @@ def serve_contact_email():
 # def serve_invoice():
 #     return outside_render('shop/invoice.html')
 
+
+@bp.route('/adduser/<tok>', methods=['GET', 'POST'])
+def serve_add_user(tok):
+    if request.method == 'GET':
+        try:
+            invite_string = token.confirmToken(tok)
+            invite_object = eval(invite_string)
+            user_email = invite_object["user_email"]
+            account_name = invite_object["current_account"]
+            account_id = invite_object["current_account_id"]
+            return outside_render("/outside/add-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
+        except ExportException as e:
+            return outside_render("/outside/error.html")
+
+
+@bp.route('/adduser', methods=['POST'])
+def serve_add_invited_user():
+    try:
+        account_details = g.db.accounts.get_by_id(request.form["account_id"])
+        auth.invited_signup(
+            username=request.form['username'],
+            email=request.form['user_email'],
+            phone=str(account_details.phone()),
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            password=request.form['password'],
+            confirm_password=request.form['confirm_password'],
+            account_name=request.form['account_name'],
+            account_id=request.form['account_id']
+        )
+        return {"redirect": "/login"}
+    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
+        return {"error": str(e)}
