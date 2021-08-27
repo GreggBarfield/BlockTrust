@@ -236,8 +236,7 @@ def serve_password_request_action():
                 "BlockTrust Network Password change",
                 render_email("forgot_password.html", {
                     'password_reset_url': password_reset_url
-                }), request.form['email'],
-                override=True
+                }), request.form['email']
         )
         return {"redirect": "/password-reset-message"}
     else:
