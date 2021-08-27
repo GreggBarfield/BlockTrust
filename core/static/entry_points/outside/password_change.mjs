@@ -10,7 +10,7 @@ if(passwordChangeForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=passwordChangeForm[0].getAttribute("request_redirect_to")
 }
 let form=new AsyncForm({
-    action: "/reset_password/"+requestRedirectTo,
+    action: "/reset-password/"+requestRedirectTo,
     form: passwordChangeForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
