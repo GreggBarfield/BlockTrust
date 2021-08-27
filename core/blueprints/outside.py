@@ -230,7 +230,7 @@ def serve_password_request_action():
         # Generating token identifier for changing password securely
         userToken = token.generateConfirmationToken(request.form['email'])
         # Creating URL for user to access change password functionality
-        password_reset_url = request.host_url[:-1] + url_for('outside_bp.serve_reset_password', tok=userToken)
+        password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
         # Sending an email to user with the Blocktrust email template and including password change link
         send_email(
                 "BlockTrust Network Password change",
