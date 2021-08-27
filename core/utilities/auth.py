@@ -1,6 +1,6 @@
 import bcrypt
 from flask import g, session
-from ..database.tables.users import Users, NoUserFoundException
+from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.objects.account import Account
 
@@ -186,7 +186,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             phone=phone
         )
     except Exception as e:
-        #Delete the user if there are errors in account creation. This will let them register again.
+        # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
         raise e
 
@@ -380,3 +380,46 @@ def get_email_verified_value(email):
        True if user email is verified. False if user is unverified.
     """
     return g.db.users.get_email_verified_status(email)
+
+
+def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id):
+    """Add a user to an existing account.
+
+    Params:
+        username: new username
+        email: new email
+        phone: company phone number (must be at least blank string)
+        first: first name
+        last: last name (must be at least blank string)
+        password: password
+        confirm_password: the confirmed password
+            (if password comes from a user field, confirm_password should too;
+            don't just duplicate password)
+        account: Account number of the inviting account
+    Returns:
+        Nothing
+
+    Raises:
+        SignupFailedException on failure with the reason.
+    """
+    username = Users._format_field(username)
+    email = Users._format_field(email)
+    phone = Users._format_field(phone)
+    first_name = Users._format_field(first_name)
+    last_name = Users._format_field(last_name)
+    password = Users._format_field(password)
+    confirm_password = Users._format_field(confirm_password)
+    # Password should equal confirm_password
+    if password != confirm_password:
+        raise SignupFailedException("The passwords you entered were not identical.")
+    user = g.db.users.create_user(
+        username=username,
+        password=password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone,
+        email_verified="Y"
+    )   
+    account_details = g.db.accounts.get_by_id(account_id)
+    g.db.account_users.add_user_to_account(user, account=account_details)

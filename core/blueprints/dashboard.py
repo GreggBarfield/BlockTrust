@@ -1,5 +1,6 @@
+from core.renderers.outside import outside_render
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
 from ..renderers.dashboard import dashboard_render
@@ -16,6 +17,8 @@ from ..database.tables.users import UsersException
 from ..renderers.email import render_email
 
 from ..utilities import crut, auth
+from ..utilities import token
+from ..utilities.email import send_email
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -249,7 +252,7 @@ def serve_subscribe():
 @crut.require_account
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
-    
+
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
 def serve_sustainability_summary():
@@ -279,11 +282,42 @@ def serve_edit_edituser():
                         last=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
-                        confirm_password= request.form["confirm_password"]
+                        confirm_password=request.form["confirm_password"]
                         )
             return {"redirect": "/dashboard/edit/edituser"}
-        except  UsersException as e:
+        except UsersException as e:
             return {"error": str(e)}
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
+        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+
+
+@bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])
+@crut.require_account
+def serve_invite_user():
+    if request.method == 'POST':
+        try:
+            user_email = request.form["email"]
+            if g.db.users.get_by_email(user_email) is not None:
+                raise ExportException("A user with that email already exists!")
+            current_account = g.account.name()
+            current_account_id = g.account.id()
+            invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
+            invite_string = str(invite_object)
+            # Generating token identifier with account and user email informatiom
+            userToken = token.generateConfirmationToken(invite_string)
+            # Creating URL for user to join an account
+            confirm_url = url_for('outside_bp.serve_add_user', tok=userToken, _external=True)
+            # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
+            send_email(
+                "BlockTrust Network Account Invite",
+                render_email("invite_user.html", {
+                    'confirm_url': confirm_url,
+                    'current_account': current_account
+                }), user_email, override=True
+            )
+            return {"redirect": "/dashboard"}
+        except ExportException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        return dashboard_render("/dashboard/accounts/invite_user.html")
