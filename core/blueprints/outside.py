@@ -93,9 +93,9 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'address':None, 'city':None, 'state':None, 'zip_code':None,
-            'username':None, 'email':None, 'password':None, 'confirm_password':None
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'address': None, 'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:

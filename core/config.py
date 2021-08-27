@@ -18,6 +18,7 @@ PROTOCOL = config_file["proxy"]["protocol"]
 DOMAIN = config_file["proxy"]["domain"]
 ROOT = PROTOCOL + "://" + DOMAIN
 PORT = config_file["proxy"]["port"]
+SERVER_NAME = ROOT
 
 FLASK_SESSION_SECRET_KEY = config_file["flask"]["secret_key"]
 

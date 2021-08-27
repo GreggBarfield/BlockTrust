@@ -20,6 +20,8 @@ from ..utilities import crut, auth
 from ..utilities import token
 from ..utilities.email import send_email
 
+from core.config import SERVER_NAME
+
 bp = Blueprint('dashboard_bp', __name__)
 
 
@@ -42,6 +44,7 @@ def serve_dashboard():
 # Accounts
 
 # 6/3/21 Deprecated
+
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
