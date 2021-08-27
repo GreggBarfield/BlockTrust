@@ -25,7 +25,7 @@ def run(db, inserts_model, verbose=False, insert_id=None):
                     print("Failed to find the insert!")
                 break
             print("--Sleeping--")
-            sleep(60)
+            sleep(300)
         else:
             print("Running insert", insert['id'])
             try:
