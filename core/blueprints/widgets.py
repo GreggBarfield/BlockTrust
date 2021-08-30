@@ -247,7 +247,7 @@ def serve_save_sustainability():
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/summary"}
+    return { "redirect": "/dashboard/sustainability"}
 
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])

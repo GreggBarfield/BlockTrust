@@ -17,14 +17,29 @@ export class SustainabilitySummaryWidget extends Widget {
             this.data = JSON.parse(data.results[0].response);
             this.prepData();
 
+            this.makeNewSurveyBtn();
+
             let row = document.createElement("div");
             row.className = "row";
             this.frame.appendChild(row);
-    
+
             this.makeAverageScoreGraph(row);
             this.makeGraphOverTime(row);
             this.makeOtherPieGraphs();
         });
+    }
+
+    makeNewSurveyBtn() {
+        let row = document.createElement("div");
+        row.className = "row mb-2 flex-row-reverse";
+        this.frame.appendChild(row);
+
+        let btn = document.createElement("a");
+        btn.className = "btn btn-outline-secondary btn-sm";
+        btn.setAttribute("href", "/dashboard/sustainability/survey");
+        btn.textContent = "New Survey";
+
+        row.append(btn);
     }
 
     makeGraphOverTime(row) {
@@ -60,10 +75,30 @@ export class SustainabilitySummaryWidget extends Widget {
 
         let susCardHeader = document.createElement("div");
         susCardHeader.className = "card-header";
+        let cardHeaderRow = document.createElement("div");
+        cardHeaderRow.className = "row";
+        susCardHeader.append(cardHeaderRow);
+        susCard.append(susCardHeader);
+        
+        let cardHeaderLabelWrapper = document.createElement("div");
+        cardHeaderLabelWrapper.className = "col-sm-9";
+        cardHeaderRow.append(cardHeaderLabelWrapper);
         let susCardHeaderLabel = document.createElement("h5");
         susCardHeaderLabel.textContent = "Sustainability Score";
-        susCardHeader.append(susCardHeaderLabel);
-        susCard.append(susCardHeader);
+        cardHeaderLabelWrapper.append(susCardHeaderLabel);
+        
+        let cardHeaderIconWrapper = document.createElement("div");
+        cardHeaderIconWrapper.className = "col-sm-3";
+        cardHeaderRow.append(cardHeaderIconWrapper);
+
+        let cardHeaderIconText = document.createElement("h4");
+        cardHeaderIconText.className = "d-inline text-c-green";
+        cardHeaderIconText.textContent = "86";
+        let cardHeaderIcon = document.createElement("i");
+        cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
+        cardHeaderIcon.style = "padding-right:10px";
+        cardHeaderIconWrapper.append(cardHeaderIcon);
+        cardHeaderIconWrapper.append(cardHeaderIconText);
         
         let susCardBody = document.createElement("div");
         susCardBody.className = "card-body";
