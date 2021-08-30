@@ -226,9 +226,10 @@ def serve_request_password_reset():
 
 @bp.route('/request-password-reset', methods=['POST'])
 def serve_password_request_action():
-    if g.db.users.get_by_email(request.form['email']) is None:
+    user = g.db.users.get_by_email(request.form['email'])
+    if user is None:
         return {"error": "Sorry, we couldn't find this email address"}
-    elif g.db.users.get_email_verified_status(request.form['email']) == "N":
+    elif user.email_verified() != "Y":
         return {"error": "Sorry, this user does not have a verified email address"}
     else:
         # Generating token identifier for changing password securely
