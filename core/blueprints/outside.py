@@ -10,7 +10,7 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 from ..sectors import sectors_by_name
 
 
@@ -213,7 +213,7 @@ def serve_contact_form_response():
 # Request a password reset
 
 
-@bp.route('/request_password_reset', methods=['GET'])
+@bp.route('/request-password-reset', methods=['GET'])
 def serve_request_password_reset():
     redirect_to = ''
     if 'redirect' in request.args:
@@ -224,26 +224,31 @@ def serve_request_password_reset():
 # Request password reset action
 
 
-@bp.route('/request_password_reset', methods=['POST'])
+@bp.route('/request-password-reset', methods=['POST'])
 def serve_password_request_action():
+    user = g.db.users.get_by_email(request.form['email'])
+    if user is None:
+        return {"error": "Sorry, we couldn't find this email address"}
+    elif user.email_verified() != "Y":
+        return {"error": "Sorry, this user does not have a verified email address"}
+    else:
+        # Generating token identifier for changing password securely
+        userToken = token.generateConfirmationToken(request.form['email'])
+        # Creating URL for user to access change password functionality
+        password_reset_url = WEBSITE_ROOT + url_for('outside_bp.serve_reset_password', tok=userToken)
+        # Sending an email to user with the Blocktrust email template and including password change link
+        send_email(
+                "BlockTrust Network Password change",
+                render_email("forgot_password.html", {
+                    'password_reset_url': password_reset_url
+                }), request.form['email']
+        )
+        return {"redirect": "/password-reset-message"}
 
-    # Generating token identifier for changing password securely
-    userToken = token.generateConfirmationToken(request.form['email'])
-    # Creating URL for user to access change password functionality
-    password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
-    # Sending an email to user with the Blocktrust email template and including password change link
-    send_email(
-            "BlockTrust Network Password change",
-            render_email("forgot_password.html", {
-                'password_reset_url': password_reset_url
-            }), request.form['email']
-    )
-    return outside_render('password_reset_message.html')
 
-# Passowrd reset message page
+# Password reset message page
 
-
-@bp.route('/password_reset_message', methods=['GET'])
+@bp.route('/password-reset-message', methods=['GET'])
 def serve_password_reset_message():
     return outside_render('password_reset_message.html')
 
@@ -251,7 +256,7 @@ def serve_password_reset_message():
 # Reset Password
 
 
-@bp.route('/reset_password/<tok>', methods=['GET'])
+@bp.route('/reset-password/<tok>', methods=['GET'])
 def serve_reset_password(tok):
     # Redirecting to password change page
     redirect_to = tok
@@ -262,7 +267,7 @@ def serve_reset_password(tok):
         return outside_render('login.html')
 
 
-@bp.route('/reset_password/<tok>', methods=['POST'])
+@bp.route('/reset-password/<tok>', methods=['POST'])
 def serve_reset_password_action(tok):
     redirect_to = tok
     try:

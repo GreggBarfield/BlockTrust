@@ -165,10 +165,10 @@ class Users:
                 "email": Users._format_field(email)
             }
         )
-        if len(matching_user) > 0 and matching_user[0]['email_verified'] == "Y":
-            return True
+        if len(matching_user) > 0:
+            return matching_user[0]['email_verified']
         else:
-            return False
+            return "N"
 
     @staticmethod
     def _format_field(field):
