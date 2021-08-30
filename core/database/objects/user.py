@@ -31,7 +31,7 @@ class User:
         return self._row['email']
 
     def email_verified(self):
-        return self._row('email_verified')
+        return self._row['email_verified']
 
     def phone(self):
-            return self._row['phone']
+        return self._row['phone']
