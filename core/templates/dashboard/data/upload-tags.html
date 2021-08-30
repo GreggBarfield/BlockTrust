@@ -1,10 +1,10 @@
 {% extends "dashboard/standard.html" %}
 
-{% set page_title = "upload-tags" %}
-{% set dashboard_locations = [("/dashboard/upload-tags", "Upload Tags")] %}
+{% set page_title = "Upload Tag Data" %}
+{% set dashboard_locations = [("/dashboard/upload-tags", "Upload Tag Data")] %}
 
 {% block dashboard_content_header %}
-Upload Tags
+Upload Tag Data
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -12,12 +12,277 @@ Upload Tags
 <div class="row">
     <div class="col">
         <div class="card" style="width:100%;">
+            <h5 class="card-header">Tag Data Smart Upload</h5>
             <div class="card-body">
-                <h5 class="card-title">Upload Tags</h5>
-                <p>Coming soon on VHS</p>
+                <p>This module allows you to upload your tag numbers, 
+                    plus any associated data simply by dropping your file 
+                    into ‘the bucket’. Our system will help you clean it up, 
+                    if necessary, then put it in the proper place in our system 
+                    so you can track your animals up and down the beef supply 
+                    chain.</p>
+                <p>Currently we are accepting the following data fields automatically:</p>
+                <ul class="mb-0">
+                  <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
+                  <li>Visual Tag Number</li>
+                  <li>Date of Birth</li>
+                  <li>Weaning Date</li>
+                  <li>Breed</li>
+                  <li>Weight</li>
+                  <li>Sire</li>
+                  <li>Dam</li>
+                </ul>
+                <details class="mb-3">
+                  <summary>See Complete List</summary>
+                  <ul>
+                    <li>Patron ID</li>
+                    <li>Zip Code</li>
+                    <li>Electronic ID</li>
+                    <li>Visual Tag Number</li>
+                    <li>Application ID</li>
+                    <li>Application Date</li>
+                    <li>Wean Weight</li>
+                    <li>First Birth Date</li>
+                    <li>Wean Date</li>
+                    <li>Sex</li>
+                    <li>Calf Birth Date</li>
+                    <li>Birth Weight</li>
+                    <li>Calf Description</li>
+                    <li>Creep Feed</li>
+                    <li>First 14 Day Feed Method</li>
+                    <li>Marketing Date</li>
+                    <li>Number of Calves</li>
+                    <li>Marketing Method Name</li>
+                    <li>Sale Location</li>
+                    <li>Estimated Sale Weight</li>
+                    <li>Weaning Strategy</li>
+                  </ul>
+                </details>
+                <p>If there are other data points you want to add, please Contact Us</p>
+                <p>
+                    To begin, you must have your data in a data file (Excel Spreadsheet 
+                    or Comma Delimited file). Field names must be at the top of each 
+                    column. Remember where you have it stored on your computer.
+                </p>
+                <p>
+                    Push the button below and follow the instructions. 
+                    You will receive a confirmation email once the data is 
+                    loaded (should be immediately).
+                </p>
+                <button class="btn btn-primary" onclick="importer.requestDataFromUser().then(function(results) { 
+                    // do something with the results
+                    // console.log(results);
+            
+                    importer.displaySuccess('Thanks for uploading your data!')
+                    console.log(results.$data);
+                    fetch('/dashboard/upload-tags', {
+                        method: 'POST',
+                        headers: {
+                        'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                                eids: results.data
+                            }),
+                    });
+                })">Start Upload</button>
+            
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+    
+<script>
+function DoPost()
+{
+
+}
+const importer = new FlatfileImporter('{{license}}', {
+  type: "EID import",
+  title: "EID import",
+  managed: true,
+  fields: [
+      { 
+        key: "EID", label: "Tag",
+        validators: [
+        { validate: "required" },
+        { validate: "unique" },
+        {
+          validate: 'regex_matches',
+          regex: '^[0-9]{15}$',
+          error: 'Only can be a unique number and must be 15 digits in length.'
+        }
+      ]},
+      { 
+        key: "BirthDate", label: "Date of Birth",
+        validators: [
+
+      ]},
+      { 
+        key: "WeaningDate", label: "Weaning Date",
+        validators: [
+
+      ]},
+      { 
+        key: "Breed", label: "Breed",
+        validators: [
+
+      ]},
+      { 
+        key: "Weight", label: "Weight",
+        validators: [
+
+      ]},
+      { 
+        key: "Sire", label: "Sire",
+        validators: [
+
+      ]},
+      { 
+        key: "Dam", label: "Dam",
+        validators: [
+
+      ]},
+      { 
+        key: "PatronID", label: "Patron ID",
+        validators: [
+
+      ]},
+      { 
+        key: "ZipCode", label: "Zip Code",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^\\d{1,10}$',
+          error: 'Only can be number and must not be more than 10 digits in length.'
+        }
+      ]},
+      { 
+        key: "VisualID", label: "Visual Tag Number",
+        validators: [
+
+      ]},
+      { 
+        key: "ApplicationID", label: "Application ID",
+        validators: [
+
+      ]},
+      { 
+        key: "ApplicationDate", label: "Application Date",
+        validators: [
+
+      ]},
+      { 
+        key: "WeanWeight", label: "Wean Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "FirstBirthDate", label: "First Birth Date",
+        validators: [
+
+      ]},
+      { 
+        key: "WeanDate", label: "Wean Date",
+        validators: [
+
+      ]},
+      { 
+        key: "Sex", label: "Sex",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^(?:m|M|male|Male|f|F|female|Female)$',
+          error: 'Only can be male or female (m/f).'
+        }
+      ]},
+      { 
+        key: "CalfBirthDate", label: "Calf Birth Date",
+        validators: [
+
+      ]},
+      { 
+        key: "BirthWeight", label: "Birth Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "CalfDescription", label: "Calf Description",
+        validators: [
+
+      ]},
+      { 
+        key: "CreepFeed", label: "Creep Feed",
+        validators: [
+
+      ]},
+      { 
+        key: "First14DayFeedMethod", label: "First 14 Day Feed Method",
+        validators: [
+
+      ]},
+      { 
+        key: "MarketingDate", label: "Marketing Date",
+        validators: [
+
+      ]},
+      { 
+        key: "NumberOfCalves", label: "Number of Calves",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^[0-9]*$',
+          error: 'Only can be a number.'
+        }
+      ]},
+      { 
+        key: "MarketingMethodName", label: "Marketing Method Name",
+        validators: [
+
+      ]},
+      { 
+        key: "SaleLocation", label: "Sale Location",
+        validators: [
+
+      ]},
+      { 
+        key: "EstimatedSaleWeight", label: "Estimated Sale Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '([0-9]*[.])?[0-9]+',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "WeaningStrategy", label: "Weaning Strategy",
+        validators: [
+
+      ]}
+    ],
+  theme: {
+      buttons: {
+          primary: {
+              backgroundColor: "#8b4513",
+              border: "1px solid #8b4513",
+              ":hover": {
+                  backgroundColor: "#722C00",
+                  border: "1px solid #722C00"
+              }
+          }
+      },
+    }
+});
+
+importer.setCustomer({userId: '{{user.id()}}' });
+</script>
 
 {% endblock dashboard_content %}
