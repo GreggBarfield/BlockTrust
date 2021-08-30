@@ -13,7 +13,7 @@ export class SustainabilitySummaryWidget extends Widget {
             ).then((data) => {
             this.frame.innerHTML = "";
             console.log(data);
-            this.responses = data;
+            this.responses = data.results;
             this.data = JSON.parse(data.results[0].response);
             this.prepData();
 
@@ -45,6 +45,7 @@ export class SustainabilitySummaryWidget extends Widget {
         card.append(cardBody);
 
         let timeLineGraph = document.createElement("div");
+        timeLineGraph.style = "height: 18em;";
         cardBody.append(timeLineGraph);
         this.makeTimeLineGraph(timeLineGraph);
     }
@@ -300,17 +301,29 @@ export class SustainabilitySummaryWidget extends Widget {
     }
 
     getGraphableTimeLineData() {
-        // for(const response in this.responses)
+        let graphableData = [];
 
-        // let graphableData = [{
-        //     "date": ,
-        //     "price": 
-        // },
-        // {
+        // Right now just takes the sum of the excellent scores
+        // TODO: will change in the future this is a placeholder for now.
+        for(const response of this.responses) {
+            let valueCounter = 0;
+            let jsonResponse = JSON.parse(response.response);
 
-        // },
-        // ]
+            for(const index in jsonResponse){
+                for(const item of jsonResponse[index]){
+                    if (item.includes('a')) {
+                        valueCounter += 1;
+                    }
+                }
+            }
 
+            graphableData.push({
+                "date": new Date(response.created_timestamp),
+                "value": valueCounter
+            });
+        }
+
+        return graphableData;
     }
 
     makeTimeLineGraph(container) {
@@ -318,7 +331,7 @@ export class SustainabilitySummaryWidget extends Widget {
             container.textContent = "Data is not available yet.";
         }
         else if (this.responses.length < 2) {
-            container.textContent = "(not data)";
+            container.textContent = "(not enough data)";
         }
         else {
             let that = this;
@@ -327,28 +340,18 @@ export class SustainabilitySummaryWidget extends Widget {
                 var chart = am4core.create(container, am4charts.XYChart);
 
                 chart.data = that.getGraphableTimeLineData();
-                
+
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-                dateAxis.renderer.grid.template.location = 1;
-                dateAxis.renderer.grid.template.disabled = false;
-                dateAxis.startLocation = 1.6;
-                dateAxis.endLocation = 0.4;
-                dateAxis.renderer.labels.template.disabled = false;
-                dateAxis.renderer.inside = true;
+                dateAxis.renderer.minGridDistance = 20;
 
                 var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-                valueAxis.logarithmic = false;
                 valueAxis.renderer.minGridDistance = 20;
-                valueAxis.renderer.grid.template.disabled = false;
-                valueAxis.renderer.inside = true;
-                valueAxis.renderer.labels.template.disabled = false;
 
                 // Create series
                 var series = chart.series.push(new am4charts.LineSeries());
-                series.dataFields.valueY = "price";
+                series.dataFields.valueY = "value";
                 series.dataFields.dateX = "date";
-                series.strokeWidth = 3;
                 series.fillOpacity = 0.1;
                 series.tooltipText = "{valueY.value}";
                 series.fill = am4core.color("#e52d27");
@@ -361,7 +364,6 @@ export class SustainabilitySummaryWidget extends Widget {
                 chart.cursor.lineX.strokeWidth = 0;
                 chart.cursor.lineX.fill = am4core.color("#fff");
                 chart.cursor.lineX.fillOpacity = 0;
-                chart.padding(0, 0, 0, 0);
             });
         }
     }
