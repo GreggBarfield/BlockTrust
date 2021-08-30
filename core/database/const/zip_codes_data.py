@@ -7,7 +7,9 @@ raw_zip_codes = json.load(open(os.path.join(dir_path,RAW_ZIP_CODES_FILE_PATH)))
 
 ZIP_CODES = {
     int(data["fields"]["zip"]): {
-        "ecef": lla_wgs84_to_ecef(data["fields"]["latitude"], data["fields"]["longitude"])
+        "ecef": lla_wgs84_to_ecef(data["fields"]["latitude"], data["fields"]["longitude"]),
+        "lat": data["fields"]["latitude"],
+        "lon": data["fields"]["longitude"]
     }
     for data in raw_zip_codes
 }

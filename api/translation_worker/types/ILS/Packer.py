@@ -44,15 +44,16 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     account = insert["account"]
     eid = int(fields["EIDNum"])
     api_insert = insert["id"]
+    # account_link = db.account_links.get_by_company(
+    #         "ILS",
+    #         insert_sector=sectors_by_name["Feedlot"],
+    #         insert=True
+    #     )[0].id()
+
     # Sighting
     db.matches.types.insert_sighting(
         eid=eid,
         account=account,
-        account_link=db.account_links.get_by_company(
-            "ILS",
-            insert_sector=sectors_by_name["Feedlot"],
-            insert=True
-        )[0].id(),
         api_insert=api_insert
     )
 
@@ -71,14 +72,15 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if fields["Packer"] != "":
         # Packer data ready
 
+        # account_link = db.account_links.get_by_company(
+        #     fields["Company"],
+        #     insert_sector=sectors_by_name["Packer"],
+        #     insert=True
+        # )[0].id()
+
         db.matches.types.insert_sighting(
             eid=eid,
             account=account,
-            account_link=db.account_links.get_by_company(
-                fields["Company"],
-                insert_sector=sectors_by_name["Packer"],
-                insert=True
-            )[0].id(),
             api_insert=api_insert
         )
 
