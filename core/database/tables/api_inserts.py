@@ -5,7 +5,7 @@ class ApiInserts:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, account_id, data):
+    def insert(self, account_id, namespace, type, data):
         """Inserts data into table.
 
         Params:
@@ -19,8 +19,8 @@ class ApiInserts:
             """,
             {
                 "account": account_id,
-                "namespace": "BTN1",
-                "type": "OnlySighting",
+                "namespace": namespace,
+                "type": type,
                 "fields": json.dumps(data)
             }
         )

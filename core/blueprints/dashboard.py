@@ -259,7 +259,7 @@ def serve_upload_tags():
         data = json.loads(request.data)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(g.account.id(), row)
+                g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
