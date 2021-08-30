@@ -243,7 +243,7 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
-    g.db.sustainability.check(
+    g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
@@ -253,12 +253,8 @@ def serve_save_sustainability():
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])
 @crut.require_account
 def serve_get_sustainability():
-    response = g.db.sustainability.get(g.account.id())
-    if response is not None:
-        response = response[0]['response']
-        
     return { 
-        "results": response
+        "results": g.db.sustainability.get_by_account(g.account.id())
     }, 200
 
 
