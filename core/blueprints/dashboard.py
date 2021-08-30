@@ -21,6 +21,8 @@ from ..utilities import crut, auth
 from ..utilities import token
 from ..utilities.email import send_email
 
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+
 import json
 
 bp = Blueprint('dashboard_bp', __name__)
@@ -323,7 +325,7 @@ def serve_invite_user():
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
             # Creating URL for user to join an account
-            confirm_url = url_for('outside_bp.serve_add_user', tok=userToken, _external=True)
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', tok=userToken)
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",
