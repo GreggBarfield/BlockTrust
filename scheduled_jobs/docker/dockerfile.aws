@@ -10,13 +10,7 @@ WORKDIR /home/ubuntu/install
 COPY scheduled_jobs/docker/requirements.txt .
 RUN python3 -m pip install -r requirements.txt
 
-COPY core/config.py /home/ubuntu/blocktrust/core/config.py
-COPY core/sectors.py /home/ubuntu/blocktrust/core/sectors.py
-COPY core/common_exceptions.py /home/ubuntu/blocktrust/core/common_exceptions.py
-COPY core/match_types.py /home/ubuntu/blocktrust/core/match_types.py
-COPY core/environment_config.json /home/ubuntu/blocktrust/core/environment_config.json
-COPY core/database /home/ubuntu/blocktrust/core/database
-COPY core/utilities /home/ubuntu/blocktrust/core/utilities
+COPY core /home/ubuntu/blocktrust/core
 COPY scheduled_jobs /home/ubuntu/blocktrust/scheduled_jobs
 
 # Set app dir

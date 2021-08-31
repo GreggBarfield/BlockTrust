@@ -17,4 +17,4 @@ WORKDIR /home/ubuntu
 ENV PYTHONPATH /home/ubuntu/
 
 # Run
-CMD exec python3 scheduled_jobs/usda_data_retriever.py
+CMD exec python3 scheduled_jobs/main.py
