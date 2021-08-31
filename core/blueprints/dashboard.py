@@ -336,3 +336,10 @@ def serve_invite_user():
             return {"error": str(e)}
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
+
+
+@bp.route('/dashboard/connections', methods=['GET'])
+@crut.require_account
+def serve_connections():
+    account_connections = g.db.connections.get_account_connections(g.account.id())
+    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
