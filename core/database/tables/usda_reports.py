@@ -159,3 +159,19 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
+
+    
+    def get_all_published_dates(self):
+        """Gets all the unique published date/slug_id combinations
+
+        Returns:
+            A list of published dates and slug_ids
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT slug_id, published_date
+                FROM usda_report_data 
+            """
+        )
+        return result
