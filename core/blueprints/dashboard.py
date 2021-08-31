@@ -343,3 +343,16 @@ def serve_invite_user():
 def serve_connections():
     account_connections = g.db.connections.get_account_connections(g.account.id())
     return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
+
+
+@bp.route('/dashboard/add-connection', methods=['GET'])
+@crut.require_account
+def serve_add_connection():
+    return dashboard_render("/dashboard/connections/add-connection.html")
+
+
+@bp.route('/dashboard/view-invites', methods=['GET'])
+@crut.require_account
+def serve_view_invites():
+    requests = g.db.connection_requests.get_connection_requests(g.account.id())
+    return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})

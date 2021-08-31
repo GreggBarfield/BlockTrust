@@ -9,20 +9,35 @@ Connections
 
 {% block dashboard_content %}
 
-<script src="https://js.stripe.com/v3/"></script>
 <div class="row">
     <div class="col-md">
         <div class="card">
             <div class="card-header">
                 <h5>Connections</h5>
-                <button class="btn btn-sm btn-primary float-right" data-toggle="modal" data-target="#sendInvite" style="width:250px">Send Invite</button>
+                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/add-connection'>Add Connections</button>
+                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/view-invites'>View Invites</button>
             </div>
-            <div class="modal" id="sendInvite" tabindex="-1" role="dialog">
-                <div class="modal-content">ABCD</div>
-            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Account Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            <tbody>  
+            {% for connection in account_connections %}
+                    <tr>
+                        <td>{{connection.friend_account_id}}</td>
+                        <td>{{connection.friend_account_name}}</td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.friend_account_id}}>View Profile</button></td>
+                    </tr>
+            {% endfor %}
+            </tbody>
+            </table>
 
         </div>
     </div>
 </div>
-
+<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
 {% endblock dashboard_content %}

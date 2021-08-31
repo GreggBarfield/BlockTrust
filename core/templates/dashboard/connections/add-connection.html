@@ -1,0 +1,24 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Add Connections" %}
+{% set dashboard_locations = [("/dashboard/connections", "Connections"),("/dashboard/add-connections", "Add Connections")] %}
+
+{% block dashboard_content_header %}
+Add Connections
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Add Connections by Invitation</h5>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+{% endblock dashboard_content %}
