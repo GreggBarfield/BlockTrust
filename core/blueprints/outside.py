@@ -93,9 +93,9 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'address':None, 'city':None, 'state':None, 'zip_code':None,
-            'username':None, 'email':None, 'password':None, 'confirm_password':None
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'address': None, 'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -129,7 +129,7 @@ def serve_signup_action():
         # Generating token identifier for user for email verification
         userToken = token.generateConfirmationToken(required['email'])
         # Creating URL for user to confirm email address
-        confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
+        confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_confirm', tok=userToken)
         # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
         send_email(
             "BlockTrust Network Email Confirmation",
