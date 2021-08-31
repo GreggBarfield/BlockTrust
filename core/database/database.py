@@ -181,3 +181,7 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
+    
+    def close(self):
+        self._cursor.close()
+        self._connection.close()

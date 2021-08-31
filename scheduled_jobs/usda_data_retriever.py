@@ -106,6 +106,8 @@ def get_usda_data(db):
         retriever.get_mandatory_reports()
     except Exception as e:
         ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":
