@@ -240,7 +240,7 @@ def serve_save_sales_group():
     }
 
 
-@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@bp.route('/widgets/data/save-sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
     g.db.sustainability.insert(
@@ -250,7 +250,7 @@ def serve_save_sustainability():
     return { "redirect": "/dashboard/sustainability"}
 
 
-@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@bp.route('/widgets/data/get-sustainability', methods=['POST'])
 @crut.require_account
 def serve_get_sustainability():
     return { 

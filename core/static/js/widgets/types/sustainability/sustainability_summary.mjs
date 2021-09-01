@@ -8,11 +8,10 @@ export class SustainabilitySummaryWidget extends Widget {
     initType() {
         
         this.getData(
-            "get_sustainability",
+            "get-sustainability",
             {}
             ).then((data) => {
             this.frame.innerHTML = "";
-            console.log(data);
             this.responses = data.results;
             this.data = JSON.parse(data.results[0].response);
             this.prepData();
@@ -311,8 +310,6 @@ export class SustainabilitySummaryWidget extends Widget {
 
         this.dataCounter["all"] = totals;
         this.data["all"] = [totals.excellent, totals.acceptable, totals.needsWork];
-
-        console.log(this.dataCounter);
     }
 
     getGraphablePieData(dataType) {

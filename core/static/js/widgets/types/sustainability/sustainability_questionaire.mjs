@@ -234,7 +234,7 @@ export class SustainabilityQuestionaireWidget extends Widget {
         form.append(this.internalErrorMessage);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data/save_sustainability",
+            action: "/widgets/data/save-sustainability",
             form: form,
             status: statusMessage,
             error: errorMessage,
