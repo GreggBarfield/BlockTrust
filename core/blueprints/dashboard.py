@@ -348,11 +348,12 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    return dashboard_render("/dashboard/connections/add-connection.html")
+    account_rows = g.db.accounts.get_accounts_list()
+    return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
 @crut.require_account
 def serve_view_invites():
-    requests = g.db.connection_requests.get_connection_requests(g.account.id())
+    requests = g.db.connections.get_connection_requests(g.account.id())
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})

@@ -16,8 +16,7 @@ View Invites
                 <h5>View Invites</h5>
             </div>
             {% for request in requests %}
-            {{request}}
-            {{request.request_from}}:{{request.create_timestamp}}<br/>
+            {{request.first_account_id}}:{{request.first_account_name}} at{{request.create_timestamp}}<br/>
             {% endfor %}
         </div>
     </div>

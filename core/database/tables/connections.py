@@ -18,7 +18,7 @@ class Connections:
         connections = self._db.execute_d(
             """
             SELECT * FROM connections
-            WHERE user_account_id= %(account_id)s
+            WHERE first_account_id= %(account_id)s AND status=1
             """,
             {
                 "account_id": account_id
@@ -26,7 +26,7 @@ class Connections:
         )
         return connections
 
-    def create_account_connection(self, user_account_id, friend_account_id):
+    def create_account_connection(self, first_account_id, second_account_id):
         """
         Params:
             user_account_id: Account ID of user
@@ -34,35 +34,84 @@ class Connections:
         Returns:
             None
         """
-        user_account = Accounts.accounts.get_by_id(user_account_id)
-        friend_account = Accounts.accounts.get_by_id(friend_account_id)
-        user_account_name = user_account.name()
-        friend_account_name = friend_account.name()
-        # We add two entries per connection with each of the accounts having an entry under user_account_id
+        first_account = Accounts.accounts.get_by_id(first_account_id)
+        second_account = Accounts.accounts.get_by_id(second_account_id)
+        first_account_name = first_account.company()
+        second_account_name = second_account.company()
+        # First account is the sender of the request, Second is the reciever
+        # For the first account we already have a an entry in the table with status 0(pending)
+        # We update the pending entry and add a new entry for the connection between second and first user
         # This helps save time during lookup and simplifies generating the account connection list
         self._db.execute(
             """
-                INSERT INTO  connections
-                    (friend_account_id,friend_account_name,user_account_id)
-                    VALUES
-                        (%(friend_account_id)s, %(friend_account_name)s, %(user_account_id)s)
+            UPDATE TABLE connections
+            SET status=1
+            WHERE first_account_id=%(first_account_id)s, second_account_id=%(second_account_id)s
             """,
             {
-                "friend_account_id": friend_account_id,
-                "friend_account_name": friend_account_name,
-                "user_account_id": user_account_id
+                "first_account_id": first_account_id,
+                "second_account_id": second_account_id
             }
         )
+
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (friend_account_id,friend_account_name,user_account_id)
+                    (first_account_id, first_account_name, second_account_id, second_account_name, status)
                     VALUES
-                        (%(friend_account_id)s, %(friend_account_name)s, %(user_account_id)s)
+                        (%(second_account_id)s, %(second_account_name)s, %(first_account_id)s, %(frist_account_name)s, 1)
             """,
             {
-                "friend_account_id": user_account_id,
-                "friend_account_name": user_account_name,
-                "user_account_id": friend_account_id
+                "second_account_id": second_account_id,
+                "second_account_name": second_account_name,
+                "first_account_id": first_account_id,
+                "first_account_name": first_account_name
             }
         )
+
+    def set_connection_request(self, first_account_id, second_account_id):
+        """
+        Params:
+            first_account_id: Account ID of user
+            second_account_id: Account ID of connection request
+
+        Returns:
+            None
+        """
+        first_account = Accounts.accounts.get_by_id(first_account_id)
+        second_account = Accounts.accounts.get_by_id(second_account_id)
+        first_account_name = first_account.company()
+        second_account_name = second_account.company()
+        self._db.execute(
+            """
+                INSERT INTO  connections
+                    (first_account_id, first_account_name, second_account_id, second_account_name, status)
+                    VALUES
+                        (%(first_account_id)s, %(first_account_name)s, %(second_account_id)s, %(second_account_name)s, 0)
+            """,
+            {
+                "first_account_id": first_account_id,
+                "first_account_name": first_account_name,
+                "second_account_id": second_account_id,
+                "second_account_name": second_account_name,
+            }
+        )
+
+    def get_connection_requests(self, account_id):
+        """
+        Params:
+            account_id: The account ID whose requests are to be fetched
+
+        Returns:
+            requests: Connection requests received by the account
+        """
+        requests = self._db.execute_d(
+            """
+            SELECT * FROM connections
+            WHERE second_account_id= %(account_id)s AND status=0
+            """,
+            {
+                "account_id": account_id
+            }
+        )
+        return requests

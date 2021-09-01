@@ -28,8 +28,8 @@ Connections
             <tbody>  
             {% for connection in account_connections %}
                     <tr>
-                        <td>{{connection.friend_account_id}}</td>
-                        <td>{{connection.friend_account_name}}</td>
+                        <td>{{connection.second_account_id}}</td>
+                        <td>{{connection.second_account_name}}</td>
                         <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.friend_account_id}}>View Profile</button></td>
                     </tr>
             {% endfor %}

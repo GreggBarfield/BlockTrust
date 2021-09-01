@@ -24,7 +24,6 @@ from .tables.sustainability import Sustainability
 from .tables.product_discounts import ProductDiscounts
 from .tables.api_inserts import ApiInserts
 from .tables.connections import Connections
-from .tables.connection_requests import ConnectionRequests
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -70,7 +69,6 @@ class Database:
         self.product_discounts = ProductDiscounts(self)
         self.api_inserts = ApiInserts(self)
         self.connections = Connections(self)
-        self.connection_requests = ConnectionRequests(self)
 
     def connect(self):
         try:
