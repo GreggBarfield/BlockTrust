@@ -190,7 +190,7 @@ class Accounts:
                 "name": name,
                 "company": company,
                 "sector": sector,
-                "partner":partner,
+                "partner": partner,
                 "affiliate_id": affiliate_id,
                 "address": address,
                 "city": city,
