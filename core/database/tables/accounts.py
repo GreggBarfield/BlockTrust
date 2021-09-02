@@ -311,7 +311,7 @@ class Accounts:
                 )
             )
 
-    def get_accounts_list(self):
+    def get_accounts(self):
         """Gets a list of all account numbers and account names.
 
         Params:
@@ -319,10 +319,9 @@ class Accounts:
         Returns:
             An Array of registered accounts
         """
-        # TODO: Add account_links caching option
         account_rows = self._db.execute_d(
-            """SELECT id, name, sector FROM accounts
-            """,
-            {}
+            """
+            SELECT * FROM accounts
+            """
         )
         return account_rows

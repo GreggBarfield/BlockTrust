@@ -3,7 +3,7 @@ import { Table } from '../../../core/table.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { formatDateTime } from '../../../core/time.mjs';
 import { promptNewMessage } from '../../../sales_groups/messages.mjs';
-import { promptSendNewMessage } from '../../../sales_groups/new_message.mjs';
+import { promptAccountsAndNewMessage } from '../../../sales_groups/select_and_send_message_to_account.mjs';
 
 export class MessagesListWidget extends Widget {
     constructor(frame) {
@@ -19,15 +19,14 @@ export class MessagesListWidget extends Widget {
             this.frame.innerHTML = "";
             let accountsList, accounts;
             this.getData("get_accounts_list", {}).then((data)=>{
-                accountsList=data;
-                accounts=accountsList.accounts;
+                accounts=data.accounts;
             });
             let sendMessage = document.createElement("button");
             sendMessage.className = "btn btn-sm btn-primary float-right";
             sendMessage.textContent = "Send Message";
             this.frame.append(sendMessage);
             sendMessage.addEventListener("click", ()=>{
-                promptSendNewMessage(accounts);
+                promptAccountsAndNewMessage(accounts);
             });
         });
 

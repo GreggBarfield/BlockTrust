@@ -273,7 +273,7 @@ def serve_get_upload_config():
 @crut.require_account
 def serve_get_accounts_list():
     return {
-        "accounts": g.db.accounts.get_accounts_list()
+        "accounts": g.db.accounts.get_accounts()
     }
 
 @bp.route('/widgets/data/get_account_messages', methods=['POST'])

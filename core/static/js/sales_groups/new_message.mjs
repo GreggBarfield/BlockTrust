@@ -1,6 +1,6 @@
 import { InfoModal } from '../core/info_modal.mjs';
 
-export let promptSendNewMessage = (accounts) => {
+export let promptAccountsAndNewMessage = (accounts) => {
     let toAccount="";
     let toAccountName="";
     let toStr = toAccountName;
