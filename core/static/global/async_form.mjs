@@ -94,7 +94,7 @@ export class AsyncForm {
                         location.replace(data.redirect);
                     }
                     if (that.onFinished !== undefined) {
-                        that.onFinished();
+                        that.onFinished(data);
                     }
                 }
                 catch(e) {

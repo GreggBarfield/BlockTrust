@@ -1,5 +1,7 @@
 import json
 from ..tables import zip_codes
+
+
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -10,6 +12,7 @@ class SalesGroupsException(Exception):
             reason: the reason for the exception
         """
         super().__init__(reason)
+
 
 """
 Sales group "reported" column is for user-reported information, aka untrustworthy
@@ -95,7 +98,7 @@ class SalesGroups:
 
         Params:
             account: the account id
-        
+
         Returns:
             A list of dictionaries
 
@@ -138,7 +141,7 @@ class SalesGroups:
         )
         return self.row_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale):
+    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name):
         """Updates a row.
 
         Params:
@@ -149,14 +152,14 @@ class SalesGroups:
             delivery_location: city and state 
             start: The start time
             end: The end time
-            auction_sale: The auction sale ID 
+            auction_sale: The auction sale ID
         """
         market_location = self._db.zip_codes.get_locations(zip_code)
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
                     start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
-                    auction_sale=%(auction_sale)s
+                    auction_sale=%(auction_sale)s, group_name=%(group_name)s
                 WHERE id=%(id)s
             """,
             {
@@ -168,7 +171,8 @@ class SalesGroups:
                 "zip": zip_code,
                 "market_location":market_location,
                 "delivery_location":delivery_location,
-                "auction_sale": auction_sale
+                "auction_sale": auction_sale,
+                "group_name": group_name
             }
         )
 
@@ -187,16 +191,16 @@ class SalesGroups:
             limit: Number of records to select
             breed, minimum_weight, preconditioning_program, process_verified_program:
                 Searches in reported, None (default) to disable
-        
+
         Returns:
             A list of sales group rows
 
             Enhanced with account_name, auction_sale_name
         """
         zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
-        
-        #TODO: Optimize
-        #TODO: Add skip, limit
+
+        # TODO: Optimize
+        # TODO: Add skip, limit
 
         additionals = []
         sql_additionals_total = ""
@@ -225,7 +229,7 @@ class SalesGroups:
                         %s <= end AND end <= %s
                     )
                     AND sales_groups.published > 0
-                    AND zip IN (""" + sql_zip_codes + """)
+                    AND sales_groups.zip IN (""" + sql_zip_codes + """)
                     """ + sql_additionals_total + """
         """
 

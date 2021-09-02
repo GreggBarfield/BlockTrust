@@ -24,6 +24,9 @@ export class FormGroup {
     getFormGroup() {
         return this._form_group;
     }
+    getFormLabel(){
+        return this._label;
+    }
 }
 
 export class DateFormGroup extends FormGroup {

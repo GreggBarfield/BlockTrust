@@ -1,0 +1,123 @@
+
+
+{% extends "outside/shop-iframe/shop-standard.html" %}
+
+{% set page_title ="Invoice"| string %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+
+<div class="container" id="invoice">
+
+<h3>Order Confirmation</h3>
+<h5>Thank you for your order.If you have any questions please <a href="/about-us/contact-us"><u>contact us</u></a>.</h5>
+<br>
+<div class="card card-body cart-total mb50">
+
+<div class="row mb30 no-margin">
+    <div class="col-sm-6 col-grid" style="background-color:#fff">
+    <b>U.S. CattleTrace<br>
+	414 Lincoln Ave<br>
+	Wamego, KS 66475<br>
+    785-456-8472<br>
+    info@uscattletrace.org</b>
+</div>
+<div class="col-sm-6 col-grid" style="background-color:#fff">
+<a href="javascript:void(0);" class="btn btn-outline-primary m-1 float-right" onclick="printPageArea('invoice')">Print</a>
+</div>
+</div>   
+<hr>
+<div class="col-sm-3 col-grid" style="background-color:#fff">
+    <h6>Date</h6>
+    <span id="date"></span><br>
+</div>
+    <div class="col-sm-3 col-grid" style="background-color:#fff">
+                </div>
+                <div class="col-sm-3 col-grid" style="background-color:#fff">
+
+                <div class="col-sm-3 col-grid" style="background-color:#fff">
+                  
+                </div>
+            </div>
+
+<hr>
+            
+ <div class="row mb30 no-margin">
+                <div class="col-sm-6 col-grid" style="background-color:#fff">
+                <h6>Account Information</h6>
+                <span class="text-primary" id="account_name"></span><br>
+	            <span class="text-primary" id="account_address"></span><br>
+	            <span class="text-primary" id="account_address_continued"></span>
+                </div>
+                
+                <div class="col-sm-6 col-grid" style="background-color:#fff">
+                     <h6>Shipping Information</h6>
+                     <span class="text-primary" id="shipping_name"></span><br>
+                     <span class="text-primary" id="shipping_address"></span><br>
+                     <span class="text-primary" id="shipping_address_continued"></span>
+                </div>
+               
+            </div><div class="spacer-3x">&nbsp;</div>
+
+    <table class="shopping-cart" id="shopping-cart">
+        <thead>
+            <tr>
+                <th>PRODUCT</th>
+                <th>QUANTITY</th>
+                <th>PRICE</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table> 
+
+
+<div class="spacer-1x">&nbsp;</div>
+                    <div class="col-md-6 checkout-total">
+                        <h4 class="pb-3">CART TOTAL</h4>
+                        <div class="row">
+                            <div class="col sub-col-left">
+                                <p>Subtotal: </p>
+                                <p>Shipping: </p>
+                                <p>Tax: </p>
+                                <p>Discount: </p>
+                                <p><b>Total:</b> </p>  
+                            </div>
+                            <div class="col sub-col-right">
+                                <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                                <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                                <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                                <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
+                                <p><b><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></b></p>
+                            </div>
+                        </div>
+                    </div>
+            </div>   
+
+
+            <a href="javascript:void(0);" class="btn btn-outline-primary m-1 float-right" id="return-button">Return to Shop</a>
+</div>
+</div>
+
+</section>
+<script type="text/javascript">
+    var partner_id = '{{ partner_id }}'
+</script>
+<script type="module" src="/static/entry_points/shop_iframe/invoice.mjs"></script>
+<script>
+    function printPageArea(areaID){
+        var printContent = document.getElementById(areaID);
+        var WinPrint = window.open('', '', 'width=1100,height=900');
+        WinPrint.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_outside_main.min.css" /><link rel="stylesheet" href="/static/css/outside/shop/shop_styles.min.css" /></head><body>');
+        WinPrint.document.write(printContent.innerHTML);
+        WinPrint.document.write('</body></html>');
+        WinPrint.document.close();
+        WinPrint.focus();
+        setTimeout(function() {
+            WinPrint.print();
+            WinPrint.close();
+        }, 1000);
+    }
+</script>
+{% endblock outside_content %}

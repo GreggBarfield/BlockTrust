@@ -8,10 +8,10 @@ from ...sectors import sectors_by_name
 
 def insert_helper(db, eid, time, company, type, data):
 
+    #account_link = db.account_links.get_by_company(company, insert_sector=sectors_by_name["Packer"], insert=True)[0].id(),
     db.matches.insert(
         eid=eid,
         type_int=match_types_by_name[type],
-        account_link=db.account_links.get_by_company(company, insert_sector=sectors_by_name["Packer"], insert=True)[0].id(),
         raw_identifier=company,
         time=time,
         data=data

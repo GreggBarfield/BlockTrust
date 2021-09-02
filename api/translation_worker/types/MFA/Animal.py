@@ -24,6 +24,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     visual_id = insert["fields"]["VisualID"]
     birth_date = all_to_unix(insert["fields"]["Birthdate"])
     wean_date = all_to_unix(insert["fields"]["WeanDate"])
+    api_insert = insert["id"]
 
     if (
         visual_id is not None and (
@@ -34,21 +35,24 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         db.matches.types.insert_visual_id(
             account=account,
             visual_id=visual_id,
-            eid=eid
+            eid=eid,
+            api_insert=api_insert
         )
 
     if birth_date is not None:
         db.matches.types.insert_born(
             account=account,
             time=birth_date,
-            eid=eid
+            eid=eid,
+            api_insert=api_insert
         )
 
     if wean_date is not None:
         db.matches.types.insert_weaned(
             account=account,
             time=wean_date,
-            eid=eid
+            eid=eid,
+            api_insert=api_insert
         )
 
     return [

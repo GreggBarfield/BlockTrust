@@ -23,7 +23,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "uid_type", "uid", "company", "sector")
+    _account_links_cols = ("id", "account", "affiliate_id_type", "affiliate_id", "company", "sector")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -121,8 +121,8 @@ class Matches:
         ))
 
     def insert(
-        self, eid, type_int, data=None, account=None, account_link=None,
-        lat=None, lon=None, time=None, raw_identifier=None
+        self, eid, type_int, grouping_id=None, data=None, account=None, account_link=None,
+        lat=None, lon=None, time=None, raw_identifier=None, api_insert=None
     ):
         """Insert a new row into matches.
 
@@ -148,6 +148,7 @@ class Matches:
         row = {
             "eid": eid,
             "type": type_int,
+            "grouping_id": grouping_id,
             "data": None if data is None else json.dumps(data),
             "account": account,
             "account_link": account_link,
@@ -155,7 +156,8 @@ class Matches:
             "lon": lon,
             "time": time,
             "created": int(time_module.time()),
-            "raw_identifier": raw_identifier
+            "raw_identifier": raw_identifier,
+            "api_insert": api_insert
         }
 
         self._db.exec_frag(
@@ -171,6 +173,8 @@ class Matches:
                         "AND",
                         "type<=>:type",
                         "AND",
+                        "grouping_id<=>:grouping_id",
+                        "AND",
                         "data<=>CAST(:data AS JSON)",
                         "AND",
                         "account<=>:account",
@@ -184,6 +188,7 @@ class Matches:
                         "time<=>:time",
                         eid=row["eid"],
                         type=row["type"],
+                        grouping_id=row["grouping_id"],
                         data=row["data"],
                         account=row["account"],
                         account_link=row["account_link"],
@@ -446,6 +451,7 @@ class Matches:
         Returns:
             All the matches table rows containing the visual id matches
         """
+        visual_id = str(visual_id)
         return self._db.execute_d(
             """
                 SELECT matches.*
