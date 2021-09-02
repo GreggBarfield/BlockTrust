@@ -208,7 +208,7 @@
                         <ul class="pro-body">
                             {% if dashboard_standard_is_admin == 1 %}
                             <li>
-                                <a href="#">
+                                <a href="/dashboard/inviteuser">
                                     <i class="feather icon-user-plus"></i> Invite Users
                                 </a>
                             </li>
@@ -283,12 +283,18 @@
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
+                    {% if g.account.sector_name() == "Feedlot" %}
+                    <span>MarketTrust</span>
+                    {% else %}
                     <span>Sales Groups</span>
+                    {% endif %}
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
+                    {% if g.account.sector_name() != "Feedlot" %}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
+                    {% endif %}
                 </ul>
             </li>
             {% if g.account.sector_name() == "Auction House" %}
@@ -309,7 +315,7 @@
                     <span>Dashboards</span>
                 </a>
                 <ul>
-                    <li><a href="/dashboard/data/upload-tags">Upload Tag Numbers</a></li>
+                    <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li>
                     <li><a href="/dashboard/retained-ownership">Retained Ownership</a></li>
                     <li><a href="/dashboard/sustainability">Sustainability</a></li>
                 </ul>

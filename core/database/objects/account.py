@@ -52,38 +52,38 @@ class Account:
     def affiliate_id(self):
         return self._row['affiliate_id']
 
+    def address(self):
+        return self._row['address']
 
     def city(self):
         return self._row['city']
 
-
     def state(self):
         return self._row['state']
-
 
     def zip(self):
         return self._row['zip']
 
-
     def phone(self):
         return self._row['phone']
-
 
     def stripe_paid(self):
         return self._row['stripe_paid']
 
-
     def manual_paid(self):
         return self._row['manual_paid']
-
 
     def generated_paid(self):
         return self._row['generated_paid']
 
-
     def stripe_customer_id(self):
         return self._row['stripe_customer_id']
 
+    def partner_stripe_publishable_key(self):
+        return self._row['partner_stripe_publishable_key']
+
+    def partner_stripe_secret_key(self):
+        return self._row['partner_stripe_secret_key']
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

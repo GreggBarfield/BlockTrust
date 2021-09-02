@@ -82,9 +82,9 @@
                         {% if account_link.company() is not none %}
                         Data 'company': {{ account_link.company()|e }}<br>
                         {% endif %}
-                        {% if account_link.uid() is not none %}
-                        Data 'uid': {{ account_link.uid() }}<br>
-                        Data 'uid_type': {{ account_link.uid_type() }} (0 is MFA Patron ID)<br>
+                        {% if account_link.affiliate_id() is not none %}
+                        Data 'affiliate_id': {{ account_link.affiliate_id() }}<br>
+                        Data 'affiliate_id_type': {{ account_link.affiliate_id_type() }} (0 is MFA Patron ID)<br>
                         {% endif %}
                         {% endfor %}
                     </p>

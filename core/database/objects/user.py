@@ -31,7 +31,7 @@ class User:
         return self._row['email']
 
     def email_verified(self):
-        return self._row('email_verified')
+        return self._row['email_verified']
 
     def is_user_locked(self):
         return self._row['is_user_locked']
@@ -43,4 +43,4 @@ class User:
         return self._row['locked_until_time']
 
     def phone(self):
-            return self._row['phone']
+        return self._row['phone']

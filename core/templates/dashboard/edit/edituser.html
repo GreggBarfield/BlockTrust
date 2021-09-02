@@ -19,22 +19,18 @@ Edit User
     </div>
     <div class="row justify-content-center">
         <div class="col-lg-6 mb-2">
-            <form class="bg-white shadow p-3"  id="edituser_form"  method="POST"> 
-                <div class="form-group">
-                    <div style="display:inline" >
-                        <div style="float: left; width: 20%;">
-                            <label for="edituser_form_username">Username</label>
+            <form class="bg-white shadow p-3"  id="edituser_form"  method="POST">
+                <div class="row">
+                    <div class="col-lg-12"> 
+                        <div class="form-group">
+                            <label for="edituser_form_email">User ID </label>                       
+                            <label style="font-weight: bold;font-size: 1.2em;padding-left: 1%" id="edituser_form_email"> {{user.username()}} </label>
                         </div>
-                        <div>
-                            <label style="font-weight: bold;" id="edituser_form_username"> {{user.username()}} </label>
-                        </div>
-                    </div></br>
-                    <div style="display:inline" >
-                        <div style="float: left; width: 20%;">
-                            <label for="edituser_form_email">Email address</label>
-                        </div>
-                        <div>
-                            <label style="font-weight: bold;" id="edituser_form_email"> {{user.email()}} </label>
+                    </div>
+                    <div class="col-lg-12"> 
+                        <div class="form-group">
+                            <label for="edituser_form_email">Email address</label>                       
+                            <label style="font-weight: bold;font-size: 1.2em;padding-left: 1%" id="edituser_form_email"> {{user.email()}} </label>
                         </div>
                     </div>
                 </div>
@@ -72,7 +68,7 @@ Edit User
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="edituser_form_phone">Phone</label>
-                            <input type="text" class="form-control" value={{user.phone()}} id="edituser_form_phone" name="phone">
+                            <input type="text" class="form-control" value="{{user.phone() if user.phone() is not none}}" id="edituser_form_phone" name="phone">
                             <span class="focus-border"></span>
                         </div>
                     </div>
