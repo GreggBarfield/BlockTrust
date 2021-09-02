@@ -59,13 +59,13 @@ export class CertificatesWidget extends Widget {
         // placeHolder.style.height= "100%"
         // placeHolder.style.width="100%"
         let certHeader = document.createElement("h2");
-        certHeader.style="text-align: center;margin-top: 10px;"
+        certHeader.style="text-align: center;margin-top: 10px; font-size:20px"
         certHeader.textContent= "MFA Health Track Processing and Feed Report"
         this.frame.append(certHeader)
 
         let row =  document.createElement("div");
         row.className= "row"
-        row.style="margin: auto;padding-left:20px"
+        row.style="margin: auto;padding-left:20px ;font-weight: bold;"
         this.frame.append(row);
 
         let appNo =document.createElement("div");
@@ -106,10 +106,12 @@ export class CertificatesWidget extends Widget {
         //table
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "table-responsive";
-        this.divTableResponsive.style = "margin: auto;padding:10px;width:100%;";
+
+        this.divTableResponsive.style = "margin: auto;width:100%;padding-top:10px;padding-bottom:0px;";
 
         this.mainTable = document.createElement("table");
-        this.mainTable.className = "table table-xs";
+        this.mainTable.className = "table";
+        this.mainTable.style ="padding:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px"
         this.divTableResponsive.appendChild(this.mainTable);
 
         // Header
@@ -121,11 +123,15 @@ export class CertificatesWidget extends Widget {
         this.mainTable.appendChild(this.mainTableHead);
 
         this.mainTableHeadRow0 = document.createElement("tr");
+        this.mainTableHeadRow0.style ="font-size:15px;padding:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px"
+
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
 
         for (const header of this.headers) {
             let th = document.createElement("th");
             th.textContent = header;
+            th.style =" background-color:#e83c3c;color: black;font-weight: bold;font-size:15px;padding-top:0px;padding:0px;margin-top:0px;margin-bottom:0px"
+
             this.mainTableHeadRow0.appendChild(th);
         }
 
@@ -154,6 +160,8 @@ export class CertificatesWidget extends Widget {
         // Body
 
         this.mainTableBody = document.createElement("tbody");
+        this.mainTableBody.style="padding-top:0px;padding:0px;margin-top:0px;margin-bottom:0px"
+
         this.mainTable.appendChild(this.mainTableBody);
 
         if (this.rows.length == 0) {
@@ -165,10 +173,12 @@ export class CertificatesWidget extends Widget {
         else {
             for (const row of this.rows) {
                 let tr = document.createElement("tr");
+                tr.style="height:2px; font-size:13px;padding:0px;padding-bottom:0px"
                 this.mainTableBody.append(tr);
 
                 for (const cell of row) {
                     let td = document.createElement("td");
+                    td.style="font-size:13px;padding-top:0px;padding:0px;margin-top:0px;margin-bottom:0px"
                     tr.append(td);
                     td.textContent = cell;
                 }
