@@ -32,30 +32,29 @@ Add Connections
                             <div class="form-group">
                                 <label for="company_name" selected>Company name</label>
                                 <select class="form-control" id="company_name" required>
-                                    <option value="0">Not Listed</option>
                                 </select>
                                 <span class="focus-border"></span>
                             </div>
                             <div class="form-group">
                                 <label for="new_company_name">New Company name</label>
-                                <input type="text" class="form-control" placeholder="XYZ Feedyard" id="new_company_name" required>
+                                <input type="text" class="form-control" placeholder="XYZ Feedyard" id="new_company_name" disabled>
                                 <span class="focus-border"></span>
                             </div>
                             <div class="form-group">
                                 <label for="new_company_contact">Company Contact</label>
-                                <input type="text" class="form-control" placeholder="John Smith" id="new_company_contact" required>
+                                <input type="text" class="form-control" placeholder="John Smith" id="new_company_contact" disabled>
                                 <span class="focus-border"></span>
                             </div>
                             <div class="form-group">
                                 <label for="new_company_email">Company Email</label>
-                                <input type="text" class="form-control" placeholder="jsmith@xyzfeedyard.com" id="new_company_email" required>
+                                <input type="text" class="form-control" placeholder="jsmith@xyzfeedyard.com" id="new_company_email" disabled>
                                 <span class="focus-border"></span>
                             </div>
                             <button type="submit" class="btn btn-primary">Invite</button>
                         </div>
                         
-                        <p class="mt-2 mb-0" id="inviteuser_status_message" style="display:none;">Hang on, we're sending an invite...</p>
-                        <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="inviteuser_error_message">Invite error...</p>
+                        <p class="mt-2 mb-0" id="add_connection_status_message" style="display:none;">Hang on, we're sending an invite...</p>
+                        <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="add_connection_error_message">Invite error...</p>
                     </form>
                 </div>
         </div>

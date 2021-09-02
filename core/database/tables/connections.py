@@ -34,8 +34,8 @@ class Connections:
         Returns:
             None
         """
-        first_account = Accounts.accounts.get_by_id(first_account_id)
-        second_account = Accounts.accounts.get_by_id(second_account_id)
+        first_account = Accounts.get_by_id(self, account_id=first_account_id)
+        second_account = Accounts.get_by_id(self, account_id=second_account_id)
         first_account_name = first_account.company()
         second_account_name = second_account.company()
         # First account is the sender of the request, Second is the reciever
@@ -78,8 +78,8 @@ class Connections:
         Returns:
             None
         """
-        first_account = Accounts.accounts.get_by_id(first_account_id)
-        second_account = Accounts.accounts.get_by_id(second_account_id)
+        first_account = Accounts.get_by_id(self, account_id=first_account_id)
+        second_account = Accounts.get_by_id(self, account_id=second_account_id)
         first_account_name = first_account.company()
         second_account_name = second_account.company()
         self._db.execute(

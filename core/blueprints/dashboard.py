@@ -14,6 +14,7 @@ from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.users import UsersException
+from ..database.tables.connection_invites import ConnectionInviteException
 
 from ..renderers.email import render_email
 
@@ -354,6 +355,25 @@ def serve_add_connection():
     account_rows = g.db.accounts.get_accounts_list()
     return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
+
+@bp.route('/dashboard/add-connection', methods=['POST'])
+@crut.require_account
+def serve_add_connection_request():
+    try:
+        if request.form["company_id"] != "0":
+            g.db.connections.set_connection_request(g.account.id(), request.form["company_id"])
+        else:
+            g.db.connection_invites.add_connection_invite(
+                from_account=g.account.id(),
+                company_sector=request.form["sector"],
+                company_name=request.form["new_company_name"],
+                company_contact=request.form["new_company_contact"],
+                company_email=request.form["new_company_email"]
+            )
+
+        return {"redirect": "/dashboard/connections"}
+    except ConnectionInviteException as e:
+        return {"error": str(e)}
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
 @crut.require_account
