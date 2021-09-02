@@ -17,7 +17,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 
-from ..config import ROOT as WEBSITE_ROOT
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 
 from ..utilities import crut
 
@@ -67,7 +67,13 @@ def serve_sales_group():
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
-        "auction_sale_name": sales_group_row["auction_sale_name"]
+        "auction_sale_name": sales_group_row["auction_sale_name"],
+        "group_name": sales_group_row["group_name"],
+        "license": FLATFILE_LICENSE,
+        "userID": g.user.id(),
+        "name": g.user.first() + ' ' + g.user.last(),
+        "companyId": g.account.id(),
+        "company": g.account.company()
     }
 
 
@@ -97,7 +103,8 @@ def serve_search_sales_groups():
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
-                "auction_sale_name": sales_group_row["auction_sale_name"]
+                "auction_sale_name": sales_group_row["auction_sale_name"],
+                "group_name": sales_group_row["group_name"]
             })
 
     return {
@@ -148,7 +155,8 @@ def serve_search_sales_groups_2():
                 ))
             },
             "auction_sale": sales_group_row["auction_sale"],
-            "auction_sale_name": sales_group_row["auction_sale_name"]
+            "auction_sale_name": sales_group_row["auction_sale_name"],
+            
         })
 
     return {
@@ -222,12 +230,23 @@ def serve_save_sales_group():
         request.json["delivery_location"],
         request.json["start"],
         request.json["end"],
-        request.json["auction_sale"]
+        request.json["auction_sale"],
+        request.json["group_name"]
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
+
+@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@crut.require_account
+def serve_save_sustainability():
+    g.db.sustainability.check(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/summary"}
+    
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
@@ -279,7 +298,7 @@ def serve_send_message():
                             + str(message_id)
                         ),
                         'receiver': user['account_name'],
-                        'sender': g.account.name()
+                        'sender': g.account.company()
                     }
                 }
             ),

@@ -183,6 +183,54 @@ CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
 ALTER TABLE `example_db_1`.`eid_group_eids` 
 CHANGE COLUMN `eid` `eid` BIGINT NOT NULL ;
 
+/* Nisheet Thakur 05/31/2021*/
+CREATE TABLE products(
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  menu1 CHAR(40),
+  m1_short CHAR(20),
+  menu2 CHAR(35),
+  m2_short CHAR(20),
+  product CHAR(35),
+  pic_1 CHAR(60),
+  pic_2 CHAR(60),
+  pic_3 CHAR(60),
+  price FLOAT,
+  orders INT,
+  post CHAR(10),
+  subheader CHAR(50),
+  details VARCHAR(1000),
+  unit CHAR(20),
+  creditcard_charge FLOAT,
+  original_price FLOAT,
+  number_y_n CHAR(1),
+  start_no INT,
+  end_no INT,
+  num_text CHAR(25),
+  partner INT
+)
+
+/* Nisheet Thakur 06/04/2021*/
+CREATE TABLE orders(
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  account INT,
+  total_tax FLOAT,
+  total_shipping FLOAT,
+  total_cart FLOAT,
+  grand_total FLOAT,
+  shipping_address varchar(127),
+  shipping_city varchar(127),
+  shipping_state varchar(127),
+  shipping_country varchar(127),
+  shipping_zip varchar(127),
+  first_name varchar(127),
+  last_name varchar(127),
+  email varchar(127),
+  phone varchar(127),
+  discount FLOAT,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
 /* Rohan Sureshkumar 5/8/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 ADD COLUMN `affiliate_id` VARCHAR(127) NULL DEFAULT NULL AFTER `sector`,
@@ -199,3 +247,177 @@ ADD COLUMN `market_location` VARCHAR(255) NULL DEFAULT NULL AFTER `zip`;
 ALTER TABLE `example_db_1`.`sales_groups` 
 ADD COLUMN `delivery_location` VARCHAR(255) NULL DEFAULT NULL AFTER `market_location`;
 
+/* Rohan Sureshkumar 5/26/21 */
+CREATE TABLE `example_db_1`.`partners` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `partner_id` VARCHAR(15) NOT NULL,
+  `partner_name` VARCHAR(127) NOT NULL,
+  `sector_id` INT NULL,
+  `contact_name` VARCHAR(127) NULL,
+  `email` VARCHAR(127) NULL,
+  `phone` BIGINT NULL,
+  `address` VARCHAR(255) NULL,
+  `city` VARCHAR(63) NULL,
+  `state` VARCHAR(2) NULL,
+  `zip` INT NULL,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `partner_id_UNIQUE` (`partner_id` ASC) VISIBLE)
+COMMENT = 'Table to store partners';
+
+/* Rohan Sureshkumar 5/29/21 */
+INSERT INTO `example_db_1`.`partners`(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
+values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ('PCALF', 'MFA Power Calf', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ('ILS', 'ILS, Inc.', 6, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+
+/* Rohan Sureshkumar 5/29/21 */
+ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
+
+/* Rohan Sureshkumar 6/6/2021 */
+ALTER TABLE `example_db_1`.`account_users` 
+ADD COLUMN `is_admin` TINYINT NOT NULL DEFAULT 0 AFTER `user`;
+  
+/* Lydia Qiao 6/9/2021 */
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD COLUMN `group_name` VARCHAR(255) NULL DEFAULT NULL AFTER `eid_group`;
+
+/* Lydia Qiao 6/17/2021 */
+CREATE TABLE `example_db_1`.`sustainability` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account` VARCHAR(127) NULL DEFAULT NULL,
+  `response` JSON NULL DEFAULT NULL,
+  `created_timestamp` INT NULL,
+  `last_updated_timestamp` INT NULL,
+  PRIMARY KEY (`id`));
+
+
+/* Rohan Sureshkumar 6/24/2021 */
+/* Partners will be stored in accounts table itself. This has already been built into the system and we will have to do to much rework 
+   at this point, if we want to create a separate partners table, is_partner column will indicate if account is a partner */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `is_partner` TINYINT NULL DEFAULT 0 AFTER `sector`,
+ADD COLUMN `partner_account` INT NULL DEFAULT NULL AFTER `is_partner`;
+
+/* Rohan Sureshkumar 6/24/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+ADD COLUMN `partner_account` INT NULL DEFAULT NULL AFTER `account`,
+CHANGE COLUMN `uid` `uid` VARCHAR(127) NULL ;
+
+/* Rohan Sureshkumar 6/24/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `address` VARCHAR(255) NULL DEFAULT NULL AFTER `affiliate_id`,
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `stripe_customer_id`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`,
+ADD COLUMN `partner_contact_name` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `is_partner`,
+ADD COLUMN `partner_contact_email` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This will only have a value if is_partner is true' AFTER `partner_contact_name`;
+
+/* Rohan Sureshkumar 6/24/2021 */
+/* Adding partners. Don't run on dev server it already has this data. */
+/* Note ids of partners on dev server: 582 - MFA PowerCalf, 603 - ILS, 604 - MFA HealthTrack, 605 - BTN1. You will see the same ids in the 
+   api_inserts table depending on who the data came from */
+INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+    
+/* Nisheet Thakur 6/28/2021 */
+CREATE TABLE order_products(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+`order` INT,
+product INT,
+product_quantity INT,
+`create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+
+/* Nisheet Thakur 7/6/2021 */
+INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values( 'U.S. CattleTrace', 4, 1, '', 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457);
+SELECT id FROM accounts WHERE company = 'U.S. CattleTrace' INTO @partner_id;
+INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
+VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",44.0,0,"Y","2-piece, Tamper Evident","2-Piece","3.75 inches long.;Each Tag has a unique 15-digit number with a 999 prefix. ;Priced at $2.20 per individual tag* (*Prior to U.S. CattleTrace member discount).; Ultra-High Frequency (UHF).;Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers.;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers.", @partner_id)
+,("Large Panel Tag","tag-page-2small.png","AniTrace_840_Tag_1.png",70.8,0,"Y","2-piece, Tamper Evident","2-Piece","4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers", @partner_id)
+,("Large Panel Feedlot Tag","tag-page-3small.png","overlap_1.png",44.0,0,"Y","1-piece, Pin Insertion","2-Piece","4.25 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Priced at $2.20 per individual tag;Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers", @partner_id)
+
+/* Rohan Sureshkumar 6/24/2021 */
+ALTER TABLE `example_db_1`.`matches`
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Rohan Sureshkumar 6/25/2021 */
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `status_details` VARCHAR(3000) NULL DEFAULT NULL AFTER `status`;
+
+/* Rohan Sureshkumar 6/25/2021 */
+CREATE TABLE `example_db_1`.`error_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `component` VARCHAR(100) NULL,
+  `short_error` VARCHAR(100) NULL,
+  `long_error` VARCHAR(5000) NULL,
+  `column_name` VARCHAR(100) NULL,
+  `column_value` VARCHAR(1000) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  );
+  
+/* Rohan Sureshkumar 7/7/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
+ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `data`;
+
+/* Nisheet Thakur 7/27/2021 */
+CREATE TABLE product_discounts(
+id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+coupon_code VARCHAR(127),
+product INT,
+discount_percentage INT
+);
+SELECT id FROM products WHERE product = 'Strip Tag' INTO @product_id;
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,20);
+SELECT id FROM products WHERE product = 'Large Panel Tag' INTO @product_id;
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,50);
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`products` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `partner`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+ALTER TABLE `example_db_1`.`product_discounts` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `discount_percentage`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+/* Rohan Sureshkumar 8/4/2021 */
+ALTER TABLE `example_db_1`.`orders` 
+ADD COLUMN `stripe_payment_intent` VARCHAR(256) NULL DEFAULT NULL AFTER `discount`,
+ADD COLUMN `stripe_paid` TINYINT NULL DEFAULT NULL AFTER `stripe_payment_intent`;
+
+/* Rohan Sureshkumar 8/5/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+ADD COLUMN `partner_stripe_publishable_key` VARCHAR(256) NULL DEFAULT NULL AFTER `stripe_customer_id`,
+ADD COLUMN `partner_stripe_secret_key` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_stripe_publishable_key`;
+UPDATE accounts SET partner_stripe_publishable_key = 'pk_test_51ICSTOJVSPxeonkIN24Vg7xOuNmTaBkf6ZwTw9Fk47O32ly7P6d2s6IC2KtcMo8jDOg3vKCT4ZJi6oPiKp88WXbG001i4XduPe', 
+partner_stripe_secret_key = 'sk_test_51ICSTOJVSPxeonkI9eexQHujFaqh4Xv3YPrm0oT9xZ9cH6cSvL0U9HlW7hGamc6wmgnRUasKU4nKa58jVohZP6fj00VwnI58PB' 
+WHERE company = 'U.S. CattleTrace' AND is_partner=1;
+
+/* Nisheet Thakur 8/5/2021*/
+UPDATE products
+SET unit="Bags of 20 Each"
+WHERE product="Strip Tag" OR product="Large Panel Tag" OR product="Large Panel Feedlot Tag";
+UPDATE products 
+SET details="4.75 inches long;Each Tag has a unique 15-digit number with a 999 prefix;Prefix options available for USDA 840 ADT compliant or commercial 999;The only UHF tag in the U.S. that qualifies for USDA official form of identification.;Tag is also available in a commercial 999 form. ;Priced at $3.54 per tag* (*Prior to U.S. CattleTrace member discount);Ultra-High Frequency (UHF);Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers;840 Compliant and serves as an official form of identification for USDA."
+WHERE product="Large Panel Tag"
+
+/* Rohan Sureshkumar 8/17/2021 */
+ALTER TABLE `example_db_1`.`account_links`
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Rohan Sureshkumar 8/25/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
+CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
+ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;

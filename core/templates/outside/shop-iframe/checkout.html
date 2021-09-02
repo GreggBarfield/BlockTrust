@@ -1,0 +1,88 @@
+
+
+{% extends "outside/shop-iframe/shop-standard.html" %}
+
+{% set page_title ="Checkout"| string %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <section id="checkout" class="bg-white">
+        <div class="container">
+            <div class="row checkout-screen">
+                <div class="col-md-9 checkout-form">
+                    <h4>SHIPPING INFORMATION</h4>
+                    <form id="checkout_form" request_redirect_to="{{ redirect_to }}">
+                    <div class="row">
+                        <div class="col-md-6 sub-col-left">
+                            <input type="text" class="form-control mb-3" name="first_name" placeholder="*First Name" required="">
+                        </div>
+                        <div class="col-md-6 sub-col-right">
+                            <input type="text" class="form-control mb-3" name="last_name" placeholder="*Last Name" required="">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 sub-col-left">
+                            <input type="text" class="form-control mb-3" name="company" placeholder="*Company" required="">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 sub-col-left">
+                            <input type="text" class="form-control mb-3" name="address" placeholder="*Address" required="">
+                        </div>
+                        <div class="col-md-6 sub-col-right">
+                            <input type="text" class="form-control mb-3" name="city" placeholder="*City" required="">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 sub-col-left">
+                            <input type="text" class="form-control mb-3" name="state" placeholder="*State" required="">
+                        </div>
+                        <div class="col-md-6 sub-col-right">
+                            <input type="text" class="form-control mb-3" name="zip_code" placeholder="*Zip Code" required="">
+                        </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6 sub-col-left">
+                        <input type="text" class="form-control mb-3" name="phone" placeholder="*Phone" required="">
+                    </div>
+                    <div class="col-md-6 sub-col-left">
+                        <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
+                    </div>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary rectangle m-1" id="checkout1">PROCEED TO PAYMENT</button>
+                    <p class="mt-2 mb-0" id="checkout_status_message" style="display:none;">Hang on, we're setting up your account...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="checkout_error_message">Loading error...</p>
+                </form>
+                </div>
+                <div class="col-md-3 cart-total">
+                    <h4 class="pb-3">CART TOTAL</h4>
+                    <div class="row">
+                        <div class="col sub-col-left">
+                            <p>Subtotal: </p>
+                            <p>Shipping: </p>
+                            <p>Tax: </p>
+                            <p>Discount: </p>
+                            <p><b>Total:</b> </p>  
+                        </div>
+                        <div class="col sub-col-right">
+                            <p><span class="text-primary">$</span><span class="text-primary" id="subtotal"></span></p>
+                            <p><span class="text-primary">$</span><span class="text-primary" id="shipping"></span></p>
+                            <p><span class="text-primary">$</span><span class="text-primary" id="tax"></span></p>
+                            <p><span class="text-primary">-$</span><span class="text-primary" id="discount"></span></p>
+                            <p><b><span class="text-primary">$</span><span class="text-primary" id="grandTotal"></span></b></p>
+                        </div>
+                    </div>
+                    <div class="cart-total-footer">
+                        <a href="/external/cart/{{partner_id}}" class="btn btn-outline-primary rectangle m-1"><span>BACK TO CART</span></a>
+                        <a href="/external/shop/{{partner_id}}" class="btn btn-outline-primary rectangle m-1"><span>CONTINUE SHOPPING</span></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</section>
+<script type="text/javascript">
+    var partner_id = '{{ partner_id }}'
+</script>
+<script type="module" src="/static/entry_points/shop_iframe/checkout.mjs"></script>
+{% endblock outside_content %}

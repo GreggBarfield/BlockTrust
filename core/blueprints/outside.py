@@ -10,8 +10,9 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+from ..sectors import sectors_by_name
+
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -79,8 +80,12 @@ def serve_login_action():
 @bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
+    # Only add cowcalf partners
+    cow_calf_sector_id = sectors_by_name['Cow-Calf']
+    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
     return outside_render('signup.html', {
-        "sectors_by_id": sectors_by_id
+        "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
+        "partners": partners
     })
 
 
@@ -88,16 +93,16 @@ def serve_signup():
 def serve_signup_action():
     try:
         required = {
-            'company':None, 'sector':None, 'first_name':None, 'last_name':None,
-            'city':None, 'state':None, 'zip_code':None,
-            'username':None, 'email':None, 'password':None, 'confirm_password':None
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'address': None, 'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
-                raise ExportException("'" + required_field.capitalize().replace("_"," ") + "' does not have a value")
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
 
         # Sign up
         try:
@@ -109,12 +114,15 @@ def serve_signup_action():
                 last_name=required['last_name'],
                 password=required['password'],
                 confirm_password=required['confirm_password'],
-                company = required['company'],
-                affiliate_id = request.form['affiliate_id'],
-                sector = required['sector'],
+                company=required['company'],
+                partner=request.form['partner'],
+                affiliate_id=request.form['affiliate_id'],
+                sector=required['sector'],
+                address=required['address'],
                 city=required['city'],
                 state=required['state'],
-                zip_code=required['zip_code']
+                zip_code=required['zip_code'],
+                personal_phone=request.form['personal_phone']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
@@ -122,7 +130,7 @@ def serve_signup_action():
         # Generating token identifier for user for email verification
         userToken = token.generateConfirmationToken(required['email'])
         # Creating URL for user to confirm email address
-        confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
+        confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_confirm', tok=userToken)
         # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
         send_email(
             "BlockTrust Network Email Confirmation",
@@ -130,11 +138,10 @@ def serve_signup_action():
                 'confirm_url': confirm_url
             }), required['email'], override=True
         )
-        
-        #TODO: redirect to thank you page (which will ask them to also verify their email). Below line is for testing and should be removed later
-        raise ExportException("Success!")
+
+        return {"redirect": "/email_not_verified"}
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return {"error": str(e)}
 
 # About us
 
@@ -204,6 +211,78 @@ def serve_contact_form_response():
     )
     return {}
 
+# Request a password reset
+
+
+@bp.route('/request-password-reset', methods=['GET'])
+def serve_request_password_reset():
+    redirect_to = ''
+    if 'redirect' in request.args:
+        redirect_to = request.args['redirect']
+
+    return outside_render('request_password_reset.html', {"redirect_to": redirect_to})
+
+# Request password reset action
+
+
+@bp.route('/request-password-reset', methods=['POST'])
+def serve_password_request_action():
+    user = g.db.users.get_by_email(request.form['email'])
+    if user is None:
+        return {"error": "Sorry, we couldn't find this email address"}
+    elif user.email_verified() != "Y":
+        return {"error": "Sorry, this user does not have a verified email address"}
+    else:
+        # Generating token identifier for changing password securely
+        userToken = token.generateConfirmationToken(request.form['email'])
+        # Creating URL for user to access change password functionality
+        password_reset_url = WEBSITE_ROOT + url_for('outside_bp.serve_reset_password', tok=userToken)
+        # Sending an email to user with the Blocktrust email template and including password change link
+        send_email(
+                "BlockTrust Network Password change",
+                render_email("forgot_password.html", {
+                    'password_reset_url': password_reset_url
+                }), request.form['email']
+        )
+        return {"redirect": "/password-reset-message"}
+
+
+# Password reset message page
+
+@bp.route('/password-reset-message', methods=['GET'])
+def serve_password_reset_message():
+    return outside_render('password_reset_message.html')
+
+
+# Reset Password
+
+
+@bp.route('/reset-password/<tok>', methods=['GET'])
+def serve_reset_password(tok):
+    # Redirecting to password change page
+    redirect_to = tok
+    try:
+        email = token.confirmToken(tok)
+        return outside_render('reset_password.html', {"redirect_to": redirect_to})
+    except ExportException as e:
+        return outside_render('login.html')
+
+
+@bp.route('/reset-password/<tok>', methods=['POST'])
+def serve_reset_password_action(tok):
+    redirect_to = tok
+    try:
+        # Getting the requested new password from the user
+        new_password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        # Getting the user eamil using the encrypted token
+        email = token.confirmToken(tok)
+        # Changing user password using email as an identifier
+        auth.change_password(email, new_password, confirm_password)
+        return jsonify({"redirect": "/login"})
+    except auth.PasswordChangeFailedException as e:
+        return jsonify({"error": str(e)})
+
 # Route for user to confirm their account
 
 
@@ -226,8 +305,163 @@ def serve_confirm(tok):
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
 
+
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
+
+# Routes for shop, shopping cart, product and checkout pages
+# TODO: These need to be fixed as part of BTN-254
+
+# @bp.route('/shop', methods=['GET'])
+# def serve_shop():
+#     allProductData = g.db.products.get_all_products()
+#     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
+
+
+# Routes for adding and deleting cart items
+
+
+# @bp.route('/shop', methods=['POST'])
+# def serve_add_to_cart():
+#     try:
+#         return outside_render("shop/shop_homepage.html")
+#     except ExportException as e:
+#         return jsonify({"error": e})
+
+
+# Routes for shopping cart page
+
+
+# @bp.route('/shopping-cart', methods=['GET'])
+# def serve_shopping_cart():
+#     return outside_render("shop/shopping_cart.html")
+
+# # Checkout Login and Checkout Register pages 
+
+
+# @bp.route('/checkout_payment', methods=['GET'])
+# def serve_checkout_payment():
+#     return outside_render('shop/checkout_payment.html')
+
+
+# @bp.route('/checkout_payment', methods=['POST'])
+# def serve_payment():
+#     print(request.form)
+#     return redirect('/invoice')
+
+
+# @bp.route('/checkout_loggedIn', methods=['GET'])
+# def serve_checkout_register():
+#     if g.user is not None:
+#         return outside_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
+
+
+# @bp.route('/checkout_loggedIn', methods=['POST'])
+# def serve_loggedIn_checkout():
+#     try:
+#         redirect_to = ''
+#         if 'redirect' in request.args:
+#             redirect_to = request.args['redirect']
+#         # Need to modify this to update shipping address incase of change by logged in user
+#         return redirect('/checkout_payment')
+#         # return outside_render('shop/checkout_payment.html')
+#     except ExportException as e:
+#         return jsonify({"error": str(e)})
+
+
+# @bp.route('/checkout_register/action', methods=['POST'])
+# def serve_checkout_register_action():
+#     try:
+#         required = {
+#             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+#             'city': None, 'state': None, 'zip_code': None, 'address': None,
+#             'username': None, 'email': None, 'password': None, 'confirm_password': None, 'affiliate_id': None,
+#             'address': None, 'partner': None
+#         }
+#         for required_field in required:
+#             if required_field not in request.form:
+#                 raise ExportException("internal error, {} missing from form".format(required_field))
+#             required[required_field] = request.form[required_field]
+#             if len(required[required_field].strip()) == 0:
+#                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+
+#         # Sign up
+#         try:
+#             auth.signup(
+#                 username=required['username'],
+#                 email=required['email'],
+#                 phone=request.form['phone'],
+#                 first_name=required['first_name'],
+#                 last_name=required['last_name'],
+#                 password=required['password'],
+#                 confirm_password=required['confirm_password'],
+#                 company=required['company'],
+#                 affiliate_id=required['affiliate_id'],
+#                 sector=required['sector'],
+#                 address=required['address'],
+#                 city=required['city'],
+#                 state=required['state'],
+#                 zip_code=required['zip_code'],
+#                 partner=required['partner']
+#             )
+#         except (auth.SignupFailedException, AccountsException, UsersException) as e:
+#             raise ExportException("Signup failed: " + str(e))
+#     # We can send out an email for verification if needed. The verification method has been implemented above in signup
+#         return jsonify({"redirect": "/checkout_payment"})
+#     except ExportException as e:
+#         return jsonify({"error": str(e)})
+
+
+# # Checkout form to get user information and payment information
+# @bp.route('/checkout', methods=['GET'])
+# def serve_checkout():
+#     if g.user is not None:
+#         return redirect('/checkout_loggedIn')
+#     else:
+#         return outside_render('shop/checkout.html', {
+#             "sectors_by_id": sectors_by_id,
+#             "redirect_to": '/checkout'
+#             })
+
+
+# # Invoice routes
+# @bp.route('/invoice', methods=['GET'])
+# def serve_invoice():
+#     return outside_render('shop/invoice.html')
+
+
+@bp.route('/adduser/<tok>', methods=['GET', 'POST'])
+def serve_add_user(tok):
+    if request.method == 'GET':
+        try:
+            invite_string = token.confirmToken(tok)
+            invite_object = eval(invite_string)
+            user_email = invite_object["user_email"]
+            account_name = invite_object["current_account"]
+            account_id = invite_object["current_account_id"]
+            return outside_render("/outside/add-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
+        except ExportException as e:
+            return outside_render("/outside/error.html")
+
+
+@bp.route('/adduser', methods=['POST'])
+def serve_add_invited_user():
+    try:
+        account_details = g.db.accounts.get_by_id(request.form["account_id"])
+        auth.invited_signup(
+            username=request.form['username'],
+            email=request.form['user_email'],
+            phone=str(account_details.phone()),
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            password=request.form['password'],
+            confirm_password=request.form['confirm_password'],
+            account_name=request.form['account_name'],
+            account_id=request.form['account_id']
+        )
+        return {"redirect": "/login"}
+    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
+        return {"error": str(e)}

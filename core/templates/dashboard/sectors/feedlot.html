@@ -4,11 +4,11 @@
 {% endblock head_section_per_dashboard_page %}
 
 
-{% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, "Feedlot - " + account.name()|e)] %}
+{% set page_title = account.company()|e %}
+{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, "Feedlot - " + account.company()|e)] %}
 
 {% block dashboard_content_header %}
-{{ account.name()|e }}
+{{ account.company()|e }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -18,7 +18,7 @@
             <h5 class="card-header">Calf-Crop Summary</h5>
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
-                    data-widget-account-name="{{ account.name() }}"></p>
+                    data-widget-account-name="{{ account.company() }}"></p>
             </div>
         </div>
     </div>
@@ -83,7 +83,7 @@
         <div class="collapse" id="collapseAccountDebug" style="clear:both;">
             <div class="card" style="width:100%;">
                 <div class="card-body">
-                    <h5 class="card-title">{{ account.name()|e }}</h5>
+                    <h5 class="card-title">{{ account.company()|e }}</h5>
                     <p class="card-text">
                         Debug<br>
                         Account Links<br>
@@ -92,9 +92,9 @@
                         {% if account_link.company() is not none %}
                         Data 'company': {{ account_link.company()|e }}<br>
                         {% endif %}
-                        {% if account_link.uid() is not none %}
-                        Data 'uid': {{ account_link.uid() }}<br>
-                        Data 'uid_type': {{ account_link.uid_type() }} (0 is MFA Patron ID)<br>
+                        {% if account_link.affiliate_id() is not none %}
+                        Data 'affiliate_id': {{ account_link.affiliate_id() }}<br>
+                        Data 'affiliate_id_type': {{ account_link.affiliate_id_type() }}<br>
                         {% endif %}
                         {% endfor %}
                     </p>

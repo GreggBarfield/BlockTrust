@@ -26,7 +26,7 @@ export class SearchEIDsWidget extends Widget {
         eidNumberFormGroup.className = "form-group col-md-6";
         firstFormRow.append(eidNumberFormGroup);
         let eidLabel = document.createElement("label");
-        eidLabel.textContent = "EID";
+        eidLabel.textContent = "Enter 15-digit EID or Visual ID Number";
         eidNumberFormGroup.append(eidLabel);
 
         this.inputs.eidNumber = document.createElement("input");

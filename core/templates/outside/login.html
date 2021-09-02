@@ -45,7 +45,7 @@
                 
                 > {# method="POST" is important in case preventDefault fails #}
                     <div class="form-group">
-                        <label for="login_username">Username, Email, or User ID</label>
+                        <label for="login_username">Email or User ID</label>
                         <input type="text" class="form-control" placeholder="JohnDoe6" name="identifier" id="login_username">
                         <span class="focus-border"></span>
                     </div>
@@ -54,19 +54,23 @@
                         <input type="password" class="form-control" placeholder="App623Ten!HHW" name="password" id="login_password">
                         <span class="focus-border"></span>
                     </div>
+
+                    <label class="checkbox">
+                        <input type="checkbox" value="remember-me" id="remember_me"> Remember me
+                    </label>
                     {#
                         <div class="form-group form-check">
                             <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                            <label class="form-check-label" for="exampleCheck1">Remember Me</label>
                         </div>
                     #}
-                    <button type="submit" class="btn btn-primary">Login</button>
+                    <p><button type="submit" class="btn btn-primary">Login</button></p>
                     <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
                     {% if redirect_to != '' and redirect_to is not none %}
                     <p class="mt-2 mb-0">Once you log in, you'll be taken back to where you left off: {{ redirect_to }}</p>
                     {% endif %}
                     <p class="mt-2 mb-0">Looking to register?<a href="/signup"> Right this way</a></p>
+                    <p class="mt-2 mb-0"><a href="/request-password-reset"> Forgot your password?</a></p>
                     {#
                         <div class="login-social-media mt-4 text-center">
                             <div class="d-block">

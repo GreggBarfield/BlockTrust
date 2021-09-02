@@ -1,12 +1,11 @@
 import { InfoModal } from "./info_modal.mjs";
 
 export class BootstrapCarousel {
-    constructor(imageURLs, attachTo,type) {
+    constructor(imageURLs, attachTo, type) {
         let frame = attachTo;
         this.frame = frame;
         this.isFullScreen = false;
         this.modal = null;
-
 
         let box = document.createElement("div");
         this.box = box;
@@ -35,7 +34,7 @@ export class BootstrapCarousel {
             item.style.height = "100%";
             carouselInner.append(item);
 
-            if(type=="img"){
+            if (type == "img") {
                 let img = document.createElement("div");
                 img.style.width = "100%";
                 img.style.height = "100%";
@@ -45,26 +44,24 @@ export class BootstrapCarousel {
                 img.src = image;
                 item.append(img);
             }
-            else if(type=="video")
-            {
-                console.log(image)
-                let embedblock=document.createElement("div");
-                embedblock.className="embed-responsive embed-responsive-16by9";
+            else if (type == "video") {
+                let embedblock = document.createElement("div");
+                embedblock.className = "embed-responsive embed-responsive-16by9";
                 item.append(embedblock);
                 let link = document.createElement("iframe");
-                link.className="embed-responsive-item"
-                link.type="text/html";
-                link.src=image;
+                link.className = "embed-responsive-item"
+                link.type = "text/html";
+                link.src = image;
                 embedblock.append(link);
             }
-            
+
         }
 
         if (imageURLs.length > 0) {
             carouselIndicators.children[0].className += " active";
             carouselInner.children[0].className += " active";
         }
-            
+
         function createButton(className, text, fc) {
             let b = document.createElement("div");
             b.className = "carousel-control-" + className;
@@ -94,7 +91,7 @@ export class BootstrapCarousel {
         carouselFullscreenBox.style.alignItems = "center";
         carouselFullscreenBox.style.zIndex = 3;
         carouselFullscreenBox.style.cursor = "pointer";
-        carouselFullscreenBox.addEventListener("click", ()=>{this.goFullScreen();});
+        carouselFullscreenBox.addEventListener("click", () => { this.goFullScreen(); });
         box.append(carouselFullscreenBox);
 
         let carouselFullscreenIcon = document.createElement("i");
@@ -105,10 +102,10 @@ export class BootstrapCarousel {
 
         frame.append(box);
         $(box).carousel();
-        $(previous).click(()=>{$(box).carousel('prev')});
-        $(next).click(()=>{$(box).carousel('next')});
+        $(previous).click(() => { $(box).carousel('prev') });
+        $(next).click(() => { $(box).carousel('next') });
         for (let i = 0; i < tabs.length; i++) {
-            tabs[i].addEventListener("click", ()=>{
+            tabs[i].addEventListener("click", () => {
                 $(box).carousel(i);
             });
         }
@@ -129,7 +126,7 @@ export class BootstrapCarousel {
 
         this.carouselFullscreenBox.style.display = "none";
 
-        this.modal.closedPromise.then(()=>{
+        this.modal.closedPromise.then(() => {
             this.frame.append(this.box);
             this.modal = null;
             this.isFullScreen = false;
