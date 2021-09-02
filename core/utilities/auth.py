@@ -116,7 +116,7 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, personal_phone):
     """Create new user account.
 
     Params:
@@ -155,6 +155,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     city = Users._format_field(city)
     state = Users._format_field(state)
     zip_code = Users._format_field(zip_code)
+    personal_phone = Users._format_field(personal_phone)
 
     # Password should equal confirm_password
 
@@ -167,7 +168,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         email=email,
         first_name=first_name,
         last_name=last_name,
-        phone="",
+        phone=personal_phone,
         email_verified="N"
     )
 
