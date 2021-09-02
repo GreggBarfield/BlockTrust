@@ -21,6 +21,7 @@ from .tables.products import ProductTable
 from .tables.orders import Orders
 from .tables.order_products import OrderProducts
 from .tables.sustainability import Sustainability
+from .tables.usda_reports import USDAReports
 from .tables.product_discounts import ProductDiscounts
 from .tables.api_inserts import ApiInserts
 
@@ -61,6 +62,7 @@ class Database:
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
+        self.usda_reports = USDAReports(self)
         self.products = ProductTable(self)
         self.orders = Orders(self)
         self.order_products = OrderProducts(self)
@@ -179,3 +181,7 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
+    
+    def close(self):
+        self._cursor.close()
+        self._connection.close()
