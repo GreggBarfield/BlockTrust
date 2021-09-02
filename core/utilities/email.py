@@ -13,8 +13,7 @@ def send_email(subject, html, to_address, override=False):
     Raises:
         botocore.exceptions.ClientError on failure
     """
-
-    if override or auth.get_email_verified_value(email=to_address) is True:
+    if override or auth.get_email_verified_value(email=to_address) == "Y":
         get_ses_client().send_email(
             Destination={
                 'ToAddresses': [

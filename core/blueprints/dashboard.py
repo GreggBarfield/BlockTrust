@@ -3,6 +3,7 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
+from core.config import FLATFILE_LICENSE
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id
@@ -19,6 +20,10 @@ from ..renderers.email import render_email
 from ..utilities import crut, auth
 from ..utilities import token
 from ..utilities.email import send_email
+
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+
+import json
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -42,6 +47,7 @@ def serve_dashboard():
 # Accounts
 
 # 6/3/21 Deprecated
+
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
@@ -247,26 +253,38 @@ def serve_plans():
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
+
+@bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
+@crut.require_account
+def serve_upload_tags():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        try:
+            for row in data["eids"]:
+                g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
+            return "", 200
+        except Exception as e:
+            return {'error':{'message': str(e)}}, 400
+    elif request.method == 'GET':
+        return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
+
+
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
+
 
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
 def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
 
+
 @bp.route('/dashboard/retained-ownership', methods=['GET'])
 @crut.require_account
 def serve_retained_ownership():
     return dashboard_render("retained-ownership.html")
-
-
-@bp.route('/dashboard/data/upload-tags', methods=['GET'])
-@crut.require_account
-def serve_upload_tags():
-    return dashboard_render("data/upload-tags.html")
 
 
 # edit user profile
@@ -306,7 +324,7 @@ def serve_invite_user():
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
             # Creating URL for user to join an account
-            confirm_url = url_for('outside_bp.serve_add_user', tok=userToken, _external=True)
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', tok=userToken)
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",
