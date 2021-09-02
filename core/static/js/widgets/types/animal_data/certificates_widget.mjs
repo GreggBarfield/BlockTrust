@@ -32,13 +32,6 @@ export class CertificatesWidget extends Widget {
                 console.log("what is ",match)}
                 else if(match.type==12){this.first_born=match}
             }
-            // this.wean_data=data.result.matches[0];
-            // this.match_rows = data.result.matches;
-            // this.match_rows.shift();
-            console.log("this.wean_data",this.wean_data)
-
-
-            console.log("this.match_rows",this.match_rows)
             this.createDisplay();
         })
         
@@ -50,14 +43,7 @@ export class CertificatesWidget extends Widget {
         return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
     }
     createDisplay(){
-        function addInfo(){
 
-        }
-
-        // let placeHolder = document.createElement("div");
-        // placeHolder.style="width: 450px; height: height:400px;"
-        // placeHolder.style.height= "100%"
-        // placeHolder.style.width="100%"
         let certHeader = document.createElement("h2");
         certHeader.style="text-align: center;margin-top: 10px; font-size:20px"
         certHeader.textContent= "MFA Health Track Processing and Feed Report"
@@ -102,7 +88,6 @@ export class CertificatesWidget extends Widget {
         first14DF.textContent="First 14 Day Feed: "+ (("first_14_feed" in this.wean_data["data"])? this.wean_data["data"]["first_14_feed"]:" ")
         row.append(first14DF)
 
-
         //table
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "table-responsive";
@@ -141,11 +126,7 @@ export class CertificatesWidget extends Widget {
             let data_obj = match_row["data"];
             data_obj.date = this.formatDate(match_row.time);
             let row = [];
-            // for (const header in data_obj) {
-            //     if (this.headers.indexOf(header) == -1) {
-            //         this.headers.push(header);
-            //     }
-            // }
+
             for (const header of this.wean_dataHeader) {
                 if (header in data_obj) {
                     row.push(data_obj[header]);
@@ -186,7 +167,6 @@ export class CertificatesWidget extends Widget {
         }
 
         // Put HTML in frame
-
         this.frame.appendChild(this.divTableResponsive);
         
     }
