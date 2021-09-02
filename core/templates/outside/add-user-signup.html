@@ -1,0 +1,90 @@
+{% extends "outside/standard.html" %}
+
+
+{% set page_title = "Account Invite" %}
+
+{% block outside_banner %}
+<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="text-white mb-1">Account Invite for {{account_name}}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock outside_banner %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-8 text-center">
+                <div class="mb-3">
+                    <h2>User Information</h2>
+                    <p>Please enter the following details to Sign Up</p>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 mb-2 login-form">
+                <form class="bg-white shadow p-3" id="invited_user_form" method="POST">
+                <input type="hidden" id="user_email" value="{{user_email}}"/>
+                <input type="hidden" id="account_name" value="{{account_name}}"/>
+                <input type="hidden" id="account_id" value="{{account_id}}"/>
+                <input type="hidden" id="invite_username" value="{{user_email}}"/>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label for="invite_first" class="">Email</label><br/>
+                            <span class="focus-border">{{user_email}}</span>
+                        </div>
+                        <div class="col-lg-6">
+                            <label for="invite_username" class="">Username</label><br/>
+                            <span class="focus-border">{{user_email}}</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="invite_first" class="">First name</label>
+                                <input type="text" class="form-control required" placeholder="John" id="invite_first" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="invite_last">Last name</label>
+                                <input type="text" class="form-control" placeholder="Doe" id="invite_last" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="invite_password">Password</label>
+                                <input type="password" class="form-control" placeholder="App623Ten!HHW" id="invite_password" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="invite_confirm_password">Confirm password</label>
+                                <input type="password" class="form-control" placeholder="App623Ten!HHW" id="invite_confirm_password" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <p><button type="submit" class="btn btn-primary">Signup</button></p>
+                    <p class="mt-2 mb-0" id="inviteduser_status_message" style="display:none;">Hang on, we're submitting your details...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="inviteduser_error_message">Loading error...</p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script type="module" src="/static/entry_points/outside/add_user_signup.mjs"></script>
+{% endblock outside_content %}

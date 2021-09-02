@@ -1,4 +1,3 @@
-from .. import database
 from ..objects.usda_report import USDAReport
 
 
@@ -12,6 +11,7 @@ class USDAReportsException(Exception):
             reason: The reason it failed.
         """
         super().__init__(reason)
+
 
 class USDAReports:
     """Model of a report retrieved from USDA api"""
@@ -86,8 +86,8 @@ class USDAReports:
         """
         result = self._db.execute_d(
             """
-                SELECT DISTINCT slug_id, market_location_city 
-                FROM usda_report_data 
+                SELECT DISTINCT slug_id, market_location_city
+                FROM usda_report_data
                 WHERE market_location_state=%(state)s
             """,
             {
@@ -138,7 +138,7 @@ class USDAReports:
 
         Params:
             USDAReport: Report to be added to the DB.
-        
+
         Returns:
             The report id to be added to that report object.
         """
@@ -248,3 +248,18 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
+ 
+    def get_all_published_dates(self):
+        """Gets all the unique published date/slug_id combinations
+
+        Returns:
+            A list of published dates and slug_ids
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT slug_id, published_date
+                FROM usda_report_data 
+            """
+        )
+        return result

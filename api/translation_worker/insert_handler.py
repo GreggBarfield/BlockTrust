@@ -15,14 +15,14 @@ types = {
         "TestTY": TestTY
     },
     "ILS": {
-        "Packer": Packer
+        # "Packer": Packer. Not processing ILS till we figure out the account linking
     },
     "BTN1": {
         "AnimalsCSV": AnimalsCSV,
         "FeederResultsCSV": FeederResultsCSV,
         "MatchTableCSV": MatchTableCSV,
         "ProcessingCSV": ProcessingCSV,
-        "TreatmentCSV": TreatmentCSV,
+        "TreatmentCSV": TreatmentCSV
     }
 }
 

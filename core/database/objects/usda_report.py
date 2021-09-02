@@ -1,5 +1,5 @@
 from copy import deepcopy
-from .. import database
+
 
 class USDAReport:
 

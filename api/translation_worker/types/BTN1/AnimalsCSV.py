@@ -51,7 +51,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         patronid = int(fields["patronid"])
     except ValueError as e:
         raise ExecutionException("while converting patron id: " + str(e))
-    account_link = db.account_links.get_by_uid(patronid, 0, insert=True)[0].id()
+    account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=account, api_insert=api_insert, insert=True)[0].id()
     eid = int(fields["electronic"])
 
     grouping_id = 0
@@ -65,7 +65,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account=account,
         account_link=account_link,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -96,7 +96,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account_link=account_link,
         data=weaned_object,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -105,7 +105,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         account=account,
         account_link=account_link,
         eid=eid,
-        grouping_id = grouping_id,
+        grouping_id=grouping_id,
         api_insert=api_insert
     )
 
@@ -125,6 +125,36 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             eid=eid,
             time=all_to_unix(fields["marketingd"]),
             data=sold_object,
-            grouping_id = grouping_id,
+            grouping_id=grouping_id,
             api_insert=api_insert
         )
+
+    if 'zipcode' in fields and fields['zipcode'] and 'patronid' in fields and fields['patronid']:
+        zipcode = str(fields['zipcode'])
+        patronid = int(fields['patronid'])
+
+        if len(zipcode) >= 5 and patronid > 0:
+            f5 = zipcode[0:5]
+            for d in f5:
+                if d not in "0123456789":
+                    break
+            else:
+                account_link = (
+                    db.account_links.get_by_affiliate_id(
+                        affiliate_id=patronid,
+                        partner_account=account,
+                        api_insert=api_insert,
+                        insert=True
+                    )[0].id()
+                )
+                lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                db.matches.types.insert_sighting(
+                    eid=eid,
+                    time=all_to_unix(fields['appdate']),
+                    lat=lat,
+                    lon=lon,
+                    account=account,
+                    account_link=account_link,
+                    grouping_id=grouping_id,
+                    api_insert=api_insert
+                )

@@ -13,7 +13,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     fields = insert["fields"]
     eid = int(fields["eid"])  # This might fail!
     account = insert["account"]
-
+    api_insert = insert["id"]
+    
     sectors = ["cc", "fd", "pk", "au"]
     sectors_by_abbreviation = {
         "au": "Auction House",
@@ -31,17 +32,17 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         if company == "":
             return
 
+        # account_link= db.account_links.get_by_company(
+        #                 company,
+        #                 insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
+        #                 insert=True
+        #             )[0].id()
+
         db.matches.types.insert_sighting(
             eid=eid,
             time=all_to_unix(date),
             lat=lat,
             lon=lon,
             account=account,
-            account_link=(
-                db.account_links.get_by_company(
-                    company,
-                    insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
-                    insert=True
-                )[0].id()
-            )
+            api_insert=api_insert
         )

@@ -62,3 +62,4 @@ class Partners:
             Partner(self._db, partner_row)
             for partner_row in partner_rows
         ]
+

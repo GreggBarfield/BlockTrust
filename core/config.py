@@ -39,6 +39,8 @@ CSP = {
         'https://i.imgur.com',
         'https://player.vimeo.com/',
         'https://www.youtube.com/',
+        'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
+        'https://portal-2.flatfile.io/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -46,6 +48,12 @@ CSP = {
         'http://localhost:5000',
         'blocktrustnetwork.com',
         'data:'
+    ],
+    'frame-ancestors': [
+        'blocktrustnetwork.com',
+        'uscattletrace.org',
+        'www.uscattletrace.org',
+        'www-uscattletrace-org.filesusr.com'
     ]
 }
 
@@ -67,4 +75,8 @@ STRIPE_SECRET_KEY = config_file["stripe"]["secret_key"]
 STRIPE_PUBLISHABLE_KEY = config_file["stripe"]["publishable_key"]
 STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
 
-USDA_API_KEY = config_file["usda_api_key"]
+USDA_API_KEY = config_file["usda"]["api_key"]
+USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
+USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
+
+FLATFILE_LICENSE = config_file["flatfile_license"]
