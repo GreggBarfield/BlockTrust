@@ -76,7 +76,7 @@ export class BasicFileEditor {
         return file["removed"];
     }
 
-
+    //This is called in the constructor, when files are uploaded, when files are added and removed
     updateTable() {
         for (let file of this.files) {
             let fileID = "Not Uploaded";
