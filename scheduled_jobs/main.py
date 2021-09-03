@@ -27,16 +27,14 @@ try:
         current_time = datetime.datetime.now().time()
         # this will run once between 7 and 7.30 AM UTC time
         if datetime.time(7, 0, 0) <= current_time < datetime.time(7, 30, 0):
-            # check if this thread is already running
+            # create new thread only if this thread is not already running
             if not any(t.getName() == "USDAData" for t in threads):
-                # proceed to create a new thread
                 JobRuns(db).insert("USDAData", scheduled_jobs["USDAData"].split('|')[0], scheduled_jobs["USDAData"].split('|')[1])
                 t = Thread(target=get_usda_data, name="USDAData", args=[Database(MYSQL_CONFIG)])
                 t.start()
                 threads.append(t)
                 print('Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
-        # sleep for 30 minutes
         print("Sleeping for 30 mins. Current_time:", current_time)
         time.sleep(1800)
 except Exception as e:
