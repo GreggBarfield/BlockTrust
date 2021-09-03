@@ -40,5 +40,10 @@
         "publishable_key": "pk_test_51HRTwoGWRtomrLg3eckt8XeKxqtfdfAT1hZh5C2hnfyJFyjM0l0UGnCYVSv6CS6M8Rs8rcBu4Mm03xqf9WmWaIXr00jI2Eqsmh",
         "basic": "price_1IHjY1GWRtomrLg3OifgDsmq"
     },
+    "usda": {
+        "api_key": "YEULfkcsaG943pPgePJa/6KIWH8Fajkj",
+        "public_endpoint": "https://marsapi.ams.usda.gov/services/v1.2/",
+        "mandatory_endpoint": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/"
+    },
     "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba"
 }
