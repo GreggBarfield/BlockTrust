@@ -18,6 +18,28 @@ View Invites
             {% for request in requests %}
             {{request.first_account_id}}:{{request.first_account_name}} at{{request.create_timestamp}}<br/>
             {% endfor %}
+        <table class="table table-xs">  
+            <thead>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Account Name</th>
+                    <th>Received On</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+        <tbody>  
+        {% for request in requests %}
+                <tr>
+                    <td>{{request.first_account_id}}</td>
+                    <td>{{request.first_account_name}}</td>
+                    <td>{{request.create_timestamp}}</td>
+                    <td><button class="btn btn-sm btn-primary float-right" style="width:150px" >Accept</button></td>
+                    <td><button class="btn btn-sm btn-primary float-right" style="width:150px" >Decline</button></td>
+                </tr>
+        {% endfor %}
+        </tbody>
+        </table>
         </div>
     </div>
 </div>
