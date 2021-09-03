@@ -195,6 +195,12 @@ def serve_edit_sales_group(sales_group_id):
 
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
 
+@bp.route('/dashboard/sales-groups/archive', methods=['GET'])
+@crut.require_account
+def serve_sales_group_archive():
+    return dashboard_render("sales-groups/sales-group/archive.html", {"account_id": g.account.id()})
+
+
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
@@ -211,7 +217,7 @@ def serve_view_sales_group(sales_group_id):
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
-def serve_manage_sales_groups():
+def serve_archived_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
 
