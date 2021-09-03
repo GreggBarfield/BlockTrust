@@ -17,7 +17,7 @@ export class InfoModal extends CoreModal {
         
         let modalHeaderH5 = document.createElement("h5");
         modalHeaderH5.className = "modal-title";
-        modalHeaderH5.textContent = headerText;
+        modalHeaderH5.innerHTML = headerText;
         modalHeader.append(modalHeaderH5);
 
         let modalHeaderX = document.createElement("button");

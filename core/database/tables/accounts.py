@@ -310,3 +310,18 @@ class Accounts:
                     )
                 )
             )
+
+    def get_accounts(self):
+        """Gets a list of all non-partner accounts.
+
+        Params:
+
+        Returns:
+            An Array of registered accounts
+        """
+        account_rows = self._db.execute_d(
+            """
+            SELECT * FROM accounts WHERE is_partner = 0
+            """
+        )
+        return account_rows

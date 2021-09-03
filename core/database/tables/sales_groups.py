@@ -45,7 +45,7 @@ class SalesGroups:
     """
 
     _STANDARD_SELECT = """
-        SELECT sales_groups.*, accounts.name AS account_name,
+        SELECT sales_groups.*, accounts.company AS account_name,
                 auction_sales.name AS auction_sale_name
             FROM sales_groups
             LEFT JOIN accounts ON sales_groups.account=accounts.id

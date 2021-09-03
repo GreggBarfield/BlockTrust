@@ -3,8 +3,7 @@ import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { DL } from "../core/dl.mjs";
 import { formatDate } from "../core/time.mjs";
-import { promptNewMessage } from "./messages.mjs";
-// import {ZIPCodes} from "../../../database/tables/"
+import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo = null) {
