@@ -13,7 +13,7 @@ export let promptNewMessage = (toAccount, toAccountName=null) => {
         }
     }
 
-    let infoModal = new InfoModal("New Message to " + toStr);
+    let infoModal = new InfoModal("Sending Message To: <span class='text-primary'>" + toStr + "</span>");
     let modalBody = infoModal.getBody();
 
     let form = document.createElement("form");
@@ -60,7 +60,11 @@ export let promptNewMessage = (toAccount, toAccountName=null) => {
             modalBody.append(alert);
         })
         .then(()=>{
-            infoModal.close();
+            let alert = document.createElement("div");
+            alert.className = "alert alert-success";
+            alert.textContent = "Message sent!";
+            modalBody.append(alert);   
+            window.location.reload();
         })
         .always(()=>{
             submitButton.disabled = false;
