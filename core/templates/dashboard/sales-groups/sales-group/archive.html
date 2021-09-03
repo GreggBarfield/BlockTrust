@@ -1,0 +1,19 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Archive Sales Group" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/archive/" + (sales_group['id']|e) + "", "archive Sales Group " + (sales_group['id']|e))] %}
+
+{% block dashboard_content_header %}
+Archive Sales Group {{sales_group['id']|e}} : {{sales_group['group_name']|e}}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col widget" data-widget-type="archive sales group" data-widget-sales-group="{{sales_group['id']|e}}">
+    </div>
+</div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+
+{% endblock dashboard_content %}
