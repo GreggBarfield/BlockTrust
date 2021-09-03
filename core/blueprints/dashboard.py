@@ -14,6 +14,7 @@ from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.users import UsersException
+from ..database.tables.connections import ConnectionException
 from ..database.tables.connection_invites import ConnectionInviteException
 
 from ..renderers.email import render_email
@@ -370,10 +371,19 @@ def serve_add_connection_request():
                 company_contact=request.form["new_company_contact"],
                 company_email=request.form["new_company_email"]
             )
-
+            send_email(
+                "BlockTrust Network Connection Invite",
+                render_email("invite_user.html", {
+                    'new_company_contact': request.form["new_company_name"],
+                    'account_company': g.account.company()
+                }), company_email=request.form["new_company_email"], override=True
+            )
         return {"redirect": "/dashboard/connections"}
     except ConnectionInviteException as e:
         return {"error": str(e)}
+    except ConnectionException as e:
+        return {"error": str(e)}
+
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
 @crut.require_account
