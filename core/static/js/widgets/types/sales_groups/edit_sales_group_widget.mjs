@@ -356,7 +356,6 @@ export class EditSalesGroupWidget extends Widget {
         let videoText = document.createElement("div");
         this.VideoEditor = new VideoSession({}, videoText, this.data.reported.videos || [], this.data.file_auths);
         videoGroup.append(videoText);
-        
         // Comments
 
         let commentsHeader = document.createElement("h6");
@@ -505,6 +504,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
+                        imgDes: that.fileEditor.getDes(),
                         videos: that.VideoEditor.getLinks(),
                     },
                     "delivery_location": marketingLocation.value,

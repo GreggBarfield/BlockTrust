@@ -1,6 +1,7 @@
 import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
+import {promptURLBox  } from "./video_links.mjs";
 export class BasicFileEditor {
     constructor(restrictions={}, attach_node=null, fileIDs=null, fileDes=null, fileAuths=null) {
         let that = this;

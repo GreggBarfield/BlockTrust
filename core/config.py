@@ -47,7 +47,8 @@ CSP = {
         'fonts.googleapis.com',
         'http://localhost:5000',
         'blocktrustnetwork.com',
-        'data:'
+        'data:',
+        's3.console.aws.amazon.com'
     ],
     'frame-ancestors': [
         'blocktrustnetwork.com',
@@ -74,4 +75,9 @@ EMAIL_SECRET_KEY = config_file["internal_api"]["secret_email_key"]
 STRIPE_SECRET_KEY = config_file["stripe"]["secret_key"]
 STRIPE_PUBLISHABLE_KEY = config_file["stripe"]["publishable_key"]
 STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
+
+USDA_API_KEY = config_file["usda"]["api_key"]
+USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
+USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
+
 FLATFILE_LICENSE = config_file["flatfile_license"]

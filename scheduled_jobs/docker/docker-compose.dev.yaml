@@ -1,0 +1,20 @@
+services:
+  jobs_runner:
+    environment:
+      - PYTHONUNBUFFERED=1
+    build:
+      context: .
+      dockerfile: dockerfile.dev
+    volumes:
+      - ../../core/config.py:/home/ubuntu/core/config.py
+      - ../../core/sectors.py:/home/ubuntu/core/sectors.py
+      - ../../core/common_exceptions.py:/home/ubuntu/core/common_exceptions.py
+      - ../../core/match_types.py:/home/ubuntu/core/match_types.py
+      - ../../core/environment_config.json:/home/ubuntu/core/environment_config.json
+      - ../../core/database:/home/ubuntu/core/database
+      - ../../core/utilities:/home/ubuntu/core/utilities
+      - ../:/home/ubuntu/scheduled_jobs
+
+networks:
+  default:
+      name: btn-core_default
