@@ -1,4 +1,4 @@
-import { InfoModal } from '../core/info_modal.mjs';
+import { InfoModal } from '../../../core/info_modal.mjs';
 
 export let promptNewMessage = (toAccount, toAccountName=null) => {
 

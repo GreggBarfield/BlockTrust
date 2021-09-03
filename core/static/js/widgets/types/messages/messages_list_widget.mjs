@@ -2,8 +2,8 @@ import { Widget } from '../../widget.mjs';
 import { Table } from '../../../core/table.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { formatDateTime } from '../../../core/time.mjs';
-import { promptNewMessage } from '../../../sales_groups/messages.mjs';
-import { promptAccountsAndNewMessage } from './select_and_send_message_to_account.mjs';
+import { promptNewMessage } from './new_message.mjs';
+import { promptAccountsAndNewMessage } from './send_message_to_account.mjs';
 
 export class MessagesListWidget extends Widget {
     constructor(frame) {
