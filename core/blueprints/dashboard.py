@@ -158,7 +158,6 @@ def serve_sales_groups():
 def serve_messages(open_message_id=None):
 
     messages_attributes = ""
-
     if open_message_id is not None:
         messages_attributes += (
             " data-widget-messages-open='" + str(int(open_message_id)) + "' "
