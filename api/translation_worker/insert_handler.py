@@ -22,7 +22,7 @@ types = {
         "FeederResultsCSV": FeederResultsCSV,
         "MatchTableCSV": MatchTableCSV,
         "ProcessingCSV": ProcessingCSV,
-        "TreatmentCSV": TreatmentCSV,
+        "TreatmentCSV": TreatmentCSV
     }
 }
 

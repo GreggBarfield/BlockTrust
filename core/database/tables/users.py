@@ -110,7 +110,7 @@ class Users:
         """
         rows = self._db.execute_d(
             """
-            SELECT users.*, accounts.name AS account_name FROM users
+            SELECT users.*, accounts.company AS account_name FROM users
                 INNER JOIN account_users
                     ON account_users.user=users.id
                 INNER JOIN accounts
@@ -165,10 +165,10 @@ class Users:
                 "email": Users._format_field(email)
             }
         )
-        if len(matching_user) > 0 and matching_user[0]['email_verified'] == "Y":
-            return True
+        if len(matching_user) > 0:
+            return matching_user[0]['email_verified']
         else:
-            return False
+            return "N"
 
     @staticmethod
     def _format_field(field):
