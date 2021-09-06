@@ -319,10 +319,9 @@ class Accounts:
         Returns:
             An Array of registered accounts
         """
-        # TODO: Add account_links caching option
         account_rows = self._db.execute_d(
-            """SELECT id, company, sector FROM accounts
-            """,
-            {}
+            """
+            SELECT * FROM accounts WHERE is_partner = 0
+            """
         )
         return account_rows
