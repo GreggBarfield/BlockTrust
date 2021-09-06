@@ -15,9 +15,6 @@ View Invites
             <div class="card-header">
                 <h5>View Invites</h5>
             </div>
-            {% for request in requests %}
-            {{request.first_account_id}}:{{request.first_account_name}} at{{request.create_timestamp}}<br/>
-            {% endfor %}
         <table class="table table-xs">  
             <thead>
                 <tr>
@@ -28,14 +25,14 @@ View Invites
                     <th></th>
                 </tr>
             </thead>
-        <tbody>  
+        <tbody>
         {% for request in requests %}
                 <tr>
                     <td>{{request.first_account_id}}</td>
                     <td>{{request.first_account_name}}</td>
                     <td>{{request.create_timestamp}}</td>
-                    <td><button class="btn btn-sm btn-primary float-right" style="width:150px" >Accept</button></td>
-                    <td><button class="btn btn-sm btn-primary float-right" style="width:150px" >Decline</button></td>
+                    <td><button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" value="{{request.first_account_id}}">Accept</button></td>
+                    <td><button class="btn btn-sm btn-primary float-right declineButton" style="width:150px" value="{{request.first_account_id}}">Decline</button></td>
                 </tr>
         {% endfor %}
         </tbody>
@@ -43,5 +40,5 @@ View Invites
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+<script type="module" src="/static/entry_points/dashboard/connections/view-invites.mjs" ></script> 
 {% endblock dashboard_content %}

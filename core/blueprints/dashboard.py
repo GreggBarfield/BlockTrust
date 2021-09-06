@@ -390,3 +390,33 @@ def serve_add_connection_request():
 def serve_view_invites():
     requests = g.db.connections.get_connection_requests(g.account.id())
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
+
+
+@bp.route('/dashboard/acceptinvite', methods=['POST'])
+@crut.require_account
+def serve_accept_invite():
+    g.db.connections.create_account_connection(
+        first_account_id=request.json["params"]["account_id"],
+        second_account_id=g.account.id()
+    )
+    return {}, 200
+
+
+@bp.route('/dashboard/declineinvite', methods=['POST'])
+@crut.require_account
+def serve_decline_invite():
+    g.db.connections.decline_connection_request(
+        first_account_id=request.json["params"]["account_id"],
+        second_account_id=g.account.id()
+    )
+    return {}, 200
+
+
+@bp.route('/dashboard/view-profile/<tok>', methods=['GET'])
+@crut.require_account
+def serve_view_profile(tok):
+    account_details = g.db.accounts.get_by_id(tok)
+    if g.db.connections.connection_exists:
+        return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
+    else:
+        return {}, 200

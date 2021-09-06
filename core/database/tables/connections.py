@@ -56,9 +56,9 @@ class Connections:
         # This helps save time during lookup and simplifies generating the account connection list
         self._db.execute(
             """
-            UPDATE TABLE connections
+            UPDATE connections
             SET status=1
-            WHERE first_account_id=%(first_account_id)s, second_account_id=%(second_account_id)s
+            WHERE first_account_id=%(first_account_id)s AND second_account_id=%(second_account_id)s
             """,
             {
                 "first_account_id": first_account_id,
@@ -71,7 +71,7 @@ class Connections:
                 INSERT INTO connections
                     (first_account_id, first_account_name, second_account_id, second_account_name, status)
                     VALUES
-                        (%(second_account_id)s, %(second_account_name)s, %(first_account_id)s, %(frist_account_name)s, 1)
+                        (%(second_account_id)s, %(second_account_name)s, %(first_account_id)s, %(first_account_name)s, 1)
             """,
             {
                 "second_account_id": second_account_id,
@@ -135,7 +135,7 @@ class Connections:
         )
         return requests
 
-    def decline_conection_request(self, first_account_id, second_account_id):
+    def decline_connection_request(self, first_account_id, second_account_id):
         """
         Marks the connnection request as declined in the database
 
