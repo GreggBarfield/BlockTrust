@@ -352,7 +352,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts_list()
+    account_rows = g.db.accounts.get_accounts()
     return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
 

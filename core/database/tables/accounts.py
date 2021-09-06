@@ -311,8 +311,8 @@ class Accounts:
                 )
             )
 
-    def get_accounts_list(self):
-        """Gets a list of all account numbers and account names.
+    def get_accounts(self):
+        """Gets a list of all non-partner accounts.
 
         Params:
 
