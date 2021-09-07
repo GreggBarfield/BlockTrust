@@ -21,6 +21,8 @@ from ..utilities import crut, auth
 from ..utilities import token
 from ..utilities.email import send_email
 
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+
 import json
 
 bp = Blueprint('dashboard_bp', __name__)
@@ -45,6 +47,7 @@ def serve_dashboard():
 # Accounts
 
 # 6/3/21 Deprecated
+
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
@@ -155,7 +158,6 @@ def serve_sales_groups():
 def serve_messages(open_message_id=None):
 
     messages_attributes = ""
-
     if open_message_id is not None:
         messages_attributes += (
             " data-widget-messages-open='" + str(int(open_message_id)) + "' "
@@ -315,14 +317,14 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.name()
+            current_account = g.account.company()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
             # Creating URL for user to join an account
-            confirm_url = url_for('outside_bp.serve_add_user', tok=userToken, _external=True)
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', tok=userToken)
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",

@@ -2,7 +2,8 @@ import { Widget } from '../../widget.mjs';
 import { Table } from '../../../core/table.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { formatDateTime } from '../../../core/time.mjs';
-import { promptNewMessage } from '../../../sales_groups/messages.mjs';
+import { promptNewMessage } from './new_message.mjs';
+import { promptAccountsAndNewMessage } from './send_message_to_account.mjs';
 
 export class MessagesListWidget extends Widget {
     constructor(frame) {
@@ -14,9 +15,19 @@ export class MessagesListWidget extends Widget {
             this.displayMessages(data["messages"]);
         });
 
-
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
+            let accounts;
+            this.getData("get_accounts_list", {}).then((data)=>{
+                accounts=data.accounts;
+            });
+            let sendMessage = document.createElement("button");
+            sendMessage.className = "btn btn-sm btn-primary float-right";
+            sendMessage.textContent = "Send Message";
+            this.frame.append(sendMessage);
+            sendMessage.addEventListener("click", ()=>{
+                promptAccountsAndNewMessage(accounts);
+            });
         });
 
         if (this.frame.hasAttribute("data-widget-messages-open")) {
