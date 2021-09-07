@@ -325,3 +325,23 @@ class Accounts:
             """
         )
         return account_rows
+
+    def get_partners(self):
+        """Gets partners in the accounts table.
+
+        Params:
+
+        Returns:
+            Array of Account() objects
+
+        """
+        partners = self._db.execute_d(
+            """
+                SELECT * FROM accounts
+                WHERE is_partner=1
+            """
+        )
+        return [
+            Account(self._db, partner)
+            for partner in partners
+        ]

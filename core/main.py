@@ -29,6 +29,7 @@ from .blueprints import outside
 from .blueprints import widgets
 from .blueprints import stripe
 from .blueprints import shop
+from .blueprints import internal
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth
@@ -82,6 +83,7 @@ app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
 app.register_blueprint(shop.bp)
+app.register_blueprint(internal.bp)
 
 if debug_mode:
     app.run(
