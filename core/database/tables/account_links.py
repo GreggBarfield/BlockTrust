@@ -61,7 +61,7 @@ class AccountLinks:
         )
         return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_company(self, company, insert_sector=None, insert=False, data_race_protection=True):
+    def get_by_company(self, company, partner_account=None, api_insert=None, insert_sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match company.
 
         Params:
@@ -74,20 +74,23 @@ class AccountLinks:
         """
         account_link_rows = self._db.execute_d(
             """SELECT * FROM account_links
-                WHERE company=%(company)s
+                WHERE company=%(company)s AND partner_account=%(partner_account)s
             """,
             {
-                "company": company
+                "company": company,
+                "partner_account": partner_account
             }
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(company=company, sector=insert_sector)
+                self.insert(partner_account=partner_account, company=company, sector=insert_sector, api_insert=api_insert)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
                     return self.get_by_company(
+                        partner_account=partner_account,
                         company=company,
+                        api_insert=api_insert,
                         insert_sector=insert_sector,
                         insert=insert,
                         data_race_protection=False
@@ -170,7 +173,7 @@ class AccountLinks:
         if self._db.row_count() != 1:
             raise AccountLinksException("Conflict with another account link. Affiliate_id", affiliate_id, "Partner_account:", partner_account, "API_INSERT:", api_insert)
 
-    def add_account_to_account_link(self, partner, affiliate_id, account):
+    def add_account_to_account_link(self, partner_id, sector, company, affiliate_id, account_id):
         """Updates a account link with the account id
 
         Params:
@@ -181,12 +184,14 @@ class AccountLinks:
         self._db.execute(
             """
                 UPDATE account_links
-                SET account=%(account)s
+                SET account=%(account)s, sector=%(sector)s, company=%(company)s
                 WHERE account_links.partner_account=%(partner)s AND account_links.affiliate_id=%(affiliate_id)s
             """,
                 {
-                    "account": account,
-                    "partner": partner,
+                    "account": account_id,
+                    "sector": sector,
+                    "company": company,
+                    "partner": partner_id,
                     "affiliate_id": affiliate_id
                 }
         )

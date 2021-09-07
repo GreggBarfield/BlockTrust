@@ -112,6 +112,5 @@ class Account:
          Returns:
             None
         """
-        if self.partner() != None and self.affiliate_id() != None:
-            self._db.account_links.add_account_to_account_link(self.partner(), self.affiliate_id(), self.id())
-      
+        if self.partner() is not None and self.affiliate_id() is not None:
+            self._db.account_links.add_account_to_account_link(self.partner(), self.sector_id(), self.company(), self.affiliate_id(), self.id())

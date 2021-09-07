@@ -90,24 +90,28 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if weaned_object == {}:
         weaned_object = None
 
-    db.matches.types.insert_weaned(
-        time=all_to_unix(fields["weandate"]),
-        account=account,
-        account_link=account_link,
-        data=weaned_object,
-        eid=eid,
-        grouping_id=grouping_id,
-        api_insert=api_insert
-    )
+    wean_date = all_to_unix(fields["weandate"])
+    if wean_date is not None:
+        db.matches.types.insert_weaned(
+            time=wean_date,
+            account=account,
+            account_link=account_link,
+            data=weaned_object,
+            eid=eid,
+            grouping_id=grouping_id,
+            api_insert=api_insert
+        )
 
-    db.matches.types.insert_born(
-        time=all_to_unix(fields["firstbirth"]),
-        account=account,
-        account_link=account_link,
-        eid=eid,
-        grouping_id=grouping_id,
-        api_insert=api_insert
-    )
+    birth_date = all_to_unix(fields["firstbirth"])
+    if birth_date is not None:
+        db.matches.types.insert_born(
+            time=birth_date,
+            account=account,
+            account_link=account_link,
+            eid=eid,
+            grouping_id=grouping_id,
+            api_insert=api_insert
+        )
 
     sold_object = {}
     if fields['marketingm'].strip().lower() not in ('', "unknown"):
@@ -139,14 +143,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
                 if d not in "0123456789":
                     break
             else:
-                account_link = (
-                    db.account_links.get_by_affiliate_id(
-                        affiliate_id=patronid,
-                        partner_account=account,
-                        api_insert=api_insert,
-                        insert=True
-                    )[0].id()
-                )
                 lat, lon = db.zip_codes.get_lat_lon(int(f5))
                 db.matches.types.insert_sighting(
                     eid=eid,

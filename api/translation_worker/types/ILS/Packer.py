@@ -44,19 +44,18 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     account = insert["account"]
     eid = int(fields["EIDNum"])
     api_insert = insert["id"]
-    # account_link = db.account_links.get_by_company(
-    #         "ILS",
-    #         insert_sector=sectors_by_name["Feedlot"],
-    #         insert=True
-    #     )[0].id()
 
-    # Sighting
+    account_link = None
+    # if company is specified, animal is located at the company else it is assumed to be located at partner ILS
+    if fields["Company"] != "":
+        account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=account, api_insert=api_insert, insert=True)[0].id()
+
     db.matches.types.insert_sighting(
         eid=eid,
         account=account,
+        account_link=account_link,
         api_insert=api_insert
     )
-
     # Born
     # EIDDate is not a birthday!
     # birth_date = all_to_unix(insert["fields"]["EIDDate"])
@@ -68,28 +67,17 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     # Railed
     # NEI, no examples
 
+
     # Packer data ready?
     if fields["Packer"] != "":
         # Packer data ready
-
-        # account_link = db.account_links.get_by_company(
-        #     fields["Company"],
-        #     insert_sector=sectors_by_name["Packer"],
-        #     insert=True
-        # )[0].id()
-
-        db.matches.types.insert_sighting(
-            eid=eid,
-            account=account,
-            api_insert=api_insert
-        )
-
         # USDAYieldGrade
 
         db.matches.types.insert_usda_yield_grade(
             int(float(fields["USDAYieldGrade"])),
             eid=eid,
             account=account,
+            account_link=account_link,
             api_insert=api_insert
         )
 
@@ -99,6 +87,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             fields["USDAQualityGrade"],
             eid=eid,
             account=account,
+            account_link=account_link,
             api_insert=api_insert
         )
 
@@ -111,5 +100,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             fields["Packer"].strip() + ";" + str(fields["PlantID"]).strip(),
             eid=eid,
             account=account,
+            account_link=account_link,
             api_insert=api_insert
         )

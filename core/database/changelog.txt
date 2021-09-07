@@ -498,6 +498,20 @@ CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
-/* Rohan Sureshkumar 2/9/2021 */
+/* Rohan Sureshkumar 9/3/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
+
+/* Rohan Sureshkumar 9/6/2021 */
+/* script to link unlinked accounts in account_links using affiliate_id. */
+UPDATE account_links AL 
+INNER JOIN accounts A 
+ON AL.affiliate_id = A.affiliate_id AND AL.partner_account = A.partner_account
+SET AL.account = a.id, AL.sector = A.sector, AL.company = A.company
+WHERE AL.account IS NULL;
+
+/* Rohan Sureshkumar 9/7/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+DROP INDEX `company_must_be_unique` ;
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `api_insert` `api_insert` INT NULL DEFAULT NULL AFTER `id`;
