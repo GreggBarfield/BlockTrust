@@ -19,6 +19,8 @@ import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
+import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
+
 
 
 // Immediately invoked
@@ -54,6 +56,7 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
+    attach("archive sales group", ArchivedSalesGroupWidget);
 
     // Find widgets
     $(".widget").each(function () {

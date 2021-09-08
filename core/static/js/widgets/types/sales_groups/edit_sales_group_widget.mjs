@@ -435,6 +435,7 @@ export class EditSalesGroupWidget extends Widget {
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
+        let archiveSwitch = new SwitchFormGroup(form, "Archive", this.data.is_archived);
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -511,7 +512,8 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     auction_sale: marketingAuctionSale.getID(),
-                    "group_name": nameInput.value
+                    "group_name": nameInput.value,
+                    // is_archived: archiveSwitch.isChecked()
                 }
             }
         });

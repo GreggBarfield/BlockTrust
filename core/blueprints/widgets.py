@@ -73,7 +73,8 @@ def serve_sales_group():
         "userID": g.user.id(),
         "name": g.user.first() + ' ' + g.user.last(),
         "companyId": g.account.id(),
-        "company": g.account.company()
+        "company": g.account.company(),
+        "is_archived":sales_group_row["is_archived"]
     }
 
 
@@ -88,7 +89,7 @@ def serve_search_sales_groups():
     results = []
 
     for sales_group_row in sales_group_rows:
-        if sales_group_row["account"] == g.account.id():
+        if sales_group_row["account"] == g.account.id() and sales_group_row["is_archived"]!=0:
             results.append({
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
@@ -104,7 +105,8 @@ def serve_search_sales_groups():
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"],
-                "group_name": sales_group_row["group_name"]
+                "group_name": sales_group_row["group_name"],
+
             })
 
     return {
@@ -131,33 +133,34 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
-        results.append({
-            "id": sales_group_row["id"],
-            "reported": sales_group_row["reported"],
-            "published": sales_group_row["published"],
-            "account": sales_group_row["account"],
-            "account_name": sales_group_row["account_name"],
-            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-            "file_auths": g.db.files.get_auths(
-                sales_group_row["reported"]["images"]
-                if "images" in sales_group_row["reported"]
-                else None
-            ),
-            "zip": sales_group_row["zip"],
-            "market_location": sales_group_row["market_location"],
-            "delivery_location":sales_group_row["delivery_location"],
-            "start": sales_group_row["start"],
-            "end": sales_group_row["end"],
-            "context": {
-                "milesAway": meters_to_miles(distance(
-                    ZIP_CODES[request.json["search"]["zip"]]["ecef"],
-                    ZIP_CODES[sales_group_row["zip"]]["ecef"]
-                ))
-            },
-            "auction_sale": sales_group_row["auction_sale"],
-            "auction_sale_name": sales_group_row["auction_sale_name"],
-            
-        })
+        if sales_group_row["is_archived"]!=0:
+            results.append({
+                "id": sales_group_row["id"],
+                "reported": sales_group_row["reported"],
+                "published": sales_group_row["published"],
+                "account": sales_group_row["account"],
+                "account_name": sales_group_row["account_name"],
+                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+                "file_auths": g.db.files.get_auths(
+                    sales_group_row["reported"]["images"]
+                    if "images" in sales_group_row["reported"]
+                    else None
+                ),
+                "zip": sales_group_row["zip"],
+                "market_location": sales_group_row["market_location"],
+                "delivery_location":sales_group_row["delivery_location"],
+                "start": sales_group_row["start"],
+                "end": sales_group_row["end"],
+                "context": {
+                    "milesAway": meters_to_miles(distance(
+                        ZIP_CODES[request.json["search"]["zip"]]["ecef"],
+                        ZIP_CODES[sales_group_row["zip"]]["ecef"]
+                    ))
+                },
+                "auction_sale": sales_group_row["auction_sale"],
+                "auction_sale_name": sales_group_row["auction_sale_name"],
+                
+            })
 
     return {
         "sales_groups": results
@@ -231,12 +234,55 @@ def serve_save_sales_group():
         request.json["start"],
         request.json["end"],
         request.json["auction_sale"],
-        request.json["group_name"]
+        request.json["group_name"],
+        request.json["is_archived"]
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
+
+@bp.route('/widgets/data/achived_sales_group', methods=['POST'])
+@crut.require_account
+def serve_achived_sales_group():
+    sales_group_rows = []
+    sales_group_rows = g.db.sales_groups.rows_by_account(request.json["search"]["params"]["ID"])
+
+    results = []
+
+    for sales_group_row in sales_group_rows:
+        if(sales_group_row["is_archived"]==1):
+            results.append({
+                "id": sales_group_row["id"],
+                "reported": sales_group_row["reported"],
+                "published": sales_group_row["published"],
+                "account": sales_group_row["account"],
+                "account_name": sales_group_row["account_name"],
+                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+                "file_auths": g.db.files.get_auths(
+                    sales_group_row["reported"]["images"]
+                    if "images" in sales_group_row["reported"]
+                    else None
+                ),
+                "zip": sales_group_row["zip"],
+                "market_location": sales_group_row["market_location"],
+                "delivery_location":sales_group_row["delivery_location"],
+                "start": sales_group_row["start"],
+                "end": sales_group_row["end"],
+                "context": {
+                    "milesAway": meters_to_miles(distance(
+                        ZIP_CODES[request.json["search"]["zip"]]["ecef"],
+                        ZIP_CODES[sales_group_row["zip"]]["ecef"]
+                    ))
+                },
+                "auction_sale": sales_group_row["auction_sale"],
+                "auction_sale_name": sales_group_row["auction_sale_name"],
+            })
+
+    return {
+        "sales_groups": results
+    }
+
 
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
