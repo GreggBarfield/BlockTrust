@@ -423,5 +423,5 @@ ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
 /* Conner Charles 8/26/2021 */
 ALTER TABLE `example_db_1`.`sustainability` 
-DROP COLUMN `last_updated_timestamp`,
 CHANGE COLUMN `created_timestamp` `created_timestamp` DATETIME NULL DEFAULT NULL;
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` DATETIME NULL DEFAULT NULL;

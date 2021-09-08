@@ -8,7 +8,7 @@ export class SustainabilitySummaryWidget extends Widget {
     initType() {
         
         this.getData(
-            "get-sustainability",
+            "get_sustainability",
             {}
             ).then((data) => {
             this.frame.innerHTML = "";
@@ -366,12 +366,12 @@ export class SustainabilitySummaryWidget extends Widget {
             container.textContent = "(not enough data)";
         }
         else {
-            let that = this;
+            let self = this;
             am4core.ready(function() {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.XYChart);
 
-                chart.data = that.getGraphableTimeLineData();
+                chart.data = self.getGraphableTimeLineData();
 
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -408,12 +408,12 @@ export class SustainabilitySummaryWidget extends Widget {
             container.textContent = "(no data)";
         }
         else {
-            let that = this;
+            let self = this;
             am4core.ready(function() {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.PieChart);
 
-                chart.data = that.getGraphablePieData(dataType);
+                chart.data = self.getGraphablePieData(dataType);
                 
                 chart.innerRadius = am4core.percent(30);
                 
