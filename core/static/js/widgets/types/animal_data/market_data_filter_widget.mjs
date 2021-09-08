@@ -65,7 +65,7 @@ export class MarketDataFilterWidget extends Widget {
             placeholder: "Select a State"
         });
 
-        // Patch
+        // Add event handler - on change
         $(select).val([optionsStacked[0]]);
         $(select).trigger('change');
         setTimeout(function () {
@@ -85,17 +85,17 @@ export class MarketDataFilterWidget extends Widget {
             console.log(this.city_rows);
             this.divCityDropDown.innerHTML = "";
 
-            let values = [];
-            let val_ids = {};
+            let cities = [];
+            let city_ids = {};
             for (const row in this.city_rows) {
                 let item = this.city_rows[row]['market_location_city'];
-                values.push(item);
-                val_ids[item] = this.city_rows[row]['slug_id'];
+                cities.push(item);
+                city_ids[item] = this.city_rows[row]['slug_id'];
             }
-            values.sort();
-            let select = this.createSelect(this.divCityDropDown, "City", values, val_ids);
+            cities.sort();
+            let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
 
-            let that = this;
+            let self = this;
             function createBtn() {
                 console.log(this.value);
                 console.log(this.options.selectedIndex);
@@ -108,12 +108,12 @@ export class MarketDataFilterWidget extends Widget {
                 let button = document.createElement("a");
                 button.className = "btn btn-outline-secondary btn-sm mb-0";
                 button.setAttribute("href", "/dashboard/data/market/" + 
-                    that.state + "/" + selectedItem.value);
+                    self.state + "/" + selectedItem.value);
                 button.textContent = "View";
 
                 // Put HTML in frame
-                that.divBtn.append(button);
-                that.row.append(that.divBtn);
+                self.divBtn.append(button);
+                self.row.append(self.divBtn);
             }
             $(select).on("change", createBtn);
 
@@ -142,25 +142,25 @@ export class MarketDataFilterWidget extends Widget {
         this.row = this.createSection(this.form, "Filter")
         let select = this.createSelect(this.divStateDropDown, "State", values)
 
-        let that = this;
+        let self = this;
         function makeCityDropDown() {
             console.log(this.value);
             if(this.value == "") {
                 return;
             }
-            that.state = this.value;
+            self.state = this.value;
 
-            that.divCityDropDown.innerHTML = '\
+            self.divCityDropDown.innerHTML = '\
             <div class="d-flex justify-content-center">\
                 <div class="spinner-border" role="status">\
                     <span class="sr-only">Loading...</span>\
                 </div>\
             </div>';
 
-            that.getCityData(this.value);
+            self.getCityData(this.value);
 
             // Put HTML in frame
-            that.row.append(that.divCityDropDown);
+            self.row.append(self.divCityDropDown);
         }
         $(select).on("change", makeCityDropDown);
 
