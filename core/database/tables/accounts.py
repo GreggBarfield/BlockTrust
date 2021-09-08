@@ -341,7 +341,4 @@ class Accounts:
                 WHERE is_partner=1
             """
         )
-        return [
-            Account(self._db, partner)
-            for partner in partners
-        ]
+        return partners
