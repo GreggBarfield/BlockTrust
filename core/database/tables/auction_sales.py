@@ -31,7 +31,7 @@ class AuctionSales:
         """
         rows = self._db.execute_d(
             """
-                SELECT auction_sales.*, accounts.name AS account_name FROM auction_sales
+                SELECT auction_sales.*, accounts.company AS account_name FROM auction_sales
                     LEFT JOIN accounts ON accounts.id=auction_sales.account
                     WHERE auction_sales.id=%(auction_sale_id)s
             """,
@@ -126,13 +126,13 @@ class AuctionSales:
         """
         return self._db.execute_d(
             """
-                SELECT auction_sales.*, accounts.name AS account_name FROM auction_sales
+                SELECT auction_sales.*, accounts.company AS account_name FROM auction_sales
                     LEFT JOIN accounts ON accounts.id=auction_sales.account
                     WHERE
                         auction_sales.published > 0 AND
                         (
                             auction_sales.name LIKE CONCAT('%', %(name)s, '%') OR
-                            accounts.name LIKE CONCAT('%', %(name)s, '%')
+                            accounts.company LIKE CONCAT('%', %(name)s, '%')
                         )
                     ORDER BY auction_sales.id DESC
                     LIMIT 10
