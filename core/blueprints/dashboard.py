@@ -1,7 +1,9 @@
+from core.renderers.outside import outside_render
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 
+from core.config import FLATFILE_LICENSE
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id
@@ -16,6 +18,12 @@ from ..database.tables.users import UsersException
 from ..renderers.email import render_email
 
 from ..utilities import crut, auth
+from ..utilities import token
+from ..utilities.email import send_email
+
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+
+import json
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -39,6 +47,7 @@ def serve_dashboard():
 # Accounts
 
 # 6/3/21 Deprecated
+
 @bp.route('/dashboard/accounts/new-account', methods=['GET'])
 @crut.require_user
 def serve_accounts_new_account():
@@ -245,15 +254,33 @@ def serve_plans():
 def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
+
+@bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
+@crut.require_account
+def serve_upload_tags():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        try:
+            for row in data["eids"]:
+                g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
+            return "", 200
+        except Exception as e:
+            return {'error':{'message': str(e)}}, 400
+    elif request.method == 'GET':
+        return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
+
+
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
-    
+
+
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
 def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
+
 
 @bp.route('/dashboard/retained-ownership', methods=['GET'])
 @crut.require_account
@@ -261,16 +288,11 @@ def serve_retained_ownership():
     return dashboard_render("retained-ownership.html")
 
 
-@bp.route('/dashboard/data/upload-tags', methods=['GET'])
-@crut.require_account
-def serve_upload_tags():
-    return dashboard_render("data/upload-tags.html")
-
-
 @bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
 def serve_market_state_data():
     return dashboard_render("data/market-data-filter.html")
+
 
 @bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
 @crut.require_account
@@ -299,13 +321,42 @@ def serve_edit_edituser():
                         last=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
-                        confirm_password= request.form["confirm_password"]
+                        confirm_password=request.form["confirm_password"]
                         )
             return {"redirect": "/dashboard/edit/edituser"}
-        except  UsersException as e:
+        except UsersException as e:
             return {"error": str(e)}
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user":user})
-        
-    
+        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+
+
+@bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])
+@crut.require_account
+def serve_invite_user():
+    if request.method == 'POST':
+        try:
+            user_email = request.form["email"]
+            if g.db.users.get_by_email(user_email) is not None:
+                raise ExportException("A user with that email already exists!")
+            current_account = g.account.name()
+            current_account_id = g.account.id()
+            invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
+            invite_string = str(invite_object)
+            # Generating token identifier with account and user email informatiom
+            userToken = token.generateConfirmationToken(invite_string)
+            # Creating URL for user to join an account
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', tok=userToken)
+            # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
+            send_email(
+                "BlockTrust Network Account Invite",
+                render_email("invite_user.html", {
+                    'confirm_url': confirm_url,
+                    'current_account': current_account
+                }), user_email, override=True
+            )
+            return {"redirect": "/dashboard"}
+        except ExportException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        return dashboard_render("/dashboard/accounts/invite_user.html")

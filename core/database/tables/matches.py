@@ -23,7 +23,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "uid_type", "uid", "company", "sector")
+    _account_links_cols = ("id", "account", "affiliate_id_type", "affiliate_id", "company", "sector")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -188,7 +188,7 @@ class Matches:
                         "time<=>:time",
                         eid=row["eid"],
                         type=row["type"],
-                        grouping_id = row["grouping_id"],
+                        grouping_id=row["grouping_id"],
                         data=row["data"],
                         account=row["account"],
                         account_link=row["account_link"],
