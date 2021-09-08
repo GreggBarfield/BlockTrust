@@ -10,7 +10,7 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 from ..sectors import sectors_by_name
 from ..sectors import sectors_by_id
 
@@ -122,7 +122,8 @@ def serve_signup_action():
                 address=required['address'],
                 city=required['city'],
                 state=required['state'],
-                zip_code=required['zip_code']
+                zip_code=required['zip_code'],
+                personal_phone=request.form['personal_phone']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
@@ -130,7 +131,7 @@ def serve_signup_action():
         # Generating token identifier for user for email verification
         userToken = token.generateConfirmationToken(required['email'])
         # Creating URL for user to confirm email address
-        confirm_url = url_for('outside_bp.serve_confirm', tok=userToken, _external=True)
+        confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_confirm', tok=userToken)
         # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
         send_email(
             "BlockTrust Network Email Confirmation",
@@ -214,7 +215,7 @@ def serve_contact_form_response():
 # Request a password reset
 
 
-@bp.route('/request_password_reset', methods=['GET'])
+@bp.route('/request-password-reset', methods=['GET'])
 def serve_request_password_reset():
     redirect_to = ''
     if 'redirect' in request.args:
@@ -225,26 +226,31 @@ def serve_request_password_reset():
 # Request password reset action
 
 
-@bp.route('/request_password_reset', methods=['POST'])
+@bp.route('/request-password-reset', methods=['POST'])
 def serve_password_request_action():
+    user = g.db.users.get_by_email(request.form['email'])
+    if user is None:
+        return {"error": "Sorry, we couldn't find this email address"}
+    elif user.email_verified() != "Y":
+        return {"error": "Sorry, this user does not have a verified email address"}
+    else:
+        # Generating token identifier for changing password securely
+        userToken = token.generateConfirmationToken(request.form['email'])
+        # Creating URL for user to access change password functionality
+        password_reset_url = WEBSITE_ROOT + url_for('outside_bp.serve_reset_password', tok=userToken)
+        # Sending an email to user with the Blocktrust email template and including password change link
+        send_email(
+                "BlockTrust Network Password change",
+                render_email("forgot_password.html", {
+                    'password_reset_url': password_reset_url
+                }), request.form['email']
+        )
+        return {"redirect": "/password-reset-message"}
 
-    # Generating token identifier for changing password securely
-    userToken = token.generateConfirmationToken(request.form['email'])
-    # Creating URL for user to access change password functionality
-    password_reset_url = url_for('outside_bp.serve_reset_password', tok=userToken, _external=True)
-    # Sending an email to user with the Blocktrust email template and including password change link
-    send_email(
-            "BlockTrust Network Password change",
-            render_email("forgot_password.html", {
-                'password_reset_url': password_reset_url
-            }), request.form['email']
-    )
-    return outside_render('password_reset_message.html')
 
-# Passowrd reset message page
+# Password reset message page
 
-
-@bp.route('/password_reset_message', methods=['GET'])
+@bp.route('/password-reset-message', methods=['GET'])
 def serve_password_reset_message():
     return outside_render('password_reset_message.html')
 
@@ -252,7 +258,7 @@ def serve_password_reset_message():
 # Reset Password
 
 
-@bp.route('/reset_password/<tok>', methods=['GET'])
+@bp.route('/reset-password/<tok>', methods=['GET'])
 def serve_reset_password(tok):
     # Redirecting to password change page
     redirect_to = tok
@@ -263,7 +269,7 @@ def serve_reset_password(tok):
         return outside_render('login.html')
 
 
-@bp.route('/reset_password/<tok>', methods=['POST'])
+@bp.route('/reset-password/<tok>', methods=['POST'])
 def serve_reset_password_action(tok):
     redirect_to = tok
     try:
@@ -311,3 +317,36 @@ def serve_contact_email():
 @bp.route('/shop_information', methods=['GET'])
 def serve_shop():
     return outside_render('shop_information.html')
+
+@bp.route('/adduser/<tok>', methods=['GET', 'POST'])
+def serve_add_user(tok):
+    if request.method == 'GET':
+        try:
+            invite_string = token.confirmToken(tok)
+            invite_object = eval(invite_string)
+            user_email = invite_object["user_email"]
+            account_name = invite_object["current_account"]
+            account_id = invite_object["current_account_id"]
+            return outside_render("/outside/add-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
+        except ExportException as e:
+            return outside_render("/outside/error.html")
+
+
+@bp.route('/adduser', methods=['POST'])
+def serve_add_invited_user():
+    try:
+        account_details = g.db.accounts.get_by_id(request.form["account_id"])
+        auth.invited_signup(
+            username=request.form['username'],
+            email=request.form['user_email'],
+            phone=str(account_details.phone()),
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            password=request.form['password'],
+            confirm_password=request.form['confirm_password'],
+            account_name=request.form['account_name'],
+            account_id=request.form['account_id']
+        )
+        return {"redirect": "/login"}
+    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
+        return {"error": str(e)}

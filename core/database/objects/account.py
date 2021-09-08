@@ -31,9 +31,6 @@ class Account:
     def id(self):
         return self._row['id']
 
-    def name(self):
-        return self._row['name']
-
     def company(self):
         return self._row['company']
 
@@ -51,6 +48,9 @@ class Account:
 
     def affiliate_id(self):
         return self._row['affiliate_id']
+
+    def address(self):
+        return self._row['address']
 
     def city(self):
         return self._row['city']

@@ -21,7 +21,9 @@ from .tables.products import ProductTable
 from .tables.orders import Orders
 from .tables.order_products import OrderProducts
 from .tables.sustainability import Sustainability
+from .tables.usda_reports import USDAReports
 from .tables.product_discounts import ProductDiscounts
+from .tables.api_inserts import ApiInserts
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -60,11 +62,13 @@ class Database:
         self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
+        self.usda_reports = USDAReports(self)
         self.products = ProductTable(self)
         self.orders = Orders(self)
         self.order_products = OrderProducts(self)
         self.sustainability = Sustainability(self)
         self.product_discounts = ProductDiscounts(self)
+        self.api_inserts = ApiInserts(self)
 
     def connect(self):
         try:
@@ -109,6 +113,10 @@ class Database:
     def execute_d(self, code, params=tuple()):
         self.execute(code, params)
         return self.fetch_all()
+
+    def execute_fetch_one(self, code, params=tuple()):
+        self.execute(code, params)
+        return self._cursor.fetchone()
 
     def exec_frag_d(self, kvs):
         """Executes a frag() style return value.
@@ -173,3 +181,7 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
+    
+    def close(self):
+        self._cursor.close()
+        self._connection.close()
