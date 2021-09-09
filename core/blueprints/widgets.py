@@ -259,24 +259,20 @@ def serve_achived_sales_group():
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
                 "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-                "file_auths": g.db.files.get_auths(
-                    sales_group_row["reported"]["images"]
-                    if "images" in sales_group_row["reported"]
-                    else None
-                ),
+                "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
                 "delivery_location":sales_group_row["delivery_location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
-                "context": {
-                    "milesAway": meters_to_miles(distance(
-                        ZIP_CODES[request.json["search"]["zip"]]["ecef"],
-                        ZIP_CODES[sales_group_row["zip"]]["ecef"]
-                    ))
-                },
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"],
+                "group_name": sales_group_row["group_name"],
+                "license": FLATFILE_LICENSE,
+                "userID": g.user.id(),
+                "name": g.user.first() + ' ' + g.user.last(),
+                "companyId": request.json["search"]["params"]["ID"],
+                "company": g.account.company()
             })
 
     return {
