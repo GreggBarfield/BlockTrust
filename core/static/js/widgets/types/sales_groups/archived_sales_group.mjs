@@ -35,6 +35,7 @@ export class ArchivedSalesGroupWidget extends Widget {
     }
     displaySalesGroups(){
         for( const sales_group in this.sales_groups){
+           
             this.salesGroupViewer = new SalesGroupViewer(this.sales_groups[sales_group], this.frame);
         }
         

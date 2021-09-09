@@ -89,7 +89,7 @@ def serve_search_sales_groups():
     results = []
 
     for sales_group_row in sales_group_rows:
-        if sales_group_row["account"] == g.account.id() and sales_group_row["is_archived"]!=0:
+        if sales_group_row["account"] == g.account.id() and sales_group_row["is_archived"]==0:
             results.append({
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
@@ -133,7 +133,7 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
-        if sales_group_row["is_archived"]!=0:
+        if sales_group_row["is_archived"]==0:
             results.append({
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
@@ -272,7 +272,8 @@ def serve_achived_sales_group():
                 "userID": g.user.id(),
                 "name": g.user.first() + ' ' + g.user.last(),
                 "companyId": request.json["search"]["params"]["ID"],
-                "company": g.account.company()
+                "company": g.account.company(),
+                "is_archived":sales_group_row["is_archived"]
             })
 
     return {

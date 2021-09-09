@@ -138,13 +138,26 @@ export class SalesGroupViewer {
             left.append(salesGroupID);
             let sendMessageButton = document.createElement("button");
 
-            sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.style = "float:right"
-            sendMessageButton.textContent = "Contact Seller";
-            sendMessageButton.addEventListener("click", () => {
-                promptNewMessage(this.data.account, this.data.account_name);
-            });
-            left.append(sendMessageButton);
+            if (!"is_archived" in this.data){
+                sendMessageButton.className = "btn btn-sm btn-primary";
+                sendMessageButton.style = "float:right"
+                sendMessageButton.textContent = "Contact Seller";
+                sendMessageButton.addEventListener("click", () => {
+                    promptNewMessage(this.data.account, this.data.account_name);
+                });
+                left.append(sendMessageButton);
+            }
+            else{
+                sendMessageButton.className = "btn btn-sm btn-primary";
+                sendMessageButton.style = "float:right"
+                sendMessageButton.textContent = "Unarchive this sales group";
+                sendMessageButton.addEventListener("click", () => {
+                    // promptNewMessage(this.data.account, this.data.account_name);
+                    console.log("unarchive")
+                });
+                left.append(sendMessageButton);
+            }
+            
             let location = document.createElement("div");
 
             let milesAway = "--";
