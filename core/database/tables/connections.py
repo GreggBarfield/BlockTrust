@@ -41,8 +41,9 @@ class Connections:
     def create_account_connection(self, first_account_id, second_account_id):
         """
         Params:
-            user_account_id: Account ID of user
-            friend_account_id:
+            first_account_id: Account ID of user
+            second_account_id: Second account ID(receiver)
+
         Returns:
             None
         """

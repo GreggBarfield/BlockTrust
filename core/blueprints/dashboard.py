@@ -81,7 +81,6 @@ def serve_accounts_new_account_action():
                 raise ExportException("Sector ID not recognized.")
             account = g.db.accounts.create_account(
                 user=g.user,
-                name=required['name'],
                 company=required['company'],
                 sector=required['sector'],
             )
@@ -160,7 +159,6 @@ def serve_sales_groups():
 def serve_messages(open_message_id=None):
 
     messages_attributes = ""
-
     if open_message_id is not None:
         messages_attributes += (
             " data-widget-messages-open='" + str(int(open_message_id)) + "' "
@@ -320,7 +318,7 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.name()
+            current_account = g.account.company()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
@@ -353,7 +351,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts_list()
+    account_rows = g.db.accounts.get_accounts()
     return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
 

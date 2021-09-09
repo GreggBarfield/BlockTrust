@@ -365,7 +365,7 @@ CREATE TABLE `example_db_1`.`error_logs` (
   /* Conner Charles 6/30/2021 */
 /* Everything down to 'final_ind' is for a normal report. Everything after that
     are additional fields for specific reports. */
-CREATE TABLE `usda_report_data` (
+CREATE TABLE `usda_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
   `report_date` varchar(31) DEFAULT NULL,
   `report_begin_date` varchar(31) DEFAULT NULL,
@@ -519,3 +519,6 @@ CREATE TABLE connection_invites(
   `company_email` VARCHAR(127),
   `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+/* Rohan Sureshkumar 2/9/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+DROP COLUMN `name`;

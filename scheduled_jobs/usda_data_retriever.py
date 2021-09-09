@@ -84,8 +84,7 @@ class UsdaDataRetriever:
         print("Size of unique new reports: " + str(len(reports)))
 
         for item in reports:
-            response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(item), 
-                auth=(USDA_API_KEY, ''))
+            response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(item), auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
             print("Size of report id " + str(item) + ": " + str(len(json_response['results'])))

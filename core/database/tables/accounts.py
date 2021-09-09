@@ -137,12 +137,11 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, name, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account with the user automatically added.
 
         Params:
             user: a User object (assumed to be safe)
-            name: the account name
             company: the company name
             sector: the sector number
             partner: partner id
@@ -182,12 +181,11 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (name, company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
                 VALUES
-                    (%(name)s, %(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
             """,
             {
-                "name": name,
                 "company": company,
                 "sector": sector,
                 "partner": partner,
@@ -207,7 +205,7 @@ class Accounts:
         return account
 
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+    def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
         phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
@@ -222,12 +220,6 @@ class Accounts:
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
         set_frags = frag()
-        if name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "name=:name,",
-                            name=name
-                        )
         if company is not NO_VALUE:
             set_frags = frag(
                             set_frags,
@@ -311,18 +303,17 @@ class Accounts:
                 )
             )
 
-    def get_accounts_list(self):
-        """Gets a list of all account numbers and account names.
+    def get_accounts(self):
+        """Gets a list of all non-partner accounts.
 
         Params:
 
         Returns:
             An Array of registered accounts
         """
-        # TODO: Add account_links caching option
         account_rows = self._db.execute_d(
-            """SELECT id, company, sector FROM accounts
-            """,
-            {}
+            """
+            SELECT * FROM accounts WHERE is_partner = 0
+            """
         )
         return account_rows
