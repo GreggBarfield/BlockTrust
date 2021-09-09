@@ -513,7 +513,7 @@ export class EditSalesGroupWidget extends Widget {
                     "end": marketingEnd.getTime(),
                     auction_sale: marketingAuctionSale.getID(),
                     "group_name": nameInput.value,
-                    // is_archived: archiveSwitch.isChecked()
+                    "is_archived": archiveSwitch.isChecked()
                 }
             }
         });
