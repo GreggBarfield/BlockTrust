@@ -79,7 +79,6 @@ def serve_accounts_new_account_action():
                 raise ExportException("Sector ID not recognized.")
             account = g.db.accounts.create_account(
                 user=g.user,
-                name=required['name'],
                 company=required['company'],
                 sector=required['sector'],
             )
