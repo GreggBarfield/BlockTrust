@@ -105,6 +105,7 @@ export class VideoSession {
                     removeButton.textContent = "Remove";
                     removeButton.className = "btn btn-sm btn-danger";
                     removeButton.type = "button";
+                    removeButton.style.backgroundColor="rgb(168, 87, 34)";
                     removeButton.addEventListener("click", ()=>{
                         if (this.remove(link)) {
                             removeButton.textContent = "Add";
