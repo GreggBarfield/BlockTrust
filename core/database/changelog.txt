@@ -366,7 +366,7 @@ CREATE TABLE `example_db_1`.`error_logs` (
   /* Conner Charles 6/30/2021 */
 /* Everything down to 'final_ind' is for a normal report. Everything after that
     are additional fields for specific reports. */
-CREATE TABLE `usda_report_data` (
+CREATE TABLE `usda_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
   `report_date` varchar(31) DEFAULT NULL,
   `report_begin_date` varchar(31) DEFAULT NULL,

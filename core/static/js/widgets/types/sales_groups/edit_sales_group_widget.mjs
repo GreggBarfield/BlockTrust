@@ -182,18 +182,11 @@ export class EditSalesGroupWidget extends Widget {
         cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
         cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
 
-        let nameInput = document.createElement("input");
-        nameInput.type = "text";
-        nameInput.value = this.data.group_name || null;
-        nameInput.className = "form-control col-sm-2";
-        nameInput.style = "padding-left:15px";
-
         let editGroupName = document.createElement("div");
         editGroupName.className = "card-header form-group row";
         editGroupName.style = "padding:5px;padding-left: 15px;"
 
         editGroupName.append(cardHeader);
-        editGroupName.append(nameInput);
         card.append(editGroupName);
 
         let cardBody = document.createElement("div");
@@ -512,7 +505,8 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     auction_sale: marketingAuctionSale.getID(),
-                    "group_name": nameInput.value
+                    //TODO: Remove for now. Will implement later
+                    "group_name": ""
                 }
             }
         });
