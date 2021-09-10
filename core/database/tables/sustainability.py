@@ -1,5 +1,4 @@
 import json
-import datetime
 
 class Sustainability:
     def __init__(self, db):
@@ -8,13 +7,12 @@ class Sustainability:
     def insert(self, account, response):
         self._db.execute(
             """INSERT INTO sustainability
-                (account, response, created_timestamp)
-                VALUES (%(account)s, %(response)s, %(timeStamp)s)
+                (account, response)
+                VALUES (%(account)s, %(response)s)
             """,
             {
                 "account": account,
                 "response": json.dumps(response),  # Does this need to be converted to a string first?
-                "timeStamp": datetime.datetime.now()
             }
         )
 
