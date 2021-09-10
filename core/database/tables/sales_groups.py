@@ -185,7 +185,7 @@ class SalesGroups:
             """,
             {
                 "id": row_id,
-                "is_archived":1
+                "is_archived": 0
             }
         )
 

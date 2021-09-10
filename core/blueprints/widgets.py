@@ -242,13 +242,13 @@ def serve_save_sales_group():
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
-    
+
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    g.db.sales_groups.unarchive(request.json["id"])
+    g.db.sales_groups.unarchive(request.json["params"]["id"])
     return {
-        "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
+        "redirect": "/dashboard/sales-groups/manage"
     }
 
 @bp.route('/widgets/data/achived_sales_group', methods=['POST'])
