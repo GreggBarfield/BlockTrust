@@ -371,10 +371,10 @@ def serve_add_connection_request():
             )
             send_email(
                 "BlockTrust Network Connection Invite",
-                render_email("invite_user.html", {
+                render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
                     'account_company': g.account.company()
-                }), company_email=request.form["new_company_email"], override=True
+                }), request.form["new_company_email"], override=True
             )
         return {"redirect": "/dashboard/connections"}
     except ConnectionInviteException as e:

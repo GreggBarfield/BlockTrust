@@ -173,7 +173,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     )
 
     try:
-        g.db.accounts.create_account(
+        account = g.db.accounts.create_account(
             user=user,
             company=company,
             sector=sector,
@@ -185,6 +185,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
+        g.db.connection_invites.add_pending_invites(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
@@ -420,6 +421,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         last_name=last_name,
         phone=phone,
         email_verified="Y"
-    )   
+    )
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
+
