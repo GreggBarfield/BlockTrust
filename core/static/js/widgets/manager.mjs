@@ -19,6 +19,8 @@ import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
+import { FeedyardQuestionaireWidget } from "./types/sustainability/feedyard_questionaire.mjs";
+// import { FeedyardSummaryWidget } from "./types/sustainability/feedyard_summary.mjs";
 
 
 // Immediately invoked
@@ -54,6 +56,8 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
+    attach("feedyard questionaire", FeedyardQuestionaireWidget);
+    // attach("feedyard summary", FeedyardSummaryWidget);
 
     // Find widgets
     $(".widget").each(function () {

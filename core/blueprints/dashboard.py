@@ -282,6 +282,18 @@ def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
 
 
+@bp.route('/dashboard/feedyard', methods=['GET'])
+@crut.require_account
+def serve_feedyard():
+    return dashboard_render("sustainability/feedyard_summary.html")
+
+
+@bp.route('/dashboard/feedyard/survey', methods=['GET'])
+@crut.require_account
+def serve_feedyard_survey():
+    return dashboard_render("sustainability/feedyard_questionaire.html")
+
+
 @bp.route('/dashboard/retained-ownership', methods=['GET'])
 @crut.require_account
 def serve_retained_ownership():
