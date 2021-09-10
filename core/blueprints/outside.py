@@ -465,3 +465,8 @@ def serve_add_invited_user():
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
         return {"error": str(e)}
+
+
+@bp.route('/rfid-tags', methods=["GET"])
+def serve_rfid_tags():
+    return outside_render("/outside/rfid_tags.html")
