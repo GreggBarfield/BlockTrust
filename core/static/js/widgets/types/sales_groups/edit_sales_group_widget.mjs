@@ -15,7 +15,6 @@ export class EditSalesGroupWidget extends Widget {
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.formElements = {};
-
         this.getData(
             "sales_group",
             {

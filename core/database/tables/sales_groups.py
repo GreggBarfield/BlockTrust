@@ -176,6 +176,18 @@ class SalesGroups:
                 "is_archived":is_archived
             }
         )
+    
+    def unarchive(self,row_id):
+        self._db.execute(
+            """UPDATE sales_groups
+                SET is_archived=%(is_archived)s
+                WHERE id=%(id)s
+            """,
+            {
+                "id": row_id,
+                "is_archived":1
+            }
+        )
 
     def search_within(
         self, zip_code, miles, start, end, skip=0, limit=10,

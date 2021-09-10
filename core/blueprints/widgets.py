@@ -89,7 +89,7 @@ def serve_search_sales_groups():
     results = []
 
     for sales_group_row in sales_group_rows:
-        if sales_group_row["account"] == g.account.id() and sales_group_row["is_archived"]==0:
+        if sales_group_row["account"] == g.account.id():
             results.append({
                 "id": sales_group_row["id"],
                 "reported": sales_group_row["reported"],
@@ -106,6 +106,7 @@ def serve_search_sales_groups():
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"],
                 "group_name": sales_group_row["group_name"],
+                "is_archived":sales_group_row["is_archived"]
 
             })
 
@@ -238,6 +239,14 @@ def serve_save_sales_group():
         request.json["is_archived"]
     )
 
+    return {
+        "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
+    }
+    
+@bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
+@crut.require_account
+def unarchive_sales_group():
+    g.db.sales_groups.unarchive(request.json["id"])
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
