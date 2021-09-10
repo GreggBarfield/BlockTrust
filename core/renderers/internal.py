@@ -25,7 +25,6 @@ def internal_render(file, args={}):
         "internal_standard_user_first": g.user.first(),
         "internal_standard_user_last": g.user.last(),
         "internal_standard_user_username": g.user.username(),
-        "internal_standard_account": g.account,
         "internal_standard_is_admin": g.is_admin
     }
     for key in args:

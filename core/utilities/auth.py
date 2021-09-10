@@ -2,6 +2,8 @@ import bcrypt
 from flask import g, session
 from ..database.tables.users import Users
 from ..database.objects.user import User
+from ..database.tables.staff_users import StaffUsers
+from ..database.objects.staff_user import StaffUser
 from ..database.objects.account import Account
 
 # since session objects are easily decoded, we use key names which make no sense
@@ -17,6 +19,20 @@ class AuthException(Exception):
 
 class LoginException(AuthException):
     """Generic auth login exception."""
+
+    def __init__(self, reason):
+        """Constructor for LoginException.
+
+        Params:
+            reason: The reason it failed.
+                This will likely end up getting printed to the user,
+                so be careful.
+        """
+        super().__init__(reason)
+
+
+class InternalLoginException(AuthException):
+    """Generic auth staff login exception."""
 
     def __init__(self, reason):
         """Constructor for LoginException.
@@ -420,6 +436,107 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         last_name=last_name,
         phone=phone,
         email_verified="Y"
-    )   
+    )
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
+
+
+def internal_login(identifier, password="", override=False):
+    """
+    Performs a login.
+
+    Params:
+        identifier: Username, email, or user ID of the staff.
+        password: Plaintext password (default "")
+        override: True to override default login
+
+    Raises:
+        StaffUsersException, InternalLoginException
+
+    Returns:
+        A StaffUser object on success.
+    """
+
+    try:
+        if password is None and override is not True:
+            raise InternalLoginException("password is None")
+        if override is not True and override is not False:
+            raise InternalLoginException("override is bad")
+
+        identifier = StaffUsers._format_field(identifier)
+        password = StaffUsers._format_field(password)
+
+        if identifier == "" or password == "":
+            raise InternalLoginException("Identifier or password is blank.")
+
+        user_row = None
+
+        # Try ID first for security purposes
+        all_digits = True
+        for c in identifier:
+            if c not in "0123456789":  # ASCII digits ONLY
+                all_digits = False
+        if user_row is None and all_digits:
+            id_results = g.db.execute_d(
+                """
+                    SELECT * FROM staff
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": identifier
+                }
+            )
+            if len(id_results) == 1:
+                user_row = id_results[0]
+
+        # Try username
+
+        if user_row is None:
+            username_results = g.db.execute_d(
+                """
+                    SELECT * FROM staff
+                    WHERE
+                        username=%(username)s
+                """,
+                {
+                    "username": identifier
+                }
+            )
+            if len(username_results) == 1:
+                user_row = username_results[0]
+
+        # Try email
+
+        if user_row is None and '@' in identifier:
+            email_results = g.db.execute_d(
+                """
+                    SELECT * FROM staff
+                    WHERE
+                        email=%(email)s
+                """,
+                {
+                    "email": identifier
+                }
+            )
+            if len(email_results) == 1:
+                user_row = email_results[0]
+
+        # End of tries
+
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
+
+        if user_row is None:
+            raise InternalLoginException(generic_error)
+
+        if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
+            raise InternalLoginException(generic_error)
+
+        g.user = StaffUser(g.db, user_row)
+        session.clear()
+        session[SESSION_USER_ID_VAR] = g.user.id()
+        return g.user
+    except InternalLoginException as e:
+        raise e
+    except Exception as e:
+        raise InternalLoginException("other exception" + str(e))

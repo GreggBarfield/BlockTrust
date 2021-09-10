@@ -2,15 +2,19 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 from ..renderers.internal import internal_render
+from ..renderers.outside import outside_render
 
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+
 from ..common_exceptions import ExportException
+
 from ..utilities import auth
-from ..utilities.email import send_email
 from ..utilities import token
+from ..utilities.email import send_email
 
 from ..sectors import sectors_by_id
+import bcrypt
 
 bp = Blueprint('internal_bp', __name__)
 
@@ -66,3 +70,50 @@ def serve_internal_signup():
         return {"redirect": "/internal/dashboard"}
     except ExportException as e:
         return {"error": str(e)}
+
+
+@bp.route("/internal/login", methods=["GET"])
+def serve_internal_login():
+    return outside_render("/outside/internal_login.html")
+
+
+@bp.route("/internal/login/action", methods=["POST"])
+def serve_internal_login_action():
+    try:
+        if 'identifier' not in request.form:
+            raise ExportException("internal error, identifier missing from form")
+
+        if 'password' not in request.form:
+            raise ExportException("internal error, password missing from form")
+        try:
+            auth.internal_login(
+                identifier=request.form['identifier'],
+                password=request.form['password']
+            )
+            redirect_to = '/internal/dashboard'
+            if (
+                'requestRedirectTo' in request.form and
+                request.form['requestRedirectTo'] is not None and
+                request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
+            return jsonify({"redirect": redirect_to})
+        except auth.InternalLoginException as e:
+            raise ExportException(str(e))
+    except ExportException as e:
+        return jsonify({"error": str(e)})
+
+
+@bp.route("/internal/addnewadmin", methods=["GET"])
+def serve_add():
+    password = "abcdefghijk"
+    g.db.execute(
+        """
+        INSERT INTO staff(first_name,last_name,username,email,phone,`password`,is_admin)
+        values("Nisheet","Thakur","testadminuser","testadminuser@gmil.com","2012087908",%(password)s, 1);
+        """,
+        {
+            "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        }
+    )
+    return "Hello"
