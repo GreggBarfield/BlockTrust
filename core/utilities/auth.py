@@ -175,7 +175,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     try:
         g.db.accounts.create_account(
             user=user,
-            name="",
             company=company,
             sector=sector,
             partner=partner,
