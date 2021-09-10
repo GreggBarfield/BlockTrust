@@ -354,7 +354,7 @@ CREATE TABLE `example_db_1`.`error_logs` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `component` VARCHAR(100) NULL,
   `short_error` VARCHAR(100) NULL,
-  `long_error` VARCHAR(5000) NULL,
+  `long_error` VARCHAR(3000) NULL,
   `column_name` VARCHAR(100) NULL,
   `column_value` VARCHAR(1000) NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -368,6 +368,72 @@ ADD COLUMN `failed_attempts` INT NULL DEFAULT 0 AFTER `email_verified`,
 ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempt`,
 ADD COLUMN `locked_until_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;
 
+  /* Conner Charles 6/30/2021 */
+/* Everything down to 'final_ind' is for a normal report. Everything after that
+    are additional fields for specific reports. */
+CREATE TABLE `usda_reports` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `report_date` varchar(31) DEFAULT NULL,
+  `report_begin_date` varchar(31) DEFAULT NULL,
+  `report_end_date` varchar(51) DEFAULT NULL,
+  `published_date` varchar(31) DEFAULT NULL,
+  `office_name` varchar(101) DEFAULT NULL,
+  `office_state` varchar(31) DEFAULT NULL,
+  `office_city` varchar(101) DEFAULT NULL,
+  `office_code` varchar(10) DEFAULT NULL,
+  `market_type` varchar(101) DEFAULT NULL,
+  `market_type_category` varchar(51) DEFAULT NULL,
+  `market_location_name` varchar(101) DEFAULT NULL,
+  `market_location_state` varchar(31) DEFAULT NULL,
+  `market_location_city` varchar(51) DEFAULT NULL,
+  `slug_id` mediumint unsigned NOT NULL,
+  `slug_name` varchar(51) DEFAULT NULL,
+  `report_title` varchar(1001) DEFAULT NULL,
+  `report_group` varchar(51) DEFAULT NULL,
+  `category` varchar(51) DEFAULT NULL,
+  `commodity` varchar(51) DEFAULT NULL,
+  `class` varchar(51) DEFAULT NULL,
+  `frame` varchar(51) DEFAULT NULL,
+  `muscle_grade` varchar(10) DEFAULT NULL,
+  `quality_grade_name` varchar(30) DEFAULT NULL,
+  `lot_desc` varchar(100) DEFAULT NULL,
+  `freight` varchar(20) DEFAULT NULL,
+  `price_unit` varchar(20) DEFAULT NULL,
+  `age` varchar(30) DEFAULT NULL,
+  `pregnancy_stage` varchar(30) DEFAULT NULL,
+  `weight_collect` varchar(20) DEFAULT NULL,
+  `offspring_weight_est` varchar(10) DEFAULT NULL,
+  `dressing` varchar(20) DEFAULT NULL,
+  `yield_grade` varchar(10) DEFAULT NULL,
+  `head_count` mediumint DEFAULT NULL,
+  `avg_weight_min` float DEFAULT NULL,
+  `avg_weight_max` float DEFAULT NULL,
+  `avg_weight` float DEFAULT NULL,
+  `avg_price_min` float DEFAULT NULL,
+  `avg_price_max` float DEFAULT NULL,
+  `avg_price` float DEFAULT NULL,
+  `weight_break_low` varchar(10) DEFAULT NULL,
+  `weight_break_high` varchar(10) DEFAULT NULL,
+  `receipts` mediumint DEFAULT NULL,
+  `receipts_week_ago` mediumint DEFAULT NULL,
+  `receipts_year_ago` mediumint DEFAULT NULL,
+  `comments_commodity` text DEFAULT NULL,
+  `report_narrative` text DEFAULT NULL,
+  `final_ind` varchar(20) DEFAULT NULL,
+  `purchase_selling_desc` varchar(60) DEFAULT NULL,
+  `class_desc` varchar(40) DEFAULT NULL,
+  `grade_desc` varchar(30) DEFAULT NULL,
+  `weight_range_low` smallint DEFAULT NULL,
+  `weight_range_high` smallint DEFAULT NULL,
+  `dressed_pct` float DEFAULT NULL,
+  `price_range_low` float DEFAULT NULL,
+  `price_range_high` float DEFAULT NULL,
+  `wtd_avg_price` float DEFAULT NULL,
+  `region` varchar(30) DEFAULT NULL,
+  `current_volume` mediumint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
@@ -421,8 +487,23 @@ ALTER TABLE `example_db_1`.`account_links`
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
+/* Rohan Sureshkumar 8/20/2021 */
+CREATE TABLE `example_db_1`.`job_runs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(64) NULL,
+  `file` VARCHAR(128) NULL,
+  `routine` VARCHAR(128) NULL,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `IDX_CREATE_TIMESTAMP` (`create_timestamp` ASC) VISIBLE);
+  
 /* Rohan Sureshkumar 8/25/2021 */
 ALTER TABLE `example_db_1`.`account_links` 
 CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
+
+/* Rohan Sureshkumar 2/9/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+DROP COLUMN `name`;
