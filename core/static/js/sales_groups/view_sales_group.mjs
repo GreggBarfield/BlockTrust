@@ -137,10 +137,8 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
-
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
-
                 sendMessageButton.className = "btn btn-sm btn-primary";
                 sendMessageButton.style = "float:right"
                 sendMessageButton.textContent = "Contact Seller";

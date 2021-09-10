@@ -160,6 +160,7 @@ def serve_search_sales_groups_2():
                 },
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"],
+                "is_archived":sales_group_row["is_archived"]
                 
             })
 
