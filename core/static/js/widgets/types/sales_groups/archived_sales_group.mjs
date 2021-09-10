@@ -34,6 +34,13 @@ export class ArchivedSalesGroupWidget extends Widget {
 
     }
     displaySalesGroups(){
+        
+        if (this.sales_groups.length==0){
+            let no_sales_group=document.createElement("h3");
+            no_sales_group.textContent="No archived sales group";
+            no_sales_group.style="text-align: center"
+            this.frame.append(no_sales_group)
+        }
         for( const sales_group in this.sales_groups){
            
             this.salesGroupViewer = new SalesGroupViewer(this.sales_groups[sales_group], this.frame);
