@@ -13,7 +13,6 @@ export class MarketDataTableWidget extends Widget {
             {}
         ).then((data) => {
             this.match_rows = data.market_data;
-            console.log(this.match_rows);
             this.frame.innerHTML = "";
             this.makeTable();
         });

@@ -31,7 +31,7 @@ class USDAReports:
         """
         matching_reports = self._db.execute_d(
             """
-                SELECT * FROM usda_report_data
+                SELECT * FROM usda_reports
                 WHERE
                     id=%(id)s
             """,
@@ -53,7 +53,7 @@ class USDAReports:
         """
         all_reports = self._db.execute_d(
             """
-                SELECT * FROM usda_report_data
+                SELECT * FROM usda_reports
             """
         )
 
@@ -69,7 +69,7 @@ class USDAReports:
         result = self._db.execute_d(
             """
                 SELECT DISTINCT market_location_state 
-                FROM usda_report_data
+                FROM usda_reports
                 WHERE market_location_state is not null
             """
         )
@@ -87,7 +87,7 @@ class USDAReports:
         result = self._db.execute_d(
             """
                 SELECT DISTINCT slug_id, market_location_city
-                FROM usda_report_data
+                FROM usda_reports
                 WHERE market_location_state=%(state)s
             """,
             {
@@ -107,7 +107,7 @@ class USDAReports:
         result = self._db.execute_d(
             """
                 SELECT *
-                FROM usda_report_data 
+                FROM usda_reports 
                 WHERE slug_id=%(slug_id)s
             """,
             {
@@ -127,7 +127,7 @@ class USDAReports:
         result = self._db.execute_d(
             """
                 SELECT DISTINCT slug_id, published_date
-                FROM usda_report_data 
+                FROM usda_reports 
             """
         )
 
@@ -146,7 +146,7 @@ class USDAReports:
 
         result = self._db.execute(
             """
-                INSERT INTO usda_report_data
+                INSERT INTO usda_reports
                     (report_date, report_begin_date, report_end_date, 
                     published_date, office_name, office_state, office_city,
                     office_code, market_type, market_type_category, 
@@ -259,7 +259,7 @@ class USDAReports:
         result = self._db.execute_d(
             """
                 SELECT DISTINCT slug_id, published_date
-                FROM usda_report_data 
+                FROM usda_reports 
             """
         )
         return result

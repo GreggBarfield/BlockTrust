@@ -11,7 +11,6 @@ export class MarketDataFilterWidget extends Widget {
             {}
         ).then((data) => {
             this.state_rows = data.market_data;
-            console.log(this.state_rows);
             this.frame.innerHTML = "";
             this.makeStateDropDown();
         });
@@ -82,7 +81,6 @@ export class MarketDataFilterWidget extends Widget {
             {}
         ).then((data) => {
             this.city_rows = data.market_data;
-            console.log(this.city_rows);
             this.divCityDropDown.innerHTML = "";
 
             let cities = [];
@@ -94,28 +92,12 @@ export class MarketDataFilterWidget extends Widget {
             }
             cities.sort();
             let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
-
+            
             let self = this;
-            function createBtn() {
-                console.log(this.value);
-                console.log(this.options.selectedIndex);
-                if(this.value == "") {
-                    return;
-                }
-                let selectedItem = this.options[this.options.selectedIndex];
-                console.log(selectedItem.value);
 
-                let button = document.createElement("a");
-                button.className = "btn btn-outline-secondary btn-sm mb-0";
-                button.setAttribute("href", "/dashboard/data/market/" + 
-                    self.state + "/" + selectedItem.value);
-                button.textContent = "View";
-
-                // Put HTML in frame
-                self.divBtn.append(button);
-                self.row.append(self.divBtn);
-            }
-            $(select).on("change", createBtn);
+            $(select).on("change", function() {
+                createBtn(self, this);
+            });
 
             // Put HTML in frame
             this.row.append(this.divCityDropDown);
@@ -143,28 +125,49 @@ export class MarketDataFilterWidget extends Widget {
         let select = this.createSelect(this.divStateDropDown, "State", values)
 
         let self = this;
-        function makeCityDropDown() {
-            console.log(this.value);
-            if(this.value == "") {
-                return;
-            }
-            self.state = this.value;
 
-            self.divCityDropDown.innerHTML = '\
-            <div class="d-flex justify-content-center">\
-                <div class="spinner-border" role="status">\
-                    <span class="sr-only">Loading...</span>\
-                </div>\
-            </div>';
-
-            self.getCityData(this.value);
-
-            // Put HTML in frame
-            self.row.append(self.divCityDropDown);
-        }
-        $(select).on("change", makeCityDropDown);
+        $(select).on("change", function() {
+            makeCityDropDown(self, this);
+        });
 
         // Put HTML in frame
         this.row.append(this.divStateDropDown);
     }
+}
+
+function makeCityDropDown(self, selectSelf) {
+    if(selectSelf.value == "") {
+        return;
+    }
+
+    self.state = selectSelf.value;
+
+    self.divCityDropDown.innerHTML = '\
+    <div class="d-flex justify-content-center">\
+        <div class="spinner-border" role="status">\
+            <span class="sr-only">Loading...</span>\
+        </div>\
+    </div>';
+
+    self.getCityData();
+
+    // Put HTML in frame
+    self.row.append(self.divCityDropDown);
+}
+
+function createBtn(self, selectSelf) {
+    if(selectSelf.value == "") {
+        return;
+    }
+    let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
+
+    let button = document.createElement("a");
+    button.className = "btn btn-outline-secondary btn-sm mb-0";
+    button.setAttribute("href", "/dashboard/data/market/" + 
+        self.state + "/" + selectedItem.value);
+    button.textContent = "View";
+
+    // Put HTML in frame
+    self.divBtn.append(button);
+    self.row.append(self.divBtn);
 }

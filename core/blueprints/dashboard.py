@@ -282,12 +282,6 @@ def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
 
 
-@bp.route('/dashboard/retained-ownership', methods=['GET'])
-@crut.require_account
-def serve_retained_ownership():
-    return dashboard_render("retained-ownership.html")
-
-
 @bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
 def serve_market_state_data():

@@ -365,7 +365,7 @@ CREATE TABLE `example_db_1`.`error_logs` (
   /* Conner Charles 6/30/2021 */
 /* Everything down to 'final_ind' is for a normal report. Everything after that
     are additional fields for specific reports. */
-CREATE TABLE `usda_report_data` (
+CREATE TABLE `usda_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
   `report_date` varchar(31) DEFAULT NULL,
   `report_begin_date` varchar(31) DEFAULT NULL,
@@ -427,7 +427,7 @@ CREATE TABLE `usda_report_data` (
   `current_volume` mediumint DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-  
+
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
