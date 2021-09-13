@@ -46,7 +46,7 @@ $(document).ready(function(){
 })
 
 
-let signupForm = $("#internal_signup_form");
+let signupForm = $("#employee_signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
 
@@ -67,7 +67,7 @@ let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone")
 
 let form = new AsyncForm({
-    action: "/internal/signup/action",
+    action: "/employee/dashboard/signup/action",
     form: signupForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

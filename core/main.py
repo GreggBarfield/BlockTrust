@@ -24,7 +24,7 @@ from .config import *
 from urllib.parse import unquote_plus
 from .database.database import Database
 
-from .blueprints import dashboard, outside, widgets, stripe, shop, employees, internal
+from .blueprints import dashboard, outside, widgets, stripe, shop, employees
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth
@@ -79,7 +79,6 @@ app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
 app.register_blueprint(shop.bp)
-app.register_blueprint(internal.bp)
 app.register_blueprint(employees.bp)
 
 if debug_mode:

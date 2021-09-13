@@ -502,18 +502,6 @@ ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
 
-/* Nisheet Thakur 9/10/2021 */
-CREATE TABLE staff(
-  `id` INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `first_name` VARCHAR(127),
-  `last_name` VARCHAR(127),
-  `username` VARCHAR(127),
-  `email` VARCHAR(127),
-  `phone` VARCHAR(127),
-  `password` VARCHAR(127),
-  `is_admin` TINYINT
-);
-
 /* Rohan Sureshkumar 9/10/2021 */
 CREATE TABLE `employees` (
   `id` int NOT NULL AUTO_INCREMENT,

@@ -1,13 +1,13 @@
-{% extends "internal/standard.html" %}
+{% extends "employee/standard.html" %}
 
 {% set page_title = "Create New Account" %}
-{% set internal_locations = [("/internal/dashboard", "Create New Account")] %}
+{% set employee_locations = [("/employee/dashboard", "Create New Account")] %}
 
-{% block internal_content_header %}
+{% block employee_content_header %}
 Create New Account
-{% endblock internal_content_header %}
+{% endblock employee_content_header %}
 
-{% block internal_content %}
+{% block employee_content %}
 
 <div class="row">
     <div class="col-md">
@@ -17,7 +17,7 @@ Create New Account
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-8 mb-2">
-                            <form class="bg-white shadow p-3" id="internal_signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
+                            <form class="bg-white shadow p-3" id="employee_signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
                                 <div class="row">
                                     <h4>Company Information:</h4>
                                     <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
@@ -71,7 +71,7 @@ Create New Account
                                                     style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
                                                     data-toggle="tooltip"
                                                     data-placement="right"
-                                                    title="This is an internal number assigned by the partner organization which associates the user with their organization. May be an “account number” or “patron ID”. If you do not know, put ‘9999’. ">
+                                                    title="This is an employee number assigned by the partner organization which associates the user with their organization. May be an “account number” or “patron ID”. If you do not know, put ‘9999’. ">
                                                 </a>
                                             </label>
                                             <input type="text" class="form-control" id="signup_form_partner_id" disabled=true>
@@ -88,7 +88,7 @@ Create New Account
                                                     style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
                                                     data-toggle="tooltip"
                                                     data-placement="right"
-                                                    title="This is the name of the company or the ranch. This will identify the account, even if they have multiple users.">
+                                                    title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
                                                 </a>
                                             </label>
                                             <input type="text" class="form-control" id="signup_form_company" required>
@@ -243,7 +243,6 @@ Create New Account
                                     account...</p>
                                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
                                     error...</p>
-                                <p class="mt-2 mb-0">Looking to sign in?<a href="/login"> Right this way</a></p>
                             </form>
             
                         </div>
@@ -256,5 +255,5 @@ Create New Account
 <script type="text/javascript">
 var partners = JSON.parse('{{partners|tojson}}')
 </script>
-<script type="module" src="/static/entry_points/internal/accounts/create-new-account.mjs"></script>
-{% endblock internal_content %}
+<script type="module" src="/static/entry_points/employee/accounts/create-new-account.mjs"></script>
+{% endblock employee_content %}
