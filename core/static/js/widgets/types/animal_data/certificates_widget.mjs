@@ -27,10 +27,15 @@ export class CertificatesWidget extends Widget {
             this.first_born=""
             for ( const match of data.result.matches)
             {
-                if (match.type==20){this.match_rows.push(match)}
-                else if(match.type==11){this.wean_data=match;
-                console.log("what is ",match)}
-                else if(match.type==12){this.first_born=match}
+                if (match.type==20){
+                    this.match_rows.push(match)
+                }
+                else if(match.type==11){
+                    this.wean_data=match;
+                }
+                else if(match.type==12){
+                    this.first_born=match
+                }
             }
             this.createDisplay();
         })
