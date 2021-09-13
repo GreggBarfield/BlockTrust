@@ -25,13 +25,13 @@ class Employees:
         self._db = db
 
     def get(self, user_id):
-        """Gets a user by their ID.
+        """Gets a employee by their ID.
 
         Params:
-            user_id: User's ID
+            employee_id: employee's ID
 
         Returns:
-            A User object on success, or None on no match.
+            A employee object on success, or None on no match.
         """
         matching_users = self._db.execute_d(
             """
@@ -50,13 +50,13 @@ class Employees:
         return Employee(matching_users[0])
 
     def get_by_email(self, email):
-        """Get a user by email.
+        """Get a employee by email.
 
         Params:
-            email: The user's email
+            email: The employee's email
 
         Returns:
-            A User object on success, or None on no match.
+            A employee object on success, or None on no match.
         """
         matching_employee = self._db.execute_d(
             """
@@ -74,13 +74,13 @@ class Employees:
         return Employee(matching_employee[0])
 
     def get_by_username(self, username):
-        """Get a user by username.
+        """Get a employee by username.
 
         Params:
-            username: The user's username
+            username: The employee's username
 
         Returns:
-            A User object on success, or None on no match.
+            A employee object on success, or None on no match.
         """
         matching_employee = self._db.execute_d(
             """
