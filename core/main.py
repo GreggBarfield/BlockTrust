@@ -24,12 +24,7 @@ from .config import *
 from urllib.parse import unquote_plus
 from .database.database import Database
 
-from .blueprints import dashboard
-from .blueprints import outside
-from .blueprints import widgets
-from .blueprints import stripe
-from .blueprints import shop
-from .blueprints import internal
+from .blueprints import dashboard, outside, widgets, stripe, shop, employees, internal
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth
@@ -63,6 +58,7 @@ def before_request():
         g.api = True
     
     g.user = None
+    g.employee = None
     g.account = None
     g.is_admin = None
     auth.session_open()
@@ -84,6 +80,7 @@ app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
 app.register_blueprint(shop.bp)
 app.register_blueprint(internal.bp)
+app.register_blueprint(employees.bp)
 
 if debug_mode:
     app.run(
