@@ -19,7 +19,9 @@ def outside_render(file, args={}):
     """
     outside_standard_args = {
         "outside_standard_user_username": g.user.username() if g.user is not None else "",
-        "outside_standard_user_logged_in": g.user is not None
+        "outside_standard_user_logged_in": g.user is not None,
+        "outside_standard_employee_username": g.employee.username() if g.employee is not None else "",
+        "outside_standard_employee_logged_in": g.employee is not None
     }
     for key in args:
         if key in outside_standard_args:

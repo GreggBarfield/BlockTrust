@@ -22,6 +22,16 @@ def _require_account():
     raise RequireAccountFailed()
 
 
+class RequireEmployeeFailed(Exception):
+    pass
+
+
+def _require_employee():
+    if 'employee' in g and g.employee is not None:
+        return
+    raise RequireEmployeeFailed()
+
+
 def require_user(func):
     """Decorator to ensure a user is logged in."""
 
@@ -43,3 +53,13 @@ def require_account(func):
         return func(*args, **kwargs)
     return wrapper
 
+
+def require_employee(func):
+    """Decorator to ensure a employee is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_employee()
+        return func(*args, **kwargs)
+        
+    return wrapper
