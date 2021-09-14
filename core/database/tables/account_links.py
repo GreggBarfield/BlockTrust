@@ -12,7 +12,8 @@ class AccountLinksException(Exception):
         """
         super().__init__(reason)
 
-# account link is the link between the account in our accounts table and the account in our partner's database
+# account link is the link between the account in our accounts table and the account in our partner's database. The main reason this
+# table was created was to be able to save the affiliate id given to us by the partner even when the account owner has not signed up yet. 
 class AccountLinks:
 
     def __init__(self, db):
@@ -40,7 +41,7 @@ class AccountLinks:
         )
         if len(account_link_rows) != 1:
             raise AccountLinkException("No account link with that ID")
-        return AccountLink(self._db, account_link_rows[0])
+        return AccountLink(account_link_rows[0])
 
     def get_by_account_id(self, account_id):
         """Gets account links attached to the provided account.
@@ -59,7 +60,7 @@ class AccountLinks:
                 "account": account_id
             }
         )
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
     def get_by_company(self, company, partner_account=None, api_insert=None, insert_sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match company.
@@ -97,9 +98,9 @@ class AccountLinks:
                     )
                 raise e
             return [self.get_by_id(self._db.last_row_id())]
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_affiliate_id(self, affiliate_id, partner_account=None, api_insert=None, insert=False, data_race_protection=True):
+    def get_by_affiliate_id(self, affiliate_id, partner_account=None, api_insert=None, sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match a affiliate_id.
 
         Params:
@@ -120,7 +121,7 @@ class AccountLinks:
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(partner_account=partner_account, affiliate_id=affiliate_id, api_insert=api_insert)
+                self.insert(partner_account=partner_account, affiliate_id=affiliate_id, api_insert=api_insert, sector=sector)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
@@ -133,20 +134,17 @@ class AccountLinks:
                     )
                 raise e
             return [self.get_by_id(self._db.last_row_id())]
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def insert(self, account=None, affiliate_id_type=None, affiliate_id=None, company=None, sector=None, partner_account=None, api_insert=None):
+    def insert(self, account=None, affiliate_id=None, company=None, sector=None, partner_account=None, api_insert=None):
         """Inserts a new account link.
 
         Params:
             account: Account ID to bind to (optional)
-            affiliate_id_type: affiliate id type (not being used right now)
 
         Raises:
             AccountLinksException
         """
-        # if affiliate_id_type is not None and affiliate_id is None or affiliate_id_type is None and affiliate_id is not None:
-        #     raise AccountLinksException("affiliate_id and affiliate_id type mismatch")
 
         where_clause_statements = []
 
@@ -156,12 +154,11 @@ class AccountLinks:
         self._db.execute(
             """
                 INSERT IGNORE INTO account_links
-                    (account, affiliate_id_type, affiliate_id, company, sector, partner_account, api_insert)
-                    VALUES (%(account)s, %(affiliate_id_type)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s, %(api_insert)s)
+                    (account, affiliate_id, company, sector, partner_account, api_insert)
+                    VALUES (%(account)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s, %(api_insert)s)
             """,
             {
                 "account": account,
-                "affiliate_id_type": affiliate_id_type,
                 "affiliate_id": affiliate_id,
                 "company": company,
                 "sector": sector,
@@ -173,7 +170,7 @@ class AccountLinks:
         if self._db.row_count() != 1:
             raise AccountLinksException("Conflict with another account link. Affiliate_id", affiliate_id, "Partner_account:", partner_account, "API_INSERT:", api_insert)
 
-    def add_account_to_account_link(self, partner_id, sector, company, affiliate_id, account_id):
+    def update_account_link_with_account(self, partner_id, affiliate_id, sector, company,  account_id):
         """Updates a account link with the account id
 
         Params:
@@ -187,11 +184,14 @@ class AccountLinks:
                 SET account=%(account)s, sector=%(sector)s, company=%(company)s
                 WHERE account_links.partner_account=%(partner)s AND account_links.affiliate_id=%(affiliate_id)s
             """,
-                {
-                    "account": account_id,
-                    "sector": sector,
-                    "company": company,
-                    "partner": partner_id,
-                    "affiliate_id": affiliate_id
-                }
+            {
+                "account": account_id,
+                "sector": sector,
+                "company": company,
+                "partner": partner_id,
+                "affiliate_id": affiliate_id
+            }
         )
+        if self._db.row_count() == 0:
+            # insert the account_link
+            self.insert(account=account_id, affiliate_id=affiliate_id, company=company, sector=sector, partner_account=partner_id)

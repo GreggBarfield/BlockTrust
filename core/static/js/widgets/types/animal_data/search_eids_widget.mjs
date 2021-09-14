@@ -118,7 +118,7 @@ export class SearchEIDsWidget extends Widget {
     
             let mainTableHeadRow = document.createElement("tr");
             mainTableHead.appendChild(mainTableHeadRow);
-            const headers = ["EID number", "Visual Id", "Created Time", ""];
+            const headers = ["EID number", "Visual Id", ""];
             for (const headerText of headers) {
                 let th = document.createElement("th");
                 th.textContent = headerText;
@@ -137,13 +137,13 @@ export class SearchEIDsWidget extends Widget {
                 rowTag.appendChild(tdEID);
 
                 let tdvisualID = document.createElement("td");
-                tdvisualID.innerHTML = match.data;
+                tdvisualID.innerHTML = match.visual_id;
                 rowTag.appendChild(tdvisualID);          
 
-                let tdCreated = document.createElement("td");
-                let d = new Date(parseInt(match.created)*1000);
-                tdCreated.innerHTML = d.toLocaleString();
-                rowTag.appendChild(tdCreated);
+                // let tdCreated = document.createElement("td");
+                // let d = new Date(parseInt(match.created)*1000);
+                // tdCreated.innerHTML = d.toLocaleString();
+                // rowTag.appendChild(tdCreated);
 
                 let tdSelect = document.createElement("td");
                 rowTag.appendChild(tdSelect);
