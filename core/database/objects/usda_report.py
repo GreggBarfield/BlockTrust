@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 class USDAReport:
 
     def __init__(self, row):

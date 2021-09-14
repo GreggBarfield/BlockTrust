@@ -37,11 +37,11 @@ class UsdaDataRetriever:
         print("Size of unique new cattle reports: " + str(len(cattleReports)))
 
         for item in cattleReports:
-            response = requests.get(USDA_MANDATORY_ENDPOINT + str(item) + '/Detail', 
+            response = requests.get(USDA_MANDATORY_ENDPOINT + str(item) + '/national', 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
-            if 'message' in json_response:
+            if type(json_response) is str:
                 print('Got smaller data for: ' + str(item))
                 response = requests.get(USDA_MANDATORY_ENDPOINT + str(item), 
                     auth=(USDA_API_KEY, ''))
