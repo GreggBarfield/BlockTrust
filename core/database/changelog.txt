@@ -556,8 +556,8 @@ ALTER TABLE `example_db_1`.`matches`
 ADD COLUMN `visual_id` INT NULL DEFAULT NULL AFTER `eid`;
 
 /* Rohan Sureshkumar 9/10/2021 */
-/* Delete all data form matches table */
-DELETE FROM matches
+/* Drop matches table. Then recreate it using the 1st query above. */
+DROP table matches
 
 /* Rohan Sureshkumar 9/10/2021 */
 /* Insert packer accounts. Needs partner ILS entry in accounts */
@@ -568,3 +568,18 @@ values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
 ('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
 ('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
 ('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257)
+/* Rohan Sureshkumar 9/2/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+DROP COLUMN `name`;
+
+/* Rohan Sureshkumar 9/10/2021 */
+CREATE TABLE `employees` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `username` varchar(128) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `phone` bigint DEFAULT NULL,
+  `first_name` varchar(128) NOT NULL,
+  `last_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

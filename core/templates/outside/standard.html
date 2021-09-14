@@ -74,7 +74,7 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
               <div class="d-flex pr-2 mr-2 border-right mb-1 mb-lg-0">
                 <i class=""></i>
                 <div class="align-self-center">
-                  <span class="d-block">3515 Longmire Dr, Suite B</span>
+                  <span class="d-block">3515 Longmire Dr, Suite 157</span>
                   <span>College Station, TX 77845</span>
                 </div>
               </div>
@@ -110,34 +110,7 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
                         <a class="dropdown-item" href="/about-us/how-it-works">How it Works</a>
                       </li>
                       <li>
-                        <a class="dropdown-item" href="/about-us/pricing">Pricing</a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="/about-us/faq">FAQ</a>
-                      </li>
-                      <li>
                         <a class="dropdown-item" href="/about-us/contact-us">Contact Us</a>
-                      </li>
-
-                    </ul>
-                  </div>
-                </li>
-                <li class="nav-item active dropdown dropdown-animate" data-toggle="hover">
-                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownhome" role="button"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Our Partners
-                  </a>
-                  <!-- dropdown menu  -->
-                  <div class="dropdown-menu dropdown-menu dropdown-menu-arrow" aria-labelledby="navbarDropdownhome">
-                    <ul class="list-unstyled">
-                      <li>
-                        <a class="dropdown-item" href="/our-partners/industry-partners">Industry</a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="/our-partners/technology-partners">Technology</a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="/our-partners/research-partners">Research</a>
                       </li>
 
                     </ul>
@@ -149,7 +122,7 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
                 </li>
 
                 <li class="nav-item">
-                  <a class="nav-link" href="/shop">Tag Store</a>
+                  <a class="nav-link" href="/rfid-tags">RFID Tags</a>
                 </li>
 
                 <li class="nav-item">
@@ -161,6 +134,13 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
                   <li class="nav-item p-1 px-2 bg-black ">
                     {% if outside_standard_user_logged_in %}
                     <a class="btn btn-link text-white" href="/dashboard">
+                      Dashboard
+                    </a>&nbsp;|&nbsp;
+                    <a class="btn btn-link text-white" href="/logout">
+                      Logout
+                    </a>
+                    {% elif outside_standard_employee_logged_in %}
+                    <a class="btn btn-link text-white" href="/employee/dashboard">
                       Dashboard
                     </a>&nbsp;|&nbsp;
                     <a class="btn btn-link text-white" href="/logout">
@@ -369,7 +349,7 @@ Needs outside content
                 Address
               </span>
               <label class="text-muted mb-0">1125 Westport Drive Manhattan, KS 66502</label>
-              <label class="text-muted mb-0">3515 Longmire Dr, Suite B College Station, TX 77845</label>
+              <label class="text-muted mb-0">3515 Longmire Dr, Suite 157 College Station, TX 77845</label>
             </li>
             <li class="mb-2">
               <span class="d-block">

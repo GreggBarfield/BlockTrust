@@ -51,12 +51,11 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         if feeder_account_link.account_id() is not None:
             feeder = db.accounts.get_by_id(feeder_account_link.account_id())
         else:
-            # see if account is present but not linked. 
-            # link the account. This case should not happen because:
-            # 1. let's say we got the affiliate account from the api. Then we insert without an account. And in such a case the account will also not exist in accounts table
-            # 2. the affilliate account first comes from the sign up. This case we will create the link and it will be ready for the api to use.
-            # 3. The affiliate account comes form a SQL insert query... that is when this will be used. That is the case for our feeders/packers currently. However, this 
-            # might change once the staff portal is up and running. Probably good to keep this logic
+            # See if account is present but not linked and if so link the account. This case should never happen because:
+            # 1. Let's say we got the affiliate account from the api. Then we insert without an account. And in such a case the account will also not exist in accounts table
+            # 2. The affiliate account first comes from the sign up. This case we will create the link and it will be ready for the api to use.
+            # 3. The affiliate account comes form a SQL insert query... that is when this code will run. That is the case for our feeders/packers currently. However, this 
+            # might change once the staff portal is up and running. But still probably good to keep this logic
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account(), feeder_account_link.affiliate_id())
             if feeder is not None:
                 db.account_links.update_account_link_with_account(feeder.partner_account(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.id())
