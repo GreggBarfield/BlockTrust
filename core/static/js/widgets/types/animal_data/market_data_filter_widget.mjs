@@ -96,6 +96,7 @@ export class MarketDataFilterWidget extends Widget {
             let self = this;
 
             $(select).on("change", function() {
+                //since createBtn is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
                 createBtn(self, this);
             });
 
@@ -127,6 +128,7 @@ export class MarketDataFilterWidget extends Widget {
         let self = this;
 
         $(select).on("change", function() {
+            //since makeCityDropDown() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
             makeCityDropDown(self, this);
         });
 
@@ -135,6 +137,7 @@ export class MarketDataFilterWidget extends Widget {
     }
 }
 
+//Note that both below routines are outside the class
 function makeCityDropDown(self, selectSelf) {
     if(selectSelf.value == "") {
         return;
@@ -149,6 +152,7 @@ function makeCityDropDown(self, selectSelf) {
         </div>\
     </div>';
 
+    //class object passed in is used to invoke getCityData() method of the same class
     self.getCityData();
 
     // Put HTML in frame
