@@ -266,7 +266,7 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
+    def update_user(self, username, first=NO_VALUE, last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -278,7 +278,7 @@ class Users:
             last: last name of the user.
         Returns:
             None
-        
+
         Raises:
             UsersException
 
@@ -296,7 +296,7 @@ class Users:
             if (password != confirm_password):
                 raise UsersException("Password and Confirm password are not the same!")
         else:
-            password=NO_VALUE
+            password = NO_VALUE
 
         # Process phone number
         digits = ''.join(chr(ord('0') + i) for i in range(10))
@@ -309,37 +309,37 @@ class Users:
         # If phone is empty it is NULL
         if phone == "":
             phone = None
-        
+
         set_frags = frag()
         if first is not NO_VALUE:
             set_frags = frag(
                             set_frags,
                             "first=:first,",
-                             first=first
-                        )           
+                             first = first
+                        )
         if last is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "last=:last,",
-                             last=last
+                             last = last
                         )
         if phone is not NO_VALUE:
             set_frags = frag(
                             set_frags, 
                             "phone=:phone,",
-                             phone=phone
+                             phone = phone
                         )
         if password is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "password=:password,",
                             password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
                         )
-        
-        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
-            #check if last character in SQL is , and remove it if so
+
+        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
+            # check if last character in SQL is , and remove it if so
             if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1],set_frags[1])
+                set_frags = (set_frags[0][:-1], set_frags[1])
 
             self._db.exec_frag(   
                 frag(
@@ -347,8 +347,8 @@ class Users:
                     set_frags,
                     frag(
                         "WHERE username=:username",
-                         username= username
-                    )               
+                         username = username
+                    )
                 )
             )
 
@@ -387,4 +387,3 @@ class Users:
                     "id": user.id()
                 }
             )
-

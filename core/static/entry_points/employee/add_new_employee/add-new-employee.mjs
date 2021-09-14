@@ -12,7 +12,7 @@ let last_name = employeeForm.find("#employee_form_last");
 let phone = employeeForm.find("#employee_form_phone");
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/signup/action",
+    action: "/employee/dashboard/add-new-employee/action",
     form: employeeForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

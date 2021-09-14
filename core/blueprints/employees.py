@@ -6,6 +6,7 @@ from ..renderers.outside import outside_render
 
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.employees import EmployeesException
 
 from ..common_exceptions import ExportException
 
@@ -95,3 +96,66 @@ def serve_add():
 @crut.require_employee
 def serve_add_new_employee():
     return employee_render("/employee/add_new_employee/add-new-employee.html")
+
+
+@bp.route("/employee/dashboard/add-new-employee/action", methods=["POST"])
+def serve_add_new_employee_action():
+    try:
+        required = {
+            'first_name': None, 'last_name': None, 'phone': None, 'username': None,
+            'email': None, 'password': None, 'confirm_password': None
+        }
+        for required_field in required:
+            if required_field not in request.form:
+                raise ExportException("internal error, {} missing from form".format(required_field))
+            required[required_field] = request.form[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+            auth.employee_signup(
+                first_name=request.form['first_name'],
+                last_name=request.form['last_name'],
+                username=request.form['username'],
+                email=request.form['email'],
+                phone=request.form['phone'],
+                password=request.form['password'],
+                confirm_password=request.form['confirm_password']
+            )
+        return {"redirect": "/employee/dashboard"}
+    except (auth.SignupFailedException, EmployeesException) as e:
+        return {"error": str(e)}
+
+
+@bp.route("/employee/dashboard/view-accounts", methods=["GET"])
+@crut.require_employee
+def serve_view_account():
+    accounts = g.db.accounts.get_accounts()
+    return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
+
+
+@bp.route("/employee/dashboard/view-accounts/action", methods=["POST"])
+def serve_view_account_action():
+    redirect_to = "/employee/dashboard/view-accounts/"+request.form["account"]
+    print(request.form["account"])
+    return {"redirect": redirect_to}
+
+
+@bp.route("/employee/dashboard/view-accounts/<tok>", methods=["GET"])
+@crut.require_employee
+def serve_view_account_users(tok):
+    account_users = g.db.users.get_rows_by_account(tok)
+    return employee_render("/employee/accounts/view-account-users.html", {"account_users": account_users})
+
+
+@bp.route("/employee/dashboard/login-as-user/action", methods=["POST"])
+def serve_login_as_user_action():
+    redirect_to = "/employee/dashboard/login-as-user/"+request.form['user']
+    print(request.form['user'])
+    return {"redirect": redirect_to}
+
+
+@bp.route("/employee/dashboard/login-as-user/<tok>", methods=["GET"])
+@crut.require_employee
+def serve_login_as_user(tok):
+    auth.logout()
+    auth.employee_login_as_user(tok)
+    return redirect("/dashboard")
