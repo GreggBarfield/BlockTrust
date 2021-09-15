@@ -11,8 +11,9 @@ from ..database.tables.employees import EmployeesException
 from ..common_exceptions import ExportException
 
 from ..utilities import auth
-from ..utilities import token
 from ..utilities.email import send_email
+from ..utilities import token
+from ..renderers.email import render_email
 
 from ..sectors import sectors_by_id
 import bcrypt
@@ -72,12 +73,18 @@ def serve_employee_signup():
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
+        send_email(
+            "New BlockTrust Network account",
+            render_email("employee/new_account.html", {
+                'username': required['email']
+            }), required['email'], override=True
+        )
         return {"redirect": "/employee/dashboard"}
     except ExportException as e:
         return {"error": str(e)}
 
 
-@bp.route("/employee/addnewadmin", methods=["GET"])
+@bp.route("/employee/addnewemployee", methods=["GET"])
 def serve_add():
     password = "abcdefghijk"
     g.db.execute(
@@ -89,7 +96,7 @@ def serve_add():
             "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         }
     )
-    return "Hello"
+    return "Added Employee"
 
 
 @bp.route("/employee/dashboard/add-new-employee", methods=["GET"])
@@ -111,14 +118,14 @@ def serve_add_new_employee_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-            auth.employee_signup(
-                first_name=request.form['first_name'],
-                last_name=request.form['last_name'],
-                username=request.form['username'],
-                email=request.form['email'],
-                phone=request.form['phone'],
-                password=request.form['password'],
-                confirm_password=request.form['confirm_password']
+        auth.employee_signup(
+                first_name=required['first_name'],
+                last_name=required['last_name'],
+                username=required['username'],
+                email=required['email'],
+                phone=required['phone'],
+                password=required['password'],
+                confirm_password=required['confirm_password']
             )
         return {"redirect": "/employee/dashboard"}
     except (auth.SignupFailedException, EmployeesException) as e:
@@ -135,7 +142,6 @@ def serve_view_account():
 @bp.route("/employee/dashboard/view-accounts/action", methods=["POST"])
 def serve_view_account_action():
     redirect_to = "/employee/dashboard/view-accounts/"+request.form["account"]
-    print(request.form["account"])
     return {"redirect": redirect_to}
 
 
@@ -149,7 +155,6 @@ def serve_view_account_users(tok):
 @bp.route("/employee/dashboard/login-as-user/action", methods=["POST"])
 def serve_login_as_user_action():
     redirect_to = "/employee/dashboard/login-as-user/"+request.form['user']
-    print(request.form['user'])
     return {"redirect": redirect_to}
 
 
