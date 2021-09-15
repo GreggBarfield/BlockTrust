@@ -1,5 +1,41 @@
 /* 12/21/2020 Evan K */
 
+CREATE TABLE `matches` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `api_insert` int DEFAULT NULL,
+  `partner_account` int DEFAULT NULL,
+  `account_link` int DEFAULT NULL,
+  `eid` bigint DEFAULT NULL,
+  `visual_id` int DEFAULT NULL,
+  `grouping_id` int DEFAULT NULL,
+  `lat` double DEFAULT NULL,
+  `lon` double DEFAULT NULL,
+  `time` int DEFAULT NULL,
+  `created` int DEFAULT NULL,
+  `type` int DEFAULT NULL,
+  `debug` json DEFAULT NULL,
+  `data` json DEFAULT NULL,
+  `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `eid_lookup` (`eid`),
+  KEY `account_link_lookup` (`account_link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ CREATE TABLE `account_links` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `account` int DEFAULT NULL,
+  `partner_account` int DEFAULT NULL
+  `affiliate_id` varchar(127) DEFAULT NULL,
+  `company` varchar(127) DEFAULT NULL,
+  `sector` int DEFAULT NULL,
+  `api_insert` int DEFAULT NULL,
+  `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `find_account` (`account`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `messages` (
   `id` int NOT NULL AUTO_INCREMENT,
   `from_account` int DEFAULT NULL,
@@ -365,7 +401,7 @@ CREATE TABLE `example_db_1`.`error_logs` (
   /* Conner Charles 6/30/2021 */
 /* Everything down to 'final_ind' is for a normal report. Everything after that
     are additional fields for specific reports. */
-CREATE TABLE `usda_report_data` (
+CREATE TABLE `usda_reports` (
   `id` int NOT NULL AUTO_INCREMENT,
   `report_date` varchar(31) DEFAULT NULL,
   `report_begin_date` varchar(31) DEFAULT NULL,
@@ -427,7 +463,7 @@ CREATE TABLE `usda_report_data` (
   `current_volume` mediumint DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-  
+
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
@@ -494,7 +530,6 @@ CREATE TABLE `example_db_1`.`job_runs` (
   
 /* Rohan Sureshkumar 8/25/2021 */
 ALTER TABLE `example_db_1`.`account_links` 
-CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
@@ -522,3 +557,59 @@ CREATE TABLE connection_invites(
 /* Rohan Sureshkumar 2/9/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
+/* Rohan Sureshkumar 9/3/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+DROP COLUMN `name`;
+
+/* Rohan Sureshkumar 9/6/2021 */
+/* script to link unlinked accounts in account_links using affiliate_id. */
+UPDATE account_links AL 
+INNER JOIN accounts A 
+ON AL.affiliate_id = A.affiliate_id AND AL.partner_account = A.partner_account
+SET AL.account = a.id, AL.sector = A.sector, AL.company = A.company
+WHERE AL.account IS NULL;
+
+/* Rohan Sureshkumar 9/7/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+DROP INDEX `company_must_be_unique` ;
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `api_insert` `api_insert` INT NULL DEFAULT NULL AFTER `id`;
+
+/* Rohan Sureshkumar 9/9/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `visual_id` INT NULL DEFAULT NULL AFTER `eid`;
+
+/* Rohan Sureshkumar 9/10/2021 */
+/* You might have to set all the data in matches.raw_identifier column to NULL before running below query */
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `account` `partner_account` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `raw_identifier` `debug` JSON NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`account_links` 
+DROP COLUMN `affiliate_id_type`,
+DROP INDEX `uid_must_be_unique` ;
+
+/* Rohan Sureshkumar 9/10/2021 */
+/* Insert packer accounts. Needs partner ILS entry in accounts */
+SELECT id FROM accounts WHERE company LIKE '%ILS%' AND is_partner=1 INTO @partner_id;
+INSERT INTO accounts(affiliate_id, company,sector,partner_account,city,state,zip)
+values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
+('023','Tyson - Amarillo',7,@partner_id,'Amarillo','TX',79101),
+('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
+('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
+('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257)
+
+/* Rohan Sureshkumar 9/2/2021 */
+ALTER TABLE `example_db_1`.`accounts` 
+DROP COLUMN `name`;
+
+/* Rohan Sureshkumar 9/10/2021 */
+CREATE TABLE `employees` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `username` varchar(128) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `phone` bigint DEFAULT NULL,
+  `first_name` varchar(128) NOT NULL,
+  `last_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
