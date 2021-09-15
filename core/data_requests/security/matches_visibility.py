@@ -10,7 +10,7 @@ def apply_visibility(matches, allow_account_ids=()):
                 {
                     'id':
                     'type':
-                    'account':
+                    'partner_account':
                     'visibility':
                 }
             with eid notably missing
@@ -19,14 +19,14 @@ def apply_visibility(matches, allow_account_ids=()):
     blocked_matches = []
 
     for match in matches:
-        if match['visibility'] is True or match['account'] in allow_account_ids:
+        if match['visibility'] is True or match['partner_account'] in allow_account_ids:
             visible_matches.append(match)
         else:
             blocked_matches.append(
                 {
                     'id': match['id'],
                     'type': match['type'],
-                    'account': match['account'],
+                    'account': match['partner_account'],
                     'visibility': match['visibility']
                 }
             )

@@ -12,7 +12,7 @@ def block_key(insert):
 
 
 def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
-    account = insert["account"]
+    partner_account = insert["account"]
     api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",
@@ -51,23 +51,23 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         patronid = int(fields["patronid"])
     except ValueError as e:
         raise ExecutionException("while converting patron id: " + str(e))
-    account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=account, api_insert=api_insert, insert=True)[0].id()
+    account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=partner_account, api_insert=api_insert, insert=True)[0].id()
     eid = int(fields["electronic"])
+    visual_id = int(fields["visualid"])
 
     grouping_id = 0
-    if "ApplicationID" in fields.keys():
-        grouping_id = int(fields["ApplicationID"])
-    elif "applicatio" in fields.keys():
+    if "applicatio" in fields.keys():
         grouping_id = int(fields["applicatio"])
 
-    db.matches.types.insert_visual_id(
-        visual_id=fields["visualid"],
-        account=account,
-        account_link=account_link,
-        eid=eid,
-        grouping_id=grouping_id,
-        api_insert=api_insert
-    )
+
+    # db.matches.types.insert_visual_id(
+    #     visual_id=fields["visualid"],
+    #     account=account,
+    #     account_link=account_link,
+    #     eid=eid,
+    #     grouping_id=grouping_id,
+    #     api_insert=api_insert
+    # )
 
     weaned_object = {}
 
@@ -90,24 +90,30 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if weaned_object == {}:
         weaned_object = None
 
-    db.matches.types.insert_weaned(
-        time=all_to_unix(fields["weandate"]),
-        account=account,
-        account_link=account_link,
-        data=weaned_object,
-        eid=eid,
-        grouping_id=grouping_id,
-        api_insert=api_insert
-    )
+    wean_date = all_to_unix(fields["weandate"])
+    if wean_date is not None:
+        db.matches.types.insert_weaned(
+            time=wean_date,
+            partner_account=partner_account,
+            account_link=account_link,
+            data=weaned_object,
+            eid=eid,
+            visual_id=visual_id,
+            grouping_id=grouping_id,
+            api_insert=api_insert
+        )
 
-    db.matches.types.insert_born(
-        time=all_to_unix(fields["firstbirth"]),
-        account=account,
-        account_link=account_link,
-        eid=eid,
-        grouping_id=grouping_id,
-        api_insert=api_insert
-    )
+    birth_date = all_to_unix(fields["firstbirth"])
+    if birth_date is not None:
+        db.matches.types.insert_born(
+            time=birth_date,
+            partner_account=partner_account,
+            account_link=account_link,
+            eid=eid,
+            visual_id=visual_id,
+            grouping_id=grouping_id,
+            api_insert=api_insert
+        )
 
     sold_object = {}
     if fields['marketingm'].strip().lower() not in ('', "unknown"):
@@ -120,9 +126,10 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
 
     if sold_object != {}:
         db.matches.types.insert_sold(
-            account=account,
+            partner_account=partner_account,
             account_link=account_link,
             eid=eid,
+            visual_id=visual_id,
             time=all_to_unix(fields["marketingd"]),
             data=sold_object,
             grouping_id=grouping_id,
@@ -132,29 +139,22 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if 'zipcode' in fields and fields['zipcode'] and 'patronid' in fields and fields['patronid']:
         zipcode = str(fields['zipcode'])
         patronid = int(fields['patronid'])
-
-        if len(zipcode) >= 5 and patronid > 0:
-            f5 = zipcode[0:5]
+        f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
+        if patronid > 0:
             for d in f5:
                 if d not in "0123456789":
                     break
             else:
-                account_link = (
-                    db.account_links.get_by_affiliate_id(
-                        affiliate_id=patronid,
-                        partner_account=account,
-                        api_insert=api_insert,
-                        insert=True
-                    )[0].id()
-                )
                 lat, lon = db.zip_codes.get_lat_lon(int(f5))
                 db.matches.types.insert_sighting(
                     eid=eid,
+                    visual_id=visual_id,
                     time=all_to_unix(fields['appdate']),
                     lat=lat,
                     lon=lon,
-                    account=account,
+                    partner_account=partner_account,
                     account_link=account_link,
                     grouping_id=grouping_id,
+                    debug={"zip": f5},
                     api_insert=api_insert
                 )
