@@ -56,8 +56,8 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     visual_id = int(fields["visualid"])
 
     grouping_id = 0
-    if "ApplicationID" in fields.keys():
-        grouping_id = int(fields["ApplicationID"])
+    if "applicatio" in fields.keys():
+        grouping_id = int(fields["applicatio"])
 
 
     # db.matches.types.insert_visual_id(

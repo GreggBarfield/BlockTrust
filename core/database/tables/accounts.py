@@ -223,7 +223,7 @@ class Accounts:
         # make the first user the account admin
         account.add_user(user, 1)
         # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
         return account
 
 

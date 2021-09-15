@@ -568,6 +568,7 @@ values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
 ('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
 ('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
 ('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257)
+
 /* Rohan Sureshkumar 9/2/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
@@ -583,3 +584,8 @@ CREATE TABLE `employees` (
   `last_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/* Rohan Sureshkumar 9/15/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+DROP COLUMN `affiliate_id_type`,
+DROP INDEX `uid_must_be_unique` ;

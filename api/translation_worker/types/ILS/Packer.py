@@ -56,9 +56,9 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             # 2. The affiliate account first comes from the sign up. This case we will create the link and it will be ready for the api to use.
             # 3. The affiliate account comes form a SQL insert query... that is when this code will run. That is the case for our feeders/packers currently. However, this 
             # might change once the staff portal is up and running. But still probably good to keep this logic
-            feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account(), feeder_account_link.affiliate_id())
+            feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
             if feeder is not None:
-                db.account_links.update_account_link_with_account(feeder.partner_account(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.id())
+                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.id())
 
     # Born
     # EIDDate is not a birthday!
@@ -101,9 +101,9 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         if packer_account_link.account_id() is not None:
             packer = db.accounts.get_by_id(packer_account_link.account_id())
         else:
-            packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account(), packer_account_link.affiliate_id())
+            packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
             if packer is not None:
-                db.account_links.update_account_link_with_account(packer.partner_account(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.id())
+                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.id())
 
         if packer is not None:
             zipcode = str(packer.zip())

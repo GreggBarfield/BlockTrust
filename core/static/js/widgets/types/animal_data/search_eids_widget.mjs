@@ -140,11 +140,6 @@ export class SearchEIDsWidget extends Widget {
                 tdvisualID.innerHTML = match.visual_id;
                 rowTag.appendChild(tdvisualID);          
 
-                // let tdCreated = document.createElement("td");
-                // let d = new Date(parseInt(match.created)*1000);
-                // tdCreated.innerHTML = d.toLocaleString();
-                // rowTag.appendChild(tdCreated);
-
                 let tdSelect = document.createElement("td");
                 rowTag.appendChild(tdSelect);
                 let btnSelect = document.createElement("a");
