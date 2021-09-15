@@ -34,20 +34,20 @@ class UsdaDataRetriever:
                 elif item not in published_dates:
                     cattleReports[row['slug_id']] = row
 
-        print("Size of unique new cattle reports: " + str(len(cattleReports)))
+        print("USDADataRetriever: Size of unique new cattle reports: " + str(len(cattleReports)))
 
         for item in cattleReports:
-            response = requests.get(USDA_MANDATORY_ENDPOINT + str(item) + '/Detail', 
+            response = requests.get(USDA_MANDATORY_ENDPOINT + str(item) + '/national', 
                 auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
-            if 'message' in json_response:
-                print('Got smaller data for: ' + str(item))
+            if type(json_response) is str:
+                print('USDADataRetriever: Got smaller data for: ' + str(item))
                 response = requests.get(USDA_MANDATORY_ENDPOINT + str(item), 
                     auth=(USDA_API_KEY, ''))
                 json_response = response.json()
 
-            print("Size of cattle report id " + str(item) 
+            print("USDADataRetriever: Size of cattle report id " + str(item) 
                 + ": " + str(len(json_response['results'])))
 
             for row in json_response['results']:
@@ -81,13 +81,13 @@ class UsdaDataRetriever:
                 elif item not in published_dates:
                     reports[row['slug_id']] = row
         
-        print("Size of unique new reports: " + str(len(reports)))
+        print("USDADataRetriever: Size of unique new reports: " + str(len(reports)))
 
         for item in reports:
             response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(item), auth=(USDA_API_KEY, ''))
             json_response = response.json()
 
-            print("Size of report id " + str(item) + ": " + str(len(json_response['results'])))
+            print("USDADataRetriever: Size of report id " + str(item) + ": " + str(len(json_response['results'])))
 
             for row in json_response['results']:
                 try:

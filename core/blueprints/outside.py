@@ -10,7 +10,7 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL
 from ..sectors import sectors_by_name
 
 
@@ -207,7 +207,7 @@ def serve_contact_form_response():
             'email': request.json['email'],
             'message': request.json['message'],
         }),
-        SUPPORT_GENERAL_EMAIL
+        SUPPORT_TAG_STORE_EMAIL, override=True
     )
     return {}
 
