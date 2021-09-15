@@ -280,10 +280,25 @@ def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
 
 
-@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
-def serve_retained_ownership():
-    return dashboard_render("retained-ownership.html")
+def serve_market_state_data():
+    return dashboard_render("data/market-data-filter.html")
+
+
+@bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
+@crut.require_account
+def serve_market_data(state, slug_id):
+    stateLabel = {'market_location_state': state}
+    market_states = g.db.usda_reports.get_all_states()
+
+    if stateLabel in market_states:
+        return dashboard_render("data/market-data.html", 
+            {
+                "slug_id": slug_id,
+                "state": state
+            })
+    raise Exception("Invalid state")
 
 
 # edit user profile

@@ -165,25 +165,32 @@ export class SectorsWidget extends Widget {
             }
         }
 
-        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null) {
+        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null) {
             let numAdded = 0;
             if (combined === null) {
                 combined = [[__filter, __use]];
             }
-            for (const match_row of match_rows) {
-                for (const pair of combined) {
-                    const filter = pair[0];
-                    const use = pair[1];
-                    if (filter(match_row)) {
-                        let res = use(match_row);
-                        if (res === null) {
-                            res = "--";
+            if (matchColumn != null) {
+                let res = match_rows[0][matchColumn];
+                addData(sectorName, tabName, dataLabel, res);
+                numAdded +=1;
+            }
+            else {        
+                for (const match_row of match_rows) {
+                    for (const pair of combined) {
+                        const filter = pair[0];
+                        const use = pair[1];
+                        if (filter(match_row)) {
+                            let res = use(match_row);
+                            if (res === null) {
+                                res = "--";
+                            }
+                            addData(sectorName, tabName, dataLabel, res);
+                            numAdded += 1;
                         }
-                        addData(sectorName, tabName, dataLabel, res);
-                        numAdded += 1;
                     }
                 }
-            }
+            }   
             if (numAdded == 0) {
                 addData(sectorName, tabName, dataLabel, "");
             }
@@ -198,7 +205,7 @@ export class SectorsWidget extends Widget {
 
         // Cow-Calf info
         addField("Cow-Calf", "Demographics", "Born", filterMatchType("Born"), useTime());
-        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, [[filterMatchType("Visual ID"), useDataValue()], [filterMatchType("Visual ID Complex"), useDataValue()]]);
+        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, null, "visual_id");
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
 

@@ -135,6 +135,28 @@ class Accounts:
         if len(account_rows) != 1:
             raise AccountsException("No account found with that Stripe Customer ID.")
         return Account(self._db, account_rows[0])
+   
+    def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
+        """Gets an account using the partner and affiliate id.
+
+        Params:
+            stripe_customer_id: the stripe_customer_id of the account
+        
+        Returns:
+            An Account() object
+        """
+        account_rows = self._db.execute_d(
+            """SELECT * FROM accounts
+                WHERE partner_account=%(partner_id)s AND affiliate_id=%(affiliate_id)s
+            """,
+            {
+                "partner_id": partner_id,
+                "affiliate_id": affiliate_id
+            }
+        )
+        if len(account_rows) == 0:
+            return None
+        return Account(self._db, account_rows[0])
 
 
     def create_account(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
@@ -201,7 +223,7 @@ class Accounts:
         # make the first user the account admin
         account.add_user(user, 1)
         # Link the account appropriately in the database
-        account.update_account_links()
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
         return account
 
 
