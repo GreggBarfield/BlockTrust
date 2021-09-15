@@ -51,7 +51,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         if feeder_account_link.account_id() is not None:
             feeder = db.accounts.get_by_id(feeder_account_link.account_id())
         else:
-            # See if account is present but not linked and if so link the account. This case should never happen because:
+            # See if account is present but not linked and if so link the account. Let's go through the different scenarios:
             # 1. Let's say we got the affiliate account from the api. Then we insert without an account. And in such a case the account will also not exist in accounts table
             # 2. The affiliate account first comes from the sign up. This case we will create the link and it will be ready for the api to use.
             # 3. The affiliate account comes form a SQL insert query... that is when this code will run. That is the case for our feeders/packers currently. However, this 

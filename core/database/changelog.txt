@@ -556,8 +556,13 @@ ALTER TABLE `example_db_1`.`matches`
 ADD COLUMN `visual_id` INT NULL DEFAULT NULL AFTER `eid`;
 
 /* Rohan Sureshkumar 9/10/2021 */
-/* Drop matches table. Then recreate it using the 1st query above. */
-DROP table matches
+/* You might have to set all the data in matches.raw_identifier column to NULL before running below query */
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `account` `partner_account` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `raw_identifier` `debug` JSON NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`account_links` 
+DROP COLUMN `affiliate_id_type`,
+DROP INDEX `uid_must_be_unique` ;
 
 /* Rohan Sureshkumar 9/10/2021 */
 /* Insert packer accounts. Needs partner ILS entry in accounts */
@@ -584,8 +589,3 @@ CREATE TABLE `employees` (
   `last_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-/* Rohan Sureshkumar 9/15/2021 */
-ALTER TABLE `example_db_1`.`account_links` 
-DROP COLUMN `affiliate_id_type`,
-DROP INDEX `uid_must_be_unique` ;
