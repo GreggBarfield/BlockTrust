@@ -12,8 +12,7 @@ class AccountLinksException(Exception):
         """
         super().__init__(reason)
 
-# account link is the link between the account in our accounts table and the account in our partner's database. The main reason this
-# table was created was to be able to save the affiliate id given to us by the partner even when the account owner has not signed up yet. 
+# account link is the link between the account in our accounts table and the account in our partner's database. 
 class AccountLinks:
 
     def __init__(self, db):
@@ -153,7 +152,7 @@ class AccountLinks:
 
         self._db.execute(
             """
-                INSERT IGNORE INTO account_links
+                INSERT INTO account_links
                     (account, affiliate_id, company, sector, partner_account, api_insert)
                     VALUES (%(account)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s, %(api_insert)s)
             """,
@@ -166,9 +165,6 @@ class AccountLinks:
                 "api_insert": api_insert
             }
         )
-
-        if self._db.row_count() != 1:
-            raise AccountLinksException("Conflict with another account link. Affiliate_id", affiliate_id, "Partner_account:", partner_account, "API_INSERT:", api_insert)
 
     def update_account_link_with_account(self, partner_id, affiliate_id, sector, company,  account_id):
         """Updates a account link with the account id

@@ -48,15 +48,25 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     })
 
     try:
-        patronid = int(fields["patronid"])
-    except ValueError as e:
-        raise ExecutionException("while converting patron id: " + str(e))
-    account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=partner_account, api_insert=api_insert, insert=True)[0].id()
-    eid = int(fields["electronic"])
-    visual_id = int(fields["visualid"])
+        patronid = fields["patronid"]
+        if patronid is None or patronid == '':
+            raise Exception("patron id is none or blank")
+    except Exception as e:
+        raise ExecutionException("patron id error: " + str(e))
+    account_link = db.account_links.get_by_affiliate_id(patronid, partner_account=partner_account, api_insert=api_insert, insert=True)[0]
 
-    grouping_id = 0
-    if "applicatio" in fields.keys():
+    # See if account is present but not linked to account_links and if so link the account.
+    if account_link.account_id() is None:
+        account = db.accounts.get_by_partner_affiliate_id(account_link.partner_account_id(), account_link.affiliate_id())
+        if account is not None:
+            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(), account.id())
+
+    account_link = account_link.id()
+    eid = int(fields["electronic"])
+    visual_id = fields["visualid"] if fields["visualid"] != "" else None
+
+    grouping_id = None
+    if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
 
 
@@ -121,7 +131,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if int(fields['numberofca']) != 0:
+    if fields['numberofca'] != '':
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
@@ -136,25 +146,23 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             api_insert=api_insert
         )
 
-    if 'zipcode' in fields and fields['zipcode'] and 'patronid' in fields and fields['patronid']:
+    if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
-        patronid = int(fields['patronid'])
         f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
-        if patronid > 0:
-            for d in f5:
-                if d not in "0123456789":
-                    break
-            else:
-                lat, lon = db.zip_codes.get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
-                    eid=eid,
-                    visual_id=visual_id,
-                    time=all_to_unix(fields['appdate']),
-                    lat=lat,
-                    lon=lon,
-                    partner_account=partner_account,
-                    account_link=account_link,
-                    grouping_id=grouping_id,
-                    debug={"zip": f5},
-                    api_insert=api_insert
-                )
+        for d in f5:
+            if d not in "0123456789":
+                break
+        else:
+            lat, lon = db.zip_codes.get_lat_lon(int(f5))
+            db.matches.types.insert_sighting(
+                eid=eid,
+                visual_id=visual_id,
+                time=all_to_unix(fields['appdate']),
+                lat=lat,
+                lon=lon,
+                partner_account=partner_account,
+                account_link=account_link,
+                grouping_id=grouping_id,
+                debug={"zip": f5},
+                api_insert=api_insert
+            )
