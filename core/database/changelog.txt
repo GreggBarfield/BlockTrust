@@ -585,8 +585,6 @@ CREATE TABLE `employees` (
   `last_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-<<<<<<< HEAD
-=======
 
 /* Rohan Sureshkumar 9/15/2021 */
 /* Creating foreign keys in matches and account_links */
@@ -637,4 +635,3 @@ ADD CONSTRAINT `fk_account_links_account_id_accounts`
 /* Rohan Sureshkumar 9/16/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 CHANGE COLUMN `visual_id` `visual_id` VARCHAR(16) NULL DEFAULT NULL ;
->>>>>>> 9b294af3af7cfe50d11dae57cb70aead872cab2a
