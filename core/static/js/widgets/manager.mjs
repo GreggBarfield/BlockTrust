@@ -18,8 +18,10 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 import { SustainabilitySummaryWidget } from "./types/sustainability/sustainability_summary.mjs";
+import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 
 
 // Immediately invoked
@@ -54,8 +56,10 @@ import { SustainabilitySummaryWidget } from "./types/sustainability/sustainabili
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    attach("market data table", MarketDataTableWidget);
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
     attach("sustainability summary", SustainabilitySummaryWidget);
+    attach("market data filter table", MarketDataFilterWidget);
 
     // Find widgets
     $(".widget").each(function () {

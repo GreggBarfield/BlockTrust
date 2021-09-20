@@ -79,7 +79,6 @@ def serve_accounts_new_account_action():
                 raise ExportException("Sector ID not recognized.")
             account = g.db.accounts.create_account(
                 user=g.user,
-                name=required['name'],
                 company=required['company'],
                 sector=required['sector'],
             )
@@ -280,10 +279,25 @@ def serve_sustainability_survey():
     return dashboard_render("sustainability/sustainability_questionaire.html")
 
 
-@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
-def serve_retained_ownership():
-    return dashboard_render("retained-ownership.html")
+def serve_market_state_data():
+    return dashboard_render("data/market-data-filter.html")
+
+
+@bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
+@crut.require_account
+def serve_market_data(state, slug_id):
+    stateLabel = {'market_location_state': state}
+    market_states = g.db.usda_reports.get_all_states()
+
+    if stateLabel in market_states:
+        return dashboard_render("data/market-data.html", 
+            {
+                "slug_id": slug_id,
+                "state": state
+            })
+    raise Exception("Invalid state")
 
 
 # edit user profile
