@@ -27,11 +27,12 @@ try:
     parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=1)
 
     args = parser.parse_args()
+    db = Database(MYSQL_CONFIG)
 
     def threaded_function():
         try:
             run(
-                Database(MYSQL_CONFIG),
+                db,
                 InsertsModel(API_MYSQL_CONFIG),
                 verbose=args.verbose,
                 insert_id=args.id
@@ -55,4 +56,7 @@ try:
     for thread in threads:
         thread.join()
 except Exception as e:
-    ErrorLogs(Database(MYSQL_CONFIG)).insert_error_log("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+    print("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+    ErrorLogs(db).insert_error_log("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+finally:
+    db.close()

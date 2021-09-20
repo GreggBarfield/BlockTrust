@@ -33,9 +33,9 @@ try:
                 t = Thread(target=get_usda_data, name="USDAData", args=[Database(MYSQL_CONFIG)])
                 t.start()
                 threads.append(t)
-                print('Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
+                print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
-        print("Sleeping for 30 mins. Current_time:", current_time)
+        print("Main: Sleeping for 30 mins. Current_time:", current_time)
         time.sleep(1800)
 except Exception as e:
     print(e.__class__.__name__ + ": " + str(e), traceback.format_exc())
