@@ -226,16 +226,20 @@ class Accounts:
         self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
         return account
 
-
-    def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-        phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+    def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE, address=NO_VALUE):
         """Updates an account.
 
         Params:
             account_id: id of the account to update
             name: the account name
             company: the company name
-            sector: the sector number
+            sector_id: the sector number
+            address: Account address
+            city: Account city
+            state: Account state
+            zip: Account zip
+            phone: Phone number specified for the account
             token: token that we give the customer to use our apis
             stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
@@ -259,6 +263,12 @@ class Accounts:
                             set_frags,
                             "affiliate_id=:affiliate_id,",
                             affiliate_id=affiliate_id
+                        )
+        if address is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "address=:address,",
+                            address=address
                         )
         if city is not NO_VALUE:
             set_frags = frag(

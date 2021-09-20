@@ -17,6 +17,7 @@ from ..renderers.email import render_email
 
 from ..sectors import sectors_by_id
 import bcrypt
+import json
 from ..utilities import crut, auth
 
 
@@ -164,3 +165,36 @@ def serve_login_as_user(tok):
     auth.logout()
     auth.employee_login_as_user(tok)
     return redirect("/dashboard")
+
+
+@bp.route("/employee/dashboard/edit-an-account", methods=["GET"])
+@crut.require_employee
+def serve_edit_account():
+    accounts = g.db.accounts.get_accounts()
+    return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
+
+
+@bp.route("/employee/dashboard/edit-an-account/action", methods=["POST"])
+def serve_edit_account_action():
+    redirect_to = "/employee/dashboard/edit-an-account/"+request.form['account']
+    return {"redirect": redirect_to}
+
+
+@bp.route("/employee/dashboard/edit-an-account/<tok>", methods=["GET"])
+@crut.require_employee
+def serve_edit_selected_account(tok):
+    account_row = g.db.accounts.get_by_id(tok)
+    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
+
+
+@bp.route("/employee/dashboard/edit-an-account/apply-changes", methods=["POST"])
+def serve_apply_changes_to_account():
+    g.db.accounts.update_account(
+        account_id=request.form["id"],
+        company=request.form["company"],
+        address=request.form["address"],
+        city=request.form["city"],
+        state=request.form["state"],
+        zip=request.form["zip_code"]
+    )
+    return {"redirect": "/employee/dashboard"}
