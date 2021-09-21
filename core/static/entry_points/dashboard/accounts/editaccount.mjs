@@ -1,1 +1,0 @@
-import {AsyncForm} from '/static/global/async_form.mjs';

@@ -292,12 +292,6 @@ def serve_sustainability_summary():
 def serve_retained_ownership():
     return dashboard_render("retained-ownership.html")
 
-# edit account profile
-@bp.route('/dashboard/edit/editaccount', methods=['GET', 'POST'])
-@crut.require_user
-def serve_edit_editaccount():
-    #TODO: account update method
-    return dashboard_render("/dashboard/accounts/editaccount.html", {"account": g.account.id()})
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
