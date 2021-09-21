@@ -1,5 +1,6 @@
 from ...match_types import match_types_by_name
 from . import matches
+from ...utilities.blockchain import blockchain_helper
 
 
 class MatchTypes:
@@ -175,7 +176,7 @@ class MatchTypes:
         )
 
     def _generic_insert(
-        self, eid, type_int, partner_account, visual_id=None,  grouping_id=None, data=None, account_link=None, lat=None,
+        self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
         lon=None, time=None, debug=None, api_insert=None
     ):
         """Passes data to Matches.insert
@@ -183,17 +184,55 @@ class MatchTypes:
         Params:
             data: json-serializable data
         """
-        self._matches.insert(
-            eid=eid,
-            visual_id=visual_id,
-            type_int=type_int,
-            grouping_id=grouping_id,
-            data=data,
-            partner_account=partner_account,
-            account_link=account_link,
-            lat=lat,
-            lon=lon,
-            time=time,
-            debug=debug,
-            api_insert=api_insert
-        )
+        match_values = {
+                "eid": eid,
+                "visual_id": visual_id,
+                "type": type_int,
+                "grouping_id": grouping_id,
+                "data": data,
+                "partner_account": partner_account,
+                "account_link": account_link,
+                "lat": lat,
+                "lon": lon,
+                "time": time
+            }
+        match = self._matches.get_match(eid=eid, visual_id=visual_id, type_int=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
+                                            account_link=account_link, lat=lat, lon=lon, time=time)
+        if match is not None:
+            print("match ID: ", match["id"])
+        else:
+            print("No match")
+
+        if match is None:
+            # Insert a match only if match doesn't already exist
+            bc_hash = blockchain_helper.generate_bc_hash(match_values)
+            bc_transaction_id = blockchain_helper.transmit(bc_hash)
+
+            self._matches.insert(
+                eid=eid,
+                visual_id=visual_id,
+                type_int=type_int,
+                grouping_id=grouping_id,
+                data=data,
+                partner_account=partner_account,
+                account_link=account_link,
+                lat=lat,
+                lon=lon,
+                time=time,
+                debug=debug,
+                api_insert=api_insert,
+                bc_transaction_id=bc_transaction_id,
+                bc_hash=bc_hash if bc_transaction_id is not None else None
+            )
+        elif match["bc_transaction_id"] is None:
+            # check if blockchain upload is done and if not do it
+            print("Match is found but bc upload not done. Doing the bc upload.")
+            bc_hash = blockchain_helper.generate_bc_hash(match_values)
+            bc_transaction_id = blockchain_helper.transmit(bc_hash)
+
+            if bc_transaction_id is not None:
+                self._matches.update(
+                    id=match["id"],
+                    bc_transaction_id=bc_transaction_id,
+                    bc_hash=bc_hash
+                )

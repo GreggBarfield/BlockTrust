@@ -643,3 +643,8 @@ CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
 
 /* Nisheet Thakur 9/20/2021 */
 UPDATE products SET pic_1='FST_Strip_Tags_1.png' WHERE id=7;
+
+/* Rohan Sureshkumar 9/17/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,
+ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;

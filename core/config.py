@@ -82,3 +82,6 @@ USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
 USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
 
 FLATFILE_LICENSE = config_file["flatfile_license"]
+
+BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
+BLOCKCHAIN_UPLOADS = config_file["blockchain"]["upload"]
