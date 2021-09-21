@@ -640,3 +640,6 @@ ALTER TABLE `example_db_1`.`api_inserts`
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
 ALTER TABLE `example_db_1`.`api_inserts` 
 CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+/* Nisheet Thakur 9/20/2021 */
+UPDATE products SET pic_1='FST_Strip_Tags_1.png' WHERE id=7;

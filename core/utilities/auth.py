@@ -365,7 +365,7 @@ def login(identifier, password="", override=False):
             raise LoginException(generic_error)
         # To check if the user profile being accessed has a verified email
 
-        if user_row['email_verified'] == 'N':
+        if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 

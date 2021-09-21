@@ -22,10 +22,10 @@ class User:
         return self._row['id']
 
     def first(self):
-        return self._row['first']
+        return self._row['first_name']
 
     def last(self):
-        return self._row['last']
+        return self._row['last_name']
 
     def email(self):
         return self._row['email']

@@ -166,9 +166,9 @@ class Users:
             }
         )
         if len(matching_user) > 0:
-            return matching_user[0]['email_verified']
+            return matching_user[0]['is_email_verified']
         else:
-            return "N"
+            return 0
 
     @staticmethod
     def _format_field(field):
