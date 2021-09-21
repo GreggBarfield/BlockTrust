@@ -54,7 +54,6 @@ def serve_apply_coupon():
 def create_order():
     try:
         data = json.loads(request.data)
-
         order_details = eval(data["orderDetails"])
         # Adding order to orders table and getting current order id from orders table
         order_id = g.db.orders.add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
@@ -77,7 +76,7 @@ def update_order():
         # Updating the orders table if payment goes through
         g.db.orders.update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
-        order_details = eval(data["orderDetails"])               
+        order_details = eval(data["orderDetails"])
         # Once payment goes through sending email to confirm order to buyer
         send_tag_store_email(
             "Tag Store Purchase Summary",

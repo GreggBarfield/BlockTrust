@@ -44,6 +44,7 @@ $( "#loggedInCheckoutForm" ).submit(function( event ) {
         discountString=localStorage.getItem("discount")
     }
     var values = $(this).serializeArray();
+    console.log(values);
     var order={
         first_name: values[0].value,
         last_name: values[1].value,
@@ -54,6 +55,7 @@ $( "#loggedInCheckoutForm" ).submit(function( event ) {
         city: values[6].value,
         state: values[7].value,
         zip_code: values[8].value,
+        premise_id: values[9].value,
         shoppingCart: shoppingCartString,
         total_price:totalPriceString,
         total_tax:totalTaxString,
@@ -65,4 +67,18 @@ $( "#loggedInCheckoutForm" ).submit(function( event ) {
     //partner_id must be set in the parent page
     window.location.href = '/dashboard/checkout_payment';
     return false;
+});
+
+$(document).ready(function() {
+    if(localStorage.shoppingCart){
+        var shopCartString=localStorage.getItem('shoppingCart');
+        var shopCart= JSON.parse(shopCartString)
+        if(1 in shopCart || 2 in shopCart){
+           $("#premise_id").prop('disabled', false); 
+        }
+        else{
+            $("#premise_id").prop('disabled', true);
+        }
+    }
+
 });

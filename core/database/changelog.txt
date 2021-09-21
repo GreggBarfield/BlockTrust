@@ -648,3 +648,7 @@ UPDATE products SET pic_1='FST_Strip_Tags_1.png' WHERE id=7;
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,
 ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;
+
+/* Nisheet Thakur 9/21/2021 */
+ALTER TABLE `example_db_1`.`orders`
+ADD `premise_id` VARCHAR(127);

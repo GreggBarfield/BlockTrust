@@ -3,7 +3,7 @@
 {% set page_title = "Tag Store"| string %}
 
 {% block dashboard_content_header %}
-<h1 class="text-black mb-1 text-center">BlockTrust Network Tag Store</h1>
+<h1 class="text-black mb-1 text-center"></h1>
 {% endblock dashboard_content_header %}
 
 {% block dashboard_banner %}
@@ -27,10 +27,15 @@
 
 {% block dashboard_content %}
 <section id="gallery" class="p-0 line-effect">
+    <div class="card">
     <div class="container">
+            <div class="card-header">
+            <h3 class="text-black mb-1">BlockTrust Network Tag Store</h3>
             <div class="col-md-12 text-right">
                 <button class="btn btn-outline-primary rectangle m-1" id="proceedButton">VIEW CART&nbsp;<i class="fas fa-shopping-cart"></i></button>
-            </div>           
+            </div>
+            </div>
+                       
             <div class="container">
                 <ul  class="row gallery line-effect list-unstyled mb-0" id="grid">
                     {% for product in allProductData %}
@@ -106,7 +111,7 @@
             {% endfor %}
 
     
-
+        </div>
 </section>
 <script type="module" src="/static/entry_points/dashboard/shop/shop_homepage.mjs"></script>
 {% endblock dashboard_content %}
