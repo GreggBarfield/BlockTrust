@@ -1,0 +1,22 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/editaccount", "Edit Account")] %}
+
+{% block dashboard_content_header %}
+Edit Account
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 text-center">
+            <div class="mb-3">
+                <h4>Edit Account Info</h4>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/account/editaccount.mjs" ></script> 
+{% endblock dashboard_content %}
