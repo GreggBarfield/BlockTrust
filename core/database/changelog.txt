@@ -637,11 +637,15 @@ ALTER TABLE `example_db_1`.`matches`
 CHANGE COLUMN `visual_id` `visual_id` VARCHAR(16) NULL DEFAULT NULL ;
 
 /* Nisheet Thakur 9/16/2021 */
+ALTER TABLE `example_db_1`.`users`
+ADD `is_email_verified` TINYINT DEFAULT 0;
+
+UPDATE `example_db_1`.`users`
+SET is_email_verified=1 
+WHERE email_verified="Y";
+
 ALTER TABLE `example_db_1`.`users` 
 DROP COLUMN `email_verified`;
-
-ALTER TABLE `example_db_1`.`users`
-ADD `is_email_verified` TINYINT(5);
 
 ALTER TABLE `example_db_1`.`users`
 RENAME COLUMN `first` TO `first_name`;
