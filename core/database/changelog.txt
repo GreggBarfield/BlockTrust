@@ -535,12 +535,8 @@ ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
 /* Conner Charles 8/26/2021 */
 ALTER TABLE `example_db_1`.`sustainability` 
-CHANGE COLUMN `created_timestamp` `created_timestamp` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP;
-CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` DATETIME NULL DEFAULT NULL;
-
-/* Rohan Sureshkumar 9/2/2021 */
-ALTER TABLE `example_db_1`.`accounts` 
-DROP COLUMN `name`;
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 
 /* Rohan Sureshkumar 9/3/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
