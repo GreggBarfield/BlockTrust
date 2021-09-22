@@ -1,4 +1,5 @@
 from .accounts import Accounts
+from .. import database
 
 
 class ConnectionException(Exception):
@@ -15,7 +16,7 @@ class ConnectionException(Exception):
 
 class Connections:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def get_account_connections(self, account_id):
