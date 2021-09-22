@@ -24,6 +24,7 @@ class MatchTypes:
             **kwargs
         )
 
+    # Deprecated 9/22/21
     def insert_visual_id(self, visual_id, **kwargs):
         """Insert a visual ID.
 
@@ -175,7 +176,7 @@ class MatchTypes:
         )
 
     def _generic_insert(
-        self, eid, type_int, partner_account, visual_id=None,  grouping_id=None, data=None, account_link=None, lat=None,
+        self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
         lon=None, time=None, debug=None, api_insert=None
     ):
         """Passes data to Matches.insert
@@ -183,17 +184,23 @@ class MatchTypes:
         Params:
             data: json-serializable data
         """
-        self._matches.insert(
-            eid=eid,
-            visual_id=visual_id,
-            type_int=type_int,
-            grouping_id=grouping_id,
-            data=data,
-            partner_account=partner_account,
-            account_link=account_link,
-            lat=lat,
-            lon=lon,
-            time=time,
-            debug=debug,
-            api_insert=api_insert
-        )
+        match = self._matches.get_match(eid=eid, visual_id=visual_id, type_int=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
+                                            account_link=account_link, lat=lat, lon=lon, time=time, selectColumns=["id"])
+        if match is not None:
+            print("Match exists. Match ID: ", match["id"])
+        else:
+            # Insert a match only if match doesn't already exist
+            self._matches.insert(
+                eid=eid,
+                visual_id=visual_id,
+                type_int=type_int,
+                grouping_id=grouping_id,
+                data=data,
+                partner_account=partner_account,
+                account_link=account_link,
+                lat=lat,
+                lon=lon,
+                time=time,
+                debug=debug,
+                api_insert=api_insert
+            )

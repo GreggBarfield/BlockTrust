@@ -25,7 +25,7 @@ CREATE TABLE `matches` (
  CREATE TABLE `account_links` (
   `id` int NOT NULL AUTO_INCREMENT,
   `account` int DEFAULT NULL,
-  `partner_account` int DEFAULT NULL
+  `partner_account` int DEFAULT NULL,
   `affiliate_id` varchar(127) DEFAULT NULL,
   `company` varchar(127) DEFAULT NULL,
   `sector` int DEFAULT NULL,
@@ -596,11 +596,7 @@ values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
 ('023','Tyson - Amarillo',7,@partner_id,'Amarillo','TX',79101),
 ('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
 ('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
-('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257)
-
-/* Rohan Sureshkumar 9/2/2021 */
-ALTER TABLE `example_db_1`.`accounts` 
-DROP COLUMN `name`;
+('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257);
 
 /* Rohan Sureshkumar 9/10/2021 */
 CREATE TABLE `employees` (
@@ -613,3 +609,79 @@ CREATE TABLE `employees` (
   `last_name` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/* Rohan Sureshkumar 9/15/2021 */
+/* Creating foreign keys in matches and account_links */
+/* Naming convention: fk_childtablename_childtablecolumn_parenttablecolumn_parenttablename */
+ALTER TABLE `example_db_1`.`accounts` 
+CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `fk_matches_account_link_id_account_links_idx` (`account_link` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`matches` 
+ADD CONSTRAINT `fk_matches_account_link_id_account_links`
+  FOREIGN KEY (`account_link`)
+  REFERENCES `example_db_1`.`account_links` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `fk_matches_partner_account_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`matches` 
+ADD CONSTRAINT `fk_matches_partner_account_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`account_links` 
+ADD INDEX `fk_account_links_partner_account_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`account_links` 
+ADD CONSTRAINT `fk_account_links_partner_account_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`account_links` 
+ADD INDEX `fk_account_links_account_id_accounts_idx` (`account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`account_links` 
+ADD CONSTRAINT `fk_account_links_account_id_accounts`
+  FOREIGN KEY (`account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 9/16/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `visual_id` `visual_id` VARCHAR(16) NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
+ALTER TABLE `example_db_1`.`api_inserts` 
+CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+/* Nisheet Thakur 9/16/2021 */
+ALTER TABLE `example_db_1`.`users`
+ADD `is_email_verified` TINYINT DEFAULT 0;
+
+UPDATE `example_db_1`.`users`
+SET is_email_verified=1 
+WHERE email_verified="Y";
+
+ALTER TABLE `example_db_1`.`users` 
+DROP COLUMN `email_verified`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `first` TO `first_name`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `last` TO `last_name`;
+
+/* Rohan Sureshkumar 9/17/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,
+ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;
