@@ -2,6 +2,7 @@ import bcrypt
 from flask import g, session
 from ..database.tables.users import Users
 from ..database.objects.user import User
+from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
@@ -197,7 +198,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified="N"
+        email_verified=0
     )
 
     try:
@@ -379,7 +380,7 @@ def login(identifier, password="", override=False):
             raise LoginException(generic_error)
         # To check if the user profile being accessed has a verified email
 
-        if user_row['email_verified'] == 'N':
+        if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
@@ -391,7 +392,7 @@ def login(identifier, password="", override=False):
         raise e
     except EmailNotVerifiedException as e:
         raise e
-    except Users.UsersException as e:
+    except UsersException as e:
         raise e
     except Exception as e:
         raise LoginException("other exception")
@@ -525,8 +526,8 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         first_name=first_name,
         last_name=last_name,
         phone=phone,
-        email_verified="Y"
-    )
+        email_verified=1
+    )  
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
 
@@ -535,7 +536,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
     """
     Params:
         first_name: Employee first name
-        last_name: EMployee last name
+        last_name: Employee last name
         email: Employee email
         phone: Employee phone number
         username: Employee username
