@@ -644,6 +644,23 @@ CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
 /* Nisheet Thakur 9/20/2021 */
 UPDATE products SET pic_1='FST_Strip_Tags_1.png' WHERE id=7;
 
+/* Nisheet Thakur 9/16/2021 */
+ALTER TABLE `example_db_1`.`users`
+ADD `is_email_verified` TINYINT DEFAULT 0;
+
+UPDATE `example_db_1`.`users`
+SET is_email_verified=1 
+WHERE email_verified="Y";
+
+ALTER TABLE `example_db_1`.`users` 
+DROP COLUMN `email_verified`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `first` TO `first_name`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `last` TO `last_name`;
+
 /* Rohan Sureshkumar 9/17/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,

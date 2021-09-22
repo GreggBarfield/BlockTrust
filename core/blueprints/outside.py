@@ -231,7 +231,7 @@ def serve_password_request_action():
     user = g.db.users.get_by_email(request.form['email'])
     if user is None:
         return {"error": "Sorry, we couldn't find this email address"}
-    elif user.email_verified() != "Y":
+    elif user.is_email_verified() != 1:
         return {"error": "Sorry, this user does not have a verified email address"}
     else:
         # Generating token identifier for changing password securely
