@@ -73,7 +73,7 @@ $(document).ready(function() {
     if(localStorage.shoppingCart){
         var shopCartString=localStorage.getItem('shoppingCart');
         var shopCart= JSON.parse(shopCartString)
-        if(1 in shopCart || 2 in shopCart){
+        if(2 in shopCart){
            $("#premise_id").prop('disabled', false); 
         }
         else{
