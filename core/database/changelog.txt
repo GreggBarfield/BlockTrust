@@ -635,6 +635,10 @@ ADD CONSTRAINT `fk_account_links_account_id_accounts`
 /* Rohan Sureshkumar 9/16/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 CHANGE COLUMN `visual_id` `visual_id` VARCHAR(16) NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
+ALTER TABLE `example_db_1`.`api_inserts` 
+CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
 
 /* Nisheet Thakur 9/16/2021 */
 ALTER TABLE `example_db_1`.`users`
@@ -652,10 +656,6 @@ RENAME COLUMN `first` TO `first_name`;
 
 ALTER TABLE `example_db_1`.`users`
 RENAME COLUMN `last` TO `last_name`;
-ALTER TABLE `example_db_1`.`api_inserts` 
-ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
-ALTER TABLE `example_db_1`.`api_inserts` 
-CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
 
 /* Rohan Sureshkumar 9/17/2021 */
 ALTER TABLE `example_db_1`.`matches` 
