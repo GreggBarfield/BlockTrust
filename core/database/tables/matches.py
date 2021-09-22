@@ -119,13 +119,19 @@ class Matches:
             )
         ))
 
-    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None, time=None):
+    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
+                  time=None, selectColumns=[]):
         """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
 
         Returns:
             The match record if found else None
         """
-        query_string_list = ["SELECT * FROM matches WHERE eid= %(eid)s"]
+        if len(selectColumns) > 0:
+            selectColumns = ", ".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
         query_values = {"eid": eid}
 
         if(visual_id is not None):
@@ -218,24 +224,6 @@ class Matches:
                 "bc_hash": bc_hash
             }
         )
-
-    def update(self, id, bc_transaction_id, bc_hash):
-        """Updates the match record. Only supporting updation of block chain values for matches which were not initially inserted into the block chain
-
-        Returns:
-        The number of rows updated
-        """
-        self._db.execute(
-            """
-                UPDATE matches SET bc_transaction_id=%(bc_transaction_id)s, bc_hash=%(bc_hash)s WHERE id=%(id)s;
-            """,
-            {
-                'bc_transaction_id': bc_transaction_id,
-                'bc_hash': bc_hash,
-                'id': id
-            }
-        )
-        return self._db.row_count()
 
     def get_count_eid_distinct(self):
         """Count the number of distinct EIDs in the database.

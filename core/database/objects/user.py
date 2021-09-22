@@ -1,10 +1,9 @@
 from copy import deepcopy
-from .. import database
 
 
 class User:
 
-    def __init__(self, db: 'database.Database', row):
+    def __init__(self, db, row):
         """User constructor.
 
         Params:
