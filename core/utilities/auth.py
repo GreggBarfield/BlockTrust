@@ -561,7 +561,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise SignupFailedException("The passwords you entered were not identical.")
 
     try:
-        g.db.employees.create_employee(
+        Employees(g.db).create_employee(
             first_name=first_name,
             last_name=last_name,
             email=email,

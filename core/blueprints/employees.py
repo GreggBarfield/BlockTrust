@@ -90,7 +90,7 @@ def serve_add():
     g.db.execute(
         """
         INSERT INTO employees(first_name,last_name,username,email,phone,`password`)
-        values("Nisheet","Thakur","testadminuser","testadminuser@gmil.com","2012087908",%(password)s);
+        values("John","Doe","testadminuser","testadminuser@gmil.com","2012057555",%(password)s);
         """,
         {
             "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
