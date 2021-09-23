@@ -1,6 +1,11 @@
 from .accounts import Accounts
 from .. import database
 
+connection_status = {
+    "Pending": 0,
+    "Connected": 1,
+    "Declined": 2
+}
 
 class ConnectionException(Exception):
     """Generic user exception."""
