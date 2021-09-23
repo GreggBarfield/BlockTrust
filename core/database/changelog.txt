@@ -688,3 +688,10 @@ RENAME COLUMN `last` TO `last_name`;
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,
 ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;
+
+/* Rohan Sureshkumar 9/21/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_upload` TINYINT NOT NULL DEFAULT 0 AFTER `bc_hash`,
+ADD INDEX `bc_upload` (`bc_upload` ASC) VISIBLE;
+UPDATE matches SET bc_upload=1  
+WHERE bc_transaction_id IS NOT NULL;
