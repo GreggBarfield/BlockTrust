@@ -1,4 +1,4 @@
-from core.config import (BLOCKCHAIN_BATCH_SIZE)
+from core.config import (BLOCKCHAIN_BATCH_SIZE, BLOCKCHAIN_UPLOADS)
 from core.database.tables.error_logs import ErrorLogs
 import traceback
 from core.utilities.blockchain import blockchain_helper
@@ -11,6 +11,9 @@ class Blockchain:
         self._db = db
 
     def insert_matches_to_bc(self):
+        if not BLOCKCHAIN_UPLOADS:
+            print("Blockchain thread: Blockchain uploads turned off, exiting")
+            return
         while(True):
             matches_to_be_uploaded = self.get_next_batch_of_matches(BLOCKCHAIN_BATCH_SIZE)
             if len(matches_to_be_uploaded) > 0:
@@ -34,7 +37,6 @@ class Blockchain:
                     hash_and_match_ids.append((hash, m["id"]))
 
                 bc_transaction_id = blockchain_helper.transmit(hashes)
-
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
