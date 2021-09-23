@@ -535,25 +535,28 @@ ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
 /* Nisheet Thakur 8/31/2021 */
 CREATE TABLE connections(
-  `id` INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `first_account_id` INT,
-  `second_account_id` INT,
-  `first_account_name` VARCHAR(127),
-  `second_account_name` VARCHAR(127),
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `from_account_id` INT,
+  `to_account_id` INT,
+  `from_account_name` VARCHAR(127),
+  `to_account_name` VARCHAR(127),
   `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` INT
+  `status` INT,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
 
 /* Nisheet Thakur 9/1/2021 */
 CREATE TABLE connection_invites(
-  `id` INT(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `from_account` INT,
   `company_sector` INT,
   `company_name` VARCHAR(127),
   `company_contact` VARCHAR(127),
   `company_email` VARCHAR(127),
-  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
 /* Rohan Sureshkumar 2/9/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;

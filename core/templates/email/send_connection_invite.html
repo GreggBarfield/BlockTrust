@@ -1,5 +1,4 @@
 {% extends "email/standard.html" %}
-
 {% block email_standard_center %}
 <table>
     <tr>
@@ -9,10 +8,7 @@
     </tr>
 </table>
 {% endblock email_standard_center %}
-
 {% block email_standard_subdescription %}
-
-
 <br>
 <div style="border-left: 1px solid black;padding-left:20px;">
     <p>You have received a connection request from {{account_company}}. Please sign up using the link below. </p>
@@ -21,7 +17,5 @@
     <p>Thank you!</p>
 </div>
 <br>
-
-<br><br>
 (Please don't respond to this email.)<br>
 {% endblock email_standard_subdescription %}

@@ -27,11 +27,20 @@ Connections
                 </thead>
             <tbody>  
             {% for connection in account_connections %}
+                    {% if connection.from_account_id == dashboard_standard_account %}
                     <tr>
-                        <td>{{connection.second_account_id}}</td>
-                        <td>{{connection.second_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.friend_account_id}}>View Profile</button></td>
+                        <td>{{connection.to_account_id}}</td>
+                        <td>{{connection.to_account_name}}</td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.to_account_id}}>View Profile</button></td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td>{{connection.from_account_id}}</td>
+                        <td>{{connection.from_account_name}}</td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.from_account_id}}>View Profile</button></td>
+                    </tr>
+                    {% endif %}
+
             {% endfor %}
             </tbody>
             </table>

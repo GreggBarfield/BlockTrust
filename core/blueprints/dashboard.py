@@ -12,7 +12,6 @@ from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
-
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
@@ -377,8 +376,10 @@ def serve_add_connection():
 @crut.require_account
 def serve_add_connection_request():
     try:
+        if int(request.form["company_id"]) == g.account.id():
+            raise ConnectionException("Invalid Selection")
         if request.form["company_id"] != "0":
-            Connections(g.db).set_connection_request(g.account.id(), request.form["company_id"])
+            Connections(g.db).create_connection_request(g.account.id(), request.form["company_id"])
         else:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
@@ -389,7 +390,7 @@ def serve_add_connection_request():
             )
             send_email(
                 "BlockTrust Network Connection Invite",
-                render_email("invite_user.html", {
+                render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
                     'account_company': g.account.company()
                 }), request.form["new_company_email"], override=True
