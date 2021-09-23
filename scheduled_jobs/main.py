@@ -48,7 +48,7 @@ try:
                 print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 60 mins. Current_time:", current_time)
-        time.sleep(1800)
+        time.sleep(3600)
 except Exception as e:
     print(e.__class__.__name__ + ": " + str(e), traceback.format_exc())
     ErrorLogs(db).insert_error_log("Scheduled Jobs", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
