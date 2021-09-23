@@ -37,8 +37,8 @@ try:
                 threads.append(t)
                 print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
         
-        # this will run once between 5 and 6 AM UTC time
-        if datetime.time(5, 0, 0) <= current_time < datetime.time(6, 0, 0):
+        # this will run once between 6 and 7 AM UTC time
+        if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
             # create new thread only if this thread is not already running
             if not any(t.getName() == "Blockchain" for t in threads):
                 JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
