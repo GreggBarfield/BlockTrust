@@ -1,4 +1,5 @@
 from usda_data_retriever import get_usda_data
+from usda_cache import get_cached_data
 from threading import Thread
 import traceback
 import time
@@ -11,6 +12,7 @@ from core.database.tables.job_runs import JobRuns
 try:
     scheduled_jobs = {
         "USDAData": "usda_data_retriever|get_usda_data",
+        "USDACache": "usda_cache|get_cached_data",
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -34,6 +36,12 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
+            if not any(t.getName() == "USDACache" for t in threads):
+                JobRuns(db).insert("USDACache", scheduled_jobs["USDACache"].split('|')[0], scheduled_jobs["USDACache"].split('|')[1])
+                t = Thread(target=get_cached_data, name="USDACache", args=[Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: Appended thread USDACache', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 30 mins. Current_time:", current_time)
         time.sleep(1800)

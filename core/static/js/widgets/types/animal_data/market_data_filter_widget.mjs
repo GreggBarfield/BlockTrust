@@ -86,7 +86,8 @@ export class MarketDataFilterWidget extends Widget {
             let cities = [];
             let city_ids = {};
             for (const row in this.city_rows) {
-                let item = this.city_rows[row]['market_location_city'];
+                let item = this.city_rows[row]['market_location_city'] 
+                    + " (" + this.city_rows[row]['slug_id'] + ")";
                 cities.push(item);
                 city_ids[item] = this.city_rows[row]['slug_id'];
             }
@@ -118,7 +119,7 @@ export class MarketDataFilterWidget extends Widget {
 
         let values = [];
         for (const row in this.state_rows) {
-            values.push(this.state_rows[row]['market_location_state']);
+            values.push(this.state_rows[row]);
         }
         values.sort();
 

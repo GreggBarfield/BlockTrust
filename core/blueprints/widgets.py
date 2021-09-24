@@ -24,6 +24,7 @@ from ..utilities import crut
 from ..data_requests.router import unauth_route
 
 from time import time
+import json
 
 from ..database.tables import zip_codes
 bp = Blueprint('widgets_bp', __name__)
@@ -390,17 +391,33 @@ def serve_get_account_type_visibilities():
 @bp.route('/widgets/data/get_market_state_data', methods=['POST'])
 @crut.require_account
 def serve_get_market_state_data():
-    return {
-        'market_data': g.db.usda_reports.get_all_states()
-    }, 200
+    try:
+        with open('./core/tools/other/market_data_cache.json') as json_file:
+            data = json.load(json_file)
+
+            return {
+                'market_data': data['states']
+            }, 200
+    except:
+        return {
+            'error': 'problem with market data cache for states.'
+        }, 500
 
 
 @bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
 @crut.require_account
 def serve_get_market_city_data(state):
-    return {
-        'market_data': g.db.usda_reports.get_all_city_by_state(state)
-    }, 200
+    try:
+        with open('./core/tools/other/market_data_cache.json') as json_file:
+            data = json.load(json_file)
+
+            return {
+                'market_data': data['cities_per_state'][state]
+            }, 200
+    except:
+        return {
+            'error': 'problem with market data cache for cities.'
+        }, 500
 
 
 @bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
