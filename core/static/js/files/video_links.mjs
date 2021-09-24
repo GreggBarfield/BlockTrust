@@ -214,11 +214,7 @@ export class VideoSession {
                     };
                     files.push(file_obj);
                 }
-               
             }
-
         }
-        
     }
-   
 }
