@@ -8,7 +8,7 @@ export class BasicFileEditor {
         //this.restrictions is a dictionary which has following items supported:
         //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
-        this.fileAuths = fileDetails;
+        this.fileDetails = fileDetails;
 
         if (fileIDs !== null) {
             for( const[index,fileID] of fileIDs.entries()){
@@ -86,20 +86,15 @@ export class BasicFileEditor {
             if ("name" in file) {
                 fileName = file.name;
             }
-            let fileDes = document.createElement("input");
-            fileDes.type = "text";
-            fileDes.className = "form-control";
-            fileDes.id = this.files.indexOf(file);
-            console.log("filedes:",  this.files.indexOf(file));
+            let fileDescriptions = document.createElement("input");
+            fileDescriptions.type = "text";
+            fileDescriptions.className = "form-control";
+            fileDescriptions.id = this.files.indexOf(file);
             if("description" in file){
-                
-                fileDes.value = file.description;
-                
+                fileDescriptions.value = file.description;
             }
             if (!("row" in file)) {
-                
                 let optionsDiv = document.createElement("div");
-                
                 let removeButton = document.createElement("button");
                 removeButton.textContent = "Remove";
                 removeButton.textContent.fontcolor("green");
@@ -118,7 +113,7 @@ export class BasicFileEditor {
                 });
                 optionsDiv.append(removeButton);
                 
-                file["row"] = this.table.addRow([fileID, fileName, optionsDiv,fileDes]);
+                file["row"] = this.table.addRow([fileID, fileName, optionsDiv,fileDescriptions]);
             }
             this.table.setValue(file["row"], 0, fileID);
             this.table.setValue(file["row"], 1, fileName);
