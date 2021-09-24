@@ -2,24 +2,24 @@ import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class BasicFileEditor {
-    constructor(restrictions={}, attach_node=null, fileIDs=null, fileDes=null, fileAuths=null) {
+    constructor(restrictions={}, attach_node=null, fileIDs=null, fileDescriptions=null, fileDetails=null) {
         let that = this;
         this.files = [];
         //this.restrictions is a dictionary which has following items supported:
         //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
-        this.fileAuths = fileAuths;
+        this.fileAuths = fileDetails;
 
         if (fileIDs !== null) {
             for( const[index,fileID] of fileIDs.entries()){
-                const curDes = fileDes[index];
+                const curDes = fileDescriptions[index];
                 let file_obj = {
                     "id": fileID,
                     "description": curDes,
                     "uploaded": true
                 };
-                if (fileID in fileAuths) {
-                    file_obj["name"] = fileAuths[fileID]["name"];
+                if (fileID in fileDetails) {
+                    file_obj["name"] = fileDetails[fileID]["name"];
                 }
                 this.files.push(file_obj);
             }
