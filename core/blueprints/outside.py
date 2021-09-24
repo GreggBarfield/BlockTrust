@@ -10,7 +10,7 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL
 from ..sectors import sectors_by_name
 
 
@@ -207,7 +207,7 @@ def serve_contact_form_response():
             'email': request.json['email'],
             'message': request.json['message'],
         }),
-        SUPPORT_GENERAL_EMAIL
+        SUPPORT_TAG_STORE_EMAIL, override=True
     )
     return {}
 
@@ -230,7 +230,7 @@ def serve_password_request_action():
     user = g.db.users.get_by_email(request.form['email'])
     if user is None:
         return {"error": "Sorry, we couldn't find this email address"}
-    elif user.email_verified() != "Y":
+    elif user.is_email_verified() != 1:
         return {"error": "Sorry, this user does not have a verified email address"}
     else:
         # Generating token identifier for changing password securely
@@ -465,3 +465,40 @@ def serve_add_invited_user():
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
         return {"error": str(e)}
+
+
+@bp.route('/rfid-tags', methods=["GET"])
+def serve_rfid_tags():
+    return outside_render("/outside/rfid_tags.html")
+
+
+@bp.route('/employee/login', methods=['GET'])
+def serve_employee_login():
+    return outside_render('employee-login.html')
+
+
+@bp.route('/employee/login/action', methods=['POST'])
+def serve_employee_login_action():
+    try:
+        if 'identifier' not in request.form:
+            raise ExportException("internal error, identifier missing from form")
+
+        if 'password' not in request.form:
+            raise ExportException("internal error, password missing from form")
+        try:
+            auth.employee_login(
+                identifier=request.form['identifier'],
+                password=request.form['password']
+            )
+            redirect_to = '/employee/dashboard'
+            if (
+                'requestRedirectTo' in request.form and
+                request.form['requestRedirectTo'] is not None and
+                request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
+            return jsonify({"redirect": redirect_to})
+        except auth.LoginException as e:
+            raise ExportException(str(e))
+    except ExportException as e:
+        return jsonify({"error": str(e)})

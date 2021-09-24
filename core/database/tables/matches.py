@@ -1,7 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag, frag_insert_into, frag_insert_single_where
-from ..objects.match import Match, MatchException
+from ..frag import frag
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
@@ -23,7 +22,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "affiliate_id_type", "affiliate_id", "company", "sector")
+    _account_links_cols = ("id", "account", "affiliate_id", "company", "sector", "partner_account")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -36,7 +35,7 @@ class Matches:
     """
     _left_join_visibility = """
         LEFT JOIN matches_type_visibility ON
-            matches.account=matches_type_visibility.account AND
+            matches.partner_account=matches_type_visibility.account AND
                 matches.type=matches_type_visibility.type
     """
 
@@ -120,9 +119,68 @@ class Matches:
             )
         ))
 
+    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
+                  time=None, selectColumns=[]):
+        """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
+
+        Returns:
+            The match record if found else None
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ", ".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
+        query_values = {"eid": eid}
+
+        if(visual_id is not None):
+            query_string_list.append("AND visual_id = %(visual_id)s")
+            query_values["visual_id"] = visual_id
+
+        if(type_int is not None):
+            query_string_list.append("AND type = %(type)s")
+            query_values["type"] = type_int
+
+        if(grouping_id is not None):
+            query_string_list.append("AND grouping_id = %(grouping_id)s")
+            query_values["grouping_id"] = grouping_id
+
+        if(data is not None):
+            query_string_list.append("AND data = CAST(%(data)s AS JSON)")
+            query_values["data"] = json.dumps(data)
+
+        if(partner_account is not None):
+            query_string_list.append("AND partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+
+        if(account_link is not None):
+            query_string_list.append("AND account_link = %(account_link)s")
+            query_values["account_link"] = account_link
+
+        if(lat is not None):
+            query_string_list.append("AND lat = %(lat)s")
+            query_values["lat"] = lat
+
+        if(lon is not None):
+            query_string_list.append("AND lon = %(lon)s")
+            query_values["lon"] = lon
+
+        if(time is not None):
+            query_string_list.append("AND time = %(time)s")
+            query_values["time"] = time
+
+        query = ' '.join(query_string_list)
+
+        match_rows = self._db.execute_d(query, query_values)
+        if len(match_rows) > 0:
+            return match_rows[0]
+        else:
+            return None
+
     def insert(
-        self, eid, type_int, grouping_id=None, data=None, account=None, account_link=None,
-        lat=None, lon=None, time=None, raw_identifier=None, api_insert=None
+        self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
     ):
         """Insert a new row into matches.
 
@@ -132,73 +190,39 @@ class Matches:
             data: The match data (optional)
                 If None is provided (default), NULL is inserted
                 Else it is json-encoded and put in the record
-            account: The data owner, int (optional)
+            partner_account: The data owner, int (optional)
             account_link: The account link, int (optional)
             lat: The lattitude of the data scan, int (optional)
             lon: The longitude of the data scan, int (optional)
             time: The time of the data scan, int (optional)
-            raw_identifier: debug usage, str (optional)
-        Raises:
-            MatchesException
+            debug: debug usage, str (optional)
         """
 
-        if not isinstance(type_int, int):
-            raise MatchesException("type_int should be an int")
-
-        row = {
-            "eid": eid,
-            "type": type_int,
-            "grouping_id": grouping_id,
-            "data": None if data is None else json.dumps(data),
-            "account": account,
-            "account_link": account_link,
-            "lat": lat,
-            "lon": lon,
-            "time": time,
-            "created": int(time_module.time()),
-            "raw_identifier": raw_identifier,
-            "api_insert": api_insert
-        }
-
-        self._db.exec_frag(
-            frag_insert_single_where(
-                'matches',
-                row,
-                frag(
-                    "(",
-                    frag(
-                        "SELECT COUNT(*) FROM matches",
-                        "WHERE",
-                        "eid<=>:eid",
-                        "AND",
-                        "type<=>:type",
-                        "AND",
-                        "grouping_id<=>:grouping_id",
-                        "AND",
-                        "data<=>CAST(:data AS JSON)",
-                        "AND",
-                        "account<=>:account",
-                        "AND",
-                        "account_link<=>:account_link",
-                        "AND",
-                        "lat<=>:lat",
-                        "AND",
-                        "lon<=>:lon",
-                        "AND",
-                        "time<=>:time",
-                        eid=row["eid"],
-                        type=row["type"],
-                        grouping_id=row["grouping_id"],
-                        data=row["data"],
-                        account=row["account"],
-                        account_link=row["account_link"],
-                        lat=row["lat"],
-                        lon=row["lon"],
-                        time=row["time"]
-                    ),
-                    ") = 0",
-                )
-            )
+        self._db.execute(
+            """INSERT INTO matches
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                VALUES
+                    (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                    )
+            """,
+            {
+                "eid": eid,
+                "type": type_int,
+                "visual_id": visual_id,
+                "grouping_id": grouping_id,
+                "data": None if data is None else json.dumps(data),
+                "partner_account": partner_account,
+                "account_link": account_link,
+                "lat": lat,
+                "lon": lon,
+                "time": time,
+                "created": int(time_module.time()),
+                "debug": None if debug is None else json.dumps(debug),
+                "api_insert": api_insert,
+                "bc_transaction_id": bc_transaction_id,
+                "bc_hash": bc_hash
+            }
         )
 
     def get_count_eid_distinct(self):
@@ -427,20 +451,32 @@ class Matches:
         Returns:
             One row indicating the count
         """
+        # return self._db.exec_frag_d(
+        #     frag(
+        #         """
+        #         SELECT count(eid) as 'count'
+        #         FROM matches
+        #         """,
+        #         Matches._left_join_visibility,
+        #         frag(
+        #             "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
+        #             eid_number=eid_number
+        #         )
+        #     ),
+        # )[0]['count']
         return self._db.exec_frag_d(
             frag(
                 """
                 SELECT count(eid) as 'count'
                 FROM matches
                 """,
-                Matches._left_join_visibility,
                 frag(
-                    "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
+                    "WHERE eid=:eid_number",
                     eid_number=eid_number
                 )
             ),
         )[0]['count']
-   
+
     def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
         """Gets matches data associated with an visual id if visible.
 
@@ -451,24 +487,34 @@ class Matches:
         Returns:
             All the matches table rows containing the visual id matches
         """
-        visual_id = str(visual_id)
+        #visual_id = str(visual_id)
+        # return self._db.execute_d(
+        #     """
+        #         SELECT matches.*
+        #         FROM matches
+        #         LEFT JOIN account_links on matches.account_link=account_links.id
+        #         LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
+        #         WHERE matches.type=%(visual_id_type)s 
+        #         AND (
+        #             (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
+        #             OR 
+        #             (matches.partner_account=%(account_id)s)
+        #         )
+        #         AND matches.data=%(visual_id)s
+        #     """,
+        #     {
+        #         "visual_id_type": match_types_by_name["Visual ID"],
+        #         "account_id": account_id,
+        #         "visual_id": visual_id
+        #     }
         return self._db.execute_d(
             """
-                SELECT matches.*
+                SELECT distinct matches.eid, matches.visual_id
                 FROM matches
-                LEFT JOIN account_links on matches.account_link=account_links.id
-                LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
-                WHERE matches.type=%(visual_id_type)s 
-                AND (
-                    (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
-                    OR 
-                    (matches.account=%(account_id)s)
-                )
-                AND matches.data=%(visual_id)s
+
+                WHERE matches.visual_id=%(visual_id)s
             """,
             {
-                "visual_id_type": match_types_by_name["Visual ID"],
-                "account_id": account_id,
                 "visual_id": visual_id
             }
         )
@@ -481,7 +527,7 @@ class Matches:
                 row['data'] = json.loads(row['data'])
             if 'visibility' in row:
                 if row['visibility'] is None:
-                    if row['account'] is None:
+                    if row['partner_account'] is None:
                         row['visibility'] = True  # Visible if nobody owns it
                     else:
                         row['visibility'] = None

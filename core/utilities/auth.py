@@ -2,12 +2,16 @@ import bcrypt
 from flask import g, session
 from ..database.tables.users import Users
 from ..database.objects.user import User
+from ..database.tables.users import UsersException
+from ..database.objects.employee import Employee
+from ..database.tables.employees import Employees
 from ..database.objects.account import Account
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
+SESSION_EMPLOYEE_ID_VAR = "jkl"
 
 
 class AuthException(Exception):
@@ -68,8 +72,19 @@ class PasswordChangeFailedException(AuthException):
 
 def session_open():
     """Load session into app context."""
-    session_open_user()
-    session_open_account()
+    session_open_employee()
+    if g.employee is None:
+        # employee is not logged in. check if user is logged in
+        session_open_user()
+        session_open_account()
+
+
+def session_open_employee():
+    """"Load employee session into app context."""
+    if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
+        g.employee = Employees(g.db).get(session[SESSION_EMPLOYEE_ID_VAR])
+    else:
+        session[SESSION_EMPLOYEE_ID_VAR] = ""
 
 
 def session_start_account(account_id):
@@ -169,7 +184,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified="N"
+        email_verified=0
     )
 
     try:
@@ -194,7 +209,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 def logout():
     """Clear session of user info and remove g user."""
     g.user = None
-    session[SESSION_USER_ID_VAR] = ""
+    g.employee = None
     session.clear()
 
 
@@ -351,7 +366,7 @@ def login(identifier, password="", override=False):
             raise LoginException(generic_error)
         # To check if the user profile being accessed has a verified email
 
-        if user_row['email_verified'] == 'N':
+        if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
@@ -363,10 +378,88 @@ def login(identifier, password="", override=False):
         raise e
     except EmailNotVerifiedException as e:
         raise e
-    except Users.UsersException as e:
+    except UsersException as e:
         raise e
     except Exception as e:
         raise LoginException("other exception")
+
+
+def employee_login(identifier, password=""):
+    """Performs a employee login.
+
+    Params:
+        identifier: Username, or email.
+        password: Plaintext password (default "")
+        override: True to override default login
+
+    Raises:
+        UsersException, LoginException
+
+    Returns:
+        An User object on success.
+    """
+
+    try:
+        if password is None:
+            raise LoginException("password is None")
+
+        identifier = Users._format_field(identifier)
+        password = Users._format_field(password)
+
+        if identifier == "" or password == "":
+            raise LoginException("Identifier or password is blank.")
+
+        employee_row = None
+
+        # Try username
+
+        if employee_row is None:
+            username_results = g.db.execute_d(
+                """
+                    SELECT * FROM employees
+                    WHERE
+                        username=%(username)s
+                """,
+                {
+                    "username": identifier
+                }
+            )
+            if len(username_results) == 1:
+                employee_row = username_results[0]
+
+        # Try email
+
+        if employee_row is None and '@' in identifier:
+            email_results = g.db.execute_d(
+                """
+                    SELECT * FROM employees
+                    WHERE
+                        email=%(email)s
+                """,
+                {
+                    "email": identifier
+                }
+            )
+            if len(email_results) == 1:
+                employee_row = email_results[0]
+
+        # End of tries
+
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
+
+        if employee_row is None:
+            raise LoginException(generic_error)
+
+        if not bcrypt.checkpw(password.encode("utf-8"), employee_row["password"].encode("utf-8")):
+            raise LoginException(generic_error)
+
+        g.employee = Employee(employee_row)
+        session.clear()
+        session[SESSION_EMPLOYEE_ID_VAR] = g.employee.id()
+    except LoginException as e:
+        raise e
+    except Exception as e:
+        raise LoginException(str(e))
 
 
 def get_email_verified_value(email):
@@ -419,7 +512,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         first_name=first_name,
         last_name=last_name,
         phone=phone,
-        email_verified="Y"
-    )   
+        email_verified=1
+    )  
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
