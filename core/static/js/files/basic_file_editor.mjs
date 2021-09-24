@@ -81,7 +81,6 @@ export class BasicFileEditor {
             let fileID = "Not Uploaded";
             if ("id" in file && file.uploaded == true) {
                 fileID = file.id;
-                console.log("fileID:", fileID)
             }
             let fileName = "";
             if ("name" in file) {
@@ -198,13 +197,12 @@ export class BasicFileEditor {
             }
             if (!file["uploaded"])
                 continue;
-            if (!("id" in file) || file["id"] === undefined || file["id"] === null)
-                continue;
             result.push(file["id"]);
         }
         return result;
     }
-    getDes(){
+    getDescriptionsOfFiles(){
+        //return a list of image descriptions which are uploaded and not removed.
         let result = [];
         let i=0;
         for (const file of this.files) {
@@ -212,13 +210,10 @@ export class BasicFileEditor {
                 i+=1;
                 continue;
             }
-                
             if (!("uploaded" in file)) {
                 throw "Uploaded should be in file";
             }
             if (!file["uploaded"])
-                continue;
-            if (!("id" in file) || file["id"] === undefined || file["id"] === null)
                 continue;
             result.push(document.getElementById(i).value);
             i+=1;

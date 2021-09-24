@@ -497,7 +497,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
-                        imgDes: that.fileEditor.getDes(),
+                        imgDes: that.fileEditor.getDescriptionsOfFiles(),
                         videos: that.VideoEditor.getLinks(),
                     },
                     "delivery_location": marketingLocation.value,
