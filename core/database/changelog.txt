@@ -549,6 +549,7 @@ CREATE TABLE connections(
 CREATE TABLE connection_invites(
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `from_account` INT,
+  `to_account` INT DEFAULT NULL,
   `company_sector` INT,
   `company_name` VARCHAR(127),
   `company_contact` VARCHAR(127),

@@ -25,11 +25,11 @@ class Connections:
     def __init__(self, db: 'database.Database'):
         self._db = db
 
-    def get_account_connections(self, account_id):
+    def get_account_connections(self, account_id, status):
         """
         Params:
             account_id: Account ID whose connections are requested
-
+            status: Status of the connections requested
         Returns:
             connections: List of connected accounts
 
@@ -41,27 +41,26 @@ class Connections:
             """,
             {
                 "account_id": account_id,
-                "status": connection_status["Connected"]
+                "status": status
             }
         )
         return connections
 
-    def create_account_connection(self, from_account_id, to_account_id):
+    def update_connection(self, from_account_id, to_account_id, status):
         """
         Params:
-            user_account_id: Account ID of user
-            friend_account_id:
+            from_account_id: Account ID of user
+            to_account_id:  Second account ID
+            status: Status of the connection which needs to be updated
         Returns:
             None
         """
-        first_account = Accounts.get_by_id(self, account_id=from_account_id)
-        second_account = Accounts.get_by_id(self, account_id=to_account_id)
-        from_account_name = first_account.company()
-        to_account_name = second_account.company()
-        # First account is the sender of the request, Second is the reciever
-        # For the first account we already have a an entry in the table with status 0(pending)
-        # We update the pending entry and add a new entry for the connection between second and first user
-        # This helps save time during lookup and simplifies generating the account connection list
+        from_account = Accounts.get_by_id(self, account_id=from_account_id)
+        to_account = Accounts.get_by_id(self, account_id=to_account_id)
+        from_account_name = from_account.company()
+        to_account_name = to_account.company()
+        # From account is the sender of the request, To is the reciever
+        # For the from account we already have a an entry in the table with status 0(pending)
         self._db.execute(
             """
             UPDATE TABLE connections
@@ -69,18 +68,18 @@ class Connections:
             WHERE from_account_id=%(from_account_id)s, to_account_id=%(to_account_id)s
             """,
             {
-                "status": connection_status["Connected"],
+                "status": status,
                 "from_account_id": from_account_id,
                 "to_account_id": to_account_id
             }
         )
 
-    def create_connection_request(self, from_account_id, to_account_id):
+    def create_connection(self, from_account_id, to_account_id, status):
         """
         Params:
             from_account_id: Account ID of user
             to_account_id: Account ID of connection request
-
+            status: Status of the connection created
         Returns:
             None
 
@@ -100,57 +99,14 @@ class Connections:
                 INSERT INTO  connections
                     (from_account_id, from_account_name, to_account_id, to_account_name, status)
                     VALUES
-                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, 0)
+                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s)
             """,
             {
                 "from_account_id": from_account_id,
                 "from_account_name": from_account_name,
                 "to_account_id": to_account_id,
                 "to_account_name": to_account_name,
-            }
-        )
-
-    def get_connection_requests(self, account_id):
-        """
-        Params:
-            account_id: The account ID whose requests are to be fetched
-
-        Returns:
-            requests: Connection requests received by the account
-        """
-        requests = self._db.execute_d(
-            """
-            SELECT * FROM connections
-            WHERE to_account_id= %(account_id)s AND status=%(status)s
-            """,
-            {
-                "status": connection_status["Pending"],
-                "account_id": account_id
-            }
-        )
-        return requests
-
-    def decline_conection_request(self, from_account_id, to_account_id):
-        """
-        Marks the connnection request as declined in the database
-
-        Params:
-            from_account_id: Sender account id
-            to_account_id: Account which received the invite
-
-        Returns:
-            None
-        """
-        self._db.execute(
-            """
-                UPDATE  connections
-                SET status=%(status)s
-                WHERE from_account_id=%(from_account_id)s AND to_account_id=%(to_account_id)s
-            """,
-            {
-                "status": connection_status["Declined"],
-                "from_account_id": from_account_id,
-                "to_account_id": to_account_id
+                "status": status
             }
         )
 
