@@ -9,7 +9,8 @@ export class BasicFileEditor {
         //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
         this.fileDetails = fileDetails;
-
+        //TODO: description
+        console.log("fileDetails",fileDetails)
         if (fileIDs !== null) {
             for( const[index,fileID] of fileIDs.entries()){
                 const curDes = fileDescriptions[index];
@@ -187,15 +188,13 @@ export class BasicFileEditor {
         for (const file of this.files) {
             if ("removed" in file && file["removed"])
                 continue;
-            if (!("uploaded" in file)) {
-                throw "Uploaded should be in file";
-            }
             if (!file["uploaded"])
                 continue;
             result.push(file["id"]);
         }
         return result;
     }
+    
     getDescriptionsOfFiles(){
         //return a list of image descriptions which are uploaded and not removed.
         let result = [];
@@ -204,9 +203,6 @@ export class BasicFileEditor {
             if ("removed" in file && file["removed"]){
                 i+=1;
                 continue;
-            }
-            if (!("uploaded" in file)) {
-                throw "Uploaded should be in file";
             }
             if (!file["uploaded"])
                 continue;
