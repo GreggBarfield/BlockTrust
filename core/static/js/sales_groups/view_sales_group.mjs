@@ -353,10 +353,6 @@ export class SalesGroupViewer {
             let thumb = document.createElement("div");
             thumb.className = "thumb";
             video.append(thumb);
-            
-            let embed = document.createElement("div");
-            embed.className ="embed-responsive embed-responsive-16by9";
-            thumb.append(embed);
 
             let videos = this.data.reported.videos;
             var videoUrls = [];
