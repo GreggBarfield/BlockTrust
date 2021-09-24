@@ -10,6 +10,9 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
+from ..database.tables.connections import Connections
+from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.connections import connection_status
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
@@ -359,7 +362,7 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = g.db.connections.get_account_connections(g.account.id())
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
     return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
 
 
@@ -374,10 +377,12 @@ def serve_add_connection():
 @crut.require_account
 def serve_add_connection_request():
     try:
+        if int(request.form["company_id"]) == g.account.id():
+            raise ConnectionException("Invalid Selection")
         if request.form["company_id"] != "0":
-            g.db.connections.set_connection_request(g.account.id(), request.form["company_id"])
+            Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
         else:
-            g.db.connection_invites.add_connection_invite(
+            ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
                 company_sector=request.form["sector"],
                 company_name=request.form["new_company_name"],
@@ -401,16 +406,17 @@ def serve_add_connection_request():
 @bp.route('/dashboard/view-invites', methods=['GET'])
 @crut.require_account
 def serve_view_invites():
-    requests = g.db.connections.get_connection_requests(g.account.id())
+    requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
 
 
 @bp.route('/dashboard/acceptinvite', methods=['POST'])
 @crut.require_account
 def serve_accept_invite():
-    g.db.connections.create_account_connection(
+    Connections(g.db).update_connection(
         first_account_id=request.json["params"]["account_id"],
-        second_account_id=g.account.id()
+        second_account_id=g.account.id(),
+        status=connection_status["Connected"]
     )
     return {}, 200
 
@@ -418,9 +424,10 @@ def serve_accept_invite():
 @bp.route('/dashboard/declineinvite', methods=['POST'])
 @crut.require_account
 def serve_decline_invite():
-    g.db.connections.decline_connection_request(
+    Connections(g.db).decline_connection_request(
         first_account_id=request.json["params"]["account_id"],
-        second_account_id=g.account.id()
+        second_account_id=g.account.id(),
+        status=connection_status["Declined"]
     )
     return {}, 200
 

@@ -1,4 +1,5 @@
 from .accounts import Accounts
+from .. import database
 
 
 class ConnectionInviteException(Exception):
@@ -15,7 +16,7 @@ class ConnectionInviteException(Exception):
 
 class ConnectionInvites:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def add_connection_invite(self, from_account, company_sector, company_name, company_contact, company_email):
