@@ -370,6 +370,9 @@ def serve_connections():
 @crut.require_account
 def serve_add_connection():
     account_rows = g.db.accounts.get_accounts()
+    for account_row in account_rows:
+        if account_row["id"] == g.account.id():
+            account_rows.remove(account_row)
     return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
 
@@ -377,8 +380,6 @@ def serve_add_connection():
 @crut.require_account
 def serve_add_connection_request():
     try:
-        if int(request.form["company_id"]) == g.account.id():
-            raise ConnectionException("Invalid Selection")
         if request.form["company_id"] != "0":
             Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
         else:
