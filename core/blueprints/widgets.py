@@ -71,7 +71,7 @@ def serve_sales_group():
         "group_name": sales_group_row["group_name"],
         "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
-        "name": g.first_name() + ' ' + g.user.last_name(),
+        "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.company()
     }
