@@ -1,5 +1,3 @@
-from ..objects.error_log import ErrorLog
-
 class ErrorLogs:
 
     def __init__(self, db):
