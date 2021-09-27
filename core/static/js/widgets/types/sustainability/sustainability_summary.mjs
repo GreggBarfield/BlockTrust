@@ -13,9 +13,14 @@ export class SustainabilitySummaryWidget extends Widget {
             ).then((data) => {
             this.frame.innerHTML = "";
             this.responses = data.results;
-            this.data = JSON.parse(data.results[0].response);
-            this.prepData();
-
+            
+            if (data.results.length == 0) {
+                this.data = null;
+            } else {
+                this.data = JSON.parse(data.results[0].response);
+                this.prepData();
+            }
+            
             this.makeNewSurveyBtn();
 
             let row = document.createElement("div");
@@ -158,7 +163,7 @@ export class SustainabilitySummaryWidget extends Widget {
         airGraphCard.append(airGraphHeader);
         
         let airGraph = document.createElement("div");
-        airGraph.className = "card-body";
+        airGraph.className = "card-body px-3";
         airGraphCard.append(airGraph);
         this.makeGraph(airGraph, "air");
 
@@ -176,7 +181,7 @@ export class SustainabilitySummaryWidget extends Widget {
         animalGraphCard.append(animalGraphHeader);
         
         let animalGraph = document.createElement("div");
-        animalGraph.className = "card-body";
+        animalGraph.className = "card-body px-3";
         animalGraphCard.append(animalGraph);
         this.makeGraph(animalGraph, "animal");
 
@@ -194,7 +199,7 @@ export class SustainabilitySummaryWidget extends Widget {
         efficiencyGraphCard.append(efficiencyGraphHeader);
         
         let efficiencyGraph = document.createElement("div");
-        efficiencyGraph.className = "card-body";
+        efficiencyGraph.className = "card-body px-3";
         efficiencyGraphCard.append(efficiencyGraph);
         this.makeGraph(efficiencyGraph, "efficiency");
 
@@ -212,7 +217,7 @@ export class SustainabilitySummaryWidget extends Widget {
         safetyGraphCard.append(safetyGraphHeader);
         
         let safetyGraph = document.createElement("div");
-        safetyGraph.className = "card-body";
+        safetyGraph.className = "card-body px-3";
         safetyGraphCard.append(safetyGraph);
         this.makeGraph(safetyGraph, "safety");
 
@@ -230,7 +235,7 @@ export class SustainabilitySummaryWidget extends Widget {
         landGraphCard.append(landGraphHeader);
         
         let landGraph = document.createElement("div");
-        landGraph.className = "card-body";
+        landGraph.className = "card-body px-3";
         landGraphCard.append(landGraph);
         this.makeGraph(landGraph, "land");
 
@@ -248,7 +253,7 @@ export class SustainabilitySummaryWidget extends Widget {
         waterGraphCard.append(waterGraphHeader);
         
         let waterGraph = document.createElement("div");
-        waterGraph.className = "card-body";
+        waterGraph.className = "card-body px-3";
         waterGraphCard.append(waterGraph);
         this.makeGraph(waterGraph, "water");
     }
@@ -363,7 +368,7 @@ export class SustainabilitySummaryWidget extends Widget {
             container.textContent = "Data is not available yet.";
         }
         else if (this.responses.length < 2) {
-            container.textContent = "(not enough data)";
+            container.textContent = "There is not enough data yet.";
         }
         else {
             let self = this;
@@ -375,7 +380,7 @@ export class SustainabilitySummaryWidget extends Widget {
 
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-                dateAxis.renderer.minGridDistance = 20;
+                dateAxis.renderer.minGridDistance = 40;
 
                 var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
                 valueAxis.renderer.minGridDistance = 20;
@@ -401,7 +406,8 @@ export class SustainabilitySummaryWidget extends Widget {
     }
 
     makeGraph(container, dataType) {
-        if (this.data[dataType] == null) {
+        if (this.data == null 
+            || this.data[dataType] == null) {
             container.textContent = "Data is not available yet.";
         }
         else if (this.data[dataType].length == 0) {
