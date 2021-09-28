@@ -533,7 +533,35 @@ ALTER TABLE `example_db_1`.`account_links`
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
-/* Rohan Sureshkumar 9/3/2021 */
+/* Conner Charles 8/26/2021 */
+ALTER TABLE `example_db_1`.`sustainability` 
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+/* Nisheet Thakur 8/31/2021 */
+CREATE TABLE connections(
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `from_account_id` INT,
+  `to_account_id` INT,
+  `from_account_name` VARCHAR(127),
+  `to_account_name` VARCHAR(127),
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` INT,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  );
+CREATE TABLE connection_invites(
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `from_account` INT,
+  `to_account` INT DEFAULT NULL,
+  `company_sector` INT,
+  `company_name` VARCHAR(127),
+  `company_contact` VARCHAR(127),
+  `company_email` VARCHAR(127),
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Rohan Sureshkumar 9/2/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
 
@@ -669,3 +697,10 @@ ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;
 /* Nisheet Thakur 9/21/2021 */
 ALTER TABLE `example_db_1`.`orders`
 ADD `premise_id` VARCHAR(127);
+
+/* Rohan Sureshkumar 9/21/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_upload` TINYINT NOT NULL DEFAULT 0 AFTER `bc_hash`,
+ADD INDEX `bc_upload` (`bc_upload` ASC) VISIBLE;
+UPDATE matches SET bc_upload=1  
+WHERE bc_transaction_id IS NOT NULL;
