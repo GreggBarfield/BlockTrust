@@ -21,8 +21,10 @@ export class TableWidget extends Widget {
                 }
             }
         ).then((data) => {
+            if (data.result != null) {
             this.account_total_distinct = data.result.count_eid_distinct;
             this.displayAccount();
+            }
         });
 
         this.getData(
