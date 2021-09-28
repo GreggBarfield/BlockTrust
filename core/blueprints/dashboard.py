@@ -267,7 +267,7 @@ def serve_upload_tags():
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
     elif request.method == 'GET':
-        return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
+        return dashboard_render("data/upload-tags.html",  {"account": g.account, "user": g.user, "license": FLATFILE_LICENSE})
 
 
 @bp.route('/dashboard/sustainability', methods=['GET'])
@@ -409,8 +409,8 @@ def serve_view_invites():
 @crut.require_account
 def serve_accept_invite():
     Connections(g.db).update_connection(
-        first_account_id=request.json["params"]["account_id"],
-        second_account_id=g.account.id(),
+        from_account_id=request.json["params"]["account_id"],
+        to_account_id=g.account.id(),
         status=connection_status["Connected"]
     )
     return {}, 200
@@ -419,9 +419,9 @@ def serve_accept_invite():
 @bp.route('/dashboard/declineinvite', methods=['POST'])
 @crut.require_account
 def serve_decline_invite():
-    Connections(g.db).decline_connection_request(
-        first_account_id=request.json["params"]["account_id"],
-        second_account_id=g.account.id(),
+    Connections(g.db).update_connection(
+        from_account_id=request.json["params"]["account_id"],
+        to_account_id=g.account.id(),
         status=connection_status["Declined"]
     )
     return {}, 200
@@ -431,7 +431,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(tok):
     account_details = g.db.accounts.get_by_id(tok)
-    # if Connections(g.db).get_connection_between(g.account.id(), tok) == 1:
-    return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
-    # else:
-    #    return {}, 200
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == 1:
+        return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
+    else:
+        return {}, 200

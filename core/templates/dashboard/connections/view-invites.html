@@ -27,13 +27,23 @@ View Invites
             </thead>
         <tbody>
         {% for request in requests %}
+            {% if request.to_account_id == dashboard_standard_account.id() %}
                 <tr>
-                    <td>{{request.first_account_id}}</td>
-                    <td>{{request.first_account_name}}</td>
+                    <td>{{request.from_account_id}}</td>
+                    <td>{{request.from_account_name}}</td>
                     <td>{{request.create_timestamp}}</td>
-                    <td><button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" value="{{request.first_account_id}}">Accept</button></td>
-                    <td><button class="btn btn-sm btn-primary float-right declineButton" style="width:150px" value="{{request.first_account_id}}">Decline</button></td>
+                    <td><button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" value="{{request.from_account_id}}">Accept</button></td>
+                    <td><button class="btn btn-sm btn-primary float-right declineButton" style="width:150px" value="{{request.from_account_id}}">Decline</button></td>
                 </tr>
+            {% else %}
+            <tr>
+                <td>{{request.to_account_id}}</td>
+                <td>{{request.to_account_name}}</td>
+                <td>{{request.create_timestamp}}</td>
+                <td><button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" value="{{request.to_account_id}}">Accept</button></td>
+                <td><button class="btn btn-sm btn-primary float-right declineButton" style="width:150px" value="{{request.to_account_id}}">Decline</button></td>
+            </tr>
+            {% endif %}
         {% endfor %}
         </tbody>
         </table>

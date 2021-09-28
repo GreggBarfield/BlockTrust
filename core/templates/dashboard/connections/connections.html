@@ -25,9 +25,9 @@ Connections
                         <th></th>
                     </tr>
                 </thead>
-            <tbody>  
+            <tbody>
             {% for connection in account_connections %}
-                    {% if connection.from_account_id == dashboard_standard_account %}
+                    {% if connection.from_account_id == dashboard_standard_account.id() %}
                     <tr>
                         <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
@@ -48,5 +48,4 @@ Connections
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
 {% endblock dashboard_content %}

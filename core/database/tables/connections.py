@@ -63,9 +63,10 @@ class Connections:
         # For the from account we already have a an entry in the table with status 0(pending)
         self._db.execute(
             """
-            UPDATE TABLE connections
+            UPDATE connections
             SET status=%(status)s
-            WHERE from_account_id=%(from_account_id)s, to_account_id=%(to_account_id)s
+            WHERE ((from_account_id=%(from_account_id)s AND to_account_id=%(to_account_id)s) OR
+                (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
             """,
             {
                 "status": status,
