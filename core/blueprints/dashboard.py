@@ -10,14 +10,9 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
-<<<<<<< HEAD
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
-=======
-from ..database.tables.connections import Connections, connection_status
-from ..database.tables.connection_invites import ConnectionInvites
->>>>>>> 305f3155903bc445eb78132cd607f2e70aabd11b
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
