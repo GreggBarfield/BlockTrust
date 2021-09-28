@@ -561,9 +561,6 @@ CREATE TABLE connection_invites(
 /* Rohan Sureshkumar 2/9/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
-/* Rohan Sureshkumar 9/3/2021 */
-ALTER TABLE `example_db_1`.`accounts` 
-DROP COLUMN `name`;
 
 /* Rohan Sureshkumar 9/6/2021 */
 /* script to link unlinked accounts in account_links using affiliate_id. */

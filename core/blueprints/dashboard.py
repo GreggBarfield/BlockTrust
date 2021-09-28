@@ -10,15 +10,11 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
-from ..database.tables.connections import Connections
+from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.connections import connection_status
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
-from ..database.objects.account import AccountException
 from ..database.tables.users import UsersException
-from ..database.tables.connections import ConnectionException
-from ..database.tables.connection_invites import ConnectionInviteException
 
 from ..renderers.email import render_email
 
@@ -398,9 +394,7 @@ def serve_add_connection_request():
                 }), request.form["new_company_email"], override=True
             )
         return {"redirect": "/dashboard/connections"}
-    except ConnectionInviteException as e:
-        return {"error": str(e)}
-    except ConnectionException as e:
+    except Exception as e:
         return {"error": str(e)}
 
 
