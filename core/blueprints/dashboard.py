@@ -305,7 +305,7 @@ def serve_market_data(state, slug_id):
 @crut.require_user
 def serve_edit_editaccount():
     #TODO: account update method
-    return dashboard_render("/dashboard/accounts/editaccount.html", {"account": g.account.id()})
+    return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account.id()})
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])

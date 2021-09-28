@@ -1,0 +1,42 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/editaccount", "Edit Account")] %}
+
+{% block dashboard_content_header %}
+Edit Account
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 text-center">
+            <div class="mb-3">
+                <h4>Edit Account Info</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 mb-2">
+            <form class="bg-white shadow p-3"  id="edit_account_form"  method="POST">
+                <div class="row">
+                    <div class="col-lg-12"> 
+                        <div class="form-group">
+                            <label for="edit_account_name">Company Name</label>                       
+                            <label style="font-weight: bold;font-size: 1.2em;padding-left: 1%" id="edit_account_name"> 123456 </label>
+                        </div>
+                    </div>
+                    <div class="col-lg-12"> 
+                        <div class="form-group">
+                            <label for="edit_account_address">Address</label>                       
+                            <label style="font-weight: bold;font-size: 1.2em;padding-left: 1%" id="edit_account_address"> 12345655 </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/account/edit_account.mjs" ></script> 
+{% endblock dashboard_content %}
