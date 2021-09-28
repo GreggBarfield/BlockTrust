@@ -558,7 +558,7 @@ CREATE TABLE connection_invites(
   `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-/* Rohan Sureshkumar 2/9/2021 */
+/* Rohan Sureshkumar 9/2/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
 
