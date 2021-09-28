@@ -23,41 +23,44 @@ Edit Account
                 <div class="row">
                     <div class="col-lg-12"> 
                         <div class="form-group">
-                            <label for="edit_account_name">Company Name</label>                       
-                            <label style="font-size: 1.2em;padding-left: 1%" id="edit_account_name"> 123456 </label>
+                            <label for="edit_account_company">Company Name</label>                       
+                            <label style="font-weight: bold; font-size: 1.2em;padding-left: 1%" id="edit_account_company"> {{account.company()}} </label>
                         </div>
                     </div>
                     <div class="col-lg-8"> 
                         <div class="form-group">
                             <label for="edit_account_address">Address</label>                       
-                            <input type="text" class="form-control" id="edit_account_address">
+                            <input type="text" class="form-control" id="edit_account_address" value={{account.address()}}>
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_city">City</label>                       
-                            <input type="text" class="form-control" id="edit_account_city">                        
+                            <input type="text" class="form-control" id="edit_account_city"  value={{account.city()}}>                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_state">State</label>                       
-                            <input type="text" class="form-control" id="edit_account_state">                        
+                            <input type="text" class="form-control" id="edit_account_state"  value={{account.state()}}>                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_zip">Zip Code</label>                       
-                            <input type="text" class="form-control" id="edit_account_zip">                        
+                            <input type="text" class="form-control" id="edit_account_zip"  value={{account.zip()}}>                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_phone">Phone Number</label>                       
-                            <input type="text" class="form-control" id="edit_account_phone">                        
+                            <input type="text" class="form-control" id="edit_account_phone"  value={{account.phone()}}>                        
                         </div>
                     </div>
                 </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+                <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
+                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
             </form>
         </div>
     </div>

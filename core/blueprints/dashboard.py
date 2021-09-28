@@ -305,7 +305,25 @@ def serve_market_data(state, slug_id):
 @crut.require_user
 def serve_edit_editaccount():
     #TODO: account update method
-    return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account.id()})
+    #Get account information
+    if request.method == 'POST':
+        try:
+            print("hhhhhhhh",request.form["phone"])
+            g.db.accounts.update_account(
+                    company=request.form["company"],
+                    #TODO
+                    # address=request.form["address"], 
+                    city=request.form["city"], 
+                    state=request.form["state"], 
+                    zip=request.form["zip"], 
+                    phone = request.form["phone"]
+                        )
+            return {"redirect": "/dashboard/edit/editaccount"}
+        except UsersException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
+        
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
