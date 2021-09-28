@@ -96,6 +96,6 @@ class ConnectionInvites:
                 "company_email": company_email
             }
         )
-        if len(invite) >= 1:
+        if len(invite) == 1:
             return invite[0]
         return None
