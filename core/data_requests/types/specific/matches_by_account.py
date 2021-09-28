@@ -5,9 +5,13 @@ from ...security.matches_visibility import apply_visibility
 
 def unauth(params):
     result = auth(params)
-    #visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])
+    # visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])   
+    # return {
+    #    'matches': visible_matches,
+    #     'blocked_matches': blocked_matches
+    #  }
     return {
-        'matches': result['matches'] #visible_matches
+        'matches': result['matches']
     }
 
 
@@ -29,20 +33,8 @@ def auth(params):
     if 'types' in params:
         restrict_types = name_to_id(params['types'])
 
-    # account_user = g.db.account_users.get_by_user_and_account_id(
-    #     g.user,
-    #     g.account.id()
-    # )
-    account = g.db.accounts.get_by_id(g.account.id())  # account_user.account()
+    account = g.db.accounts.get_by_id(g.account.id())
     account_links = account.account_links()
-
-    # return {
-    #     "matches": g.db.matches.get_by_account_links_spread(
-    #         account_links,
-    #         restrict_types=restrict_types,
-    #         ljoin_account_links=ljoin_account_links
-    #     )
-    # }
 
     return {
         "matches": g.db.matches.get_all_matches_for_an_account(
