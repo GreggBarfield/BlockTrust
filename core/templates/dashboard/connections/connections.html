@@ -31,13 +31,13 @@ Connections
                     <tr>
                         <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.to_account_id}}>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}>View Profile</button></td>
                     </tr>
                     {% else %}
                     <tr>
                         <td>{{connection.from_account_id}}</td>
                         <td>{{connection.from_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.from_account_id}}>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}>View Profile</button></td>
                     </tr>
                     {% endif %}
 

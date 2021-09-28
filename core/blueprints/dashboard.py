@@ -436,7 +436,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(tok):
     account_details = g.db.accounts.get_by_id(tok)
-    if g.db.connections.connection_exists:
-        return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
-    else:
-        return {}, 200
+    # if Connections(g.db).get_connection_between(g.account.id(), tok) == 1:
+    return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
+    # else:
+    #    return {}, 200
