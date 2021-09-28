@@ -533,6 +533,11 @@ ALTER TABLE `example_db_1`.`account_links`
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
+/* Conner Charles 8/26/2021 */
+ALTER TABLE `example_db_1`.`sustainability` 
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
 /* Nisheet Thakur 8/31/2021 */
 CREATE TABLE connections(
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -544,8 +549,6 @@ CREATE TABLE connections(
   `status` INT,
   `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
-
-/* Nisheet Thakur 9/1/2021 */
 CREATE TABLE connection_invites(
   `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   `from_account` INT,
@@ -558,8 +561,7 @@ CREATE TABLE connection_invites(
   `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-/* Rohan Sureshkumar 2/9/2021 */
-/* Rohan Sureshkumar 9/3/2021 */
+/* Rohan Sureshkumar 9/2/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
 

@@ -10,12 +10,16 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
+<<<<<<< HEAD
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
+=======
+from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connection_invites import ConnectionInvites
+>>>>>>> 305f3155903bc445eb78132cd607f2e70aabd11b
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
-from ..database.objects.account import AccountException
 from ..database.tables.users import UsersException
 from ..database.tables.connections import ConnectionException
 from ..database.tables.connection_invites import ConnectionInviteException
@@ -276,13 +280,12 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
 def serve_sustainability():
-    return dashboard_render("sustainability/sustainability_questionaire.html")
-
-
-@bp.route('/dashboard/sustainability/summary', methods=['GET'])
-@crut.require_account
-def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
+
+@bp.route('/dashboard/sustainability/survey', methods=['GET'])
+@crut.require_account
+def serve_sustainability_survey():
+    return dashboard_render("sustainability/sustainability_questionaire.html")
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
@@ -370,6 +373,9 @@ def serve_connections():
 @crut.require_account
 def serve_add_connection():
     account_rows = g.db.accounts.get_accounts()
+    for account_row in account_rows:
+        if account_row["id"] == g.account.id():
+            account_rows.remove(account_row)
     return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
 
 
@@ -377,8 +383,6 @@ def serve_add_connection():
 @crut.require_account
 def serve_add_connection_request():
     try:
-        if int(request.form["company_id"]) == g.account.id():
-            raise ConnectionException("Invalid Selection")
         if request.form["company_id"] != "0":
             Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
         else:
@@ -397,9 +401,7 @@ def serve_add_connection_request():
                 }), request.form["new_company_email"], override=True
             )
         return {"redirect": "/dashboard/connections"}
-    except ConnectionInviteException as e:
-        return {"error": str(e)}
-    except ConnectionException as e:
+    except Exception as e:
         return {"error": str(e)}
 
 
