@@ -22,6 +22,16 @@ def _require_account():
     raise RequireAccountFailed()
 
 
+def RequireSubscriberFailed(Exception):
+    pass
+
+
+def _require_subscriber():
+    if g.account.stripe_customer_id() != "" and g.account.stripe_customer_id() is not None:
+        return
+    raise RequireAccountFailed()
+
+
 class RequireEmployeeFailed(Exception):
     pass
 
@@ -39,7 +49,7 @@ def require_user(func):
     def wrapper(*args, **kwargs):
         _require_user()
         return func(*args, **kwargs)
-        
+
     return wrapper
 
 
@@ -61,5 +71,17 @@ def require_employee(func):
     def wrapper(*args, **kwargs):
         _require_employee()
         return func(*args, **kwargs)
-        
+
+    return wrapper
+
+
+def require_subscriber(func):
+    """Decorator to ensure that a subscriber is accesing the page."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user()
+        _require_account()
+        _require_subscriber()
+        return func(*args, **kwargs)
     return wrapper

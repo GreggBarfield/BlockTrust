@@ -352,3 +352,9 @@ def serve_invite_user():
             return {"error": str(e)}
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
+
+
+@bp.route('/dashboard/subscribeduser', methods=['GET'])
+@crut.require_subscriber
+def serve_subscribed_user():
+    return "Only subscribers"
