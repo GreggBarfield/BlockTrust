@@ -181,7 +181,16 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
-    
+
+    def execute_many(self, query, data):
+        """Prepares a database operation (query or command) and executes it against all parameter sequences or mappings
+
+        Params:
+            data: list of tuples
+            query: the SQL statement
+        """
+        self._cursor.executemany(query, data)
+
     def close(self):
         self._cursor.close()
         self._connection.close()

@@ -1,0 +1,52 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Connections" %}
+{% set dashboard_locations = [("/dashboard/connections", "Connections")] %}
+
+{% block dashboard_content_header %}
+Connections
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Connections</h5>
+                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/add-connection'>Add Connections</button>
+                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/view-invites'>View Invites</button>
+            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Account Name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            <tbody>  
+            {% for connection in account_connections %}
+                    {% if connection.from_account_id == dashboard_standard_account %}
+                    <tr>
+                        <td>{{connection.to_account_id}}</td>
+                        <td>{{connection.to_account_name}}</td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.to_account_id}}>View Profile</button></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td>{{connection.from_account_id}}</td>
+                        <td>{{connection.from_account_name}}</td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.from_account_id}}>View Profile</button></td>
+                    </tr>
+                    {% endif %}
+
+            {% endfor %}
+            </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+{% endblock dashboard_content %}
