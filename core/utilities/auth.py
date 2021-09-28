@@ -6,6 +6,7 @@ from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees
 from ..database.objects.account import Account
+from ..database.tables.connection_invites import ConnectionInvites
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -200,7 +201,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
-        g.db.connection_invites.add_pending_invites(email, account)
+        ConnectionInvites(g.db).add_pending_invites(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)

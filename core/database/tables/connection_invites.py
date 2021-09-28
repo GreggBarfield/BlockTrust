@@ -1,17 +1,6 @@
 from .accounts import Accounts
+from .connections import Connections
 from .. import database
-
-
-class ConnectionInviteException(Exception):
-    """Generic user exception."""
-
-    def __init__(self, reason="unspecified"):
-        """Constructor for UsersException.
-
-        Params:
-            reason: The reason it failed.
-        """
-        super().__init__(reason)
 
 
 class ConnectionInvites:
@@ -31,13 +20,13 @@ class ConnectionInvites:
             None
         """
         if len(company_email) == 0:
-            raise ConnectionInviteException("Email is blank.")
+            raise Exception("Email is blank.")
         if '@' not in company_email or '.' not in company_email or len(company_email) < 5:
-            raise ConnectionInviteException("The email you entered is incomplete.")
+            raise Exception("The email you entered is incomplete.")
         if ' ' in company_email:
-            raise ConnectionInviteException("Spaces cannot be in the email.")
-        if self.connection_invite_exists(from_account, company_email):
-            raise ConnectionInviteException("Connection Invite already sent.")
+            raise Exception("Spaces cannot be in the email.")
+        if self.get_connection_invite(from_account, company_email) is not None:
+            raise Exception("Connection Invite already sent.")
         self._db.execute(
             """
                 INSERT INTO  connection_invites
@@ -76,35 +65,17 @@ class ConnectionInvites:
         )
         if len(invites) >= 1:
             for invite in invites:
-                first_account = Accounts.get_by_id(self, account_id=invite["from_account"])
-                second_account = Accounts.get_by_id(self, account_id=account.id())
-                first_account_name = first_account.company()
-                second_account_name = second_account.company()
-                self._db.execute(
-                    """
-                        INSERT INTO  connections
-                            (first_account_id, first_account_name, second_account_id, second_account_name, status)
-                            VALUES
-                                (%(first_account_id)s, %(first_account_name)s, %(second_account_id)s, %(second_account_name)s, 0)
-                    """,
-                    {
-                        "first_account_id": invite["from_account"],
-                        "first_account_name": first_account_name,
-                        "second_account_id": account.id(),
-                        "second_account_name": second_account_name,
-                    }
+                from_account = Accounts.get_by_id(self, account_id=invite["from_account"])
+                to_account = Accounts.get_by_id(self, account_id=account.id())
+                from_account_name = from_account.company()
+                to_account_name = to_account.company()
+                Connections.create_connection(
+                    from_account_id=invite["from_account"],
+                    to_account_id=account.id(),
+                    status=1
                 )
-            self._db.execute(
-                """
-                DELETE from connection_invites
-                WHERE company_email=%(email)s
-                """,
-                {
-                    "email": email
-                }
-            )
 
-    def connection_invite_exists(self, from_account, company_email):
+    def get_connection_invite(self, from_account, company_email):
         """
         Checks if a connection invite already exists in the database
 
@@ -126,5 +97,5 @@ class ConnectionInvites:
             }
         )
         if len(invite) >= 1:
-            return True
-        return False
+            return invite[0]
+        return None

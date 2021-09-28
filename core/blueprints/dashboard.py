@@ -16,8 +16,6 @@ from ..database.tables.connections import connection_status
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
-from ..database.tables.connections import ConnectionException
-from ..database.tables.connection_invites import ConnectionInviteException
 
 from ..renderers.email import render_email
 
