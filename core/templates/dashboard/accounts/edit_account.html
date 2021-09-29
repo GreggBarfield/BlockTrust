@@ -54,9 +54,11 @@ Edit Account
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_phone">Phone Number</label>                       
-                            <input type="text" class="form-control" id="edit_account_phone"  value={{account.phone()}}>                        
+                            <input type="text" class="form-control" id="edit_account_phone"  value="{{account.phone() if account.phone() is not none}}" name="phone">                        
+                            <span class="focus-border"></span>
                         </div>
                     </div>
+                    
                 </div>
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
@@ -65,5 +67,5 @@ Edit Account
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/dashboard/account/edit_account.mjs" ></script> 
-{% endblock dashboard_content %}
+<script type="module" src="/static/entry_points/dashboard/accounts/edit_account.mjs" ></script> 
+{% endblock dashboard_content %}s

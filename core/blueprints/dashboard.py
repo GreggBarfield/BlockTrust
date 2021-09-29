@@ -304,15 +304,13 @@ def serve_market_data(state, slug_id):
 @bp.route('/dashboard/edit/editaccount', methods=['GET', 'POST'])
 @crut.require_user
 def serve_edit_editaccount():
-    #TODO: account update method
     #Get account information
     if request.method == 'POST':
         try:
-            print("hhhhhhhh",request.form["phone"])
             g.db.accounts.update_account(
+                    account_id= g.account.id(),
                     company=request.form["company"],
-                    #TODO
-                    # address=request.form["address"], 
+                    address=request.form["address"], 
                     city=request.form["city"], 
                     state=request.form["state"], 
                     zip=request.form["zip"], 
