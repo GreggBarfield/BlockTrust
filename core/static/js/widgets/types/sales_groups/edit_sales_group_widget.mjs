@@ -200,18 +200,20 @@ export class EditSalesGroupWidget extends Widget {
 
         let marketingRow = createSection(form, "Marketing");
 
+        let salesGroupNickname = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
 
-        let marketingAuctionSale = new SelectAuctionSaleFormGroup(
-            marketingRow,
-            this.data.auction_sale || null,
-            this.data.auction_sale_name || null
-        );
-        marketingAuctionSale.getFormGroup().classList.add("col-md-4");
+        //TODO: retained in case needed in future.
+        // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
+        //     marketingRow,
+        //     this.data.auction_sale || null,
+        //     this.data.auction_sale_name || null
+        // );
+        // marketingAuctionSale.getFormGroup().classList.add("col-md-4");
         
         // Characteristics
 
@@ -503,9 +505,11 @@ export class EditSalesGroupWidget extends Widget {
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
-                    auction_sale: marketingAuctionSale.getID(),
-                    //TODO: Remove for now. Will implement later
-                    "group_name": ""
+                    "group_name": salesGroupNickname.value,
+                    //TODO: Removed auction_sale for now. Will implement later
+                    //auction_sale: marketingAuctionSale.getID()
+                    auction_sale: null
+                    
                 }
             }
         });
@@ -555,70 +559,73 @@ export class EditSalesGroupWidget extends Widget {
 }
 
 /**
+ * TODO: retained in case needed in future.
  * Presents a selector for auction sale.
  */
-class SelectAuctionSaleFormGroup extends FormGroup {
 
-    /**
-     * Constructs SelectAuctionSale.
-     * 
-     * @param {Node} attachTo Where to place DOM elements
-     * @param {number|null} auctionSaleID The ID for the auction sale or null
-     * @param {string|null} auctionSaleName The auction sale name or null
-     */
-    constructor(attachTo, auctionSaleID, auctionSaleName) {
-        super(attachTo, "Select auction sale (i/a):");
+
+// class SelectAuctionSaleFormGroup extends FormGroup {
+
+//     /**
+//      * Constructs SelectAuctionSale.
+//      * 
+//      * @param {Node} attachTo Where to place DOM elements
+//      * @param {number|null} auctionSaleID The ID for the auction sale or null
+//      * @param {string|null} auctionSaleName The auction sale name or null
+//      */
+//     constructor(attachTo, auctionSaleID, auctionSaleName) {
+//         super(attachTo, "Select auction sale (i/a):");
         
-        this._select = document.createElement("select");
-        this._select.id = this._input_id;
-        this._select.className = "select2-hidden-accessible";
-        this._form_group.append(this._select);
+//         this._select = document.createElement("select");
+//         this._select.id = this._input_id;
+//         this._select.className = "select2-hidden-accessible";
+//         this._form_group.append(this._select);
 
-        if (auctionSaleID !== null) {
-            let option = document.createElement("option");
-            option.value = auctionSaleID;
-            option.textContent = auctionSaleName;
-            this._select.append(option);
-        }
+//         if (auctionSaleID !== null) {
+//             let option = document.createElement("option");
+//             option.value = auctionSaleID;
+//             option.textContent = auctionSaleName;
+//             this._select.append(option);
+//         }
 
-        $(this._select).select2({
-            ajax: {
-                url: "/widgets/data/search_auction_sales",
-                data: (params) => {
-                    return JSON.stringify({
-                        "term": params.term
-                    })
-                },
-                contentType: 'application/json',
-                method: "POST",
-                delay: 250,
-                processResults: function (data) {
-                    let results = [];
-                    for (const auction_sale of data.auction_sales) {
-                        results.push({
-                            id: auction_sale.id,
-                            text: (
-                                auction_sale.name + " (" +
-                                auction_sale.account_name + ")"
-                            )
-                        });
-                    }
-                    return { results };
-                },
-            },
-            placeholder: 'Type here to search...',
-            minimumInputLength: 3,
-            allowClear: true
-        });
-    }
+//         $(this._select).select2({
+//             ajax: {
+//                 url: "/widgets/data/search_auction_sales",
+//                 data: (params) => {
+//                     return JSON.stringify({
+//                         "term": params.term
+//                     })
+//                 },
+//                 contentType: 'application/json',
+//                 method: "POST",
+//                 delay: 250,
+//                 processResults: function (data) {
+//                     let results = [];
+//                     for (const auction_sale of data.auction_sales) {
+//                         results.push({
+//                             id: auction_sale.id,
+//                             text: (
+//                                 auction_sale.name + " (" +
+//                                 auction_sale.account_name + ")"
+//                             )
+//                         });
+//                     }
+//                     return { results };
+//                 },
+//             },
+//             placeholder: 'Type here to search...',
+//             minimumInputLength: 3,
+//             allowClear: true
+//         });
+//     }
 
-    /**
-     * Gets the ID of the auction sale selected.
-     */
-    getID() {
-        if (this._select.value === null || this._select.value === "") {
-            return null;
-        }
-        return parseInt(this._select.value);
-    }
-}
+//     /**
+//      * Gets the ID of the auction sale selected.
+//      */
+//     getID() {
+//         if (this._select.value === null || this._select.value === "") {
+//             return null;
+//         }
+//         return parseInt(this._select.value);
+//     }
+// }
