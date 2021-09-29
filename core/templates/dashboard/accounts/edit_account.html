@@ -21,34 +21,38 @@ Edit Account
         <div class="col-lg-8 mb-2">
             <form class="bg-white shadow p-3"  id="edit_account_form"  method="POST">
                 <div class="row">
-                    <div class="col-lg-12"> 
+                    <div class="col-lg-3"> 
                         <div class="form-group">
-                            <label for="edit_account_company">Company Name</label>                       
-                            <label style="font-weight: bold; font-size: 1.2em;padding-left: 1%" id="edit_account_company"> {{account.company()}} </label>
+                            <label for="edit_account_company" style="font-weight: bold;padding-top: 10px;">Company Name</label>                       
+                        </div>
+                    </div>
+                    <div class="col-lg-6"> 
+                        <div class="form-group">                   
+                            <input type="text" class="form-control" id="edit_account_company" value="{{account.company() if account.company() is not none}}">
                         </div>
                     </div>
                     <div class="col-lg-8"> 
                         <div class="form-group">
                             <label for="edit_account_address">Address</label>                       
-                            <input type="text" class="form-control" id="edit_account_address" value={{account.address()}}>
+                            <input type="text" class="form-control" id="edit_account_address" value="{{account.address() if account.address() is not none}}">
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_city">City</label>                       
-                            <input type="text" class="form-control" id="edit_account_city"  value={{account.city()}}>                        
+                            <input type="text" class="form-control" id="edit_account_city"  value="{{account.city() if account.city() is not none}}">                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_state">State</label>                       
-                            <input type="text" class="form-control" id="edit_account_state"  value={{account.state()}}>                        
+                            <input type="text" class="form-control" id="edit_account_state"  value="{{account.state() if account.state() is not none}}">                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_zip">Zip Code</label>                       
-                            <input type="text" class="form-control" id="edit_account_zip"  value={{account.zip()}}>                        
+                            <input type="text" class="form-control" id="edit_account_zip"  value="{{account.zip() if account.zip() is not none}}">                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
