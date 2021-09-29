@@ -20,6 +20,7 @@ import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
+import { SustainabilitySummaryWidget } from "./types/sustainability/sustainability_summary.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 
 
@@ -57,6 +58,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
     attach("subscribe", SubscribeWidget);
     attach("market data table", MarketDataTableWidget);
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
+    attach("sustainability summary", SustainabilitySummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
 
     // Find widgets

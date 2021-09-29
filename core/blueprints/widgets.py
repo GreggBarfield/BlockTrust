@@ -71,7 +71,7 @@ def serve_sales_group():
         "group_name": sales_group_row["group_name"],
         "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
-        "name": g.user.first() + ' ' + g.user.last(),
+        "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.company()
     }
@@ -184,6 +184,7 @@ def serve_search_by_eid_and_visual_id():
             "matches": []
     }
 
+
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group():
@@ -238,15 +239,23 @@ def serve_save_sales_group():
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
-    g.db.sustainability.check(
+    g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/summary"}
-    
+    return { "redirect": "/dashboard/sustainability"}
+
+
+@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability():
+    return { 
+        "results": g.db.sustainability.get_by_account(g.account.id())
+    }, 200
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
