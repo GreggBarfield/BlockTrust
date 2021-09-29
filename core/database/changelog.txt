@@ -696,3 +696,7 @@ ADD COLUMN `bc_upload` TINYINT NOT NULL DEFAULT 0 AFTER `bc_hash`,
 ADD INDEX `bc_upload` (`bc_upload` ASC) VISIBLE;
 UPDATE matches SET bc_upload=1  
 WHERE bc_transaction_id IS NOT NULL;
+
+/* Rohan Sureshkumar 9/29/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `match_type` (`type` ASC) VISIBLE;
