@@ -11,9 +11,6 @@ let state = editaccountForm.find("#edit_account_state");
 let zip = editaccountForm.find("#edit_account_zip");
 let phone = editaccountForm.find("#edit_account_phone");
 
-
-
-
 let form = new AsyncForm({
     action: "/dashboard/edit/editaccount",
     form: editaccountForm[0],
