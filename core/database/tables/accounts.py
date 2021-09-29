@@ -356,3 +356,108 @@ class Accounts:
             """
         )
         return partners
+
+    def get_accounts1(self, company=None, sector=None, is_partner=None, partner_contact_name=None, partner_contact_email=None, partner_account=None,
+                            affiliate_id=None, address=None, city=None, state=None, zip=None, phone=None, token=None, stripe_paid=None, manual_paid=None,
+                            stripe_customer_id=None, partner_stripe_publishable_key=None, selectColumns=[]):
+        """
+        Get an account by the values specified.
+
+        Returns:
+            The account record if found else None
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        query_string_list = ["SELECT " + selectColumns + " FROM accounts "]
+        query_condition_list = []
+        query_values = {}
+
+        if company is not None:
+            query_condition_list.append(" company = %(company)s")
+            query_values["company"] = company
+
+        if sector is not None:
+            query_condition_list.append(" sector = %(sector)s")
+            query_values["sector"] = sector
+
+        if is_partner is not None:
+            query_condition_list.append(" is_partner = %(is_partner)s")
+            query_values["is_partner"] = is_partner
+
+        if partner_contact_name is not None:
+            query_condition_list.append(" partner_contact_name = %(partner_contact_name)s")
+            query_values["partner_contact_name"] = partner_contact_name
+
+        if partner_contact_email is not None:
+            query_condition_list.append(" partner_contact_email = %(partner_contact_email)s")
+            query_values["partner_contact_email"] = partner_contact_email
+
+        if partner_account is not None:
+            query_condition_list.append(" partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+
+        if affiliate_id is not None:
+            query_condition_list.append(" affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+
+        if address is not None:
+            query_condition_list.append(" address = %(address)s")
+            query_values["address"] = address
+
+        if city is not None:
+            query_condition_list.append(" city = %(city)s")
+            query_values["city"] = city
+
+        if state is not None:
+            query_condition_list.append(" state = %(state)s")
+            query_values["state"] = state
+
+        if zip is not None:
+            query_condition_list.append(" zip = %(zip)s")
+            query_values["zip"] = zip
+
+        if phone is not None:
+            query_condition_list.append(" phone = %(phone)s")
+            query_values["phone"] = phone
+
+        if token is not None:
+            query_condition_list.append(" token = %(token)s")
+            query_values["token"] = token
+
+        if stripe_paid is not None:
+            query_condition_list.append(" stripe_paid = %(stripe_paid)s")
+            query_values["stripe_paid"] = stripe_paid
+
+        if manual_paid is not None:
+            query_condition_list.append(" manual_paid = %(manual_paid)s")
+            query_values["manual_paid"] = manual_paid
+
+        if stripe_customer_id is not None:
+            query_condition_list.append(" stripe_customer_id = %(stripe_customer_id)s")
+            query_values["stripe_customer_id"] = stripe_customer_id
+
+        if partner_stripe_publishable_key is not None:
+            query_condition_list.append(" partner_stripe_publishable_key = %(partner_stripe_publishable_key)s")
+            query_values["partner_stripe_publishable_key"] = partner_stripe_publishable_key
+
+        if len(query_condition_list) > 1:
+            query_condition_list = " AND ".join(query_condition_list)
+        elif len(query_condition_list) == 1:
+            query_condition_list = query_condition_list[0]
+        else:
+            query_condition_list = ""
+        
+        query_string_list = ' '.join(query_string_list)
+        if len(query_condition_list) > 0:
+            query = query_string_list + " WHERE " + query_condition_list
+        else:
+            query = query_string_list
+
+        account_rows = self._db.execute_d(query, query_values)
+        if len(account_rows) > 0:
+            return account_rows
+        else:
+            return None

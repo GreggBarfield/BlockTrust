@@ -1,30 +1,15 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
-
 $(document).ready(function () {
     for(let val in accounts){
         if(accounts[val].name!=="" && accounts[val].company!==null){
             $("#account").append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`)
         }
 }
+
+$(".form-inline").submit(function(event){
+    event.preventDefault();
+    var values = $(this).serializeArray();
+    var account_selected = values[0].value;
+    window.location.href = '/employee/dashboard/view-accounts/'+ account_selected;
+    return false;
 });
-
-
-let accountForm = $("#select_account_form");
-let statusMessage = accountForm.find("#account_status_message");
-let errorMessage = accountForm.find("#account_error_message");
-
-let account = accountForm.find("#account");
-
-let form = new AsyncForm({
-    action: "/employee/dashboard/view-accounts/action",
-    form: accountForm[0],
-    status: statusMessage[0],
-    error: errorMessage[0],
-    redirectMessage: "Loading users...",
-    loadingMessage: "Loading users...",
-    getData: () => {
-        return {
-            account: account.val()
-        }
-    }
-})
+});

@@ -67,7 +67,7 @@ let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone")
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/signup/action",
+    action: "/employee/dashboard/create-new-account/action",
     form: signupForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
