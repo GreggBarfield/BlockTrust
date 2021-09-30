@@ -134,7 +134,7 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = Accounts(g.db).get_accounts()
+    accounts = Accounts(g.db).get_accounts(is_partner=0)
     return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
 
 
