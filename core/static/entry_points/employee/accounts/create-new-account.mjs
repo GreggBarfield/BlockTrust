@@ -1,7 +1,6 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 $(document).ready(function(){
-    console.log(typeof(sectors_by_name));
     $('#signup_form_sector').change(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
