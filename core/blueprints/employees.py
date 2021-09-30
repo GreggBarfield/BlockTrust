@@ -31,7 +31,7 @@ def serve_employee_dashboard():
 @bp.route("/employee/dashboard/create-new-account", methods=["GET"])
 @crut.require_employee
 def serve_employee_create_account():
-    partners = Accounts(g.db).get_partners()
+    partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_id": sectors_by_id, "partners": partners})
 
 
@@ -134,7 +134,7 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = Accounts(g.db).get_accounts()
+    accounts = Accounts(g.db).get_accounts(is_partner=0)
     return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
 
 
