@@ -1,34 +1,35 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 $(document).ready(function(){
+    console.log(typeof(sectors_by_name));
     $('#signup_form_sector').change(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
         $("#signup_form_partner").append('<option value=0>No Partner</option>')
-        if($(this).val()==4){
+        if($(this).val()==sectors_by_name["Cow-Calf"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==4){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Cow-Calf"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==5){
+        if($(this).val()==sectors_by_name["Auction House"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==5){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Auction House"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==6){
+        if($(this).val()==sectors_by_name["Feedlot"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==6){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Feedlot"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==7){
+        if($(this).val()==sectors_by_name["Packer"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==7){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Packer"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }

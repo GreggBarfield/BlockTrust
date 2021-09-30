@@ -14,7 +14,7 @@ from ..common_exceptions import ExportException
 from ..utilities.email import send_email
 from ..renderers.email import render_email
 
-from ..sectors import sectors_by_id
+from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 from ..utilities import crut, auth
 
@@ -32,7 +32,7 @@ def serve_employee_dashboard():
 @crut.require_employee
 def serve_employee_create_account():
     partners = Accounts(g.db).get_partners()
-    return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_id": sectors_by_id, "partners": partners})
+    return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_name": sectors_by_name, "partners": partners})
 
 
 @bp.route("/employee/dashboard/create-new-account/action", methods=["POST"])
@@ -74,7 +74,7 @@ def serve_employee_create_account_action():
             raise ExportException("Signup failed: " + str(e))
         send_email(
             "New BlockTrust Network account",
-            render_email("employee/new_account.html", {
+            render_email("employee/new-account.html", {
                 'username': required['email']
             }), required['email'], override=True
         )
@@ -138,16 +138,16 @@ def serve_view_account():
     return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/view-accounts/<tok>", methods=["GET"])
+@bp.route("/employee/dashboard/view-accounts/<int:account_id>", methods=["GET"])
 @crut.require_employee
-def serve_view_account_users(tok):
-    account_users = Users(g.db).get_rows_by_account(tok)
+def serve_view_account_users(account_id):
+    account_users = Users(g.db).get_rows_by_account(account_id)
     return employee_render("/employee/accounts/view-account-users.html", {"account_users": account_users})
 
 
-@bp.route("/employee/dashboard/login-as-user/<tok>", methods=["GET"])
+@bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
 @crut.require_employee
-def serve_login_as_user(tok):
+def serve_login_as_user(user_id):
     auth.logout()
-    auth.employee_login_as_user(tok)
+    auth.employee_login_as_user(user_id)
     return redirect("/dashboard")
