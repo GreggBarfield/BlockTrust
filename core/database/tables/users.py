@@ -1,5 +1,4 @@
 from ..objects.user import User
-from .. import database
 import bcrypt
 from ..no_value import NoValue
 from ..frag import frag
@@ -21,7 +20,7 @@ class UsersException(Exception):
 
 class Users:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get(self, user_id):

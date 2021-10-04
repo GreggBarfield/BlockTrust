@@ -75,6 +75,30 @@ class Matches:
             )
         ))
 
+    def get_all_matches_for_an_account(self, account_links, restrict_types=(), ljoin_account_links=False, match_cols=[]):
+        """Gets all matches by an account.
+
+        Params:
+            account_links: all the account links of an account (should be 1)
+            restrict_types: match types
+            ljoin_account_links: Whether to left join account links
+            match_cols: optional specify the columns needed from the matches table
+
+        Returns:
+            A list of dictionaries containing matches and account_links data if joined (possibly empty)
+            No duplicates
+        """
+        match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
+        return self._db.execute_d(
+            "SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query) + " " + (Matches._account_links_clause if ljoin_account_links else "")
+            + " FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else "")
+            + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%(account_links)s)) AND matches.type IN (%(types)s)",
+            {
+                "account_links": ",".join([str(account_link.id()) for account_link in account_links]),
+                "types": ",".join([str(t) for t in restrict_types])
+            }
+        )
+
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.
 
@@ -119,13 +143,19 @@ class Matches:
             )
         ))
 
-    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None, time=None):
+    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
+                  time=None, selectColumns=[]):
         """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
 
         Returns:
             The match record if found else None
         """
-        query_string_list = ["SELECT * FROM matches WHERE eid= %(eid)s"]
+        if len(selectColumns) > 0:
+            selectColumns = ", ".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
         query_values = {"eid": eid}
 
         if(visual_id is not None):
@@ -218,24 +248,6 @@ class Matches:
                 "bc_hash": bc_hash
             }
         )
-
-    def update(self, id, bc_transaction_id, bc_hash):
-        """Updates the match record. Only supporting updation of block chain values for matches which were not initially inserted into the block chain
-
-        Returns:
-        The number of rows updated
-        """
-        self._db.execute(
-            """
-                UPDATE matches SET bc_transaction_id=%(bc_transaction_id)s, bc_hash=%(bc_hash)s WHERE id=%(id)s;
-            """,
-            {
-                'bc_transaction_id': bc_transaction_id,
-                'bc_hash': bc_hash,
-                'id': id
-            }
-        )
-        return self._db.row_count()
 
     def get_count_eid_distinct(self):
         """Count the number of distinct EIDs in the database.
