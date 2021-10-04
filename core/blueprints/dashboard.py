@@ -309,8 +309,8 @@ def serve_edit_edituser():
         try:
             g.db.users.update_user(
                         username=g.user.username(),
-                        first=request.form["first"],
-                        last=request.form["last"],
+                        first_name=request.form["first"],
+                        last_name=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
