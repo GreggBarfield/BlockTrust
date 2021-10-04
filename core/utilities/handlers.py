@@ -58,7 +58,7 @@ def attach_handlers(app):
     @app.errorhandler(RequireSubscriberFailed)
     def handle_require_subscription_failed(e):
         # If stripe_customer_id is not set, send them to the require subscription page
-        if g.account.stripe_customer_id() == "" or g.account.stripe_customer_id() is None:
+        if g.account.stripe_customer_id() == "" or g.account.stripe_customer_id() is None or g.account.stripe_paid == 0:
             return dashboard_render("errors/not-subscribed.html")
 
     @app.errorhandler(ExportException)
