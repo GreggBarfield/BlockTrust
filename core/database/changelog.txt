@@ -639,3 +639,11 @@ ALTER TABLE `example_db_1`.`api_inserts`
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
 ALTER TABLE `example_db_1`.`api_inserts` 
 CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+/* Conner Charles 10/4/2021 */
+ALTER TABLE `example_db_1`.`usda_reports` 
+ADD INDEX `state_idx` (`market_location_state` ASC) INVISIBLE,
+ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC) VISIBLE,
+ADD INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
+ADD INDEX `report_date_idx` (`slug_id` ASC, `report_date` ASC) VISIBLE;
+;
