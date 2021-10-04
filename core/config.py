@@ -85,3 +85,4 @@ FLATFILE_LICENSE = config_file["flatfile_license"]
 
 BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
 BLOCKCHAIN_UPLOADS = config_file["blockchain"]["upload"]
+BLOCKCHAIN_BATCH_SIZE = config_file["blockchain"]["batch_size"]

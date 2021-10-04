@@ -11,7 +11,7 @@ def transmit(hashes):
     """Transmits hashes to the blockchain.
 
     Returns:
-        String, 64-character record ID (transaction ID?). Or None if uploads are switched off
+        String, 64-character record ID (transaction ID?). Or None only if uploads are switched off
     """
     if BLOCKCHAIN_UPLOADS:
         try:
