@@ -111,6 +111,11 @@ class Database:
             raise error
 
     def execute_d(self, code, params=tuple()):
+        """Executes a query with params provided.
+
+        Returns:
+            List of dictionaries possibly empty
+        """
         self.execute(code, params)
         return self.fetch_all()
 
