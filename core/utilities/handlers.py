@@ -1,10 +1,11 @@
 from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
-from .crut.requirements import RequireAccountFailed, RequireUserFailed
+from .crut.requirements import RequireAccountFailed, RequireUserFailed, RequireSubscriberFailed
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
+
 
 def respond(code, short, exception=None):
     """Generate a response.
@@ -31,7 +32,7 @@ def respond(code, short, exception=None):
 
 
 def attach_handlers(app):
-    
+
     @app.errorhandler(RequireUserFailed)
     def handle_require_user_failed(e):
         # If g.api is not set and the request method is GET, redirect and have them sign in
@@ -44,7 +45,7 @@ def attach_handlers(app):
         else:
             # Else send a 401
             return respond(401, 'Not logged in')
-    
+
     @app.errorhandler(RequireAccountFailed)
     def handle_require_account_failed(e):
         # If g.api is not set and the request method is GET, send them to account missing page
@@ -53,6 +54,12 @@ def attach_handlers(app):
         else:
             # Else send a 401
             return respond(401, 'No account selected', e)
+
+    @app.errorhandler(RequireSubscriberFailed)
+    def handle_require_subscription_failed(e):
+        # If stripe_customer_id is not set, send them to the require subscription page
+        if g.account.stripe_customer_id() == "" or g.account.stripe_customer_id() is None:
+            return dashboard_render("errors/not-subscribed.html")
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):

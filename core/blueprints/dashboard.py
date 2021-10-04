@@ -148,6 +148,7 @@ def serve_accounts():
 
 @bp.route('/dashboard/sales-groups', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_sales_groups():
     return dashboard_render("sales-groups/list.html")
 
@@ -177,6 +178,7 @@ def serve_messages_specific(open_message_id):
 
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_new_sales_group():
     new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
 
@@ -185,6 +187,7 @@ def serve_new_sales_group():
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_edit_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
@@ -196,6 +199,7 @@ def serve_edit_sales_group(sales_group_id):
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_view_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
 
@@ -209,6 +213,7 @@ def serve_view_sales_group(sales_group_id):
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
+@crut.require_subscriber
 def serve_manage_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
@@ -270,24 +275,28 @@ def serve_upload_tags():
 
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_questionaire.html")
 
 
 @bp.route('/dashboard/sustainability/summary', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_sustainability_summary():
     return dashboard_render("sustainability/sustainability_summary.html")
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_market_state_data():
     return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
 @crut.require_account
+@crut.require_subscriber
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
     market_states = g.db.usda_reports.get_all_states()

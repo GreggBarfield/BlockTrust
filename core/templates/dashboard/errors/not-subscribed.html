@@ -1,0 +1,24 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Subscription required" %}
+{% set dashboard_locations = [] %}
+
+{% block dashboard_content_header %}
+Subscription required
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">You're not subscribed.</h5>
+                <p class="card-text">You need to be subscribed in order to use this feature.</p>
+                <p class="card-text"><a href="/dashboard/plans">View Subscription plans</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

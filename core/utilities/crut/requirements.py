@@ -22,14 +22,14 @@ def _require_account():
     raise RequireAccountFailed()
 
 
-def RequireSubscriberFailed(Exception):
+class RequireSubscriberFailed(Exception):
     pass
 
 
 def _require_subscriber():
     if g.account.stripe_customer_id() != "" and g.account.stripe_customer_id() is not None:
         return
-    raise RequireAccountFailed()
+    raise RequireSubscriberFailed()
 
 
 class RequireEmployeeFailed(Exception):
