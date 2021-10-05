@@ -89,15 +89,14 @@ class Matches:
             No duplicates
         """
         match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
-        return self._db.execute_d(
+
+        matches = self._db.execute_d(
             "SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query) + " " + (Matches._account_links_clause if ljoin_account_links else "")
             + " FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else "")
-            + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%(account_links)s)) AND matches.type IN (%(types)s)",
-            {
-                "account_links": ",".join([str(account_link.id()) for account_link in account_links]),
-                "types": ",".join([str(t) for t in restrict_types])
-            }
+            + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (" + ",".join([str(account_link.id()) for account_link in account_links]) + "))"
+            + " AND matches.type IN (" + ",".join([str(t) for t in restrict_types]) + ")"
         )
+        return matches
 
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.

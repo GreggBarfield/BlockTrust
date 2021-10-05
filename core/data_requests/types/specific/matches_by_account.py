@@ -41,6 +41,6 @@ def auth(params):
             account_links,
             restrict_types=restrict_types,
             ljoin_account_links=ljoin_account_links,
-            match_cols=["lat", "lon", "time", "eid"]
+            match_cols=["lat", "lon", "time", "eid", "type"]
         )
     }
