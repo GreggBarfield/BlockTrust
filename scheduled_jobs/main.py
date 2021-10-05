@@ -40,12 +40,12 @@ try:
         # this will run once between 6 and 7 AM UTC time
         # if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
             # create new thread only if this thread is not already running
-        if not any(t.getName() == "Blockchain" for t in threads):
-            JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
-            t = Thread(target=run_bc_tasks, name="Blockchain", args=[Database(MYSQL_CONFIG)])
-            t.start()
-            threads.append(t)
-            print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
+        # if not any(t.getName() == "Blockchain" for t in threads):
+        #     JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
+        #     t = Thread(target=run_bc_tasks, name="Blockchain", args=[Database(MYSQL_CONFIG)])
+        #     t.start()
+        #     threads.append(t)
+        #     print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 60 mins. Current_time:", current_time)
         time.sleep(3600)
