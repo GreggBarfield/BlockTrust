@@ -75,7 +75,7 @@ class Matches:
             )
         ))
 
-    def get_all_matches_for_an_account(self, account_links, restrict_types=(), ljoin_account_links=False, match_cols=[]):
+    def get_all_matches_for_an_account(self, account_links=[], restrict_types=(), ljoin_account_links=False, match_cols=[]):
         """Gets all matches by an account.
 
         Params:
@@ -88,7 +88,7 @@ class Matches:
             A list of dictionaries containing matches and account_links data if joined (possibly empty)
             No duplicates
         """
-        if account_links is not None:
+        if len(account_links) > 0:
             match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
 
             matches = self._db.execute_d(
