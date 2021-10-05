@@ -301,7 +301,7 @@ def serve_market_data(state, slug_id):
     market_states = g.db.usda_reports.get_all_states()
 
     if stateLabel in market_states:
-        return dashboard_render("data/market-data.html", 
+        return dashboard_render("data/market-data.html",
             {
                 "slug_id": slug_id,
                 "state": state
@@ -366,6 +366,8 @@ def serve_invite_user():
 @crut.require_subscriber
 def serve_subscribed_user():
     return "Only subscribers"
+
+
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
