@@ -1,0 +1,21 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Sales Groups" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups")] %}
+
+{% block dashboard_content_header %}
+Sales Groups
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <h5 class="card-header">Search Sales Groups</h5>
+            <div class="card-body widget" class="mb-0 widget" data-widget-type="search sales groups"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}
