@@ -1,5 +1,4 @@
 from ..objects.user import User
-from .. import database
 import bcrypt
 from ..no_value import NoValue
 from ..frag import frag
@@ -21,7 +20,7 @@ class UsersException(Exception):
 
 class Users:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get(self, user_id):
@@ -137,7 +136,7 @@ class Users:
         self._db.execute_d(
                 """
                 UPDATE users
-                SET email_verified="Y"
+                SET is_email_verified=1
                 WHERE users.email=%(email)s
                 """,
                 {
@@ -166,9 +165,9 @@ class Users:
             }
         )
         if len(matching_user) > 0:
-            return matching_user[0]['email_verified']
+            return matching_user[0]['is_email_verified']
         else:
-            return "N"
+            return 0
 
     @staticmethod
     def _format_field(field):
@@ -249,17 +248,17 @@ class Users:
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first, last, email_verified)
+                    (password, username, email, phone, first_name, last_name, is_email_verified)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first)s, %(last)s, %(email_verified)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
                 "username": username,
                 "phone": phone,
                 "email": email,
-                "first": first_name,
-                "last": last_name,
+                "first_name": first_name,
+                "last_name": last_name,
                 "email_verified": email_verified
             }
         )

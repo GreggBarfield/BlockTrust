@@ -55,19 +55,3 @@ class Animal:
             A (possibly empty) list of Match(s)
         """
         return self._matches
-
-    def data(self, type_id):
-        """Get a type's data by ID.
-
-        Returns:
-            The type's data, or None.
-        """
-        return self._matches_by_type[type_id] if type_id in self._matches_by_type else None
-
-    def match(self, type_id):
-        """Get a type's Match object by ID.
-
-        Returns:
-            The type's Match object, or None.
-        """
-        return self._matches_by_type[type_id] if type_id in self._matches_by_type else None
