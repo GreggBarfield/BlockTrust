@@ -99,7 +99,7 @@ class Matches:
             )
             return matches
         else:
-            return None
+            return []
 
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.
