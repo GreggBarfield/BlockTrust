@@ -91,6 +91,53 @@ class Matches:
         if len(account_links) > 0:
             match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
 
+            # initialize argument values to account link ids
+            args = [al.id() for al in account_links]
+
+            query_statements = []
+            query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
+            query_statements.append(Matches._account_links_clause if ljoin_account_links else "")
+            query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
+
+            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
+            in_values = ', '.join(list(map(lambda x: '%s', args)))
+            al_clause = al_clause % in_values
+            query_statements.append(al_clause)
+
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_values = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_values
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            print("query: ", query)
+            print("args:", args)
+            matches = self._db.execute_d(
+                query, args
+            )
+            return matches
+        else:
+            return []
+
+    #TODO: bad query since No sql parametrization. Will be removed, kept for testing.
+    def get_all_matches_for_an_account_test(self, account_links=[], restrict_types=(), ljoin_account_links=False, match_cols=[]):
+        """Gets all matches by an account.
+
+        Params:
+            account_links: all the account links of an account (should be 1)
+            restrict_types: match types
+            ljoin_account_links: Whether to left join account links
+            match_cols: optional specify the columns needed from the matches table
+
+        Returns:
+            A list of dictionaries containing matches and account_links data if joined (possibly empty)
+            No duplicates
+        """
+        if len(account_links) > 0:
+            match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
+
             matches = self._db.execute_d(
                 "SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query) + " " + (Matches._account_links_clause if ljoin_account_links else "")
                 + " FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else "")
