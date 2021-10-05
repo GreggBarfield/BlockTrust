@@ -27,7 +27,7 @@ class RequireSubscriberFailed(Exception):
 
 
 def _require_subscriber():
-    if g.account.stripe_customer_id() != "" and g.account.stripe_customer_id() is not None and g.account.stripe_paid() == 1:
+    if g.account.stripe_customer_id() != "" and g.account.stripe_customer_id() is not None and g.account.generated_paid() == 1:
         return
     raise RequireSubscriberFailed()
 
