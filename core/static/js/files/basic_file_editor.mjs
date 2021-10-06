@@ -10,7 +10,6 @@ export class BasicFileEditor {
         this.restrictions = restrictions;
         this.fileDetails = fileDetails;
         //TODO: description
-        console.log("fileDetails",fileDetails)
         if (fileIDs !== null) {
             for( const[index,fileID] of fileIDs.entries()){
                 const curDes = fileDescriptions[index];
@@ -90,7 +89,7 @@ export class BasicFileEditor {
             let fileDescriptions = document.createElement("input");
             fileDescriptions.type = "text";
             fileDescriptions.className = "form-control";
-            fileDescriptions.id = this.files.indexOf(file);
+            fileDescriptions.id = "file"+this.files.indexOf(file)+"Description";
             if("description" in file){
                 fileDescriptions.value = file.description;
             }
