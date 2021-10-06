@@ -17,14 +17,13 @@ Create New Account
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-8 mb-2">
-                            <form class="bg-white shadow p-3" id="employee_signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
+                            <form class="bg-white shadow p-3" id="employee_signup_form" method="POST"> 
                                 <div class="row">
                                     <h4>Company Information:</h4>
                                     <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
                                         title="Insert text here">
                                     </a>
                                 </div>
-            
                                 <div class="row">
                                     <div class="col-lg-12 form-group">
                                         <small class="text-muted"><span style="color: red;">*Required</span></small>
@@ -38,8 +37,8 @@ Create New Account
                                             </label>
                                             <select class="form-control" id="signup_form_sector">
                                                 <option disabled selected value> -- Select an option -- </option>
-                                                {% for sector in sectors_by_id %}
-                                                <option value={{sector}}>{{sectors_by_id[sector]}}</option>
+                                                {% for sector in sectors_by_name %}
+                                                <option value={{sectors_by_name[sector]}}>{{sector}}</option>
                                                 {% endfor %}
                                             </select>
                                             <span class="focus-border"></span>
@@ -254,6 +253,8 @@ Create New Account
 </div>
 <script type="text/javascript">
 var partners = JSON.parse('{{partners|tojson}}')
+var sectors_by_name = JSON.parse('{{sectors_by_name|tojson}}')
+
 </script>
 <script type="module" src="/static/entry_points/employee/accounts/create-new-account.mjs"></script>
 {% endblock employee_content %}

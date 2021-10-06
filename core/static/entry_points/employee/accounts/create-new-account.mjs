@@ -5,30 +5,30 @@ $(document).ready(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
         $("#signup_form_partner").append('<option value=0>No Partner</option>')
-        if($(this).val()==4){
+        if($(this).val()==sectors_by_name["Cow-Calf"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==4){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Cow-Calf"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==5){
+        if($(this).val()==sectors_by_name["Auction House"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==5){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Auction House"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==6){
+        if($(this).val()==sectors_by_name["Feedlot"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==6){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Feedlot"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
         }
-        if($(this).val()==7){
+        if($(this).val()==sectors_by_name["Packer"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==7){
+                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Packer"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
                 }
             }
@@ -67,7 +67,7 @@ let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone")
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/signup/action",
+    action: "/employee/dashboard/create-new-account/action",
     form: signupForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

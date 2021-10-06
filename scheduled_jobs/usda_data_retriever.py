@@ -1,11 +1,11 @@
 import requests
 
-from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT,
-                      USDA_PUBLIC_ENDPOINT)
+from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT, USDA_PUBLIC_ENDPOINT)
 from core.database.objects.usda_report import USDAReport
 from core.database.tables.usda_reports import USDAReports
 from core.database.tables.error_logs import ErrorLogs
 import traceback
+import datetime
 
 
 class UsdaDataRetriever:
@@ -103,6 +103,7 @@ def get_usda_data(db):
         retriever = UsdaDataRetriever(db)
         retriever.get_public_reports()
         retriever.get_mandatory_reports()
+        print("USDA Job Exiting. Current time: ", datetime.datetime.now().time())
     except Exception as e:
         ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
     finally:

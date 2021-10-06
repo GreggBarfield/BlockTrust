@@ -12,16 +12,15 @@ View Accounts
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">View Accounts</h5>
+            <h5 class="card-header">Select Account</h5>
             <div class="card-body col-lg-6 mb-2">
-                <form class="bg-white"  id="select_account_form"  method="POST"> 
+                <form class="bg-white form-inline"  id="select_account_form"  method="POST"> 
                     <div class="form-group">
-                        <label for="account">Account</label>
-                        <select class="form-control" id="account" required>
+                        <select class="form-control m-2" name="accounts" id="accounts" required>
                             <option disabled selected value> -- Select an option -- </option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Get Users</button>
+                    <button type="submit" class="btn btn-primary m-2">Get Users</button>
                 <p class="mt-2 mb-0" id="account_status_message" style="display:none;">Hang on, loading users...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="account_error_message">Internal error...</p>
             

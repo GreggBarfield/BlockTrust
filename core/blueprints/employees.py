@@ -1,21 +1,21 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
+    request, Blueprint, g, redirect
 )
 from ..renderers.employee import employee_render
 from ..renderers.outside import outside_render
 
-from ..database.tables.users import UsersException
+from ..database.tables.accounts import Accounts
+from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
+from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 
 from ..common_exceptions import ExportException
 
-from ..utilities import auth
 from ..utilities.email import send_email
-from ..utilities import token
 from ..renderers.email import render_email
 
-from ..sectors import sectors_by_id
+from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 import json
 from ..utilities import crut, auth
@@ -33,12 +33,12 @@ def serve_employee_dashboard():
 @bp.route("/employee/dashboard/create-new-account", methods=["GET"])
 @crut.require_employee
 def serve_employee_create_account():
-    partners = g.db.accounts.get_partners()
-    return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_id": sectors_by_id, "partners": partners})
+    partners = Accounts(g.db).get_accounts(is_partner=1)
+    return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_name": sectors_by_name, "partners": partners})
 
 
-@bp.route("/employee/dashboard/signup/action", methods=["POST"])
-def serve_employee_signup():
+@bp.route("/employee/dashboard/create-new-account/action", methods=["POST"])
+def serve_employee_create_account_action():
     try:
         required = {
             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
@@ -76,7 +76,7 @@ def serve_employee_signup():
             raise ExportException("Signup failed: " + str(e))
         send_email(
             "New BlockTrust Network account",
-            render_email("employee/new_account.html", {
+            render_email("employee/new-account.html", {
                 'username': required['email']
             }), required['email'], override=True
         )
@@ -91,7 +91,7 @@ def serve_add():
     g.db.execute(
         """
         INSERT INTO employees(first_name,last_name,username,email,phone,`password`)
-        values("Nisheet","Thakur","testadminuser","testadminuser@gmil.com","2012087908",%(password)s);
+        values("John","Doe","testadminuser","testadminuser@gmil.com","2012057555",%(password)s);
         """,
         {
             "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
@@ -136,34 +136,23 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = g.db.accounts.get_accounts()
+    accounts = Accounts(g.db).get_accounts(is_partner=0)
     return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/view-accounts/action", methods=["POST"])
-def serve_view_account_action():
-    redirect_to = "/employee/dashboard/view-accounts/"+request.form["account"]
-    return {"redirect": redirect_to}
-
-
-@bp.route("/employee/dashboard/view-accounts/<tok>", methods=["GET"])
+@bp.route("/employee/dashboard/view-accounts/<int:account_id>", methods=["GET"])
 @crut.require_employee
-def serve_view_account_users(tok):
-    account_users = g.db.users.get_rows_by_account(tok)
+def serve_view_account_users(account_id):
+    account_users = Users(g.db).get_rows_by_account(account_id)
     return employee_render("/employee/accounts/view-account-users.html", {"account_users": account_users})
 
 
-@bp.route("/employee/dashboard/login-as-user/action", methods=["POST"])
-def serve_login_as_user_action():
-    redirect_to = "/employee/dashboard/login-as-user/"+request.form['user']
-    return {"redirect": redirect_to}
-
-
-@bp.route("/employee/dashboard/login-as-user/<tok>", methods=["GET"])
+@bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
 @crut.require_employee
-def serve_login_as_user(tok):
+def serve_login_as_user(user_id):
+    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, g.employee.id())
     auth.logout()
-    auth.employee_login_as_user(tok)
+    auth.employee_login_as_user(user_id)
     return redirect("/dashboard")
 
 
