@@ -90,9 +90,7 @@ class Matches:
         """
         if len(account_links) > 0:
             match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
-
-            # initialize argument values to account link ids
-            args = [al.id() for al in account_links]
+            account_link_ids = [al.id() for al in account_links]
 
             query_statements = []
             query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
@@ -100,23 +98,20 @@ class Matches:
             query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
 
             al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
-            in_values = ', '.join(list(map(lambda x: '%s', args)))
-            al_clause = al_clause % in_values
+            in_clause = ', '.join(list(map(lambda x: '%s', account_link_ids)))
+            al_clause = al_clause % in_clause
             query_statements.append(al_clause)
+            args = account_link_ids
 
             if len(restrict_types) > 0:
                 type_clause = "AND matches.type IN (%s)"
-                in_values = ', '.join(list(map(lambda x: '%s', restrict_types)))
-                type_clause = type_clause % in_values
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
                 query_statements.append(type_clause)
                 args += restrict_types
 
             query = " ".join(query_statements)
-            print("query: ", query)
-            print("args:", args)
-            matches = self._db.execute_d(
-                query, args
-            )
+            matches = self._db.execute_d(query, args)
             return matches
         else:
             return []

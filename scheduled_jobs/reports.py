@@ -37,7 +37,7 @@ def make_missed_reports_for_accounts(db):
 
     """
     for row in db.execute_d("SELECT id FROM accounts WHERE accounts.id NOT IN (SELECT account_id FROM reports WHERE account_id IS NOT NULL)"):
-        print("Found account with no reports setup: ", row['id'])
+        print("Reports Thread: Found account with no reports setup: ", row['id'])
         make_report(db, row['id'])
 
 

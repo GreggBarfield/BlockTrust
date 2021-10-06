@@ -14,8 +14,7 @@ def run(db):
 
     if report is None:
         print("Sleeping. Current time:", datetime.datetime.now().time())
-        #todo: change to 1 hour
-        sleep(600)
+        sleep(3600)
     else:
         print("Running report:", report['id'], "account id:", report['account_id'])
         try:
