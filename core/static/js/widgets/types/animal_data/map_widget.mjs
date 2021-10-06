@@ -68,6 +68,7 @@ export class MapWidget extends Widget {
                 }
             ).then((data) => {
                 this.match_rows = data.result.matches;
+                console.log("match_rows from map: ", this.match_rows)
             }),
 
             this.getData(

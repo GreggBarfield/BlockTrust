@@ -1,7 +1,10 @@
 from core.config import (BLOCKCHAIN_BATCH_SIZE, BLOCKCHAIN_UPLOADS)
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.job_runs import JobRuns
 import traceback
 from core.utilities.blockchain import blockchain_helper
+import datetime
+import time
 
 
 class Blockchain:
@@ -55,11 +58,14 @@ class Blockchain:
         return self._db.row_count()
 
 
-def run_bc_tasks(db):
+def run_bc_tasks(job_run_id, db):
     try:
         bc = Blockchain(db)
         bc.insert_matches_to_bc()
+        JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
+        print("Blockchain Job Exiting. Current time: ",  datetime.datetime.now().time())
     except Exception as e:
         ErrorLogs(db).insert_error_log("Blockchain", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+        JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"), {"error": str(e)})
     finally:
         db.close()
