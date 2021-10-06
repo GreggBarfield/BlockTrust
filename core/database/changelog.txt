@@ -700,3 +700,13 @@ WHERE bc_transaction_id IS NOT NULL;
 /* Rohan Sureshkumar 9/29/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD INDEX `match_type` (`type` ASC) VISIBLE;
+
+/* Nisheet Thakur 10/5/2021 */
+CREATE TABLE transactions(
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `account` INT,
+  `amount` FLOAT,
+  `type` INT,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  );
