@@ -71,7 +71,7 @@ def serve_sales_group():
         "group_name": sales_group_row["group_name"],
         "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
-        "name": g.user.first() + ' ' + g.user.last(),
+        "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.company()
     }
@@ -184,6 +184,7 @@ def serve_search_by_eid_and_visual_id():
             "matches": []
     }
 
+
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group():
@@ -242,11 +243,19 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
-    g.db.sustainability.check(
+    g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/summary"}
+    return { "redirect": "/dashboard/sustainability"}
+
+
+@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability():
+    return { 
+        "results": g.db.sustainability.get_by_account(g.account.id())
+    }, 200
 
 
 @bp.route('/widgets/data/save_feedyard', methods=['POST'])
@@ -280,6 +289,13 @@ def serve_get_upload_config():
     }
 
 
+@bp.route('/widgets/data/get_accounts_list', methods=['POST'])
+@crut.require_account
+def serve_get_accounts_list():
+    return {
+        "accounts": g.db.accounts.get_accounts()
+    }
+
 @bp.route('/widgets/data/get_account_messages', methods=['POST'])
 @crut.require_account
 def serve_get_account_messages():
@@ -293,10 +309,10 @@ def serve_get_account_messages():
 def serve_send_message():
     message_id = g.db.messages.insert_message(
         g.account.id(),
-        request.json["to_account"],
-        request.json["data"]
+        request.json["params"]["to_account"],
+        request.json["params"]["data"]
     )
-    send_to_users = g.db.users.get_rows_by_account(request.json["to_account"])
+    send_to_users = g.db.users.get_rows_by_account(request.json["params"]["to_account"])
     for user in send_to_users:
         send_email(
             "New Message",
@@ -389,3 +405,27 @@ def serve_get_account_type_visibilities():
             g.account.id()
         )
     }
+
+
+@bp.route('/widgets/data/get_market_state_data', methods=['POST'])
+@crut.require_account
+def serve_get_market_state_data():
+    return {
+        'market_data': g.db.usda_reports.get_all_states()
+    }, 200
+
+
+@bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
+@crut.require_account
+def serve_get_market_city_data(state):
+    return {
+        'market_data': g.db.usda_reports.get_all_city_by_state(state)
+    }, 200
+
+
+@bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
+@crut.require_account
+def serve_get_market_data(slug_id):
+    return {
+        'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
+    }, 200

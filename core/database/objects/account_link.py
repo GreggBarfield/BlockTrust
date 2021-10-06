@@ -15,14 +15,12 @@ class AccountLinkException(Exception):
 
 class AccountLink:
 
-    def __init__(self, db, account_link_row):
+    def __init__(self, account_link_row):
         """AccountLink constructor.
 
         Params:
-            db: Database object
             account_link_row: The account link's database row
         """
-        self._db = db
         self._row = deepcopy(account_link_row)
 
 
@@ -34,6 +32,13 @@ class AccountLink:
         """
         return self._row['id']
 
+    def partner_account_id(self): 
+        """Gets the partner_account attached to the link
+
+        Returns:
+            An int or None
+        """
+        return self._row['partner_account']
 
     def account_id(self):
         """Gets the account ID attached to the link
@@ -58,14 +63,6 @@ class AccountLink:
             An int or None
         """
         return self._row['affiliate_id']
-
-    def affiliate_id_type(self):
-        """Gets the affiliate_id Type attached to the link
-
-        Returns:
-            An int or None
-        """
-        return self._row['affiliate_id_type']
 
     def sector(self):
         """Gets the sector ID attached to the link.

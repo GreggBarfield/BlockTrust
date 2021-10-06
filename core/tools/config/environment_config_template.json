@@ -32,7 +32,8 @@
         "email_token_salt":"blocktrustnetwork"
     },
     "support": {
-        "general_email": "info@blocktrustnetwork.com"
+        "general_email": "info@blocktrustnetwork.com",
+        "general_tag_store_email": "tags@blocktrustnetwork.com"
     },
     "stripe": {
         "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR",
@@ -40,5 +41,15 @@
         "publishable_key": "pk_test_51HRTwoGWRtomrLg3eckt8XeKxqtfdfAT1hZh5C2hnfyJFyjM0l0UGnCYVSv6CS6M8Rs8rcBu4Mm03xqf9WmWaIXr00jI2Eqsmh",
         "basic": "price_1IHjY1GWRtomrLg3OifgDsmq"
     },
-    "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba"
+    "usda": {
+        "api_key": "YEULfkcsaG943pPgePJa/6KIWH8Fajkj",
+        "public_endpoint": "https://marsapi.ams.usda.gov/services/v1.2/",
+        "mandatory_endpoint": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/"
+    },
+    "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
+    "blockchain": {
+           "endpoint": "http://ec2-13-59-58-208.us-east-2.compute.amazonaws.com:3000",
+           "upload": true,
+           "batch_size": 10
+    }
 }

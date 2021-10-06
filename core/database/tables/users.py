@@ -1,5 +1,4 @@
 from ..objects.user import User
-from .. import database
 import bcrypt
 from ..no_value import NoValue
 from ..frag import frag
@@ -21,7 +20,7 @@ class UsersException(Exception):
 
 class Users:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get(self, user_id):
@@ -110,7 +109,7 @@ class Users:
         """
         rows = self._db.execute_d(
             """
-            SELECT users.*, accounts.name AS account_name FROM users
+            SELECT users.*, accounts.company AS account_name FROM users
                 INNER JOIN account_users
                     ON account_users.user=users.id
                 INNER JOIN accounts
@@ -137,7 +136,7 @@ class Users:
         self._db.execute_d(
                 """
                 UPDATE users
-                SET email_verified="Y"
+                SET is_email_verified=1
                 WHERE users.email=%(email)s
                 """,
                 {
@@ -166,9 +165,9 @@ class Users:
             }
         )
         if len(matching_user) > 0:
-            return matching_user[0]['email_verified']
+            return matching_user[0]['is_email_verified']
         else:
-            return "N"
+            return 0
 
     @staticmethod
     def _format_field(field):
@@ -215,7 +214,6 @@ class Users:
         if user is not None:
             raise UsersException("Email is already being used.")
 
-
         # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
         user = self.get_by_username(username)
         if user is not None:
@@ -225,8 +223,8 @@ class Users:
         # and be no more than 60 characters in UTF-8
         # and can't contain the null byte when in UTF-8
 
-        if len(password) < 10:
-            raise UsersException("Password must be at least 10 characters.")
+        if len(password) < 8:
+            raise UsersException("Password must be at least 8 characters.")
 
         if len(password.encode("utf-8")) > 60:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
@@ -249,24 +247,24 @@ class Users:
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first, last, email_verified)
+                    (password, username, email, phone, first_name, last_name, is_email_verified)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first)s, %(last)s, %(email_verified)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
                 "username": username,
                 "phone": phone,
                 "email": email,
-                "first": first_name,
-                "last": last_name,
+                "first_name": first_name,
+                "last_name": last_name,
                 "email_verified": email_verified
             }
         )
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first=NO_VALUE  , last=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
+    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -278,7 +276,7 @@ class Users:
             last: last name of the user.
         Returns:
             None
-        
+
         Raises:
             UsersException
 
@@ -296,7 +294,7 @@ class Users:
             if (password != confirm_password):
                 raise UsersException("Password and Confirm password are not the same!")
         else:
-            password=NO_VALUE
+            password = NO_VALUE
 
         # Process phone number
         digits = ''.join(chr(ord('0') + i) for i in range(10))
@@ -309,46 +307,46 @@ class Users:
         # If phone is empty it is NULL
         if phone == "":
             phone = None
-        
+
         set_frags = frag()
-        if first is not NO_VALUE:
+        if first_name is not NO_VALUE:
             set_frags = frag(
                             set_frags,
-                            "first=:first,",
-                             first=first
-                        )           
-        if last is not NO_VALUE:
+                            "first_name=:first_name,",
+                            first_name=first_name
+                        )
+        if last_name is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
-                            "last=:last,",
-                             last=last
+                            set_frags,
+                            "last_name=:last_name,",
+                            last_name=last_name
                         )
         if phone is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "phone=:phone,",
-                             phone=phone
+                            phone=phone
                         )
         if password is not NO_VALUE:
             set_frags = frag(
-                            set_frags, 
+                            set_frags,
                             "password=:password,",
                             password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
                         )
-        
-        if len(set_frags[0]) > 0 and len(set_frags[1])> 0:   
-            #check if last character in SQL is , and remove it if so
-            if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1],set_frags[1])
 
-            self._db.exec_frag(   
+        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
+            # check if last character in SQL is , and remove it if so
+            if set_frags[0][-1] == ",":
+                set_frags = (set_frags[0][:-1], set_frags[1])
+
+            self._db.exec_frag(
                 frag(
                     "UPDATE users SET",
                     set_frags,
                     frag(
                         "WHERE username=:username",
-                         username= username
-                    )               
+                        username=username
+                    )
                 )
             )
 
@@ -387,4 +385,3 @@ class Users:
                     "id": user.id()
                 }
             )
-

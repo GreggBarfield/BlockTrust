@@ -4,6 +4,7 @@ from core.reports.query import execute_query
 from core.common_exceptions import ExportException
 from .insert_handler import handle_insert
 import traceback
+import datetime
 
 
 def run(db, inserts_model, verbose=False, insert_id=None):
@@ -24,10 +25,10 @@ def run(db, inserts_model, verbose=False, insert_id=None):
                 if verbose:
                     print("Failed to find the insert!")
                 break
-            print("--Sleeping--")
-            sleep(600)
+            print("Sleeping for 60 mins. Current time:", datetime.datetime.now().time())
+            sleep(3600)
         else:
-            print("Running insert", insert['id'])
+            print("Running insert:", insert['id'], ", Partner account:", insert['account'])
             try:
                 handle_insert(db, inserts_model, insert)
             except Exception as e:

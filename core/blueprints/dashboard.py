@@ -10,9 +10,10 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
+from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
-from ..database.objects.account import AccountException
 from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
@@ -79,7 +80,6 @@ def serve_accounts_new_account_action():
                 raise ExportException("Sector ID not recognized.")
             account = g.db.accounts.create_account(
                 user=g.user,
-                name=required['name'],
                 company=required['company'],
                 sector=required['sector'],
             )
@@ -158,7 +158,6 @@ def serve_sales_groups():
 def serve_messages(open_message_id=None):
 
     messages_attributes = ""
-
     if open_message_id is not None:
         messages_attributes += (
             " data-widget-messages-open='" + str(int(open_message_id)) + "' "
@@ -273,13 +272,18 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
 def serve_sustainability():
+    return dashboard_render("sustainability/sustainability_summary.html")
+
+@bp.route('/dashboard/sustainability/survey', methods=['GET'])
+@crut.require_account
+def serve_sustainability_survey():
     return dashboard_render("sustainability/sustainability_questionaire.html")
 
 
-@bp.route('/dashboard/sustainability/summary', methods=['GET'])
+@bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_account
-def serve_sustainability_summary():
-    return dashboard_render("sustainability/sustainability_summary.html")
+def serve_market_state_data():
+    return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/feedyard', methods=['GET'])
@@ -294,10 +298,19 @@ def serve_feedyard_survey():
     return dashboard_render("sustainability/feedyard_questionaire.html")
 
 
-@bp.route('/dashboard/retained-ownership', methods=['GET'])
+@bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
 @crut.require_account
-def serve_retained_ownership():
-    return dashboard_render("retained-ownership.html")
+def serve_market_data(state, slug_id):
+    stateLabel = {'market_location_state': state}
+    market_states = g.db.usda_reports.get_all_states()
+
+    if stateLabel in market_states:
+        return dashboard_render("data/market-data.html", 
+            {
+                "slug_id": slug_id,
+                "state": state
+            })
+    raise Exception("Invalid state")
 
 
 # edit user profile
@@ -308,8 +321,8 @@ def serve_edit_edituser():
         try:
             g.db.users.update_user(
                         username=g.user.username(),
-                        first=request.form["first"],
-                        last=request.form["last"],
+                        first_name=request.form["first"],
+                        last_name=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
@@ -330,7 +343,7 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.name()
+            current_account = g.account.company()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
@@ -351,3 +364,53 @@ def serve_invite_user():
             return {"error": str(e)}
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
+
+
+@bp.route('/dashboard/connections', methods=['GET'])
+@crut.require_account
+def serve_connections():
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
+    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
+
+
+@bp.route('/dashboard/add-connection', methods=['GET'])
+@crut.require_account
+def serve_add_connection():
+    account_rows = g.db.accounts.get_accounts()
+    for account_row in account_rows:
+        if account_row["id"] == g.account.id():
+            account_rows.remove(account_row)
+    return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
+
+
+@bp.route('/dashboard/add-connection', methods=['POST'])
+@crut.require_account
+def serve_add_connection_request():
+    try:
+        if request.form["company_id"] != "0":
+            Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
+        else:
+            ConnectionInvites(g.db).add_connection_invite(
+                from_account=g.account.id(),
+                company_sector=request.form["sector"],
+                company_name=request.form["new_company_name"],
+                company_contact=request.form["new_company_contact"],
+                company_email=request.form["new_company_email"]
+            )
+            send_email(
+                "BlockTrust Network Connection Invite",
+                render_email("send_connection_invite.html", {
+                    'new_company_contact': request.form["new_company_name"],
+                    'account_company': g.account.company()
+                }), request.form["new_company_email"], override=True
+            )
+        return {"redirect": "/dashboard/connections"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@bp.route('/dashboard/view-invites', methods=['GET'])
+@crut.require_account
+def serve_view_invites():
+    requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
+    return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
