@@ -27,7 +27,7 @@ def run(db):
             db.reports.fulfill_report(
                 report['id'],
                 {
-                    "error": str(e) + ", Traceback: " + traceback.format_exc()
+                    "error": str(e), "Traceback": traceback.format_exc()
                 },
                 status=4
                 )
