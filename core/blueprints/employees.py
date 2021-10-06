@@ -8,6 +8,7 @@ from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
+from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 
 from ..common_exceptions import ExportException
 
@@ -31,7 +32,7 @@ def serve_employee_dashboard():
 @bp.route("/employee/dashboard/create-new-account", methods=["GET"])
 @crut.require_employee
 def serve_employee_create_account():
-    partners = Accounts(g.db).get_partners()
+    partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_name": sectors_by_name, "partners": partners})
 
 
@@ -148,6 +149,7 @@ def serve_view_account_users(account_id):
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
 @crut.require_employee
 def serve_login_as_user(user_id):
+    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, g.employee.id())
     auth.logout()
     auth.employee_login_as_user(user_id)
     return redirect("/dashboard")
