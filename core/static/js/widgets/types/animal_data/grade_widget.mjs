@@ -46,7 +46,7 @@ export class GradeWidget extends Widget {
             this.container.textContent = "Data is not available yet.";
         }
         else if (this.count_distribution.length == 0) {
-            this.container.textContent = "(no data)";
+            this.container.textContent = "No Data";
         }
         else {
             let that = this;
