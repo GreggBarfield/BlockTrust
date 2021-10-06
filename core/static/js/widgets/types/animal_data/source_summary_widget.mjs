@@ -20,6 +20,7 @@ export class SourceSummaryWidget extends Widget {
                     }
                 }
             ).then((data) => {
+                console.log("Match row sourcing: ", data.result.matches);
                 this.match_rows = data.result.matches;
             }),
 

@@ -224,6 +224,8 @@ class Accounts:
         account.add_user(user, 1)
         # Link the account appropriately in the database
         self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
+        # Create reports needed for the account
+        self._db.reports.make_reports_for_account(account.id())
         return account
 
 
