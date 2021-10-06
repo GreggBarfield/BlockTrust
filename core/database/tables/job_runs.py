@@ -1,5 +1,4 @@
-# from ..no_value import NoValue
-# from ..frag import frag
+import json
 
 
 class JobRuns:
@@ -61,18 +60,31 @@ class JobRuns:
         Returns:
             The  job run ID inserted
         """
-        try:
-            self._db.execute(
-                """INSERT INTO job_runs
-                    (name, file, routine)
-                    VALUES (%(name)s, %(file)s, %(routine)s)
-                """,
-                {
-                    "name": name,
-                    "file": file,
-                    "routine": routine
-                }
-            )
-            return self._db.last_row_id()
-        except Exception as e:
-            print(e)
+        self._db.execute(
+            """INSERT INTO job_runs
+                (name, file, routine)
+                VALUES (%(name)s, %(file)s, %(routine)s)
+            """,
+            {
+                "name": name,
+                "file": file,
+                "routine": routine
+            }
+        )
+        return self._db.last_row_id()
+
+    def update_job_run(self, id, end_timestamp, details=None):
+        """Inserts a new row.
+
+        Returns:
+            The  job run ID inserted
+        """
+        self._db.execute(
+            """UPDATE job_runs SET end_timestamp = %(end_timestamp)s, details = %(details)s WHERE id=%(id)s
+            """,
+            {
+                "end_timestamp": end_timestamp,
+                "details": json.dumps(details) if details is not None else None,
+                "id": id
+            }
+        )

@@ -701,6 +701,28 @@ WHERE bc_transaction_id IS NOT NULL;
 ALTER TABLE `example_db_1`.`matches` 
 ADD INDEX `match_type` (`type` ASC) VISIBLE;
 
+/* Rohan Sureshkumar 9/29/2021 */
+ALTER TABLE `example_db_1`.`error_logs` 
+DROP COLUMN `column_value`,
+CHANGE COLUMN `column_name` `details` JSON NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/1/2021 */
+ALTER TABLE `reports` 
+ADD COLUMN `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created`,
+ADD COLUMN `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `create_timestamp`;
+ALTER TABLE `reports` 
+ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `example_db_1`.`reports` 
+DROP COLUMN `created`,
+DROP COLUMN `issuer`,
+DROP COLUMN `owner`;
+
+/* Rohan Sureshkumar 10/3/2021 */
+ALTER TABLE `example_db_1`.`job_runs` 
+ADD COLUMN `end_timestamp` TIMESTAMP NULL AFTER `create_timestamp`;
+ALTER TABLE `example_db_1`.`job_runs` 
+ADD COLUMN `details` JSON NULL AFTER `routine`;
+
 /* Conner Charles 10/4/2021 */
 ALTER TABLE `example_db_1`.`usda_reports` 
 ADD INDEX `state_idx` (`market_location_state` ASC) INVISIBLE,
