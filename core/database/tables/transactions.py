@@ -5,6 +5,10 @@ transaction_type = {
     "Tag-Store": 0,
     "Subscription": 1
 }
+transaction_type_names = {
+    0: "Tag-Store",
+    1: "Subscription"
+}
 
 
 class Transactions:
@@ -17,7 +21,7 @@ class Transactions:
         Gets a transaction by an ID.
 
         Params:
-            id: the transaction id
+            id: the transaction id 
 
         Returns:
             A Transaction object
@@ -64,16 +68,49 @@ class Transactions:
             }
         )
 
-    def get_transactions(self):
+    def get_transactions(self, account=None, amount=None, type=None, selectColumns=[]):
         """
-        Gets all transactions from the database
+        Gets the transactions based on values specified
+
+        Params:
+            account: Account ID
+            amount: Amount of transaction
+            type: Type of transaction
 
         Returns:
-            A list of all transactions
+            The transaction record if found, else an empty array
         """
-        transaction_rows = self._db.execute_d(
-            """
-            SELECT * FROM transactions
-            """
-        )
-        return transaction_rows
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        # base query
+        query = "SELECT " + selectColumns + " FROM transactions"
+        query_condition_list = []
+        query_values = {}
+
+        if account is not None:
+            query_condition_list.append("account = %(account)s")
+            query_values["account"] = account
+
+        if amount is not None:
+            query_condition_list.append("amount = %(amount)s")
+            query_values["amount"] = amount
+
+        if type is not None:
+            query_condition_list.append("type = %(type)s")
+            query_values["type"] = type
+
+        if len(query_condition_list) >= 1:
+            query_condition = " WHERE" + " AND ".join(query_condition_list)
+        else:
+            query_condition = ""
+
+        query = query + query_condition
+
+        transaction_rows = self._db.execute_d(query, query_values)
+        if len(transaction_rows) > 0:
+            return transaction_rows
+        else:
+            return []

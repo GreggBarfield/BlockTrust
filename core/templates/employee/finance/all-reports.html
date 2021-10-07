@@ -1,0 +1,41 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "All Reports" %}
+{% set employee_locations = [("/employee/dashboard", "All Reports")] %}
+
+{% block employee_content_header %}
+All Reports
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Select Report Type</h5>
+            <div class="card-body col-lg-6 mb-2">
+            <table class="table" d="shopping-cart">
+                <thead>
+                    <tr>
+                        <th>ACCOUNT</th>
+                        <th>AMOUNT</th>
+                        <th>TRANSACTION TYPE</th>
+                        <th>TRANSACTION TIMESTAMP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <th>{{report.account}}</th>
+                        <th>{{report.amount}}</th>
+                        <th>{{transaction_type_names[report.type]}}</th>
+                        <th>{{report.create_timestamp}}</th>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>  
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}

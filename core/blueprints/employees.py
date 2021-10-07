@@ -9,6 +9,8 @@ from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
+from ..database.tables.transactions import Transactions
+from ..database.tables.transactions import transaction_type, transaction_type_names
 
 from ..common_exceptions import ExportException
 
@@ -187,3 +189,30 @@ def serve_apply_changes_to_account():
         zip=request.form["zip_code"]
     )
     return {"redirect": "/employee/dashboard"}
+
+
+@bp.route("/employee/dashboard/select-report-type", methods=["GET"])
+@crut.require_employee
+def serve_select_report_type():
+    return employee_render("/employee/finance/select-report-type.html")
+
+
+@bp.route("/employee/dashboard/select-report-type/all-reports", methods=["GET"])
+@crut.require_employee
+def serve_all_reports():
+    reports = Transactions(g.db).get_transactions()
+    return employee_render("/employee/finance/all-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
+
+
+@bp.route("/employee/dashboard/select-report-type/subscription-reports", methods=["GET"])
+@crut.require_employee
+def serve_subscription_reports():
+    reports = Transactions(g.db).get_transactions(type=transaction_type["Subscription"])
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
+
+
+@bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
+@crut.require_employee
+def serve_tag_store_reports():
+    reports = Transactions(g.db).get_transactions(type=transaction_type["Tag-Store"])
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})

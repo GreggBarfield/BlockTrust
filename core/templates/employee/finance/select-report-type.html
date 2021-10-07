@@ -1,0 +1,32 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Select Report Type" %}
+
+{% block employee_content_header %}
+Financial Reports
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Select Report Type</h5>
+            <div class="card-body col-lg-6 mb-2">
+                <form class="bg-white form-inline"  id="select_report_type_form"> 
+                    <div class="form-group">
+                        <select class="form-control m-2" name="type" id="type" required>
+                            <option disabled selected value> -- Select an option -- </option>
+                            <option value="all-reports">All Reports</option>
+                            <option value="subscription-reports">Subscription Reports</option>
+                            <option value="tag-store-reports">Tag store Reports</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary m-2">Get Users</button>    
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/finance/select-report-type.mjs"></script>
+{% endblock employee_content %}
