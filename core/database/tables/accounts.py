@@ -393,4 +393,4 @@ class Accounts:
         if len(account_rows) > 0:
             return account_rows
         else:
-            return None
+            return []
