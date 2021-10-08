@@ -734,4 +734,4 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
 
 /* Nisheet Thakur 10/8/2021 */
 ALTER TABLE `example_db_1`.`orders`
-ADD `premise_id` VARCHAR(127);
+ADD `premise_id` VARCHAR(128);

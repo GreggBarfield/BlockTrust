@@ -72,7 +72,7 @@ $(document).ready(function() {
     if(localStorage.shoppingCart){
         var shopCartString=localStorage.getItem('shoppingCart');
         var shopCart= JSON.parse(shopCartString)
-        if(8 in shopCart){
+        if(5 in shopCart){
             $("#premise-id-message").show();
         }
         else{
