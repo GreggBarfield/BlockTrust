@@ -1,6 +1,6 @@
 import { AbstractBaseSummaryWidget } from "./abstract_base_summary.mjs";
 
-export class SustainabilitySummaryWidget extends AbstractBaseSummaryWidget {
+export class AuctionSummaryWidget extends AbstractBaseSummaryWidget {
     constructor(frame) {
         super(frame);
     }
@@ -22,15 +22,12 @@ export class SustainabilitySummaryWidget extends AbstractBaseSummaryWidget {
             }
 
             let sections = {
-                "air": "Air & Greenhouse Gas Emissions",
-                "land": "Land Resources",
                 "water": "Water Resources",
                 "animal": "Animal Health & Well-Being",
-                "safety": "Employee Safety & Well-Being",
-                "efficiency": "Efficiency & Yield"
+                "safety": "Employee Safety & Well-Being"
             };
             
-            this.makeNewSurveyBtn();
+            this.makeNewSurveyBtn("auction");
 
             let row = document.createElement("div");
             row.className = "row";
@@ -44,27 +41,12 @@ export class SustainabilitySummaryWidget extends AbstractBaseSummaryWidget {
 
     prepData() {
         let dataCounter = {
-            "air": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
             "animal": {
                 "excellent": 0, 
                 "acceptable": 0,
                 "needsWork": 0
             },
-            "efficiency": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
             "safety": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "land": {
                 "excellent": 0, 
                 "acceptable": 0,
                 "needsWork": 0
@@ -98,7 +80,6 @@ export class SustainabilitySummaryWidget extends AbstractBaseSummaryWidget {
         }
 
         dataCounter["all"] = totals;
-        // this.data["all"] = [totals.excellent, totals.acceptable, totals.needsWork];
         this.setDataSet(dataCounter);
     }
 

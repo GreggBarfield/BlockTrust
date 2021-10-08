@@ -1,6 +1,6 @@
 import { AbstractBaseQuestionaireWidget } from "./abstract_base_questionaire.mjs";
 
-export class SustainabilityQuestionaireWidget extends AbstractBaseQuestionaireWidget {
+export class CowcalfQuestionaireWidget extends AbstractBaseQuestionaireWidget {
     constructor(frame) {
         super(frame);
     }
@@ -124,7 +124,7 @@ export class SustainabilityQuestionaireWidget extends AbstractBaseQuestionaireWi
             "efficiency": "Efficiency & Yield"
         };
 
-        let saveCall = "save_sustainability";
+        let saveCall = "save_cowcalf";
 
         this.generate(formInfo, sections, saveCall);
     }
