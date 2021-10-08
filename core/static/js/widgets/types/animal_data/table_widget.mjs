@@ -14,14 +14,19 @@ export class TableWidget extends Widget {
             "data_request",
             {
                 request: {
-                    type: 'count_account_eid_distinct',
+                    type: 'count_eid_distinct_by_account',
                     params: {
 
                     }
                 }
             }
         ).then((data) => {
+            if (data.result === null) {
+                this.account_total_distinct = null
+            }
+            else {
             this.account_total_distinct = data.result.count_eid_distinct;
+            }
             this.displayAccount();
         });
 
@@ -314,7 +319,7 @@ export class TableWidget extends Widget {
                 interest.innerHTML = "";
                 interest.append(this.createNotAvailableYet());
             }
-            else if ('account_total_distinct' in this) {
+            else {
                 interest.textContent = this.account_total_distinct;
             }
         }
@@ -422,12 +427,10 @@ export class TableWidget extends Widget {
                     }
                     else {
                         bodyTd.style = "text-align:center;";
-                        /*bodyTd.innerHTML = '<div class="spinner-grow spinner-grow-sm" role="status">\
-                        <span class="sr-only">Loading...</span>\
-                    </div>';*/
+                        //This is what each column gets set to and then overwritten by displayAccount and displayGlobal
                         bodyTd.innerHTML = '<div class="spinner-border spinner-border-sm" role="status">\
                         <span class="sr-only">Loading...</span>\
-                    </div>';
+                        </div>';
                     }
                 }
             }

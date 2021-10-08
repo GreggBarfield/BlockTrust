@@ -310,8 +310,8 @@ def serve_edit_edituser():
         try:
             g.db.users.update_user(
                         username=g.user.username(),
-                        first=request.form["first"],
-                        last=request.form["last"],
+                        first_name=request.form["first"],
+                        last_name=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
@@ -447,7 +447,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts()
+    account_rows = g.db.accounts.get_accounts(is_partner=0)
     for account_row in account_rows:
         if account_row["id"] == g.account.id():
             account_rows.remove(account_row)
