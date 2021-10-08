@@ -49,9 +49,15 @@
                         <input type="text" class="form-control mb-3" name="email" placeholder="*Email" required="">
                     </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 sub-col-left">
+                            <input type="text" class="form-control mb-3" name="premise_id" id="premise_id" value="N/A" placeholder="*Premise ID">
+                        </div>
+                        <div id="premise-id-message" class="col-md-6 sub-col-right text-red">
+                            *Please provide the Premise ID number
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-outline-primary rectangle m-1" id="checkout1">PROCEED TO PAYMENT</button>
-                    <p class="mt-2 mb-0" id="checkout_status_message" style="display:none;">Hang on, we're setting up your account...</p>
-                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="checkout_error_message">Loading error...</p>
                 </form>
                 </div>
                 <div class="col-md-3 cart-total">
