@@ -257,7 +257,7 @@ def serve_save_feedyard():
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/feedyard/summary"}
+    return { "redirect": "/dashboard/sustainability/feedyard"}
 
 
 @bp.route('/widgets/data/save_auction', methods=['POST'])
@@ -267,7 +267,7 @@ def serve_save_auction():
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/auction/summary"}
+    return { "redirect": "/dashboard/sustainability/auction"}
 
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])

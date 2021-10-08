@@ -45,7 +45,8 @@ export class AuctionQuestionaireWidget extends AbstractBaseQuestionaireWidget {
                     "4b": "The facility is in need of significant updates to come in line with current recommendations.",
                     "4c": "All facilities are in line with the LMA guidelines for facilities and are monitored for potential injury-causing issues.",
                     "5a": "Yes",
-                    "5b": "No"
+                    "5b": "No",
+                    "5c": ""
                 },
                 safety: {
                     "1a": "Nothing written but accidents are strongly discouraged.",
@@ -67,6 +68,7 @@ export class AuctionQuestionaireWidget extends AbstractBaseQuestionaireWidget {
                     "2c": "We have a permit and with help we keep the permit in compliance.",
                     "3a": "Yes",
                     "3b": "No",
+                    "3c": "",
                     "4a": "Yes, we have an extensive strategy and we adopt new technology whenever possible.",
                     "4b": "We have a water strategy and we try to check it periodically.",
                     "4c": "No real strategy.",
