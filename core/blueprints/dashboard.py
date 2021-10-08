@@ -274,16 +274,11 @@ def serve_upload_tags():
 def serve_sustainability():
     return dashboard_render("sustainability/sustainability_summary.html")
 
+
 @bp.route('/dashboard/sustainability/survey', methods=['GET'])
 @crut.require_account
 def serve_sustainability_survey():
     return dashboard_render("sustainability/sustainability_questionaire.html")
-
-
-@bp.route('/dashboard/data/market', methods=['GET'])
-@crut.require_account
-def serve_market_state_data():
-    return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/feedyard', methods=['GET'])
@@ -296,6 +291,12 @@ def serve_feedyard():
 @crut.require_account
 def serve_feedyard_survey():
     return dashboard_render("sustainability/feedyard_questionaire.html")
+
+
+@bp.route('/dashboard/data/market', methods=['GET'])
+@crut.require_account
+def serve_market_state_data():
+    return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
