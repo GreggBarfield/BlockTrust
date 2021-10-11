@@ -747,3 +747,9 @@ DROP COLUMN `m2_short`,
 DROP COLUMN `menu2`,
 DROP COLUMN `m1_short`,
 DROP COLUMN `menu1`;
+ALTER TABLE `example_db_1`.`orders` 
+DROP COLUMN `shipping_country`,
+DROP COLUMN `transaction_date`,
+DROP COLUMN `session_flag`,
+DROP COLUMN `approval_code`,
+DROP COLUMN `approved`;
