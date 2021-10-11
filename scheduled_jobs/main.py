@@ -31,8 +31,8 @@ try:
         threads = [t for t in threads if not t.handled]
 
         current_time = datetime.datetime.now().time()
-        # this will run once between 7 and 8 AM UTC time
-        if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
+        # this will run once between 3 and 4 AM UTC time
+        if datetime.time(3, 0, 0) <= current_time < datetime.time(4, 0, 0):
             # create new thread only if this thread is not already running
             if not any(t.getName() == "USDAData" for t in threads):
                 JobRuns(db).insert("USDAData", scheduled_jobs["USDAData"].split('|')[0], scheduled_jobs["USDAData"].split('|')[1])
@@ -57,8 +57,8 @@ try:
         #     threads.append(t)
         #     print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
-        # this will run twice between 5 and 7 AM UTC time
-        if datetime.time(5, 0, 0) <= current_time < datetime.time(7, 0, 0):
+        # this will run once between 8 and 9 AM UTC time
+        if datetime.time(8, 0, 0) <= current_time < datetime.time(9, 0, 0):
             # create new thread only if this thread is not already running
             if not any(t.getName() == "Reports" for t in threads):
                 job_run_id = JobRuns(db).insert("Reports", scheduled_jobs["Reports"].split('|')[0], scheduled_jobs["Reports"].split('|')[1])
