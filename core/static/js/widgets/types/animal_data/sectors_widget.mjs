@@ -170,27 +170,30 @@ export class SectorsWidget extends Widget {
             if (combined === null) {
                 combined = [[__filter, __use]];
             }
-            if (matchColumn != null) {
-                let res = match_rows[0][matchColumn];
-                addData(sectorName, tabName, dataLabel, res);
-                numAdded +=1;
-            }
-            else {        
-                for (const match_row of match_rows) {
-                    for (const pair of combined) {
-                        const filter = pair[0];
-                        const use = pair[1];
-                        if (filter(match_row)) {
-                            let res = use(match_row);
-                            if (res === null) {
-                                res = "--";
-                            }
-                            addData(sectorName, tabName, dataLabel, res);
-                            numAdded += 1;
+            for (const match_row of match_rows) {
+                if (matchColumn != null) {
+                    let res = match_row[matchColumn];
+                    if(res != null) {
+                        addData(sectorName, tabName, dataLabel, res);
+                        numAdded +=1;
+                        break
+                    }
+                    else
+                        continue;
+                }
+                for (const pair of combined) {
+                    const filter = pair[0];
+                    const use = pair[1];
+                    if (filter(match_row)) {
+                        let res = use(match_row);
+                        if (res === null) {
+                            res = "--";
                         }
+                        addData(sectorName, tabName, dataLabel, res);
+                        numAdded += 1;
                     }
                 }
-            }   
+            } 
             if (numAdded == 0) {
                 addData(sectorName, tabName, dataLabel, "");
             }
