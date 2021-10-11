@@ -20,6 +20,9 @@ $( ".form-inline" ).submit(function( event ) {
     if(!localStorage.discountApplied){  
         localStorage.setItem('discountApplied', "N");
     }
+    if(!localStorage.premiseIdRequired){  
+        localStorage.setItem('premiseIdRequired', 0);
+    }
     let hours=1;
     let saved=localStorage.getItem('saved');
     if(saved===null){
@@ -33,7 +36,7 @@ $( ".form-inline" ).submit(function( event ) {
     // Get input values to add products to cart
     var values = $(this).serializeArray();
     // Create tuple to add to shoppingCart object in localStorage
-    var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value)};
+    var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value), is_premise_id_required: parseInt(values[4].value)};
     var product_no=values[0].value;
     // Checking if product is already present in the localStorage and performing necessary actions
     if(!(product_no in shopCart)){
@@ -77,12 +80,19 @@ $( ".form-inline" ).submit(function( event ) {
     localStorage.setItem('totalTax', total_tax);
     localStorage.setItem('grandTotal', grand_total);
     localStorage.setItem('discount', total_discount);
+    //Setting premiseIdRequired in localStorage based on current cart
+    localStorage.setItem('premiseIdRequired', 0);
+    Object.values(shopCart).forEach(val=>{
+        if(val.is_premise_id_required==1){
+            localStorage.setItem('premiseIdRequired', 1);
+        }
+    });
     //Closing the modal and removing the modal backdrop 
     var modalID='#product'+product_no
     $(modalID).modal('hide');
     $('body').removeClass('modal-open');
     $('.modal-backdrop').remove();
-  });
+    });
 
   $(document).ready(function() {
   $("#proceedButton").click(function(e){

@@ -85,6 +85,13 @@ $(document).ready(function() {
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
         localStorage.setItem('discount', total_discount);
+        //Setting premiseIdRequired in localStorage based on current cart
+        localStorage.setItem('premiseIdRequired', 0);
+        Object.values(shopCart).forEach(val=>{
+        if(val.is_premise_id_required==1){
+            localStorage.setItem('premiseIdRequired', 1);
+        }
+        });
         });
 
     $("#proceedButton").click(function(e){

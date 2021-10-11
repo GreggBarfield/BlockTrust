@@ -69,13 +69,14 @@ $( "#checkout_form" ).submit(function( event ) {
 });
 
 $(document).ready(function() {
-    if(localStorage.shoppingCart){
-        var shopCartString=localStorage.getItem('shoppingCart');
-        var shopCart= JSON.parse(shopCartString)
-        if(5 in shopCart){
+    if(localStorage.premiseIdRequired){
+        var premiseIdRequired=parseInt(localStorage.getItem('premiseIdRequired'));
+        if(premiseIdRequired==1){
+            $("#premise_id").attr('required', true); 
             $("#premise-id-message").show();
         }
         else{
+            $("#premise_id").attr('required', false); 
             $("#premise-id-message").hide();
         }
     }

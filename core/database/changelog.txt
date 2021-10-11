@@ -735,3 +735,8 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
 /* Nisheet Thakur 10/8/2021 */
 ALTER TABLE `example_db_1`.`orders`
 ADD `premise_id` VARCHAR(128);
+ALTER TABLE `products`
+ADD `is_premise_id_required` TINYINT DEFAULT 0;
+UPDATE `products`
+SET is_premise_id_required=1
+WHERE product="Large Panel Tag";
