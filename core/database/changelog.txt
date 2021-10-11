@@ -733,5 +733,17 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
   PRIMARY KEY (`id`));
 
 /* Nisheet Thakur 10/8/2021 */
-ALTER TABLE `example_db_1`.`orders`
-ADD `premise_id` VARCHAR(128);
+ALTER TABLE orders
+ADD `premise_id` VARCHAR(16);
+/* Dropping unused columns */
+ALTER TABLE products
+DROP COLUMN `num_text`,
+DROP COLUMN `end_no`,
+DROP COLUMN `start_no`,
+DROP COLUMN `number_y_n`,
+DROP COLUMN `original_price`,
+DROP COLUMN `creditcard_charge`,
+DROP COLUMN `m2_short`,
+DROP COLUMN `menu2`,
+DROP COLUMN `m1_short`,
+DROP COLUMN `menu1`;
