@@ -7,8 +7,13 @@ import time
 import datetime
 from core.database.database import Database
 from core.config import (MYSQL_CONFIG)
+from core.config import PROD_ENVIRONMENT
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
+
+# Only run in Production
+if not PROD_ENVIRONMENT:
+    exit()
 
 try:
     scheduled_jobs = {
