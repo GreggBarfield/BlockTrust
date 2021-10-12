@@ -731,3 +731,30 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
   `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 10/8/2021 */
+ALTER TABLE orders
+ADD `premise_id` VARCHAR(16);
+ALTER TABLE `products`
+ADD `is_premise_id_required` TINYINT DEFAULT 0;
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+UPDATE `products` SET is_premise_id_required=1
+WHERE product="Large Panel Tag" AND partner=@partner_id;
+/* Dropping unused columns */
+ALTER TABLE products
+DROP COLUMN `num_text`,
+DROP COLUMN `end_no`,
+DROP COLUMN `start_no`,
+DROP COLUMN `number_y_n`,
+DROP COLUMN `original_price`,
+DROP COLUMN `creditcard_charge`,
+DROP COLUMN `m2_short`,
+DROP COLUMN `menu2`,
+DROP COLUMN `m1_short`,
+DROP COLUMN `menu1`;
+ALTER TABLE `example_db_1`.`orders` 
+DROP COLUMN `shipping_country`,
+DROP COLUMN `transaction_date`,
+DROP COLUMN `session_flag`,
+DROP COLUMN `approval_code`,
+DROP COLUMN `approved`;

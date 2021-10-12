@@ -43,9 +43,8 @@ $(document).ready(function() {
     if(localStorage.getItem("discountApplied")==="Y"){
     $("#coupon_applied").text("Coupon applied!")
     }
-    let hours=1;
     let saved=localStorage.getItem('saved');
-    if(saved && (new Date().getTime()-saved>hours*60*60*1000)){
+    if(saved && (new Date().getTime()-saved>60*60*1000)){
         localStorage.clear();
     }
     $(".removeItem").click(function(e){
@@ -85,7 +84,14 @@ $(document).ready(function() {
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total);
         localStorage.setItem('discount', total_discount);
+        //Setting isPremiseIdRequired in localStorage based on current cart
+        localStorage.setItem('isPremiseIdRequired', 0);
+        Object.values(shopCart).forEach(val=>{
+            if(val.is_premise_id_required==1){
+                localStorage.setItem('isPremiseIdRequired', 1);
+            }
         });
+    });
 
     $("#proceedButton").click(function(e){
         // Retrieve cart and check if it is not empty and redirect or alert user
