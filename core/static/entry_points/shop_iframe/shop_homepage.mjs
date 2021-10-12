@@ -20,15 +20,14 @@ $( ".form-inline" ).submit(function( event ) {
     if(!localStorage.discountApplied){  
         localStorage.setItem('discountApplied', "N");
     }
-    if(!localStorage.premiseIdRequired){  
-        localStorage.setItem('premiseIdRequired', 0);
+    if(!localStorage.isPremiseIdRequired){  
+        localStorage.setItem('isPremiseIdRequired', 0);
     }
-    let hours=1;
     let saved=localStorage.getItem('saved');
     if(saved===null){
         localStorage.setItem('saved', new Date().getTime())  
     }
-    if(saved && (new Date().getTime()-saved>hours*60*60*1000)){
+    if(saved && (new Date().getTime()-saved>60*60*1000)){
         localStorage.clear();
     }
     var shopCartString=localStorage.getItem('shoppingCart');
@@ -80,11 +79,11 @@ $( ".form-inline" ).submit(function( event ) {
     localStorage.setItem('totalTax', total_tax);
     localStorage.setItem('grandTotal', grand_total);
     localStorage.setItem('discount', total_discount);
-    //Setting premiseIdRequired in localStorage based on current cart
-    localStorage.setItem('premiseIdRequired', 0);
+    //Setting isPremiseIdRequired in localStorage based on current cart
+    localStorage.setItem('isPremiseIdRequired', 0);
     Object.values(shopCart).forEach(val=>{
         if(val.is_premise_id_required==1){
-            localStorage.setItem('premiseIdRequired', 1);
+            localStorage.setItem('isPremiseIdRequired', 1);
         }
     });
     //Closing the modal and removing the modal backdrop 

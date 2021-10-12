@@ -69,9 +69,9 @@ $( "#checkout_form" ).submit(function( event ) {
 });
 
 $(document).ready(function() {
-    if(localStorage.premiseIdRequired){
-        var premiseIdRequired=parseInt(localStorage.getItem('premiseIdRequired'));
-        if(premiseIdRequired==1){
+    if(localStorage.isPremiseIdRequired){
+        var isPremiseIdRequired=parseInt(localStorage.getItem('isPremiseIdRequired'));
+        if(isPremiseIdRequired==1){
             $("#premise_id").attr('required', true); 
             $("#premise-id-message").show();
         }
