@@ -12,7 +12,6 @@ class AccountLinksException(Exception):
         """
         super().__init__(reason)
 
-# account link is the link between the account in our accounts table and the account in our partner's database. 
 class AccountLinks:
 
     def __init__(self, db):
