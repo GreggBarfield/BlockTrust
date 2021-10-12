@@ -364,7 +364,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts()
+    account_rows = g.db.accounts.get_accounts(is_partner=0)
     for account_row in account_rows:
         if account_row["id"] == g.account.id():
             account_rows.remove(account_row)
