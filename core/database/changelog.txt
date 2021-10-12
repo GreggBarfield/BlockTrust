@@ -737,9 +737,9 @@ ALTER TABLE orders
 ADD `premise_id` VARCHAR(16);
 ALTER TABLE `products`
 ADD `is_premise_id_required` TINYINT DEFAULT 0;
-UPDATE `products`
-SET is_premise_id_required=1
-WHERE product="Large Panel Tag";
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+UPDATE `products` SET is_premise_id_required=1
+WHERE product="Large Panel Tag" AND partner=@partner_id;
 /* Dropping unused columns */
 ALTER TABLE products
 DROP COLUMN `num_text`,
