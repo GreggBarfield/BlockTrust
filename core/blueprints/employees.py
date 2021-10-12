@@ -208,11 +208,11 @@ def serve_all_reports():
 @crut.require_employee
 def serve_subscription_reports():
     reports = Transactions(g.db).get_transactions(type=transaction_type["Subscription"])
-    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
 
 
 @bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
 @crut.require_employee
 def serve_tag_store_reports():
     reports = Transactions(g.db).get_transactions(type=transaction_type["Tag-Store"])
-    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})

@@ -103,12 +103,11 @@ class Transactions:
             query_values["type"] = type
 
         if len(query_condition_list) >= 1:
-            query_condition = " WHERE" + " AND ".join(query_condition_list)
+            query_condition = " WHERE " + " AND ".join(query_condition_list)
         else:
             query_condition = ""
 
         query = query + query_condition
-
         transaction_rows = self._db.execute_d(query, query_values)
         if len(transaction_rows) > 0:
             return transaction_rows
