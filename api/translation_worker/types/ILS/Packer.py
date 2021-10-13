@@ -91,6 +91,9 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
                         api_insert=api_insert
                     )
 
+        if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
+            raise ExecutionException("; not allowed in packer info")
+
         # add sighting at packer using plant id
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
@@ -138,18 +141,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             api_insert=api_insert
         )
 
-        # Packer, PlantID (Sighting, Packer)
-
-        # if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
-        #     raise ExecutionException("; not allowed in packer info")
-
-        # db.matches.types.insert_packer(
-        #     fields["Packer"].strip() + ";" + str(fields["PlantID"]).strip(),
-        #     eid=eid,
-        #     account=account,
-        #     account_link=packer_account_link,
-        #     api_insert=api_insert
-        # )
     else:
         # Packer data not available and hence Add feed yard sighting
         if feeder is not None:

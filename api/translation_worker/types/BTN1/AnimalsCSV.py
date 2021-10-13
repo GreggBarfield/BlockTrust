@@ -69,16 +69,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
 
-
-    # db.matches.types.insert_visual_id(
-    #     visual_id=fields["visualid"],
-    #     account=account,
-    #     account_link=account_link,
-    #     eid=eid,
-    #     grouping_id=grouping_id,
-    #     api_insert=api_insert
-    # )
-
     weaned_object = {}
 
     weaned_object_tags = [
