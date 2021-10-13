@@ -20,7 +20,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
+def handle(db: Database, inserts_model: InsertsModel, insert):
     """Handle a Packer insert from ILS.
 
     Currently processing fields like

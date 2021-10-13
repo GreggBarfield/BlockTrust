@@ -11,7 +11,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
+def handle(db: Database, inserts_model: InsertsModel, insert):
     partner_account = insert["account"]
     api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
