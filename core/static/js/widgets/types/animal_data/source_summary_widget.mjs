@@ -15,7 +15,7 @@ export class SourceSummaryWidget extends Widget {
                     request: {
                         type: "matches_by_account",
                         params: {
-                            types: ["Weaned", "Sighting"]
+                            animals_with_data: true
                         }
                     }
                 }
@@ -51,20 +51,11 @@ export class SourceSummaryWidget extends Widget {
         for (const match_row of this.match_rows) {
             if (!(match_row.eid in this.animals)) {
                 this.animals[match_row.eid] = {
-                    "weaned": "(no data)",
-                    "sightings": "(no data)"
+                    "visual_id": "(no data)"
                 };
             }
-            let animal = this.animals[match_row.eid];
-            if (match_row.type == this.match_types_by_name["Weaned"]) {
-                animal["weaned"] = this.formatDate(match_row.time);
-            }
-            else if (match_row.type == this.match_types_by_name["Sighting"]) {
-                if (animal["sightings"] == "(no data)") {
-                    animal["sightings"] = [];
-                }
-                animal["sightings"].push(this.formatDate(match_row.time));
-            }
+            if(match_row.visual_id != null)
+                this.animals[match_row.eid]["visual_id"] = match_row.visual_id;
         }
 
     }
@@ -85,7 +76,7 @@ export class SourceSummaryWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["EID", "Weaned", "Sightings", "Options"];
+        const headers = ["EID", "Visual ID", "Options"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;
@@ -106,19 +97,7 @@ export class SourceSummaryWidget extends Widget {
             let row = [];
 
             row.push(eid);
-            row.push(rowPreformat["weaned"]);
-
-            {
-                let temp = "";
-                let sightings = rowPreformat["sightings"];
-                if (typeof(sightings) == typeof("")) {
-                    temp = sightings;
-                }
-                else {
-                    temp = sightings.join(", ");
-                }
-                row.push(temp);
-            }
+            row.push(rowPreformat["visual_id"]);
 
             for (const value of row) {
                 let td = document.createElement("td");
