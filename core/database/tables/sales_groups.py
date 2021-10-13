@@ -169,8 +169,8 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
-                "market_location":market_location,
-                "delivery_location":delivery_location,
+                "market_location": market_location,
+                "delivery_location": delivery_location,
                 "auction_sale": auction_sale,
                 "group_name": group_name
             }

@@ -44,6 +44,7 @@ export class DateFormGroup extends FormGroup {
         this._input.id = this._input_id;
         this._input.type = "date";
         this._input.className = "form-control";
+        this._input.required = true;
 
         if (unixTime !== null && unixTime >= 0) {
             let d = new Date(unixTime * 1000);
