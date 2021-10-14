@@ -10,7 +10,6 @@ from core.config import (MYSQL_CONFIG)
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 
-
 try:
     scheduled_jobs = {
         "USDAData": "usda_data_retriever.py|get_usda_data",
