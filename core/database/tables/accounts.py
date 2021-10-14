@@ -5,6 +5,7 @@ from ..frag import frag
 
 NO_VALUE = NoValue()
 
+
 class AccountsException(Exception):
     """Account generic exception."""
 
@@ -16,6 +17,7 @@ class AccountsException(Exception):
         """
         super().__init__(reason)
 
+
 class Accounts:
 
     def __init__(self, db):
@@ -26,7 +28,7 @@ class Accounts:
 
         Params:
             id: the account id
-        
+
         Returns:
             An Account() object
 
@@ -45,13 +47,13 @@ class Accounts:
         if len(account_rows) != 1:
             raise AccountsException("No account found with that ID.")
         return Account(self._db, account_rows[0])
-        
+
     def get_partners_by_sector_id(self, sector_id):
         """Gets an partners in the accounts table using sector ID.
 
         Params:
             id: the sector id
-        
+
         Returns:
             One or more partner Account() object
 
@@ -77,22 +79,21 @@ class Accounts:
 
         Params:
             account_user: the AccountUser object
-        
+
         Returns:
             An Account() object
-        
+
         Raises:
             AccountsException
         """
         return self.get_by_id(account_user.account_id())
-    
 
     def get_by_user(self, user):
         """Gets a user's accounts.
 
         Params:
             user: The User object
-        
+
         Returns:
             A possibly empty list of Account() objects.
         """
@@ -110,14 +111,13 @@ class Accounts:
             Account(self._db, account_row)
             for account_row in account_rows
         ]
-    
-    
+
     def get_by_stripe_customer_id(self, stripe_customer_id):
         """Gets an account by an ID.
 
         Params:
             stripe_customer_id: the stripe_customer_id of the account
-        
+
         Returns:
             An Account() object
 
@@ -135,13 +135,13 @@ class Accounts:
         if len(account_rows) != 1:
             raise AccountsException("No account found with that Stripe Customer ID.")
         return Account(self._db, account_rows[0])
-   
+
     def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
         """Gets an account using the partner and affiliate id.
 
         Params:
             stripe_customer_id: the stripe_customer_id of the account
-        
+
         Returns:
             An Account() object
         """
@@ -338,12 +338,12 @@ class Accounts:
             )
 
     def get_accounts(self, company=None, sector=None, is_partner=None, partner_account=None,
-                            affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
+                     affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
         """
         Get an account by the values specified.
 
         Returns:
-            The account record if found else None
+            The account record if found else an empty array
         """
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)

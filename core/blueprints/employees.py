@@ -11,6 +11,7 @@ from ..database.tables.employees import EmployeesException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.transactions import Transactions
 from ..database.tables.transactions import transaction_type, transaction_type_names
+from ..database.tables.orders import Orders
 
 from ..common_exceptions import ExportException
 
@@ -200,6 +201,8 @@ def serve_select_report_type():
 @bp.route("/employee/dashboard/select-report-type/all-reports", methods=["GET"])
 @crut.require_employee
 def serve_all_reports():
+    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
+    print(tag_store_reports)
     reports = Transactions(g.db).get_transactions()
     return employee_render("/employee/finance/all-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
 
