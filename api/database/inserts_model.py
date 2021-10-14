@@ -41,7 +41,7 @@ class InsertsModel:
 
     @staticmethod
     def _process_row(row):
-        json_fields = ['api_blocks.value', 'fields', 'row']
+        json_fields = ['fields', 'row']
         for f in json_fields:
             if row[f] is not None and row[f] != "":
                 row[f] = json.loads(row[f])
