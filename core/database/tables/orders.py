@@ -54,12 +54,13 @@ class Orders:
         last_name = order["last_name"]
         email = order["email"]
         phone = order["phone"]
+        premise_id = order["premise_id"]
         self._db.execute(
             """
                 INSERT INTO orders
-                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_zip, first_name, last_name, email, phone)
+                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_zip, first_name, last_name, email, phone, premise_id)
                     VALUES
-                        ( %(total_tax)s, %(discount)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s, %(email)s, %(phone)s)
+                        ( %(total_tax)s, %(discount)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s, %(email)s, %(phone)s, %(premise_id)s)
             """,
             {
                 "total_tax": total_tax,
@@ -74,7 +75,8 @@ class Orders:
                 "first_name": first_name,
                 "last_name": last_name,
                 "email": email,
-                "phone": phone
+                "phone": phone,
+                "premise_id": premise_id
             }
         )
         return self._db.last_row_id()

@@ -88,21 +88,6 @@ def serve_employee_create_account_action():
         return {"error": str(e)}
 
 
-@bp.route("/employee/addnewemployee", methods=["GET"])
-def serve_add():
-    password = "abcdefghijk"
-    g.db.execute(
-        """
-        INSERT INTO employees(first_name,last_name,username,email,phone,`password`)
-        values("John","Doe","testadminuser","testadminuser@gmil.com","2012057555",%(password)s);
-        """,
-        {
-            "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-        }
-    )
-    return "Added Employee"
-
-
 @bp.route("/employee/dashboard/add-new-employee", methods=["GET"])
 @crut.require_employee
 def serve_add_new_employee():
@@ -153,9 +138,10 @@ def serve_view_account_users(account_id):
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
 @crut.require_employee
 def serve_login_as_user(user_id):
-    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, g.employee.id())
+    employee_id = g.employee.id()
     auth.logout()
     auth.employee_login_as_user(user_id)
+    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     return redirect("/dashboard")
 
 

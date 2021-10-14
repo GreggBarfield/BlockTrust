@@ -6,10 +6,6 @@ from ...security.matches_visibility import apply_visibility
 def unauth(params):
     result = auth(params)
     # visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])   
-    # return {
-    #    'matches': visible_matches,
-    #     'blocked_matches': blocked_matches
-    #  }
     return {
         'matches': result['matches']
     }
@@ -25,22 +21,27 @@ def auth(params):
                 ljoin_account_links: Whether to LJOIN account links (boolean)
                     (results as account_links.column_name)
     """
-    ljoin_account_links = False
-    if "ljoin_account_links" in params:
-        ljoin_account_links = params["ljoin_account_links"]
-
-    restrict_types = ()
-    if 'types' in params:
-        restrict_types = name_to_id(params['types'])
-
     account = g.db.accounts.get_by_id(g.account.id())
-    account_links = account.account_links()
+    account_link = account.account_links()[0]
+    if 'animals_with_data' in params:
+        return {
+            "matches": g.db.matches.get_animals_with_data_for_account(account_link.id())
+        }
 
-    return {
-        "matches": g.db.matches.get_all_matches_for_an_account(
-            account_links,
-            restrict_types=restrict_types,
-            ljoin_account_links=ljoin_account_links,
-            match_cols=["lat", "lon", "time", "eid", "type"]
-        )
-    }
+    else:
+        ljoin_account_links = False
+        if "ljoin_account_links" in params:
+            ljoin_account_links = params["ljoin_account_links"]
+
+        restrict_types = ()
+        if 'types' in params:
+            restrict_types = name_to_id(params['types'])
+
+        return {
+            "matches": g.db.matches.get_all_matches_for_an_account(
+                account_link.id(),
+                restrict_types=restrict_types,
+                ljoin_account_links=ljoin_account_links,
+                match_cols=["lat", "lon", "time", "eid", "type"]
+            )
+        }
