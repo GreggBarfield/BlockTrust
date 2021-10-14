@@ -43,6 +43,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert):
         time=time,
         data=medical_data,
         eid=eid,
-        account=account,
+        partner_account=account,
         api_insert=api_insert
     )
