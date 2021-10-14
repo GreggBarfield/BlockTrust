@@ -57,13 +57,11 @@ class Matches:
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
-                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id",
                 ) if ljoin_account_links else "",
-                Matches._left_join_visibility,
                 frag(
                     "WHERE matches.eid IN (:eid)",
                     eid=eids
