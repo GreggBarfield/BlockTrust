@@ -338,7 +338,8 @@ class Accounts:
             )
 
     def get_accounts(self, company=None, sector=None, is_partner=None, partner_account=None,
-                     affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
+                     affiliate_id=None, address=None, city=None, state=None, zip=None,
+                     generated_paid=None, selectColumns=[]):
         """
         Get an account by the values specified.
 
@@ -391,6 +392,10 @@ class Accounts:
         if zip is not None:
             query_condition_list.append(" zip = %(zip)s")
             query_values["zip"] = zip
+
+        if generated_paid is not None:
+            query_condition_list.append(" generated_paid = %(generated_paid)s ")
+            query_values["generated_paid"] = generated_paid
 
         if len(query_condition_list) >= 1:
             query_condition = " WHERE" + " AND ".join(query_condition_list)

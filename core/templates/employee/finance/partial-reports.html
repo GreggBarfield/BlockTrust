@@ -11,7 +11,6 @@ Reports
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Select Report Type</h5>
             <div class="card-body col-lg-6 mb-2">
                 <table class="table" d="shopping-cart">
                     <thead>
@@ -27,7 +26,7 @@ Reports
                         <tr>
                             <th>{{report.account}}</th>
                             <th>{{report.amount}}</th>
-                            <th>{{transaction_type_names[report.type]}}</th>
+                            <th>{{report.type}}</th>
                             <th>{{report.create_timestamp}}</th>
                         </tr>
                         {% endfor %}

@@ -188,20 +188,54 @@ def serve_select_report_type():
 @crut.require_employee
 def serve_all_reports():
     tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
-    print(tag_store_reports)
-    reports = Transactions(g.db).get_transactions()
-    return employee_render("/employee/finance/all-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
+    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "last_updated_timestamp"])
+    reports = []
+    for tag_store_report in tag_store_reports:
+        report = {
+            "account": tag_store_report["account"],
+            "amount": tag_store_report["grand_total"],
+            "type": "Tag Store",
+            "create_timestamp": tag_store_report["create_timestamp"] 
+            }
+        reports.append(report)
+    for subscription_report in subscription_reports:
+        report = {
+            "account": subscription_report["id"],
+            "amount": 5.99,
+            "type": "Subscription",
+            "create_timestamp": subscription_report["last_updated_timestamp"]
+        }
+        reports.append(report)
+    return employee_render("/employee/finance/all-reports.html", {"reports": reports})
 
 
 @bp.route("/employee/dashboard/select-report-type/subscription-reports", methods=["GET"])
 @crut.require_employee
 def serve_subscription_reports():
-    reports = Transactions(g.db).get_transactions(type=transaction_type["Subscription"])
-    return employee_render("/employee/finance/partial-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
+    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "last_updated_timestamp"])
+    reports = []
+    for subscription_report in subscription_reports:
+        report = {
+            "account": subscription_report["id"],
+            "amount": 5.99,
+            "type": "Subscription",
+            "create_timestamp": subscription_report["last_updated_timestamp"]
+        }
+        reports.append(report)
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
 
 
 @bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
 @crut.require_employee
 def serve_tag_store_reports():
-    reports = Transactions(g.db).get_transactions(type=transaction_type["Tag-Store"])
-    return employee_render("/employee/finance/partial-reports.html", {"reports": reports, "transaction_type_names": transaction_type_names})
+    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
+    reports = []
+    for tag_store_report in tag_store_reports:
+        report = {
+            "account": tag_store_report["account"],
+            "amount": tag_store_report["grand_total"],
+            "type": "Tag Store",
+            "create_timestamp": tag_store_report["create_timestamp"] 
+            }
+        reports.append(report)
+    return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
