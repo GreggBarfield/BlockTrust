@@ -311,8 +311,8 @@ def serve_edit_edituser():
         try:
             g.db.users.update_user(
                         username=g.user.username(),
-                        first=request.form["first"],
-                        last=request.form["last"],
+                        first_name=request.form["first"],
+                        last_name=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
@@ -347,7 +347,7 @@ def serve_invite_user():
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
                     'current_account': current_account
-                }), user_email, override=True
+                }), user_email
             )
             return {"redirect": "/dashboard"}
         except ExportException as e:
@@ -366,7 +366,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts()
+    account_rows = g.db.accounts.get_accounts(is_partner=0)
     for account_row in account_rows:
         if account_row["id"] == g.account.id():
             account_rows.remove(account_row)
@@ -392,7 +392,7 @@ def serve_add_connection_request():
                 render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
                     'account_company': g.account.company()
-                }), request.form["new_company_email"], override=True
+                }), request.form["new_company_email"]
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:
