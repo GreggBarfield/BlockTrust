@@ -69,7 +69,6 @@ class InsertsModel:
                 LOCK TABLES api_inserts WRITE;
                 SET @insert_id = (
                     SELECT id FROM api_inserts WHERE status=%(pending_status)s
-                    ORDER BY priority DESC, id ASC
                     LIMIT 1
                 );
                 UPDATE api_inserts SET status=%(running_status)s WHERE id=@insert_id;

@@ -322,23 +322,24 @@ def serve_send_message():
     )
     send_to_users = g.db.users.get_rows_by_account(request.json["params"]["to_account"])
     for user in send_to_users:
-        send_email(
-            "New Message",
-            render_email(
-                "new_message.html",
-                {
-                    'new_message': {
-                        'link': (
-                            WEBSITE_ROOT + "/dashboard/messages/"
-                            + str(message_id)
-                        ),
-                        'receiver': user['account_name'],
-                        'sender': g.account.company()
+        if user["is_email_verified"] == 1:
+            send_email(
+                "New Message",
+                render_email(
+                    "new_message.html",
+                    {
+                        'new_message': {
+                            'link': (
+                                WEBSITE_ROOT + "/dashboard/messages/"
+                                + str(message_id)
+                            ),
+                            'receiver': user['account_name'],
+                            'sender': g.account.company()
+                        }
                     }
-                }
-            ),
-            user["email"]
-        )
+                ),
+                user["email"]
+            )
     return {}, 200
 
 

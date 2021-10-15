@@ -5,7 +5,8 @@ sectors_by_id = {
     4: "Cow-Calf",
     5: "Auction House",
     6: "Feedlot",
-    7: "Packer"
+    7: "Packer",
+    8: "Buyer Only"
 }
 
 sectors_by_name = {

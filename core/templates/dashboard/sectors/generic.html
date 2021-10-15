@@ -5,7 +5,7 @@
 
 
 {% set page_title = account.company()|e %}
-{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, account.company()|e)] %}
+{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.company()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.company()|e }}
@@ -70,7 +70,7 @@
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Animals</h5>
+            <h5 class="card-header">Sighted Cattle</h5>
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="source summary"></p>
             </div>
