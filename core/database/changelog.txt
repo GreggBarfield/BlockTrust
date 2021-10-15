@@ -768,3 +768,8 @@ DROP COLUMN `transaction_date`,
 DROP COLUMN `session_flag`,
 DROP COLUMN `approval_code`,
 DROP COLUMN `approved`;
+
+/* Rohan Sureshkumar 10/15/2021 */
+ALTER TABLE `employees` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `last_name`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
