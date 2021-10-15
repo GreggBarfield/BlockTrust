@@ -1,10 +1,13 @@
 {% extends "dashboard/standard.html" %}
 
-{% set page_title = "Sales Groups" %}
-{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups")] %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set page_title = account.company()|e %}
+{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.company()|e)] %}
 
 {% block dashboard_content_header %}
-Sales Groups
+{{ account.company()|e }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
