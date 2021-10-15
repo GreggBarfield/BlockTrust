@@ -345,7 +345,7 @@ def serve_invite_user():
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
                     'current_account': current_account
-                }), user_email, override=True
+                }), user_email
             )
             return {"redirect": "/dashboard"}
         except ExportException as e:
@@ -390,7 +390,7 @@ def serve_add_connection_request():
                 render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
                     'account_company': g.account.company()
-                }), request.form["new_company_email"], override=True
+                }), request.form["new_company_email"]
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:
