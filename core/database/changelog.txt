@@ -732,16 +732,6 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
   `update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
-/* Nisheet Thakur 10/5/2021 */
-CREATE TABLE transactions(
-  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  `account` INT,
-  `amount` FLOAT,
-  `type` INT,
-  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-  );
-
 /* Nisheet Thakur 10/8/2021 */
 ALTER TABLE orders
 ADD `premise_id` VARCHAR(16);

@@ -1,5 +1,5 @@
 from flask import (
-    request, Blueprint, g, redirect
+    request, Blueprint, g, redirect, Response
 )
 from ..renderers.employee import employee_render
 from ..renderers.outside import outside_render
@@ -9,8 +9,6 @@ from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
-from ..database.tables.transactions import Transactions
-from ..database.tables.transactions import transaction_type, transaction_type_names
 from ..database.tables.orders import Orders
 
 from ..common_exceptions import ExportException
@@ -21,8 +19,8 @@ from ..renderers.email import render_email
 from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 import json
+import flask_excel as excel
 from ..utilities import crut, auth
-
 
 bp = Blueprint('employees_bp', __name__)
 
@@ -195,7 +193,7 @@ def serve_all_reports():
             "account": tag_store_report["account"],
             "amount": tag_store_report["grand_total"],
             "type": "Tag Store",
-            "create_timestamp": tag_store_report["create_timestamp"] 
+            "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
             }
         reports.append(report)
     for subscription_report in subscription_reports:
@@ -203,7 +201,7 @@ def serve_all_reports():
             "account": subscription_report["id"],
             "amount": 5.99,
             "type": "Subscription",
-            "create_timestamp": subscription_report["last_updated_timestamp"]
+            "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
         }
         reports.append(report)
     return employee_render("/employee/finance/all-reports.html", {"reports": reports})
@@ -219,7 +217,7 @@ def serve_subscription_reports():
             "account": subscription_report["id"],
             "amount": 5.99,
             "type": "Subscription",
-            "create_timestamp": subscription_report["last_updated_timestamp"]
+            "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
         }
         reports.append(report)
     return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
@@ -235,7 +233,27 @@ def serve_tag_store_reports():
             "account": tag_store_report["account"],
             "amount": tag_store_report["grand_total"],
             "type": "Tag Store",
-            "create_timestamp": tag_store_report["create_timestamp"] 
+            "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
             }
         reports.append(report)
     return employee_render("/employee/finance/partial-reports.html", {"reports": reports})
+
+
+@bp.route("/employee/dashboard/select-report-type/all-reports/download", methods=['GET'])
+def download_file():
+    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "last_updated_timestamp"])
+    reports = []
+    for subscription_report in subscription_reports:
+        report = [
+            subscription_report["id"],
+            5.99,
+            "Subscription",
+            subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
+        ]
+        reports.append(report)
+        print(reports)
+    return Response(
+        excel.make_response_from_array(reports, "csv", 200, "all-reports.csv"),
+        mimetype="text/csv",
+        headers={"Content-disposition":
+                 "attachment; filename=all-reports.csv"})

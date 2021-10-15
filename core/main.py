@@ -29,7 +29,6 @@ from .blueprints import dashboard, outside, widgets, stripe, shop, employees
 from .utilities.handlers import attach_handlers
 from .utilities import auth
 
-
 app = Flask(__name__)
 app.secret_key = FLASK_SESSION_SECRET_KEY
 Talisman(
