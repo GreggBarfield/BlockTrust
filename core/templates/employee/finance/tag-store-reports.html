@@ -1,0 +1,40 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Tag Store Reports" %}
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Tag Store Reports</h5>
+                <a href= "/employee/dashboard/select-report-type/tag-store-reports/download" style="width:250px" class="btn btn-outline-primary float-right">Download Reports</a>
+            </div>
+            <div class="card-body col-lg-6 mb-2">
+                <table class="table" d="shopping-cart">
+                    <thead>
+                        <tr>
+                            <th>ACCOUNT</th>
+                            <th>ACCOUNT NAME</th>
+                            <th>AMOUNT</th>
+                            <th>TRANSACTION TYPE</th>
+                            <th>TRANSACTION TIMESTAMP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <th>{{report.account}}</th>
+                            <th>{{report.account_name}}</th>
+                            <th>{{report.amount}}</th>
+                            <th>{{report.type}}</th>
+                            <th>{{report.create_timestamp}}</th>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>  
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}
