@@ -1,5 +1,4 @@
 from usda_data_retriever import get_usda_data
-from usda_cache import get_cached_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
 from threading import Thread
@@ -14,7 +13,6 @@ from core.database.tables.job_runs import JobRuns
 try:
     scheduled_jobs = {
         "USDAData": "usda_data_retriever|get_usda_data",
-        "USDACache": "usda_cache|get_cached_data",
         "Blockchain": "blockchain|run_bc_routines",
         "Reports": "reports.py|run_report_tasks"
     }
@@ -40,12 +38,6 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
-            if not any(t.getName() == "USDACache" for t in threads):
-                JobRuns(db).insert("USDACache", scheduled_jobs["USDACache"].split('|')[0], scheduled_jobs["USDACache"].split('|')[1])
-                t = Thread(target=get_cached_data, name="USDACache", args=[Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: Appended thread USDACache', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 7 and 8 AM UTC time
         # if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):

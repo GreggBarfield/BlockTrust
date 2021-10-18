@@ -725,7 +725,7 @@ ADD COLUMN `details` JSON NULL AFTER `routine`;
 
 /* Conner Charles 10/4/2021 */
 ALTER TABLE `example_db_1`.`usda_reports` 
-ADD INDEX `state_idx` (`market_location_state` ASC) INVISIBLE,
+ADD INDEX `state_idx` (`market_location_state` ASC) VISIBLE,
 ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC) VISIBLE,
 ADD INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
 ADD INDEX `report_date_idx` (`slug_id` ASC, `report_date` ASC) VISIBLE;

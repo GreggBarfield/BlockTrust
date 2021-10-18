@@ -397,38 +397,6 @@ def serve_get_account_type_visibilities():
     }
 
 
-@bp.route('/widgets/data/get_market_state_data', methods=['POST'])
-@crut.require_account
-def serve_get_market_state_data():
-    try:
-        with open('./core/tools/other/market_data_cache.json') as json_file:
-            data = json.load(json_file)
-
-            return {
-                'market_data': data['states']
-            }, 200
-    except:
-        return {
-            'error': 'problem with market data cache for states.'
-        }, 500
-
-
-@bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
-@crut.require_account
-def serve_get_market_city_data(state):
-    try:
-        with open('./core/tools/other/market_data_cache.json') as json_file:
-            data = json.load(json_file)
-
-            return {
-                'market_data': data['cities_per_state'][state]
-            }, 200
-    except:
-        return {
-            'error': 'problem with market data cache for cities.'
-        }, 500
-
-
 @bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
 @crut.require_account
 def serve_get_market_data(slug_id):
