@@ -11,7 +11,7 @@
                 <a href= "/employee/dashboard/select-report-type/tag-store-reports/download" style="width:250px" class="btn btn-outline-primary float-right">Download Reports</a>
             </div>
             <div class="card-body col-lg-6 mb-2">
-                <table class="table" d="shopping-cart">
+                <table class="table">
                     <thead>
                         <tr>
                             <th>ACCOUNT</th>
@@ -32,7 +32,15 @@
                         </tr>
                         {% endfor %}
                     </tbody>
-                </table>  
+                </table> 
+                <table class="table col-lg-6">
+                    <thead>
+                        <tr>
+                            <th>Grand Total:</th>
+                            <th>${{total}}</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>

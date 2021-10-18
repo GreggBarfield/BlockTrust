@@ -190,6 +190,7 @@ def serve_all_reports():
     tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
     subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
     reports = []
+    total = 0
     for tag_store_report in tag_store_reports:
         report = {
             "account": tag_store_report["account"],
@@ -199,6 +200,7 @@ def serve_all_reports():
             "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
             }
         reports.append(report)
+        total = total + tag_store_report["grand_total"]
     for subscription_report in subscription_reports:
         report = {
             "account": subscription_report["id"],
@@ -208,7 +210,8 @@ def serve_all_reports():
             "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
         }
         reports.append(report)
-    return employee_render("/employee/finance/all-reports.html", {"reports": reports})
+        total = total + 5.99
+    return employee_render("/employee/finance/all-reports.html", {"reports": reports, "total": round(total, 2)})
 
 
 @bp.route("/employee/dashboard/select-report-type/subscription-reports", methods=["GET"])
@@ -216,6 +219,7 @@ def serve_all_reports():
 def serve_subscription_reports():
     subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
     reports = []
+    total = 0
     for subscription_report in subscription_reports:
         report = {
             "account": subscription_report["id"],
@@ -225,7 +229,8 @@ def serve_subscription_reports():
             "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
         }
         reports.append(report)
-    return employee_render("/employee/finance/subscription-reports.html", {"reports": reports})
+        total = total + 5.99
+    return employee_render("/employee/finance/subscription-reports.html", {"reports": reports, "total": round(total, 2)})
 
 
 @bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
@@ -233,6 +238,7 @@ def serve_subscription_reports():
 def serve_tag_store_reports():
     tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
     reports = []
+    total = 0
     for tag_store_report in tag_store_reports:
         report = {
             "account": tag_store_report["account"],
@@ -242,7 +248,8 @@ def serve_tag_store_reports():
             "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
             }
         reports.append(report)
-    return employee_render("/employee/finance/tag-store-reports.html", {"reports": reports})
+        total = total + tag_store_report["grand_total"]
+    return employee_render("/employee/finance/tag-store-reports.html", {"reports": reports, "total": round(total, 2)})
 
 
 @bp.route("/employee/dashboard/select-report-type/all-reports/download", methods=['GET'])
