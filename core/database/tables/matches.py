@@ -91,7 +91,7 @@ class Matches:
         else:
             return []
 
-    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=[]):
+    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
         """Gets all matches by an account.
 
         Params:
