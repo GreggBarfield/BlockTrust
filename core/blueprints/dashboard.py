@@ -10,6 +10,8 @@ from ..sectors import sectors_by_id
 
 from ..common_exceptions import ExportException
 
+from ..data_requests.router import unauth_route
+
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import NoAccountUserFound
@@ -25,8 +27,11 @@ from ..utilities.email import send_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 
 import json
+import flask_excel as excel
 
 bp = Blueprint('dashboard_bp', __name__)
+
+excel.init_excel(bp)
 
 
 @bp.route('/dashboard', methods=['GET'])
@@ -404,3 +409,144 @@ def serve_add_connection_request():
 def serve_view_invites():
     requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
+
+
+@bp.route('/dashboard/calf-crop-summary/download', methods=['GET'])
+@crut.require_account
+def serve_summary_download():
+    count_eid_distinct = unauth_route({"type": 'count_eid_distinct', "params": {}})
+    global_usda_yield_grade_distribution = unauth_route({"type": 'count_distribution_global', "params": {'match_type': 'USDA Yield Grade'}})
+    global_usda_quality_grade_distribution = unauth_route({"type": 'count_distribution_global', "params": {'match_type': 'USDA Quality Grade'}})
+
+    account_total_distinct = unauth_route({"type": 'count_eid_distinct_by_account', "params": {}})
+    account_usda_yield_grade_distribution = unauth_route({"type": 'count_distribution', "params": {'match_type': 'USDA Yield Grade', 'account': None}})
+    account_usda_quality_grade_distribution = unauth_route({"type": 'count_distribution', "params": {'match_type': 'USDA Quality Grade', 'account': None}})
+
+    if count_eid_distinct["result"] is not None:
+        global_calves = count_eid_distinct["result"]["count_eid_distinct"]
+    else:
+        global_calves = None
+
+    if global_usda_yield_grade_distribution["result"] is not None:
+        global_yield = global_usda_yield_grade_distribution["result"]["count_distribution"]
+    else:
+        global_yield = None
+
+    if global_usda_quality_grade_distribution["result"] is not None:
+        global_quality = global_usda_quality_grade_distribution["result"]["count_distribution"]
+    else:
+        global_quality = None
+    if account_total_distinct["result"] is not None:
+        account_calves = account_total_distinct["result"]
+    else:
+        account_calves = None
+    if account_usda_yield_grade_distribution["result"] is not None:
+        account_yield = account_usda_yield_grade_distribution["result"]
+    else:
+        account_yield = None
+    account_quality = account_usda_quality_grade_distribution["result"]
+
+    # Global Yield grade calculatiuon
+    yg_global = [0, 0, 0, 0, 0]
+    global_total_available = 0
+    if global_yield is not None:
+        for gy in global_yield:
+            global_total_available += gy["count"]
+            if gy["data"] >= 1 or gy["data"] <= 5:
+                yg_global[5-gy["data"]] += gy["count"]
+            else:
+                yg_global[5] += gy["count"]
+        for i in range(len(yg_global)):
+            if(global_total_available > 0):
+                yg_global[i] = round(100 * yg_global[i] / global_total_available)
+            else:
+                yg_global[i] = "N/A"
+
+    # Global Quality grade calculation
+    qg_global = [0, 0, 0, 0]
+    global_total_available = 0
+    if global_quality is not None:
+        for gq in global_quality:
+            global_total_available += gq["count"]
+            if gq["data"] == "Prime":
+                qg_global[0] += gq["count"]
+            if gq["data"] == "Choice":
+                qg_global[1] += gq["count"]
+            if gq["data"] == "Select or Lower":
+                qg_global[2] += gq["count"]
+            else:
+                qg_global[3] += gq["count"]
+        for i in range(len(qg_global)):
+            if(global_total_available > 0):
+                qg_global[i] = round(100 * qg_global[i] / global_total_available)
+            else:
+                qg_global[i] = "N/A"
+
+    # Account Yield Grade claculation
+    yg_account = [0, 0, 0, 0, 0]
+    account_total_available = 0
+    if account_yield is not None:
+        for ay in account_yield:
+            account_total_available += ay["count"]
+            if ay["data"] >= 1 or ay["data"] <= 5:
+                yg_account[5-ay["data"]] += ay["count"]
+            else:
+                yg_account[5] += ay["count"]
+        for i in range(len(yg_account)):
+            if(account_total_available > 0):
+                yg_account[i] = round(100 * yg_account[i] / account_total_available)
+            else:
+                yg_account[i] = "N/A"
+
+    # Account Quality Grade calculation
+    qg_account = [0, 0, 0, 0]
+    account_total_available = 0
+    if account_quality is not None:
+        for aq in account_quality:
+            account_total_available += aq["count"]
+            if aq["data"] == "Prime":
+                qg_account[0] += aq["count"]
+            if aq["data"] == "Choice":
+                qg_account[1] += aq["count"]
+            if aq["data"] == "Select or Lower":
+                qg_account[2] += aq["count"]
+            else:
+                qg_account[3] += aq["count"]
+        for i in range(len(qg_account)):
+            if(account_total_available > 0):
+                qg_account[i] = round(100 * qg_account[i] / account_total_available)
+            else:
+                qg_account[i] = "N/A"
+
+    global_percentage_available = 0
+    account_percentage_available = 0
+    if global_calves is not None and global_total_available != 0:
+        global_percentage_available = round(100 * global_total_available / global_calves)
+    if account_calves is not None and account_total_available != 0:
+        account_percentage_available = round(100 * account_total_available / account_calves)
+    if global_calves is None:
+        global_calves = "N/A"
+    if account_calves is None:
+        account_calves = "N/A"
+
+    # Generating the excel report
+    summary = []
+    summary.append(["", g.account.company() + "(%)", "Global Benchmark (%)"])
+    summary.append(["Sightings Summary", "", ""])
+    summary.append(["Total Calves", account_calves, global_calves])
+    summary.append(["Total Available", account_total_available, global_total_available])
+    summary.append(["% Available", account_percentage_available, global_percentage_available])
+    summary.append(["Carcass Quality(Percentage of Available)", "", ""])
+    summary.append(["Prime", qg_account[0], qg_global[0]])
+    summary.append(["Choice", qg_account[1], qg_global[1]])
+    summary.append(["Select or Lower", qg_account[2], qg_global[2]])
+    summary.append(["Other", qg_account[3], qg_global[3]])
+    summary.append(["Carcass Yield Grade(Percentage of Available)", "", ""])
+    summary.append(["YG 5", yg_account[0], yg_global[0]])
+    summary.append(["YG 4", yg_account[1], yg_global[1]])
+    summary.append(["YG 3", yg_account[2], yg_global[2]])
+    summary.append(["YG 2", yg_account[3], yg_global[3]])
+    summary.append(["YG 1", yg_account[4], yg_global[4]])
+    summary.append(["Other", 0, 0])
+
+    return excel.make_response_from_array(summary, "xlsx", file_name="Calf-Crop-Summary")
