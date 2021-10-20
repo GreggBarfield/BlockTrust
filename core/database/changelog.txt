@@ -739,3 +739,7 @@ CREATE TABLE `example_db_1`.`user_logins_by_employee` (
   `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Conner Charles 10/20/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"market_data_cache\", \"params\": {}}", 0)
