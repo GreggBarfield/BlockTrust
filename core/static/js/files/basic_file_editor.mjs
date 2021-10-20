@@ -2,14 +2,18 @@ import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class BasicFileEditor {
+
+    /**
+     * 
+     * @param {dictionary} restrictions dictionary in which you can add restrictions. For example, fileType:'image'
+     * @param {list} fileIDs a list of file IDs
+     * @param {dictionary } fileDetails a dictionary which contains id, name and s3 link of the file
+     */
     constructor(restrictions={}, attach_node=null, fileIDs=null, fileDescriptions=null, fileDetails=null) {
         let that = this;
         this.files = [];
-        //this.restrictions is a dictionary which has following items supported:
-        //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
         this.fileDetails = fileDetails;
-        //TODO: description
         if (fileIDs !== null) {
             for( const[index,fileID] of fileIDs.entries()){
                 const curDes = fileDescriptions[index];
@@ -181,8 +185,10 @@ export class BasicFileEditor {
         this.updateTable();
     }
 
+    /** 
+     * @return {list} a list of all uploaded and not removed file IDs
+     */
     getFileIDs() {
-        // Gets all uploaded and not removed file IDs
         let result = [];
         for (const file of this.files) {
             if ("removed" in file && file["removed"])
@@ -194,15 +200,19 @@ export class BasicFileEditor {
         return result;
     }
     
+    /** 
+     * @return {list} a list of image descriptions which are uploaded and not removed.
+     */ 
     getDescriptionsOfFiles(){
-        //return a list of image descriptions which are uploaded and not removed.
         let result = [];
         let i=0;
         for (const file of this.files) {
+            //"removed" is added when file is removed
             if ("removed" in file && file["removed"]){
                 i+=1;
                 continue;
             }
+            //"uploaded" in general is always present. It is set to false if file is recently added, and it is set to true if file is already uploaded
             if (!file["uploaded"])
                 continue;
             result.push(document.getElementById(i).value);
