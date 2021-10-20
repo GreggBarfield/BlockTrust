@@ -180,6 +180,13 @@ class Accounts:
         Raises:
             AccountsException
         """
+
+        # Validations
+
+        account_links = self._db.account_links.get_account_links(affiliate_id=affiliate_id, partner_account=partner)
+        if len(account_links) > 0:
+            raise AccountsException("This affiliate id has already been taken by another account.")
+
         try:
             sector = int(sector)
         except Exception as e:

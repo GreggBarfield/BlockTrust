@@ -60,6 +60,7 @@ class AccountLinks:
         )
         return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
+    #TODO: obsolete. Should be removed.
     def get_by_company(self, company, partner_account=None, api_insert=None, insert_sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match company.
 
@@ -190,3 +191,40 @@ class AccountLinks:
         if self._db.row_count() == 0:
             # insert the account_link
             self.insert(account=account_id, affiliate_id=affiliate_id, company=company, sector=sector, partner_account=partner_id)
+
+    def get_account_links(self, partner_account=None, affiliate_id=None, selectColumns=[]):
+        """
+        Get an account link by the values specified.
+
+        Returns:
+            A list of account link records if found else an empty list
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        base_query = "SELECT " + selectColumns + " FROM account_links"
+
+        query_conditions = []
+        query_values = {}
+
+        if affiliate_id is not None:
+            query_conditions.append(" affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+
+        if partner_account is not None:
+            query_conditions.append(" partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+
+        if len(query_conditions) > 0:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        account_link_rows = self._db.execute_d(query, query_values)
+        if len(account_link_rows) > 0:
+            return account_link_rows
+        else:
+            return []
