@@ -375,54 +375,17 @@ export class EditSalesGroupWidget extends Widget {
         form.append(document.createElement("br"));
 
         // EIDs
-
-        let eidsHeader = document.createElement("h6");
-        eidsHeader.textContent = "EIDs";
-        form.append(eidsHeader);
-
-        const importer = new FlatfileImporter(this.data.license, {
-            type: "EID import",
-            title: "EID import",
-            managed: true,
-            fields: [
-                {key: "EID", label: "Tag",
-                validators: [
-                    { validate: "required" },
-                    { validate: "unique" },
-                    {
-                        validate: 'regex_matches',
-                        regex: '^[0-9]{15}$',
-                        error: 'Only can be a number with 15 digits.'
-                    }
-                ]}
-            ],
-            theme: {
-                buttons: {
-                    primary: {
-                        backgroundColor: "#8b4513",
-                        border: "1px solid #8b4513",
-                        ":hover": {
-                            backgroundColor: "#722C00",
-                            border: "1px solid #722C00"
-                        }
-                    }
-                },
-            }
-        });
-
-        importer.setCustomer({userId: this.data.userID, name: this.data.name, companyName: this.data.company, companyId: this.data.companyId });
-
-        let eidButton = document.createElement("button");
-        eidButton.className = "btn btn-primary";
-        eidButton.textContent = "Add EID's";
-        eidButton.type = "button";
-        form.append(eidButton);
-
-        eidButton.addEventListener("click", () => importer.requestDataFromUser().then(function(results) { 
-            that.data.eids = results.data.map(function (obj) { return obj.EID; });
         
-            importer.displaySuccess('Thanks for uploading your data!')
-        }));
+        // Leaving this here just in case we will need it for new in house UI
+        // let eidsHeader = document.createElement("h6");
+        // eidsHeader.textContent = "EIDs";
+        // form.append(eidsHeader);
+
+        // let eidButton = document.createElement("button");
+        // eidButton.className = "btn btn-primary";
+        // eidButton.textContent = "Add EID's";
+        // eidButton.type = "button";
+        // form.append(eidButton);
 
         // Publish
 
@@ -480,7 +443,7 @@ export class EditSalesGroupWidget extends Widget {
                 return {
                     id: that.salesGroupID,
                     published: publishSwitch.isChecked(),
-                    eids: that.data.eids,
+                    eids: [],
                     reported: {
                         comments: commentsTA.value,
                         count: safeInt(marketingCount.value),
