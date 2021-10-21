@@ -111,6 +111,11 @@ class Database:
             raise error
 
     def execute_d(self, code, params=tuple()):
+        """Executes a query with params provided.
+
+        Returns:
+            List of dictionaries possibly empty
+        """
         self.execute(code, params)
         return self.fetch_all()
 
@@ -181,7 +186,16 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
-    
+
+    def execute_many(self, query, data):
+        """Prepares a database operation (query or command) and executes it against all parameter sequences or mappings
+
+        Params:
+            data: list of tuples
+            query: the SQL statement
+        """
+        self._cursor.executemany(query, data)
+
     def close(self):
         self._cursor.close()
         self._connection.close()

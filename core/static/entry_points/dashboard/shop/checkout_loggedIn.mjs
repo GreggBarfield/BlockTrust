@@ -54,6 +54,7 @@ $( "#loggedInCheckoutForm" ).submit(function( event ) {
         city: values[6].value,
         state: values[7].value,
         zip_code: values[8].value,
+        premise_id: "",
         shoppingCart: shoppingCartString,
         total_price:totalPriceString,
         total_tax:totalTaxString,

@@ -44,7 +44,13 @@
     "usda": {
         "api_key": "YEULfkcsaG943pPgePJa/6KIWH8Fajkj",
         "public_endpoint": "https://marsapi.ams.usda.gov/services/v1.2/",
-        "mandatory_endpoint": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/"
+        "mandatory_endpoint": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/",
+        "get_data": false
     },
-    "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba"
+    "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
+    "blockchain": {
+           "endpoint": "http://ec2-13-59-58-208.us-east-2.compute.amazonaws.com:3000",
+           "upload": true,
+           "batch_size": 10
+    }
 }

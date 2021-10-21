@@ -1,7 +1,6 @@
 import time as time_module
 import json
-from ..frag import frag, frag_insert_into, frag_insert_single_where
-from ..objects.match import Match, MatchException
+from ..frag import frag
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
@@ -58,13 +57,11 @@ class Matches:
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
-                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id",
                 ) if ljoin_account_links else "",
-                Matches._left_join_visibility,
                 frag(
                     "WHERE matches.eid IN (:eid)",
                     eid=eids
@@ -75,6 +72,62 @@ class Matches:
                 ) if restrict_types else ""
             )
         ))
+
+    def get_animals_with_data_for_account(self, account_link_id=0): 
+        if account_link_id > 0:
+            matches = self._db.execute_d(
+                """
+                SELECT DISTINCT m1.eid, m3.visual_id FROM matches m1 
+                INNER JOIN matches m2 ON m1.eid = m2.eid 
+                LEFT JOIN matches m3 ON m1.eid = m3.eid AND m3.visual_id IS NOT NULL
+                WHERE m1.account_link = %(account_link_id)s AND m2.type = %(type)s
+                """,
+                {
+                    "account_link_id": account_link_id,
+                    "type": match_types_by_name["USDA Quality Grade"]
+                }
+            )
+            return matches
+        else:
+            return []
+
+    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
+        """Gets all matches by an account.
+
+        Params:
+            account_links: all the account links of an account (should be 1)
+            restrict_types: match types
+            ljoin_account_links: Whether to left join account links
+            match_cols: optional specify the columns needed from the matches table
+
+        Returns:
+            A list of dictionaries containing matches and account_links data if joined (possibly empty)
+            No duplicates
+        """
+        if account_link_id > 0:
+            match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
+
+            query_statements = []
+            query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
+            query_statements.append(Matches._account_links_clause if ljoin_account_links else "")
+            query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
+
+            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
+            query_statements.append(al_clause)
+            args = [account_link_id]
+
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            matches = self._db.execute_d(query, args)
+            return matches
+        else:
+            return []
 
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.
@@ -120,9 +173,68 @@ class Matches:
             )
         ))
 
+    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
+                  time=None, selectColumns=[]):
+        """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
+
+        Returns:
+            The match record if found else None
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ", ".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
+        query_values = {"eid": eid}
+
+        if(visual_id is not None):
+            query_string_list.append("AND visual_id = %(visual_id)s")
+            query_values["visual_id"] = visual_id
+
+        if(type_int is not None):
+            query_string_list.append("AND type = %(type)s")
+            query_values["type"] = type_int
+
+        if(grouping_id is not None):
+            query_string_list.append("AND grouping_id = %(grouping_id)s")
+            query_values["grouping_id"] = grouping_id
+
+        if(data is not None):
+            query_string_list.append("AND data = CAST(%(data)s AS JSON)")
+            query_values["data"] = json.dumps(data)
+
+        if(partner_account is not None):
+            query_string_list.append("AND partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+
+        if(account_link is not None):
+            query_string_list.append("AND account_link = %(account_link)s")
+            query_values["account_link"] = account_link
+
+        if(lat is not None):
+            query_string_list.append("AND lat = %(lat)s")
+            query_values["lat"] = lat
+
+        if(lon is not None):
+            query_string_list.append("AND lon = %(lon)s")
+            query_values["lon"] = lon
+
+        if(time is not None):
+            query_string_list.append("AND time = %(time)s")
+            query_values["time"] = time
+
+        query = ' '.join(query_string_list)
+
+        match_rows = self._db.execute_d(query, query_values)
+        if len(match_rows) > 0:
+            return match_rows[0]
+        else:
+            return None
+
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
-        lat=None, lon=None, time=None, debug=None, api_insert=None
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
     ):
         """Insert a new row into matches.
 
@@ -138,71 +250,33 @@ class Matches:
             lon: The longitude of the data scan, int (optional)
             time: The time of the data scan, int (optional)
             debug: debug usage, str (optional)
-        Raises:
-            MatchesException
         """
 
-        if not isinstance(type_int, int):
-            raise MatchesException("type_int should be an int")
-
-        row = {
-            "eid": eid,
-            "type": type_int,
-            "visual_id": visual_id,
-            "grouping_id": grouping_id,
-            "data": None if data is None else json.dumps(data),
-            "partner_account": partner_account,
-            "account_link": account_link,
-            "lat": lat,
-            "lon": lon,
-            "time": time,
-            "created": int(time_module.time()),
-            "debug":  None if debug is None else json.dumps(debug),
-            "api_insert": api_insert
-        }
-
-        self._db.exec_frag(
-            frag_insert_single_where(
-                'matches',
-                row,
-                frag(
-                    "(",
-                    frag(
-                        "SELECT COUNT(*) FROM matches",
-                        "WHERE",
-                        "eid<=>:eid",
-                        "AND",
-                        "visual_id<=>:visual_id",
-                        "AND",
-                        "type<=>:type",
-                        "AND",
-                        "grouping_id<=>:grouping_id",
-                        "AND",
-                        "data<=>CAST(:data AS JSON)",
-                        "AND",
-                        "partner_account<=>:partner_account",
-                        "AND",
-                        "account_link<=>:account_link",
-                        "AND",
-                        "lat<=>:lat",
-                        "AND",
-                        "lon<=>:lon",
-                        "AND",
-                        "time<=>:time",
-                        eid=row["eid"],
-                        visual_id=row["visual_id"],
-                        type=row["type"],
-                        grouping_id=row["grouping_id"],
-                        data=row["data"],
-                        partner_account=row["partner_account"],
-                        account_link=row["account_link"],
-                        lat=row["lat"],
-                        lon=row["lon"],
-                        time=row["time"]
-                    ),
-                    ") = 0",
-                )
-            )
+        self._db.execute(
+            """INSERT INTO matches
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                VALUES
+                    (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                    )
+            """,
+            {
+                "eid": eid,
+                "type": type_int,
+                "visual_id": visual_id,
+                "grouping_id": grouping_id,
+                "data": None if data is None else json.dumps(data),
+                "partner_account": partner_account,
+                "account_link": account_link,
+                "lat": lat,
+                "lon": lon,
+                "time": time,
+                "created": int(time_module.time()),
+                "debug": None if debug is None else json.dumps(debug),
+                "api_insert": api_insert,
+                "bc_transaction_id": bc_transaction_id,
+                "bc_hash": bc_hash
+            }
         )
 
     def get_count_eid_distinct(self):

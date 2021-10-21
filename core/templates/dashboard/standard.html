@@ -182,11 +182,13 @@
         <div class="b-nav-utility">
             <ul>
                 {% if dashboard_standard_account is not none %}
+                {% if g.account.sector_name() != "Buyer Only"%}
                 <li> 
                   <a href="#" id="icon-search">
                     <i class="icon feather icon-search"></i>
                   </a>
                 </li>
+                {% endif %}
                 <li>  
                     <a href="/dashboard/messages">
                     <i class="icon feather icon-mail"></i>
@@ -239,6 +241,11 @@
                             </a>
                         </div>
                         <ul class="pro-body">
+                            <!-- Under development <li>
+                                <a href="/dashboard/connections">
+                                    <i class="feather icon-users"></i> View Connections
+                                </a>
+                            </li> -->
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
@@ -292,7 +299,7 @@
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                    {% if g.account.sector_name() != "Feedlot" %}
+                    {% if g.account.sector_name() != "Feedlot" and g.account.sector_name() != "Buyer Only"%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                     {% endif %}
@@ -310,6 +317,7 @@
                 </ul>
             </li>
             {% endif %}
+            {% if g.account.sector_name() != "Buyer Only"%}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
@@ -328,6 +336,7 @@
                     <span>Buy Tags</span>
                 </a>
             </li>
+            {% endif %}
         </ul>
     </nav>
 </header>
