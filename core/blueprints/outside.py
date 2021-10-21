@@ -136,7 +136,7 @@ def serve_signup_action():
             "BlockTrust Network Email Confirmation",
             render_email("verification_email.html", {
                 'confirm_url': confirm_url
-            }), required['email'], override=True
+            }), required['email']
         )
 
         return {"redirect": "/email_not_verified"}
@@ -207,7 +207,7 @@ def serve_contact_form_response():
             'email': request.json['email'],
             'message': request.json['message'],
         }),
-        SUPPORT_TAG_STORE_EMAIL, override=True
+        SUPPORT_TAG_STORE_EMAIL
     )
     return {}
 

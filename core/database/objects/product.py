@@ -17,15 +17,6 @@ class Product:
     def product_no(self):
         return self._row['prod_no']
 
-    def menu1(self):
-        return self._row['menu1']
-
-    def m1_short(self):
-        return self._row['m1_short']
-
-    def menu2(self):
-        return self._row['m2_short']
-
     def product(self):
         return self._row['product']
 
@@ -55,21 +46,3 @@ class Product:
 
     def unit(self):
         return self._row['unit']
-
-    def creditcard_charge(self):
-        return self._row['cc_charge']
-
-    def original_price(self):
-        return self._row['orig_price']
-
-    def number_y_n(self):
-        return self._row['number_y_n']
-
-    def start_no(self):
-        return self._row['start_no']
-
-    def end_no(self):
-        return self._row['end_no']
-
-    def num_text(self):
-        return self._row['num_text']
