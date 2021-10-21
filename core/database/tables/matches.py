@@ -57,13 +57,11 @@ class Matches:
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
-                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id",
                 ) if ljoin_account_links else "",
-                Matches._left_join_visibility,
                 frag(
                     "WHERE matches.eid IN (:eid)",
                     eid=eids
@@ -75,7 +73,25 @@ class Matches:
             )
         ))
 
-    def get_all_matches_for_an_account(self, account_links, restrict_types=(), ljoin_account_links=False, match_cols=[]):
+    def get_animals_with_data_for_account(self, account_link_id=0): 
+        if account_link_id > 0:
+            matches = self._db.execute_d(
+                """
+                SELECT DISTINCT m1.eid, m3.visual_id FROM matches m1 
+                INNER JOIN matches m2 ON m1.eid = m2.eid 
+                LEFT JOIN matches m3 ON m1.eid = m3.eid AND m3.visual_id IS NOT NULL
+                WHERE m1.account_link = %(account_link_id)s AND m2.type = %(type)s
+                """,
+                {
+                    "account_link_id": account_link_id,
+                    "type": match_types_by_name["USDA Quality Grade"]
+                }
+            )
+            return matches
+        else:
+            return []
+
+    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
         """Gets all matches by an account.
 
         Params:
@@ -88,16 +104,30 @@ class Matches:
             A list of dictionaries containing matches and account_links data if joined (possibly empty)
             No duplicates
         """
-        match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
-        return self._db.execute_d(
-            "SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query) + " " + (Matches._account_links_clause if ljoin_account_links else "")
-            + " FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else "")
-            + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%(account_links)s)) AND matches.type IN (%(types)s)",
-            {
-                "account_links": ",".join([str(account_link.id()) for account_link in account_links]),
-                "types": ",".join([str(t) for t in restrict_types])
-            }
-        )
+        if account_link_id > 0:
+            match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
+
+            query_statements = []
+            query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
+            query_statements.append(Matches._account_links_clause if ljoin_account_links else "")
+            query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
+
+            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
+            query_statements.append(al_clause)
+            args = [account_link_id]
+
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            matches = self._db.execute_d(query, args)
+            return matches
+        else:
+            return []
 
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.

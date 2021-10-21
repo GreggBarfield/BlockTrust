@@ -33,20 +33,6 @@ class LoginException(AuthException):
         super().__init__(reason)
 
 
-class InternalLoginException(AuthException):
-    """Generic auth staff login exception."""
-
-    def __init__(self, reason):
-        """Constructor for LoginException.
-
-        Params:
-            reason: The reason it failed.
-                This will likely end up getting printed to the user,
-                so be careful.
-        """
-        super().__init__(reason)
-
-
 class EmailNotVerifiedException(AuthException):
     """Exception raised when a user with an unverified email tries to login"""
     def __init__(self, reason):
@@ -536,7 +522,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
     """
     Params:
         first_name: Employee first name
-        last_name: EMployee last name
+        last_name: Employee last name
         email: Employee email
         phone: Employee phone number
         username: Employee username
@@ -561,7 +547,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise SignupFailedException("The passwords you entered were not identical.")
 
     try:
-        g.db.employees.create_employee(
+        Employees(g.db).create_employee(
             first_name=first_name,
             last_name=last_name,
             email=email,
@@ -581,7 +567,6 @@ def employee_login_as_user(user_id):
     Returns:
         Nothing
     """
-    user_row = None
     id_results = g.db.execute_d(
                 """
                     SELECT * FROM users
@@ -594,6 +579,8 @@ def employee_login_as_user(user_id):
             )
     if len(id_results) == 1:
         user_row = id_results[0]
-    g.user = User(g.db, user_row)
-    session.clear()
-    session[SESSION_USER_ID_VAR] = g.user.id()
+        g.user = User(g.db, user_row)
+        session.clear()
+        session[SESSION_USER_ID_VAR] = g.user.id()
+    else:
+        raise Exception("No user found")

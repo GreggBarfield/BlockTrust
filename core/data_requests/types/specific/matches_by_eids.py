@@ -5,10 +5,8 @@ from ...security.matches_visibility import apply_visibility
 
 def unauth(params):
     result = auth(params)
-    visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])
     return {
-        'matches': visible_matches,
-        'blocked_matches': blocked_matches
+        'matches': result['matches']
     }
 
 

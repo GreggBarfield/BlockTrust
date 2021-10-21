@@ -224,6 +224,8 @@ class Accounts:
         account.add_user(user, 1)
         # Link the account appropriately in the database
         self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
+        # Create reports needed for the account
+        self._db.reports.make_reports_for_account(account.id())
         return account
 
     def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
@@ -335,34 +337,70 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self):
-        """Gets a list of all non-partner accounts.
-
-        Params:
+    def get_accounts(self, company=None, sector=None, is_partner=None, partner_account=None,
+                            affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
+        """
+        Get an account by the values specified.
 
         Returns:
-            An Array of registered accounts
+            The account record if found else None
         """
-        account_rows = self._db.execute_d(
-            """
-            SELECT * FROM accounts WHERE is_partner = 0
-            """
-        )
-        return account_rows
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
 
-    def get_partners(self):
-        """Gets partners in the accounts table.
+        #base query
+        query = "SELECT " + selectColumns + " FROM accounts"
+        
+        query_condition_list = []
+        query_values = {}
 
-        Params:
+        if company is not None:
+            query_condition_list.append(" company = %(company)s")
+            query_values["company"] = company
 
-        Returns:
-            Array of Account() objects
+        if sector is not None:
+            query_condition_list.append(" sector = %(sector)s")
+            query_values["sector"] = sector
 
-        """
-        partners = self._db.execute_d(
-            """
-                SELECT * FROM accounts
-                WHERE is_partner=1
-            """
-        )
-        return partners
+        if is_partner is not None:
+            query_condition_list.append(" is_partner = %(is_partner)s")
+            query_values["is_partner"] = is_partner
+
+        if partner_account is not None:
+            query_condition_list.append(" partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+
+        if affiliate_id is not None:
+            query_condition_list.append(" affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+
+        if address is not None:
+            query_condition_list.append(" address = %(address)s")
+            query_values["address"] = address
+
+        if city is not None:
+            query_condition_list.append(" city = %(city)s")
+            query_values["city"] = city
+
+        if state is not None:
+            query_condition_list.append(" state = %(state)s")
+            query_values["state"] = state
+
+        if zip is not None:
+            query_condition_list.append(" zip = %(zip)s")
+            query_values["zip"] = zip
+
+        if len(query_condition_list) >= 1:
+            query_condition = " WHERE" + " AND ".join(query_condition_list)
+        else:
+            query_condition = ""
+        
+        query = query + query_condition
+
+        account_rows = self._db.execute_d(query, query_values)
+        if len(account_rows) > 0:
+            return account_rows
+        else:
+            return []
