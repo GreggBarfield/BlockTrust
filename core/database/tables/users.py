@@ -1,5 +1,6 @@
 from ..objects.user import User
 import bcrypt
+from .. import database
 from ..no_value import NoValue
 from ..frag import frag
 
@@ -20,7 +21,7 @@ class UsersException(Exception):
 
 class Users:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def get(self, user_id):
@@ -230,7 +231,7 @@ class Users:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
-        
+
         digits = ''.join(chr(ord('0') + i) for i in range(10))
         temp_phone = ""
         for c in phone:
@@ -297,12 +298,13 @@ class Users:
             password = NO_VALUE
 
         # Process phone number
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
+        if phone != NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
         # If phone is empty it is NULL
         if phone == "":
