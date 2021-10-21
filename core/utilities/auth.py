@@ -4,7 +4,7 @@ from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
-from ..database.tables.employees import Employees
+from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
 from ..database.tables.connection_invites import ConnectionInvites
 
@@ -519,3 +519,70 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
 
+
+def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):
+    """
+    Params:
+        first_name: Employee first name
+        last_name: Employee last name
+        email: Employee email
+        phone: Employee phone number
+        username: Employee username
+        password: Password
+        confirm_password: Confirmed password
+
+    Returns:
+        Nothing
+
+    Raises:
+        SignupFailedException on failure with the reason
+    """
+    first_name = Employees._format_field(first_name)
+    last_name = Employees._format_field(last_name)
+    email = Employees._format_field(email)
+    phone = Employees._format_field(phone)
+    username = Employees._format_field(username)
+    password = Employees._format_field(password)
+    confirm_password = Employees._format_field(confirm_password)
+
+    if password != confirm_password:
+        raise SignupFailedException("The passwords you entered were not identical.")
+
+    try:
+        Employees(g.db).create_employee(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            username=username,
+            password=password
+        )
+    except EmployeesException as e:
+        raise e
+
+
+def employee_login_as_user(user_id):
+    """
+    Params:
+        user_id: User Id of the user for logging in
+
+    Returns:
+        Nothing
+    """
+    id_results = g.db.execute_d(
+                """
+                    SELECT * FROM users
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": user_id
+                }
+            )
+    if len(id_results) == 1:
+        user_row = id_results[0]
+        g.user = User(g.db, user_row)
+        session.clear()
+        session[SESSION_USER_ID_VAR] = g.user.id()
+    else:
+        raise Exception("No user found")

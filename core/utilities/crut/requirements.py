@@ -39,7 +39,7 @@ def require_user(func):
     def wrapper(*args, **kwargs):
         _require_user()
         return func(*args, **kwargs)
-        
+
     return wrapper
 
 
@@ -61,5 +61,5 @@ def require_employee(func):
     def wrapper(*args, **kwargs):
         _require_employee()
         return func(*args, **kwargs)
-        
+
     return wrapper

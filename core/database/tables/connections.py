@@ -55,8 +55,8 @@ class Connections:
         Returns:
             None
         """
-        from_account = Accounts.get_by_id(self, account_id=from_account_id)
-        to_account = Accounts.get_by_id(self, account_id=to_account_id)
+        from_account = Accounts(self._db).get_by_id(self, account_id=from_account_id)
+        to_account = Accounts(self._db).get_by_id(self, account_id=to_account_id)
         from_account_name = from_account.company()
         to_account_name = to_account.company()
         # From account is the sender of the request, To is the reciever
@@ -91,8 +91,8 @@ class Connections:
             raise ConnectionException("Account is already connected!")
         if self.get_connection_between(from_account_id, to_account_id) == 0:
             raise ConnectionException("Request already sent!")
-        first_account = Accounts.get_by_id(self, account_id=from_account_id)
-        second_account = Accounts.get_by_id(self, account_id=to_account_id)
+        first_account = Accounts(self._db).get_by_id(self, account_id=from_account_id)
+        second_account = Accounts(self._db).get_by_id(self, account_id=to_account_id)
         from_account_name = first_account.company()
         to_account_name = second_account.company()
         self._db.execute(
