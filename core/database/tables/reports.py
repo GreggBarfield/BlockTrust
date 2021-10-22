@@ -1,5 +1,6 @@
 from json import dumps, loads
 from time import time
+from core.database.no_value import NoValue
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
@@ -7,6 +8,9 @@ from core.reports.query_types import (
     count_distribution, count_distribution_global, count_eid_distinct,
     count_eid_distinct_by_account
 )
+import json
+
+NO_VALUE = NoValue()
 
 REPORT_STATUS = {
     "Pending": 0,
@@ -154,7 +158,7 @@ class Reports:
         for query in queries:
             self.insert_query(account_id, query)
 
-    def mark_reports_for_reprocessing(self):
+    def mark_account_reports_for_reprocessing(self):
         """Marking reports linked to accounts for reprocessing. Reports need to be in ready state to be marked.
 
         """
@@ -169,6 +173,23 @@ class Reports:
             }
 
         )
+
+    def update_report(self, query, status=NO_VALUE):
+        """Generic update report routine
+
+        """
+        if status is not NO_VALUE:
+            self._db.execute(
+                """
+                    UPDATE reports SET status=%(status)s WHERE query=CAST(%(query)s AS JSON)
+
+                """,
+                {
+                    "status": status,
+                    "query": json.dumps(query)
+                }
+
+            )
 
     @staticmethod
     def _process_row(row):

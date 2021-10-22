@@ -25,15 +25,6 @@ def execute(db, query):
     return data
 
 
-def accessible():
-    """Checks whether the query is accessible by an account.
-
-    Returns:
-        True
-    """
-    return True
-
-
 def create():
     """Creates a query.
 
