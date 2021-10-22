@@ -12,8 +12,8 @@ from core.database.tables.job_runs import JobRuns
 
 try:
     scheduled_jobs = {
-        "USDAData": "usda_data_retriever|get_usda_data",
-        "Blockchain": "blockchain|run_bc_routines",
+        "USDAData": "usda_data_retriever.py|get_usda_data",
+        "Blockchain": "blockchain.py|run_bc_routines",
         "Reports": "reports.py|run_report_tasks"
     }
     print("Executing main.py")
