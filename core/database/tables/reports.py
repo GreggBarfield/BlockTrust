@@ -174,7 +174,7 @@ class Reports:
 
         )
 
-    def get_report(self, query=NO_VALUE, selectColumns=[]):
+    def get_reports(self, query=NO_VALUE, selectColumns=[]):
         """Generic get report routine
 
         """

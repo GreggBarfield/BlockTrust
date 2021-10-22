@@ -48,7 +48,7 @@ def run_report_tasks(job_run_id, db):
         reports_table = Reports(db)
         reports_table.mark_account_reports_for_reprocessing()
 
-        market_cache_report = reports_table.get_report(query=market_data_cache.create(), selectColumns=["id"])[0]
+        market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
         reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
 
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
