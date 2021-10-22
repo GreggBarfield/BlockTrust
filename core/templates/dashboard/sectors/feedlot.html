@@ -67,31 +67,5 @@
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col">
-        <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAccountDebug" style="float:right;margin-right:20px;">Debug Info</a>
-        <div class="collapse" id="collapseAccountDebug" style="clear:both;">
-            <div class="card" style="width:100%;">
-                <div class="card-body">
-                    <h5 class="card-title">{{ account.company()|e }}</h5>
-                    <p class="card-text">
-                        Debug<br>
-                        Account Links<br>
-                        {% for account_link in account_links %}
-                        Linked with account link {{ account_link.id() }}<br>
-                        {% if account_link.company() is not none %}
-                        Data 'company': {{ account_link.company()|e }}<br>
-                        {% endif %}
-                        {% if account_link.affiliate_id() is not none %}
-                        Data 'affiliate_id': {{ account_link.affiliate_id() }}<br>
-                        Data 'partner_account': {{ account_link.partner_account_id() }}<br>
-                        {% endif %}
-                        {% endfor %}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 {% endblock dashboard_content %}
