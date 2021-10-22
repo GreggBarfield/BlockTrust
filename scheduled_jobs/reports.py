@@ -45,8 +45,12 @@ def run_report_tasks(job_run_id, db):
     try:
         make_global_reports(db)
         make_missed_reports_for_accounts(db)
-        Reports(db).mark_account_reports_for_reprocessing()
-        Reports(db).update_report(market_data_cache.create(), REPORT_STATUS["Pending"])
+        reports_table = Reports(db)
+        reports_table.mark_account_reports_for_reprocessing()
+
+        market_cache_report = reports_table.get_report(query=market_data_cache.create(), selectColumns=["id"])[0]
+        reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
+
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Reports Job Exiting. Current time: ", datetime.datetime.now().time())
     except Exception as e:

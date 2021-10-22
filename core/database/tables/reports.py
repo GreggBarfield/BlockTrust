@@ -174,19 +174,49 @@ class Reports:
 
         )
 
-    def update_report(self, query, status=NO_VALUE):
+    def get_report(self, query=NO_VALUE, selectColumns=[]):
+        """Generic get report routine
+
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        base_query = "SELECT " + selectColumns + " FROM reports"
+
+        query_conditions = []
+        query_values = {}
+
+        if query is not NO_VALUE:
+            query_conditions.append(" query = CAST(%(query)s AS JSON)")
+            query_values["query"] = json.dumps(query)
+
+        if len(query_conditions) > 0:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        report_rows = self._db.execute_d(query, query_values)
+        if len(report_rows) > 0:
+            return report_rows
+        else:
+            return []
+
+    def update_report(self, id, status=NO_VALUE):
         """Generic update report routine
 
         """
         if status is not NO_VALUE:
             self._db.execute(
                 """
-                    UPDATE reports SET status=%(status)s WHERE query=CAST(%(query)s AS JSON)
+                    UPDATE reports SET status=%(status)s WHERE id=%(id)s
 
                 """,
                 {
                     "status": status,
-                    "query": json.dumps(query)
+                    "id": id
                 }
 
             )
