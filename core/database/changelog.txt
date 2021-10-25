@@ -723,6 +723,14 @@ ADD COLUMN `end_timestamp` TIMESTAMP NULL AFTER `create_timestamp`;
 ALTER TABLE `example_db_1`.`job_runs` 
 ADD COLUMN `details` JSON NULL AFTER `routine`;
 
+/* Conner Charles 10/4/2021 */
+ALTER TABLE `example_db_1`.`usda_reports` 
+ADD INDEX `state_idx` (`market_location_state` ASC) VISIBLE,
+ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC) VISIBLE,
+ADD INDEX `slug_id_idx` (`slug_id` ASC) VISIBLE,
+ADD INDEX `report_date_idx` (`slug_id` ASC, `report_date` ASC) VISIBLE;
+;
+
 /* Rohan Sureshkumar 10/6/2021 */
 CREATE TABLE `example_db_1`.`user_logins_by_employee` (
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -763,3 +771,7 @@ DROP COLUMN `approved`;
 ALTER TABLE `employees` 
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `last_name`,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+/* Conner Charles 10/20/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"market_data_cache\", \"params\": {}}", 0)
