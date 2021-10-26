@@ -183,8 +183,8 @@ class Accounts:
 
         # Validations
 
-        account_links = self._db.account_links.get_account_links(affiliate_id=affiliate_id, partner_account=partner)
-        if len(account_links) > 0:
+        accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+        if len(accounts) > 0:
             raise AccountsException("This partner id has already been taken by another account.")
 
         try:

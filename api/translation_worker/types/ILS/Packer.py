@@ -20,7 +20,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert):
+def handle(db: Database, insert):
     """Handle a Packer insert from ILS.
 
     Currently processing fields like
@@ -80,7 +80,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert):
                         break
                 else:
                     lat, lon = db.zip_codes.get_lat_lon(int(f5))
-                    # add feedyard sighting for one day before
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate'])-86400,
