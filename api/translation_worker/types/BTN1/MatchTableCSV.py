@@ -9,7 +9,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value=None):
+def handle(db: Database, insert):
     fields = insert["fields"]
     eid = int(fields["eid"])  # This might fail!
     account = insert["account"]
