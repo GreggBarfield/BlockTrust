@@ -89,10 +89,9 @@ function DoPost()
   importer.requestDataFromUser().then(function(results) { 
       $('#alert').removeClass('d-none');
       $('#alert').addClass('d-flex');
-      $('#alert-text').html('You successfully added ' + results.$data.length + ' tag(s). ' + 
-                            'With a timestamp of: ' + new Date().toLocaleString() + '. ' + 
-                            'Your data was successfully uploaded into the system and is now being processed. ' + 
-                            'It may take up to 2 hours to be processed. Once processed, it will be reflected ' + 
+      $('#alert-text').html('You successfully uploaded ' + results.$data.length + ' tag(s) on ' + 
+                            new Date().toLocaleString() + '. ' + 
+                            'Some supply chain data may be processed overnight. Once processed, it will be reflected ' + 
                             '<a href="/dashboard" class=""><u>on your dashboard. </u></a>' +
                             'If you have any questions, please contact us.');
 
