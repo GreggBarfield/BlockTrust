@@ -10,6 +10,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..database.tables.eid_groups import EIDGroups
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -51,6 +52,20 @@ def serve_direct(name):
 @crut.require_account
 def serve_sales_group():
     sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
+    # Getting eids owned by the account
+    matches = g.db.matches.get_eid_distinct_by_account(g.account.id())
+    #  Getting eid_groups owned by account and corresponding eid's
+    account_eid_groups = EIDGroups(g.db).get_eid_groups_by_account(g.account.id())
+    assigned_eids_for_account = []
+    for account_eid_group in account_eid_groups:
+        assigned_eids = EIDGroups(g.db).get_eids(account_eid_group["id"])
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_eids = []
+    for match in matches:
+        if match["eid"] not in assigned_eids_for_account:
+            available_eids.append(match["eid"])
+    print(len(available_eids))
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -63,7 +78,7 @@ def serve_sales_group():
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
-        "delivery_location":sales_group_row["delivery_location"],
+        "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -73,7 +88,8 @@ def serve_sales_group():
         "userID": g.user.id(),
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
-        "company": g.account.company()
+        "company": g.account.company(),
+        "available_eids": available_eids
     }
 
 
@@ -99,7 +115,7 @@ def serve_search_sales_groups():
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
-                "delivery_location":sales_group_row["delivery_location"],
+                "delivery_location": sales_group_row["delivery_location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -418,4 +434,25 @@ def serve_get_market_city_data(state):
 def serve_get_market_data(slug_id):
     return {
         'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
+    }, 200
+
+
+@bp.route('/widgets/data/get_available_tags', methods=["POST"])
+@crut.require_account
+def get_available_tags():
+    # Very high time complexity causing webpage to load slowly and errors
+    matches = g.db.matches.get_eid_distinct_by_account(g.account.id())
+    account_eid_groups = EIDGroups(g.db).get_eid_groups_by_account(g.account.id())
+    assigned_eids_for_account = []
+    for account_eid_group in account_eid_groups:
+        assigned_eids = EIDGroups(g.db).get_eids(account_eid_group["id"])
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    print(assigned_eids_for_account)
+    print(account_eid_groups)
+    matches_list = []
+    for match in matches:
+        matches_list.append(match["eid"])
+    return {
+        'matches': matches_list  # g.db.matches.get_eid_distinct_by_account(g.account.id())
     }, 200

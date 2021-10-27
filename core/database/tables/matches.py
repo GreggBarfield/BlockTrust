@@ -355,6 +355,30 @@ class Matches:
             self._db.fetch_all()
         )
 
+    def get_eid_distinct_by_account(self, account_id):
+        """Return the distinct EIDs in the database for an account.
+
+        Params:
+            account_id: The account to generate data on
+
+        Returns:
+            The array of distinct eids
+        """
+        return self._db.exec_frag_d(
+            frag(
+                """
+                SELECT
+                    DISTINCT eid
+                FROM
+                    matches
+                WHERE account_link IN (
+                    SELECT id FROM account_links WHERE account=:account
+                )
+                """,
+                account=account_id
+            )
+        )
+
     def get_count_eid_distinct_by_account(self, account_id):
         """Count the number of distinct EIDs in the database for an account.
 
@@ -410,7 +434,7 @@ class Matches:
             """
 
         full_sql = """
-                SELECT 
+                SELECT
                     data, COUNT(*) as 'count'
                 FROM
                     matches

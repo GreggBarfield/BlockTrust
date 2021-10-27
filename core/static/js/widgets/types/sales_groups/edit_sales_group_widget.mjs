@@ -16,6 +16,7 @@ export class EditSalesGroupWidget extends Widget {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.formElements = {};
 
+        setTimeout(()=>{}, 3000);
         this.getData(
             "sales_group",
             {
@@ -25,6 +26,8 @@ export class EditSalesGroupWidget extends Widget {
             this.data = data;
             this.makeForm();
         });
+
+
 
 
         this.onSomeDataLoaded(function () {
@@ -171,7 +174,49 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
-        
+
+        function createCheckList({row, name, values, multiple, placeholder},hasTooltip=false,dataToggle="",tooltipText=""){
+            let id = "domuid" + window.DOMUIDNext++;
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let list = document.createElement("div");
+            list.className = "form-control";
+            let eids_selected = [];
+            for (const value of values) {
+                var checkbox = document.createElement("input");
+                checkbox.type="checkbox";
+                checkbox.name = "eid-checkbox";
+                checkbox.className="eid-checkbox"
+                checkbox.id=value;
+                checkbox.value = value;
+                checkbox.onchange = ()=>{
+                    if($("#"+value).is(":checked")){
+                    console.log("Checked"+value)
+                    eids_selected.push(value);
+                    console.log(eids_selected)
+                    }
+                    else{
+                        console.log("Unchecked"+value) 
+                        for(var i=0;i<eids_selected.length;i++){
+                            if(eids_selected[i]==value){eids_selected.splice(i,1);}
+                        }
+                        console.log(eids_selected)
+                    }
+                }
+
+                list.appendChild(checkbox);
+                var label = document.createElement('label')
+                label.htmlFor = value;
+                label.className  = "form-label";
+                label.appendChild(document.createTextNode(value)); 
+                list.appendChild(label);
+                list.appendChild(document.createElement("br"));  
+            }
+            group.append(list);
+            return list;
+        }
+        $('.eid-checkbox').click(function(){
+            console.log("Clicked")
+        })
 
         let that = this;
         let card = document.createElement("div");
@@ -316,7 +361,13 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Process Verified Program"
         },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
-
+        let eidSelector = createCheckList({
+            row: maintenanceRow,
+            name: "Available EID's",
+            values: this.data.available_eids,
+            multiple: true,
+            placeholder: "Select EIDs"
+        },false,"","");
         // Media
 
         let mediaRow = createSection(form, "Image");

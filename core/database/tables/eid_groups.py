@@ -1,4 +1,5 @@
 from ..frag import frag, frag_insert_into
+from .. import database
 
 
 class EIDGroupsException(Exception):
@@ -15,7 +16,7 @@ class EIDGroupsException(Exception):
 
 class EIDGroups:
 
-    def __init__(self, db):
+    def __init__(self, db: 'database.Database'):
         self._db = db
 
     def get_eids(self, group_id):
@@ -121,3 +122,23 @@ class EIDGroups:
                 group_id=group_id
             )
         )
+
+    def get_eid_groups_by_account(self, owner):
+        """
+        Gets the eid groups owned by an account
+
+        Params:
+            account_id: Account ID of the required account
+
+        Returns:
+            An array of eid_groups owned by account
+        """
+        eid_groups = self._db.execute_d(
+            """
+            SELECT id FROM eid_groups WHERE owner=%(owner)s
+            """,
+            {
+                "owner": owner
+            }
+        )
+        return eid_groups
