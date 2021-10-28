@@ -298,6 +298,10 @@ def serve_confirm(tok):
     # Redirect to user login page
     return outside_render('email_verified.html')
 
+
+@bp.route('/confirm/abcd', methods=['GET'])
+def serve_confirm_abcd():
+    return outside_render('email_verified.html')
 # Route to display that user email is not verified and needs to be verified after signing up
 
 
