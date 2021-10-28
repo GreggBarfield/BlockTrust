@@ -297,7 +297,7 @@ def serve_confirm(tok):
         raise ExportException("User email could not be verified")
     # Redirect to user login page
     return outside_render('email_verified.html')
-    
+
 # Route to display that user email is not verified and needs to be verified after signing up
 
 
