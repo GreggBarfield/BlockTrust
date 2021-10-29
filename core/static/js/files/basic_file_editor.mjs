@@ -2,13 +2,18 @@ import {uploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class BasicFileEditor {
-    constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
+    
+     /**
+     * 
+     * @param {dictionary} restrictions dictionary in which you can add restrictions. For example, fileType:'image'
+     * @param {list} fileIDs a list of file IDs
+     * @param {dictionary } fileDetails a dictionary which contains id, name and s3 link of the file
+     */
+    constructor(restrictions={}, attach_node=null, fileIDs=null, fileDetails=null) {
         let that = this;
         this.files = [];
-        //this.restrictions is a dictionary which has following items supported:
-        //1. filetype: this is a list which can contain by the type of the file. For example: 'image'
         this.restrictions = restrictions;
-        this.fileAuths = fileAuths;
+        this.fileAuths = fileDetails;
 
         if (fileIDs !== null) {
             for (const fileID of fileIDs) {
@@ -16,8 +21,8 @@ export class BasicFileEditor {
                     "id": fileID,
                     "uploaded": true
                 };
-                if (fileID in fileAuths) {
-                    file_obj["name"] = fileAuths[fileID]["name"];
+                if (fileID in fileDetails) {
+                    file_obj["name"] = fileDetails[fileID]["name"];
                 }
                 this.files.push(file_obj);
             }
@@ -72,6 +77,10 @@ export class BasicFileEditor {
         return file["removed"];
     }
 
+    /**
+     * Updates file table. This is called in the constructor, when files are uploaded, when files are added and removed
+     *
+     */
     updateTable() {
         for (let file of this.files) {
             let fileID = "Not Uploaded";
@@ -172,15 +181,17 @@ export class BasicFileEditor {
         this.updateTable();
     }
 
+    /**
+     * Gets all ids of files which haven't been removed
+     *
+     */
     getFileIDs() {
-        // Gets all uploaded and not removed file IDs
         let result = [];
         for (const file of this.files) {
+            //"removed" is added when file is removed
             if ("removed" in file && file["removed"])
                 continue;
-            if (!("uploaded" in file)) {
-                throw "Uploaded should be in file";
-            }
+            //"uploaded" in general is always present. It is set to false if file is recently added, and it is set to true if file is already uploaded
             if (!file["uploaded"])
                 continue;
             if (!("id" in file) || file["id"] === undefined || file["id"] === null)
