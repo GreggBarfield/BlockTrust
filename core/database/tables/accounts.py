@@ -182,10 +182,11 @@ class Accounts:
         """
 
         # Validations
-
-        accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-        if len(accounts) > 0:
-            raise AccountsException("This partner id has already been taken by another account.")
+        
+        if partner is not None:
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException("This partner id has already been taken by another account.")
 
         try:
             sector = int(sector)
