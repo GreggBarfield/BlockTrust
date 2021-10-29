@@ -1,25 +1,19 @@
-import { uploadFile } from "./files.mjs";
 import { Table } from "../core/table.mjs";
 import { InfoModal } from "../core/info_modal.mjs";
 export class VideoSession {
-    constructor(restrictions = {}, attach_node = null, linkIDs = null, linkAuths = null) {
-        let that = this;
-        this.links = [];
+    constructor(restrictions = {}, attach_node = null, videoLinkData = null) {
+        this.videoLinks = [];
         this.restrictions = restrictions;
-        this.linkAuths = linkAuths;
 
-        if (linkIDs !== null) {
-            for (const linkID of linkIDs) {
+        if (videoLinkData !== null) {
+            for (const videoLink of videoLinkData) {
                 let link_obj = {
-                    "platform": linkID[0],
-                    "embed": linkID[1],
+                    "platform": videoLink[0],
+                    "videoIdentifier": videoLink[1],
                     "uploaded": false,
                     "removed": false
                 };
-                if (linkID in linkAuths) {
-                    link_obj["link"] = linkAuths[linkID]["link"];
-                }
-                this.links.push(link_obj);
+                this.videoLinks.push(link_obj);
             }
         }
 
@@ -38,7 +32,7 @@ export class VideoSession {
         this.addURLButton.textContent = "Add Youtube/Vimeo link"
         this.addURLButton.type = "button";
         this.addURLButton.addEventListener("click", () => {
-            this.promptURLBox(this.links);
+            this.promptURLBox(this.videoLinks);
         });
 
         this.linkBox.append(this.addURLButton);
@@ -48,15 +42,15 @@ export class VideoSession {
         }
     }
 
-    getLinks() {
+    getVideoLinks() {
         // Gets all uploaded and not removed file IDs
         let result = [];
-        for (const link of this.links) {
+        for (const link of this.videoLinks) {
             if (link["removed"])
                 continue;
-            if (link["embed"] == "NOT VALID")
+            if (link["videoIdentifier"] == "NOT VALID")
                 continue;
-            result.push([link["platform"], link["embed"]]);
+            result.push([link["platform"], link["videoIdentifier"]]);
         }
         return result;
     }
@@ -78,20 +72,20 @@ export class VideoSession {
     }
 
     updateTable() {
-        for (let link of this.links) {
-            let linkID = link.platform;
+        for (let link of this.videoLinks) {
+            let linkPlatform = link.platform;
             if ("platform" in link && link.uploaded == true) {
-                linkID = link.platform;
+                linkPlatform = link.platform;
             }
             let linkName = "";
-            if ("embed" in link) {
+            if ("videoIdentifier" in link) {
 
-                linkName = link.embed;
+                linkName = link.videoIdentifier;
             }
 
             if (!("row" in link)) {
 
-                if (link["embed"] == "NOT VALID") {
+                if (link["videoIdentifier"] == "NOT VALID") {
                     continue
                 }
                 else {
@@ -112,13 +106,13 @@ export class VideoSession {
                     });
                     optionsDiv.append(removeButton);
 
-                    link["row"] = this.table.addRow([linkID, linkName, optionsDiv]);
+                    link["row"] = this.table.addRow([linkPlatform, linkName, optionsDiv]);
                 }
             }
-            this.table.setValue(link["row"], 0, linkID);
+            this.table.setValue(link["row"], 0, linkPlatform);
             this.table.setValue(link["row"], 1, linkName);
 
-            if (link["removed"] || link["embed"] == "NOT VALID") {
+            if (link["removed"] || link["videoIdentifier"] == "NOT VALID") {
                 link["row"].style.textDecoration = "line-through";
             }
             else {
@@ -139,7 +133,7 @@ export class VideoSession {
         form.append(formGroup);
 
         let label = document.createElement("label");
-        label.textContent = "Use , to separate links";
+        label.textContent = "Use , to separate video links";
         formGroup.append(label);
 
         let textArea = document.createElement("textarea");
@@ -158,7 +152,7 @@ export class VideoSession {
             this.updateTable();
         });
 
-        // Allow input multiple links
+        // Allow input multiple video links
         function parseYouTubeTokenByUri(url) {
             // Supported YouTube URL formats:
             // http://www.youtube.com/watch?v=My2FRPA3Gf8
@@ -182,8 +176,8 @@ export class VideoSession {
             return false;
         }
 
-        function handleUrlInput(links) {
-            var urls = links.split(",");
+        function handleUrlInput(videoLinks) {
+            var urls = videoLinks.split(",");
             var tag = null
             var platform = "N/A";
             var id = "";
@@ -203,7 +197,7 @@ export class VideoSession {
                         id = "NOT VALID"
                     let file_obj = {
                         "platform": platform,
-                        "embed": id,
+                        "videoIdentifier": id,
                         "uploaded": false,
                         "removed": false
                     };
