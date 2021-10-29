@@ -57,19 +57,6 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-class PasswordChangeFailedException(AuthException):
-    """Password Change failed."""
-    def __init__(self, reason):
-        """Constructor for PasswordChangeFailedException.
-
-        Params:
-            reason: The reason why password could not be changed.
-                This will likely end up getting printed to the user,
-                so be careful.
-        """
-        super().__init__(reason)
-
-
 def session_open():
     """Load session into app context."""
     session_open_employee()
@@ -224,14 +211,14 @@ def change_user_password(email, new_password, confirm_password):
     Returns: None
 
     Raises:
-        PasswordChangeFailedException on failure with the reason.
+        Exception on failure with the reason.
     """
     try:
         new_password = Users._format_field(new_password)
         confirm_password = Users._format_field(confirm_password)
         # Check if password reset link is valid. As token.py returns false if link is Invalid
         if email is False:
-            raise PasswordChangeFailedException("Password reset link is Invalid")
+            raise Exception("Password reset link is Invalid")
         user_row = Users(g.db).get_by_email(email)
         # Password should not be blank
         Users(g.db).update_user(
@@ -239,8 +226,8 @@ def change_user_password(email, new_password, confirm_password):
             password=new_password,
             confirm_password=confirm_password
         )
-    except (PasswordChangeFailedException, UsersException) as e:
-        raise PasswordChangeFailedException(str(e))
+    except Exception as e:
+        raise e
 
 
 def confirm(email):

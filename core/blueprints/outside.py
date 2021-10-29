@@ -280,7 +280,7 @@ def serve_reset_password_action(tok):
         # Changing user password using email as an identifier
         auth.change_user_password(email, new_password, confirm_password)
         return jsonify({"redirect": "/login"})
-    except auth.PasswordChangeFailedException as e:
+    except Exception as e:
         return jsonify({"error": str(e)})
 
 # Route for user to confirm their account

@@ -1,6 +1,5 @@
 from ..objects.user import User
 import bcrypt
-from .. import database
 from ..no_value import NoValue
 from ..frag import frag
 
@@ -21,7 +20,7 @@ class UsersException(Exception):
 
 class Users:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get(self, user_id):
@@ -220,7 +219,7 @@ class Users:
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 10 characters in unicode
+        # Password must be at least 8 characters in unicode
         # and be no more than 60 characters in UTF-8
         # and can't contain the null byte when in UTF-8
 
@@ -286,8 +285,8 @@ class Users:
 
         password = Users._format_field(password)
         if password != None and len(password) > 0:
-            if len(password) < 10:
-                raise UsersException("Password must be at least 10 characters.")
+            if len(password) < 8:
+                raise UsersException("Password must be at least 8 characters.")
 
             if len(password.encode("utf-8")) > 60:
                 raise UsersException("Your password is too long.")
