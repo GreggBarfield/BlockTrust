@@ -57,19 +57,6 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-class PasswordChangeFailedException(AuthException):
-    """Password Change failed."""
-    def __init__(self, reason):
-        """Constructor for PasswordChangeFailedException.
-
-        Params:
-            reason: The reason why password could not be changed.
-                This will likely end up getting printed to the user,
-                so be careful.
-        """
-        super().__init__(reason)
-
-
 def session_open():
     """Load session into app context."""
     session_open_employee()
@@ -213,7 +200,7 @@ def logout():
     session.clear()
 
 
-def change_password(email, new_password, confirm_password):
+def change_user_password(email, new_password, confirm_password):
     """
     Changing the password in the user database
 
@@ -224,49 +211,22 @@ def change_password(email, new_password, confirm_password):
     Returns: None
 
     Raises:
-        PasswordChangeFailedException on failure with the reason.
+        Exception on failure with the reason.
     """
     try:
         new_password = Users._format_field(new_password)
         confirm_password = Users._format_field(confirm_password)
-        password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
-
         # Check if password reset link is valid. As token.py returns false if link is Invalid
-
         if email is False:
-            raise PasswordChangeFailedException("Password reset link is Invalid")
-
+            raise Exception("Password reset link is Invalid")
+        user = Users(g.db).get_by_email(email)
         # Password should not be blank
-
-        if new_password == "":
-            raise PasswordChangeFailedException("Password field is blank")
-
-        # Password must be at least 10 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(new_password) < 10:
-            raise PasswordChangeFailedException("Password must be at least 10 characters.")
-        if len(new_password.encode("utf-8")) > 60:
-            raise PasswordChangeFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
-        # Password should equal confirm_password
-
-        if new_password != confirm_password:
-            raise PasswordChangeFailedException("The passwords you entered were not identical.")
-
-        g.db.execute_d(
-            """
-            UPDATE users
-            SET password=%(password)s
-            WHERE users.email=%(email)s
-            """,
-            {
-                "password": password,
-                "email": email
-            }
-            )
-    except PasswordChangeFailedException as e:
+        Users(g.db).update_user(
+            username=user.username(),
+            password=new_password,
+            confirm_password=confirm_password
+        )
+    except Exception as e:
         raise e
 
 
