@@ -219,10 +219,10 @@ def change_user_password(email, new_password, confirm_password):
         # Check if password reset link is valid. As token.py returns false if link is Invalid
         if email is False:
             raise Exception("Password reset link is Invalid")
-        user_row = Users(g.db).get_by_email(email)
+        user = Users(g.db).get_by_email(email)
         # Password should not be blank
         Users(g.db).update_user(
-            username=user_row.username(),
+            username=user.username(),
             password=new_password,
             confirm_password=confirm_password
         )
