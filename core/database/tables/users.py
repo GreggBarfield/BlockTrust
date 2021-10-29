@@ -304,10 +304,9 @@ class Users:
                 if c in digits:
                     temp_phone += c
             phone = temp_phone
-
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         set_frags = frag()
         if first_name is not NO_VALUE:
