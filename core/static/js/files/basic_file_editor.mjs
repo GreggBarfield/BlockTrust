@@ -191,7 +191,6 @@ export class BasicFileEditor {
             //"removed" is added when file is removed
             if ("removed" in file && file["removed"])
                 continue;
-            //"uploaded" in general is always present. It is set to false if file is recently added, and it is set to true if file is already uploaded
             if (!file["uploaded"])
                 continue;
             if (!("id" in file) || file["id"] === undefined || file["id"] === null)

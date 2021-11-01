@@ -10,7 +10,7 @@ export class VideoSession {
                 let link_obj = {
                     "platform": videoLink[0],
                     "videoIdentifier": videoLink[1],
-                    "uploaded": false,
+                    "uploaded": true,
                     "removed": false
                 };
                 this.videoLinks.push(link_obj);
@@ -73,8 +73,8 @@ export class VideoSession {
 
     updateTable() {
         for (let link of this.videoLinks) {
-            let linkPlatform = link.platform;
-            if ("platform" in link && link.uploaded == true) {
+            let linkPlatform = "";
+            if ("platform" in link) {
                 linkPlatform = link.platform;
             }
             let linkName = "";
