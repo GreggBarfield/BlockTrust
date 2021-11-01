@@ -460,7 +460,7 @@ export class EditSalesGroupWidget extends Widget {
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: that.fileEditor.getFileIDs(),
-                        videos: that.VideoEditor.getLinks(),
+                        videos: that.VideoEditor.getVideoLinks(),
                     },
                     "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
