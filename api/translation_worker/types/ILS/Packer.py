@@ -20,7 +20,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert):
+def handle(db: Database, insert):
     """Handle a Packer insert from ILS.
 
     Currently processing fields like
@@ -54,7 +54,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert):
             # See if account is present but not linked to account_links and if so link the account.
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
             if feeder is not None:
-                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.id())
+                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.name(), feeder.id())
 
     # Born
     # EIDDate is not a birthday!
@@ -80,7 +80,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert):
                         break
                 else:
                     lat, lon = db.zip_codes.get_lat_lon(int(f5))
-                    # add feedyard sighting for one day before
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate'])-86400,
@@ -102,7 +101,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert):
         else:
             packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
             if packer is not None:
-                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.id())
+                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.name(), packer.id())
 
         if packer is not None:
             zipcode = str(packer.zip())
