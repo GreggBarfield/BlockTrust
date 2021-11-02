@@ -1,8 +1,6 @@
 $(document).ready(function () {
     for(let val in accounts){
-        if(accounts[val].name!=="" && accounts[val].name!==null){
-            $("#accounts").append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`)
-        }
+        $("#accounts").append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`)
 }
 
 $(".form-inline").submit(function(event){

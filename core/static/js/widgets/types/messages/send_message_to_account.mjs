@@ -19,12 +19,10 @@ export let promptAccountsAndNewMessage = (accounts) => {
     let recipients=document.createElement("select");
     recipients.className = "form-control";
     for(let val in accounts){
-        if(accounts[val].name!==null && accounts[val].name!==""){
         var option = document.createElement("option");
         option.value = accounts[val].id;
         option.text = accounts[val].name.charAt(0).toUpperCase()+accounts[val].name.slice(1);
         recipients.appendChild(option);
-        }
     }
 
     formGroup.append(recipients);
