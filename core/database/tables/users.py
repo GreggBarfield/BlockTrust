@@ -109,7 +109,7 @@ class Users:
         """
         rows = self._db.execute_d(
             """
-            SELECT users.*, accounts.company AS account_name FROM users
+            SELECT users.*, accounts.name AS account_name FROM users
                 INNER JOIN account_users
                     ON account_users.user=users.id
                 INNER JOIN accounts

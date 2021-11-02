@@ -72,7 +72,7 @@ def serve_sales_group():
         "userID": g.user.id(),
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
-        "company": g.account.company()
+        "company": g.account.name()
     }
 
 
@@ -314,7 +314,7 @@ def serve_send_message():
                                 + str(message_id)
                             ),
                             'receiver': user['account_name'],
-                            'sender': g.account.company()
+                            'sender': g.account.name()
                         }
                     }
                 ),
