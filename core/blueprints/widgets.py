@@ -47,7 +47,6 @@ def serve_direct(name):
     raise ExportException("Unable to directly export the requested value")
 
 
-
 @bp.route('/widgets/data/sales_group', methods=['POST'])
 @crut.require_account
 def serve_sales_group():
@@ -62,10 +61,11 @@ def serve_sales_group():
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
     available_eids = []
+    eid_created_dates = []
     for match in matches:
         if match["eid"] not in assigned_eids_for_account:
             available_eids.append(match["eid"])
-    print(len(available_eids))
+            eid_created_dates.append(match["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"))
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -89,7 +89,8 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.company(),
-        "available_eids": available_eids
+        "available_eids": available_eids,
+        "eid_created_dates": eid_created_dates
     }
 
 
@@ -237,7 +238,7 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
 
-    g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+    g.db.eid_groups.insert_eids(original_row["eid_group"], request.json["eids"])
 
     g.db.sales_groups.update(
         request.json["id"],

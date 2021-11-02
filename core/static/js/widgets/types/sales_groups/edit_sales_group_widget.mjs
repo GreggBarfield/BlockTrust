@@ -117,7 +117,7 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
-
+            // This is custom for EID selection, we can generalize this in the future
             let id = "domuid" + window.DOMUIDNext++;
 
             if (!Array.isArray(values)) {
@@ -175,13 +175,63 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
 
-        function createCheckList({row, name, values, multiple, placeholder},hasTooltip=false,dataToggle="",tooltipText=""){
+        function createCheckList({row, name, values, multiple, placeholder},hasTooltip=false,dataToggle="",tooltipText="", eid_datetime){
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let list = document.createElement("div");
             list.className = "form-control";
             let eids_selected = [];
+            // Creating table outline
+            let table = document.createElement('table');
+            table.className = "table table-striped table-bordered nowrap";
+            let tableHead = document.createElement("thead");
+            table.appendChild(tableHead);
+
+            let tableHeadRow0 = document.createElement("tr");
+            tableHead.appendChild(tableHeadRow0);
+            const headers = ["select", "EID", "Date/Time of Upload"];
+            for (const headerText of headers) {
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                tableHeadRow0.appendChild(th);
+            }
+
+            let tableBody = document.createElement("tbody");
+            table.appendChild(tableBody);
+
+            //Creating select all functionality
+            var checkbox = document.createElement("input");
+            checkbox.type="checkbox";
+            checkbox.name = "select-all-eid-checkbox";
+            checkbox.className="select-all-eid-checkbox";
+            checkbox.id="select-all-eid-checkbox";
+            checkbox.onchange = ()=>{
+                if($("#select-all-eid-checkbox").is(":checked")){
+                    $(".eid-checkbox").prop("checked",true);
+                    eids_selected=[];
+                    eids_selected.push(...values)
+                }
+                else{
+                    $(".eid-checkbox").prop("checked",false); 
+                    eids_selected=[];
+                }
+            }
+
+            group.appendChild(document.createElement("br")); 
+            group.appendChild(checkbox);
+            var label = document.createElement('label')
+            label.htmlFor = "Select All";
+            label.className  = "form-label";
+            label.appendChild(document.createTextNode("Select All")); 
+            group.appendChild(label);
+            group.appendChild(document.createElement("br")); 
+            let i=0;
+            // Add date-time
             for (const value of values) {
+                let rowTag = document.createElement("tr");
+                tableBody.appendChild(rowTag);
+
+                let tdCheckbox = document.createElement("td");
                 var checkbox = document.createElement("input");
                 checkbox.type="checkbox";
                 checkbox.name = "eid-checkbox";
@@ -190,29 +240,30 @@ export class EditSalesGroupWidget extends Widget {
                 checkbox.value = value;
                 checkbox.onchange = ()=>{
                     if($("#"+value).is(":checked")){
-                    console.log("Checked"+value)
                     eids_selected.push(value);
-                    console.log(eids_selected)
                     }
                     else{
-                        console.log("Unchecked"+value) 
                         for(var i=0;i<eids_selected.length;i++){
                             if(eids_selected[i]==value){eids_selected.splice(i,1);}
                         }
-                        console.log(eids_selected)
                     }
                 }
+                
+                tdCheckbox.appendChild(checkbox);
+                rowTag.appendChild(tdCheckbox);
+                
+                let tdEID = document.createElement("td");
+                tdEID.textContent = value;
+                rowTag.appendChild(tdEID);
 
-                list.appendChild(checkbox);
-                var label = document.createElement('label')
-                label.htmlFor = value;
-                label.className  = "form-label";
-                label.appendChild(document.createTextNode(value)); 
-                list.appendChild(label);
-                list.appendChild(document.createElement("br"));  
+                let tdEIDDatetime = document.createElement("td");
+                tdEIDDatetime.textContent = eid_datetime[i];i++;
+                rowTag.appendChild(tdEIDDatetime);
             }
-            group.append(list);
-            return list;
+            i=0;
+            table.value = eids_selected;
+            group.append(table);
+            return table;
         }
         $('.eid-checkbox').click(function(){
             console.log("Clicked")
@@ -367,7 +418,7 @@ export class EditSalesGroupWidget extends Widget {
             values: this.data.available_eids,
             multiple: true,
             placeholder: "Select EIDs"
-        },false,"","");
+        },false,"","",this.data.eid_created_dates || []);
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -531,7 +582,7 @@ export class EditSalesGroupWidget extends Widget {
                 return {
                     id: that.salesGroupID,
                     published: publishSwitch.isChecked(),
-                    eids: that.data.eids,
+                    eids: eidSelector.value,
                     reported: {
                         comments: commentsTA.value,
                         count: safeInt(marketingCount.value),
@@ -554,6 +605,7 @@ export class EditSalesGroupWidget extends Widget {
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
+                    "eidSelector": eidSelector.value,
                     auction_sale: marketingAuctionSale.getID(),
                     //TODO: Remove for now. Will implement later
                     "group_name": ""

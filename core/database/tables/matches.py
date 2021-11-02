@@ -368,12 +368,13 @@ class Matches:
             frag(
                 """
                 SELECT
-                    DISTINCT eid
+                    DISTINCT eid, created_timestamp
                 FROM
                     matches
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=:account
-                )
+                ) AND
+                YEAR(current_timestamp) > YEAR(current_date())-1
                 """,
                 account=account_id
             )
