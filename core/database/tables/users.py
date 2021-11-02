@@ -109,7 +109,7 @@ class Users:
         """
         rows = self._db.execute_d(
             """
-            SELECT users.*, accounts.company AS account_name FROM users
+            SELECT users.*, accounts.name AS account_name FROM users
                 INNER JOIN account_users
                     ON account_users.user=users.id
                 INNER JOIN accounts
@@ -219,7 +219,7 @@ class Users:
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 10 characters in unicode
+        # Password must be at least 8 characters in unicode
         # and be no more than 60 characters in UTF-8
         # and can't contain the null byte when in UTF-8
 
@@ -230,7 +230,7 @@ class Users:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
-        
+
         digits = ''.join(chr(ord('0') + i) for i in range(10))
         temp_phone = ""
         for c in phone:
@@ -285,8 +285,8 @@ class Users:
 
         password = Users._format_field(password)
         if password != None and len(password) > 0:
-            if len(password) < 10:
-                raise UsersException("Password must be at least 10 characters.")
+            if len(password) < 8:
+                raise UsersException("Password must be at least 8 characters.")
 
             if len(password.encode("utf-8")) > 60:
                 raise UsersException("Your password is too long.")
@@ -297,16 +297,16 @@ class Users:
             password = NO_VALUE
 
         # Process phone number
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
-
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+        if phone != NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         set_frags = frag()
         if first_name is not NO_VALUE:

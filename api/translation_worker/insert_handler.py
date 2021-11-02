@@ -4,6 +4,7 @@ from .types.ILS import Packer
 from .types.BTN1 import (
     AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
 )
+from .types.SELF import TagUpload
 from ..database.inserts_model import statuses_by_name, BlockNotAvailable
 
 
@@ -17,6 +18,9 @@ types = {
         "MatchTableCSV": MatchTableCSV,
         "ProcessingCSV": ProcessingCSV,
         "TreatmentCSV": TreatmentCSV
+    },
+    "SELF": {
+        "TagUpload": TagUpload
     }
 }
 
@@ -40,6 +44,6 @@ def handle_insert(db, inserts_model, insert):
 
     handler = types[insert['namespace']][insert['type']]
 
-    handler.handle(db, inserts_model, insert)
+    handler.handle(db, insert)
 
     inserts_model.set_status(insert['id'], "Done")
