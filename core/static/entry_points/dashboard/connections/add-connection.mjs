@@ -7,29 +7,29 @@ $(document).ready(function () {
         $('#company_name').append(`<option value=0>Not Listed</option>`);
         if($(this).val() == 4){
             for(let val in accounts){
-                if(accounts[val].company!=="" && accounts[val].sector==4){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`);
+                if(accounts[val].name!=="" && accounts[val].sector==4){
+                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
                 }
             }
         }
         if($(this).val() == 5){
             for(let val in accounts){
-                if(accounts[val].company!=="" && accounts[val].sector==5){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`);
+                if(accounts[val].name!=="" && accounts[val].sector==5){
+                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
                 }
             }
         }
         if($(this).val() == 6){
             for(let val in accounts){
-                if(accounts[val].company!=="" && accounts[val].sector==6){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`);
+                if(accounts[val].name!=="" && accounts[val].sector==6){
+                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
                 }
             } 
         }
         if($(this).val() == 7){
             for(let val in accounts){
-                if(accounts[val].company!=="" && accounts[val].sector==7){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`);
+                if(accounts[val].name!=="" && accounts[val].sector==7){
+                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
                 }
             } 
         }

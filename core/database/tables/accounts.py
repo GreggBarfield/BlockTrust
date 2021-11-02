@@ -1,4 +1,4 @@
-from ...sectors import sectors_by_id
+from ...sectors import sectors_by_id, sectors_by_name
 from ..objects.account import Account, AccountException
 from ..no_value import NoValue
 from ..frag import frag
@@ -182,10 +182,11 @@ class Accounts:
         """
 
         # Validations
-
-        accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-        if len(accounts) > 0:
-            raise AccountsException("This partner id has already been taken by another account.")
+        
+        if partner is not None:
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException("This partner id has already been taken by another account.")
 
         try:
             sector = int(sector)
@@ -227,16 +228,26 @@ class Accounts:
             }
         )
         account = self.get_by_id(self._db.last_row_id())
+        
+        # update account name
+        name = company
+        if sector == sectors_by_name["Cow-Calf"]:
+            name = "Ranch "+ str(account.id())
+        self.update_account(account.id(), name=name)
+
         # make the first user the account admin
         account.add_user(user, 1)
+
         # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+
         # Create reports needed for the account
-        self._db.reports.make_reports_for_account(account.id())
+        if account.sector_id() != sectors_by_name["Buyer"]:
+            self._db.reports.make_reports_for_account(account.id())
         return account
 
 
-    def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
         phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
@@ -251,6 +262,12 @@ class Accounts:
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
         set_frags = frag()
+        if name is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "name=:name,",
+                            name=name
+                        )
         if company is not NO_VALUE:
             set_frags = frag(
                             set_frags,
