@@ -125,7 +125,7 @@ def serve_account_id(account_id):
         return dashboard_render("sectors/auction.html", sector_params)
     elif account.sector_name() == "Feedlot":
         return dashboard_render("sectors/feedlot.html", sector_params)
-    elif account.sector_name() == "Buyer Only":
+    elif account.sector_name() == "Buyer":
         return dashboard_render("sectors/buyer.html", sector_params)
     else:
         return dashboard_render("sectors/generic.html", sector_params)
@@ -333,7 +333,7 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.company()
+            current_account = g.account.name()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
@@ -394,7 +394,7 @@ def serve_add_connection_request():
                 "BlockTrust Network Connection Invite",
                 render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
-                    'account_company': g.account.company()
+                    'account_company': g.account.name()
                 }), request.form["new_company_email"]
             )
         return {"redirect": "/dashboard/connections"}
