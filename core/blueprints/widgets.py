@@ -61,11 +61,9 @@ def serve_sales_group():
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
     available_eids = []
-    eid_created_dates = []
     for match in matches:
         if match["eid"] not in assigned_eids_for_account:
-            available_eids.append(match["eid"])
-            eid_created_dates.append(match["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"))
+            available_eids.append(match)
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -89,8 +87,7 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.company(),
-        "available_eids": available_eids,
-        "eid_created_dates": eid_created_dates
+        "available_eids": available_eids
     }
 
 

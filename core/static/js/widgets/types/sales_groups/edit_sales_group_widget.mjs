@@ -25,6 +25,7 @@ export class EditSalesGroupWidget extends Widget {
         ).then((data) => {
             this.data = data;
             this.makeForm();
+            //console.log(this.data.available_eids_test)
         });
 
 
@@ -176,17 +177,16 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createCheckList({row, name, values, multiple, placeholder},hasTooltip=false,dataToggle="",tooltipText="", eid_datetime){
+            //This is custom for the eids checklist. Can be generalized later
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
-            let list = document.createElement("div");
-            list.className = "form-control";
             let eids_selected = [];
             // Creating table outline
             let table = document.createElement('table');
             table.className = "table table-striped table-bordered nowrap";
             let tableHead = document.createElement("thead");
             table.appendChild(tableHead);
-
+            //Table header row
             let tableHeadRow0 = document.createElement("tr");
             tableHead.appendChild(tableHeadRow0);
             const headers = ["select", "EID", "Date/Time of Upload"];
@@ -209,14 +209,15 @@ export class EditSalesGroupWidget extends Widget {
                 if($("#select-all-eid-checkbox").is(":checked")){
                     $(".eid-checkbox").prop("checked",true);
                     eids_selected=[];
-                    eids_selected.push(...values)
+                    for (const value in values) {
+                        eids_selected.push(values[value].eid)
+                    }                    
                 }
                 else{
                     $(".eid-checkbox").prop("checked",false); 
                     eids_selected=[];
                 }
             }
-
             group.appendChild(document.createElement("br")); 
             group.appendChild(checkbox);
             var label = document.createElement('label')
@@ -224,10 +225,9 @@ export class EditSalesGroupWidget extends Widget {
             label.className  = "form-label";
             label.appendChild(document.createTextNode("Select All")); 
             group.appendChild(label);
-            group.appendChild(document.createElement("br")); 
-            let i=0;
-            // Add date-time
-            for (const value of values) {
+            group.appendChild(document.createElement("br"));
+            //Appending available eids and checkboxes
+            for (const value in values) {
                 let rowTag = document.createElement("tr");
                 tableBody.appendChild(rowTag);
 
@@ -236,38 +236,33 @@ export class EditSalesGroupWidget extends Widget {
                 checkbox.type="checkbox";
                 checkbox.name = "eid-checkbox";
                 checkbox.className="eid-checkbox"
-                checkbox.id=value;
-                checkbox.value = value;
+                checkbox.id=values[value].eid;
+                checkbox.value = values[value].eid;
                 checkbox.onchange = ()=>{
-                    if($("#"+value).is(":checked")){
-                    eids_selected.push(value);
+                    if($("#"+values[value].eid).is(":checked")){
+                    eids_selected.push(values[value].eid);
                     }
                     else{
                         for(var i=0;i<eids_selected.length;i++){
-                            if(eids_selected[i]==value){eids_selected.splice(i,1);}
+                            if(eids_selected[i]==values[value].eid){eids_selected.splice(i,1);}
                         }
                     }
                 }
-                
                 tdCheckbox.appendChild(checkbox);
                 rowTag.appendChild(tdCheckbox);
                 
                 let tdEID = document.createElement("td");
-                tdEID.textContent = value;
+                tdEID.textContent = values[value].eid;
                 rowTag.appendChild(tdEID);
 
                 let tdEIDDatetime = document.createElement("td");
-                tdEIDDatetime.textContent = eid_datetime[i];i++;
+                tdEIDDatetime.textContent = values[value].created_timestamp;
                 rowTag.appendChild(tdEIDDatetime);
             }
-            i=0;
             table.value = eids_selected;
             group.append(table);
             return table;
         }
-        $('.eid-checkbox').click(function(){
-            console.log("Clicked")
-        })
 
         let that = this;
         let card = document.createElement("div");
