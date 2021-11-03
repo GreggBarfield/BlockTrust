@@ -18,7 +18,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 
-from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
+from ..config import ROOT as WEBSITE_ROOT
 
 from ..utilities import crut
 
@@ -82,7 +82,6 @@ def serve_sales_group():
         "auction_sale": sales_group_row["auction_sale"],
         "auction_sale_name": sales_group_row["auction_sale_name"],
         "group_name": sales_group_row["group_name"],
-        "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
@@ -329,7 +328,7 @@ def serve_send_message():
                                 + str(message_id)
                             ),
                             'receiver': user['account_name'],
-                            'sender': g.account.company()
+                            'sender': g.account.name()
                         }
                     }
                 ),
@@ -409,22 +408,6 @@ def serve_get_account_type_visibilities():
             g.account.id()
         )
     }
-
-
-@bp.route('/widgets/data/get_market_state_data', methods=['POST'])
-@crut.require_account
-def serve_get_market_state_data():
-    return {
-        'market_data': g.db.usda_reports.get_all_states()
-    }, 200
-
-
-@bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
-@crut.require_account
-def serve_get_market_city_data(state):
-    return {
-        'market_data': g.db.usda_reports.get_all_city_by_state(state)
-    }, 200
 
 
 @bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
