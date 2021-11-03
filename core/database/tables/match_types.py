@@ -19,10 +19,15 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        self._generic_insert(
-            type_int=match_types_by_name["Sighting"],
-            **kwargs
-        )
+        match = self._matches.get_match(eid=kwargs["eid"], type_int=match_types_by_name["Sighting"],
+                                        account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
+        if match is not None:
+            print("Sighting match exists. Match ID: ", match["id"])
+        else:
+            self._generic_insert(
+                type_int=match_types_by_name["Sighting"],
+                **kwargs
+            )
 
     # Deprecated 9/22/21
     def insert_visual_id(self, visual_id, **kwargs):
