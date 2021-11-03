@@ -73,6 +73,9 @@ def teardown_request(err):
     """
     # Clear the current user (this should be done in before_request too for security reasons)
     g.user = None
+    db = g.pop("db", None)
+    if db is not None:
+        db.close()
 
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)
