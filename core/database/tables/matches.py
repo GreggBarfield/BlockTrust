@@ -91,6 +91,27 @@ class Matches:
         else:
             return []
 
+    def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
+        if account_link_id > 0:
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+                                + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
+                                + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
+            args = [account_link_id]
+            
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            print(query, args)
+            matches = self._db.execute_d(query, args)
+            return matches
+        else:
+            return []
+
     def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
         """Gets all matches by an account.
 
