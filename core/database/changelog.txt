@@ -779,7 +779,8 @@ values("{\"type\": \"market_data_cache\", \"params\": {}}", 0)
 /* Rohan Sureshkumar 11/2/2021 */
 ALTER TABLE `accounts` 
 ADD COLUMN `name` VARCHAR(128) NULL AFTER `id`;
-UPDATE accounts SET name=company WHERE sector != 4;
-UPDATE accounts SET name = CONCAT("Ranch ", id) WHERE sector = 4;
+UPDATE accounts SET name=company;
+/* sector 4 is cow-calf */
+UPDATE accounts SET name = CONCAT("Ranch ", id) WHERE sector = 4 AND is_partner=0;
 UPDATE account_links INNER JOIN accounts ON account_links.account = accounts.id
 SET account_links.company = accounts.name;
