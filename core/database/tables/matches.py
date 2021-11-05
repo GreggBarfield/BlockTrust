@@ -106,7 +106,6 @@ class Matches:
                 args += restrict_types
 
             query = " ".join(query_statements)
-            print(query, args)
             matches = self._db.execute_d(query, args)
             return matches
         else:
