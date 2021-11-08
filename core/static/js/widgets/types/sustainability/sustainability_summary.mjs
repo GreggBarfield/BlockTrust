@@ -63,10 +63,10 @@ export class SustainabilitySummaryWidget extends Widget {
         cardBody.className = "card-body";
         card.append(cardBody);
 
-        let timeLineGraph = document.createElement("div");
-        timeLineGraph.style = "height: 18em;";
-        cardBody.append(timeLineGraph);
-        this.makeTimeLineGraph(timeLineGraph);
+        let lineGraph = document.createElement("div");
+        lineGraph.style = "height: 18em;";
+        cardBody.append(lineGraph);
+        this.makeLineGraph(lineGraph);
     }
 
     makeAverageScoreGraph(row) {
@@ -337,7 +337,7 @@ export class SustainabilitySummaryWidget extends Widget {
         return graphableData;
     }
 
-    getGraphableTimeLineData() {
+    getGraphableLineData() {
         let graphableData = [];
 
         // Right now just takes the sum of the excellent scores
@@ -363,7 +363,7 @@ export class SustainabilitySummaryWidget extends Widget {
         return graphableData;
     }
 
-    makeTimeLineGraph(container) {
+    makeLineGraph(container) {
         if (this.responses == null) {
             container.textContent = "Data is not available yet.";
         }
@@ -376,7 +376,7 @@ export class SustainabilitySummaryWidget extends Widget {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.XYChart);
 
-                chart.data = self.getGraphableTimeLineData();
+                chart.data = self.getGraphableLineData();
 
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
