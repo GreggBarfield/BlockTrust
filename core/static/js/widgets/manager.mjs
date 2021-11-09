@@ -1,6 +1,5 @@
 import { TableWidget } from './types/animal_data/table_widget.mjs';
 import { MapWidget } from './types/animal_data/map_widget.mjs';
-// import { DataTableWidget } from './types/animal_data/data_table_widget.mjs';
 import { GradeWidget } from './types/animal_data/grade_widget.mjs';
 import { TimelineWidget } from './types/animal_data/timeline_widget.mjs';
 import { HealthTableWidget } from './types/animal_data/health_table_widget.mjs';
@@ -40,7 +39,6 @@ import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_gr
 
     attach("map", MapWidget);
     attach("table", TableWidget);
-    // attach("data table", DataTableWidget);
     attach("grade", GradeWidget);
     attach("timeline", TimelineWidget);
     attach("health table", HealthTableWidget);
