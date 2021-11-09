@@ -25,7 +25,6 @@ export class EditSalesGroupWidget extends Widget {
         ).then((data) => {
             this.data = data;
             this.makeForm();
-            //console.log(this.data.available_eids_test)
         });
 
 
@@ -175,95 +174,6 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
-
-        function createCheckList({row, name, values, multiple, placeholder},hasTooltip=false,dataToggle="",tooltipText="", eid_datetime){
-            //This is custom for the eids checklist. Can be generalized later
-            let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
-            let eids_selected = [];
-            // Creating table outline
-            let table = document.createElement('table');
-            table.className = "table table-striped table-bordered nowrap";
-            let tableHead = document.createElement("thead");
-            table.appendChild(tableHead);
-            //Table header row
-            let tableHeadRow0 = document.createElement("tr");
-            tableHead.appendChild(tableHeadRow0);
-            const headers = ["select", "EID", "Date/Time of Upload"];
-            for (const headerText of headers) {
-                let th = document.createElement("th");
-                th.textContent = headerText;
-                tableHeadRow0.appendChild(th);
-            }
-
-            let tableBody = document.createElement("tbody");
-            table.appendChild(tableBody);
-
-            //Creating select all functionality
-            var checkbox = document.createElement("input");
-            checkbox.type="checkbox";
-            checkbox.name = "select-all-eid-checkbox";
-            checkbox.className="select-all-eid-checkbox";
-            checkbox.id="select-all-eid-checkbox";
-            checkbox.onchange = ()=>{
-                if($("#select-all-eid-checkbox").is(":checked")){
-                    $(".eid-checkbox").prop("checked",true);
-                    eids_selected=[];
-                    for (const value in values) {
-                        eids_selected.push(values[value].eid)
-                    }                    
-                }
-                else{
-                    $(".eid-checkbox").prop("checked",false); 
-                    eids_selected=[];
-                }
-            }
-            group.appendChild(document.createElement("br")); 
-            group.appendChild(checkbox);
-            var label = document.createElement('label')
-            label.htmlFor = "Select All";
-            label.className  = "form-label";
-            label.appendChild(document.createTextNode("Select All")); 
-            group.appendChild(label);
-            group.appendChild(document.createElement("br"));
-            //Appending available eids and checkboxes
-            for (const value in values) {
-                let rowTag = document.createElement("tr");
-                tableBody.appendChild(rowTag);
-
-                let tdCheckbox = document.createElement("td");
-                var checkbox = document.createElement("input");
-                checkbox.type="checkbox";
-                checkbox.name = "eid-checkbox";
-                checkbox.className="eid-checkbox"
-                checkbox.id=values[value].eid;
-                checkbox.value = values[value].eid;
-                checkbox.onchange = ()=>{
-                    if($("#"+values[value].eid).is(":checked")){
-                    eids_selected.push(values[value].eid);
-                    }
-                    else{
-                        for(var i=0;i<eids_selected.length;i++){
-                            if(eids_selected[i]==values[value].eid){eids_selected.splice(i,1);}
-                        }
-                    }
-                }
-                tdCheckbox.appendChild(checkbox);
-                rowTag.appendChild(tdCheckbox);
-                
-                let tdEID = document.createElement("td");
-                tdEID.textContent = values[value].eid;
-                rowTag.appendChild(tdEID);
-
-                let tdEIDDatetime = document.createElement("td");
-                tdEIDDatetime.textContent = values[value].created_timestamp;
-                rowTag.appendChild(tdEIDDatetime);
-            }
-            table.value = eids_selected;
-            group.append(table);
-            return table;
-        }
-
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -407,13 +317,6 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Process Verified Program"
         },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
-        let eidSelector = createCheckList({
-            row: maintenanceRow,
-            name: "Available EID's",
-            values: this.data.available_eids,
-            multiple: true,
-            placeholder: "Select EIDs"
-        },false,"","",this.data.eid_created_dates || []);
         // Media
 
         let mediaRow = createSection(form, "Image");

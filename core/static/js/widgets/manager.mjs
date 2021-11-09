@@ -22,7 +22,7 @@ import { MarketDataTableWidget } from './types/animal_data/market_data_table_wid
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
 import { SustainabilitySummaryWidget } from "./types/sustainability/sustainability_summary.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
-
+import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 
 // Immediately invoked
 (function () {
@@ -60,6 +60,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
     attach("sustainability summary", SustainabilitySummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
+    attach("manage sales group eids", ManageSalesGroupEIDsWidget)
 
     // Find widgets
     $(".widget").each(function () {

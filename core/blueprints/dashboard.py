@@ -209,6 +209,16 @@ def serve_view_sales_group(sales_group_id):
         )
     return dashboard_render("sales-groups/sales-group/not-published.html")
 
+@bp.route('/dashboard/sales-groups/manage-eids/<int:sales_group_id>', methods=["GET"])
+@crut.require_account
+def serve_manage_eids_sales_group(sales_group_id):
+    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        return dashboard_render(
+            "sales-groups/sales-group/manage-eids.html",
+            {"sales_group": sales_group_row}
+        )
+    return dashboard_render("sales-groups/sales-group/no.html")
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
