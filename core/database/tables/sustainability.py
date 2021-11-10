@@ -27,3 +27,19 @@ class Sustainability:
             })
 
         return data
+
+    def get_by_sector(self, sectorID):
+        data = self._db.execute_d(
+            """SELECT s.*, a.sector, a.company FROM sustainability AS s
+               join accounts AS a ON s.account=a.id
+               WHERE s.created_timestamp = ANY (
+		        SELECT MAX(created_timestamp) AS most_recent FROM sustainability
+		        GROUP BY account
+	           )
+               AND a.sector = %(sector)s;
+            """,
+            {
+                "sector": sectorID,
+            })
+
+        return data

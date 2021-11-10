@@ -775,3 +775,7 @@ ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 /* Conner Charles 10/20/2021 */
 INSERT INTO reports(query, status)
 values("{\"type\": \"market_data_cache\", \"params\": {}}", 0)
+
+/* Conner Charles 11/08/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"sustainability_averages\", \"params\": {}}", 0)
