@@ -1,6 +1,6 @@
 {% extends "employee/standard.html" %}
 
-{% set page_title = "Create New Account" %}
+{% set page_title = "View Account" %}
 {% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
 
 {% block employee_content_header %}
@@ -14,17 +14,43 @@ View Accounts
         <div class="card">
             <h5 class="card-header">Select Account</h5>
             <div class="card-body col-lg-6 mb-2">
-                <form class="bg-white form-inline"  id="select_account_form"  method="POST"> 
-                    <div class="form-group">
-                        <select class="form-control m-2" name="accounts" id="accounts" required>
-                            <option disabled selected value> -- Select an option -- </option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary m-2">Get Users</button>
-                <p class="mt-2 mb-0" id="account_status_message" style="display:none;">Hang on, loading users...</p>
-                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="account_error_message">Internal error...</p>
-            
-                </form>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Account Name</th>
+                            <th>Sector</th>
+                            <th>Account city, state</th>
+                            <th>Admin Username</th>
+                            <th>Login as Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for account in accounts%}
+                        <tr>
+                            <td>{{account.id}}</td>
+                            <td>{{account.company}}</td>
+                            <td>{{sectors_by_id[account.sector]}}</td>
+                            <td>{{account.city}}, {{account.state}}</td>
+                            <td>
+                                {% if account.account_admin_user_id == -1 %}
+                                Admin not Found
+                                {% else %}
+                                <a href="mailto:{{account.account_admin_username}}">{{account.account_admin_username}}</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if account.account_admin_user_id == -1 %}
+                                Admin not Found
+                                {% else %}
+                                <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

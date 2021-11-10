@@ -121,3 +121,28 @@ class AccountUsers:
                 "is_admin": is_admin
             }
         )
+
+    def get_account_admin(self, account_id):
+        """
+        Gets the account admin for a particular account
+
+        Params:
+            account_id: Account ID of the requested account
+
+        Returns:
+            admin_user: Admin for the requested Account ID
+        """
+        admin_user = self._db.execute_d(
+            """
+            SELECT user
+            FROm account_users
+            WHERE account = %(account_id)s AND is_admin=1
+            """,
+            {
+                "account_id": account_id
+            }
+        )
+        if(len(admin_user) >= 1):
+            return admin_user[0]
+        else:
+            return False

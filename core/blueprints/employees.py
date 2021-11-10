@@ -120,15 +120,27 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = Accounts(g.db).get_accounts(is_partner=0)
-    return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
-
-
-@bp.route("/employee/dashboard/view-accounts/<int:account_id>", methods=["GET"])
-@crut.require_employee
-def serve_view_account_users(account_id):
-    account_users = Users(g.db).get_rows_by_account(account_id)
-    return employee_render("/employee/accounts/view-account-users.html", {"account_users": account_users})
+    accounts = Accounts(g.db).get_accounts()
+    for account in accounts:
+        account['company'] = account['company'].upper()
+        account_admin_user_id = -1
+        account_admin_username = "Not Found"
+        admin_user = g.db.account_users.get_account_admin(account["id"])
+        if(admin_user is not False):
+            try:
+                user_row = g.db.users.get(admin_user['user'])
+                account_admin_user_id = user_row.id()
+                account_admin_username = user_row.email()
+                account["account_admin_user_id"] = account_admin_user_id
+                account["account_admin_username"] = account_admin_username
+            except UsersException:
+                account["account_admin_user_id"] = account_admin_user_id
+                account["account_admin_username"] = account_admin_username
+        else:
+            account["account_admin_user_id"] = account_admin_user_id
+            account["account_admin_username"] = account_admin_username
+    accounts = sorted(accounts, key=lambda i: i['company'])
+    return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts, "sectors_by_id": sectors_by_id})
 
 
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
