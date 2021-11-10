@@ -5,8 +5,6 @@ from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
-THREE_YEARS = 60 * 60 * 24 * 365 * 5
-
 
 class MatchesException(Exception):
     """Matches generic exception."""
@@ -335,7 +333,7 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_ils_eids(self):
+    def get_ils_eids(self, window_start):
         """Get EIDs that ILS still needs to process in the database.
 
         Returns:
@@ -354,7 +352,7 @@ class Matches:
                     "HAVING",
                     frag(
                         "MAX(created) >= :window_start",
-                        window_start=time_module.time() - THREE_YEARS
+                        window_start=window_start
                     ),
                     "AND",
                     frag(
