@@ -784,3 +784,19 @@ UPDATE accounts SET name=company;
 UPDATE accounts SET name = CONCAT("Ranch ", id) WHERE sector = 4 AND is_partner=0;
 UPDATE account_links INNER JOIN accounts ON account_links.account = accounts.id
 SET account_links.company = accounts.name;
+
+/* Rohan Sureshkumar 11/5/2021 */
+ALTER TABLE `accounts` 
+ADD INDEX `fk_accounts_partner_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `accounts` 
+ADD CONSTRAINT `fk_accounts_partner_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 11/9/2021 */
+ALTER TABLE `job_runs` 
+CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
