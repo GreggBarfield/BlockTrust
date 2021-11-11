@@ -71,13 +71,14 @@ def serve_employee_create_account_action():
                 zip_code=required['zip_code'],
                 personal_phone=request.form['personal_phone']
             )
+            auth.confirm(required["email"])
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
         send_email(
             "New BlockTrust Network account",
             render_email("employee/new-account.html", {
                 'username': required['email']
-            }), required['email'], override=True
+            }), required['email']
         )
         return {"redirect": "/employee/dashboard"}
     except ExportException as e:

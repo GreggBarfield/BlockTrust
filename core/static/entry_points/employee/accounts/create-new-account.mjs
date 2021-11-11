@@ -4,7 +4,7 @@ $(document).ready(function(){
     $('#signup_form_sector').change(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
-        $("#signup_form_partner").append('<option value=0>No Partner</option>')
+        $("#signup_form_partner").append('<option value="">No Partner</option>')
         if($(this).val()==sectors_by_name["Cow-Calf"]){
             for(let val in partners){
                 if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_by_name["Cow-Calf"]){
