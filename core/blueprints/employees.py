@@ -131,13 +131,13 @@ def serve_view_account():
         account_admin_username = ""
         admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
         if(len(admin_user) >= 1):
-            try:
-                user = g.db.users.get(admin_user[0]['user'])
+            user = g.db.users.get_by_id(admin_user[0]['user'])
+            if user != None:
                 account_admin_user_id = user.id()
                 account_admin_username = user.email()
                 account["account_admin_user_id"] = account_admin_user_id
                 account["account_admin_username"] = account_admin_username
-            except UsersException:
+            else:
                 account["account_admin_user_id"] = account_admin_user_id
                 account["account_admin_username"] = account_admin_username
         else:
