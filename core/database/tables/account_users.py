@@ -122,27 +122,50 @@ class AccountUsers:
             }
         )
 
-    def get_account_admin(self, account_id):
+    def get_account_users(self, account=None, user=None, is_admin=None, selectColumns=[]):
         """
-        Gets the account admin for a particular account
+        Gets the account records based on conditions provided
 
         Params:
-            account_id: Account ID of the requested account
+            account: Account ID
+            user: User ID
+            is_admin: (1 or 0) Based on whether admin or not admin
 
-        Returns:
-            admin_user: Admin for the requested Account ID
+        Return:
+            Results based on conditions provided
         """
-        admin_user = self._db.execute_d(
-            """
-            SELECT user
-            FROm account_users
-            WHERE account = %(account_id)s AND is_admin=1
-            """,
-            {
-                "account_id": account_id
-            }
-        )
-        if(len(admin_user) >= 1):
-            return admin_user[0]
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
         else:
-            return False
+            selectColumns = "*"
+
+        # Base query
+        query = "SELECT " + selectColumns + " FROM account_users"
+
+        query_condition_list = []
+        query_values = {}
+
+        if account is not None:
+            query_condition_list.append(" account = %(account)s")
+            query_values["account"] = account
+
+        if user is not None:
+            query_condition_list.append(" user = %(user)s")
+            query_values["user"] = user
+
+        if is_admin is not None:
+            query_condition_list.append(" is_admin = %(is_admin)s")
+            query_values["is_admin"] = is_admin
+
+        if len(query_condition_list) >= 1:
+            query_condition = " WHERE" + " AND ".join(query_condition_list)
+        else:
+            query_condition = ""
+
+        query = query + query_condition
+
+        account_user_rows = self._db.execute_d(query, query_values)
+        if len(account_user_rows) > 0:
+            return account_user_rows
+        else:
+            return []

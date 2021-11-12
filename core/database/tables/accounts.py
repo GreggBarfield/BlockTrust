@@ -364,9 +364,9 @@ class Accounts:
         else:
             selectColumns = "*"
 
-        #base query
+        # base query
         query = "SELECT " + selectColumns + " FROM accounts"
-        
+
         query_condition_list = []
         query_values = {}
 
@@ -410,7 +410,7 @@ class Accounts:
             query_condition = " WHERE" + " AND ".join(query_condition_list)
         else:
             query_condition = ""
-        
+
         query = query + query_condition
 
         account_rows = self._db.execute_d(query, query_values)

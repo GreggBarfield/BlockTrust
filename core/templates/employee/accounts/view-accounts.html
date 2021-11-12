@@ -4,7 +4,6 @@
 {% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
 
 {% block employee_content_header %}
-View Accounts
 {% endblock employee_content_header %}
 
 {% block employee_content %}
@@ -27,7 +26,7 @@ View Accounts
                         </tr>
                     </thead>
                     <tbody>
-                        {%for account in accounts%}
+                        {%for account in accounts_and_account_admins%}
                         <tr>
                             <td>{{account.id}}</td>
                             <td>{{account.company}}</td>
@@ -55,8 +54,5 @@ View Accounts
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    var accounts= JSON.parse('{{accounts|tojson}}')
-</script>
 <script type="module" src="/static/entry_points/employee/accounts/view-accounts.mjs"></script>
 {% endblock employee_content %}

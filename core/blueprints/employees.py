@@ -124,17 +124,17 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = Accounts(g.db).get_accounts()
-    for account in accounts:
+    accounts_and_account_admins = Accounts(g.db).get_accounts()
+    for account in accounts_and_account_admins:
         account['company'] = account['company'].upper()
         account_admin_user_id = 0
-        account_admin_username = "Not Found"
-        admin_user = g.db.account_users.get_account_admin(account["id"])
-        if(admin_user is not False):
+        account_admin_username = ""
+        admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
+        if(len(admin_user) >= 1):
             try:
-                user_row = g.db.users.get(admin_user['user'])
-                account_admin_user_id = user_row.id()
-                account_admin_username = user_row.email()
+                user = g.db.users.get(admin_user[0]['user'])
+                account_admin_user_id = user.id()
+                account_admin_username = user.email()
                 account["account_admin_user_id"] = account_admin_user_id
                 account["account_admin_username"] = account_admin_username
             except UsersException:
@@ -143,8 +143,8 @@ def serve_view_account():
         else:
             account["account_admin_user_id"] = account_admin_user_id
             account["account_admin_username"] = account_admin_username
-    accounts = sorted(accounts, key=lambda i: i['company'])
-    return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts, "sectors_by_id": sectors_by_id})
+    accounts_and_account_admins = sorted(accounts_and_account_admins, key=lambda i: i['company'])
+    return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_by_id": sectors_by_id})
 
 
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
