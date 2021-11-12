@@ -71,6 +71,7 @@ def serve_employee_create_account_action():
                 zip_code=required['zip_code'],
                 personal_phone=request.form['personal_phone']
             )
+            # verify user email
             users_table = Users(g.db)
             username = users_table._format_field(required['username'])
             users_table.update_user(username, is_email_verified=1)
