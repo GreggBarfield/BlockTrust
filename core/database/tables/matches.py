@@ -5,7 +5,7 @@ from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
-THREE_YEARS = 60 * 60 * 24 * 365 * 5
+THREE_YEARS = 60 * 60 * 24 * 365 * 3
 
 
 class MatchesException(Exception):
