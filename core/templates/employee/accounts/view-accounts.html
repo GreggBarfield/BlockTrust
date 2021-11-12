@@ -34,14 +34,14 @@ View Accounts
                             <td>{{sectors_by_id[account.sector]}}</td>
                             <td>{{account.city}}, {{account.state}}</td>
                             <td>
-                                {% if account.account_admin_user_id == -1 %}
+                                {% if account.account_admin_user_id == 0 %}
                                 Admin not Found
                                 {% else %}
                                 <a href="mailto:{{account.account_admin_username}}">{{account.account_admin_username}}</a>
                                 {% endif %}
                             </td>
                             <td>
-                                {% if account.account_admin_user_id == -1 %}
+                                {% if account.account_admin_user_id == 0 %}
                                 Admin not Found
                                 {% else %}
                                 <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>

@@ -123,7 +123,7 @@ def serve_view_account():
     accounts = Accounts(g.db).get_accounts()
     for account in accounts:
         account['company'] = account['company'].upper()
-        account_admin_user_id = -1
+        account_admin_user_id = 0
         account_admin_username = "Not Found"
         admin_user = g.db.account_users.get_account_admin(account["id"])
         if(admin_user is not False):
