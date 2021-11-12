@@ -264,7 +264,7 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
+    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -283,8 +283,8 @@ class Users:
         """
         username = Users._format_field(username)
 
-        password = Users._format_field(password)
-        if password != None and len(password) > 0:
+        if password is not NO_VALUE and len(password) > 0:
+            password = Users._format_field(password)
             if len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
 
@@ -293,8 +293,6 @@ class Users:
 
             if (password != confirm_password):
                 raise UsersException("Password and Confirm password are not the same!")
-        else:
-            password = NO_VALUE
 
         # Process phone number
         if phone != NO_VALUE:
@@ -332,6 +330,12 @@ class Users:
                             set_frags,
                             "password=:password,",
                             password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                        )
+        if is_email_verified is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "is_email_verified=:is_email_verified,",
+                            is_email_verified=is_email_verified
                         )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
