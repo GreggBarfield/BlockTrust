@@ -40,10 +40,8 @@ def auth(params):
             restrict_types = name_to_id(params['types'])
 
         return {
-            "matches": g.db.matches.get_all_matches_for_an_account(
+            "matches": g.db.matches.get_distinct_match_locations_for_account(
                 account_link_id,
-                restrict_types=restrict_types,
-                ljoin_account_links=ljoin_account_links,
-                match_cols=["lat", "lon", "time", "eid", "type"]
+                restrict_types
             )
         }
