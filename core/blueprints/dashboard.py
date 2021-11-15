@@ -346,10 +346,8 @@ def serve_invite_user():
                 "BlockTrust Network Account Invite",
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
-                    'current_account': current_account,
                     'account_company': g.account.company(),
-                    'user_first': g.user.first_name(),
-                    'user_last': g.user.last_name()
+                    'user_name': g.user.first_name() + " " + g.user.last_name()
                 }), user_email
             )
             return {"redirect": "/dashboard"}
