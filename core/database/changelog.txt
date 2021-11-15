@@ -301,11 +301,6 @@ CREATE TABLE `example_db_1`.`partners` (
   UNIQUE INDEX `partner_id_UNIQUE` (`partner_id` ASC) VISIBLE)
 COMMENT = 'Table to store partners';
 
-/* Rohan Sureshkumar 5/29/21 */
-INSERT INTO `example_db_1`.`partners`(partner_id, partner_name, sector_id, contact_name, email, phone, address, city, state, zip)
-values('HTRACK', 'MFA Health Track', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
-      ('PCALF', 'MFA Power Calf', 4, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
-      ('ILS', 'ILS, Inc.', 6, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
 
 /* Rohan Sureshkumar 5/29/21 */
 ALTER TABLE `example_db_1`.`accounts` CHANGE zip_code zip INT;
@@ -779,7 +774,28 @@ values("{\"type\": \"market_data_cache\", \"params\": {}}", 0)
 /* Rohan Sureshkumar 11/2/2021 */
 ALTER TABLE `accounts` 
 ADD COLUMN `name` VARCHAR(128) NULL AFTER `id`;
-UPDATE accounts SET name=company WHERE sector != 4;
-UPDATE accounts SET name = CONCAT("Ranch ", id) WHERE sector = 4;
+UPDATE accounts SET name=company;
+/* sector 4 is cow-calf */
+UPDATE accounts SET name = CONCAT("Ranch ", id) WHERE sector = 4 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE account_links INNER JOIN accounts ON account_links.account = accounts.id
 SET account_links.company = accounts.name;
+
+/* Rohan Sureshkumar 11/5/2021 */
+ALTER TABLE `accounts` 
+ADD INDEX `fk_accounts_partner_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `accounts` 
+ADD CONSTRAINT `fk_accounts_partner_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 11/9/2021 */
+ALTER TABLE `job_runs` 
+CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
+
+/* Rohan Sureshkumar 11/12/2021 */
+INSERT INTO `accounts`(name, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values('Red Angus Assoc','Red Angus Assoc', 4, 1, NULL, 'info@redangus.org', 9403873502, '18335 E 103rd Ave., Suite 202', 'Commerce City', 'CO', 80022)

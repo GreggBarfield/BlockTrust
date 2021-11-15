@@ -5,7 +5,7 @@ from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
-THREE_YEARS = 60 * 60 * 24 * 365 * 5
+THREE_YEARS = 60 * 60 * 24 * 365 * 3
 
 
 class MatchesException(Exception):
@@ -87,6 +87,26 @@ class Matches:
                     "type": match_types_by_name["USDA Quality Grade"]
                 }
             )
+            return matches
+        else:
+            return []
+
+    def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
+        if account_link_id > 0:
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+                                + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
+                                + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
+            args = [account_link_id]
+            
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            matches = self._db.execute_d(query, args)
             return matches
         else:
             return []
