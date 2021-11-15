@@ -351,13 +351,13 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, company=None, sector=None, is_partner=None, partner_account=None,
-                            affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
+    def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
+                            affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, selectColumns=()):
         """
         Get an account by the values specified.
 
         Returns:
-            The account record if found else None
+            A list of account(s) record if found else []
         """
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)
@@ -370,39 +370,39 @@ class Accounts:
         query_condition_list = []
         query_values = {}
 
-        if company is not None:
+        if company is not NO_VALUE:
             query_condition_list.append(" company = %(company)s")
             query_values["company"] = company
 
-        if sector is not None:
+        if sector is not NO_VALUE:
             query_condition_list.append(" sector = %(sector)s")
             query_values["sector"] = sector
 
-        if is_partner is not None:
+        if is_partner is not NO_VALUE:
             query_condition_list.append(" is_partner = %(is_partner)s")
             query_values["is_partner"] = is_partner
 
-        if partner_account is not None:
+        if partner_account is not NO_VALUE:
             query_condition_list.append(" partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
 
-        if affiliate_id is not None:
+        if affiliate_id is not NO_VALUE:
             query_condition_list.append(" affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
 
-        if address is not None:
+        if address is not NO_VALUE:
             query_condition_list.append(" address = %(address)s")
             query_values["address"] = address
 
-        if city is not None:
+        if city is not NO_VALUE:
             query_condition_list.append(" city = %(city)s")
             query_values["city"] = city
 
-        if state is not None:
+        if state is not NO_VALUE:
             query_condition_list.append(" state = %(state)s")
             query_values["state"] = state
 
-        if zip is not None:
+        if zip is not NO_VALUE:
             query_condition_list.append(" zip = %(zip)s")
             query_values["zip"] = zip
 
