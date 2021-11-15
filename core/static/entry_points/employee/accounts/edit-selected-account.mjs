@@ -18,7 +18,7 @@ let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/edit-an-account/apply-changes",
+    action: "/employee/dashboard/edit-account/apply-changes",
     form: editAccountForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

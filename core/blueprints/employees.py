@@ -142,28 +142,24 @@ def serve_login_as_user(user_id):
     return redirect("/dashboard")
 
 
-@bp.route("/employee/dashboard/edit-an-account", methods=["GET"])
+@bp.route("/employee/dashboard/edit-accounts", methods=["GET"])
 @crut.require_employee
 def serve_edit_account():
     accounts = g.db.accounts.get_accounts()
     return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/edit-an-account/action", methods=["POST"])
-def serve_edit_account_action():
-    redirect_to = "/employee/dashboard/edit-an-account/"+request.form['account']
-    return {"redirect": redirect_to}
-
-
-@bp.route("/employee/dashboard/edit-an-account/<tok>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET"])
 @crut.require_employee
-def serve_edit_selected_account(tok):
-    account_row = g.db.accounts.get_by_id(tok)
+def serve_edit_selected_account(account_id):
+    account_row = g.db.accounts.get_by_id(account_id)
     return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
 
 
-@bp.route("/employee/dashboard/edit-an-account/apply-changes", methods=["POST"])
+@bp.route("/employee/dashboard/edit-account/apply-changes", methods=["POST"])
+@crut.require_employee
 def serve_apply_changes_to_account():
+    print(type(request.form["zip_code"]))
     g.db.accounts.update_account(
         account_id=request.form["id"],
         company=request.form["company"],
