@@ -1,0 +1,18 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Feedyard Questionaire" %}
+{% set dashboard_locations = [("/dashboard/sustainability/feedyard", "Feedyard Summary")] %}
+
+{% block dashboard_content_header %}
+Feedyard Summary
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="feedyard summary"></div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}
