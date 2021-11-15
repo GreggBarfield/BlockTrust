@@ -1,5 +1,8 @@
+from core.database.tables.job_runs import NO_VALUE
 from ..objects.account_user import AccountUser
+from ..no_value import NoValue
 
+NO_VALUE = NoValue()
 
 class AccountUsersException(Exception):
     """account users generic exception."""
@@ -122,7 +125,7 @@ class AccountUsers:
             }
         )
 
-    def get_account_users(self, account=None, user=None, is_admin=None, selectColumns=[]):
+    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE, selectColumns=[]):
         """
         Gets the account records based on conditions provided
 
@@ -145,15 +148,15 @@ class AccountUsers:
         query_condition_list = []
         query_values = {}
 
-        if account is not None:
+        if account is not NO_VALUE:
             query_condition_list.append(" account = %(account)s")
             query_values["account"] = account
 
-        if user is not None:
+        if user is not NO_VALUE:
             query_condition_list.append(" user = %(user)s")
             query_values["user"] = user
 
-        if is_admin is not None:
+        if is_admin is not NO_VALUE:
             query_condition_list.append(" is_admin = %(is_admin)s")
             query_values["is_admin"] = is_admin
 

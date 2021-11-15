@@ -23,7 +23,7 @@ class Users:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, user_id):
+    def get_user_by_id(self, user_id):
         """Gets a user by their ID.
 
         Params:
