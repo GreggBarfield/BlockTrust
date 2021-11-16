@@ -59,11 +59,11 @@ class SignupFailedException(AuthException):
 
 def session_open():
     """Load session into app context."""
-    session_open_employee()
-    if g.employee is None:
-        # employee is not logged in. check if user is logged in
-        session_open_user()
+    session_open_user()
+    if g.user is not None:
         session_open_account()
+    else:
+        session_open_employee()
 
 
 def session_open_employee():
@@ -100,6 +100,10 @@ def session_open_user():
     g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
+        if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
+            g.is_employee_impersonating = 1
+        else:
+            g.is_employee_impersonating = 0
     else:
         session[SESSION_USER_ID_VAR] = ""
         # TODO: if this fails, abort request and redirect to issue opening session screen
@@ -195,8 +199,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 
 def logout():
     """Clear session of user info and remove g user."""
-    g.user = None
-    g.employee = None
     session.clear()
 
 
@@ -519,7 +521,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(user_id):
+def employee_login_as_user(user_id, employee_id):
     """
     Params:
         user_id: User Id of the user for logging in
@@ -539,8 +541,8 @@ def employee_login_as_user(user_id):
             )
     if len(id_results) == 1:
         user_row = id_results[0]
-        g.user = User(g.db, user_row)
         session.clear()
-        session[SESSION_USER_ID_VAR] = g.user.id()
+        session[SESSION_USER_ID_VAR] = user_row["id"]
+        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
     else:
         raise Exception("No user found")
