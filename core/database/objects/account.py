@@ -31,6 +31,9 @@ class Account:
     def id(self):
         return self._row['id']
 
+    def name(self):
+        return self._row['name']
+
     def company(self):
         return self._row['company']
 

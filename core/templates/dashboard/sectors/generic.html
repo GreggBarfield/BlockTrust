@@ -4,21 +4,27 @@
 {% endblock head_section_per_dashboard_page %}
 
 
-{% set page_title = account.company()|e %}
-{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.company()|e)] %}
+{% set page_title = account.name()|e %}
+{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
 
 {% block dashboard_content_header %}
-{{ account.company()|e }}
+{{ account.name()|e }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
 <div class="row">
     <div class="col-xl-6">
         <div class="card">
-            <h5 class="card-header">Calf-Crop Summary</h5>
+            <h5 class="card-header">
+                Calf-Crop Summary
+                <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
+            </a>
+            </h5>
+
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
-                    data-widget-company-name="{{ account.company() }}"></p>
+                    data-widget-company-name="{{ account.name() }}"></p>
             </div>
         </div>
     </div>
@@ -83,7 +89,7 @@
         <div class="collapse" id="collapseAccountDebug" style="clear:both;">
             <div class="card" style="width:100%;">
                 <div class="card-body">
-                    <h5 class="card-title">{{ account.company()|e }}</h5>
+                    <h5 class="card-title">{{ account.name()|e }}</h5>
                     <p class="card-text">
                         Debug<br>
                         Account Links<br>

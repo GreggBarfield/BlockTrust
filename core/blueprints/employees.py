@@ -71,13 +71,17 @@ def serve_employee_create_account_action():
                 zip_code=required['zip_code'],
                 personal_phone=request.form['personal_phone']
             )
+            # verify user email
+            users_table = Users(g.db)
+            username = users_table._format_field(required['username'])
+            users_table.update_user(username, is_email_verified=1)
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed: " + str(e))
         send_email(
             "New BlockTrust Network account",
             render_email("employee/new-account.html", {
                 'username': required['email']
-            }), required['email'], override=True
+            }), required['email']
         )
         return {"redirect": "/employee/dashboard"}
     except ExportException as e:
@@ -120,15 +124,27 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts = Accounts(g.db).get_accounts(is_partner=0)
-    return employee_render("/employee/accounts/view-accounts.html", {"accounts": accounts})
-
-
-@bp.route("/employee/dashboard/view-accounts/<int:account_id>", methods=["GET"])
-@crut.require_employee
-def serve_view_account_users(account_id):
-    account_users = Users(g.db).get_rows_by_account(account_id)
-    return employee_render("/employee/accounts/view-account-users.html", {"account_users": account_users})
+    accounts_and_account_admins = Accounts(g.db).get_accounts()
+    for account in accounts_and_account_admins:
+        account['company'] = account['company'].upper()
+        account_admin_user_id = 0
+        account_admin_username = ""
+        admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
+        if(len(admin_user) >= 1):
+            user = g.db.users.get_user_by_id(admin_user[0]['user'])
+            if user is not None:
+                account_admin_user_id = user.id()
+                account_admin_username = user.email()
+                account["account_admin_user_id"] = account_admin_user_id
+                account["account_admin_username"] = account_admin_username
+            else:
+                account["account_admin_user_id"] = account_admin_user_id
+                account["account_admin_username"] = account_admin_username
+        else:
+            account["account_admin_user_id"] = account_admin_user_id
+            account["account_admin_username"] = account_admin_username
+    accounts_and_account_admins = sorted(accounts_and_account_admins, key=lambda i: i['company'])
+    return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_by_id": sectors_by_id})
 
 
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
