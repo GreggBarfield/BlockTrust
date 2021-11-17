@@ -404,3 +404,29 @@ def serve_add_connection_request():
 def serve_view_invites():
     requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
+
+
+@bp.route('/dashboard/support', methods=['GET'])
+@crut.require_account
+def serve_support():
+    return dashboard_render("/dashboard/support/support.html")
+
+
+@bp.route('/dashboard/support-response', methods=["POST"])
+@crut.require_account
+def serve_support_response():
+    send_email(
+        "New Internal Support Response",
+        render_email("dashboard_support.html", {
+            'account_id': g.account.id(),
+            'company': g.account.company(),
+            'first': request.form['first'],
+            'last': request.form['last'],
+            'phone': request.form['phone'],
+            'email': request.form['email'],
+            'message': request.form['message'],
+        }),
+        "nisheet.thakur@blocktrustnetwork.com"
+        # SUPPORT_GENERAL_EMAIL
+        )
+    return {"redirect": "/dashboard"}
