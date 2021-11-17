@@ -257,6 +257,7 @@ def serve_get_sustainability():
     }, 200
 
 
+
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
 def serve_get_upload_config():
@@ -402,3 +403,32 @@ def serve_get_market_data(slug_id):
     return {
         'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
     }, 200
+
+
+@bp.route('/widgets/data/get_sustainability_timeline_data', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability_timeline_data():
+    account_link = g.db.account_links.get_by_account_id(g.account.id())
+
+    if account_link is None:
+        return {
+            "Account link not available"
+        }, 400
+    else:
+        matched_accounts = g.db.matches.get_matched_accounts_for_account_and_type(
+                account_link[0].id()
+            )
+
+        data = {}
+        ordering = []
+        for account_data in matched_accounts:
+            if account_data['account'] is not None:
+                response = g.db.sustainability.get_by_account(account_data['account'], True)
+                account_data.update(response[0])
+                data[account_data['id']] = account_data
+                ordering.append(account_data['id'])
+
+        return {
+            'timeline_data': data,
+            'order': ordering
+        }, 200

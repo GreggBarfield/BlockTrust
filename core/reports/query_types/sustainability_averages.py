@@ -12,24 +12,34 @@ def execute(db, query):
         results[sectorID] = {}
         data = db.sustainability.get_by_sector(sectorID)
 
-        sectorTotal = {
-            "excellent": 0, 
-            "acceptable": 0,
-            "needsWork": 0
+        sectorTotals = {
+            'all': {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            }
         }
-
         for item in data:
             response = json.loads(item['response'])
             for type in response:
+                sectorTotals[type] = {
+                    "excellent": 0, 
+                    "acceptable": 0,
+                    "needsWork": 0
+                }
+
                 for answer in response[type]:
                     if 'a' in answer:
-                        sectorTotal['excellent'] += 1
+                        sectorTotals['all']['excellent'] += 1
+                        sectorTotals[type]['excellent'] += 1
                     elif 'b' in answer:
-                        sectorTotal['acceptable'] += 1
+                        sectorTotals['all']['acceptable'] += 1
+                        sectorTotals[type]['acceptable'] += 1
                     elif 'c' in answer:
-                        sectorTotal['needsWork'] += 1
+                        sectorTotals['all']['needsWork'] += 1
+                        sectorTotals[type]['needsWork'] += 1
 
-        results[sectorID] = sectorTotal
+        results[sectorID] = sectorTotals
 
     return results
 

@@ -1,4 +1,5 @@
 import { Widget } from "../../widget.mjs";
+import { InfoModal } from "../../../core/info_modal.mjs";
 
 export class SustainabilityTimelineWidget extends Widget {
     constructor(frame) {
@@ -6,17 +7,19 @@ export class SustainabilityTimelineWidget extends Widget {
     }
 
     initType() {
-        this.frame.innerHTML = "";
+        this.getData(
+            "get_sustainability_timeline_data",
+            {}
+            ).then((data) => {
+            this.frame.innerHTML = "";
+            this.matches = data.timeline_data;
+            this.match_ordering = data.order;
+        
+            this.prepData();
+            this.makeTimeLineChart();
+            am4core.options.autoDispose = true;
+        });
 
-        this.data = {
-                "Born Title": {
-                    "excellent": 5, 
-                    "acceptable": 2,
-                    "needsWork": 3
-                }
-            };
-
-        this.makeTimeLineChart();
     }
 
     makeTimeLineChart(){
@@ -33,40 +36,6 @@ export class SustainabilityTimelineWidget extends Widget {
         cd_timeline.className = "v-timeline v-timeline--icons js-v-timeline";
         cd_timeline.setAttribute("data-animation", "on");
         cd_container.appendChild(cd_timeline);
-
-        // Create events
-
-        // Only pull out timestamped events
-        // let availableRows = [];
-
-        // for (let match_row of this.match_rows) {
-        //     if (match_row.time !== null && match_row.time > 10) {
-        //         availableRows.push(match_row);
-        //     }
-        // }
-
-        // // Sort ascending
-        // availableRows.sort(function(a,b){return a.time-b.time;});
-
-        function createEventObject(title, description, time, company) {
-            let eventObj = {
-                "title": title,
-                "description": description,
-                "time": time, 
-                "company": company
-            };
-
-            return eventObj;
-        }
-
-        // Provide handlers for each type of event group
-        let handlers = {
-            "Born": function(rows) {
-                return [
-                    createEventObject("Born Title", "This is the description", "16 January 2020", "Company")
-                ];
-            }
-        }
 
         let fasStyle = "font-size: 24px;text-align: center;position: absolute;left: 0px;top: 0px;height: 100%;width: 100%;line-height: 40px;vertical-align: middle;";
 
@@ -94,20 +63,10 @@ export class SustainabilityTimelineWidget extends Widget {
             
         };
 
-        let events = [];
-        // let windowSizeSecs = 100;
-
-        let eventGroup = [];
-
-        let typeName = "Born";
-        if (handlers.hasOwnProperty(typeName)) {
-            eventGroup = handlers[typeName](0);
-            events.push(eventGroup);
-        }
-
         // Render
+        for (const id of this.match_ordering) {
+            let match = this.matches[id];
 
-        for (const event_group of events) {
             let section = document.createElement("section");
             section.className = "v-timeline__section js-v-timeline__section";
 
@@ -115,47 +74,47 @@ export class SustainabilityTimelineWidget extends Widget {
             sectionHeader.className = "v-timeline__marker bg-contrast-high border border-3 border-contrast-lower";
             section.append(sectionHeader);
 
-            if(event_group[0].title == "Born Title")
-                section.innerHTML = icons.plus;
+            section.innerHTML = icons.plus;
 
             let itemsGroup = document.createElement("div");
             itemsGroup.className = "v-timeline__items-group";
 
-            for (const event of event_group) {
-                // make card
-                let itemDiv = document.createElement("div");
-                itemDiv.className = "v-timeline__item bg radius-md shadow-xs card";
+            // make card
+            let itemDiv = document.createElement("div");
+            itemDiv.className = "v-timeline__item bg radius-md shadow-xs card";
 
-                let timeDiv = document.createElement("div");
-                timeDiv.className = "v-timeline__date margin-bottom-sm";
-                itemDiv.append(timeDiv);
-                let timeE = document.createElement("time");
-                timeE.textContent = event.time;
-                timeE.className = "v-timeline__date-value"
-                timeDiv.append(timeE);
+            let timeDiv = document.createElement("div");
+            timeDiv.className = "v-timeline__date margin-bottom-sm";
+            itemDiv.append(timeDiv);
+            let timeE = document.createElement("time");
+            let dateOnlyStr = new Date(match.date).toDateString();
+            timeE.textContent = dateOnlyStr;
+            timeE.className = "v-timeline__date-value"
+            timeDiv.append(timeE);
 
-                let textComponent = document.createElement("div");
-                textComponent.className = "card-header d-flex justify-content-between"; // had text-component
-                itemDiv.append(textComponent);
+            let textComponent = document.createElement("div");
+            textComponent.className = "card-header d-flex justify-content-between";
+            itemDiv.append(textComponent);
 
-                let title = document.createElement("h5");
-                title.textContent = event["title"];
-                title.className = "h5";
-                textComponent.append(title);
+            let title = document.createElement("h5");
+            title.textContent = match.name + " " + this.getSectorNameById(match.sector);
+            title.className = "h5";
+            textComponent.append(title);
 
-                let titleLink = document.createElement("a");
-                titleLink.href = "#";
-                titleLink.textContent = "See detail";
-                textComponent.append(titleLink);
+            let titleLink = document.createElement("button");
+            titleLink.className = "btn btn-sm btn-link shadow-none color-primary";
+            titleLink.textContent = "See detail";
+            titleLink.addEventListener("click", () => {
+                this.openModal(match);
+            });
+            textComponent.append(titleLink);
 
-                let cardGraph = document.createElement("div");
-                cardGraph.className = "card-body";
-                itemDiv.append(cardGraph);
-                this.makeGraph(cardGraph, event.title);
+            let cardGraph = document.createElement("div");
+            cardGraph.className = "card-body";
+            itemDiv.append(cardGraph);
+            this.makeGraph(cardGraph, match.id, "all");
 
-                itemsGroup.append(itemDiv);
-            }
-
+            itemsGroup.append(itemDiv);
             section.append(itemsGroup);
             cd_timeline.append(section);
         }
@@ -164,32 +123,74 @@ export class SustainabilityTimelineWidget extends Widget {
         window.VTimeline(cd_timeline);
     }
 
-    getGraphablePieData(dataType) {
+    prepData() {
+        this.response_data = {};
+        
+        for(const match in this.matches){
+            this.response_data[match] = {};
+            let totals = {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            };
+
+            let responses = JSON.parse(this.matches[match].response);
+            
+            for(const type in responses){
+                this.response_data[match][type] = {
+                    "excellent": 0, 
+                    "acceptable": 0,
+                    "needsWork": 0
+                };
+
+                for(const item of responses[type]) {
+
+                    if (item.includes('a')) {
+                        this.response_data[match][type].excellent += 1;
+                        totals.excellent += 1;
+                    } else if (item.includes('b')) {
+                        this.response_data[match][type].acceptable += 1;
+                        totals.acceptable += 1;
+                    } else if (item.includes('c')) {
+                        this.response_data[match][type].needsWork += 1;
+                        totals.needsWork += 1;
+                    }
+                }
+            }
+
+            this.response_data[match]['all'] = totals;
+        }
+    }
+
+    getGraphablePieData(id, type) {
+        let itemResults = this.response_data[id][type];
+
         let graphableData = [{
                 "sector": "Excellent",
-                "size": this.data[dataType].excellent,
+                "size": itemResults.excellent,
                 "color": am4core.color("#008000")
             },
             {
                 "sector": "Acceptable",
-                "size": this.data[dataType].acceptable,
+                "size": itemResults.acceptable,
                 "color": am4core.color("#0000FF")
             },
             {
                 "sector": "Needs Work",
-                "size": this.data[dataType].needsWork,
+                "size": itemResults.needsWork,
                 "color": am4core.color("#C00000")
         }];
 
         return graphableData;
     }
 
-    makeGraph(container, dataType) {
-        if (this.data == null 
-            || this.data[dataType] == null) {
+    makeGraph(container, id, type) {
+        if (this.response_data[id] == null == null) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.data[dataType].length == 0) {
+        else if (this.response_data[id][type].excellent == 0
+                && this.response_data[id][type].acceptable == 0
+                && this.response_data[id][type].needsWork == 0) {
             container.textContent = "(no data)";
         }
         else {
@@ -198,7 +199,7 @@ export class SustainabilityTimelineWidget extends Widget {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.PieChart);
 
-                chart.data = self.getGraphablePieData(dataType);
+                chart.data = self.getGraphablePieData(id, type);
                 
                 chart.innerRadius = am4core.percent(30);
                 
@@ -219,6 +220,55 @@ export class SustainabilityTimelineWidget extends Widget {
                 chart.legend.markers.template.height = 10;
                 chart.legend.markers.template.children.getIndex(0).cornerRadius(20, 20, 20, 20);
             });
+        }
+    }
+
+    getSectorNameById(id) {
+        let name = "";
+        switch(id) {
+            case 4: 
+                name = "[Cow-Calf]";
+                break;
+            case 6:
+                name = "[Feeder]";
+                break;
+            case 7:
+                name = "[Packer]";
+                break;
+            default:
+                name = "";
+        }
+        return name;
+    }
+
+    openModal(match) {
+        let title = match.name + " " + this.getSectorNameById(match.sector)
+        let infoModal = new InfoModal("Details for " + title);
+        let modalBody = infoModal.getBody();
+
+        // TODO: fix when combine new stuff
+        let sections = {
+            "air": "Air & Greenhouse Gas Emissions",
+            "land": "Land Resources",
+            "water": "Water Resources",
+            "animal": "Animal Health & Well-Being",
+            "safety": "Employee Safety & Well-Being",
+            "efficiency": "Efficiency & Yield"
+        };
+
+        for (const type in this.response_data[match.id]) {
+            if (type != "all") {
+                let card = document.createElement("div");
+                let cardHeader = document.createElement("div");
+                cardHeader.className = "card-header";
+                cardHeader.textContent = sections[type];
+                let cardBody = document.createElement("div");
+                cardBody.className = "card-body";
+                card.append(cardHeader);
+                card.append(cardBody);
+                modalBody.append(card);
+                this.makeGraph(cardBody, match.id, type);
+            }
         }
     }
 }

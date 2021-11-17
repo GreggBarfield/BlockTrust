@@ -16,17 +16,31 @@ class Sustainability:
             }
         )
 
-    def get_by_account(self, account):
-        data = self._db.execute_d(
-            """SELECT * FROM sustainability 
-            WHERE account=%(account)s
-            ORDER BY created_timestamp DESC
-            """,
-            {
-                "account": account,
-            })
+    def get_by_account(self, account, withAccountDetails=False):
+        if withAccountDetails:
+            data = self._db.execute_d(
+                """SELECT a.id, a.name, a.sector, s.response
+                FROM sustainability AS s
+                JOIN accounts AS a ON s.account=a.id
+                WHERE account=%(account)s
+                ORDER BY s.created_timestamp DESC
+                """,
+                {
+                    "account": account,
+                })
 
-        return data
+            return data
+        else:
+            data = self._db.execute_d(
+                """SELECT * FROM sustainability 
+                WHERE account=%(account)s
+                ORDER BY created_timestamp DESC
+                """,
+                {
+                    "account": account,
+                })
+
+            return data
 
     def get_by_sector(self, sectorID):
         data = self._db.execute_d(

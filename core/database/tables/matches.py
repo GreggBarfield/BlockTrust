@@ -129,6 +129,36 @@ class Matches:
         else:
             return []
 
+    def get_matched_accounts_for_account_and_type(self, account_link_id, type=1):
+        """Gets all the accounts that were matched to account_link_id based on given type
+        
+        Params:
+            account_link_id: The user's account link ID
+            type: Type based on 'match_types.py' file
+
+        Returns:
+            A list of all the accounts that were matched for an account with given type.
+        """
+
+        data = self._db.execute_d(
+            """
+            SELECT distinct al.account, min(m.created_timestamp) as date 
+            FROM matches AS m
+            JOIN account_links AS al ON m.account_link=al.id
+            WHERE eid IN(
+                SELECT eid FROM matches 
+                WHERE account_link=%(account)s AND type=%(type)s)
+            GROUP BY al.account
+            ORDER BY al.sector, date
+            """,
+            {
+                "type": type,
+                "account": account_link_id
+            }
+        )
+
+        return data
+
     def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
         """Get matches by account links in spread form.
 
