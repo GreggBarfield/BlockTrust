@@ -815,3 +815,19 @@ CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NUL
 INSERT INTO `accounts`(name, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
 values('Red Angus Assoc','Red Angus Assoc', 4, 1, NULL, 'info@redangus.org', 9403873502, '18335 E 103rd Ave., Suite 202', 'Commerce City', 'CO', 80022)
 
+/* Rohan Sureshkumar 11/18/2021 */
+ALTER TABLE `account_users` 
+ADD INDEX `account_users_account_idx` (`account` ASC) VISIBLE,
+ADD INDEX `account_users_user_idx` (`user` ASC) VISIBLE;
+;
+ALTER TABLE `account_users` 
+ADD CONSTRAINT `account_users_account`
+  FOREIGN KEY (`account`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT,
+ADD CONSTRAINT `account_users_user`
+  FOREIGN KEY (`user`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
