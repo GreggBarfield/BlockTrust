@@ -72,7 +72,7 @@ def serve_sales_group():
         "userID": g.user.id(),
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
-        "company": g.account.company()
+        "company": g.account.name()
     }
 
 
@@ -239,14 +239,34 @@ def serve_save_sales_group():
     }
 
 
-@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@bp.route('/widgets/data/save_cowcalf', methods=['POST'])
 @crut.require_account
-def serve_save_sustainability():
+def serve_save_cowcalf():
     g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability"}
+    return { "redirect": "/dashboard/sustainability/cowcalf"}
+
+
+@bp.route('/widgets/data/save_feedyard', methods=['POST'])
+@crut.require_account
+def serve_save_feedyard():
+    g.db.sustainability.insert(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/feedyard"}
+
+
+@bp.route('/widgets/data/save_auction', methods=['POST'])
+@crut.require_account
+def serve_save_auction():
+    g.db.sustainability.insert(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/auction"}
 
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])
@@ -315,7 +335,7 @@ def serve_send_message():
                                 + str(message_id)
                             ),
                             'receiver': user['account_name'],
-                            'sender': g.account.company()
+                            'sender': g.account.name()
                         }
                     }
                 ),

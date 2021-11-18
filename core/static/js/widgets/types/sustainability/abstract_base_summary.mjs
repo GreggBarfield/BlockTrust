@@ -1,46 +1,23 @@
 import { Widget } from "../../widget.mjs";
 
-export class SustainabilitySummaryWidget extends Widget {
+
+export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
 
-    initType() {
-        
-        this.getData(
-            "get_sustainability",
-            {}
-            ).then((data) => {
-            this.frame.innerHTML = "";
-            this.responses = data.results;
-            
-            if (data.results.length == 0) {
-                this.data = null;
-            } else {
-                this.data = JSON.parse(data.results[0].response);
-                this.prepData();
-            }
-            
-            this.makeNewSurveyBtn();
-
-            let row = document.createElement("div");
-            row.className = "row";
-            this.frame.appendChild(row);
-
-            this.makeAverageScoreGraph(row);
-            this.makeGraphOverTime(row);
-            this.makeOtherPieGraphs();
-        });
+    setDataSet(dataCounter) {
+        this.dataCounter = dataCounter;
     }
 
-    makeNewSurveyBtn() {
+    makeNewSurveyBtn(sector) {
         let row = document.createElement("div");
         row.className = "row mb-2 flex-row-reverse";
         this.frame.appendChild(row);
 
         let btn = document.createElement("a");
         btn.className = "btn btn-outline-secondary btn-sm";
-        btn.setAttribute("href", "/dashboard/sustainability/survey");
+        btn.setAttribute("href", "/dashboard/sustainability/" + sector + "/survey");
         btn.textContent = "New Survey";
 
         row.append(btn);
@@ -137,6 +114,7 @@ export class SustainabilitySummaryWidget extends Widget {
         susTabContent.append(susGraph);
         this.makeGraph(susGraph, "all");
 
+        //* TODO: will need to change in future */
         let supplyChainGraph = document.createElement("div");
         supplyChainGraph.id = "supply-chain";
         supplyChainGraph.className = "tab-pane fade";
@@ -144,177 +122,30 @@ export class SustainabilitySummaryWidget extends Widget {
         this.makeGraph(supplyChainGraph, "all");
     }
 
-    makeOtherPieGraphs() {
+    makeOtherPieGraphs(sections) {
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
 
-        // Air Card
-        let airGraphWrapper = document.createElement("div");
-        airGraphWrapper.className = "col-md-4";
-        let airGraphCard = document.createElement("div");
-        airGraphCard.className = "card";
-        airGraphWrapper.append(airGraphCard);
-        row.append(airGraphWrapper);
+        // loop through all sections and create a graph for each section
+        for(const key in sections) {
+            let graphWrapper = document.createElement("div");
+            graphWrapper.className = "col-md-4";
+            let graphCard = document.createElement("div");
+            graphCard.className = "card";
+            graphWrapper.append(graphCard);
+            row.append(graphWrapper);
 
-        let airGraphHeader = document.createElement("h5");
-        airGraphHeader.className = "card-header";
-        airGraphHeader.textContent = "Air & Greenhouse Gas Emissions";
-        airGraphCard.append(airGraphHeader);
-        
-        let airGraph = document.createElement("div");
-        airGraph.className = "card-body px-3";
-        airGraphCard.append(airGraph);
-        this.makeGraph(airGraph, "air");
-
-        // Animal Card
-        let animalGraphWrapper = document.createElement("div");
-        animalGraphWrapper.className = "col-md-4";
-        let animalGraphCard = document.createElement("div");
-        animalGraphCard.className = "card";
-        animalGraphWrapper.append(animalGraphCard);
-        row.append(animalGraphWrapper);
-
-        let animalGraphHeader = document.createElement("h5");
-        animalGraphHeader.className = "card-header";
-        animalGraphHeader.textContent = "Animal Health & Well-Being";
-        animalGraphCard.append(animalGraphHeader);
-        
-        let animalGraph = document.createElement("div");
-        animalGraph.className = "card-body px-3";
-        animalGraphCard.append(animalGraph);
-        this.makeGraph(animalGraph, "animal");
-
-        // Efficiency Card
-        let efficiencyGraphWrapper = document.createElement("div");
-        efficiencyGraphWrapper.className = "col-md-4";
-        let efficiencyGraphCard = document.createElement("div");
-        efficiencyGraphCard.className = "card";
-        efficiencyGraphWrapper.append(efficiencyGraphCard);
-        row.append(efficiencyGraphWrapper);
-
-        let efficiencyGraphHeader = document.createElement("h5");
-        efficiencyGraphHeader.className = "card-header";
-        efficiencyGraphHeader.textContent = "Efficiency & Yield";
-        efficiencyGraphCard.append(efficiencyGraphHeader);
-        
-        let efficiencyGraph = document.createElement("div");
-        efficiencyGraph.className = "card-body px-3";
-        efficiencyGraphCard.append(efficiencyGraph);
-        this.makeGraph(efficiencyGraph, "efficiency");
-
-        // Safety Card
-        let safetyGraphWrapper = document.createElement("div");
-        safetyGraphWrapper.className = "col-md-4";
-        let safetyGraphCard = document.createElement("div");
-        safetyGraphCard.className = "card";
-        safetyGraphWrapper.append(safetyGraphCard);
-        row.append(safetyGraphWrapper);
-
-        let safetyGraphHeader = document.createElement("h5");
-        safetyGraphHeader.className = "card-header";
-        safetyGraphHeader.textContent = "Employee Safety";
-        safetyGraphCard.append(safetyGraphHeader);
-        
-        let safetyGraph = document.createElement("div");
-        safetyGraph.className = "card-body px-3";
-        safetyGraphCard.append(safetyGraph);
-        this.makeGraph(safetyGraph, "safety");
-
-        // Land Card
-        let landGraphWrapper = document.createElement("div");
-        landGraphWrapper.className = "col-md-4";
-        let landGraphCard = document.createElement("div");
-        landGraphCard.className = "card";
-        landGraphWrapper.append(landGraphCard);
-        row.append(landGraphWrapper);
-
-        let landGraphHeader = document.createElement("h5");
-        landGraphHeader.className = "card-header";
-        landGraphHeader.textContent = "Employee land";
-        landGraphCard.append(landGraphHeader);
-        
-        let landGraph = document.createElement("div");
-        landGraph.className = "card-body px-3";
-        landGraphCard.append(landGraph);
-        this.makeGraph(landGraph, "land");
-
-        // Water Card
-        let waterGraphWrapper = document.createElement("div");
-        waterGraphWrapper.className = "col-md-4";
-        let waterGraphCard = document.createElement("div");
-        waterGraphCard.className = "card";
-        waterGraphWrapper.append(waterGraphCard);
-        row.append(waterGraphWrapper);
-
-        let waterGraphHeader = document.createElement("h5");
-        waterGraphHeader.className = "card-header";
-        waterGraphHeader.textContent = "Employee water";
-        waterGraphCard.append(waterGraphHeader);
-        
-        let waterGraph = document.createElement("div");
-        waterGraph.className = "card-body px-3";
-        waterGraphCard.append(waterGraph);
-        this.makeGraph(waterGraph, "water");
-    }
-
-    prepData() {
-        this.dataCounter = {
-            "air": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "animal": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "efficiency": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "safety": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "land": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-            "water": {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            },
-        };
-
-        let totals = {
-            "excellent": 0, 
-            "acceptable": 0,
-            "needsWork": 0
-        };
-
-        for(const item in this.data){
-            for(const response of this.data[item]){
-                if (response.includes('a')) {
-                    this.dataCounter[item].excellent += 1;
-                    totals.excellent += 1;
-                } else if (response.includes('b')) {
-                    this.dataCounter[item].acceptable += 1;
-                    totals.acceptable += 1;
-                } else if (response.includes('c')) {
-                    this.dataCounter[item].needsWork += 1;
-                    totals.needsWork += 1;
-                }
-            }
+            let graphHeader = document.createElement("h5");
+            graphHeader.className = "card-header";
+            graphHeader.textContent = sections[key];
+            graphCard.append(graphHeader);
+            
+            let graph = document.createElement("div");
+            graph.className = "card-body px-3";
+            graphCard.append(graph);
+            this.makeGraph(graph, key);
         }
-
-        this.dataCounter["all"] = totals;
-        this.data["all"] = [totals.excellent, totals.acceptable, totals.needsWork];
     }
 
     getGraphablePieData(dataType) {
@@ -406,11 +237,11 @@ export class SustainabilitySummaryWidget extends Widget {
     }
 
     makeGraph(container, dataType) {
-        if (this.data == null 
-            || this.data[dataType] == null) {
+        if (this.dataCounter == null 
+            || this.dataCounter[dataType] == null) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.data[dataType].length == 0) {
+        else if (this.dataCounter[dataType].length == 0) {
             container.textContent = "(no data)";
         }
         else {
@@ -442,4 +273,5 @@ export class SustainabilitySummaryWidget extends Widget {
             });
         }
     }
+
 }

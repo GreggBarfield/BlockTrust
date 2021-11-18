@@ -35,7 +35,7 @@ Accounts
                         {% for account in accounts %}
                         <tr>
                             <th scope="row">{{account.id()}}</th>
-                            <td>{{account.company()|e}}</td>
+                            <td>{{account.name()|e}}</td>
                             <td>{{account.sector_name()|e}}</td>
                             <td><a href="/dashboard/accounts/select/{{account.id()|e}}">Select</a></td>
                         </tr>

@@ -99,7 +99,7 @@ def session_open_user():
     """Load user session into app context."""
     g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
-        g.user = g.db.users.get(session[SESSION_USER_ID_VAR])
+        g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
     else:
         session[SESSION_USER_ID_VAR] = ""
         # TODO: if this fails, abort request and redirect to issue opening session screen
