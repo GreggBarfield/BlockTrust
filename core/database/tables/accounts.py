@@ -365,53 +365,53 @@ class Accounts:
             selectColumns = "*"
 
         # base query
-        query = "SELECT " + selectColumns + " FROM accounts"
+        base_query = "SELECT " + selectColumns + " FROM accounts"
 
-        query_condition_list = []
+        query_conditions = []
         query_values = {}
 
         if company is not NO_VALUE:
-            query_condition_list.append(" company = %(company)s")
+            query_conditions.append(" company = %(company)s")
             query_values["company"] = company
 
         if sector is not NO_VALUE:
-            query_condition_list.append(" sector = %(sector)s")
+            query_conditions.append(" sector = %(sector)s")
             query_values["sector"] = sector
 
         if is_partner is not NO_VALUE:
-            query_condition_list.append(" is_partner = %(is_partner)s")
+            query_conditions.append(" is_partner = %(is_partner)s")
             query_values["is_partner"] = is_partner
 
         if partner_account is not NO_VALUE:
-            query_condition_list.append(" partner_account = %(partner_account)s")
+            query_conditions.append(" partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
 
         if affiliate_id is not NO_VALUE:
-            query_condition_list.append(" affiliate_id = %(affiliate_id)s")
+            query_conditions.append(" affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
 
         if address is not NO_VALUE:
-            query_condition_list.append(" address = %(address)s")
+            query_conditions.append(" address = %(address)s")
             query_values["address"] = address
 
         if city is not NO_VALUE:
-            query_condition_list.append(" city = %(city)s")
+            query_conditions.append(" city = %(city)s")
             query_values["city"] = city
 
         if state is not NO_VALUE:
-            query_condition_list.append(" state = %(state)s")
+            query_conditions.append(" state = %(state)s")
             query_values["state"] = state
 
         if zip is not NO_VALUE:
-            query_condition_list.append(" zip = %(zip)s")
+            query_conditions.append(" zip = %(zip)s")
             query_values["zip"] = zip
 
-        if len(query_condition_list) >= 1:
-            query_condition = " WHERE" + " AND ".join(query_condition_list)
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
         else:
-            query_condition = ""
+            combined_query_condition = ""
 
-        query = query + query_condition
+        query = base_query + combined_query_condition
 
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
