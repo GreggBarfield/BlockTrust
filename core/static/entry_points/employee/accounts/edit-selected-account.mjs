@@ -14,9 +14,10 @@ let address = editAccountForm.find("#edit_address");
 let city = editAccountForm.find("#edit_city");
 let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
+let action_route = "/employee/dashboard/edit-account/"+account_id+"/action"
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/edit-account/apply-changes",
+    action: action_route,
     form: editAccountForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
