@@ -175,7 +175,6 @@ def serve_edit_selected_account(account_id):
 @bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
 @crut.require_employee
 def serve_apply_changes_to_account(account_id):
-    print(type(request.form["zip_code"]))
     g.db.accounts.update_account(
         account_id=account_id,
         company=request.form["company"],
