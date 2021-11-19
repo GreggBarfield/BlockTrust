@@ -4,10 +4,29 @@ import { Widget } from "../../widget.mjs";
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
+        this.getSectorData();
     }
 
     setDataSet(dataCounter) {
         this.dataCounter = dataCounter;
+        this.dataCounter['this_sector'] = this.sectorData[this.sector].all; 
+        this.dataCounter['all_sectors'] = this.sectorData['allSectors'];
+    }
+
+    getSectorData() {
+        this.sector = this.frame.getAttribute('sector');
+
+        this.getData(
+            "data_request",
+            {
+                request: {
+                    type: 'sustainability_averages',
+                    params: {}
+                }
+            }
+        ).then((data) => {
+            this.sectorData = data.result;
+        });
     }
 
     makeNewSurveyBtn(sector) {
@@ -112,14 +131,13 @@ export class AbstractBaseSummaryWidget extends Widget {
         susGraph.id = "sector";
         susGraph.className = "tab-pane fade show active";
         susTabContent.append(susGraph);
-        this.makeGraph(susGraph, "all");
+        this.makeGraph(susGraph, "this_sector");
 
-        //* TODO: will need to change in future */
         let supplyChainGraph = document.createElement("div");
         supplyChainGraph.id = "supply-chain";
         supplyChainGraph.className = "tab-pane fade";
         susTabContent.append(supplyChainGraph);
-        this.makeGraph(supplyChainGraph, "all");
+        this.makeGraph(supplyChainGraph, "all_sectors");
     }
 
     makeOtherPieGraphs(sections) {

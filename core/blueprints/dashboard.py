@@ -274,7 +274,11 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability/cowcalf', methods=['GET'])
 @crut.require_account
 def serve_cowcalf():
-    return dashboard_render("sustainability/cowcalf_summary.html")
+    return dashboard_render("sustainability/cowcalf_summary.html",
+        {
+            "sector": g.account.sector_id()
+        }
+    )
 
 
 @bp.route('/dashboard/sustainability/cowcalf/survey', methods=['GET'])
@@ -286,7 +290,11 @@ def serve_cowcalf_survey():
 @bp.route('/dashboard/sustainability/feedyard', methods=['GET'])
 @crut.require_account
 def serve_feedyard():
-    return dashboard_render("sustainability/feedyard_summary.html")
+    return dashboard_render("sustainability/feedyard_summary.html",
+        {
+            "sector": g.account.sector_id()
+        }
+    )
 
 
 @bp.route('/dashboard/sustainability/feedyard/survey', methods=['GET'])
@@ -298,7 +306,11 @@ def serve_feedyard_survey():
 @bp.route('/dashboard/sustainability/auction', methods=['GET'])
 @crut.require_account
 def serve_auction():
-    return dashboard_render("sustainability/auction_summary.html")
+    return dashboard_render("sustainability/auction_summary.html",
+        {
+            "sector": g.account.sector_id()
+        }
+    )
 
 
 @bp.route('/dashboard/sustainability/auction/survey', methods=['GET'])

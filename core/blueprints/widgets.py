@@ -46,7 +46,6 @@ def serve_direct(name):
     raise ExportException("Unable to directly export the requested value")
 
 
-
 @bp.route('/widgets/data/sales_group', methods=['POST'])
 @crut.require_account
 def serve_sales_group():
@@ -275,7 +274,6 @@ def serve_get_sustainability():
     return { 
         "results": g.db.sustainability.get_by_account(g.account.id())
     }, 200
-
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])

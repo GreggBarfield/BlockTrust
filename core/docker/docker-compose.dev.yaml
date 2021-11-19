@@ -13,7 +13,7 @@ services:
     image: mysql
     ports:
       - "127.0.0.1:3306:3306"
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --sql-mode=
     environment:
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes:
