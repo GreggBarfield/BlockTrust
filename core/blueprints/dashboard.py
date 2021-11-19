@@ -238,12 +238,6 @@ def serve_auction_sales_new():
     return serve_auction_sales_manage(True)
 
 
-@bp.route('/dashboard/data', methods=['GET'])
-@crut.require_account
-def serve_data():
-    return dashboard_render("data/index.html")
-
-
 @bp.route('/dashboard/plans', methods=['GET'])
 @crut.require_account
 def serve_plans():
