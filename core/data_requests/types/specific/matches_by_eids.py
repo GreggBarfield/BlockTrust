@@ -1,6 +1,5 @@
 from flask import g
 from ....match_types import name_to_id
-from ...security.matches_visibility import apply_visibility
 
 
 def unauth(params):
