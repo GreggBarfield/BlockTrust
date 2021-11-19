@@ -553,12 +553,4 @@ class Matches:
         for row in rows:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
-            if 'visibility' in row:
-                if row['visibility'] is None:
-                    if row['partner_account'] is None:
-                        row['visibility'] = True  # Visible if nobody owns it
-                    else:
-                        row['visibility'] = None
-                else:
-                    row['visibility'] = row['visibility'] > 0
         return rows
