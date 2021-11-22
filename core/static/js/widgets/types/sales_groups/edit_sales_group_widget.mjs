@@ -200,7 +200,7 @@ export class EditSalesGroupWidget extends Widget {
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupNickname = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
+        let salesGroupName = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
@@ -468,7 +468,7 @@ export class EditSalesGroupWidget extends Widget {
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
-                    "group_name": salesGroupNickname.value,
+                    "group_name": salesGroupName.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null
