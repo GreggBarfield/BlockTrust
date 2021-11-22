@@ -125,6 +125,8 @@ def serve_account_id(account_id):
         return dashboard_render("sectors/auction.html", sector_params)
     elif account.sector_name() == "Feedlot":
         return dashboard_render("sectors/feedlot.html", sector_params)
+    elif account.sector_name() == "Buyer":
+        return dashboard_render("sectors/buyer.html", sector_params)
     else:
         return dashboard_render("sectors/generic.html", sector_params)
 
@@ -236,12 +238,6 @@ def serve_auction_sales_new():
     return serve_auction_sales_manage(True)
 
 
-@bp.route('/dashboard/data', methods=['GET'])
-@crut.require_account
-def serve_data():
-    return dashboard_render("data/index.html")
-
-
 @bp.route('/dashboard/plans', methods=['GET'])
 @crut.require_account
 def serve_plans():
@@ -269,15 +265,40 @@ def serve_upload_tags():
         return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
 
 
-@bp.route('/dashboard/sustainability', methods=['GET'])
+@bp.route('/dashboard/sustainability/cowcalf', methods=['GET'])
 @crut.require_account
-def serve_sustainability():
-    return dashboard_render("sustainability/sustainability_summary.html")
+def serve_cowcalf():
+    return dashboard_render("sustainability/cowcalf_summary.html")
 
-@bp.route('/dashboard/sustainability/survey', methods=['GET'])
+
+@bp.route('/dashboard/sustainability/cowcalf/survey', methods=['GET'])
 @crut.require_account
-def serve_sustainability_survey():
-    return dashboard_render("sustainability/sustainability_questionaire.html")
+def serve_cowcalf_survey():
+    return dashboard_render("sustainability/cowcalf_questionaire.html")
+
+
+@bp.route('/dashboard/sustainability/feedyard', methods=['GET'])
+@crut.require_account
+def serve_feedyard():
+    return dashboard_render("sustainability/feedyard_summary.html")
+
+
+@bp.route('/dashboard/sustainability/feedyard/survey', methods=['GET'])
+@crut.require_account
+def serve_feedyard_survey():
+    return dashboard_render("sustainability/feedyard_questionaire.html")
+
+
+@bp.route('/dashboard/sustainability/auction', methods=['GET'])
+@crut.require_account
+def serve_auction():
+    return dashboard_render("sustainability/auction_summary.html")
+
+
+@bp.route('/dashboard/sustainability/auction/survey', methods=['GET'])
+@crut.require_account
+def serve_auction_survey():
+    return dashboard_render("sustainability/auction_questionaire.html")
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
@@ -309,8 +330,8 @@ def serve_edit_edituser():
         try:
             g.db.users.update_user(
                         username=g.user.username(),
-                        first=request.form["first"],
-                        last=request.form["last"],
+                        first_name=request.form["first"],
+                        last_name=request.form["last"],
                         phone=request.form["phone"],
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
@@ -331,7 +352,7 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.company()
+            current_account = g.account.name()
             current_account_id = g.account.id()
             invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
             invite_string = str(invite_object)
@@ -344,8 +365,9 @@ def serve_invite_user():
                 "BlockTrust Network Account Invite",
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
-                    'current_account': current_account
-                }), user_email, override=True
+                    'account_company': g.account.company(),
+                    'user_name': g.user.first_name() + " " + g.user.last_name()
+                }), user_email
             )
             return {"redirect": "/dashboard"}
         except ExportException as e:
@@ -364,7 +386,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts()
+    account_rows = g.db.accounts.get_accounts(is_partner=0)
     for account_row in account_rows:
         if account_row["id"] == g.account.id():
             account_rows.remove(account_row)
@@ -389,8 +411,8 @@ def serve_add_connection_request():
                 "BlockTrust Network Connection Invite",
                 render_email("send_connection_invite.html", {
                     'new_company_contact': request.form["new_company_name"],
-                    'account_company': g.account.company()
-                }), request.form["new_company_email"], override=True
+                    'account_company': g.account.name()
+                }), request.form["new_company_email"]
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:

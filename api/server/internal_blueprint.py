@@ -22,7 +22,6 @@ bp = Blueprint('internal_blueprint', __name__)
 def before_request():
     """Per-request setup."""
     g.db = Database(MYSQL_CONFIG)
-    g.inserts_model = InsertsModel(API_MYSQL_CONFIG)
 
 
 @bp.route('/api/ils-eids/<secret>', methods=["POST", "GET"])

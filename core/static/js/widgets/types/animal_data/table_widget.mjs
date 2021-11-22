@@ -14,14 +14,19 @@ export class TableWidget extends Widget {
             "data_request",
             {
                 request: {
-                    type: 'count_account_eid_distinct',
+                    type: 'count_eid_distinct_by_account',
                     params: {
 
                     }
                 }
             }
         ).then((data) => {
+            if (data.result === null) {
+                this.account_total_distinct = null
+            }
+            else {
             this.account_total_distinct = data.result.count_eid_distinct;
+            }
             this.displayAccount();
         });
 
@@ -179,7 +184,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
                 }
@@ -211,7 +216,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
                 }
@@ -235,7 +240,7 @@ export class TableWidget extends Widget {
                 interest1.textContent = this.global_total_available;
                 let v = "n/a";
                 if (this.count_eid_distinct != 0) {
-                    v = Math.round(100 * this.global_total_available / this.count_eid_distinct) + "%";
+                    v = (100 * this.global_total_available / this.count_eid_distinct).toFixed(2) + "%";
                 }
                 interest2.textContent = v;
             }
@@ -265,7 +270,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
                 }
@@ -300,7 +305,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
                 }
@@ -314,7 +319,7 @@ export class TableWidget extends Widget {
                 interest.innerHTML = "";
                 interest.append(this.createNotAvailableYet());
             }
-            else if ('account_total_distinct' in this) {
+            else {
                 interest.textContent = this.account_total_distinct;
             }
         }
@@ -339,7 +344,7 @@ export class TableWidget extends Widget {
             else if ('account_total_available' in this && 'account_total_distinct' in this) {
                 let v = "n/a";
                 if (this.account_total_distinct != 0) {
-                    v = Math.round(100 * this.account_total_available / this.account_total_distinct) + "%";
+                    v = (100 * this.account_total_available / this.account_total_distinct).toFixed(2) + "%";
                 }
                 interest.textContent = v;
             }
@@ -422,12 +427,10 @@ export class TableWidget extends Widget {
                     }
                     else {
                         bodyTd.style = "text-align:center;";
-                        /*bodyTd.innerHTML = '<div class="spinner-grow spinner-grow-sm" role="status">\
-                        <span class="sr-only">Loading...</span>\
-                    </div>';*/
+                        //This is what each column gets set to and then overwritten by displayAccount and displayGlobal
                         bodyTd.innerHTML = '<div class="spinner-border spinner-border-sm" role="status">\
                         <span class="sr-only">Loading...</span>\
-                    </div>';
+                        </div>';
                     }
                 }
             }

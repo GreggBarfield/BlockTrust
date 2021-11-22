@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from ..renderers.outside import outside_render
@@ -136,7 +136,7 @@ def serve_signup_action():
             "BlockTrust Network Email Confirmation",
             render_email("verification_email.html", {
                 'confirm_url': confirm_url
-            }), required['email'], override=True
+            }), required['email']
         )
 
         return {"redirect": "/email_not_verified"}
@@ -207,7 +207,7 @@ def serve_contact_form_response():
             'email': request.json['email'],
             'message': request.json['message'],
         }),
-        SUPPORT_TAG_STORE_EMAIL, override=True
+        SUPPORT_TAG_STORE_EMAIL
     )
     return {}
 
@@ -278,9 +278,9 @@ def serve_reset_password_action(tok):
         # Getting the user eamil using the encrypted token
         email = token.confirmToken(tok)
         # Changing user password using email as an identifier
-        auth.change_password(email, new_password, confirm_password)
+        auth.change_user_password(email, new_password, confirm_password)
         return jsonify({"redirect": "/login"})
-    except auth.PasswordChangeFailedException as e:
+    except Exception as e:
         return jsonify({"error": str(e)})
 
 # Route for user to confirm their account
@@ -502,3 +502,8 @@ def serve_employee_login_action():
             raise ExportException(str(e))
     except ExportException as e:
         return jsonify({"error": str(e)})
+
+
+@bp.route('/images/<path:path>')
+def send_file(path):
+    return send_from_directory('static/images', path)

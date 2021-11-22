@@ -80,6 +80,7 @@ STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
 USDA_API_KEY = config_file["usda"]["api_key"]
 USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
 USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
+USDA_GET_DATA = config_file["usda"]["get_data"]
 
 FLATFILE_LICENSE = config_file["flatfile_license"]
 

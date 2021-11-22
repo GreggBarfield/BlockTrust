@@ -39,9 +39,6 @@ class Order:
     def shipping_state(self):
         return self._row['shipping_state']
 
-    def shipping_country(self):
-        return self._row['shipping_country']
-
     def shipping_zip(self):
         return self._row['shipping_zip']
 
