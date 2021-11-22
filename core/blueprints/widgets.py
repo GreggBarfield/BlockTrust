@@ -17,7 +17,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 
-from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
+from ..config import ROOT as WEBSITE_ROOT
 
 from ..utilities import crut
 
@@ -69,11 +69,10 @@ def serve_sales_group():
         "auction_sale": sales_group_row["auction_sale"],
         "auction_sale_name": sales_group_row["auction_sale_name"],
         "group_name": sales_group_row["group_name"],
-        "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
-        "company": g.account.company()
+        "company": g.account.name()
     }
 
 
@@ -240,14 +239,34 @@ def serve_save_sales_group():
     }
 
 
-@bp.route('/widgets/data/save_sustainability', methods=['POST'])
+@bp.route('/widgets/data/save_cowcalf', methods=['POST'])
 @crut.require_account
-def serve_save_sustainability():
+def serve_save_cowcalf():
     g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability"}
+    return { "redirect": "/dashboard/sustainability/cowcalf"}
+
+
+@bp.route('/widgets/data/save_feedyard', methods=['POST'])
+@crut.require_account
+def serve_save_feedyard():
+    g.db.sustainability.insert(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/feedyard"}
+
+
+@bp.route('/widgets/data/save_auction', methods=['POST'])
+@crut.require_account
+def serve_save_auction():
+    g.db.sustainability.insert(
+        g.account.id(),
+        request.json["response"]
+    )
+    return { "redirect": "/dashboard/sustainability/auction"}
 
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])
@@ -282,7 +301,7 @@ def serve_get_upload_config():
 @crut.require_account
 def serve_get_accounts_list():
     return {
-        "accounts": g.db.accounts.get_accounts()
+        "accounts": g.db.accounts.get_accounts(is_partner=0)
     }
 
 @bp.route('/widgets/data/get_account_messages', methods=['POST'])
@@ -303,23 +322,24 @@ def serve_send_message():
     )
     send_to_users = g.db.users.get_rows_by_account(request.json["params"]["to_account"])
     for user in send_to_users:
-        send_email(
-            "New Message",
-            render_email(
-                "new_message.html",
-                {
-                    'new_message': {
-                        'link': (
-                            WEBSITE_ROOT + "/dashboard/messages/"
-                            + str(message_id)
-                        ),
-                        'receiver': user['account_name'],
-                        'sender': g.account.company()
+        if user["is_email_verified"] == 1:
+            send_email(
+                "New Message",
+                render_email(
+                    "new_message.html",
+                    {
+                        'new_message': {
+                            'link': (
+                                WEBSITE_ROOT + "/dashboard/messages/"
+                                + str(message_id)
+                            ),
+                            'receiver': user['account_name'],
+                            'sender': g.account.name()
+                        }
                     }
-                }
-            ),
-            user["email"]
-        )
+                ),
+                user["email"]
+            )
     return {}, 200
 
 
@@ -370,46 +390,10 @@ def serve_update_auction_sale():
         }, 400
 
 
-@bp.route('/widgets/data/update_match_visibility_settings', methods=['POST'])
-@crut.require_account
-def serve_update_match_visibility_settings():
-    g.db.matches_type_visibility.set_account_type_visibilities(
-        g.account.id(),
-        request.json["visibility_settings"]
-    )
-    return {}, 200
-
-
 @bp.route('/widgets/data/data_request', methods=['POST'])
 @crut.require_account
 def serve_data_request():
     return unauth_route(request.json['request']), 200
-
-
-@bp.route('/widgets/data/get_account_type_visibilities', methods=['POST'])
-@crut.require_account
-def serve_get_account_type_visibilities():
-    return {
-        'type_visibilities': g.db.matches_type_visibility.get_account_type_visibilities(
-            g.account.id()
-        )
-    }
-
-
-@bp.route('/widgets/data/get_market_state_data', methods=['POST'])
-@crut.require_account
-def serve_get_market_state_data():
-    return {
-        'market_data': g.db.usda_reports.get_all_states()
-    }, 200
-
-
-@bp.route('/widgets/data/get_market_city_data/<state>', methods=['POST'])
-@crut.require_account
-def serve_get_market_city_data(state):
-    return {
-        'market_data': g.db.usda_reports.get_all_city_by_state(state)
-    }, 200
 
 
 @bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])

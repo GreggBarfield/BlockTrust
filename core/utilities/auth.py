@@ -4,7 +4,7 @@ from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
-from ..database.tables.employees import Employees
+from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
 
 # since session objects are easily decoded, we use key names which make no sense
@@ -57,19 +57,6 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-class PasswordChangeFailedException(AuthException):
-    """Password Change failed."""
-    def __init__(self, reason):
-        """Constructor for PasswordChangeFailedException.
-
-        Params:
-            reason: The reason why password could not be changed.
-                This will likely end up getting printed to the user,
-                so be careful.
-        """
-        super().__init__(reason)
-
-
 def session_open():
     """Load session into app context."""
     session_open_employee()
@@ -112,7 +99,7 @@ def session_open_user():
     """Load user session into app context."""
     g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
-        g.user = g.db.users.get(session[SESSION_USER_ID_VAR])
+        g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
     else:
         session[SESSION_USER_ID_VAR] = ""
         # TODO: if this fails, abort request and redirect to issue opening session screen
@@ -213,7 +200,7 @@ def logout():
     session.clear()
 
 
-def change_password(email, new_password, confirm_password):
+def change_user_password(email, new_password, confirm_password):
     """
     Changing the password in the user database
 
@@ -224,49 +211,22 @@ def change_password(email, new_password, confirm_password):
     Returns: None
 
     Raises:
-        PasswordChangeFailedException on failure with the reason.
+        Exception on failure with the reason.
     """
     try:
         new_password = Users._format_field(new_password)
         confirm_password = Users._format_field(confirm_password)
-        password = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
-
         # Check if password reset link is valid. As token.py returns false if link is Invalid
-
         if email is False:
-            raise PasswordChangeFailedException("Password reset link is Invalid")
-
+            raise Exception("Password reset link is Invalid")
+        user = Users(g.db).get_by_email(email)
         # Password should not be blank
-
-        if new_password == "":
-            raise PasswordChangeFailedException("Password field is blank")
-
-        # Password must be at least 10 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(new_password) < 10:
-            raise PasswordChangeFailedException("Password must be at least 10 characters.")
-        if len(new_password.encode("utf-8")) > 60:
-            raise PasswordChangeFailedException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
-        # Password should equal confirm_password
-
-        if new_password != confirm_password:
-            raise PasswordChangeFailedException("The passwords you entered were not identical.")
-
-        g.db.execute_d(
-            """
-            UPDATE users
-            SET password=%(password)s
-            WHERE users.email=%(email)s
-            """,
-            {
-                "password": password,
-                "email": email
-            }
-            )
-    except PasswordChangeFailedException as e:
+        Users(g.db).update_user(
+            username=user.username(),
+            password=new_password,
+            confirm_password=confirm_password
+        )
+    except Exception as e:
         raise e
 
 
@@ -516,3 +476,71 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     )  
     account_details = g.db.accounts.get_by_id(account_id)
     g.db.account_users.add_user_to_account(user, account=account_details)
+
+
+def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):
+    """
+    Params:
+        first_name: Employee first name
+        last_name: Employee last name
+        email: Employee email
+        phone: Employee phone number
+        username: Employee username
+        password: Password
+        confirm_password: Confirmed password
+
+    Returns:
+        Nothing
+
+    Raises:
+        SignupFailedException on failure with the reason
+    """
+    first_name = Employees._format_field(first_name)
+    last_name = Employees._format_field(last_name)
+    email = Employees._format_field(email)
+    phone = Employees._format_field(phone)
+    username = Employees._format_field(username)
+    password = Employees._format_field(password)
+    confirm_password = Employees._format_field(confirm_password)
+
+    if password != confirm_password:
+        raise SignupFailedException("The passwords you entered were not identical.")
+
+    try:
+        Employees(g.db).create_employee(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone=phone,
+            username=username,
+            password=password
+        )
+    except EmployeesException as e:
+        raise e
+
+
+def employee_login_as_user(user_id):
+    """
+    Params:
+        user_id: User Id of the user for logging in
+
+    Returns:
+        Nothing
+    """
+    id_results = g.db.execute_d(
+                """
+                    SELECT * FROM users
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": user_id
+                }
+            )
+    if len(id_results) == 1:
+        user_row = id_results[0]
+        g.user = User(g.db, user_row)
+        session.clear()
+        session[SESSION_USER_ID_VAR] = g.user.id()
+    else:
+        raise Exception("No user found")

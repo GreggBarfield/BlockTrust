@@ -68,6 +68,7 @@ export class MapWidget extends Widget {
                 }
             ).then((data) => {
                 this.match_rows = data.result.matches;
+                console.log("match_rows from map: ", this.match_rows)
             }),
 
             this.getData(
@@ -150,7 +151,8 @@ export class MapWidget extends Widget {
             // Sighted
             let pSighted = document.createElement("p");
             pSighted.style = "font-family: verdana; font-size:12px;padding-top:10px;color:#C0C0C0";
-            pSighted.textContent = "Sighted on " + marker.sighted;
+            if ("sighted" in marker)
+                pSighted.textContent = "Sighted on " + marker.sighted;
             right.append(pSighted);
 
             tip.html("");
@@ -168,10 +170,12 @@ export class MapWidget extends Widget {
                 'name': '',
                 'latLng': [match_row["lat"], match_row["lon"]],
                 'company': 'Unknown',
-                'sighted': this.formatDate(match_row["time"]),
                 'desc': '',
                 'fill': '#AAAAAA'
             };
+            if("time" in match_row) {
+                marker.sighted = this.formatDate(match_row["time"])
+            }
 
             let company = match_row["account_links.company"];
 

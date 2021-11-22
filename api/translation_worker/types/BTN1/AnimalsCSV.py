@@ -11,7 +11,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
+def handle(db: Database, insert):
     partner_account = insert["account"]
     api_insert = insert["id"]
     insert["fields"] = fields = remap(insert["fields"], {
@@ -59,7 +59,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     if account_link.account_id() is None:
         account = db.accounts.get_by_partner_affiliate_id(account_link.partner_account_id(), account_link.affiliate_id())
         if account is not None:
-            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(), account.id())
+            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.name(), account.id())
 
     account_link = account_link.id()
     eid = int(fields["electronic"])
@@ -68,16 +68,6 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     grouping_id = None
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
-
-
-    # db.matches.types.insert_visual_id(
-    #     visual_id=fields["visualid"],
-    #     account=account,
-    #     account_link=account_link,
-    #     eid=eid,
-    #     grouping_id=grouping_id,
-    #     api_insert=api_insert
-    # )
 
     weaned_object = {}
 
