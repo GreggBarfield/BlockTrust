@@ -469,7 +469,7 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     "group_name": salesGroupNickname.value,
-                    //TODO: Removed auction_sale for now. Will implement later
+                    //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null
                     
