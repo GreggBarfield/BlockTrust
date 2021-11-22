@@ -207,7 +207,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
 
-        //TODO: retained in case needed in future.
+        //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
         //     this.data.auction_sale || null,
@@ -494,35 +494,10 @@ export class EditSalesGroupWidget extends Widget {
         this.internalErrorMessage.style.display = "block";
         this.internalErrorMessage.textContent = error;
     }
-
-    //TODO: retained in case needed in future. Can be removed once we are comfortable using FlatFile JS since it takes care of these validations.
-    // allGood() {
-    //     try {
-    //         let eids = this.data.eids;
-    //         for (const eid of eids) {
-    //             let str = eid.toString();
-    //             if (str.length != 15) {
-    //                 throw "The following EID is invalid, please check it: " + eid;
-    //             }
-    //         }
-    //         for (let i = 0; i < eids.length; i++) {
-    //             for (let i2 = i + 1; i2 < eids.length; i2++) {
-    //                 if (eids[i] == eids[i2]) {
-    //                     throw "The following EIDs are the same: #" + (i + 1) + " and #" + (i2 + 1) + " (" + eids[i] + ")";
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     catch (error) {
-    //         this.showError(error);
-    //         return false;
-    //     }
-    //     return true;
-    // }
 }
 
 /**
- * TODO: retained in case needed in future.
+ * TODO: Below code used to add auction sale dropdown which is retained in case needed in future.
  * Presents a selector for auction sale.
  */
 
