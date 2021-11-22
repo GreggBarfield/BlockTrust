@@ -452,7 +452,6 @@ def serve_support_response():
             'email': request.form['email'],
             'message': request.form['message'],
         }),
-        "nisheet.thakur@blocktrustnetwork.com"
-        # SUPPORT_GENERAL_EMAIL
+        SUPPORT_GENERAL_EMAIL
         )
     return {"redirect": "/dashboard"}
