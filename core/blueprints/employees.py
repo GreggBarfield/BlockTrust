@@ -152,6 +152,6 @@ def serve_view_account():
 def serve_login_as_user(user_id):
     employee_id = g.employee.id()
     auth.logout()
-    auth.employee_login_as_user(user_id)
+    auth.employee_login_as_user(user_id, employee_id)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     return redirect("/dashboard")
