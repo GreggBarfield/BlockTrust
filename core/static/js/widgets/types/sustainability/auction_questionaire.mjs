@@ -85,9 +85,7 @@ export class AuctionQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             "safety": "Employee Safety & Well-Being"
         };
 
-        let saveCall = "save_auction";
-
-        this.generate(formInfo, sections, saveCall);
+        this.generate(formInfo, sections);
     }
 
 }

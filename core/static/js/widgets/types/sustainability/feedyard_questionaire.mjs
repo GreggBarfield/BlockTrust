@@ -166,9 +166,7 @@ export class FeedyardQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             "efficiency": "Efficiency & Yield"
         };
 
-        let saveCall = "save_feedyard";
-
         this.frame.innerHTML = "";
-        this.generate(formInfo, sections, saveCall);
+        this.generate(formInfo, sections);
     }
 }
