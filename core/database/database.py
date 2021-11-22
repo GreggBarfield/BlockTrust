@@ -14,7 +14,6 @@ from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
-from .tables.matches_type_visibility import MatchesTypeVisibility
 from .tables.reports import Reports
 from .tables.eid_groups import EIDGroups
 from .tables.products import ProductTable
@@ -59,7 +58,6 @@ class Database:
         self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
-        self.matches_type_visibility = MatchesTypeVisibility(self)
         self.reports = Reports(self)
         self.eid_groups = EIDGroups(self)
         self.usda_reports = USDAReports(self)

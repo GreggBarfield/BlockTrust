@@ -12,7 +12,7 @@ class ErrorLogs:
         try:
             self._db.execute(
                 """INSERT INTO error_logs
-                    (component, short_error, long_error, column_name, column_value)
+                    (component, short_error, long_error, details)
                     VALUES
                         (%(component)s, %(short_error)s, %(long_error)s, %(details)s)
                 """,

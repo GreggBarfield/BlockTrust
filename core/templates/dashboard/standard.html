@@ -208,6 +208,11 @@
                             </div>
                         </div>
                         <ul class="pro-body">
+                            <li>
+                                <a href="/dashboard/plans">
+                                    <i class="feather icon-credit-card"></i> Subscription
+                                </a>
+                            </li>
                             {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="/dashboard/inviteuser">
@@ -216,8 +221,8 @@
                             </li>
                             {% endif %}
                             <li>
-                                <a href="/dashboard/plans">
-                                    <i class="feather icon-credit-card"></i> Subscription
+                                <a href="/dashboard/connections">
+                                    <i class="feather icon-users"></i> View Connections
                                 </a>
                             </li>
                         </ul>
@@ -240,11 +245,6 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                            <!-- Under development <li>
-                                <a href="/dashboard/connections">
-                                    <i class="feather icon-users"></i> View Connections
-                                </a>
-                            </li> -->
                             {% if dashboard_is_employee_impersonating == 0 %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
