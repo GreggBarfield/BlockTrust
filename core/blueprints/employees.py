@@ -40,9 +40,9 @@ def serve_employee_create_account():
 def serve_employee_create_account_action():
     try:
         required = {
-            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-            'address': None, 'city': None, 'state': None, 'zip_code': None,
-            'username': None, 'email': None, 'password': None, 'confirm_password': None
+            'company': None, 'sector': None, 'address': None, 'city': None,
+            'state': None, 'zip_code': None, 'phone': None, 'company': None,
+            'partner': None, 'affiliate_id': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -50,17 +50,9 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-
-        # Sign up
-        try:
-            auth.signup(
-                username=required['username'],
-                email=required['email'],
+        # Creating an account without an admin
+        account = g.db.accounts.create_account_without_user(
                 phone=request.form['phone'],
-                first_name=required['first_name'],
-                last_name=required['last_name'],
-                password=required['password'],
-                confirm_password=required['confirm_password'],
                 company=required['company'],
                 partner=request.form['partner'],
                 affiliate_id=request.form['affiliate_id'],
@@ -68,23 +60,32 @@ def serve_employee_create_account_action():
                 address=required['address'],
                 city=required['city'],
                 state=required['state'],
-                zip_code=required['zip_code'],
-                personal_phone=request.form['personal_phone']
-            )
-            # verify user email
-            users_table = Users(g.db)
-            username = users_table._format_field(required['username'])
-            users_table.update_user(username, is_email_verified=1)
-        except (auth.SignupFailedException, AccountsException, UsersException) as e:
-            raise ExportException("Signup failed: " + str(e))
-        send_email(
-            "New BlockTrust Network account",
-            render_email("employee/new-account.html", {
-                'username': required['email']
-            }), required['email']
+                zip=required['zip_code']
         )
+        # Creating a user for created account
+        username = "DefaultAdminAccount#"+str(account.id())
+        first_name = "Default"
+        last_name = "Admin"
+        password = "TestPassword"
+        email = "default"+str(account.id())+"@abcd.com"
+        phone = ""
+        user = g.db.users.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            phone=phone,
+            email_verified=0
+        )
+        # Verifying the created user
+        users_table = Users(g.db)
+        users_table.update_user(username, is_email_verified=1)
+        # Assigning user as admin
+        account.add_user(user, 1)
+
         return {"redirect": "/employee/dashboard"}
-    except ExportException as e:
+    except (ExportException, AccountsException, UsersException) as e:
         return {"error": str(e)}
 
 

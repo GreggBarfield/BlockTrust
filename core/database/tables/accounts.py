@@ -228,7 +228,7 @@ class Accounts:
             }
         )
         account = self.get_by_id(self._db.last_row_id())
-        
+
         # update account name
         name = company
         if sector == sectors_by_name["Cow-Calf"]:
@@ -246,9 +246,91 @@ class Accounts:
             self._db.reports.make_reports_for_account(account.id())
         return account
 
+    def create_account_without_user(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account without a user.
+
+        Params:
+            company: the company name
+            sector: the sector number
+            partner: partner id
+            affiliate_id: account number in our partners system
+            address: company's address
+            city: company's city
+            state: company's state
+            zip: company's zip
+            phone: company's phone
+
+        Returns:
+            An Account object
+
+        Raises:
+            AccountsException
+        """
+
+        # Validations
+
+        if partner is not None:
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException("This partner id has already been taken by another account.")
+
+        try:
+            sector = int(sector)
+        except Exception as e:
+            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
+
+        if sector not in sectors_by_id:
+            raise AccountsException("Sector number is not listed internally.")
+
+        # Process phone number
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
+        self._db.execute(
+            """INSERT INTO accounts
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
+                VALUES
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+            """,
+            {
+                "company": company,
+                "sector": sector,
+                "partner": partner,
+                "affiliate_id": affiliate_id,
+                "address": address,
+                "city": city,
+                "state": state,
+                "zip": zip,
+                "phone": phone
+            }
+        )
+        account = self.get_by_id(self._db.last_row_id())
+
+        # update account name
+        name = company
+        if sector == sectors_by_name["Cow-Calf"]:
+            name = "Ranch " + str(account.id())
+        self.update_account(account.id(), name=name)
+
+        # Link the account appropriately in the database
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+
+        # Create reports needed for the account
+        if account.sector_id() != sectors_by_name["Buyer"]:
+            self._db.reports.make_reports_for_account(account.id())
+        return account
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-        phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
