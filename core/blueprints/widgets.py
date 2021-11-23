@@ -390,30 +390,10 @@ def serve_update_auction_sale():
         }, 400
 
 
-@bp.route('/widgets/data/update_match_visibility_settings', methods=['POST'])
-@crut.require_account
-def serve_update_match_visibility_settings():
-    g.db.matches_type_visibility.set_account_type_visibilities(
-        g.account.id(),
-        request.json["visibility_settings"]
-    )
-    return {}, 200
-
-
 @bp.route('/widgets/data/data_request', methods=['POST'])
 @crut.require_account
 def serve_data_request():
     return unauth_route(request.json['request']), 200
-
-
-@bp.route('/widgets/data/get_account_type_visibilities', methods=['POST'])
-@crut.require_account
-def serve_get_account_type_visibilities():
-    return {
-        'type_visibilities': g.db.matches_type_visibility.get_account_type_visibilities(
-            g.account.id()
-        )
-    }
 
 
 @bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])

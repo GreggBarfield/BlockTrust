@@ -102,13 +102,6 @@ DROP INDEX `data_string_lookup_idx` ;
 ALTER TABLE `example_db_1`.`matches` 
 DROP COLUMN `visibility`;
 
-CREATE TABLE `example_db_1`.`matches_type_visibility` (
-  `id` INT NOT NULL AUTO_INCREMENT,
-  `account` INT NULL,
-  `type` INT NULL,
-  `visibility` TINYINT(1) NULL,
-  PRIMARY KEY (`id`));
-
 
 /*
 Todo:
