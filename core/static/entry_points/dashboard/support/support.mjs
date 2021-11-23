@@ -69,7 +69,7 @@ errorMessage.className = "mt-2 mb-0 alert alert-danger";
 form.append(errorMessage);
 
 let form1 = new AsyncForm({
-    action: "/dashboard/support-response",
+    action: "/dashboard/support/action",
     form: form,
     status: statusMessage,
     error: errorMessage,

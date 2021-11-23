@@ -432,19 +432,18 @@ def serve_support():
     return dashboard_render("/dashboard/support/support.html")
 
 
-@bp.route('/dashboard/support-response', methods=["POST"])
+@bp.route('/dashboard/support/action', methods=["POST"])
 @crut.require_account
 def serve_support_response():
     send_email(
-        "New Internal Support Response",
-        render_email("dashboard_support.html", {
-            'account_id': g.account.id(),
-            'company': g.account.company(),
+        "New Dashboard Support Response",
+        render_email("contact_us_response.html", {
             'first': request.form['first'],
             'last': request.form['last'],
             'phone': request.form['phone'],
             'email': request.form['email'],
             'message': request.form['message'],
+            'message_title': "New Dashboard Support Response"
         }),
         SUPPORT_GENERAL_EMAIL
         )
