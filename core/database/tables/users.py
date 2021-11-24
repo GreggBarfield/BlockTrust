@@ -389,3 +389,49 @@ class Users:
                     "id": user.id()
                 }
             )
+
+    def create_pseudo_admin(self, account_id):
+        """Creates a new user
+
+        Params:
+            username: username to login
+            password: password to login
+            email: email of the user
+            first_name: first name of the user
+            last_name: last name of the user
+            phone: phone of the user
+            email_verified: is email verified
+
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+        username = "DefaultAdminAccount#"+account_id
+        first_name = "Default"
+        last_name = "Admin"
+        password = "DefaultPassword"+account_id
+        email = ""
+        phone = None
+        email_verified = 1
+
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, email, phone, first_name, last_name, is_email_verified)
+                    VALUES
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s)
+            """,
+            {
+                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "username": username,
+                "phone": phone,
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
+                "email_verified": email_verified
+            }
+        )
+        user = self.get_by_username(username)
+        return user

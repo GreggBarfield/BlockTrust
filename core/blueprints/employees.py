@@ -41,8 +41,7 @@ def serve_employee_create_account_action():
     try:
         required = {
             'company': None, 'sector': None, 'address': None, 'city': None,
-            'state': None, 'zip_code': None, 'phone': None, 'company': None,
-            'partner': None, 'affiliate_id': None
+            'state': None, 'zip_code': None, 'phone': None, 'company': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -52,38 +51,20 @@ def serve_employee_create_account_action():
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         # Creating an account without an admin
         account = g.db.accounts.create_account_without_user(
-                phone=request.form['phone'],
-                company=required['company'],
-                partner=request.form['partner'],
-                affiliate_id=request.form['affiliate_id'],
-                sector=required['sector'],
-                address=required['address'],
-                city=required['city'],
-                state=required['state'],
-                zip=required['zip_code']
+                phone=Users._format_field(request.form['phone']),
+                company=Users._format_field(required['company']),
+                partner=Users._format_field(request.form['partner']),
+                affiliate_id=Users._format_field(request.form['affiliate_id']),
+                sector=Users._format_field(required['sector']),
+                address=Users._format_field(required['address']),
+                city=Users._format_field(required['city']),
+                state=Users._format_field(required['state']),
+                zip=Users._format_field(required['zip_code'])
         )
         # Creating a user for created account
-        username = "DefaultAdminAccount#"+str(account.id())
-        first_name = "Default"
-        last_name = "Admin"
-        password = "TestPassword"
-        email = "default"+str(account.id())+"@abcd.com"
-        phone = ""
-        user = g.db.users.create_user(
-            username=username,
-            password=password,
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-            phone=phone,
-            email_verified=0
-        )
-        # Verifying the created user
-        users_table = Users(g.db)
-        users_table.update_user(username, is_email_verified=1)
+        user = g.db.users.create_pseudo_admin(account_id=str(account.id()))
         # Assigning user as admin
         account.add_user(user, 1)
-
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException) as e:
         return {"error": str(e)}
