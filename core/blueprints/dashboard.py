@@ -322,6 +322,28 @@ def serve_market_data(state, slug_id):
             })
     raise Exception("Invalid state")
 
+# edit account profile
+@bp.route('/dashboard/edit/edit-account', methods=['GET', 'POST'])
+@crut.require_user
+def serve_edit_account():
+    #Get account information
+    if request.method == 'POST':
+        try:
+            g.db.accounts.update_account(
+                    account_id= g.account.id(),
+                    company=request.form["company"],
+                    address=request.form["address"], 
+                    city=request.form["city"], 
+                    state=request.form["state"], 
+                    zip=request.form["zip"], 
+                    phone = request.form["phone"]
+                        )
+            return {"redirect": "/dashboard/edit/edit-account"}
+        except UsersException as e:
+            return {"error": str(e)}
+    elif request.method == 'GET':
+        return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
+        
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
@@ -458,3 +480,25 @@ def serve_view_profile(account_id):
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")
+@bp.route('/dashboard/support', methods=['GET'])
+@crut.require_account
+def serve_support():
+    return dashboard_render("/dashboard/support/support.html")
+
+
+@bp.route('/dashboard/support/action', methods=["POST"])
+@crut.require_account
+def serve_support_response():
+    send_email(
+        "New Dashboard Support Response",
+        render_email("contact_us_response.html", {
+            'first': request.form['first'],
+            'last': request.form['last'],
+            'phone': request.form['phone'],
+            'email': request.form['email'],
+            'message': request.form['message'],
+            'message_title': "New Dashboard Support Response"
+        }),
+        SUPPORT_GENERAL_EMAIL
+        )
+    return {"redirect": "/dashboard"}

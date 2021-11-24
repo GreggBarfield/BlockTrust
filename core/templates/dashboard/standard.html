@@ -225,6 +225,11 @@
                                     <i class="feather icon-users"></i> View Connections
                                 </a>
                             </li>
+                            <li>
+                                <a href="/dashboard/edit/edit-account">
+                                    <i class="feather icon-briefcase"></i> Edit Account
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
@@ -264,8 +269,7 @@
         </div>
 
         <span>Navigation</span>
-
-        <ul>
+        <ul style="display:inline-flex;">
             <li>
                 {% if dashboard_standard_account is not none %}
                 <a
@@ -334,6 +338,14 @@
             </li>
             {% endif %}
             {% endif %}
+        </ul>
+        <span>Support</span>
+        <ul class="float-right" style="display:inline-flex;">
+            <li>
+                <a href="/dashboard/support">
+                    <span>Support</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </header>
