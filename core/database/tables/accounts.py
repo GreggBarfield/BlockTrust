@@ -247,7 +247,7 @@ class Accounts:
         return account
 
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
         phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
@@ -286,6 +286,12 @@ class Accounts:
                             "affiliate_id=:affiliate_id,",
                             affiliate_id=affiliate_id
                         )
+        if address is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "address=:address,",
+                            address=address
+                        )     
         if city is not NO_VALUE:
             set_frags = frag(
                             set_frags,
