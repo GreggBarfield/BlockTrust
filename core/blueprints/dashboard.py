@@ -424,3 +424,27 @@ def serve_add_connection_request():
 def serve_view_invites():
     requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
+
+
+@bp.route('/dashboard/support', methods=['GET'])
+@crut.require_account
+def serve_support():
+    return dashboard_render("/dashboard/support/support.html")
+
+
+@bp.route('/dashboard/support/action', methods=["POST"])
+@crut.require_account
+def serve_support_response():
+    send_email(
+        "New Dashboard Support Response",
+        render_email("contact_us_response.html", {
+            'first': request.form['first'],
+            'last': request.form['last'],
+            'phone': request.form['phone'],
+            'email': request.form['email'],
+            'message': request.form['message'],
+            'message_title': "New Dashboard Support Response"
+        }),
+        SUPPORT_GENERAL_EMAIL
+        )
+    return {"redirect": "/dashboard"}

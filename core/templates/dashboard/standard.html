@@ -264,8 +264,7 @@
         </div>
 
         <span>Navigation</span>
-
-        <ul>
+        <ul style="display:inline-flex;">
             <li>
                 {% if dashboard_standard_account is not none %}
                 <a
@@ -334,6 +333,14 @@
             </li>
             {% endif %}
             {% endif %}
+        </ul>
+        <span>Support</span>
+        <ul class="float-right" style="display:inline-flex;">
+            <li>
+                <a href="/dashboard/support">
+                    <span>Support</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </header>
