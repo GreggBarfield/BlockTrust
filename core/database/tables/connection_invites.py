@@ -1,5 +1,5 @@
 from .accounts import Accounts
-from .connections import Connections
+from .connections import Connections, connection_status
 from .. import database
 
 
@@ -43,7 +43,7 @@ class ConnectionInvites:
             }
         )
 
-    def add_pending_invites(self, email, account):
+    def convert_invites_to_connections(self, email, account):
         """
         Adds invites in the connection_invites table to connections table once a user signs up
         Removes row from the connection_invites table
@@ -67,12 +67,10 @@ class ConnectionInvites:
             for invite in invites:
                 from_account = Accounts.get_by_id(self, account_id=invite["from_account"])
                 to_account = Accounts.get_by_id(self, account_id=account.id())
-                from_account_name = from_account.company()
-                to_account_name = to_account.company()
-                Connections.create_connection(
+                Connections(g.db).create_connection(
                     from_account_id=invite["from_account"],
                     to_account_id=account.id(),
-                    status=1
+                    status=connection_status["Connected"]
                 )
 
     def get_connection_invite(self, from_account, company_email):

@@ -427,33 +427,34 @@ def serve_view_invites():
     return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
 
 
-@bp.route('/dashboard/acceptinvite', methods=['POST'])
+@bp.route('/dashboard/accept-invite', methods=['POST'])
 @crut.require_account
 def serve_accept_invite():
+    print(request.json["account_id"])
     Connections(g.db).update_connection(
-        from_account_id=request.json["params"]["account_id"],
+        from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
         status=connection_status["Connected"]
     )
-    return {}, 200
+    return {}
 
 
-@bp.route('/dashboard/declineinvite', methods=['POST'])
+@bp.route('/dashboard/decline-invite', methods=['POST'])
 @crut.require_account
 def serve_decline_invite():
     Connections(g.db).update_connection(
-        from_account_id=request.json["params"]["account_id"],
+        from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
         status=connection_status["Declined"]
     )
-    return {}, 200
+    return {}
 
 
-@bp.route('/dashboard/view-profile/<tok>', methods=['GET'])
+@bp.route('/dashboard/view-profile/<int:account_id>', methods=['GET'])
 @crut.require_account
-def serve_view_profile(tok):
-    account_details = g.db.accounts.get_by_id(tok)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == 1:
+def serve_view_profile(account_id):
+    account_details = g.db.accounts.get_by_id(account_id)
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == connection_status["Connected"]:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
-        return {}, 200
+        return redirect("/dashboard/connections")

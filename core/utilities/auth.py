@@ -192,7 +192,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
-        ConnectionInvites(g.db).add_pending_invites(email, account)
+        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
