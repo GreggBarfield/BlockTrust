@@ -12,7 +12,7 @@ let zip = editaccountForm.find("#edit_account_zip");
 let phone = editaccountForm.find("#edit_account_phone");
 
 let form = new AsyncForm({
-    action: "/dashboard/edit/editaccount",
+    action: "/dashboard/edit/edit-account",
     form: editaccountForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

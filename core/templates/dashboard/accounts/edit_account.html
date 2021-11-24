@@ -2,7 +2,7 @@
 {% block head_section_per_dashboard_page %}
 {% endblock head_section_per_dashboard_page %}
 
-{% set dashboard_locations = [("/dashboard/edit/editaccount", "Edit Account")] %}
+{% set dashboard_locations = [("/dashboard/edit/edit-account", "Edit Account")] %}
 
 {% block dashboard_content_header %}
 Edit Account
@@ -99,10 +99,7 @@ Edit Account
                                 <option value="WV">West Virginia</option>
                                 <option value="WI">Wisconsin</option>
                                 <option value="WY">Wyoming</option>
-                            </select>   
-                            <script>
-                                $("#edit_account_state").val("{{account.state()}}");
-                            </script>                   
+                            </select>                   
                         </div>
                     </div>
                     <div class="col-lg-4"> 
@@ -126,5 +123,8 @@ Edit Account
         </div>
     </div>
 </div>
+<script>
+    $("#edit_account_state").val("{{account.state()}}");
+</script>   
 <script type="module" src="/static/entry_points/dashboard/accounts/edit_account.mjs" ></script> 
 {% endblock dashboard_content %}s
