@@ -1,6 +1,6 @@
-from .accounts import Accounts
 from .connections import Connections, connection_status
 from .. import database
+from flask import g
 
 
 class ConnectionInvites:
@@ -65,8 +65,6 @@ class ConnectionInvites:
         )
         if len(invites) >= 1:
             for invite in invites:
-                from_account = Accounts.get_by_id(self, account_id=invite["from_account"])
-                to_account = Accounts.get_by_id(self, account_id=account.id())
                 Connections(g.db).create_connection(
                     from_account_id=invite["from_account"],
                     to_account_id=account.id(),
