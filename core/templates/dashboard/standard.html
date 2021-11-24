@@ -208,6 +208,11 @@
                             </div>
                         </div>
                         <ul class="pro-body">
+                            <li>
+                                <a href="/dashboard/plans">
+                                    <i class="feather icon-credit-card"></i> Subscription
+                                </a>
+                            </li>
                             {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="/dashboard/inviteuser">
@@ -216,8 +221,13 @@
                             </li>
                             {% endif %}
                             <li>
-                                <a href="/dashboard/plans">
-                                    <i class="feather icon-credit-card"></i> Subscription
+                                <a href="/dashboard/connections">
+                                    <i class="feather icon-users"></i> View Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/edit/edit-account">
+                                    <i class="feather icon-briefcase"></i> Edit Account
                                 </a>
                             </li>
                         </ul>
@@ -240,16 +250,13 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                            <!-- Under development <li>
-                                <a href="/dashboard/connections">
-                                    <i class="feather icon-users"></i> View Connections
-                                </a>
-                            </li> -->
+                            {% if dashboard_is_employee_impersonating == 0 %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/logout">
                                     <i class="feather icon-lock"></i> Logout
@@ -262,8 +269,7 @@
         </div>
 
         <span>Navigation</span>
-
-        <ul>
+        <ul style="display:inline-flex;">
             <li>
                 {% if dashboard_standard_account is not none %}
                 <a
@@ -332,6 +338,14 @@
             </li>
             {% endif %}
             {% endif %}
+        </ul>
+        <span>Support</span>
+        <ul class="float-right" style="display:inline-flex;">
+            <li>
+                <a href="/dashboard/support">
+                    <span>Support</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </header>
