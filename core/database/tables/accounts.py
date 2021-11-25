@@ -159,8 +159,8 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
-        """Creates a new account with the user automatically added.
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account with the user automatically added as the admin.
 
         Params:
             user: a User object (assumed to be safe)
@@ -182,32 +182,7 @@ class Accounts:
         """
 
         # Validations
-        
-        if partner is not None:
-            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0:
-                raise AccountsException("This partner id has already been taken by another account.")
-
-        try:
-            sector = int(sector)
-        except Exception as e:
-            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
-
-        if sector not in sectors_by_id:
-            raise AccountsException("Sector number is not listed internally.")
-
-        # Process phone number
-        if phone != None:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
+        sector, phone = self.validate_input(sector, partner, affiliate_id, phone)
 
         self._db.execute(
             """INSERT INTO accounts
@@ -245,8 +220,50 @@ class Accounts:
         if account.sector_id() != sectors_by_name["Buyer"]:
             self._db.reports.make_reports_for_account(account.id())
         return account
+    
+    def validate_input(self, sector, partner, affiliate_id, phone):
+        """validates input to create account
 
-    def create_account_without_user(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        Params:
+            sector: the sector number
+            partner: partner id
+            affiliate_id: account number in our partners system
+
+        Returns:
+            Tuple containing processed sector and phone in that order
+
+        Raises:
+            AccountsException
+        """
+        if partner is not None:
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+
+        try:
+            sector = int(sector)
+        except Exception as e:
+            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
+
+        if sector not in sectors_by_id:
+            raise AccountsException("Sector number is not listed internally.")
+        
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        
+        return sector, phone
+
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account without a user.
 
         Params:
@@ -268,32 +285,7 @@ class Accounts:
         """
 
         # Validations
-
-        if partner is not None:
-            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0:
-                raise AccountsException("This partner id has already been taken by another account.")
-
-        try:
-            sector = int(sector)
-        except Exception as e:
-            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
-
-        if sector not in sectors_by_id:
-            raise AccountsException("Sector number is not listed internally.")
-
-        # Process phone number
-        if phone != None:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
+        sector, phone = self.validate_input(sector, partner, affiliate_id, phone)
 
         self._db.execute(
             """INSERT INTO accounts
