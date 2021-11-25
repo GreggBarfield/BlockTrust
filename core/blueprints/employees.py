@@ -12,12 +12,12 @@ from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 
 from ..common_exceptions import ExportException
 
-from ..utilities.email import send_email
-from ..renderers.email import render_email
 
 from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 from ..utilities import crut, auth
+from random import randint
+from ..utilities.general import format_field
 
 
 bp = Blueprint('employees_bp', __name__)
@@ -40,9 +40,8 @@ def serve_employee_create_account():
 def serve_employee_create_account_action():
     try:
         required = {
-            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-            'address': None, 'city': None, 'state': None, 'zip_code': None,
-            'username': None, 'email': None, 'password': None, 'confirm_password': None
+            'company': None, 'sector': None, 'address': None, 'city': None,
+            'state': None, 'zip_code': None, 'phone': None, 'company': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -51,40 +50,31 @@ def serve_employee_create_account_action():
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
 
-        # Sign up
-        try:
-            auth.signup(
-                username=required['username'],
-                email=required['email'],
-                phone=request.form['phone'],
-                first_name=required['first_name'],
-                last_name=required['last_name'],
-                password=required['password'],
-                confirm_password=required['confirm_password'],
-                company=required['company'],
-                partner=request.form['partner'],
-                affiliate_id=request.form['affiliate_id'],
-                sector=required['sector'],
-                address=required['address'],
-                city=required['city'],
-                state=required['state'],
-                zip_code=required['zip_code'],
-                personal_phone=request.form['personal_phone']
-            )
-            # verify user email
-            users_table = Users(g.db)
-            username = users_table._format_field(required['username'])
-            users_table.update_user(username, is_email_verified=1)
-        except (auth.SignupFailedException, AccountsException, UsersException) as e:
-            raise ExportException("Signup failed: " + str(e))
-        send_email(
-            "New BlockTrust Network account",
-            render_email("employee/new-account.html", {
-                'username': required['email']
-            }), required['email']
+        # Creating an account without an admin
+        account = g.db.accounts.create_account(
+                phone=format_field(request.form['phone']),
+                company=format_field(required['company']),
+                partner=format_field(request.form['partner']),
+                affiliate_id=format_field(request.form['affiliate_id']),
+                sector=format_field(required['sector']),
+                address=format_field(required['address']),
+                city=format_field(required['city']),
+                state=format_field(required['state']),
+                zip=format_field(required['zip_code'])
         )
+
+        # Creating a default pseudo admin user for created account
+        username = "DefaultAdminAccount#" + str(account.id())
+        first_name = "Default"
+        last_name = "Admin"
+        # password is a random 8 digit number
+        password = str(randint(10000000, 99999999))
+        user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
+        # Assigning user as admin
+        account.add_user(user, 1)
+
         return {"redirect": "/employee/dashboard"}
-    except ExportException as e:
+    except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
 
 

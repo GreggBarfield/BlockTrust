@@ -179,7 +179,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     )
 
     try:
-        g.db.accounts.create_account(
+        g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
