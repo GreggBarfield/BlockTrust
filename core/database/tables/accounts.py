@@ -266,6 +266,17 @@ class Accounts:
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
+        if phone != NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
         set_frags = frag()
         if name is not NO_VALUE:
             set_frags = frag(
