@@ -145,3 +145,26 @@ def serve_login_as_user(user_id):
     auth.employee_login_as_user(user_id, employee_id)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     return redirect("/dashboard")
+
+
+@bp.route("/employee/dashboard/invite-account-admin", methods=["GET"])
+def serve_invite_account_admin():
+    accounts = Accounts(g.db).get_accounts()
+    return employee_render("/employee/accounts/invite-account-admin.html", {"accounts": accounts})
+
+
+@bp.route("/employee/dashboard/invite-account-admin/<int:account_id>", methods=["GET"])
+def serve_send_admin_invite(account_id):
+    return employee_render("/employee/accounts/send-admin-invite.html", {"account_id": account_id})
+
+
+@bp.route("/dashboard/invite-account-admin/action", methods=["POST"])
+def serve_invite_account_admin_action():
+    email = request.form["email"]
+    if len(email) == 0:
+        return {"error": "Email is blank."}
+    if '@' not in email or '.' not in email or len(email) < 5:
+        return {"error": "The email you entered is incomplete."}
+    if ' ' in email:
+        return {"error": "Spaces cannot be in the email."}
+    return {"redirect": "/employee/dashboard/invite-account-admin"}
