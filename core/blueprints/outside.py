@@ -206,6 +206,7 @@ def serve_contact_form_response():
             'phone': request.json['phone'],
             'email': request.json['email'],
             'message': request.json['message'],
+            'message_title': "New Contact Us Response"
         }),
         SUPPORT_TAG_STORE_EMAIL
     )
