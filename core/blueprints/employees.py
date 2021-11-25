@@ -17,7 +17,7 @@ from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 from ..utilities import crut, auth
 from random import randint
-from ..utilities.general_utilities import format_field
+from ..utilities.general import format_field
 
 
 bp = Blueprint('employees_bp', __name__)
