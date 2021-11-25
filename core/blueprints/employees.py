@@ -12,12 +12,12 @@ from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 
 from ..common_exceptions import ExportException
 
-from ..utilities.email import send_email
-from ..renderers.email import render_email
 
 from ..sectors import sectors_by_id, sectors_by_name
 import bcrypt
 from ..utilities import crut, auth
+from random import randint
+from ..utilities.general_utilities import format_field
 
 
 bp = Blueprint('employees_bp', __name__)
@@ -49,24 +49,32 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+
         # Creating an account without an admin
-        account = g.db.accounts.create_account_without_user(
-                phone=Users._format_field(request.form['phone']),
-                company=Users._format_field(required['company']),
-                partner=Users._format_field(request.form['partner']),
-                affiliate_id=Users._format_field(request.form['affiliate_id']),
-                sector=Users._format_field(required['sector']),
-                address=Users._format_field(required['address']),
-                city=Users._format_field(required['city']),
-                state=Users._format_field(required['state']),
-                zip=Users._format_field(required['zip_code'])
+        account = g.db.accounts.create_account(
+                phone=format_field(request.form['phone']),
+                company=format_field(required['company']),
+                partner=format_field(request.form['partner']),
+                affiliate_id=format_field(request.form['affiliate_id']),
+                sector=format_field(required['sector']),
+                address=format_field(required['address']),
+                city=format_field(required['city']),
+                state=format_field(required['state']),
+                zip=format_field(required['zip_code'])
         )
-        # Creating a user for created account
-        user = g.db.users.create_pseudo_admin(account_id=str(account.id()))
+
+        # Creating a default pseudo admin user for created account
+        username = "DefaultAdminAccount#" + str(account.id())
+        first_name = "Default"
+        last_name = "Admin"
+        # password is a random 8 digit number
+        password = str(randint(10000000, 99999999))
+        user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
         # Assigning user as admin
         account.add_user(user, 1)
+
         return {"redirect": "/employee/dashboard"}
-    except (ExportException, AccountsException, UsersException) as e:
+    except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
 
 
