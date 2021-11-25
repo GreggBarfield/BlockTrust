@@ -1,8 +1,8 @@
 def format_field(field):
-    """Format a user info field.
+    """Format a input field.
 
     Params:
-        field: The user's field (str)
+        field: The input field (str)
     """
     if field is None:
         raise ValueError("field can't be None")
