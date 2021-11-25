@@ -236,6 +236,8 @@ class Accounts:
             AccountsException
         """
         if partner is not None:
+            if affiliate_id is None:
+                raise AccountsException("You have not entered a partner id for the selected partner")
             accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
             if len(accounts) > 0:
                 raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
