@@ -182,7 +182,7 @@ class Accounts:
         """
 
         # Validations
-        sector, phone = self.validate_input(sector, partner, affiliate_id, phone)
+        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
             """INSERT INTO accounts
@@ -221,7 +221,7 @@ class Accounts:
             self._db.reports.make_reports_for_account(account.id())
         return account
     
-    def validate_input(self, sector, partner, affiliate_id, phone):
+    def validate_new_account(self, sector, partner, affiliate_id, phone):
         """validates input to create account
 
         Params:
@@ -285,7 +285,7 @@ class Accounts:
         """
 
         # Validations
-        sector, phone = self.validate_input(sector, partner, affiliate_id, phone)
+        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
             """INSERT INTO accounts
