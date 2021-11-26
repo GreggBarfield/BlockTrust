@@ -331,12 +331,28 @@ class Accounts:
             account_id: id of the account to update
             name: the account name
             company: the company name
-            sector: the sector number
+            sector_id: the sector number
+            address: Account address
+            city: Account city
+            state: Account state
+            zip: Account zip
+            phone: Phone number specified for the account
             token: token that we give the customer to use our apis
             stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
+        if phone != NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
         set_frags = frag()
         if name is not NO_VALUE:
             set_frags = frag(

@@ -1,0 +1,35 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Edit Account" %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Select Accounts</h5>
+            <div class="card-body col-lg-6 mb-2">
+                <form class="bg-white"  id="select_account_form"  method="POST"> 
+                    <div class="form-group">
+                        <label for="account">Account</label>
+                        <select class="form-control" id="accounts" required>
+                            <option disabled selected value> -- Select an option -- </option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Edit Account</button>
+                <p class="mt-2 mb-0" id="account_status_message" style="display:none;">Hang on, loading account...</p>
+                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="account_error_message">Internal error...</p>
+            
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var accounts= JSON.parse('{{accounts|tojson}}')
+</script>
+<script type="module" src="/static/entry_points/employee/accounts/select-account-to-edit.mjs"></script>
+{% endblock employee_content %}
