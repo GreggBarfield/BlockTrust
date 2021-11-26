@@ -230,7 +230,7 @@ class Accounts:
             affiliate_id: account number in our partners system
 
         Returns:
-            Tuple containing processed sector and phone in that order
+            Processed sector and phone in that order
 
         Raises:
             AccountsException
