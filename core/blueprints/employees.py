@@ -2,7 +2,6 @@ from flask import (
     request, Blueprint, g, redirect
 )
 from ..renderers.employee import employee_render
-from ..renderers.outside import outside_render
 
 from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
@@ -14,8 +13,6 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-import bcrypt
-import json
 from ..utilities import crut, auth
 from random import randint
 from ..utilities.general import format_field
