@@ -2,7 +2,6 @@ from flask import (
     request, Blueprint, g, redirect
 )
 from ..renderers.employee import employee_render
-from ..renderers.outside import outside_render
 
 from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
@@ -14,7 +13,6 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-import bcrypt
 from ..utilities import crut, auth
 from random import randint
 from ..utilities.general import format_field
@@ -168,3 +166,29 @@ def serve_invite_account_admin_action():
     if ' ' in email:
         return {"error": "Spaces cannot be in the email."}
     return {"redirect": "/employee/dashboard/invite-account-admin"}
+@bp.route("/employee/dashboard/edit-accounts", methods=["GET"])
+@crut.require_employee
+def serve_edit_account():
+    accounts = g.db.accounts.get_accounts()
+    return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
+
+
+@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET"])
+@crut.require_employee
+def serve_edit_selected_account(account_id):
+    account_row = g.db.accounts.get_by_id(account_id)
+    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
+
+
+@bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
+@crut.require_employee
+def serve_apply_changes_to_account(account_id):
+    g.db.accounts.update_account(
+        account_id=account_id,
+        company=request.form["company"],
+        address=request.form["address"],
+        city=request.form["city"],
+        state=request.form["state"],
+        zip=request.form["zip_code"]
+    )
+    return {"redirect": "/employee/dashboard"}
