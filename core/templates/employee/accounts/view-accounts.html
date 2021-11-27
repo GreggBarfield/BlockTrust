@@ -8,11 +8,9 @@
 
 {% block employee_content %}
 
-<div class="row">
-    <div class="col-md">
-        <div class="card">
+        <div class="card d-inline-block">
             <h5 class="card-header">Select Account</h5>
-            <div class="card-body col-lg-6 mb-2">
+            <div class="card-body">
                 
                 <table class="table">
                     <thead>
@@ -23,6 +21,7 @@
                             <th>Account city, state</th>
                             <th>Admin Username</th>
                             <th>Login as Admin</th>
+                            <th>Edit Account</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,13 +45,13 @@
                                 <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
                                 {% endif %}
                             </td>
+                            <td>
+                                <a href="/employee/dashboard/edit-account/{{account.id}}">Edit</a>
+                            </td>
                         </tr>
                         {%endfor%}
                     </tbody>
                 </table>
             </div>
         </div>
-    </div>
-</div>
-<script type="module" src="/static/entry_points/employee/accounts/view-accounts.mjs"></script>
 {% endblock employee_content %}
