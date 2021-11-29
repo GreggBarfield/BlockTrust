@@ -49,52 +49,52 @@ def serve_dashboard():
 
 # 6/3/21 Deprecated
 
-@bp.route('/dashboard/accounts/new-account', methods=['GET'])
-@crut.require_user
-def serve_accounts_new_account():
-    return dashboard_render("accounts/new_account.html", {
-        "sectors_by_id": sectors_by_id
-    })
+# @bp.route('/dashboard/accounts/new-account', methods=['GET'])
+# @crut.require_user
+# def serve_accounts_new_account():
+#     return dashboard_render("accounts/new_account.html", {
+#         "sectors_by_id": sectors_by_id
+#     })
 
-# 6/3/21 Deprecated
-@bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
-@crut.require_user
-def serve_accounts_new_account_action():
-    try:
-        required = {
-            'name': None, 'company': None, 'sector': None
-        }
-        for required_field in required:
-            if required_field not in request.form:
-                raise ExportException("internal error, {} missing from form".format(required_field))
-            required[required_field] = request.form[required_field]
+# # 6/3/21 Deprecated
+# @bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
+# @crut.require_user
+# def serve_accounts_new_account_action():
+#     try:
+#         required = {
+#             'name': None, 'company': None, 'sector': None
+#         }
+#         for required_field in required:
+#             if required_field not in request.form:
+#                 raise ExportException("internal error, {} missing from form".format(required_field))
+#             required[required_field] = request.form[required_field]
 
-        # Create Account
-        try:
-            sector_id = -1
-            try:
-                sector_id = int(required['sector'])
-            except:
-                raise ExportException("Sector ID not a number.")
-            if sector_id not in sectors_by_id:
-                raise ExportException("Sector ID not recognized.")
-            account = g.db.accounts.create_account(
-                user=g.user,
-                company=required['company'],
-                sector=required['sector'],
-            )
-            auth.session_start_account(account.id())
-            return {"redirect": "/dashboard/accounts/" + str(account.id())}
-        except AccountsException as e:
-            raise ExportException("Account creation failed: " + str(e))
-    except ExportException as e:
-        return {"error": str(e)}
+#         # Create Account
+#         try:
+#             sector_id = -1
+#             try:
+#                 sector_id = int(required['sector'])
+#             except:
+#                 raise ExportException("Sector ID not a number.")
+#             if sector_id not in sectors_by_id:
+#                 raise ExportException("Sector ID not recognized.")
+#             account = g.db.accounts.create_account(
+#                 user=g.user,
+#                 company=required['company'],
+#                 sector=required['sector'],
+#             )
+#             auth.session_start_account(account.id())
+#             return {"redirect": "/dashboard/accounts/" + str(account.id())}
+#         except AccountsException as e:
+#             raise ExportException("Account creation failed: " + str(e))
+#     except ExportException as e:
+#         return {"error": str(e)}
 
-# 6/3/21 Deprecated
-@bp.route('/dashboard/accounts/join-account', methods=['GET'])
-@crut.require_user
-def serve_accounts_join_account():
-    return dashboard_render("accounts/join_account.html")
+# # 6/3/21 Deprecated
+# @bp.route('/dashboard/accounts/join-account', methods=['GET'])
+# @crut.require_user
+# def serve_accounts_join_account():
+#     return dashboard_render("accounts/join_account.html")
 
 
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])

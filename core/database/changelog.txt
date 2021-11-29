@@ -824,3 +824,7 @@ ADD CONSTRAINT `account_users_user`
   REFERENCES `users` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 11/25/2021 */
+ALTER TABLE `users` 
+ADD COLUMN `is_system_generated` TINYINT NULL DEFAULT 0 AFTER `is_email_verified`;
