@@ -1,7 +1,8 @@
 from os.path import join
 from flask import (
-    Flask, jsonify, request, render_template, session, redirect, url_for, g
+    render_template, g
 )
+from core.config import DOMAIN
 
 def dashboard_render(file, args={}):
     """Renders a template from templates/dashboard.
@@ -26,7 +27,8 @@ def dashboard_render(file, args={}):
         "dashboard_standard_user_username": g.user.username(),
         "dashboard_standard_account": g.account,
         "dashboard_standard_is_admin": g.is_admin,
-        "dashboard_is_employee_impersonating": g.is_employee_impersonating
+        "dashboard_is_employee_impersonating": g.is_employee_impersonating,
+        "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False
     }
     for key in args:
         if key in dashboard_standard_args:
