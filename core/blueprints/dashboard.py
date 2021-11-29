@@ -268,27 +268,19 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
 def serve_sustainability():
-    if g.account.sector_id() == 4:
-        return dashboard_render("sustainability/summary.html", { "sector": "cowcalf" })
-    elif g.account.sector_id() == 5:
-        return dashboard_render("sustainability/summary.html", { "sector": "auction" })
-    elif g.account.sector_id() == 6:
-        return dashboard_render("sustainability/summary.html", { "sector": "feedyard" })
-
-    return {'error':{'message': 'unsupported account sector'}}, 400
+    return dashboard_render("sustainability/summary.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
 @bp.route('/dashboard/sustainability/survey', methods=['GET'])
 @crut.require_account
 def serve_sustainability_survey():
-    if g.account.sector_id() == 4:
-        return dashboard_render("sustainability/questionaire.html", { "sector": "cowcalf" })
-    elif g.account.sector_id() == 5:
-        return dashboard_render("sustainability/questionaire.html", { "sector": "auction" })
-    elif g.account.sector_id() == 6:
-        return dashboard_render("sustainability/questionaire.html", { "sector": "feedyard" })
-
-    return {'error':{'message': 'unsupported account sector'}}, 400
+    return dashboard_render("sustainability/questionaire.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
