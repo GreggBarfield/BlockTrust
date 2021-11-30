@@ -10,7 +10,7 @@ export class AbstractBaseQuestionaireWidget extends Widget {
     selectSection = {};
     submitResponse = {};
 
-    generate(formInfo, sections, saveCall) {
+    generate(formInfo, sections) {
         function createOption(input, value, text) {
             let option = document.createElement("option");
             option.value = value;
@@ -116,7 +116,7 @@ export class AbstractBaseQuestionaireWidget extends Widget {
         form.append(this.internalErrorMessage);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data/" + saveCall,
+            action: "/widgets/data/save_sustainability",
             form: form,
             status: statusMessage,
             error: errorMessage,

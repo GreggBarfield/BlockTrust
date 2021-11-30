@@ -124,9 +124,7 @@ export class CowcalfQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             "efficiency": "Efficiency & Yield"
         };
 
-        let saveCall = "save_cowcalf";
-
-        this.generate(formInfo, sections, saveCall);
+        this.generate(formInfo, sections);
     }
 
 }
