@@ -389,3 +389,52 @@ class Users:
                     "id": user.id()
                 }
             )
+
+    def create_pseudo_user(self, username, password, first_name, last_name):
+        """Inserts an entry to user table. Routine is created for system generated users 
+
+        Params:
+            username: username to login
+            password: password to login
+            first_name: first name of the user
+            last_name: last name of the user
+
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+
+
+        user = self.get_by_username(username)
+        if user is not None:
+            raise UsersException("Username is already being used.")
+
+        # Password must be at least 8 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(password) < 8:
+            raise UsersException("Password must be at least 8 characters.")
+
+        if len(password.encode("utf-8")) > 60:
+            raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+        
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, first_name, last_name, is_system_generated)
+                    VALUES
+                        (%(password)s, %(username)s, %(first_name)s, %(last_name)s, %(is_system_generated)s)
+            """,
+            {
+                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "is_system_generated": 1
+            }
+        )
+        user = self.get_by_username(username)
+        return user

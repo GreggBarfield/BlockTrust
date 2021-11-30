@@ -1,7 +1,7 @@
 {% extends "dashboard/standard.html" %}
 
 {% set page_title = "Sustainability Summary" %}
-{% set dashboard_locations = [("/dashboard/sustainability/cowcalf", "Cowcalf Summary")] %}
+{% set dashboard_locations = [("/dashboard/sustainability", "Summary")] %}
 
 {% block dashboard_content_header %}
 Sustainability Summary
@@ -11,7 +11,7 @@ Sustainability Summary
 
 <div class="row">
     <div class="col">
-            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="cowcalf summary"></div>
+            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="{{sector}} summary"></div>
     </div>
 </div>
 

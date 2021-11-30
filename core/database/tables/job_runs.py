@@ -30,7 +30,7 @@ class JobRuns:
         )
         return job_run_rows
 
-    def get_job_runs(self, name=NO_VALUE, routine=NO_VALUE, created_date=NO_VALUE, job_ended_successfully=False, selectColumns=(), sort_and_order="", limit=0):
+    def get_job_runs(self, name=NO_VALUE, routine=NO_VALUE, created_date=NO_VALUE, job_ended_successfully=NO_VALUE, selectColumns=(), sort_and_order="", limit=0):
         """
         Get an job run by the values specified.
 
@@ -59,7 +59,7 @@ class JobRuns:
             query_conditions.append("created_timestamp >=  DATE(%(created_date)s) AND created_timestamp < (DATE(%(created_date)s) + INTERVAL 1 DAY)")
             query_values["created_date"] = created_date
         
-        if job_ended_successfully != False:
+        if job_ended_successfully is not NO_VALUE:
             query_conditions.append("end_timestamp IS NOT NULL")
 
         if len(query_conditions) > 0:
