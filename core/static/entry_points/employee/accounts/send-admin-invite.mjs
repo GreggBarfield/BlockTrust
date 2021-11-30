@@ -12,8 +12,8 @@ let form = new AsyncForm({
     form: supportForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
-    redirectMessage: "Submitted!",
-    loadingMessage: "Submitting...",
+    redirectMessage: "Invite sent!",
+    loadingMessage: "Sending Invite...",
     getData: () => {
         return {
             account_id: account_id.val(),

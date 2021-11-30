@@ -3,7 +3,7 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.users import UsersException
+from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..common_exceptions import ExportException
 from ..utilities import auth
@@ -508,3 +508,48 @@ def serve_employee_login_action():
 @bp.route('/images/<path:path>')
 def send_file(path):
     return send_from_directory('static/images', path)
+
+
+@bp.route('/add-account-admin/<tok>', methods=["GET"])
+def serve_add_admin_user(tok):
+    try:
+        invite_string = token.confirmToken(tok)
+        invite_object = eval(invite_string)
+        account_id = invite_object["account_id"]
+        admin_email = invite_object["admin_email"]
+        account_row = g.db.accounts.get_by_id(account_id)
+        return outside_render("/outside/invited-admin-signup.html", {"user_email": admin_email, "account_name": account_row.name(), "account_id": account_id})
+    except ExportException as e:
+        return outside_render("/outside/error.html")
+
+
+@bp.route('/add-account-admin/action', methods=["POST"])
+def serve_add_admin_user_action():
+    print(request.form)
+    admin_user = g.db.account_users.get_account_users(account=request.form["account_id"], is_admin=1)
+    account = g.db.accounts.get_by_id(request.form["account_id"])
+    if(len(admin_user) >= 1):
+        user = g.db.users.get_user_by_id(admin_user[0]['user'])
+        # Work on deleting the older admin user
+        g.db.users.delete_by_user(user)
+        if user is not None:
+            username = Users._format_field(request.form["admin_email"])
+            email = Users._format_field(request.form["admin_email"])
+            password = Users._format_field(request.form["password"])
+            first_name = Users._format_field(request.form["first_name"])
+            last_name = Users._format_field(request.form["last_name"])
+            phone = Users._format_field(request.form["admin_phone"])
+            user = g.db.users.create_user(
+                username=username,
+                password=password,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone,
+                email_verified=1
+            )
+            # Assigning user as admin
+            account.add_user(user, 1)
+        else:
+            return {"error": "Internal error"}
+    return {}

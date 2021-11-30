@@ -405,8 +405,6 @@ class Users:
         Raises:
             UsersException
         """
-
-
         user = self.get_by_username(username)
         if user is not None:
             raise UsersException("Username is already being used.")
@@ -420,7 +418,7 @@ class Users:
 
         if len(password.encode("utf-8")) > 60:
             raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-        
+
         self._db.execute(
             """
                 INSERT INTO users

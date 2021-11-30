@@ -1,7 +1,8 @@
 from flask import (
-    request, Blueprint, g, redirect
+    request, Blueprint, g, redirect, url_for
 )
 from ..renderers.employee import employee_render
+from ..renderers.email import render_email
 
 from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
@@ -13,9 +14,12 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth
+from ..utilities import crut, auth, token
+from ..utilities.email import send_email
 from random import randint
 from ..utilities.general import format_field
+
+from core.config import ROOT as WEBSITE_ROOT
 
 
 bp = Blueprint('employees_bp', __name__)
@@ -158,14 +162,35 @@ def serve_send_admin_invite(account_id):
 
 @bp.route("/dashboard/invite-account-admin/action", methods=["POST"])
 def serve_invite_account_admin_action():
-    email = request.form["email"]
-    if len(email) == 0:
-        return {"error": "Email is blank."}
-    if '@' not in email or '.' not in email or len(email) < 5:
-        return {"error": "The email you entered is incomplete."}
-    if ' ' in email:
-        return {"error": "Spaces cannot be in the email."}
-    return {"redirect": "/employee/dashboard/invite-account-admin"}
+    try:
+        email = request.form["email"]
+        if len(email) == 0:
+            return {"error": "Email is blank."}
+        if '@' not in email or '.' not in email or len(email) < 5:
+            return {"error": "The email you entered is incomplete."}
+        if ' ' in email:
+            return {"error": "Spaces cannot be in the email."}
+        # if g.db.users.get_by_email(email) is not None:
+        #    return {"error": "A user with that email already exists!"}
+        account_id = request.form["account_id"]
+        account_row = g.db.accounts.get_by_id(account_id)
+        invite_object = {"admin_email": email, "account_id": account_id}
+        invite_string = str(invite_object)
+        adminToken = token.generateConfirmationToken(invite_string)
+        invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', tok=adminToken)
+        print(invite_url)
+        send_email(
+            "BlockTrust Network Account Invite",
+            render_email("invite-admin.html", {
+                'invite_url': invite_url,
+                'account_name': account_row.name()
+            }), email
+        )
+        return {"redirect": "/employee/dashboard/invite-account-admin"}
+    except (Exception, AccountsException) as e:
+        return {"error": str(e)}
+
+
 @bp.route("/employee/dashboard/edit-accounts", methods=["GET"])
 @crut.require_employee
 def serve_edit_account():
