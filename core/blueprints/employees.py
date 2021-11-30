@@ -150,17 +150,20 @@ def serve_login_as_user(user_id):
 
 
 @bp.route("/employee/dashboard/invite-account-admin", methods=["GET"])
+@crut.require_employee
 def serve_invite_account_admin():
     accounts = Accounts(g.db).get_accounts()
     return employee_render("/employee/accounts/invite-account-admin.html", {"accounts": accounts})
 
 
 @bp.route("/employee/dashboard/invite-account-admin/<int:account_id>", methods=["GET"])
+@crut.require_employee
 def serve_send_admin_invite(account_id):
     return employee_render("/employee/accounts/send-admin-invite.html", {"account_id": account_id})
 
 
 @bp.route("/dashboard/invite-account-admin/action", methods=["POST"])
+@crut.require_employee
 def serve_invite_account_admin_action():
     try:
         email = request.form["email"]
@@ -170,15 +173,12 @@ def serve_invite_account_admin_action():
             return {"error": "The email you entered is incomplete."}
         if ' ' in email:
             return {"error": "Spaces cannot be in the email."}
-        # if g.db.users.get_by_email(email) is not None:
-        #    return {"error": "A user with that email already exists!"}
         account_id = request.form["account_id"]
         account_row = g.db.accounts.get_by_id(account_id)
         invite_object = {"admin_email": email, "account_id": account_id}
         invite_string = str(invite_object)
         adminToken = token.generateConfirmationToken(invite_string)
-        invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', tok=adminToken)
-        print(invite_url)
+        invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
         send_email(
             "BlockTrust Network Account Invite",
             render_email("invite-admin.html", {

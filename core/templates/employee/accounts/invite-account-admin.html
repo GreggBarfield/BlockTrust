@@ -27,11 +27,7 @@
                             <td>{{account.id}}</td>
                             <td>{{account.company}}</td>
                             <td>
-                                {% if account.account_admin_user_id == 0 %}
-                                Admin not Found
-                                {% else %}
                                 <a class="button" href= "/employee/dashboard/invite-account-admin/{{account.id}}">Invite Admin</a>
-                                {% endif %}
                             </td>
                         </tr>
                         {%endfor%}
@@ -41,5 +37,4 @@
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/employee/accounts/view-accounts.mjs"></script>
 {% endblock employee_content %}

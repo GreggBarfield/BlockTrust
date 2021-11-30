@@ -108,7 +108,7 @@ class AccountUsers:
             raise AccountUsersException("account user already exists")
         except NoAccountUserFound as e:
             pass
-    
+
         # add new link
 
         self._db.execute(
@@ -172,3 +172,28 @@ class AccountUsers:
             return account_user_rows
         else:
             return []
+
+    def update_account_admin(self, account, user):
+        """
+        Updates the account admin  for an account with provided user
+
+        Params:
+            account: Account object of account whose admin needs to be changed
+            user: User object od user who needs to be assigned as admin
+
+        Returns:
+            None
+        """
+        admin_user = self.get_account_users(account=account.id(), is_admin=1)
+        if len(admin_user) >= 1:
+            self._db.execute(
+                """
+                    UPDATE account_users
+                    SET is_admin=0
+                    WHERE id=%(id)s
+                """,
+                {
+                    "id": admin_user[0]["id"]
+                }
+            )
+        self.add_user_to_account(user=user, account=account, is_admin=1)
