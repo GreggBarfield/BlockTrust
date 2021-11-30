@@ -265,40 +265,22 @@ def serve_upload_tags():
         return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
 
 
-@bp.route('/dashboard/sustainability/cowcalf', methods=['GET'])
+@bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
-def serve_cowcalf():
-    return dashboard_render("sustainability/cowcalf_summary.html")
+def serve_sustainability():
+    return dashboard_render("sustainability/summary.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
-@bp.route('/dashboard/sustainability/cowcalf/survey', methods=['GET'])
+@bp.route('/dashboard/sustainability/survey', methods=['GET'])
 @crut.require_account
-def serve_cowcalf_survey():
-    return dashboard_render("sustainability/cowcalf_questionaire.html")
-
-
-@bp.route('/dashboard/sustainability/feedyard', methods=['GET'])
-@crut.require_account
-def serve_feedyard():
-    return dashboard_render("sustainability/feedyard_summary.html")
-
-
-@bp.route('/dashboard/sustainability/feedyard/survey', methods=['GET'])
-@crut.require_account
-def serve_feedyard_survey():
-    return dashboard_render("sustainability/feedyard_questionaire.html")
-
-
-@bp.route('/dashboard/sustainability/auction', methods=['GET'])
-@crut.require_account
-def serve_auction():
-    return dashboard_render("sustainability/auction_summary.html")
-
-
-@bp.route('/dashboard/sustainability/auction/survey', methods=['GET'])
-@crut.require_account
-def serve_auction_survey():
-    return dashboard_render("sustainability/auction_questionaire.html")
+def serve_sustainability_survey():
+    return dashboard_render("sustainability/questionaire.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])

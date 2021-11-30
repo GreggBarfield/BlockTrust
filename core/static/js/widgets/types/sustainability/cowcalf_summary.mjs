@@ -30,7 +30,7 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
                 "efficiency": "Efficiency & Yield"
             };
             
-            this.makeNewSurveyBtn("cowcalf");
+            this.makeNewSurveyBtn();
 
             let row = document.createElement("div");
             row.className = "row";

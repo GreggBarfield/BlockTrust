@@ -27,7 +27,7 @@ export class AuctionSummaryWidget extends AbstractBaseSummaryWidget {
                 "safety": "Employee Safety & Well-Being"
             };
             
-            this.makeNewSurveyBtn("auction");
+            this.makeNewSurveyBtn();
 
             let row = document.createElement("div");
             row.className = "row";
