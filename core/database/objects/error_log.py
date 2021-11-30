@@ -24,8 +24,5 @@ class ErrorLog:
     def long_error(self):
         return self._row['long_error']
 
-    def column_name(self):
-        return self._row['column_name']
-    
-    def column_value(self):
-        return self._row['column_value']
+    def details(self):
+        return self._row['details']
