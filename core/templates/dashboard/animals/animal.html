@@ -9,6 +9,7 @@
 
 {% block dashboard_content_header %}
 Animal {{ animal.eid()|e }}
+<a href= '/dashboard/animal-data/{{animal.eid()}}/download' style="width:200px" class="btn btn-outline-primary float-right">Download Animal Data</a>
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}

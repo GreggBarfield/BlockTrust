@@ -574,6 +574,19 @@ def serve_summary_download():
     summary.append(["Other", 0, 0])
 
     return excel.make_response_from_array(summary, "xlsx", file_name="Calf-Crop-Summary")
+
+
+@bp.route('/dashboard/animal-data/<string:eid>/download', methods=['GET'])
+@crut.require_account
+def serve_animal_data_download(eid):
+    match_rows = unauth_route({"type": 'matches_by_eids', "params": {"eids": eid, "ljoin_account_links": True}})
+    results = match_rows["result"]["matches"]
+    for result in results:
+        print(result)
+    print(len(results))
+    return {}
+
+
 @bp.route('/dashboard/support', methods=['GET'])
 @crut.require_account
 def serve_support():
@@ -596,3 +609,5 @@ def serve_support_response():
         SUPPORT_GENERAL_EMAIL
         )
     return {"redirect": "/dashboard"}
+
+
