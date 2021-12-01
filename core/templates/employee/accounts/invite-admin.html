@@ -14,7 +14,6 @@
             <h5 class="card-header">Provide Admin Email</h5>
             <div class="card-body col-lg-6 mb-2">
                 <form class="form" id="admin-email" method="POST">
-                    <input type="hidden" value="{{account_id}}" id="account_id">
                         <div class="input-group mb-2">
                             <input name="email" id="email" type="email" class="form-control" placeholder="E-mail">
                         </div>
@@ -26,5 +25,8 @@
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/employee/accounts/send-admin-invite.mjs"></script>
+<script type="text/javascript">
+    var account_id = '{{account_id}}'
+</script>
+<script type="module" src="/static/entry_points/employee/accounts/invite-admin.mjs"></script>
 {% endblock employee_content %}

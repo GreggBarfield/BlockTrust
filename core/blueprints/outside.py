@@ -435,21 +435,25 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/adduser/<tok>', methods=['GET', 'POST'])
+@bp.route('/add-user/<tok>', methods=['GET'])
 def serve_add_user(tok):
-    if request.method == 'GET':
-        try:
-            invite_string = token.confirmToken(tok)
-            invite_object = eval(invite_string)
-            user_email = invite_object["user_email"]
-            account_name = invite_object["current_account"]
-            account_id = invite_object["current_account_id"]
-            return outside_render("/outside/add-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
-        except Exception as e:
-            return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
+    try:
+        invite_string = token.confirmToken(tok)
+        invite_object = eval(invite_string)
+        user_email = invite_object["user_email"]
+        account_name = invite_object["current_account"]
+        account_id = invite_object["current_account_id"]
+        return outside_render("/outside/add-user-signup.html", {
+            "user_email": user_email,
+            "account_name": account_name,
+            "account_id": account_id,
+            "is_admin": 0
+            })
+    except Exception as e:
+        return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
 
 
-@bp.route('/adduser', methods=['POST'])
+@bp.route('/add-user/action', methods=['POST'])
 def serve_add_invited_user():
     try:
         account_details = g.db.accounts.get_by_id(request.form["account_id"])
@@ -462,7 +466,8 @@ def serve_add_invited_user():
             password=request.form['password'],
             confirm_password=request.form['confirm_password'],
             account_name=request.form['account_name'],
-            account_id=request.form['account_id']
+            account_id=request.form['account_id'],
+            is_admin=request.form["is_admin"]
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
@@ -511,7 +516,7 @@ def send_file(path):
     return send_from_directory('static/images', path)
 
 
-@bp.route('/add-account-admin/<string:invite_token>', methods=["GET"])
+@bp.route('/add-admin/<string:invite_token>', methods=["GET"])
 def serve_add_admin_user(invite_token):
     try:
         invite_string = token.confirmToken(invite_token)
@@ -519,35 +524,11 @@ def serve_add_admin_user(invite_token):
         account_id = invite_object["account_id"]
         admin_email = invite_object["admin_email"]
         account_row = g.db.accounts.get_by_id(account_id)
-        return outside_render("/outside/invited-admin-signup.html", {"user_email": admin_email, "account_name": account_row.name(), "account_id": account_id})
+        return outside_render("/outside/add-user-signup.html", {
+            "user_email": admin_email,
+            "account_name": account_row.name(),
+            "account_id": account_id,
+            "is_admin": 1
+            })
     except Exception as e:
         return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
-
-
-@bp.route('/add-account-admin/action', methods=["POST"])
-def serve_add_admin_user_action():
-    try:
-        account = g.db.accounts.get_by_id(request.form["account_id"])
-        username = Users._format_field(request.form["admin_email"])
-        email = Users._format_field(request.form["admin_email"])
-        password = Users._format_field(request.form["password"])
-        confirm_password = Users._format_field(request.form["confirm_password"])
-        first_name = Users._format_field(request.form["first_name"])
-        last_name = Users._format_field(request.form["last_name"])
-        phone = Users._format_field(request.form["admin_phone"])
-        if password != confirm_password:
-            raise Exception("The passwords you entered were not identical.")
-        user = g.db.users.create_user(
-            username=username,
-            password=password,
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-            phone=phone,
-            email_verified=1
-        )
-        # Assigning new user as admin
-        g.db.account_users.update_account_admin(account=account, user=user)
-        return {"redirect": "/login"}
-    except (UsersException, AccountsException, AccountUsersException, Exception) as e:
-        return {"error": str(e)}

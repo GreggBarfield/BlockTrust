@@ -14,7 +14,7 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth, token
+from ..utilities import crut, auth, token, general
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.general import format_field
@@ -149,44 +149,42 @@ def serve_login_as_user(user_id):
     return redirect("/dashboard")
 
 
-@bp.route("/employee/dashboard/invite-account-admin", methods=["GET"])
+@bp.route("/employee/dashboard/accounts-with-option-to-invite-admin", methods=["GET"])
 @crut.require_employee
-def serve_invite_account_admin():
+def serve_accounts_with_option_to_invite_admin():
     accounts = Accounts(g.db).get_accounts()
-    return employee_render("/employee/accounts/invite-account-admin.html", {"accounts": accounts})
+    return employee_render("/employee/accounts/accounts-with-option-to-invite-admin.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/invite-account-admin/<int:account_id>", methods=["GET"])
+@bp.route("/employee/dashboard/invite-admin/<int:account_id>", methods=["GET"])
 @crut.require_employee
-def serve_send_admin_invite(account_id):
-    return employee_render("/employee/accounts/send-admin-invite.html", {"account_id": account_id})
+def serve_invite_admin(account_id):
+    return employee_render("/employee/accounts/invite-admin.html", {"account_id": account_id})
 
 
-@bp.route("/dashboard/invite-account-admin/action", methods=["POST"])
+@bp.route("/employee/dashboard/invite-admin/<int:account_id>/action", methods=["POST"])
 @crut.require_employee
-def serve_invite_account_admin_action():
+def serve_invite_admin_action(account_id):
     try:
         email = request.form["email"]
-        if len(email) == 0:
-            return {"error": "Email is blank."}
-        if '@' not in email or '.' not in email or len(email) < 5:
-            return {"error": "The email you entered is incomplete."}
-        if ' ' in email:
-            return {"error": "Spaces cannot be in the email."}
-        account_id = request.form["account_id"]
+        general.validate_email(email)
+        user = g.db.users.get_by_email(email)
+        if user is not None:
+            return {"error": "Email is already being used."}
         account_row = g.db.accounts.get_by_id(account_id)
         invite_object = {"admin_email": email, "account_id": account_id}
         invite_string = str(invite_object)
         adminToken = token.generateConfirmationToken(invite_string)
         invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
+        print(invite_url)
         send_email(
             "BlockTrust Network Account Invite",
-            render_email("invite-admin.html", {
+            render_email("invite-admin-email.html", {
                 'invite_url': invite_url,
                 'account_name': account_row.name()
             }), email
         )
-        return {"redirect": "/employee/dashboard/invite-account-admin"}
+        return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
     except (Exception, AccountsException) as e:
         return {"error": str(e)}
 

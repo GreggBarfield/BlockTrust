@@ -7,6 +7,8 @@ from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
 
+from ..utilities import general
+
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
@@ -437,7 +439,7 @@ def get_email_verified_value(email):
     return g.db.users.get_email_verified_status(email)
 
 
-def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id):
+def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id, is_admin):
     """Add a user to an existing account.
 
     Params:
@@ -451,6 +453,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
         account: Account number of the inviting account
+        is_admin: Indicates whether the new user is an admin user
     Returns:
         Nothing
 
@@ -464,6 +467,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
+    general.validate_email(email)
     # Password should equal confirm_password
     if password != confirm_password:
         raise SignupFailedException("The passwords you entered were not identical.")
@@ -475,9 +479,13 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         last_name=last_name,
         phone=phone,
         email_verified=1
-    )  
+    )
     account_details = g.db.accounts.get_by_id(account_id)
-    g.db.account_users.add_user_to_account(user, account=account_details)
+    if is_admin == 0:
+        g.db.account_users.add_user_to_account(user, account=account_details)
+    else:
+        # Assigning new user as admin
+        g.db.account_users.update_account_admin(account=account_details, user=user)
 
 
 def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):
