@@ -456,18 +456,15 @@ def serve_add_user(tok):
 @bp.route('/add-user/action', methods=['POST'])
 def serve_add_invited_user():
     try:
-        account_details = g.db.accounts.get_by_id(request.form["account_id"])
         auth.invited_signup(
             username=request.form['username'],
             email=request.form['user_email'],
-            phone=str(account_details.phone()),
             first_name=request.form['first_name'],
             last_name=request.form['last_name'],
             password=request.form['password'],
             confirm_password=request.form['confirm_password'],
-            account_name=request.form['account_name'],
-            account_id=request.form['account_id'],
-            is_admin=request.form["is_admin"]
+            account_id=int(request.form["account_id"]),
+            is_admin=int(request.form["is_admin"])
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:

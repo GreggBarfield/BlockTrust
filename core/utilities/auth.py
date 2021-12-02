@@ -439,7 +439,7 @@ def get_email_verified_value(email):
     return g.db.users.get_email_verified_status(email)
 
 
-def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id, is_admin):
+def invited_signup(username, email, first_name, last_name, password, confirm_password, account_id, is_admin):
     """Add a user to an existing account.
 
     Params:
@@ -452,7 +452,7 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         confirm_password: the confirmed password
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
-        account: Account number of the inviting account
+        account: Account object
         is_admin: Indicates whether the new user is an admin user
     Returns:
         Nothing
@@ -462,7 +462,6 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     """
     username = Users._format_field(username)
     email = Users._format_field(email)
-    phone = Users._format_field(phone)
     first_name = Users._format_field(first_name)
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
@@ -477,15 +476,14 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         email=email,
         first_name=first_name,
         last_name=last_name,
-        phone=phone,
+        phone=None,
         email_verified=1
     )
-    account_details = g.db.accounts.get_by_id(account_id)
+    account = g.db.accounts.get_by_id(account_id)
     if is_admin == 0:
-        g.db.account_users.add_user_to_account(user, account=account_details)
+        g.db.account_users.add_user_to_account(user, account)
     else:
-        # Assigning new user as admin
-        g.db.account_users.update_account_admin(account=account_details, user=user)
+        g.db.account_users.add_user_to_account(user, account, 1)
 
 
 def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):
