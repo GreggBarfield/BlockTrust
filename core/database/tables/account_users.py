@@ -108,7 +108,7 @@ class AccountUsers:
             raise AccountUsersException("account user already exists")
         except NoAccountUserFound as e:
             pass
-    
+
         # add new link
 
         self._db.execute(
