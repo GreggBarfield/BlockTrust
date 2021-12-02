@@ -135,7 +135,7 @@ class AccountUsers:
             is_admin: (1 or 0) Based on whether admin or not admin
 
         Return:
-            Results based on conditions provided
+            Results based on conditions provided or None
         """
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)
@@ -171,4 +171,4 @@ class AccountUsers:
         if len(account_user_rows) > 0:
             return account_user_rows
         else:
-            return []
+            return None
