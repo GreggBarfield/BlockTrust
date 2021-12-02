@@ -4,6 +4,7 @@ from flask import (
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 
+from core.database.tables.invited_users import InvitedUsers
 from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
@@ -176,7 +177,6 @@ def serve_invite_admin_action(account_id):
         invite_string = str(invite_object)
         adminToken = token.generateConfirmationToken(invite_string)
         invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
-        print(invite_url)
         send_email(
             "BlockTrust Network Account Invite",
             render_email("invite-admin-email.html", {
@@ -184,6 +184,7 @@ def serve_invite_admin_action(account_id):
                 'account_name': account_row.name()
             }), email
         )
+        InvitedUsers(g.db).insert_invited_user(email, g.employee.id(), 1, 1)
         return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
     except (Exception, AccountsException) as e:
         return {"error": str(e)}
