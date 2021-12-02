@@ -1,8 +1,10 @@
 from flask import (
-    request, Blueprint, g, redirect
+    request, Blueprint, g, redirect, url_for
 )
 from ..renderers.employee import employee_render
+from ..renderers.email import render_email
 
+from core.database.tables.invited_users import InvitedUsers
 from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
@@ -13,9 +15,12 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth
+from ..utilities import crut, auth, token
+from ..utilities.email import send_email
 from random import randint
-from ..utilities.general import format_field
+from ..utilities.general_utilities import format_field, validate_email
+
+from core.config import ROOT as WEBSITE_ROOT
 
 
 bp = Blueprint('employees_bp', __name__)
@@ -143,6 +148,49 @@ def serve_login_as_user(user_id):
     auth.employee_login_as_user(user_id, employee_id)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     return redirect("/dashboard")
+
+
+@bp.route("/employee/dashboard/accounts-with-option-to-invite-admin", methods=["GET"])
+@crut.require_employee
+def serve_accounts_with_option_to_invite_admin():
+    accounts = Accounts(g.db).get_accounts()
+    return employee_render("/employee/accounts/accounts-with-option-to-invite-admin.html", {"accounts": accounts})
+
+
+@bp.route("/employee/dashboard/invite-admin/<int:account_id>", methods=["GET"])
+@crut.require_employee
+def serve_invite_admin(account_id):
+    return employee_render("/employee/accounts/invite-admin.html", {"account_id": account_id})
+
+
+@bp.route("/employee/dashboard/invite-admin/<int:account_id>/action", methods=["POST"])
+@crut.require_employee
+def serve_invite_admin_action(account_id):
+    try:
+        email = request.form["email"]
+        email_validation = validate_email(email)
+        if email_validation["success"]:
+            user = g.db.users.get_by_email(email)
+            if user is not None:
+                return {"error": "Email is already being used."}
+            account_row = g.db.accounts.get_by_id(account_id)
+            invite_object = {"admin_email": email, "account_id": account_id}
+            invite_string = str(invite_object)
+            adminToken = token.generateConfirmationToken(invite_string)
+            invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
+            send_email(
+                "BlockTrust Network Account Invite",
+                render_email("invite-admin-email.html", {
+                    'invite_url': invite_url,
+                    'account_name': account_row.name()
+                }), email
+            )
+            InvitedUsers(g.db).insert_invited_user(email, g.employee.id(), 1, 1)
+            return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
+        else:
+            raise Exception(email_validation["message"])
+    except (Exception, AccountsException) as e:
+        return {"error": str(e)}
 
 
 @bp.route("/employee/dashboard/edit-accounts", methods=["GET"])

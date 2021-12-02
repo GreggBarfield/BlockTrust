@@ -3,8 +3,9 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.users import UsersException
+from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.account_users import AccountUsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
@@ -434,34 +435,36 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/adduser/<tok>', methods=['GET', 'POST'])
+@bp.route('/add-user/<tok>', methods=['GET'])
 def serve_add_user(tok):
-    if request.method == 'GET':
-        try:
-            invite_string = token.confirmToken(tok)
-            invite_object = eval(invite_string)
-            user_email = invite_object["user_email"]
-            account_name = invite_object["current_account"]
-            account_id = invite_object["current_account_id"]
-            return outside_render("/outside/add-user-signup.html", {"user_email": user_email, "account_name": account_name, "account_id": account_id})
-        except ExportException as e:
-            return outside_render("/outside/error.html")
+    try:
+        invite_string = token.confirmToken(tok)
+        invite_object = eval(invite_string)
+        user_email = invite_object["user_email"]
+        account_name = invite_object["current_account"]
+        account_id = invite_object["current_account_id"]
+        return outside_render("/outside/add-user-signup.html", {
+            "user_email": user_email,
+            "account_name": account_name,
+            "account_id": account_id,
+            "is_admin": 0
+            })
+    except Exception as e:
+        return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
 
 
-@bp.route('/adduser', methods=['POST'])
+@bp.route('/add-user/action', methods=['POST'])
 def serve_add_invited_user():
     try:
-        account_details = g.db.accounts.get_by_id(request.form["account_id"])
         auth.invited_signup(
             username=request.form['username'],
             email=request.form['user_email'],
-            phone=str(account_details.phone()),
             first_name=request.form['first_name'],
             last_name=request.form['last_name'],
             password=request.form['password'],
             confirm_password=request.form['confirm_password'],
-            account_name=request.form['account_name'],
-            account_id=request.form['account_id']
+            account_id=int(request.form["account_id"]),
+            is_admin=int(request.form["is_admin"])
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
@@ -508,3 +511,21 @@ def serve_employee_login_action():
 @bp.route('/images/<path:path>')
 def send_file(path):
     return send_from_directory('static/images', path)
+
+
+@bp.route('/add-admin/<string:invite_token>', methods=["GET"])
+def serve_add_admin_user(invite_token):
+    try:
+        invite_string = token.confirmToken(invite_token)
+        invite_object = eval(invite_string)
+        account_id = invite_object["account_id"]
+        admin_email = invite_object["admin_email"]
+        account_row = g.db.accounts.get_by_id(account_id)
+        return outside_render("/outside/add-user-signup.html", {
+            "user_email": admin_email,
+            "account_name": account_row.name(),
+            "account_id": account_id,
+            "is_admin": 1
+            })
+    except Exception as e:
+        return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})

@@ -828,3 +828,18 @@ ADD CONSTRAINT `account_users_user`
 /* Rohan Sureshkumar 11/25/2021 */
 ALTER TABLE `users` 
 ADD COLUMN `is_system_generated` TINYINT NULL DEFAULT 0 AFTER `is_email_verified`;
+
+/* Rohan Sureshkumar 2/12/2021 */
+CREATE TABLE `user_invites` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(200) NULL,
+  `invited_by_id` INT NOT NULL,
+  `is_invited_by_employee` TINYINT NOT NULL,
+  `is_invited_as_admin` TINYINT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+  ALTER TABLE `users` 
+  ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `recaptcha_score`,
+  ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+  
