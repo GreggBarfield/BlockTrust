@@ -15,10 +15,10 @@ from ..common_exceptions import ExportException
 
 
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth, token, general
+from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
-from ..utilities.general import format_field
+from ..utilities.general_utilities import format_field, validate_email
 
 from core.config import ROOT as WEBSITE_ROOT
 
@@ -168,24 +168,27 @@ def serve_invite_admin(account_id):
 def serve_invite_admin_action(account_id):
     try:
         email = request.form["email"]
-        general.validate_email(email)
-        user = g.db.users.get_by_email(email)
-        if user is not None:
-            return {"error": "Email is already being used."}
-        account_row = g.db.accounts.get_by_id(account_id)
-        invite_object = {"admin_email": email, "account_id": account_id}
-        invite_string = str(invite_object)
-        adminToken = token.generateConfirmationToken(invite_string)
-        invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
-        send_email(
-            "BlockTrust Network Account Invite",
-            render_email("invite-admin-email.html", {
-                'invite_url': invite_url,
-                'account_name': account_row.name()
-            }), email
-        )
-        InvitedUsers(g.db).insert_invited_user(email, g.employee.id(), 1, 1)
-        return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
+        email_validation = validate_email(email)
+        if email_validation["success"]:
+            user = g.db.users.get_by_email(email)
+            if user is not None:
+                return {"error": "Email is already being used."}
+            account_row = g.db.accounts.get_by_id(account_id)
+            invite_object = {"admin_email": email, "account_id": account_id}
+            invite_string = str(invite_object)
+            adminToken = token.generateConfirmationToken(invite_string)
+            invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
+            send_email(
+                "BlockTrust Network Account Invite",
+                render_email("invite-admin-email.html", {
+                    'invite_url': invite_url,
+                    'account_name': account_row.name()
+                }), email
+            )
+            InvitedUsers(g.db).insert_invited_user(email, g.employee.id(), 1, 1)
+            return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
+        else:
+            raise Exception(email_validation["message"])
     except (Exception, AccountsException) as e:
         return {"error": str(e)}
 

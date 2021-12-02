@@ -21,10 +21,14 @@ def validate_email(email):
 
     Raises:
         Exception with appropriate message if the email is invalid
+
+    Returns:
+        Dictionary with result and message
     """
     if len(email) == 0:
-        raise Exception("Email is blank.")
+        return {"success": False, "message": "Email is blank." } 
     if '@' not in email or '.' not in email or len(email) < 5:
-        raise Exception("The email you entered is incomplete.")
+        return {"success": False, "message": "The email you entered is incomplete." }
     if ' ' in email:
-        raise Exception("Spaces cannot be in the email.")
+        return {"result": False, "message": "Spaces cannot be in the email." }
+    return {"success": True, "message": "" } 
