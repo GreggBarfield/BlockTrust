@@ -1,30 +1,18 @@
-import {AsyncForm} from '/static/global/async_form.mjs';
 
-$(document).ready(function () {
-    for(let val in accounts){
-        if(accounts[val].name!=="" && accounts[val].company!==null){
-            $("#account").append(`<option value="${accounts[val].id}">${accounts[val].company}</option>`)
-        }
-}
-});
+document.addEventListener("DOMContentLoaded", function(event) {
+    
+    let accountsDropDown = document.getElementById("accounts");
 
-
-let accountForm = $("#select_account_form");
-let statusMessage = accountForm.find("#account_status_message");
-let errorMessage = accountForm.find("#account_error_message");
-
-let account = accountForm.find("#account");
-
-let form = new AsyncForm({
-    action: "/employee/dashboard/edit-an-account/action",
-    form: accountForm[0],
-    status: statusMessage[0],
-    error: errorMessage[0],
-    redirectMessage: "Loading account...",
-    loadingMessage: "Loading account...",
-    getData: () => {
-        return {
-            account: account.val()
-        }
+    for(let val in accounts){    
+        var option = document.createElement("option");
+        option.value = accounts[val].id;
+        option.textContent = accounts[val].company;
+        accountsDropDown.appendChild(option);
     }
-})
+
+    const form = document.getElementById('select_account_form');
+    form.addEventListener('submit', function(event){
+        event.preventDefault();
+        window.location.href = "/employee/dashboard/edit-account/"+ accountsDropDown.value;
+    });
+});

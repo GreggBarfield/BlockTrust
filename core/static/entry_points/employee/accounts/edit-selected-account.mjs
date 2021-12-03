@@ -1,9 +1,7 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
-$(document).ready(function () {
-    $('#edit_state option[value='+account_state+']').attr('selected','selected');
-});
-
+let edit_state = document.getElementById("edit_state");
+edit_state.value = account_state;
 
 let editAccountForm = $("#edit_account_form");
 let statusMessage = editAccountForm.find("#edit_account_status_message");
@@ -16,9 +14,10 @@ let address = editAccountForm.find("#edit_address");
 let city = editAccountForm.find("#edit_city");
 let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
+let action_route = "/employee/dashboard/edit-account/"+account_id+"/action"
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/edit-an-account/apply-changes",
+    action: action_route,
     form: editAccountForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
