@@ -3,7 +3,7 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
-from ..database.tables.rejected_signups import RejectedSignups
+from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.account_users import AccountUsersException
@@ -114,8 +114,8 @@ def serve_signup_action():
                 "response": request.form['token']
             }
             verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
-            verification_data = verification_response.json()
-            if verification_data['success']  and verification_data['score'] >= RECAPTCHA_MIN_SCORE:
+            verification_response_json = verification_response.json()
+            if verification_response_json['success']  and verification_response_json['score'] >= RECAPTCHA_MIN_SCORE:
                 # Sign up
                 try:
                     auth.signup(
@@ -135,7 +135,7 @@ def serve_signup_action():
                         state=required['state'],
                         zip_code=required['zip_code'],
                         personal_phone=request.form['personal_phone'],
-                        recaptcha_score=verification_data['score']
+                        recaptcha_score=verification_response_json['score']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
@@ -154,8 +154,7 @@ def serve_signup_action():
 
                 return {"redirect": "/email_not_verified"}
             else:
-                score = verification_data['score'] if 'score' in verification_data else 0
-                RejectedSignups(g.db).insert_rejected_signup(required, score)
+                RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
                 raise ExportException("You are not authorized to register")
         else:
             raise ExportException("There was an error verifying your signup. Please try again or contact the system administrator.")
