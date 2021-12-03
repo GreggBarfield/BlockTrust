@@ -828,3 +828,16 @@ ADD CONSTRAINT `account_users_user`
 /* Rohan Sureshkumar 11/25/2021 */
 ALTER TABLE `users` 
 ADD COLUMN `is_system_generated` TINYINT NULL DEFAULT 0 AFTER `is_email_verified`;
+
+/* Rohan Sureshkumar 11/29/2021 */
+ALTER TABLE `users` 
+ADD COLUMN `recaptcha_score` DECIMAL(1,1) NULL DEFAULT NULL AFTER `is_system_generated`;
+
+/* Rohan Sureshkumar 12/01/2021 */
+CREATE TABLE `rejected_signups` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `details` JSON NOT NULL,
+  `recaptcha_score` DECIMAL(1,1) NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

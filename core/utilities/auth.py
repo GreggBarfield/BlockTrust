@@ -122,7 +122,8 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, personal_phone):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
+            personal_phone, recaptcha_score):
     """Create new user account.
 
     Params:
@@ -175,7 +176,8 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified=0
+        email_verified=0,
+        recaptcha_score = recaptcha_score
     )
 
     try:

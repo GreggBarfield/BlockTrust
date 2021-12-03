@@ -11,14 +11,26 @@ export class AsyncForm {
         this.getData = options.getData;
         this.asJSON = options.asJSON;
         this.requestRedirectTo = options.requestRedirectTo;
+        this.reCaptcha =  "reCaptcha" in options? options.reCaptcha : false;
+        this.reCaptchaAction = "reCaptchaAction" in options? options.reCaptchaAction : "submit";
+        this.reCaptchaSiteKey = "reCaptchaSiteKey" in options? options.reCaptchaSiteKey: "";
         this.bindHandlers();
     }
 
     bindHandlers() {
         let that = this;
         this.form.addEventListener("submit", function(e) {
-            e.preventDefault();
-            that.submit();
+            e.preventDefault();       
+            if (that.reCaptcha) {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute(that.reCaptchaSiteKey, {action: that.reCaptchaAction}).then(function(token) {
+                        that.submit(token);
+                    });
+                  });
+            }
+            else {
+                that.submit();
+            }
         });
     }
 
@@ -41,7 +53,9 @@ export class AsyncForm {
         this.error.textContent = message;
     }
 
-    submit() {
+
+
+    submit(token="") {
         if (this.submitting) {
             return;
         }
@@ -59,6 +73,9 @@ export class AsyncForm {
 
         try {
             postOptions.data = this.getData();
+            if (token != "") {
+                postOptions.data.token = token
+            }
         }
         catch(e) {
             console.log(e);
