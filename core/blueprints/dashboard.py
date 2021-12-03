@@ -581,9 +581,35 @@ def serve_summary_download():
 def serve_animal_data_download(eid):
     match_rows = unauth_route({"type": 'matches_by_eids', "params": {"eids": eid, "ljoin_account_links": True}})
     results = match_rows["result"]["matches"]
-    for result in results:
-        print(result)
-    print(len(results))
+    # for result in results:
+    #    print(result)
+    # print(len(results))
+
+    health_data_match_rows = unauth_route({"type": 'matches_by_eids', "params": {"eids": eid, "ljoin_account_links": True, "types": ["Medical"]}})
+    health_data_results = health_data_match_rows["result"]["matches"]
+    animal_data = []
+    animal_data.append(["Date", "Symptom", "Diagnosis", "Product", "Location"])
+    for result in health_data_results:
+        symptom = ""
+        product = ""
+        diagnosis = ""
+        location = ""
+        if "symptom" in result["data"]:
+            symptom = result["data"]["symptom"]
+        if "product" in result["data"]:
+            product = result["data"]["product"]
+        if "diagnosis" in result["data"]:
+            diagnosis = result["data"]["diagnosis"]
+        if "location" in result["data"]:
+            location = result["data"]["location"]
+        animal_data.append([
+            result["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"),
+            symptom,
+            product,
+            diagnosis,
+            location
+            ])
+    print(animal_data)
     return {}
 
 
