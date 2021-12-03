@@ -53,8 +53,6 @@ export class AsyncForm {
         this.error.textContent = message;
     }
 
-
-
     submit(token="") {
         if (this.submitting) {
             return;
