@@ -12,6 +12,7 @@ from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
@@ -373,6 +374,7 @@ def serve_invite_user():
                     'user_name': g.user.first_name() + " " + g.user.last_name()
                 }), user_email
             )
+            InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
             return {"redirect": "/dashboard"}
         except ExportException as e:
             return {"error": str(e)}
