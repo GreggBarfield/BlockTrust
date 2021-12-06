@@ -5,7 +5,7 @@ from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
-THREE_YEARS = 60 * 60 * 24 * 365 * 5
+THREE_YEARS = 60 * 60 * 24 * 365 * 3
 
 
 class MatchesException(Exception):
@@ -29,15 +29,6 @@ class Matches:
             for a in _account_links_cols
         )
     )
-
-    _select_visibility = """
-        ,matches_type_visibility.visibility
-    """
-    _left_join_visibility = """
-        LEFT JOIN matches_type_visibility ON
-            matches.partner_account=matches_type_visibility.account AND
-                matches.type=matches_type_visibility.type
-    """
 
     def __init__(self, db):
         self.types = MatchTypes(self)
@@ -87,6 +78,26 @@ class Matches:
                     "type": match_types_by_name["USDA Quality Grade"]
                 }
             )
+            return matches
+        else:
+            return []
+
+    def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
+        if account_link_id > 0:
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+                                + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
+                                + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
+            args = [account_link_id]
+            
+            if len(restrict_types) > 0:
+                type_clause = "AND matches.type IN (%s)"
+                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+                type_clause = type_clause % in_clause
+                query_statements.append(type_clause)
+                args += restrict_types
+
+            query = " ".join(query_statements)
+            matches = self._db.execute_d(query, args)
             return matches
         else:
             return []
@@ -152,13 +163,11 @@ class Matches:
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
-                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 "FROM matches",
                 frag(
                     "LEFT JOIN account_links ON matches.account_link = account_links.id"
                 ) if ljoin_account_links else "",
-                Matches._left_join_visibility,
                 "WHERE eid IN (",
                 frag(
                     "SELECT DISTINCT eid FROM matches",  # Need to look for other issues like this
@@ -475,7 +484,6 @@ class Matches:
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 "SELECT matches.*",
-                Matches._select_visibility,
                 Matches._account_links_clause if ljoin_account_links else "",
                 """
                     FROM auction_sales
@@ -484,7 +492,6 @@ class Matches:
                     LEFT JOIN matches ON eid_group_eids.eid=matches.eid
                     LEFT JOIN account_links ON matches.account_link=account_links.id
                 """,
-                Matches._left_join_visibility,
                 frag(
                     "WHERE auction_sales.account=:account_id",
                     account_id=account_id
@@ -505,19 +512,6 @@ class Matches:
         Returns:
             One row indicating the count
         """
-        # return self._db.exec_frag_d(
-        #     frag(
-        #         """
-        #         SELECT count(eid) as 'count'
-        #         FROM matches
-        #         """,
-        #         Matches._left_join_visibility,
-        #         frag(
-        #             "WHERE matches_type_visibility.visibility > 0 AND matches.eid=:eid_number",
-        #             eid_number=eid_number
-        #         )
-        #     ),
-        # )[0]['count']
         return self._db.exec_frag_d(
             frag(
                 """
@@ -541,26 +535,6 @@ class Matches:
         Returns:
             All the matches table rows containing the visual id matches
         """
-        #visual_id = str(visual_id)
-        # return self._db.execute_d(
-        #     """
-        #         SELECT matches.*
-        #         FROM matches
-        #         LEFT JOIN account_links on matches.account_link=account_links.id
-        #         LEFT JOIN matches_type_visibility ON matches.type=matches_type_visibility.type
-        #         WHERE matches.type=%(visual_id_type)s 
-        #         AND (
-        #             (account_links.account=%(account_id)s AND matches_type_visibility.account=account_links.account AND matches_type_visibility.visibility > 0) 
-        #             OR 
-        #             (matches.partner_account=%(account_id)s)
-        #         )
-        #         AND matches.data=%(visual_id)s
-        #     """,
-        #     {
-        #         "visual_id_type": match_types_by_name["Visual ID"],
-        #         "account_id": account_id,
-        #         "visual_id": visual_id
-        #     }
         return self._db.execute_d(
             """
                 SELECT distinct matches.eid, matches.visual_id
@@ -579,12 +553,4 @@ class Matches:
         for row in rows:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
-            if 'visibility' in row:
-                if row['visibility'] is None:
-                    if row['partner_account'] is None:
-                        row['visibility'] = True  # Visible if nobody owns it
-                    else:
-                        row['visibility'] = None
-                else:
-                    row['visibility'] = row['visibility'] > 0
         return rows

@@ -7,6 +7,8 @@ from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
 
+from ..utilities.general_utilities import validate_email
+
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
@@ -59,11 +61,11 @@ class SignupFailedException(AuthException):
 
 def session_open():
     """Load session into app context."""
-    session_open_employee()
-    if g.employee is None:
-        # employee is not logged in. check if user is logged in
-        session_open_user()
+    session_open_user()
+    if g.user is not None:
         session_open_account()
+    else:
+        session_open_employee()
 
 
 def session_open_employee():
@@ -99,7 +101,11 @@ def session_open_user():
     """Load user session into app context."""
     g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
-        g.user = g.db.users.get(session[SESSION_USER_ID_VAR])
+        g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
+        if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
+            g.is_employee_impersonating = 1
+        else:
+            g.is_employee_impersonating = 0
     else:
         session[SESSION_USER_ID_VAR] = ""
         # TODO: if this fails, abort request and redirect to issue opening session screen
@@ -118,7 +124,8 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, personal_phone):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
+            personal_phone, recaptcha_score):
     """Create new user account.
 
     Params:
@@ -171,11 +178,12 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified=0
+        email_verified=0,
+        recaptcha_score = recaptcha_score
     )
 
     try:
-        g.db.accounts.create_account(
+        g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -195,8 +203,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 
 def logout():
     """Clear session of user info and remove g user."""
-    g.user = None
-    g.employee = None
     session.clear()
 
 
@@ -435,7 +441,7 @@ def get_email_verified_value(email):
     return g.db.users.get_email_verified_status(email)
 
 
-def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id):
+def invited_signup(username, email, first_name, last_name, password, confirm_password, account_id, is_admin):
     """Add a user to an existing account.
 
     Params:
@@ -448,7 +454,8 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         confirm_password: the confirmed password
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
-        account: Account number of the inviting account
+        account: Account object
+        is_admin: Indicates whether the new user is an admin user
     Returns:
         Nothing
 
@@ -457,25 +464,31 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     """
     username = Users._format_field(username)
     email = Users._format_field(email)
-    phone = Users._format_field(phone)
     first_name = Users._format_field(first_name)
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
-    # Password should equal confirm_password
-    if password != confirm_password:
-        raise SignupFailedException("The passwords you entered were not identical.")
-    user = g.db.users.create_user(
-        username=username,
-        password=password,
-        email=email,
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        email_verified=1
-    )  
-    account_details = g.db.accounts.get_by_id(account_id)
-    g.db.account_users.add_user_to_account(user, account=account_details)
+    email_validation = validate_email(email)
+    if email_validation["success"]:
+        # Password should equal confirm_password
+        if password != confirm_password:
+            raise SignupFailedException("The passwords you entered were not identical.")
+        user = g.db.users.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            phone=None,
+            email_verified=1
+        )
+        account = g.db.accounts.get_by_id(account_id)
+        if is_admin == 0:
+            g.db.account_users.add_user_to_account(user, account)
+        else:
+            g.db.account_users.add_user_to_account(user, account, 1)
+    else:
+        raise Exception(email_validation["message"])
 
 
 def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):
@@ -519,7 +532,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(user_id):
+def employee_login_as_user(user_id, employee_id):
     """
     Params:
         user_id: User Id of the user for logging in
@@ -539,8 +552,8 @@ def employee_login_as_user(user_id):
             )
     if len(id_results) == 1:
         user_row = id_results[0]
-        g.user = User(g.db, user_row)
         session.clear()
-        session[SESSION_USER_ID_VAR] = g.user.id()
+        session[SESSION_USER_ID_VAR] = user_row["id"]
+        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
     else:
         raise Exception("No user found")

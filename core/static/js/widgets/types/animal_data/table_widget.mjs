@@ -184,7 +184,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
                 }
@@ -216,7 +216,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
                 }
@@ -240,7 +240,7 @@ export class TableWidget extends Widget {
                 interest1.textContent = this.global_total_available;
                 let v = "n/a";
                 if (this.count_eid_distinct != 0) {
-                    v = Math.round(100 * this.global_total_available / this.count_eid_distinct) + "%";
+                    v = (100 * this.global_total_available / this.count_eid_distinct).toFixed(2) + "%";
                 }
                 interest2.textContent = v;
             }
@@ -270,7 +270,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
                 }
@@ -305,7 +305,7 @@ export class TableWidget extends Widget {
                 for (const i in yg) {
                     let v = "n/a";
                     if (total > 0) {
-                        v = Math.round(100 * yg[i] / total) + "%";
+                        v = (100 * yg[i] / total).toFixed(2) + "%";
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
                 }
@@ -344,7 +344,7 @@ export class TableWidget extends Widget {
             else if ('account_total_available' in this && 'account_total_distinct' in this) {
                 let v = "n/a";
                 if (this.account_total_distinct != 0) {
-                    v = Math.round(100 * this.account_total_available / this.account_total_distinct) + "%";
+                    v = (100 * this.account_total_available / this.account_total_distinct).toFixed(2) + "%";
                 }
                 interest.textContent = v;
             }

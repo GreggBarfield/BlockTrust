@@ -1,5 +1,8 @@
+from core.database.tables.job_runs import NO_VALUE
 from ..objects.account_user import AccountUser
+from ..no_value import NoValue
 
+NO_VALUE = NoValue()
 
 class AccountUsersException(Exception):
     """account users generic exception."""
@@ -105,7 +108,7 @@ class AccountUsers:
             raise AccountUsersException("account user already exists")
         except NoAccountUserFound as e:
             pass
-    
+
         # add new link
 
         self._db.execute(
@@ -121,3 +124,51 @@ class AccountUsers:
                 "is_admin": is_admin
             }
         )
+
+    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE, selectColumns=[]):
+        """
+        Gets the account records based on conditions provided
+
+        Params:
+            account: Account ID
+            user: User ID
+            is_admin: (1 or 0) Based on whether admin or not admin
+
+        Return:
+            Results based on conditions provided
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        # Base query
+        query = "SELECT " + selectColumns + " FROM account_users"
+
+        query_condition_list = []
+        query_values = {}
+
+        if account is not NO_VALUE:
+            query_condition_list.append(" account = %(account)s")
+            query_values["account"] = account
+
+        if user is not NO_VALUE:
+            query_condition_list.append(" user = %(user)s")
+            query_values["user"] = user
+
+        if is_admin is not NO_VALUE:
+            query_condition_list.append(" is_admin = %(is_admin)s")
+            query_values["is_admin"] = is_admin
+
+        if len(query_condition_list) >= 1:
+            query_condition = " WHERE" + " AND ".join(query_condition_list)
+        else:
+            query_condition = ""
+
+        query = query + query_condition
+
+        account_user_rows = self._db.execute_d(query, query_values)
+        if len(account_user_rows) > 0:
+            return account_user_rows
+        else:
+            return []
