@@ -221,13 +221,13 @@ def serve_save_sales_group():
         raise ExportException("Please select horns or no horns")
 
     if request.json["zip"] not in ZIP_CODES:
-        return {"error": "Sorry, that zip code could not be found."}
+        raise ExportException("Sorry, that zip code could not be found.")
 
     if request.json["start"] is None or request.json["end"] is None:
-        return {"error": "Sorry, start or end date missing."}
+        raise ExportException("Sorry, start or end date missing.")
 
     if request.json["start"] > request.json["end"]:
-        return {"error": "Sorry, check the market start and end dates (specifically the order)."}
+        raise ExportException("Sorry, check the market start and end dates (specifically the order).")
 
     if (
         request.json["auction_sale"] is not None
@@ -235,7 +235,7 @@ def serve_save_sales_group():
     ):
         # it was changed to a non-None value, verify new is published
         if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
-            return {"error": "Auction sale specified is not published yet."}
+            raise ExportException("Auction sale specified is not published yet.")
 
     # Alright, go ahead...
 
