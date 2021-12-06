@@ -195,30 +195,30 @@ def serve_save_sales_group():
     if 'images' in request.json["reported"]:
         for image in request.json["reported"]["images"]:
             if not g.db.files.is_owner(None, g.account.id(), image):
-                return {"error": "Image " + str(image) + " is not owned by the selected account."}
+                raise ExportException("Image " + str(image) + " is not owned by the selected account.")
     # Checking if required values are present
     if request.json["zip"] is None:
-        return {"error": "Zip code does not have a value"}
+        raise ExportException("Zip code does not have a value")
     if request.json["start"] is None:
-        return {"error": "Start date is not selected"}
+        raise ExportException("Start date is not selected")
     if request.json["end"] is None:
-        return {"error": "End date is not selected"}
+        raise ExportException("End date is not selected")
     if len(request.json["delivery_location"].strip()) == 0:
-        return {"error": "Delivery Location does not have a value"}
+        raise ExportException("Delivery Location does not have a value")
     if request.json["reported"]["count"] is None:
-        return {"error": "Total animals cannot be 0"}
+        raise ExportException("Total animals cannot be 0")
     if request.json["reported"]["weight"] is None:
-        return {"error": "Base weight does not have a value"}
+        raise ExportException("Base weight does not have a value")
     if len(request.json["reported"]["weight_variance"].strip()) == 0:
-        return {"error": "Weight variance does not have a value"}
+        raise ExportException("Weight variance does not have a value")
     if len(request.json["reported"]["breeds"]) == 0:
-        return {"error": "Please select one or more breeds"}
+        raise ExportException("Please select one or more breeds")
     if request.json["reported"]["usda_frame_size"] is None:
-        return {"error": "Please select frame size"}
+        raise ExportException("Please select frame size")
     if request.json["reported"]["muscling"] is None:
-        return {"error": "Please select relevant muscling"}
+        raise ExportException("Please select relevant muscling")
     if request.json["reported"]["horns"] is None:
-        return {"error": "Please select horns or no horns"}
+        raise ExportException("Please select horns or no horns")
 
     if request.json["zip"] not in ZIP_CODES:
         return {"error": "Sorry, that zip code could not be found."}

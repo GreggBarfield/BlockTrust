@@ -209,7 +209,6 @@ export class EditSalesGroupWidget extends Widget {
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
-
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
