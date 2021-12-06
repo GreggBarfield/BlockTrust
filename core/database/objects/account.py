@@ -85,6 +85,9 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
+    def partner_private_logo(self):
+        return self._row['partner_private_logo']
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 

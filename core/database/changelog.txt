@@ -856,3 +856,6 @@ CREATE TABLE `invited_users` (
   ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `is_system_generated`,
   ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
   
+/* Nisheet Thakur 12/6/2021 */
+ALTER TABLE `accounts`
+ADD COLUMN `partner_private_logo` VARCHAR(127) DEFAULT NULL;

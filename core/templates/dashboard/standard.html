@@ -155,6 +155,16 @@
 <header class="b-header">
     <div class="b-header-bar">
         <a class="b-header-logo" href="/">
+            {% if dashboard_standard_account.partner_private_logo() != None %}
+            <img
+            class="b-header-logo-desktop"
+            src="/static/images/logos/{{dashboard_standard_account.partner_private_logo()}}"
+            />
+            <img
+            class="b-header-logo-mobile"
+            src="/static/images/logos/{{dashboard_standard_account.partner_private_logo()}}"
+            />
+            {% else %}
             <img
                 class="b-header-logo-desktop"
                 src="/static/images/logos/logo-color-light-eps-01.svg"
@@ -163,6 +173,7 @@
                 class="b-header-logo-mobile"
                 src="/static/images/logos/logo-color-dark-eps-01.svg"
             />
+            {% endif %}
         </a>
     </div>
 
