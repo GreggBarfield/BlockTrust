@@ -180,11 +180,11 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         last_name=last_name,
         phone=personal_phone,
         email_verified=0,
-        recaptcha_score = recaptcha_score
+        recaptcha_score=recaptcha_score
     )
 
     try:
-        g.db.accounts.create_account_with_admin(
+        account = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,

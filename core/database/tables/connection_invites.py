@@ -1,3 +1,4 @@
+from core.database.tables.accounts import NO_VALUE
 from .connections import Connections, connection_status
 from .. import database
 from flask import g
@@ -25,7 +26,7 @@ class ConnectionInvites:
             raise Exception("The email you entered is incomplete.")
         if ' ' in company_email:
             raise Exception("Spaces cannot be in the email.")
-        if self.get_connection_invite(from_account, company_email) is not None:
+        if len(self.get_connection_invite(from_account=from_account, company_email=company_email)) > 0:
             raise Exception("Connection Invite already sent.")
         self._db.execute(
             """
@@ -54,15 +55,7 @@ class ConnectionInvites:
         Returns:
             None
         """
-        invites = self._db.execute_d(
-            """
-            SELECT * from connection_invites
-            WHERE company_email=%(email)s
-            """,
-            {
-                "email": email
-            }
-        )
+        invites = self.get_connection_invite(company_email=email)
         if len(invites) >= 1:
             for invite in invites:
                 Connections(g.db).create_connection(
@@ -71,27 +64,65 @@ class ConnectionInvites:
                     status=connection_status["Connected"]
                 )
 
-    def get_connection_invite(self, from_account, company_email):
+    def get_connection_invite(self, from_account=NO_VALUE, to_account=NO_VALUE, company_sector=NO_VALUE,
+                                company_name=NO_VALUE, company_contact=NO_VALUE, company_email=NO_VALUE, selectColumns=[]):
         """
-        Checks if a connection invite already exists in the database
+        Gets the connection invite by the values specified
 
         Params:
-            from__account: Account sending the invite
-            company_email: Email the invite is being sent out to
+            from_account: Account ID of sending account
+            company_sector: Sector of invited company connection
+            company_name: Company name of invited company
+            company_contact: Name of company contact
+            company_email: Email of invited company connection
 
         Returns:
-            True if connection invite exists. False if no invite exists
+            A list of connection invite(s) record if found else []
         """
-        invite = self._db.execute_d(
-            """
-            SELECT * from connection_invites
-            WHERE from_account=%(from_account)s AND company_email=%(company_email)s
-            """,
-            {
-                "from_account": from_account,
-                "company_email": company_email
-            }
-        )
-        if len(invite) == 1:
-            return invite[0]
-        return None
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        # base query
+        base_query = "SELECT " + selectColumns + " FROM connection_invites"
+
+        query_conditions = []
+        query_values = {}
+
+        if from_account is not NO_VALUE:
+            query_conditions.append(" from_account = %(from_account)s ")
+            query_values["from_account"] = from_account
+
+        if to_account is not NO_VALUE:
+            query_conditions.append(" to_account = %(to_account)s ")
+            query_values["to_account"] = to_account
+
+        if company_sector is not NO_VALUE:
+            query_conditions.append(" company_sector = %(company_sector)s ")
+            query_values["company_sector"] = company_sector
+
+        if company_name is not NO_VALUE:
+            query_conditions.append(" company_name = %(company_name)s ")
+            query_values["company_name"] = company_name
+
+        if company_contact is not NO_VALUE:
+            query_conditions.append(" company_contact = %(company_contact)s ")
+            query_values["company_contact"] = company_contact
+
+        if company_email is not NO_VALUE:
+            query_conditions.append(" company_email = %(company_email)s ")
+            query_values["company_email"] = company_email
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        connection_invite_rows = self._db.execute_d(query, query_values)
+        if len(connection_invite_rows) > 0:
+            return connection_invite_rows
+        else:
+            return []
