@@ -183,7 +183,7 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None):
         """Creates a new user
 
         Params:
@@ -230,26 +230,26 @@ class Users:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
+        if phone is not None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
-
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         # We don't really care whether or not the phone is being used more than once
 
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
@@ -258,7 +258,8 @@ class Users:
                 "email": email,
                 "first_name": first_name,
                 "last_name": last_name,
-                "email_verified": email_verified
+                "email_verified": email_verified,
+                "recaptcha_score": recaptcha_score
             }
         )
         user = self.get_by_username(username)
@@ -405,8 +406,6 @@ class Users:
         Raises:
             UsersException
         """
-
-
         user = self.get_by_username(username)
         if user is not None:
             raise UsersException("Username is already being used.")
@@ -420,7 +419,7 @@ class Users:
 
         if len(password.encode("utf-8")) > 60:
             raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-        
+
         self._db.execute(
             """
                 INSERT INTO users

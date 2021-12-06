@@ -266,8 +266,12 @@
     </div>
 </section>
 <script type="text/javascript">
-    var sector_id = '{{ default_sector_id }}'
+    var sectorId = '{{ default_sector_id }}'
+    var siteKey = '{{site_key}}'
 </script>
+
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
+
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
 
 {% endblock outside_content %}
