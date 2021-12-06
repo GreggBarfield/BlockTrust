@@ -2,8 +2,8 @@
 
 {% set page_title = "Sustainability Questionaire" %}
 {% set dashboard_locations = [
-    ("/dashboard/sustainability/cowcalf", "Cowcalf Summary"),
-    ("/dashboard/sustainability/cowcalf/survey", "Cowcalf Questionaire")
+    ("/dashboard/sustainability", "Summary"),
+    ("/dashboard/sustainability/survey", "Questionaire")
     ] %}
 {% block dashboard_content_header %}
 Sustainability Questionaire
@@ -13,7 +13,7 @@ Sustainability Questionaire
 
 <div class="row">
     <div class="col">
-            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="cowcalf questionaire"></div>
+            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="{{sector}} questionaire"></div>
     </div>
 </div>
 

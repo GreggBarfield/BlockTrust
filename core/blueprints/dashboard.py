@@ -13,6 +13,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
+from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
@@ -50,52 +51,52 @@ def serve_dashboard():
 
 # 6/3/21 Deprecated
 
-@bp.route('/dashboard/accounts/new-account', methods=['GET'])
-@crut.require_user
-def serve_accounts_new_account():
-    return dashboard_render("accounts/new_account.html", {
-        "sectors_by_id": sectors_by_id
-    })
+# @bp.route('/dashboard/accounts/new-account', methods=['GET'])
+# @crut.require_user
+# def serve_accounts_new_account():
+#     return dashboard_render("accounts/new_account.html", {
+#         "sectors_by_id": sectors_by_id
+#     })
 
-# 6/3/21 Deprecated
-@bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
-@crut.require_user
-def serve_accounts_new_account_action():
-    try:
-        required = {
-            'name': None, 'company': None, 'sector': None
-        }
-        for required_field in required:
-            if required_field not in request.form:
-                raise ExportException("internal error, {} missing from form".format(required_field))
-            required[required_field] = request.form[required_field]
+# # 6/3/21 Deprecated
+# @bp.route('/dashboard/accounts/new-account/action', methods=['POST'])
+# @crut.require_user
+# def serve_accounts_new_account_action():
+#     try:
+#         required = {
+#             'name': None, 'company': None, 'sector': None
+#         }
+#         for required_field in required:
+#             if required_field not in request.form:
+#                 raise ExportException("internal error, {} missing from form".format(required_field))
+#             required[required_field] = request.form[required_field]
 
-        # Create Account
-        try:
-            sector_id = -1
-            try:
-                sector_id = int(required['sector'])
-            except:
-                raise ExportException("Sector ID not a number.")
-            if sector_id not in sectors_by_id:
-                raise ExportException("Sector ID not recognized.")
-            account = g.db.accounts.create_account(
-                user=g.user,
-                company=required['company'],
-                sector=required['sector'],
-            )
-            auth.session_start_account(account.id())
-            return {"redirect": "/dashboard/accounts/" + str(account.id())}
-        except AccountsException as e:
-            raise ExportException("Account creation failed: " + str(e))
-    except ExportException as e:
-        return {"error": str(e)}
+#         # Create Account
+#         try:
+#             sector_id = -1
+#             try:
+#                 sector_id = int(required['sector'])
+#             except:
+#                 raise ExportException("Sector ID not a number.")
+#             if sector_id not in sectors_by_id:
+#                 raise ExportException("Sector ID not recognized.")
+#             account = g.db.accounts.create_account(
+#                 user=g.user,
+#                 company=required['company'],
+#                 sector=required['sector'],
+#             )
+#             auth.session_start_account(account.id())
+#             return {"redirect": "/dashboard/accounts/" + str(account.id())}
+#         except AccountsException as e:
+#             raise ExportException("Account creation failed: " + str(e))
+#     except ExportException as e:
+#         return {"error": str(e)}
 
-# 6/3/21 Deprecated
-@bp.route('/dashboard/accounts/join-account', methods=['GET'])
-@crut.require_user
-def serve_accounts_join_account():
-    return dashboard_render("accounts/join_account.html")
+# # 6/3/21 Deprecated
+# @bp.route('/dashboard/accounts/join-account', methods=['GET'])
+# @crut.require_user
+# def serve_accounts_join_account():
+#     return dashboard_render("accounts/join_account.html")
 
 
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
@@ -266,40 +267,22 @@ def serve_upload_tags():
         return dashboard_render("data/upload-tags.html",  {"account": g.account, "user": g.user, "license": FLATFILE_LICENSE})
 
 
-@bp.route('/dashboard/sustainability/cowcalf', methods=['GET'])
+@bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_account
-def serve_cowcalf():
-    return dashboard_render("sustainability/cowcalf_summary.html")
+def serve_sustainability():
+    return dashboard_render("sustainability/summary.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
-@bp.route('/dashboard/sustainability/cowcalf/survey', methods=['GET'])
+@bp.route('/dashboard/sustainability/survey', methods=['GET'])
 @crut.require_account
-def serve_cowcalf_survey():
-    return dashboard_render("sustainability/cowcalf_questionaire.html")
-
-
-@bp.route('/dashboard/sustainability/feedyard', methods=['GET'])
-@crut.require_account
-def serve_feedyard():
-    return dashboard_render("sustainability/feedyard_summary.html")
-
-
-@bp.route('/dashboard/sustainability/feedyard/survey', methods=['GET'])
-@crut.require_account
-def serve_feedyard_survey():
-    return dashboard_render("sustainability/feedyard_questionaire.html")
-
-
-@bp.route('/dashboard/sustainability/auction', methods=['GET'])
-@crut.require_account
-def serve_auction():
-    return dashboard_render("sustainability/auction_summary.html")
-
-
-@bp.route('/dashboard/sustainability/auction/survey', methods=['GET'])
-@crut.require_account
-def serve_auction_survey():
-    return dashboard_render("sustainability/auction_questionaire.html")
+def serve_sustainability_survey():
+    return dashboard_render("sustainability/questionaire.html", 
+    { 
+        "sector": sectors_by_id[g.account.sector_id()]
+    })
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
@@ -394,6 +377,7 @@ def serve_invite_user():
                     'user_name': g.user.first_name() + " " + g.user.last_name()
                 }), user_email
             )
+            InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
             return {"redirect": "/dashboard"}
         except ExportException as e:
             return {"error": str(e)}
