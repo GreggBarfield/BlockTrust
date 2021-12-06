@@ -155,9 +155,9 @@ def serve_signup_action():
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
-                raise ExportException("You are not authorized to register")
+                return {"redirect": "/not-authorized-to-register"}
         else:
-            raise ExportException("There was an error verifying your signup. Please try again or contact the system administrator.")
+            raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
         return {"error": str(e)}
 
@@ -323,6 +323,11 @@ def serve_confirm(tok):
 @bp.route('/email_not_verified', methods=['GET'])
 def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
+
+
+@bp.route('/not-authorized-to-register', methods=['GET'])
+def serve_not_auth_to_register():
+    return outside_render('not-authorized-to-register.html')
 
 
 @bp.route('/outside/contact-email', methods=['GET'])
