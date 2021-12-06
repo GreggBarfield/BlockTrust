@@ -32,14 +32,14 @@
                         <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
                         <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
-                        <td><button class="btn btn-sm btn-primary btn-danger float-right removeButton" style="width:150px" value="{{connection.from_account_id}}">Remove Connection</button></td>
+                        <td><button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" value="{{connection.to_account_id}}">Remove Connection</button></td>
                     </tr>
                     {% else %}
                     <tr>
                         <td>{{connection.from_account_id}}</td>
                         <td>{{connection.from_account_name}}</td>
                         <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
-                        <td><button class="btn btn-sm btn-primary btn-danger float-right removeButton" style="width:150px" value="{{connection.from_account_id}}">Remove Connection</button></td>
+                        <td><button class="btn btn-sm btn-danger float-right" style="width:150px" value="{{connection.from_account_id}}">Remove Connection</button></td>
                     </tr>
                     {% endif %}
 
