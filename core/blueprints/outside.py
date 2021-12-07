@@ -457,10 +457,10 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/add-user/<tok>', methods=['GET'])
-def serve_add_user(tok):
+@bp.route('/add-user/<string:invite_token>', methods=['GET'])
+def serve_add_user(invite_token):
     try:
-        invite_string = token.confirmToken(tok)
+        invite_string = token.confirmToken(invite_token)
         invite_object = eval(invite_string)
         user_email = invite_object["user_email"]
         account_name = invite_object["current_account"]
