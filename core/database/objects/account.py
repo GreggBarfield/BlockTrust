@@ -85,8 +85,8 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
-    def account_manager(self):
-        return self._row['account_manager']
+    def account_manager_id(self):
+        return self._row['account_manager_id']
 
     def archived(self):
         return self._row['archived']
