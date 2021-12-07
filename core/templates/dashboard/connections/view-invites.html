@@ -15,11 +15,56 @@ View Invites
             <div class="card-header">
                 <h5>View Invites</h5>
             </div>
-            {% for request in requests %}
-            {{request.first_account_id}}:{{request.first_account_name}} at{{request.create_timestamp}}<br/>
-            {% endfor %}
+        <table class="table table-xs">  
+            <thead>
+                <tr>
+                    <th>Account ID</th>
+                    <th>Account Name</th>
+                    <th>Received On</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+        <tbody>
+        {% for request in requests %}
+            {% if request.to_account_id == dashboard_standard_account.id() %}
+                <tr>
+                    <td>{{request.from_account_id}}</td>
+                    <td>{{request.from_account_name}}</td>
+                    <td>{{request.create_timestamp}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept(this)" value="{{request.from_account_id}}">
+                            <i class="feather icon-check"></i>Accept
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-primary btn-danger float-right declineButton" style="width:150px" onClick="decline(this)" value="{{request.from_account_id}}">
+                            <i class="feather icon-x"></i>Decline
+                        </button>
+                    </td>
+                </tr>
+            {% else %}
+            <tr>
+                <td>{{request.to_account_id}}</td>
+                <td>{{request.to_account_name}}</td>
+                <td>{{request.create_timestamp}}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept(this)" value="{{request.to_account_id}}">
+                        <i class="feather icon-check"></i>Accept
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger float-right declineButton" style="width:150px" onClick="decline(this)" value="{{request.to_account_id}}">
+                        <i class="feather icon-x"></i>Decline
+                    </button>
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+        </table>
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+<script src="/static/entry_points/dashboard/connections/view-invites.mjs" ></script> 
 {% endblock dashboard_content %}
