@@ -6,6 +6,7 @@ from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
+from ..database.tables.connection_invites import ConnectionInvites
 
 from ..utilities.general_utilities import validate_email
 
@@ -124,7 +125,8 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, personal_phone):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
+            personal_phone, recaptcha_score):
     """Create new user account.
 
     Params:
@@ -177,11 +179,12 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified=0
+        email_verified=0,
+        recaptcha_score=recaptcha_score
     )
 
     try:
-        g.db.accounts.create_account_with_admin(
+        account = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -193,6 +196,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
+        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
