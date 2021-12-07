@@ -124,9 +124,9 @@ def serve_view_account():
         account_admin_user_id = 0
         account_admin_username = ""
         admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
-        if(admin_user is not None):
+        if(len(admin_user) > 0):
             user = g.db.users.get_user_by_id(admin_user[0]['user'])
-            if user is not None and user.is_email_verified() == 1:
+            if user is not None and (user.is_email_verified() == 1 or user.is_system_generated() == 1):
                 account_admin_user_id = user.id()
                 account_admin_username = user.email()
                 account["account_admin_user_id"] = account_admin_user_id

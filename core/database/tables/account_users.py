@@ -171,4 +171,4 @@ class AccountUsers:
         if len(account_user_rows) > 0:
             return account_user_rows
         else:
-            return None
+            return []
