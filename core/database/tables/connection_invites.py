@@ -1,12 +1,10 @@
 from core.database.tables.accounts import NO_VALUE
 from .connections import Connections, connection_status
-from .. import database
-from flask import g
 
 
 class ConnectionInvites:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def add_connection_invite(self, from_account, company_sector, company_name, company_contact, company_email):
@@ -58,7 +56,7 @@ class ConnectionInvites:
         invites = self.get_connection_invite(company_email=email)
         if len(invites) >= 1:
             for invite in invites:
-                Connections(g.db).create_connection(
+                Connections(self._db).create_connection(
                     from_account_id=invite["from_account"],
                     to_account_id=account.id(),
                     status=connection_status["Connected"]
