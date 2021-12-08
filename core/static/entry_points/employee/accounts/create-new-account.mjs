@@ -77,7 +77,8 @@ let form = new AsyncForm({
             address: address.val(),
             city: city.val(),
             state: state.val(),
-            zip_code: zip_code.val()
+            zip_code: zip_code.val(),
+            is_partner: is_partner
         }
     }
 });
