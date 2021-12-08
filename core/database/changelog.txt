@@ -829,6 +829,11 @@ ADD CONSTRAINT `account_users_user`
 ALTER TABLE `users` 
 ADD COLUMN `is_system_generated` TINYINT NULL DEFAULT 0 AFTER `is_email_verified`;
 
+/* Nisheet Thakur 12/1/2021 */
+ALTER TABLE `accounts`
+ADD COLUMN `account_manager_id` INT,
+ADD COLUMN `archived` TINYINT DEFAULT 0;
+
 /* Rohan Sureshkumar 11/29/2021 */
 ALTER TABLE `users` 
 ADD COLUMN `recaptcha_score` DECIMAL(1,1) NULL DEFAULT NULL AFTER `is_system_generated`;
