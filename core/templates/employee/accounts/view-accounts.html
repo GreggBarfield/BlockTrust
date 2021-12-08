@@ -19,7 +19,7 @@
                             <th>Account Name</th>
                             <th>Sector</th>
                             <th>Account city, state</th>
-                            <th>Admin Username</th>
+                            <th>Admin Email</th>
                             <th>Login as Admin</th>
                             <th>Edit Account</th>
                         </tr>
@@ -32,10 +32,10 @@
                             <td>{{sectors_by_id[account.sector]}}</td>
                             <td>{{account.city}}, {{account.state}}</td>
                             <td>
-                                {% if account.account_admin_username == "" %}
+                                {% if account.account_admin_email == "" %}
                                 Employee generated Admin User
                                 {% else %}
-                                <a href="mailto:{{account.account_admin_username}}">{{account.account_admin_username}}</a>
+                                <a href="mailto:{{account.account_admin_email}}">{{account.account_admin_email}}</a>
                                 {% endif %}
                             </td>
                             <td>
