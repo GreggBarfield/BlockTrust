@@ -30,7 +30,7 @@ export class FeedyardSummaryWidget extends AbstractBaseSummaryWidget {
                 "efficiency": "Efficiency & Yield"
             };
             
-            this.makeNewSurveyBtn("feedyard");
+            this.makeNewSurveyBtn();
 
             let row = document.createElement("div");
             row.className = "row";

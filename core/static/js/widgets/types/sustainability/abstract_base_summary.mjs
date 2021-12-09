@@ -29,14 +29,14 @@ export class AbstractBaseSummaryWidget extends Widget {
         });
     }
 
-    makeNewSurveyBtn(sector) {
+    makeNewSurveyBtn() {
         let row = document.createElement("div");
         row.className = "row mb-2 flex-row-reverse";
         this.frame.appendChild(row);
 
         let btn = document.createElement("a");
         btn.className = "btn btn-outline-secondary btn-sm";
-        btn.setAttribute("href", "/dashboard/sustainability/" + sector + "/survey");
+        btn.setAttribute("href", "/dashboard/sustainability/survey");
         btn.textContent = "New Survey";
 
         row.append(btn);

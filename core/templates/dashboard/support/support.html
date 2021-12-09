@@ -1,0 +1,71 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set page_title = Support %}
+{% set dashboard_locations = [("/dashboard/support","Support")] %}
+
+{% block dashboard_content_header %}
+
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <h5 class="card-header">Support Form</h5>
+            <div class="card-body" id="card-body">
+                <div class="mb-3">
+                    <p>Please fill out the form below. Someone will be in touch with you as soon as possible.</p>
+                    <p>You can also reach out to us at <a href="tel:979-219-3451">979-219-3451</a></p>
+                        <form id="dashboard-support">
+                            <div class="col-lg-8 align-self-center">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-2">
+                                            <input name="first" id="first" type="text" class="form-control" value="{{dashboard_standard_user_first}}" placeholder="First Name">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-2">
+                                            <input name="last" id="last" type="text" class="form-control" value="{{dashboard_standard_user_last}}" placeholder="Last Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-2">
+                                            <input name="email" id="email" type="text" class="form-control" value="{{g.user.email()}}" placeholder="E-mail">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="input-group mb-2">
+                                            <input name="phone" id="phone" type="text" class="form-control" value="{{g.user.phone()}}" placeholder="Phone">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="input-group mb-2">
+                                            <textarea name="message" id="message" class="form-control" rows="4"
+                                                placeholder="Your Message"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>  
+                                </div>        
+                            <p class="mt-2 mb-0" id="support_status_message" style="display:none;">Submitting...</p>
+                            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="support_error_message">Submit error...</p>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/support/support.mjs" ></script> 
+{% endblock dashboard_content %}
