@@ -117,25 +117,21 @@ def serve_add_new_employee_action():
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
 @crut.require_employee
 def serve_view_account():
-    accounts_and_account_admins = Accounts(g.db).get_accounts()
-    for account in accounts_and_account_admins:
+    accounts_and_account_admins = []
+    accounts = Accounts(g.db).get_accounts()
+    for account in accounts:
         account['company'] = account['company'].upper()
         account_admin_user_id = 0
-        account_admin_username = ""
+        account_admin_email = ""
         admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
-        if(len(admin_user) >= 1):
+        if(len(admin_user) > 0):
             user = g.db.users.get_user_by_id(admin_user[0]['user'])
-            if user is not None:
+            if user is not None and (user.is_email_verified() == 1 or user.is_system_generated() == 1):
                 account_admin_user_id = user.id()
-                account_admin_username = user.email()
+                account_admin_email = user.email()
                 account["account_admin_user_id"] = account_admin_user_id
-                account["account_admin_username"] = account_admin_username
-            else:
-                account["account_admin_user_id"] = account_admin_user_id
-                account["account_admin_username"] = account_admin_username
-        else:
-            account["account_admin_user_id"] = account_admin_user_id
-            account["account_admin_username"] = account_admin_username
+                account["account_admin_email"] = account_admin_email
+                accounts_and_account_admins.append(account)
     accounts_and_account_admins = sorted(accounts_and_account_admins, key=lambda i: i['company'])
     return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_by_id": sectors_by_id})
 
