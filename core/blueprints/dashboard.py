@@ -268,7 +268,10 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability/cowcalf', methods=['GET'])
 @crut.require_account
 def serve_cowcalf():
-    return dashboard_render("sustainability/cowcalf_summary.html")
+    return dashboard_render("sustainability/cowcalf_summary.html", 
+        {
+            "accountName": g.account.name()
+        })
 
 
 @bp.route('/dashboard/sustainability/cowcalf/survey', methods=['GET'])
