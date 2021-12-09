@@ -245,11 +245,13 @@
                             </a>
                         </div>
                         <ul class="pro-body">
+                            {% if dashboard_is_employee_impersonating == 0 %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/logout">
                                     <i class="feather icon-lock"></i> Logout
