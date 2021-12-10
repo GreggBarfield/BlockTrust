@@ -59,7 +59,7 @@
         "min_score": 0.6
     },
     "ipinfo": {
-        "token": "d446aac28c4771",
+        "token": "",
         "check_ip": false
     }
 }
