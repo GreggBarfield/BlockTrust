@@ -12,7 +12,7 @@ from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
 from ..sectors import sectors_by_name
 from requests import post
 
@@ -89,7 +89,9 @@ def serve_signup():
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
-        "site_key": RECAPTCHA_SITE_KEY
+        "site_key": RECAPTCHA_SITE_KEY,
+        "ipinfo_access_token": IPINFO_TOKEN,
+        "check_ip": CHECK_IP
     })
 
 
@@ -135,7 +137,9 @@ def serve_signup_action():
                         state=required['state'],
                         zip_code=required['zip_code'],
                         personal_phone=request.form['personal_phone'],
-                        recaptcha_score=verification_response_json['score']
+                        recaptcha_score=verification_response_json['score'],
+                        ip_address=request.form['ip_address'],
+                        ip_country=request.form['ip_country']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))

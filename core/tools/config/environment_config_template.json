@@ -57,5 +57,9 @@
         "site_key": "6Lc-42odAAAAAAShThEnDs6F86VvQ3ELGPvDW4Gl",
         "secret_key":"6Lc-42odAAAAAK74WXp2VlG-y6jQ0ShY8pcMR087",
         "min_score": 0.6
+    },
+    "ipinfo": {
+        "token": "d446aac28c4771",
+        "check_ip": false
     }
 }
