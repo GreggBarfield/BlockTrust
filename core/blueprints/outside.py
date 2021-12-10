@@ -555,14 +555,3 @@ def serve_add_admin_user(invite_token):
             })
     except Exception as e:
         return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
-
-@bp.route('/check-request-ip', methods=['GET'])
-def serve_ip():
-    ip = ''
-    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
-        ip = request.environ['REMOTE_ADDR']
-        
-    else:
-        ip = request.environ['HTTP_X_FORWARDED_FOR']# if behind a proxy
-    
-    return {"Ip": ip}
