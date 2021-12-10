@@ -89,6 +89,7 @@ export class EditSalesGroupWidget extends Widget {
             input.value = value;
             input.className = "form-control";
             input.id = id;
+            input.required = true
             group.append(input);
             return input;
         }
@@ -101,6 +102,7 @@ export class EditSalesGroupWidget extends Widget {
             input.value = value;
             input.className = "form-control";
             input.id = id;
+            input.required = true
             group.append(input);
             return input;
         }
@@ -125,6 +127,7 @@ export class EditSalesGroupWidget extends Widget {
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
+            select.required = true
             group.append(select);
 
             let optionsStacked = [];
@@ -206,7 +209,6 @@ export class EditSalesGroupWidget extends Widget {
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
-
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -276,7 +278,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
-            options: ["Covexin 8", "One Shot BVD", "Infor"],
+            options: ["Not Applicable", "Covexin 8", "One Shot BVD", "Infor"],
             values: this.data.reported.vaccinations || [],
             multiple: true,
             tags: true,
@@ -285,7 +287,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
-            options: ["Native Range", "Improved Pasture"],
+            options: ["Not Applicable", "Native Range", "Improved Pasture"],
             values: this.data.reported.feeding_programs || [],
             multiple: true,
             tags: true,
@@ -294,7 +296,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
-            options: ["Raigro"],
+            options: ["Not Applicable", "Raigro"],
             values: this.data.reported.implants || [],
             multiple: true,
             tags: true,
@@ -303,7 +305,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
-            options: ["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
+            options: ["Not Applicable", "Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
             values: this.data.reported.castrated || "Not Castrated",
             multiple: false,
             tags: false,

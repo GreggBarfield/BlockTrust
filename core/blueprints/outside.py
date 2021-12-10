@@ -159,9 +159,9 @@ def serve_signup_action():
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
-                raise ExportException("You are not authorized to register")
+                return {"redirect": "/not-authorized-to-register"}
         else:
-            raise ExportException("There was an error verifying your signup. Please try again or contact the system administrator.")
+            raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
         return {"error": str(e)}
 
@@ -329,6 +329,11 @@ def serve_email_not_confirmed():
     return outside_render('email_not_verified.html')
 
 
+@bp.route('/not-authorized-to-register', methods=['GET'])
+def serve_not_auth_to_register():
+    return outside_render('not-authorized-to-register.html')
+
+
 @bp.route('/outside/contact-email', methods=['GET'])
 def serve_contact_email():
     return jsonify(
@@ -456,10 +461,10 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/add-user/<tok>', methods=['GET'])
-def serve_add_user(tok):
+@bp.route('/add-user/<string:invite_token>', methods=['GET'])
+def serve_add_user(invite_token):
     try:
-        invite_string = token.confirmToken(tok)
+        invite_string = token.confirmToken(invite_token)
         invite_object = eval(invite_string)
         user_email = invite_object["user_email"]
         account_name = invite_object["current_account"]

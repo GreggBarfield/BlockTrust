@@ -6,6 +6,7 @@ from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.objects.account import Account
+from ..database.tables.connection_invites import ConnectionInvites
 
 from ..utilities.general_utilities import validate_email, format_field
 
@@ -187,7 +188,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     )
 
     try:
-        g.db.accounts.create_account_with_admin(
+        account = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -199,6 +200,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
+        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
