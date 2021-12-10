@@ -183,7 +183,7 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None):
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
         """Creates a new user
 
         Params:
@@ -247,9 +247,9 @@ class Users:
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score, ip_address, ip_country)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
@@ -259,7 +259,9 @@ class Users:
                 "first_name": first_name,
                 "last_name": last_name,
                 "email_verified": email_verified,
-                "recaptcha_score": recaptcha_score
+                "recaptcha_score": recaptcha_score,
+                "ip_address": ip_address,
+                "ip_country": ip_country
             }
         )
         user = self.get_by_username(username)
