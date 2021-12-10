@@ -191,12 +191,34 @@ def serve_save_sales_group():
     original_row = g.db.sales_groups.row_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
-
     # Verify that the images provided are allowed
     if 'images' in request.json["reported"]:
         for image in request.json["reported"]["images"]:
             if not g.db.files.is_owner(None, g.account.id(), image):
                 raise ExportException("Image " + str(image) + " is not owned by the selected account.")
+    # Checking if required values are present
+    if request.json["zip"] is None:
+        raise ExportException("Zip code does not have a value")
+    if request.json["start"] is None:
+        raise ExportException("Start date is not selected")
+    if request.json["end"] is None:
+        raise ExportException("End date is not selected")
+    if len(request.json["delivery_location"].strip()) == 0:
+        raise ExportException("Delivery Location does not have a value")
+    if request.json["reported"]["count"] is None:
+        raise ExportException("Total animals cannot be 0")
+    if request.json["reported"]["weight"] is None:
+        raise ExportException("Base weight does not have a value")
+    if len(request.json["reported"]["weight_variance"].strip()) == 0:
+        raise ExportException("Weight variance does not have a value")
+    if len(request.json["reported"]["breeds"]) == 0:
+        raise ExportException("Please select one or more breeds")
+    if request.json["reported"]["usda_frame_size"] is None:
+        raise ExportException("Please select frame size")
+    if request.json["reported"]["muscling"] is None:
+        raise ExportException("Please select relevant muscling")
+    if request.json["reported"]["horns"] is None:
+        raise ExportException("Please select horns or no horns")
 
     if request.json["zip"] not in ZIP_CODES:
         raise ExportException("Sorry, that zip code could not be found.")
@@ -205,10 +227,7 @@ def serve_save_sales_group():
         raise ExportException("Sorry, start or end date missing.")
 
     if request.json["start"] > request.json["end"]:
-        raise ExportException(
-            "Sorry, check the market start "
-            "and end dates (specifically the order)."
-        )
+        raise ExportException("Sorry, check the market start and end dates (specifically the order).")
 
     if (
         request.json["auction_sale"] is not None
@@ -239,34 +258,14 @@ def serve_save_sales_group():
     }
 
 
-@bp.route('/widgets/data/save_cowcalf', methods=['POST'])
+@bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
-def serve_save_cowcalf():
+def serve_save_sustainability():
     g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/cowcalf"}
-
-
-@bp.route('/widgets/data/save_feedyard', methods=['POST'])
-@crut.require_account
-def serve_save_feedyard():
-    g.db.sustainability.insert(
-        g.account.id(),
-        request.json["response"]
-    )
-    return { "redirect": "/dashboard/sustainability/feedyard"}
-
-
-@bp.route('/widgets/data/save_auction', methods=['POST'])
-@crut.require_account
-def serve_save_auction():
-    g.db.sustainability.insert(
-        g.account.id(),
-        request.json["response"]
-    )
-    return { "redirect": "/dashboard/sustainability/auction"}
+    return { "redirect": "/dashboard/sustainability"}
 
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])

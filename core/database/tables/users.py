@@ -183,7 +183,7 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified):
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
         """Creates a new user
 
         Params:
@@ -230,26 +230,26 @@ class Users:
             raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
+        if phone is not None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
-
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         # We don't really care whether or not the phone is being used more than once
 
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score, ip_address, ip_country)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
@@ -258,7 +258,10 @@ class Users:
                 "email": email,
                 "first_name": first_name,
                 "last_name": last_name,
-                "email_verified": email_verified
+                "email_verified": email_verified,
+                "recaptcha_score": recaptcha_score,
+                "ip_address": ip_address,
+                "ip_country": ip_country
             }
         )
         user = self.get_by_username(username)
@@ -389,3 +392,50 @@ class Users:
                     "id": user.id()
                 }
             )
+
+    def create_pseudo_user(self, username, password, first_name, last_name):
+        """Inserts an entry to user table. Routine is created for system generated users 
+
+        Params:
+            username: username to login
+            password: password to login
+            first_name: first name of the user
+            last_name: last name of the user
+
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+        user = self.get_by_username(username)
+        if user is not None:
+            raise UsersException("Username is already being used.")
+
+        # Password must be at least 8 characters in unicode
+        # and be no more than 60 characters in UTF-8
+        # and can't contain the null byte when in UTF-8
+
+        if len(password) < 8:
+            raise UsersException("Password must be at least 8 characters.")
+
+        if len(password.encode("utf-8")) > 60:
+            raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
+
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, first_name, last_name, is_system_generated)
+                    VALUES
+                        (%(password)s, %(username)s, %(first_name)s, %(last_name)s, %(is_system_generated)s)
+            """,
+            {
+                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "username": username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "is_system_generated": 1
+            }
+        )
+        user = self.get_by_username(username)
+        return user

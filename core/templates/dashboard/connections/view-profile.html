@@ -1,0 +1,42 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Connections" %}
+{% set dashboard_locations = [("/dashboard/connections", "Connections")] %}
+
+{% block dashboard_content_header %}
+Account Profile
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>{{account_details.company()}}</h5>
+            </div>
+            <div class="card-body col-lg-6 mb-2">
+            <table class="table table-xs" style="border:1px solid black;"> 
+            <tr>
+                <th>Phone Number</th>
+                <td>{{account_details.phone()}}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{account_details.address()}} {{account_details.city()}}, {{account_details.state()}}-{{account_details.zip()}}</td>
+            </tr>
+            <tr>
+                <th>Sector</th>
+                <td>{{account_details.sector_name()}}</td>
+            </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+{% endblock dashboard_content %}

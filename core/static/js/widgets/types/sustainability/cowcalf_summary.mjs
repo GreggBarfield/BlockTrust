@@ -31,7 +31,6 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
             };
             
             let row = document.createElement("div");
-            row.id = "top";
             row.className = "row";
             this.frame.appendChild(row);
 

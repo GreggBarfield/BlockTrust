@@ -59,12 +59,12 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("market data table", MarketDataTableWidget);
-    attach("cowcalf questionaire", CowcalfQuestionaireWidget);
-    attach("cowcalf summary", CowcalfSummaryWidget);
-    attach("feedyard questionaire", FeedyardQuestionaireWidget);
-    attach("feedyard summary", FeedyardSummaryWidget);
-    attach("auction questionaire", AuctionQuestionaireWidget);
-    attach("auction summary", AuctionSummaryWidget);
+    attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
+    attach("Cow-Calf summary", CowcalfSummaryWidget);
+    attach("Feedlot questionaire", FeedyardQuestionaireWidget);
+    attach("Feedlot summary", FeedyardSummaryWidget);
+    attach("Auction House questionaire", AuctionQuestionaireWidget);
+    attach("Auction House summary", AuctionSummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
 
     // Find widgets

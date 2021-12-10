@@ -4,7 +4,6 @@
 {% set dashboard_locations = [("/dashboard/connections", "Connections")] %}
 
 {% block dashboard_content_header %}
-Connections
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -23,21 +22,24 @@ Connections
                         <th>Account ID</th>
                         <th>Account Name</th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
-            <tbody>  
+            <tbody>
             {% for connection in account_connections %}
-                    {% if connection.from_account_id == dashboard_standard_account %}
+                    {% if connection.from_account_id == dashboard_standard_account.id() %}
                     <tr>
                         <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.to_account_id}}>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" value="{{connection.to_account_id}}">Remove Connection</button></td>
                     </tr>
                     {% else %}
                     <tr>
                         <td>{{connection.from_account_id}}</td>
                         <td>{{connection.from_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.from_account_id}}>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
+                        <td><button class="btn btn-sm btn-danger float-right" style="width:150px" value="{{connection.from_account_id}}">Remove Connection</button></td>
                     </tr>
                     {% endif %}
 

@@ -85,6 +85,12 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
+    def account_manager_id(self):
+        return self._row['account_manager_id']
+
+    def archived(self):
+        return self._row['archived']
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
@@ -108,3 +114,4 @@ class Account:
         if not allow_cache or not self._account_links:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
+
