@@ -1,12 +1,11 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for, send_from_directory
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
-from ..database.tables.account_users import AccountUsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
