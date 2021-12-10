@@ -56,7 +56,7 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-
+        print(request.form)
         # Creating an account without an admin
         account = g.db.accounts.create_account(
                 phone=format_field(request.form['phone']),

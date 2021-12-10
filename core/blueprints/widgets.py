@@ -277,17 +277,22 @@ def serve_get_sustainability():
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
-@crut.require_account
+@crut.require_account_or_employee
 def serve_get_upload_config():
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
-
+    account = None
+    user = None
+    if 'account' in g and g.account is not None:
+        account = g.account.id()
+    if 'user' in g and g.user is not None:
+        user = g.user.id()
     file_id, file_config = g.db.files.get_post(
         request.json["file_name"],
-        g.user.id() if user_owns else None,
-        g.account.id() if account_owns else None
+        user if user_owns else None,
+        account if account_owns else None
     )
 
     return {
