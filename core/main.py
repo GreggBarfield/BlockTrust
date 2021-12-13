@@ -60,7 +60,8 @@ def before_request():
     g.user = None
     g.employee = None
     g.account = None
-    g.is_admin = None
+    g.is_admin = 0
+    g.is_employee_impersonating = 0
     auth.session_open()
 
 
