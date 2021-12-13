@@ -271,7 +271,7 @@ def serve_save_sustainability():
 @crut.require_account
 def serve_get_sustainability():
     return { 
-        "results": g.db.sustainability.get_by_account(g.account.id())
+        "results": g.db.sustainability.get_sustainability_by_account(g.account.id())
     }, 200
 
 
@@ -419,11 +419,20 @@ def serve_get_sustainability_timeline_data():
         data = {}
         ordering = []
         for account_data in matched_accounts:
-            if account_data['account'] is not None:
-                response = g.db.sustainability.get_by_account(account_data['account'], True)
-                account_data.update(response[0])
-                data[account_data['id']] = account_data
-                ordering.append(account_data['id'])
+            response = g.db.sustainability.get_sustainability_by_account(account_data['account'], True)
+            if response == []:
+                account = g.db.accounts.get_by_id(account_data['account'])
+                response = {
+                    'sector': account.sector_id(),
+                    'name': account.name(),
+                    'response': None
+                }
+            else:
+                response = response[0]
+
+            account_data.update(response)
+            data[account_data['account']] = account_data
+            ordering.append(account_data['account'])
 
         return {
             'timeline_data': data,

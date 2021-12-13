@@ -1,5 +1,6 @@
 import { Widget } from "../../widget.mjs";
 import { InfoModal } from "../../../core/info_modal.mjs";
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class SustainabilityTimelineWidget extends Widget {
     constructor(frame) {
@@ -112,7 +113,7 @@ export class SustainabilityTimelineWidget extends Widget {
             let cardGraph = document.createElement("div");
             cardGraph.className = "card-body";
             itemDiv.append(cardGraph);
-            this.makeGraph(cardGraph, match.id, "all");
+            this.makeGraph(cardGraph, match.account, "allSections");
 
             itemsGroup.append(itemDiv);
             section.append(itemsGroup);
@@ -136,29 +137,29 @@ export class SustainabilityTimelineWidget extends Widget {
 
             let responses = JSON.parse(this.matches[match].response);
             
-            for(const type in responses){
-                this.response_data[match][type] = {
+            for(const section_type in responses){
+                this.response_data[match][section_type] = {
                     "excellent": 0, 
                     "acceptable": 0,
                     "needsWork": 0
                 };
 
-                for(const item of responses[type]) {
+                for(const item of responses[section_type]) {
 
                     if (item.includes('a')) {
-                        this.response_data[match][type].excellent += 1;
+                        this.response_data[match][section_type].excellent += 1;
                         totals.excellent += 1;
                     } else if (item.includes('b')) {
-                        this.response_data[match][type].acceptable += 1;
+                        this.response_data[match][section_type].acceptable += 1;
                         totals.acceptable += 1;
                     } else if (item.includes('c')) {
-                        this.response_data[match][type].needsWork += 1;
+                        this.response_data[match][section_type].needsWork += 1;
                         totals.needsWork += 1;
                     }
                 }
             }
 
-            this.response_data[match]['all'] = totals;
+            this.response_data[match]['allSections'] = totals;
         }
     }
 
@@ -246,28 +247,20 @@ export class SustainabilityTimelineWidget extends Widget {
         let infoModal = new InfoModal("Details for " + title);
         let modalBody = infoModal.getBody();
 
-        // TODO: fix when combine new stuff
-        let sections = {
-            "air": "Air & Greenhouse Gas Emissions",
-            "land": "Land Resources",
-            "water": "Water Resources",
-            "animal": "Animal Health & Well-Being",
-            "safety": "Employee Safety & Well-Being",
-            "efficiency": "Efficiency & Yield"
-        };
+        let sections = getSustainabilitySections();
 
-        for (const type in this.response_data[match.id]) {
-            if (type != "all") {
+        for (const section_type in this.response_data[match.id]) {
+            if (section_type != "allSections") {
                 let card = document.createElement("div");
                 let cardHeader = document.createElement("div");
                 cardHeader.className = "card-header";
-                cardHeader.textContent = sections[type];
+                cardHeader.textContent = sections[section_type];
                 let cardBody = document.createElement("div");
                 cardBody.className = "card-body";
                 card.append(cardHeader);
                 card.append(cardBody);
                 modalBody.append(card);
-                this.makeGraph(cardBody, match.id, type);
+                this.makeGraph(cardBody, match.id, section_type);
             }
         }
     }

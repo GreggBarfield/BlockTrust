@@ -9,12 +9,12 @@ export class AbstractBaseSummaryWidget extends Widget {
 
     setDataSet(dataCounter) {
         this.dataCounter = dataCounter;
-        this.dataCounter['this_sector'] = this.sectorData[this.sector].all; 
+        this.dataCounter['this_sector'] = this.sectorData[this.sector].allSections; 
         this.dataCounter['all_sectors'] = this.sectorData['allSectors'];
     }
 
     getSectorData() {
-        this.sector = this.frame.getAttribute('sector');
+        this.sector = this.frame.getAttribute('data-widget-sector');
 
         this.getData(
             "data_request",

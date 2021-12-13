@@ -67,6 +67,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
     attach("Auction House questionaire", AuctionQuestionaireWidget);
     attach("Auction House summary", AuctionSummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
+    attach("sustainability timeline", SustainabilityTimelineWidget);
 
     // Find widgets
     $(".widget").each(function () {
