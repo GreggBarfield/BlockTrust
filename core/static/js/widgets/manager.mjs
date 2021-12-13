@@ -18,8 +18,12 @@ import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
-import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
-import { SustainabilitySummaryWidget } from "./types/sustainability/sustainability_summary.mjs";
+import { CowcalfQuestionaireWidget } from "./types/sustainability/cowcalf_questionaire.mjs";
+import { CowcalfSummaryWidget } from "./types/sustainability/cowcalf_summary.mjs";
+import { FeedyardQuestionaireWidget } from "./types/sustainability/feedyard_questionaire.mjs";
+import { FeedyardSummaryWidget } from "./types/sustainability/feedyard_summary.mjs";
+import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questionaire.mjs";
+import { AuctionSummaryWidget } from "./types/sustainability/auction_summary.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 
@@ -55,8 +59,12 @@ import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_gr
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("market data table", MarketDataTableWidget);
-    attach("sustainability questionaire", SustainabilityQuestionaireWidget);
-    attach("sustainability summary", SustainabilitySummaryWidget);
+    attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
+    attach("Cow-Calf summary", CowcalfSummaryWidget);
+    attach("Feedlot questionaire", FeedyardQuestionaireWidget);
+    attach("Feedlot summary", FeedyardSummaryWidget);
+    attach("Auction House questionaire", AuctionQuestionaireWidget);
+    attach("Auction House summary", AuctionSummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
 

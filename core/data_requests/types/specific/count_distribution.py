@@ -10,7 +10,6 @@ def unauth(params):
 def auth(params):
     if 'account' in params and params['account'] is not None:
         raise ExportException("account none null not implemented")
-        # WARNING: visibility system not set up here
 
     row = g.db.reports.get_ready_by_query(
         count_distribution.create(

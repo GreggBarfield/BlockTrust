@@ -83,7 +83,7 @@ class Orders:
         """Updates an order with the payment intent from stripe.
 
         Params:
-            id: The ID of the order 
+            id: The ID of the order
             payment_intent: id of the payment intent object from stripe
         """
         self._db.execute("""

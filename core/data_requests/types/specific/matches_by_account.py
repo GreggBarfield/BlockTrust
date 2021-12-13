@@ -1,11 +1,9 @@
 from flask import g
 from ....match_types import name_to_id
-from ...security.matches_visibility import apply_visibility
 
 
 def unauth(params):
     result = auth(params)
-    # visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])   
     return {
         'matches': result['matches']
     }
