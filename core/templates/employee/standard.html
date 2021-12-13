@@ -1,0 +1,270 @@
+{% extends "common.html" %}
+
+{% set section_title = "Internal" %}
+
+{% block head_section %}
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/fonts/fontawesome/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/animation/css/animate.min.css">
+<link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/prism/css/prism.min.css">
+<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css">
+<style>
+    .nav-link {
+        cursor: pointer;
+    }
+</style>
+<link rel="stylesheet" href="/static/jvm/jquery-jvectormap-2.0.5.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/DataTables/datatables.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/select2/select2.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="/static/libs2/codyhouse/main/assets/css/style.css" type="text/css" media="screen" />
+<style>
+    .jvectormap-container {
+        background-color: #13598a !important;
+    }
+
+    .jvectormap-tip {
+        padding: 5px !important;
+        border: solid 1px #404040 !important;
+        background-color: white !important;
+        color: black;
+    }
+
+    .jvectormap-tip p {
+        margin: 0px !important;
+    }
+</style>
+<script src="/static/js/jquery-3.5.1.min.js"></script>
+<script src="/static/global/global.mjs" type="module"></script>
+{% block head_section_per_employee_page %}
+{% endblock head_section_per_employee_page %}
+{% endblock head_section %}
+
+{% block scripts %}
+<script src="/static/js/clipboard.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/vendor-all.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/plugins/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/pcoded.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/plugins/prism/js/prism.min.js"></script>
+<script src="/static/css/dashboard/flashable/flash_able_old/js/horizontal-menu.js"></script>
+<script src="/static/jvm/jquery-jvectormap-2.0.5.min.js"></script>
+<script src="/static/jvm/jquery-jvectormap-us-lcc.js"></script>
+<script src="/static/libs2/DataTables/datatables.min.js"></script>
+<script src="/static/libs2/amcharts/core.js"></script>
+<script src="/static/libs2/amcharts/charts.js"></script>
+<script src="/static/libs2/amcharts/themes/animated.js"></script>
+<script src="/static/libs2/select2/select2.min.js"></script>
+{# <script src="/static/css/flash_able/flash_able_old/js/menu-setting.min.js"></script> What is this? #}
+<script src="/static/libs2/codyhouse/main/assets/js/scripts.js"></script>
+<script src="/static/build/build_manager.min.mjs" type="module"></script>
+<script type="text/javascript">
+
+  // Collapse menu
+  (function () {
+    try {
+      if ($('#layout-sidenav').hasClass('sidenav-horizontal') || window.layoutHelpers.isSmallScreen()) {
+        return;
+      }
+      window.layoutHelpers.setCollapsed(
+        localStorage.getItem('layoutCollapsed') === 'true',
+        false
+      );
+    } catch (e) { }
+  })();
+  $(function () {
+    // Initialize sidenav
+    $('#layout-sidenav').each(function () {
+      new SideNav(this, {
+        orientation: $(this).hasClass('sidenav-horizontal') ? 'horizontal' : 'vertical'
+      });
+    });
+
+    // Initialize sidenav togglers
+    $('body').on('click', '.layout-sidenav-toggle', function (e) {
+      e.preventDefault();
+      window.layoutHelpers.toggleCollapsed();BTN-11
+      if (!window.layoutHelpers.isSmallScreen()) {
+        try {
+          localStorage.setItem('layoutCollapsed', String(window.layoutHelpers.isCollapsed()));
+        } catch (e) { }
+      }
+    });
+  $(document).ready(function () {
+    $("#pcoded").pcodedmenu({
+      themelayout: 'horizontal',
+      MenuTrigger: 'hover',
+      SubMenuTrigger: 'hover',
+    });
+  });
+    // Find all popups
+    let popups = [];
+    $(".toggler").each(function() {
+        let localTargets = [];
+        for (const c of $(this).attr("data-toggles").split(" ")) {
+            if (c != "") {
+                localTargets.push("." + c);
+            }
+        }
+        let popup = {passedThrough: false, targets: localTargets};
+        for (const target of localTargets) {
+          $(target).click(function() {popup.passedThrough = true;});
+        }
+        popups.push(popup);
+    });
+    window.popups = popups;
+    // If a click event reaches the body, removes all targets with at least 1 is-active in the popup target set
+    $("body").click(function() {
+        for (let popup of popups) {
+            if (!popup.passedThrough) {
+                let anyActive = false;
+                for (const target of popup.targets) {
+                    if ($(target).hasClass("is-active")) anyActive = true;
+                }
+
+                if (anyActive) {
+                    for (const target of popup.targets) {
+                        $(target).removeClass("is-active");
+                    }
+                }
+            }
+            popup.passedThrough = false;
+        }
+    });
+    // Togglers turn is-active on and off for elements when clicked
+    $(".toggler").click(function(e) {
+        for (const c of $(this).attr("data-toggles").split(" ")) {
+            if (c != "") {
+                $("." + c).toggleClass("is-active");
+            }
+        }
+        e.preventDefault(); // Important: Don't prevent propagation as the other popups need to close
+    });
+    // Triggers-togglers are things that forces a trigger to fire (gray background)
+    $(".triggers-toggler").click(function(e) {
+        $("." + $(this).attr("data-toggler")).click();
+        e.preventDefault();
+    });
+  });
+</script>
+{% endblock scripts %}
+
+{% block header %}
+<div class="loader-bg">
+  <div class="loader-track">
+    <div class="loader-fill"></div>
+  </div>
+</div>
+<header class="b-header">
+    <div class="b-header-bar">
+        <a class="b-header-logo" href="/">
+            <img
+                class="b-header-logo-desktop"
+                src="/static/images/logos/logo-color-light-eps-01.svg"
+            />
+            <img
+                class="b-header-logo-mobile"
+                src="/static/images/logos/logo-color-dark-eps-01.svg"
+            />
+        </a>
+    </div>
+
+    <button
+        class="b-header-mobile-hamburger hamburger hamburger--3dy toggler"
+        data-toggles="b-header-mobile-hamburger b-nav b-nav-underlay"
+        type="button"
+    >
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+    
+    <nav class="b-nav">
+        <span>Utility</span>
+        <div class="b-nav-utility">
+            <ul>
+                
+                <li class="b-user-settings-li">
+                    <a
+                        href="#"
+                        class="toggler"
+                        data-toggles="b-user-settings-li b-user-settings"
+                    >
+                        <i class="icon feather icon-user"></i>
+                    </a>
+                    <div class="b-expandable-icon b-user-settings">
+                        <div class="pro-head">
+                            <span>{{employee_standard_employee_first}} {{employee_standard_employee_last}}</span> 
+                            <a href="/logout" title="Logout">
+                                <i class="feather icon-log-out"></i>
+                            </a>
+                        </div>
+                        <ul class="pro-body">
+                          <li>
+                            <a href="/employee/dashboard/add-new-employee">
+                                <i class="feather icon-user"></i> Add a new Employee
+                            </a>
+                          </li>
+                          <li>
+                                <a href="/logout">
+                                    <i class="feather icon-lock"></i> Logout
+                                </a>
+                          </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <span>Navigation</span>
+        <ul>
+            <li>
+                <a href="">
+                    <span><i class="feather icon-user"></i></span>
+                    <span>Accounts</span>    
+                </a>
+                <ul>
+                    <li><a href="/employee/dashboard/create-new-account">Create a New Account</a> </li>
+                    <li><a href="/employee/dashboard/edit-accounts">Edit an Account</a> </li>
+                    <li><a href="/employee/dashboard/view-accounts">View Accounts</a></li>
+                    <li><a href="/employee/dashboard/accounts-with-option-to-invite-admin">Invite Account Admin</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div class="b-nav-underlay triggers-toggler" data-toggler="b-header-mobile-hamburger"></div>
+{% endblock header %}
+
+{% block content %}
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+  <div class="pcoded-wrapper container">
+    <div class="pcoded-content">
+      <div class="pcoded-inner-content">
+        <div class="main-body">
+          <div class="page-wrapper">
+            <div class="page-header">
+              <div class="page-block">
+                <div class="row align-items-center">
+                  <div class="col-md-12">
+                    <div class="page-header-title">
+                      <h5 class="m-b-10">{% block employee_content_header %}Needs employee content
+                        header{% endblock employee_content_header %}</h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- [ Main Content ] start -->
+            {% block employee_content %}
+            Needs employee content
+            {% endblock employee_content %}
+            <!-- [ Main Content ] end -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- [ Main Content ] end -->
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}

@@ -18,7 +18,7 @@ Edit User
         </div>
     </div>
     <div class="row justify-content-center">
-        <div class="col-lg-6 mb-2">
+        <div class="col-lg-8 mb-2">
             <form class="bg-white shadow p-3"  id="edituser_form"  method="POST">
                 <div class="row">
                     <div class="col-lg-12"> 
@@ -54,14 +54,14 @@ Edit User
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="edituser_form_first">First name</label>
-                            <input type="text" class="form-control" value={{user.first()}} id="edituser_form_first">
+                            <input type="text" class="form-control" value={{user.first_name()}} id="edituser_form_first">
                             <span class="focus-border"></span>
                         </div>
                     </div>
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="edituser_form_last">Last name</label>
-                            <input type="text" class="form-control" value={{user.last()}} , id="edituser_form_last">
+                            <input type="text" class="form-control" value={{user.last_name()}} , id="edituser_form_last">
                             <span class="focus-border"></span>
                         </div>
                     </div>

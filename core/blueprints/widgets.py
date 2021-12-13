@@ -17,7 +17,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 
-from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
+from ..config import ROOT as WEBSITE_ROOT
 
 from ..utilities import crut
 
@@ -69,11 +69,10 @@ def serve_sales_group():
         "auction_sale": sales_group_row["auction_sale"],
         "auction_sale_name": sales_group_row["auction_sale_name"],
         "group_name": sales_group_row["group_name"],
-        "license": FLATFILE_LICENSE,
         "userID": g.user.id(),
-        "name": g.user.first() + ' ' + g.user.last(),
+        "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
-        "company": g.account.company(),
+        "company": g.account.name(),
         "is_archived":sales_group_row["is_archived"]
     }
 
@@ -189,6 +188,7 @@ def serve_search_by_eid_and_visual_id():
             "matches": []
     }
 
+
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group():
@@ -196,12 +196,34 @@ def serve_save_sales_group():
     original_row = g.db.sales_groups.row_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
-
     # Verify that the images provided are allowed
     if 'images' in request.json["reported"]:
         for image in request.json["reported"]["images"]:
             if not g.db.files.is_owner(None, g.account.id(), image):
                 raise ExportException("Image " + str(image) + " is not owned by the selected account.")
+    # Checking if required values are present
+    if request.json["zip"] is None:
+        raise ExportException("Zip code does not have a value")
+    if request.json["start"] is None:
+        raise ExportException("Start date is not selected")
+    if request.json["end"] is None:
+        raise ExportException("End date is not selected")
+    if len(request.json["delivery_location"].strip()) == 0:
+        raise ExportException("Delivery Location does not have a value")
+    if request.json["reported"]["count"] is None:
+        raise ExportException("Total animals cannot be 0")
+    if request.json["reported"]["weight"] is None:
+        raise ExportException("Base weight does not have a value")
+    if len(request.json["reported"]["weight_variance"].strip()) == 0:
+        raise ExportException("Weight variance does not have a value")
+    if len(request.json["reported"]["breeds"]) == 0:
+        raise ExportException("Please select one or more breeds")
+    if request.json["reported"]["usda_frame_size"] is None:
+        raise ExportException("Please select frame size")
+    if request.json["reported"]["muscling"] is None:
+        raise ExportException("Please select relevant muscling")
+    if request.json["reported"]["horns"] is None:
+        raise ExportException("Please select horns or no horns")
 
     if request.json["zip"] not in ZIP_CODES:
         raise ExportException("Sorry, that zip code could not be found.")
@@ -210,10 +232,7 @@ def serve_save_sales_group():
         raise ExportException("Sorry, start or end date missing.")
 
     if request.json["start"] > request.json["end"]:
-        raise ExportException(
-            "Sorry, check the market start "
-            "and end dates (specifically the order)."
-        )
+        raise ExportException("Sorry, check the market start and end dates (specifically the order).")
 
     if (
         request.json["auction_sale"] is not None
@@ -293,12 +312,19 @@ def serve_achived_sales_group():
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
-    g.db.sustainability.check(
+    g.db.sustainability.insert(
         g.account.id(),
         request.json["response"]
     )
-    return { "redirect": "/dashboard/sustainability/summary"}
-    
+    return { "redirect": "/dashboard/sustainability"}
+
+
+@bp.route('/widgets/data/get_sustainability', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability():
+    return { 
+        "results": g.db.sustainability.get_by_account(g.account.id())
+    }, 200
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
@@ -325,7 +351,7 @@ def serve_get_upload_config():
 @crut.require_account
 def serve_get_accounts_list():
     return {
-        "accounts": g.db.accounts.get_accounts()
+        "accounts": g.db.accounts.get_accounts(is_partner=0)
     }
 
 @bp.route('/widgets/data/get_account_messages', methods=['POST'])
@@ -346,23 +372,24 @@ def serve_send_message():
     )
     send_to_users = g.db.users.get_rows_by_account(request.json["params"]["to_account"])
     for user in send_to_users:
-        send_email(
-            "New Message",
-            render_email(
-                "new_message.html",
-                {
-                    'new_message': {
-                        'link': (
-                            WEBSITE_ROOT + "/dashboard/messages/"
-                            + str(message_id)
-                        ),
-                        'receiver': user['account_name'],
-                        'sender': g.account.company()
+        if user["is_email_verified"] == 1:
+            send_email(
+                "New Message",
+                render_email(
+                    "new_message.html",
+                    {
+                        'new_message': {
+                            'link': (
+                                WEBSITE_ROOT + "/dashboard/messages/"
+                                + str(message_id)
+                            ),
+                            'receiver': user['account_name'],
+                            'sender': g.account.name()
+                        }
                     }
-                }
-            ),
-            user["email"]
-        )
+                ),
+                user["email"]
+            )
     return {}, 200
 
 
@@ -413,27 +440,15 @@ def serve_update_auction_sale():
         }, 400
 
 
-@bp.route('/widgets/data/update_match_visibility_settings', methods=['POST'])
-@crut.require_account
-def serve_update_match_visibility_settings():
-    g.db.matches_type_visibility.set_account_type_visibilities(
-        g.account.id(),
-        request.json["visibility_settings"]
-    )
-    return {}, 200
-
-
 @bp.route('/widgets/data/data_request', methods=['POST'])
 @crut.require_account
 def serve_data_request():
     return unauth_route(request.json['request']), 200
 
 
-@bp.route('/widgets/data/get_account_type_visibilities', methods=['POST'])
+@bp.route('/widgets/data/get_market_data/<slug_id>', methods=['POST'])
 @crut.require_account
-def serve_get_account_type_visibilities():
+def serve_get_market_data(slug_id):
     return {
-        'type_visibilities': g.db.matches_type_visibility.get_account_type_visibilities(
-            g.account.id()
-        )
-    }
+        'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
+    }, 200

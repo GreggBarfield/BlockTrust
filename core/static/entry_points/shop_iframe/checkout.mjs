@@ -14,8 +14,7 @@ $("#tax").text(taxDisplay);
 $("#discount").text(discountDisplay);
 $("#grandTotal").text(grandTotalDisplay);
 
-$( "#checkout_form" ).submit(function( event ) { 
-    console.log("In submit!")
+$( "#checkout_form" ).submit(function( event ) {
     event.preventDefault();
     if(!localStorage.orderDetails){
         localStorage.setItem('orderDetails', JSON.stringify({}));
@@ -55,6 +54,7 @@ $( "#checkout_form" ).submit(function( event ) {
         zip_code: values[6].value,
         phone: values[7].value,
         email: values[8].value,
+        premise_id: values[9].value,
         shoppingCart: shoppingCartString,
         total_price:totalPriceString,
         total_tax:totalTaxString,
@@ -66,4 +66,18 @@ $( "#checkout_form" ).submit(function( event ) {
     //partner_id must be set in the parent page
     window.location.href = '/external/checkout_payment/'+partner_id;
     return false;
+});
+
+$(document).ready(function() {
+    if(localStorage.isPremiseIdRequired){
+        var isPremiseIdRequired=parseInt(localStorage.getItem('isPremiseIdRequired'));
+        if(isPremiseIdRequired==1){
+            $("#premise_id").attr('required', true); 
+            $("#premise-id-message").show();
+        }
+        else{
+            $("#premise_id").attr('required', false); 
+            $("#premise-id-message").hide();
+        }
+    }
 });

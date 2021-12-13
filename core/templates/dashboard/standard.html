@@ -181,11 +181,13 @@
         <div class="b-nav-utility">
             <ul>
                 {% if dashboard_standard_account is not none %}
+                {% if g.account.sector_name() != "Buyer"%}
                 <li> 
                   <a href="#" id="icon-search">
                     <i class="icon feather icon-search"></i>
                   </a>
                 </li>
+                {% endif %}
                 <li>  
                     <a href="/dashboard/messages">
                     <i class="icon feather icon-mail"></i>
@@ -202,10 +204,15 @@
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
                             <div>
-                              {{ g.account.company() | e }}
+                              {{ g.account.name() | e }}
                             </div>
                         </div>
                         <ul class="pro-body">
+                            <li>
+                                <a href="/dashboard/plans">
+                                    <i class="feather icon-credit-card"></i> Subscription
+                                </a>
+                            </li>
                             {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="/dashboard/inviteuser">
@@ -214,8 +221,13 @@
                             </li>
                             {% endif %}
                             <li>
-                                <a href="/dashboard/plans">
-                                    <i class="feather icon-credit-card"></i> Subscription
+                                <a href="/dashboard/connections">
+                                    <i class="feather icon-users"></i> View Connections
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/dashboard/edit/edit-account">
+                                    <i class="feather icon-briefcase"></i> Edit Account
                                 </a>
                             </li>
                         </ul>
@@ -238,11 +250,13 @@
                             </a>
                         </div>
                         <ul class="pro-body">
+                            {% if dashboard_is_employee_impersonating == 0 %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
                                 </a>
                             </li>
+                            {% endif %}
                             <li>
                                 <a href="/logout">
                                     <i class="feather icon-lock"></i> Logout
@@ -255,15 +269,14 @@
         </div>
 
         <span>Navigation</span>
-
-        <ul>
+        <ul style="display:inline-flex;">
             <li>
                 {% if dashboard_standard_account is not none %}
                 <a
                     href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
                 >
                     <span><i class="feather icon-home"></i></span>
-                    <span>{{ dashboard_standard_account.company()|e }}</span>
+                    <span>{{ dashboard_standard_account.name()|e }}</span>
                 </a>
                 {% else %}
                 <a href="/dashboard/accounts">
@@ -291,7 +304,7 @@
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                    {% if g.account.sector_name() != "Feedlot" %}
+                    {% if g.account.sector_name() != "Feedlot" and g.account.sector_name() != "Buyer"%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                     {% endif %}
@@ -309,18 +322,28 @@
                 </ul>
             </li>
             {% endif %}
+            {% if g.account.sector_name() != "Buyer"%}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
                     <span>Dashboards</span>
                 </a>
                 <ul>
-                    <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li>
-                    <li><a href="/dashboard/retained-ownership">Retained Ownership</a></li>
+                    <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
+                    <li><a href="/dashboard/data/market">Market Data</a></li>
                     <li><a href="/dashboard/sustainability">Sustainability</a></li>
                 </ul>
             </li>
             {% endif %}
+            {% endif %}
+        </ul>
+        <span>Support</span>
+        <ul class="float-right" style="display:inline-flex;">
+            <li>
+                <a href="/dashboard/support">
+                    <span>Support</span>
+                </a>
+            </li>
         </ul>
     </nav>
 </header>

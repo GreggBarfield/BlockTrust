@@ -5,12 +5,13 @@ from .exceptions import (
 
 from .types.aggregated import (
     count_eid_distinct,
-    count_distribution_global
+    count_distribution_global,
+    market_data_cache
 )
 
 from .types.specific import (
     count_distribution, matches_by_eids, matches_by_account,
-    matches_by_auction_account, count_account_eid_distinct
+    matches_by_auction_account, count_eid_distinct_by_account
 )
 
 routing_table = {
@@ -20,7 +21,8 @@ routing_table = {
     'matches_by_account': matches_by_account,
     'matches_by_auction_account': matches_by_auction_account,
     'count_distribution_global': count_distribution_global,
-    'count_account_eid_distinct': count_account_eid_distinct
+    'count_eid_distinct_by_account': count_eid_distinct_by_account,
+    'market_data_cache': market_data_cache
 }
 
 

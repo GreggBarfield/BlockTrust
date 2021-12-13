@@ -45,7 +45,7 @@ class SalesGroups:
     """
 
     _STANDARD_SELECT = """
-        SELECT sales_groups.*, accounts.company AS account_name,
+        SELECT sales_groups.*, accounts.name AS account_name,
                 auction_sales.name AS auction_sale_name
             FROM sales_groups
             LEFT JOIN accounts ON sales_groups.account=accounts.id
@@ -169,8 +169,8 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
-                "market_location":market_location,
-                "delivery_location":delivery_location,
+                "market_location": market_location,
+                "delivery_location": delivery_location,
                 "auction_sale": auction_sale,
                 "group_name": group_name,
                 "is_archived":is_archived

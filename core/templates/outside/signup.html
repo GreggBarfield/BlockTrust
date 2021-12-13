@@ -42,7 +42,7 @@
                     <div class="row">
                         <h4>Company Information:</h4>
                         <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
-                            title="Insert text here">
+                            title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
                         </a>
                     </div>
 
@@ -66,7 +66,7 @@
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
                                     {% for p in partners %}
-                                    <option value="{{p.id()}}">{{p.company()|e}}</option>
+                                    <option value="{{p.id()}}">{{p.name()|e}}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="focus-border"></span>
@@ -80,7 +80,7 @@
                                         style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
                                         data-toggle="tooltip"
                                         data-placement="right"
-                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”.   If you do not know, put ‘9999’. ">
+                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”. A partner ID is not needed if there is no partner. ">
                                     </a>
                                 </label>
                                 <input type="text" class="form-control" id="signup_form_partner_id" disabled=true>
@@ -88,6 +88,7 @@
                             </div>
                         </div>
                     </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
@@ -111,7 +112,8 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                    </div>         
+                    </div>    
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>     
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
@@ -128,11 +130,13 @@
                             </div>
                         </div>
                     </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
                     <div class="form-group required">
                         <label for="signup_form_address">Address</label>
                         <input type="text" class="form-control" id="signup_form_address" required>
                         <span class="focus-border"></span>
                     </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
                     <div class="row">
                         <div class="col-lg-4">
                             <div class="form-group required">
@@ -209,11 +213,11 @@
                             </div>
                         </div>
                     </div>
-                    <hr />
+                    <hr style="height:2px;background:black"/>
                     <div class="row">
                         <h4>User Information:</h4>
                         <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
-                            title="Insert text here">
+                            title="A company is able to have multiple users. This section is relative to the 'main' user. The main user will be able to invite other users within the company to join.">
                         </a>
                     </div>
                     <div class="form-group required">
@@ -221,16 +225,18 @@
                         <input type="email" class="form-control" id="signup_form_email" required>
                         <span class="focus-border"></span>
                     </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
                     <div class="form-group required">
                         <label for="signup_form_personal_phone">
                             Cell Phone Number
                             <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
-                            title="Insert text here">
+                            title="This is optional but recommended so we can implement 2 factor authentication and offer better customer service. Your personal information will NEVER be shared.">
                         </a>
                         </label>
                         <input type="text" class="form-control" id="signup_form_personal_phone" required>
                         <span class="focus-border"></span>
                     </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
@@ -260,8 +266,14 @@
     </div>
 </section>
 <script type="text/javascript">
-    var sector_id = '{{ default_sector_id }}'
+    var sectorId = '{{ default_sector_id }}'
+    var siteKey = '{{site_key}}'
+    var ipInfoAccessToken = '{{ipinfo_access_token}}'
+    var checkIP = '{{check_ip}}'
 </script>
+
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
+
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
 
 {% endblock outside_content %}

@@ -12,6 +12,7 @@ class USDAReportsException(Exception):
         """
         super().__init__(reason)
 
+
 class USDAReports:
     """Model of a report retrieved from USDA api"""
     
@@ -44,12 +45,100 @@ class USDAReports:
 
         return USDAReport(self._db, matching_reports[0])
 
+    def get_all(self):
+        """Gets all USDA Reports
+
+        Returns:
+            A list of USDAReport objects on success, or None on no match.
+        """
+        all_reports = self._db.execute_d(
+            """
+                SELECT * FROM usda_reports
+            """
+        )
+
+        return all_reports
+
+    def get_all_states(self):
+        """Gets all the states mentioned from the USDA Reports
+
+        Returns:
+            A list of unique US states the reports are for on success, 
+            or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT market_location_state 
+                FROM usda_reports
+                WHERE market_location_state is not null
+            """
+        )
+
+        return result
+
+    def get_all_city_by_state(self, state):
+        """Gets all unique city and id combinations for USDA Reports
+            given the state
+
+        Returns:
+            A list of unique slug_id's and their market cities
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT slug_id, market_location_city
+                FROM usda_reports
+                WHERE market_location_state=%(state)s
+            """,
+            {
+                "state" : state
+            }
+        )
+
+        return result
+
+    def get_all_by_slug_id(self, slug_id):
+        """Gets all USDA Reports based on the given slug_id
+
+        Returns:
+            A list of reports based on the slug_id
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT *
+                FROM usda_reports 
+                WHERE slug_id=%(slug_id)s
+            """,
+            {
+                "slug_id" : slug_id
+            }
+        )
+
+        return result
+
+    def get_all_published_dates(self):
+        """Gets all the unique published date/slug_id combinations
+
+        Returns:
+            A list of published dates and slug_ids
+            on success, or None on no match.
+        """
+        result = self._db.execute_d(
+            """
+                SELECT DISTINCT slug_id, published_date
+                FROM usda_reports 
+            """
+        )
+
+        return result
+
     def create_report(self, report: USDAReport):
         """Creates a new USDA report
 
         Params:
             USDAReport: Report to be added to the DB.
-        
+
         Returns:
             The report id to be added to that report object.
         """
@@ -159,8 +248,7 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
-
-    
+ 
     def get_all_published_dates(self):
         """Gets all the unique published date/slug_id combinations
 

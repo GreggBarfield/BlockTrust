@@ -1,6 +1,7 @@
 from time import sleep
 from core.reports.query import execute_query
-from core.common_exceptions import ExportException
+import datetime
+import traceback
 
 
 def run(db):
@@ -9,26 +10,25 @@ def run(db):
     Params:
         db: A Database object
     """
-    while True:
-        report = db.reports.work_report()
+    report = db.reports.work_report()
 
-        if report is None:
-            print("Sleeping")
-            sleep(10)
-        else:
-            print("Running report", report['id'])
-            try:
-                result = execute_query(db, report['query'])
-                db.reports.fulfill_report(
-                    report['id'],
-                    result
+    if report is None:
+        print("Sleeping. Current time:", datetime.datetime.now().time())
+        sleep(3600)
+    else:
+        print("Running report:", report['id'], "account id:", report['account_id'])
+        try:
+            result = execute_query(db, report['query'])
+            db.reports.fulfill_report(
+                report['id'],
+                result
+            )
+        except Exception as e:
+            db.reports.fulfill_report(
+                report['id'],
+                {
+                    "error": str(e), "Traceback": traceback.format_exc()
+                },
+                status=4
                 )
-            except ExportException as e:
-                db.reports.fulfill_report(
-                    report['id'],
-                    {
-                        "error": str(e)
-                    },
-                    status=4
-                )
-            # No bare except since it also catches ctrlc interrupts
+        # No bare except since it also catches ctrlc interrupts

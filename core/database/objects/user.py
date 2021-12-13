@@ -1,10 +1,9 @@
 from copy import deepcopy
-from .. import database
 
 
 class User:
 
-    def __init__(self, db: 'database.Database', row):
+    def __init__(self, db, row):
         """User constructor.
 
         Params:
@@ -21,17 +20,20 @@ class User:
     def id(self):
         return self._row['id']
 
-    def first(self):
-        return self._row['first']
+    def first_name(self):
+        return self._row['first_name']
 
-    def last(self):
-        return self._row['last']
+    def last_name(self):
+        return self._row['last_name']
 
     def email(self):
         return self._row['email']
 
-    def email_verified(self):
-        return self._row['email_verified']
+    def is_email_verified(self):
+        return self._row['is_email_verified']
 
     def phone(self):
         return self._row['phone']
+
+    def is_system_generated(self):
+        return self._row["is_system_generated"]

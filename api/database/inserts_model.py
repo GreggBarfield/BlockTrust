@@ -41,7 +41,7 @@ class InsertsModel:
 
     @staticmethod
     def _process_row(row):
-        json_fields = ['api_blocks.value', 'fields', 'row']
+        json_fields = ['fields', 'row']
         for f in json_fields:
             if row[f] is not None and row[f] != "":
                 row[f] = json.loads(row[f])
@@ -66,17 +66,14 @@ class InsertsModel:
         """
         results = Database._expand_multi(self._cur.execute(
             """
-                LOCK TABLES api_inserts WRITE, api_blocks WRITE;
+                LOCK TABLES api_inserts WRITE;
                 SET @insert_id = (
                     SELECT id FROM api_inserts WHERE status=%(pending_status)s
-                    ORDER BY priority DESC, id ASC
                     LIMIT 1
                 );
                 UPDATE api_inserts SET status=%(running_status)s WHERE id=@insert_id;
-                SELECT api_inserts.*, api_blocks.value AS 'api_blocks.value',
-                    api_blocks.resolved AS 'api_blocks.resolved'
+                SELECT api_inserts.*
                     FROM api_inserts
-                    LEFT JOIN api_blocks ON api_blocks.id=api_inserts.block
                     WHERE api_inserts.id=@insert_id;
                 UNLOCK TABLES;
             """,
