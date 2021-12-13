@@ -54,7 +54,7 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/edit/" + salesGroup.id
             );
-                        controls.addA(
+            controls.addA(
                 "Manage EIDs",
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/manage-eids/" + salesGroup.id

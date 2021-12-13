@@ -244,34 +244,35 @@ def serve_save_sales_group():
 @crut.require_account
 def serve_manage_sales_group_eids():
     sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
-    # Getting eids owned by the account
-    matches = g.db.matches.get_eid_distinct_by_account(g.account.id())
-    #  Getting eid_groups owned by account and corresponding eid's
-    account_eid_groups = EIDGroups(g.db).get_eid_groups_by_account(g.account.id())
-    assigned_eids_for_account = []
-    for account_eid_group in account_eid_groups:
-        assigned_eids = EIDGroups(g.db).get_eids(account_eid_group["id"])
-        if len(assigned_eids) > 0:
-            assigned_eids_for_account.extend(assigned_eids)
-    available_eids = []
-    for match in matches:
-        if match["eid"] not in assigned_eids_for_account:
-            available_eids.append(match)
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
+    # Getting eids owned by the account
+    distinct_eids = g.db.matches.get_distinct_eids_by_account(g.account.id())
+    #  Getting eid_groups owned by account and corresponding eid's
+    account_eid_groups = g.db.eid_groups.get_eid_groups_by_account(g.account.id())
+    assigned_eids_for_account = []
+    for account_eid_group in account_eid_groups:
+        assigned_eids = g.db.eid_groups.get_eids(account_eid_group["id"])
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_eids_with_timestamps = []
+    for distinct_eid in distinct_eids:
+        if distinct_eid["eid"] not in assigned_eids_for_account:
+            available_eids_with_timestamps.append(distinct_eid)
     return {
         "id": sales_group_row["id"],
-        "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-        "available_eids": available_eids
+        "assigned_eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+        "available_eids_with_timestamps": available_eids_with_timestamps
     }
 
 
 @bp.route('/widgets/data/save_sales_group_eids', methods=['POST'])
 @crut.require_account
 def serve_save_sales_group_eids():
-    print(request.json)
     original_row = g.db.sales_groups.row_by_id(request.json["id"])
-    g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+    # g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+    g.db.eid_groups.empty_group(original_row["eid_group"])
+    g.db.eid_groups.insert_eids(original_row["eid_group"], request.json["eids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
@@ -439,23 +440,3 @@ def serve_get_market_data(slug_id):
         'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
     }, 200
 
-
-@bp.route('/widgets/data/get_available_tags', methods=["POST"])
-@crut.require_account
-def get_available_tags():
-    # Very high time complexity causing webpage to load slowly and errors
-    matches = g.db.matches.get_eid_distinct_by_account(g.account.id())
-    account_eid_groups = EIDGroups(g.db).get_eid_groups_by_account(g.account.id())
-    assigned_eids_for_account = []
-    for account_eid_group in account_eid_groups:
-        assigned_eids = EIDGroups(g.db).get_eids(account_eid_group["id"])
-        if len(assigned_eids) > 0:
-            assigned_eids_for_account.extend(assigned_eids)
-    print(assigned_eids_for_account)
-    print(account_eid_groups)
-    matches_list = []
-    for match in matches:
-        matches_list.append(match["eid"])
-    return {
-        'matches': matches_list  # g.db.matches.get_eid_distinct_by_account(g.account.id())
-    }, 200

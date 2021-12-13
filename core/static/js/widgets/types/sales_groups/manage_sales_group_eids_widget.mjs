@@ -8,8 +8,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
-
-        // TODO: This is a bad data request, optimize later
         this.getData(
             "manage_eids",
             {
@@ -29,23 +27,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
     
     makeForm(){
         // Sections
-        
         let eids_selected = [];
-        eids_selected.push(...this.data.eids)
-        function addTooltip(dataToggle,title,position){
-            let toolTip = document.createElement("a");
-            toolTip.className="feather icon-info";
-            toolTip.style = "color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px";
-            toolTip.setAttribute("data-toggle" ,dataToggle);
-            toolTip.setAttribute("data-placement" ,"right");
-            toolTip.setAttribute("title" ,title);
-            position.append(toolTip);           
-            $(document).ready(function(){
-                $('[data-toggle='+dataToggle+']').tooltip(); 
-            });
-        }
-       
-
+        eids_selected.push(...this.data.assigned_eids)
         function createSection(form, name) {
 
             let header = document.createElement("h6");
@@ -54,22 +37,16 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
-
             form.append(document.createElement("br"));
             return row;
         }
-
-        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
+        function createGroup(row, name, htmlFor) {
             let group = document.createElement("div");
             group.className = "form-group col-md-6";
             row.append(group);
-
-
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
-            if (hasTooltip)
-                addTooltip(dataToggle,tooltipText,groupLabel);
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
@@ -77,12 +54,12 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             return group;
         }
 
-        function createCheckList({row, name, values, sales_group_eids},hasTooltip=false,dataToggle="",tooltipText=""){
+        function createCheckList(row, name, salesGroupAvailableEids, salesGroupAssignedEids){
             //This is custom for the eids checklist. Can be generalized later
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
-            let eid_group = createGroup(row, "Assigned EIDs:", id,hasTooltip,dataToggle,tooltipText);
-            eid_group.appendChild(document.createElement("br"));
+            let availableEidGroup = createGroup(row, name, id);
+            let assignedEidGroup = createGroup(row, "Assigned EIDs:", id);
+            assignedEidGroup.appendChild(document.createElement("br"));
             // Creating table outline
             let table = document.createElement('table');
             table.className = "table table-striped table-bordered nowrap";
@@ -100,7 +77,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
             let tableBody = document.createElement("tbody");
             table.appendChild(tableBody);
-
             // Creating assigned EIDs table
             let assigned_eids_table = document.createElement('table');
             assigned_eids_table.className = "table table-striped table-bordered nowrap";
@@ -127,35 +103,31 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             selectAllCheckbox.className="select-all-eid-checkbox float-right";
             selectAllCheckbox.id="select-all-eid-checkbox";
             selectAllCheckbox.onchange = ()=>{
-                   
-                console.log(eids_selected); 
                 if($("#select-all-eid-checkbox").is(":checked")){
                     $(".eid-checkbox").prop("checked",true);
                     eids_selected=[];
-                    for (const value in values) {
-                        eids_selected.push(values[value].eid)
+                    for (const value in salesGroupAvailableEids) {
+                        eids_selected.push(salesGroupAvailableEids[value].eid)
                     }
-                    for(const i in sales_group_eids){
-                        eids_selected.push(sales_group_eids[i]);
-                    }   
-                    console.log(eids_selected);             
+                    for(const i in salesGroupAssignedEids){
+                        eids_selected.push(salesGroupAssignedEids[i]);
+                    }            
                 }
                 else{
                     $(".eid-checkbox").prop("checked",false); 
                     eids_selected=[];
-                    console.log(eids_selected); 
                 }
             }
             var label = document.createElement('label')
             label.htmlFor = "Select All";
             label.className  = "form-label float-right font-weight-bold";
             label.appendChild(document.createTextNode("Select All")); 
-            group.appendChild(label);
-            group.appendChild(selectAllCheckbox);
-            group.appendChild(document.createElement("br"));
+            availableEidGroup.appendChild(label);
+            availableEidGroup.appendChild(selectAllCheckbox);
+            availableEidGroup.appendChild(document.createElement("br"));
 
             // Adding already existing eids to eids_selected
-            for (const value in values) {
+            for (const value in salesGroupAvailableEids) {
                 let rowTag = document.createElement("tr");
                 tableBody.appendChild(rowTag);
 
@@ -164,15 +136,15 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 checkbox.type="checkbox";
                 checkbox.name = "eid-checkbox";
                 checkbox.className="eid-checkbox"
-                checkbox.id=values[value].eid;
-                checkbox.value = values[value].eid;
+                checkbox.id=salesGroupAvailableEids[value].eid;
+                checkbox.value = salesGroupAvailableEids[value].eid;
                 checkbox.onchange = ()=>{
-                    if($("#"+values[value].eid).is(":checked")){
-                    eids_selected.push(values[value].eid);
+                    if($("#"+salesGroupAvailableEids[value].eid).is(":checked")){
+                    eids_selected.push(salesGroupAvailableEids[value].eid);
                     }
                     else{
                         for(var i=0;i<eids_selected.length;i++){
-                            if(eids_selected[i]==values[value].eid){eids_selected.splice(i,1);}
+                            if(eids_selected[i]==salesGroupAvailableEids[value].eid){eids_selected.splice(i,1);}
                         }
                     }
                 }
@@ -180,14 +152,14 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 rowTag.appendChild(tdCheckbox);
                 
                 let tdEID = document.createElement("td");
-                tdEID.textContent = values[value].eid;
+                tdEID.textContent = salesGroupAvailableEids[value].eid;
                 rowTag.appendChild(tdEID);
 
                 let tdEIDDatetime = document.createElement("td");
-                tdEIDDatetime.textContent = values[value].created_timestamp;
+                tdEIDDatetime.textContent = salesGroupAvailableEids[value].created_timestamp;
                 rowTag.appendChild(tdEIDDatetime);
             }
-            for(const i in sales_group_eids){ 
+            for(const i in salesGroupAssignedEids){ 
                 let rowTag = document.createElement("tr");
                 assigned_eids_tableBody.appendChild(rowTag);
 
@@ -197,16 +169,16 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 checkbox.type="checkbox";
                 checkbox.name = "eid-checkbox";
                 checkbox.className="eid-checkbox"
-                checkbox.id=sales_group_eids[i];
-                checkbox.value = sales_group_eids[i];
+                checkbox.id=salesGroupAssignedEids[i];
+                checkbox.value = salesGroupAssignedEids[i];
                 checkbox.checked = true;
                 checkbox.onchange = ()=>{
-                    if($("#"+sales_group_eids[i]).is(":checked")){
-                    eids_selected.push(sales_group_eids[i]);
+                    if($("#"+salesGroupAssignedEids[i]).is(":checked")){
+                    eids_selected.push(salesGroupAssignedEids[i]);
                     }
                     else{
                         for(var j=0;j<eids_selected.length;j++){
-                            if(eids_selected[j]==sales_group_eids[i]){eids_selected.splice(j,1);}
+                            if(eids_selected[j]==salesGroupAssignedEids[i]){eids_selected.splice(j,1);}
                         }
                     }
                 }
@@ -214,13 +186,13 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 rowTag.appendChild(tdCheckbox);
 
                 let tdEID = document.createElement("td");
-                tdEID.textContent = sales_group_eids[i];
+                tdEID.textContent = salesGroupAssignedEids[i];
                 rowTag.appendChild(tdEID);
             }
 
             table.value = eids_selected;
-            group.append(table);
-            eid_group.append(assigned_eids_table);
+            availableEidGroup.append(table);
+            assignedEidGroup.append(assigned_eids_table);
             return table;
         }
 
@@ -247,12 +219,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         cardBody.append(form);
 
         let eidsRow = createSection(form, "");
-        let eidSelector = createCheckList({
-            row: eidsRow,
-            name: "Available EIDs:",
-            values: this.data.available_eids,
-            sales_group_eids: this.data.eids
-        },false,"","",this.data.eid_created_dates || []);
+        let eidSelector = createCheckList(eidsRow,"Available EIDs:",this.data.available_eids_with_timestamps,this.data.assigned_eids);
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";

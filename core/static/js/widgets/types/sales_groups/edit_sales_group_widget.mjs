@@ -15,8 +15,6 @@ export class EditSalesGroupWidget extends Widget {
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.formElements = {};
-
-        setTimeout(()=>{}, 3000);
         this.getData(
             "sales_group",
             {
@@ -26,10 +24,6 @@ export class EditSalesGroupWidget extends Widget {
             this.data = data;
             this.makeForm();
         });
-
-
-
-
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
@@ -117,19 +111,15 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
-            // This is custom for EID selection, we can generalize this in the future
             let id = "domuid" + window.DOMUIDNext++;
-
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
             group.append(select);
-
             let optionsStacked = [];
             for (const option of options) {
                 optionsStacked.push({
@@ -443,7 +433,7 @@ export class EditSalesGroupWidget extends Widget {
                 return {
                     id: that.salesGroupID,
                     published: publishSwitch.isChecked(),
-                    eids: eidSelector.value,
+                    eids: [],
                     reported: {
                         comments: commentsTA.value,
                         count: safeInt(marketingCount.value),
