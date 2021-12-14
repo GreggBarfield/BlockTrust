@@ -417,6 +417,7 @@ def serve_get_sustainability_timeline_data():
             )
 
         data = {}
+        #ordering list is used to display the timeline data in the correct order
         ordering = []
         for account_data in matched_accounts:
             response = g.db.sustainability.get_sustainability_by_account(account_data['account'], True)
@@ -429,7 +430,7 @@ def serve_get_sustainability_timeline_data():
                 }
             else:
                 response = response[0]
-
+            #below line appends/updates elements of response dictionary into account_data dictionary
             account_data.update(response)
             data[account_data['account']] = account_data
             ordering.append(account_data['account'])
