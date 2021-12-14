@@ -9,18 +9,24 @@ export class SustainabilityTimelineWidget extends Widget {
 
     initType() {
         this.getData(
+            "direct/sectors_by_id",
+            {}
+        ).then((data) => {
+            this.sectorsByID = data.sectors_by_id;
+        });
+        
+        this.getData(
             "get_sustainability_timeline_data",
             {}
             ).then((data) => {
             this.frame.innerHTML = "";
             this.matches = data.timeline_data;
-            this.match_ordering = data.order;
+            this.matchOrdering = data.order;
         
             this.prepData();
             this.makeTimeLineChart();
             am4core.options.autoDispose = true;
         });
-
     }
 
     makeTimeLineChart(){
@@ -29,14 +35,14 @@ export class SustainabilityTimelineWidget extends Widget {
         timelineContainer.className = "js position-relative z-index-1 overflow-hidden padding-y-xl bg-contrast-lower";
         codyhouseContainer.appendChild(timelineContainer);
 
-        let cd_container = document.createElement("div");
-        cd_container.className = "container max-width-adaptive-lg";
-        timelineContainer.appendChild(cd_container);
+        let cdContainer = document.createElement("div");
+        cdContainer.className = "container max-width-adaptive-lg";
+        timelineContainer.appendChild(cdContainer);
 
-        let cd_timeline = document.createElement("div");
-        cd_timeline.className = "v-timeline v-timeline--icons js-v-timeline";
-        cd_timeline.setAttribute("data-animation", "on");
-        cd_container.appendChild(cd_timeline);
+        let cdTimeline = document.createElement("div");
+        cdTimeline.className = "v-timeline v-timeline--icons js-v-timeline";
+        cdTimeline.setAttribute("data-animation", "on");
+        cdContainer.appendChild(cdTimeline);
 
         let fasStyle = "font-size: 24px;text-align: center;position: absolute;left: 0px;top: 0px;height: 100%;width: 100%;line-height: 40px;vertical-align: middle;";
 
@@ -65,7 +71,7 @@ export class SustainabilityTimelineWidget extends Widget {
         };
 
         // Render
-        for (const id of this.match_ordering) {
+        for (const id of this.matchOrdering) {
             let match = this.matches[id];
 
             let section = document.createElement("section");
@@ -98,7 +104,7 @@ export class SustainabilityTimelineWidget extends Widget {
             itemDiv.append(textComponent);
 
             let title = document.createElement("h5");
-            title.textContent = match.name + " " + this.getSectorNameById(match.sector);
+            title.textContent = match.name + " [" + this.sectorsByID[match.sector] + "]";
             title.className = "h5";
             textComponent.append(title);
 
@@ -117,18 +123,18 @@ export class SustainabilityTimelineWidget extends Widget {
 
             itemsGroup.append(itemDiv);
             section.append(itemsGroup);
-            cd_timeline.append(section);
+            cdTimeline.append(section);
         }
 
         this.frame.appendChild(codyhouseContainer);
-        window.VTimeline(cd_timeline);
+        window.VTimeline(cdTimeline);
     }
 
     prepData() {
-        this.response_data = {};
+        this.responseData = {};
         
         for(const match in this.matches){
-            this.response_data[match] = {};
+            this.responseData[match] = {};
             let totals = {
                 "excellent": 0, 
                 "acceptable": 0,
@@ -138,7 +144,7 @@ export class SustainabilityTimelineWidget extends Widget {
             let responses = JSON.parse(this.matches[match].response);
             
             for(const section_type in responses){
-                this.response_data[match][section_type] = {
+                this.responseData[match][section_type] = {
                     "excellent": 0, 
                     "acceptable": 0,
                     "needsWork": 0
@@ -147,24 +153,24 @@ export class SustainabilityTimelineWidget extends Widget {
                 for(const item of responses[section_type]) {
 
                     if (item.includes('a')) {
-                        this.response_data[match][section_type].excellent += 1;
+                        this.responseData[match][section_type].excellent += 1;
                         totals.excellent += 1;
                     } else if (item.includes('b')) {
-                        this.response_data[match][section_type].acceptable += 1;
+                        this.responseData[match][section_type].acceptable += 1;
                         totals.acceptable += 1;
                     } else if (item.includes('c')) {
-                        this.response_data[match][section_type].needsWork += 1;
+                        this.responseData[match][section_type].needsWork += 1;
                         totals.needsWork += 1;
                     }
                 }
             }
 
-            this.response_data[match]['allSections'] = totals;
+            this.responseData[match]['allSections'] = totals;
         }
     }
 
     getGraphablePieData(id, type) {
-        let itemResults = this.response_data[id][type];
+        let itemResults = this.responseData[id][type];
 
         let graphableData = [{
                 "sector": "Excellent",
@@ -186,12 +192,12 @@ export class SustainabilityTimelineWidget extends Widget {
     }
 
     makeGraph(container, id, type) {
-        if (this.response_data[id] == null == null) {
+        if (this.responseData[id] == null == null) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.response_data[id][type].excellent == 0
-                && this.response_data[id][type].acceptable == 0
-                && this.response_data[id][type].needsWork == 0) {
+        else if (this.responseData[id][type].excellent == 0
+                && this.responseData[id][type].acceptable == 0
+                && this.responseData[id][type].needsWork == 0) {
             container.textContent = "(no data)";
         }
         else {
@@ -224,43 +230,25 @@ export class SustainabilityTimelineWidget extends Widget {
         }
     }
 
-    getSectorNameById(id) {
-        let name = "";
-        switch(id) {
-            case 4: 
-                name = "[Cow-Calf]";
-                break;
-            case 6:
-                name = "[Feeder]";
-                break;
-            case 7:
-                name = "[Packer]";
-                break;
-            default:
-                name = "";
-        }
-        return name;
-    }
-
     openModal(match) {
-        let title = match.name + " " + this.getSectorNameById(match.sector)
+        let title = match.name + " [" + this.sectorsByID[match.sector] + "]";
         let infoModal = new InfoModal("Details for " + title);
         let modalBody = infoModal.getBody();
 
         let sections = getSustainabilitySections();
 
-        for (const section_type in this.response_data[match.id]) {
-            if (section_type != "allSections") {
+        for (const sectionType in this.responseData[match.id]) {
+            if (sectionType != "allSections") {
                 let card = document.createElement("div");
                 let cardHeader = document.createElement("div");
                 cardHeader.className = "card-header";
-                cardHeader.textContent = sections[section_type];
+                cardHeader.textContent = sections[sectionType];
                 let cardBody = document.createElement("div");
                 cardBody.className = "card-body";
                 card.append(cardHeader);
                 card.append(cardBody);
                 modalBody.append(card);
-                this.makeGraph(cardBody, match.id, section_type);
+                this.makeGraph(cardBody, match.id, sectionType);
             }
         }
     }
