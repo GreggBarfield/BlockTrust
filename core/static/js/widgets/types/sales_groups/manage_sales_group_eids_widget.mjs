@@ -103,7 +103,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             }
             return checkListTable;
         }
-        function craeteSelectAllCheckbox(checkboxName){         
+        function createSelectAllCheckbox(checkboxName){         
             let selectAll = document.createElement("div");
             var selectAllCheckbox = document.createElement("input");
             selectAllCheckbox.type="checkbox";
@@ -142,7 +142,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
             let availableEidsChecklist = createCheckList(salesGroupAvailableEids, "EID", [], "eidCheckBox") ;
             let assignedEidsCheckList = createCheckList(salesGroupAssignedEids, "EID", salesGroupAssignedEids, "eidCheckBox");
-            let selectAll = craeteSelectAllCheckbox("eidCheckBox");
+            let selectAll = createSelectAllCheckbox("eidCheckBox");
             availableEidGroup.append(selectAll);
             availableEidGroup.append(availableEidsChecklist);
             assignedEidGroup.append(assignedEidsCheckList);
