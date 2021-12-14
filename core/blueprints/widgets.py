@@ -274,14 +274,14 @@ def serve_manage_sales_group_eids():
         assigned_eids = g.db.eid_groups.get_eids(account_eid_group["id"])
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
-    available_eids_with_timestamps = []
+    available_eids = []
     for distinct_eid in distinct_eids:
         if distinct_eid["eid"] not in assigned_eids_for_account:
-            available_eids_with_timestamps.append(distinct_eid)
+            available_eids.append(distinct_eid["eid"])
     return {
         "id": sales_group_row["id"],
         "assigned_eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-        "available_eids_with_timestamps": available_eids_with_timestamps
+        "available_eids": available_eids
     }
 
 
