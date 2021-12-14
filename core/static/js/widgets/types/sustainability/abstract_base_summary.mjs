@@ -14,6 +14,7 @@ export class AbstractBaseSummaryWidget extends Widget {
     }
 
     getSectorData() {
+        //This grabs the sector number for the current user pass in from dashboard.py.
         this.sector = this.frame.getAttribute('data-widget-sector');
 
         this.getData(

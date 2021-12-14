@@ -71,6 +71,12 @@ export class SustainabilityTimelineWidget extends Widget {
         };
 
         // Render
+        /*
+        this.match_ordering below holds the order of the matches that the timeline needs to be. For whatever reason, when the dictionary is brought over from the dashboard.py to this widget, Javascript
+        disregards whatever the ordering was and orders it in its own way. So the only way for me to keep that specific ordering is to have it saved somewhere and sent with the data. 
+        Python can have ordered dictionaries, Javascript can’t. Without something like this, we would have the timeline go in a random order (ex: Feeder → Cow-calf → Packer → Feeder, etc. 
+        Gregg wants it in a specific “cow-calf → all feeder info → packer” ordering
+        */
         for (const id of this.matchOrdering) {
             let match = this.matches[id];
 
