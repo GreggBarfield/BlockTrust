@@ -799,6 +799,10 @@ ADD CONSTRAINT `fk_accounts_partner_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Conner Charles 11/08/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"sustainability_averages\", \"params\": {}}", 0)
+
 /* Rohan Sureshkumar 11/9/2021 */
 ALTER TABLE `job_runs` 
 CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
@@ -865,3 +869,9 @@ CREATE TABLE `invited_users` (
 ALTER TABLE `users` 
 ADD COLUMN `ip_address` VARCHAR(64) NULL DEFAULT NULL AFTER `recaptcha_score`,
 ADD COLUMN `ip_country` VARCHAR(64) NULL DEFAULT NULL AFTER `ip_address`;
+
+/* Lydia Qiao 12/13/2021 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `is_archived` TINYINT NULL DEFAULT '0' AFTER `group_name`,
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
