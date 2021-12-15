@@ -1,5 +1,3 @@
-import { ProgressBar } from '../../../core/progress_bar.mjs';
-import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
 
