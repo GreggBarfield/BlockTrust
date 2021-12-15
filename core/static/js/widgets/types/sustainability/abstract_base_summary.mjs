@@ -4,10 +4,30 @@ import { Widget } from "../../widget.mjs";
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
+        this.getSectorData();
     }
 
     setDataSet(dataCounter) {
         this.dataCounter = dataCounter;
+        this.dataCounter['this_sector'] = this.sectorData[this.sector].allSections; 
+        this.dataCounter['all_sectors'] = this.sectorData['allSectors'];
+    }
+
+    getSectorData() {
+        //This grabs the sector number for the current user pass in from dashboard.py.
+        this.sector = this.frame.getAttribute('data-widget-sector');
+
+        this.getData(
+            "data_request",
+            {
+                request: {
+                    type: 'sustainability_averages',
+                    params: {}
+                }
+            }
+        ).then((data) => {
+            this.sectorData = data.result;
+        });
     }
 
     makeNewSurveyBtn() {
@@ -40,10 +60,10 @@ export class AbstractBaseSummaryWidget extends Widget {
         cardBody.className = "card-body";
         card.append(cardBody);
 
-        let timeLineGraph = document.createElement("div");
-        timeLineGraph.style = "height: 18em;";
-        cardBody.append(timeLineGraph);
-        this.makeTimeLineGraph(timeLineGraph);
+        let lineGraph = document.createElement("div");
+        lineGraph.style = "height: 18em;";
+        cardBody.append(lineGraph);
+        this.makeLineGraph(lineGraph);
     }
 
     makeAverageScoreGraph(row) {
@@ -112,14 +132,13 @@ export class AbstractBaseSummaryWidget extends Widget {
         susGraph.id = "sector";
         susGraph.className = "tab-pane fade show active";
         susTabContent.append(susGraph);
-        this.makeGraph(susGraph, "all");
+        this.makeGraph(susGraph, "this_sector");
 
-        //* TODO: will need to change in future */
         let supplyChainGraph = document.createElement("div");
         supplyChainGraph.id = "supply-chain";
         supplyChainGraph.className = "tab-pane fade";
         susTabContent.append(supplyChainGraph);
-        this.makeGraph(supplyChainGraph, "all");
+        this.makeGraph(supplyChainGraph, "all_sectors");
     }
 
     makeOtherPieGraphs(sections) {
@@ -168,7 +187,7 @@ export class AbstractBaseSummaryWidget extends Widget {
         return graphableData;
     }
 
-    getGraphableTimeLineData() {
+    getGraphableLineData() {
         let graphableData = [];
 
         // Right now just takes the sum of the excellent scores
@@ -194,7 +213,7 @@ export class AbstractBaseSummaryWidget extends Widget {
         return graphableData;
     }
 
-    makeTimeLineGraph(container) {
+    makeLineGraph(container) {
         if (this.responses == null) {
             container.textContent = "Data is not available yet.";
         }
@@ -207,7 +226,7 @@ export class AbstractBaseSummaryWidget extends Widget {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.XYChart);
 
-                chart.data = self.getGraphableTimeLineData();
+                chart.data = self.getGraphableLineData();
 
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
