@@ -69,7 +69,7 @@ class SalesGroups:
                     d_actual["reported"] = json.loads(d_actual["reported"])
         return d
 
-    def row_by_id(self, row_id):
+    def get_sales_group_by_id(self, row_id):
         """Gets a sales group row by an ID.
 
         Params:

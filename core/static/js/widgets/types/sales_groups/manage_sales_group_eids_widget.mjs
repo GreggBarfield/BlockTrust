@@ -30,7 +30,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let eids_selected = [];
         eids_selected.push(...this.data.assigned_eids)
         function createSection(form, name) {
-
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
@@ -105,6 +104,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         }
         function createSelectAllCheckbox(checkboxName){         
             let selectAll = document.createElement("div");
+            selectAll.className = "d-inline"
             var selectAllCheckbox = document.createElement("input");
             selectAllCheckbox.type="checkbox";
             selectAllCheckbox.name = "select-all-eid-checkbox";
@@ -134,21 +134,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             selectAll.append(selectAllCheckbox)
             return selectAll; 
         }
-        function createEidsCheckList(row, name, salesGroupAvailableEids, salesGroupAssignedEids){
-            //This is custom for the eids checklist. Can be generalized later
-            let id = "domuid" + window.DOMUIDNext++;
-            let availableEidGroup = createGroup(row, name, id);
-            let assignedEidGroup = createGroup(row, "Assigned EIDs:", id);
-
-            let availableEidsChecklist = createCheckList(salesGroupAvailableEids, "EID", [], "eidCheckBox") ;
-            let assignedEidsCheckList = createCheckList(salesGroupAssignedEids, "EID", salesGroupAssignedEids, "eidCheckBox");
-            let selectAll = createSelectAllCheckbox("eidCheckBox");
-            availableEidGroup.append(selectAll);
-            availableEidGroup.append(availableEidsChecklist);
-            assignedEidGroup.append(assignedEidsCheckList);
-        }
-
-        let that = this;
         let card = document.createElement("div");
         card.className = "card";
         let cardHeader = document.createElement("h3");
@@ -172,7 +157,17 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
 
         let eidsRow = createSection(form, "");
-        let eidSelector = createEidsCheckList(eidsRow,"Available EIDs:",this.data.available_eids,this.data.assigned_eids);
+        let id = "domuid" + window.DOMUIDNext++;
+        let availableEidGroup = createGroup(eidsRow,"Available EIDs:", id);
+        let assignedEidGroup = createGroup(eidsRow, "Assigned EIDs:", id);
+
+        let availableEidsChecklist = createCheckList(this.data.available_eids, "EID", [], "eidCheckBox") ;
+        let assignedEidsCheckList = createCheckList(this.data.assigned_eids, "EID", this.data.assigned_eids, "eidCheckBox");
+        let selectAll = createSelectAllCheckbox("eidCheckBox");
+        
+        availableEidGroup.append(selectAll);
+        availableEidGroup.append(availableEidsChecklist);
+        assignedEidGroup.append(assignedEidsCheckList);
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
@@ -204,7 +199,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             asJSON: true,
             getData: () => {
                 return {
-                    id: that.salesGroupID,
+                    id: this.salesGroupID,
                     eids: eids_selected
                 }
             }

@@ -374,7 +374,7 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_distinct_eids_by_account(self, account_id):
+    def get_distinct_eids_by_account(self, account_id, number_of_years):
         """Return the distinct EIDs in the database for an account.
 
         Params:
@@ -392,10 +392,10 @@ class Matches:
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=%(account)s
                 ) AND
-                YEAR(current_timestamp) > YEAR(current_date())-%(requested_years_old)s
+                YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
                 """, {
                     "account": account_id,
-                    "requested_years_old": 1
+                    "number_of_years": number_of_years
                 }
         )
 

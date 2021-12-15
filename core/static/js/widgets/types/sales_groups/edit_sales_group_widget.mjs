@@ -27,7 +27,6 @@ export class EditSalesGroupWidget extends Widget {
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
-
     }
     
     makeForm() {

@@ -1,3 +1,4 @@
+from core.database.tables.accounts import NO_VALUE
 from ..frag import frag, frag_insert_into
 from .. import database
 
@@ -16,7 +17,7 @@ class EIDGroupsException(Exception):
 
 class EIDGroups:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get_eids(self, group_id):
@@ -123,22 +124,37 @@ class EIDGroups:
             )
         )
 
-    def get_eid_groups_by_account(self, owner):
+    def get_eid_groups(self, id=NO_VALUE, owner=NO_VALUE):
         """
-        Gets the eid groups owned by an account
-
+        Gets the eid_groups tuples based on given conditions
         Params:
-            account_id: Account ID of the required account
+            id: EID group ID
+            owner: Account ID of the account which owns the sales group
 
         Returns:
-            An array of eid_groups owned by account
+            A list of eid group(s) record if found else []
         """
-        eid_groups = self._db.execute_d(
-            """
-            SELECT id FROM eid_groups WHERE owner=%(owner)s
-            """,
-            {
-                "owner": owner
-            }
-        )
-        return eid_groups
+        # base query
+        base_query = "SELECT * FROM eid_groups "
+        query_conditions = []
+        query_values = {}
+        if id is not NO_VALUE:
+            query_conditions.append(" id = %(id)s")
+            query_values["id"] = id
+
+        if owner is not NO_VALUE:
+            query_conditions.append(" owner = %(owner)s")
+            query_values["owner"] = owner
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        eid_groups_rows = self._db.execute_d(query, query_values)
+        if len(eid_groups_rows) > 0:
+            return eid_groups_rows
+        else:
+            return []

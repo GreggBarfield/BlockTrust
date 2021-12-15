@@ -191,12 +191,13 @@ def serve_new_sales_group():
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
 def serve_edit_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
 
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
+
 
 @bp.route('/dashboard/sales-groups/archive', methods=['GET'])
 @crut.require_account
@@ -204,11 +205,10 @@ def serve_sales_group_archive():
     return dashboard_render("sales-groups/sales-group/archive.html", {"account_id": g.account.id()})
 
 
-
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
 def serve_view_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         return dashboard_render(
@@ -217,16 +217,18 @@ def serve_view_sales_group(sales_group_id):
         )
     return dashboard_render("sales-groups/sales-group/not-published.html")
 
+
 @bp.route('/dashboard/sales-groups/manage-eids/<int:sales_group_id>', methods=["GET"])
 @crut.require_account
 def serve_manage_eids_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         return dashboard_render(
             "sales-groups/sales-group/manage-eids.html",
             {"sales_group": sales_group_row}
         )
     return dashboard_render("sales-groups/sales-group/no.html")
+
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
