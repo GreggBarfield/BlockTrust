@@ -1,0 +1,17 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Archived Sales Groups" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/archive" , "Archive")] %}
+
+{% block dashboard_content_header %}
+Archived Sales Group 
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col widget" data-widget-type="archive sales group" data-widget-account="{{ account_id }}">
+    </div>
+</div>
+
+{% endblock dashboard_content %}
