@@ -57,20 +57,16 @@ class Sustainability:
 
     def get_sustainability(self, account=NO_VALUE, response=NO_VALUE, 
                                 created_timestamp=NO_VALUE, order_by_column=NO_VALUE,
-                                order_desc=False, selectColumns=()):
+                                order_desc=False):
         """
         Get sustainability by the values specified.
 
         Returns:
             A list of sustainability(s) record if found else []
         """
-        if len(selectColumns) > 0:
-            selectColumns = ",".join(selectColumns)
-        else:
-            selectColumns = "*"
 
         # base query
-        base_query = "SELECT " + selectColumns + " FROM sustainability"
+        base_query = "SELECT * FROM sustainability"
 
         query_conditions = []
         query_values = {}
