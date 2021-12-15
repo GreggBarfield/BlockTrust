@@ -82,7 +82,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.rows_by_account(request.json["search"]["params"]["ID"])
+    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"])
 
     results = []
 
@@ -105,7 +105,6 @@ def serve_search_sales_groups():
                 "auction_sale_name": sales_group_row["auction_sale_name"],
                 "group_name": sales_group_row["group_name"],
                 "is_archived":sales_group_row["is_archived"]
-
             })
 
     return {
@@ -123,6 +122,7 @@ def serve_search_sales_groups_2():
         miles=request.json["search"]["radius"],
         start=0,
         end=9999999999,
+        is_archived=0,
         breed=request.json["search"]["breed"],
         minimum_weight=request.json["search"]["minimum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
@@ -132,35 +132,33 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
-        if sales_group_row["is_archived"]==0:
-            results.append({
-                "id": sales_group_row["id"],
-                "reported": sales_group_row["reported"],
-                "published": sales_group_row["published"],
-                "account": sales_group_row["account"],
-                "account_name": sales_group_row["account_name"],
-                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-                "file_auths": g.db.files.get_auths(
-                    sales_group_row["reported"]["images"]
-                    if "images" in sales_group_row["reported"]
-                    else None
-                ),
-                "zip": sales_group_row["zip"],
-                "market_location": sales_group_row["market_location"],
-                "delivery_location":sales_group_row["delivery_location"],
-                "start": sales_group_row["start"],
-                "end": sales_group_row["end"],
-                "context": {
-                    "milesAway": meters_to_miles(distance(
-                        ZIP_CODES[request.json["search"]["zip"]]["ecef"],
-                        ZIP_CODES[sales_group_row["zip"]]["ecef"]
-                    ))
-                },
-                "auction_sale": sales_group_row["auction_sale"],
-                "auction_sale_name": sales_group_row["auction_sale_name"],
-                "is_archived":sales_group_row["is_archived"]
-                
-            })
+        results.append({
+            "id": sales_group_row["id"],
+            "reported": sales_group_row["reported"],
+            "published": sales_group_row["published"],
+            "account": sales_group_row["account"],
+            "account_name": sales_group_row["account_name"],
+            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "file_auths": g.db.files.get_auths(
+                sales_group_row["reported"]["images"]
+                if "images" in sales_group_row["reported"]
+                else None
+            ),
+            "zip": sales_group_row["zip"],
+            "market_location": sales_group_row["market_location"],
+            "delivery_location":sales_group_row["delivery_location"],
+            "start": sales_group_row["start"],
+            "end": sales_group_row["end"],
+            "context": {
+                "milesAway": meters_to_miles(distance(
+                    ZIP_CODES[request.json["search"]["zip"]]["ecef"],
+                    ZIP_CODES[sales_group_row["zip"]]["ecef"]
+                ))
+            },
+            "auction_sale": sales_group_row["auction_sale"],
+            "auction_sale_name": sales_group_row["auction_sale_name"],
+            "is_archived":sales_group_row["is_archived"]          
+        })
 
     return {
         "sales_groups": results
@@ -245,7 +243,7 @@ def serve_save_sales_group():
 
     g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
 
-    g.db.sales_groups.update(
+    g.db.sales_groups.update_sales_group(
         request.json["id"],
         request.json["reported"],
         request.json["published"],
@@ -265,43 +263,53 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    g.db.sales_groups.unarchive(request.json["params"]["id"])
+    original_row = g.db.sales_groups.row_by_id(request.json["params"]["id"])
+    g.db.sales_groups.update_sales_group(
+        original_row["id"],
+        original_row["reported"],
+        original_row["published"],
+        original_row["zip"],
+        original_row["delivery_location"],
+        original_row["start"],
+        original_row["end"],
+        original_row["auction_sale"],
+        original_row["group_name"],
+        0
+    )
     return {}, 200
    
 
-@bp.route('/widgets/data/achived_sales_group', methods=['POST'])
+@bp.route('/widgets/data/archived_sales_group', methods=['POST'])
 @crut.require_account
-def serve_achived_sales_group():
+def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.rows_by_account(request.json["search"]["params"]["ID"])
+    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
     for sales_group_row in sales_group_rows:
-        if(sales_group_row["is_archived"]==1):
-            results.append({
-                "id": sales_group_row["id"],
-                "reported": sales_group_row["reported"],
-                "published": sales_group_row["published"],
-                "account": sales_group_row["account"],
-                "account_name": sales_group_row["account_name"],
-                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
-                "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
-                "zip": sales_group_row["zip"],
-                "market_location": sales_group_row["market_location"],
-                "delivery_location":sales_group_row["delivery_location"],
-                "start": sales_group_row["start"],
-                "end": sales_group_row["end"],
-                "auction_sale": sales_group_row["auction_sale"],
-                "auction_sale_name": sales_group_row["auction_sale_name"],
-                "group_name": sales_group_row["group_name"],
-                "license": FLATFILE_LICENSE,
-                "userID": g.user.id(),
-                "name": g.user.first() + ' ' + g.user.last(),
-                "companyId": request.json["search"]["params"]["ID"],
-                "company": g.account.company(),
-                "is_archived":sales_group_row["is_archived"]
-            })
+        results.append({
+            "id": sales_group_row["id"],
+            "reported": sales_group_row["reported"],
+            "published": sales_group_row["published"],
+            "account": sales_group_row["account"],
+            "account_name": sales_group_row["account_name"],
+            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+            "zip": sales_group_row["zip"],
+            "market_location": sales_group_row["market_location"],
+            "delivery_location":sales_group_row["delivery_location"],
+            "start": sales_group_row["start"],
+            "end": sales_group_row["end"],
+            "auction_sale": sales_group_row["auction_sale"],
+            "auction_sale_name": sales_group_row["auction_sale_name"],
+            "group_name": sales_group_row["group_name"],
+            "userID": g.user.id(),
+            "name": g.user.first_name() + ' ' + g.user.last_name(),
+            "companyId": request.json["search"]["params"]["ID"],
+            "company": g.account.company(),
+            "is_archived":sales_group_row["is_archived"]
+        })
 
     return {
         "sales_groups": results

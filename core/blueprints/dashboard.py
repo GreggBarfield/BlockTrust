@@ -220,7 +220,7 @@ def serve_view_sales_group(sales_group_id):
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
 @crut.require_user
-def serve_archived_sales_groups():
+def serve_manage_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
 

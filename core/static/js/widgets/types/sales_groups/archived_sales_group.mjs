@@ -8,10 +8,9 @@ export class ArchivedSalesGroupWidget extends Widget {
         super(frame);
     }
     initType() {
-        // TODO: This is a bad data request, optimize later
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
         this.getData(
-            "achived_sales_group",
+            "archived_sales_group",
             {
                 search: {
                     "type": "Account ID",

@@ -1,10 +1,7 @@
 import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
-import { DL } from "../core/dl.mjs";
-import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
-// import {ZIPCodes} from "../../../database/tables/"
 
 export class SalesGroupViewer {
     constructor(data, attachTo = null) {
@@ -148,12 +145,12 @@ export class SalesGroupViewer {
                 left.append(sendMessageButton);
             }
             else{
-                let sendMessageButton = document.createElement("button");
+                let unarchiveButton = document.createElement("button");
 
-                sendMessageButton.className = "btn btn-sm btn-primary";
-                sendMessageButton.style = "float:right"
-                sendMessageButton.textContent = "Unarchived";
-                sendMessageButton.addEventListener("click", () => {
+                unarchiveButton.className = "btn btn-sm btn-primary";
+                unarchiveButton.style = "float:right"
+                unarchiveButton.textContent = "Unarchive";
+                unarchiveButton.addEventListener("click", () => {
                     $.ajax({
                         url: "/widgets/data/unarchive_sales_group",
                         data: JSON.stringify({
@@ -172,7 +169,7 @@ export class SalesGroupViewer {
                         window.location.reload();
                     })               
                 });
-                left.append(sendMessageButton);
+                left.append(unarchiveButton);
             }
             
             let location = document.createElement("div");
