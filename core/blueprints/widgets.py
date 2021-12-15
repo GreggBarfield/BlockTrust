@@ -46,7 +46,6 @@ def serve_direct(name):
     raise ExportException("Unable to directly export the requested value")
 
 
-
 @bp.route('/widgets/data/sales_group', methods=['POST'])
 @crut.require_account
 def serve_sales_group():
@@ -272,7 +271,7 @@ def serve_save_sustainability():
 @crut.require_account
 def serve_get_sustainability():
     return { 
-        "results": g.db.sustainability.get_by_account(g.account.id())
+        "results": g.db.sustainability.get_sustainability_by_account(g.account.id())
     }, 200
 
 
@@ -401,3 +400,42 @@ def serve_get_market_data(slug_id):
     return {
         'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
     }, 200
+
+
+@bp.route('/widgets/data/get_sustainability_timeline_data', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability_timeline_data():
+    account_link = g.db.account_links.get_by_account_id(g.account.id())
+
+    if account_link is None:
+        return {
+            "Account link not available"
+        }, 400
+    else:
+        matched_accounts = g.db.matches.get_matched_accounts_for_account_and_type(
+                account_link[0].id()
+            )
+
+        data = {}
+        #ordering list is used to display the timeline data in the correct order
+        ordering = []
+        for account_data in matched_accounts:
+            response = g.db.sustainability.get_sustainability_by_account(account_data['account'], True)
+            if response == []:
+                account = g.db.accounts.get_by_id(account_data['account'])
+                response = {
+                    'sector': account.sector_id(),
+                    'name': account.name(),
+                    'response': None
+                }
+            else:
+                response = response[0]
+            #below line appends/updates elements of response dictionary into account_data dictionary
+            account_data.update(response)
+            data[account_data['account']] = account_data
+            ordering.append(account_data['account'])
+
+        return {
+            'timeline_data': data,
+            'order': ordering
+        }, 200

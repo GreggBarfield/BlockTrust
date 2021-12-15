@@ -799,6 +799,10 @@ ADD CONSTRAINT `fk_accounts_partner_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Conner Charles 11/08/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"sustainability_averages\", \"params\": {}}", 0)
+
 /* Rohan Sureshkumar 11/9/2021 */
 ALTER TABLE `job_runs` 
 CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
