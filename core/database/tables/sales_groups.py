@@ -155,7 +155,7 @@ class SalesGroups:
                 "eid_group": self._db.eid_groups.new_group(owner=account_id)
             }
         )
-        return self.row_by_id(self._db.last_row_id())
+        return self.get_sales_group_by_id(self._db.last_row_id())
 
     def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived):
         """Updates a row.
