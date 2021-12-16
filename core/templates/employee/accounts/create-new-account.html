@@ -11,11 +11,7 @@
 <div class="row">
     <div class="col-md">
         <div class="card">
-            {% if is_partner == 0 %}
             <h5 class="card-header">Create New Account</h5>
-            {% else %}
-            <h5 class="card-header">Create New Partner</h5>
-            {% endif %}
             <div class="card-body">
                 <div class="container">
                     <div class="row justify-content-center">
@@ -188,7 +184,7 @@
                                     </div>
                                 </div>
                                 </div>
-                                <button type="button" class="btn btn-primary" id="submitButton">Sign Up</button>
+                                <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
                                 <p class="mt-2 mb-0" id="signup_status_message" style="display:none;">Hang on, we're setting up your
                                     account...</p>
                                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
@@ -204,7 +200,6 @@
 <script type="text/javascript">
 var partners = JSON.parse('{{partners|tojson}}')
 var sectors_by_name = JSON.parse('{{sectors_by_name|tojson}}')
-var is_partner = '{{is_partner}}'
 </script>
 <script type="module" src="/static/entry_points/employee/accounts/create-new-account.mjs"></script>
 {% endblock employee_content %}

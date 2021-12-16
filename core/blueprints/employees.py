@@ -38,8 +38,7 @@ def serve_employee_create_account():
     partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-account.html", {
         "sectors_by_name": sectors_by_name,
-        "partners": partners,
-        "is_partner": 0
+        "partners": partners
         })
 
 
@@ -79,9 +78,6 @@ def serve_employee_create_account_action():
         user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
         # Assigning user as admin
         account.add_user(user, 1)
-        if request.form["is_partner"] == '1':
-            g.db.accounts.update_account(account_id=account.id(), is_partner=1)
-            return {"redirect": "/employee/dashboard/view-partners"}
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
@@ -230,14 +226,13 @@ def serve_apply_changes_to_account(account_id):
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
     partner_rows = g.db.accounts.get_accounts(is_partner=1)
-    return employee_render("/employee/partners/partners.html", {"partner_rows": partner_rows, "sectors_by_id": sectors_by_id})
+    return employee_render("/employee/accounts/partners.html", {"partner_rows": partner_rows, "sectors_by_id": sectors_by_id})
 
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
 def serve_create_new_partner():
     partners = Accounts(g.db).get_accounts(is_partner=1)
-    return employee_render("/employee/accounts/create-new-account.html", {
+    return employee_render("/employee/accounts/create-new-partner.html", {
         "sectors_by_name": sectors_by_name,
-        "partners": partners,
-        "is_partner": 1
+        "partners": partners
         })

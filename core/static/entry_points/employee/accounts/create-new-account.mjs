@@ -46,25 +46,6 @@ $(document).ready(function(){
         }
     })
 })
-let mediaRow = document.getElementById("form_inputs");
-let mediaGroup = document.createElement("div");
-mediaGroup.className = "form-group col-12";
-
-let mediaLabel = document.createElement("label")
-mediaLabel.textContent = "Upload a private label (Optional)";
-mediaGroup.append(mediaLabel);
-
-let fileEditorFrame = document.createElement("div");
-let fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame);
-mediaGroup.append(fileEditorFrame);
-
-let progressBar = new ProgressBar();
-progressBar.attach(mediaRow);
-progressBar.hide();
-
-if(is_partner=1){  
-    mediaRow.append(mediaGroup);
-}
 let signupForm = $("#employee_signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
@@ -78,7 +59,6 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
-var images = []
 
 let form = new AsyncForm({
     action: "/employee/dashboard/create-new-account/action",
@@ -98,23 +78,7 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            is_partner: is_partner,
-            images:images
+            is_partner: 0
         }
     }
 });
-let submitButton = document.getElementById("submitButton");
-submitButton.addEventListener("click", () => {
-    // Fix progress bar issue (add one)
-    function progress(perc) {
-        progressBar.setProgress(perc);
-    }
-    progressBar.show();
-    fileEditor.upload(progress)
-        .then(() => {
-            // Stores image ids but splits array into multiple key, value pairs
-            // images=fileEditor.getFileIDs(); 
-            form.submit();
-        });
-});
-
