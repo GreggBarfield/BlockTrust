@@ -1,6 +1,4 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
-import {BasicFileEditor} from '../../../js/files/basic_file_editor.mjs';
-import { ProgressBar } from '../../../js/core/progress_bar.mjs';
 
 $(document).ready(function(){
     $('#signup_form_sector').change(function(){
@@ -77,8 +75,7 @@ let form = new AsyncForm({
             address: address.val(),
             city: city.val(),
             state: state.val(),
-            zip_code: zip_code.val(),
-            is_partner: 0
+            zip_code: zip_code.val()
         }
     }
 });
