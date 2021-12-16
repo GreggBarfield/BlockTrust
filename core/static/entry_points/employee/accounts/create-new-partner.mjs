@@ -46,22 +46,31 @@ $(document).ready(function(){
         }
     })
 })
-let mediaRow = document.getElementById("form_inputs");
-let mediaGroup = document.createElement("div");
-mediaGroup.className = "form-group col-12";
 
-let mediaLabel = document.createElement("label")
-mediaLabel.textContent = "Upload a private label (Optional)";
-mediaGroup.append(mediaLabel);
+function createImageUploader(){
+    let mediaRow = document.getElementById("form_inputs");
+    let mediaGroup = document.createElement("div");
+    mediaGroup.className = "form-group col-12";
 
-let fileEditorFrame = document.createElement("div");
-let fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame);
-mediaGroup.append(fileEditorFrame);
+    let mediaLabel = document.createElement("label")
+    mediaLabel.textContent = "Upload a private label (Optional)";
+    mediaGroup.append(mediaLabel);
 
-let progressBar = new ProgressBar();
-progressBar.attach(mediaRow);
-progressBar.hide();
-mediaRow.append(mediaGroup);
+    let fileEditorFrame = document.createElement("div");
+    let fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame);
+    mediaGroup.append(fileEditorFrame);
+
+    let progressBar = new ProgressBar();
+    progressBar.attach(mediaRow);
+    progressBar.hide();
+    mediaRow.append(mediaGroup);
+    return {
+        fileEditor: fileEditor,
+        progressBar: progressBar
+    }
+}
+
+let imageUploader = createImageUploader();
 let signupForm = $("#employee_signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
@@ -75,10 +84,9 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
-var images = []
 
 let form = new AsyncForm({
-    action: "/employee/dashboard/create-new-account/action",
+    action: "/employee/dashboard/create-new-partner/action",
     form: signupForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
@@ -95,21 +103,18 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            is_partner: 1,
-            images:images
+            image: Object.values(imageUploader.fileEditor.getFileIDs()).toString()
         }
     }
 });
 let submitButton = document.getElementById("submitButton");
 submitButton.addEventListener("click", () => {
     function progress(perc) {
-        progressBar.setProgress(perc);
+        imageUploader.progressBar.setProgress(perc);
     }
-    progressBar.show();
-    fileEditor.upload(progress)
+    imageUploader.progressBar.show();
+    imageUploader.fileEditor.upload(progress)
         .then(() => {
-            // Stores image ids but splits array into multiple key, value pairs
-            // images=fileEditor.getFileIDs(); 
             form.submit();
         });
 });

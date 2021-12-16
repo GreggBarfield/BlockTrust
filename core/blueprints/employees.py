@@ -55,7 +55,6 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        print(request.form)
         # Creating an account without an admin
         account = g.db.accounts.create_account(
                 phone=format_field(request.form['phone']),
@@ -236,3 +235,45 @@ def serve_create_new_partner():
         "sectors_by_name": sectors_by_name,
         "partners": partners
         })
+
+
+@bp.route("/employee/dashboard/create-new-partner/action", methods=["POST"])
+def serve_create_new_partner_action():
+    try:
+        required = {
+            'company': None, 'sector': None, 'address': None, 'city': None,
+            'state': None, 'zip_code': None, 'phone': None, 'company': None
+        }
+        for required_field in required:
+            if required_field not in request.form:
+                raise ExportException("internal error, {} missing from form".format(required_field))
+            required[required_field] = request.form[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        print(request.form)
+        # Creating an account without an admin
+        account = g.db.accounts.create_account(
+                phone=format_field(request.form['phone']),
+                company=format_field(required['company']),
+                partner=format_field(request.form['partner']),
+                affiliate_id=format_field(request.form['affiliate_id']),
+                sector=format_field(required['sector']),
+                address=format_field(required['address']),
+                city=format_field(required['city']),
+                state=format_field(required['state']),
+                zip=format_field(required['zip_code'])
+        )
+        # Creating a default pseudo admin user for created account
+        username = "DefaultAdminAccount#" + str(account.id())
+        first_name = "Default"
+        last_name = "Admin"
+        # password is a random 8 digit number
+        password = str(randint(10000000, 99999999))
+        user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
+        # Assigning user as admin
+        account.add_user(user, 1)
+        g.db.accounts.update_account(account_id=account.id(), is_partner=1)
+        g.db.accounts.update_account(account_id=account.id(), partner_private_logo=request.form["image"])
+        return {"redirect": "/employee/dashboard/view-partners"}
+    except (ExportException, AccountsException, UsersException, ValueError) as e:
+        return {"error": str(e)}
