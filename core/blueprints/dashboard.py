@@ -198,6 +198,12 @@ def serve_edit_sales_group(sales_group_id):
 
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
 
+@bp.route('/dashboard/sales-groups/archive', methods=['GET'])
+@crut.require_account
+def serve_sales_group_archive():
+    return dashboard_render("sales-groups/sales-group/archive.html", {"account_id": g.account.id()})
+
+
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_account
@@ -272,7 +278,8 @@ def serve_upload_tags():
 def serve_sustainability():
     return dashboard_render("sustainability/summary.html", 
     { 
-        "sector": sectors_by_id[g.account.sector_id()]
+        "sector": sectors_by_id[g.account.sector_id()],
+        "sectorID": g.account.sector_id()
     })
 
 

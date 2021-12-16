@@ -1,4 +1,5 @@
 import { AbstractBaseQuestionaireWidget } from "./abstract_base_questionaire.mjs";
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class FeedyardQuestionaireWidget extends AbstractBaseQuestionaireWidget {
     constructor(frame) {
@@ -6,6 +7,8 @@ export class FeedyardQuestionaireWidget extends AbstractBaseQuestionaireWidget {
     }
 
     initType() {
+        this.frame.innerHTML = "";
+
         let formInfo = {
             questions: {
                 air: {
@@ -157,16 +160,6 @@ export class FeedyardQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             },
         };
 
-        let sections = {
-            "air": "Air & Greenhouse Gas Emissions",
-            "land": "Land Resources",
-            "water": "Water Resources",
-            "animal": "Animal Health & Well-Being",
-            "safety": "Employee Safety & Well-Being",
-            "efficiency": "Efficiency & Yield"
-        };
-
-        this.frame.innerHTML = "";
-        this.generate(formInfo, sections);
+        this.generate(formInfo, getSustainabilitySections());
     }
 }
