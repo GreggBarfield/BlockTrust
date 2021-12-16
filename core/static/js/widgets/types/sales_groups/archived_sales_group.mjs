@@ -1,0 +1,47 @@
+import { Widget } from '../../widget.mjs';
+import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
+
+export class ArchivedSalesGroupWidget extends Widget {
+    constructor(frame) {
+        super(frame);
+    }
+    initType() {
+        this.account = parseInt(this.frame.getAttribute("data-widget-account"));
+        this.getData(
+            "archived_sales_group",
+            {
+                search: {
+                    "type": "Account ID",
+                    "params": {
+                        "ID": this.account
+                    },
+                    "or": null,
+                    "and": null
+                }
+            }
+        ).then((data) => {
+            this.sales_groups = data.sales_groups;
+            this.displaySalesGroups();
+        });
+
+
+        this.onSomeDataLoaded(function () {
+            this.frame.innerHTML = "";
+        });
+
+    }
+    displaySalesGroups(){
+        
+        if (this.sales_groups.length==0){
+            let no_sales_group=document.createElement("h3");
+            no_sales_group.textContent="No archived sales group";
+            no_sales_group.style="text-align: center"
+            this.frame.append(no_sales_group)
+        }
+        for( const sales_group in this.sales_groups){
+           
+            this.salesGroupViewer = new SalesGroupViewer(this.sales_groups[sales_group], this.frame);
+        }
+        
+    }
+}

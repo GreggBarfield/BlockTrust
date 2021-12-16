@@ -1,4 +1,5 @@
 import { AbstractBaseQuestionaireWidget } from "./abstract_base_questionaire.mjs";
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class CowcalfQuestionaireWidget extends AbstractBaseQuestionaireWidget {
     constructor(frame) {
@@ -115,16 +116,7 @@ export class CowcalfQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             },
         };
 
-        let sections = {
-            "air": "Air & Greenhouse Gas Emissions",
-            "land": "Land Resources",
-            "water": "Water Resources",
-            "animal": "Animal Health & Well-Being",
-            "safety": "Employee Safety & Well-Being",
-            "efficiency": "Efficiency & Yield"
-        };
-
-        this.generate(formInfo, sections);
+        this.generate(formInfo, getSustainabilitySections());
     }
 
 }

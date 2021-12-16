@@ -43,6 +43,7 @@ CSP = {
         'https://www.gstatic.com/',
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
+        'https://ipinfo.io/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -93,3 +94,6 @@ BLOCKCHAIN_BATCH_SIZE = config_file["blockchain"]["batch_size"]
 RECAPTCHA_SITE_KEY = config_file["recaptcha"]["site_key"]
 RECAPTCHA_SECRET_KEY = config_file["recaptcha"]["secret_key"]
 RECAPTCHA_MIN_SCORE = config_file["recaptcha"]["min_score"]
+
+IPINFO_TOKEN = config_file["ipinfo"]["token"]
+CHECK_IP = config_file["ipinfo"]["check_ip"]

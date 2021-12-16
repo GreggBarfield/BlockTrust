@@ -1,18 +1,17 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for, send_from_directory
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
-from ..database.tables.account_users import AccountUsersException
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
 from ..sectors import sectors_by_name
 from requests import post
 
@@ -89,7 +88,9 @@ def serve_signup():
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
-        "site_key": RECAPTCHA_SITE_KEY
+        "site_key": RECAPTCHA_SITE_KEY,
+        "ipinfo_access_token": IPINFO_TOKEN,
+        "check_ip": CHECK_IP
     })
 
 
@@ -135,7 +136,9 @@ def serve_signup_action():
                         state=required['state'],
                         zip_code=required['zip_code'],
                         personal_phone=request.form['personal_phone'],
-                        recaptcha_score=verification_response_json['score']
+                        recaptcha_score=verification_response_json['score'],
+                        ip_address=request.form['ip_address'],
+                        ip_country=request.form['ip_country']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
@@ -457,10 +460,10 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/add-user/<tok>', methods=['GET'])
-def serve_add_user(tok):
+@bp.route('/add-user/<string:invite_token>', methods=['GET'])
+def serve_add_user(invite_token):
     try:
-        invite_string = token.confirmToken(tok)
+        invite_string = token.confirmToken(invite_token)
         invite_object = eval(invite_string)
         user_email = invite_object["user_email"]
         account_name = invite_object["current_account"]

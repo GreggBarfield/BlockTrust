@@ -1,4 +1,5 @@
 import { AbstractBaseQuestionaireWidget } from "./abstract_base_questionaire.mjs";
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class AuctionQuestionaireWidget extends AbstractBaseQuestionaireWidget {
     constructor(frame) {
@@ -79,11 +80,7 @@ export class AuctionQuestionaireWidget extends AbstractBaseQuestionaireWidget {
             },
         };
 
-        let sections = {
-            "water": "Water Resources",
-            "animal": "Animal Health & Well-Being",
-            "safety": "Employee Safety & Well-Being"
-        };
+        let sections = getSustainabilitySections(["water", "animal", "safety"]);
 
         this.generate(formInfo, sections);
     }
