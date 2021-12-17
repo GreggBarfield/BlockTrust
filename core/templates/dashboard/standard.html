@@ -181,7 +181,7 @@
         <div class="b-nav-utility">
             <ul>
                 {% if dashboard_standard_account is not none %}
-                {% if g.account.sector_name() != "Buyer"%}
+                {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
                 <li> 
                   <a href="#" id="icon-search">
                     <i class="icon feather icon-search"></i>
@@ -204,7 +204,7 @@
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
                             <div>
-                              {{ g.account.name() | e }}
+                              {{ dashboard_standard_account.name()}}
                             </div>
                         </div>
                         <ul class="pro-body">
@@ -296,7 +296,7 @@
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
-                    {% if g.account.sector_name() == "Feedlot" %}
+                    {% if dashboard_standard_account.sector_name() == "Feedlot" %}
                     <span>MarketTrust</span>
                     {% else %}
                     <span>Sales Groups</span>
@@ -304,14 +304,14 @@
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                    {% if g.account.sector_name() != "Feedlot" and g.account.sector_name() != "Buyer"%}
+                    {% if dashboard_standard_account.sector_name() != "Feedlot" and dashboard_standard_account.sector_name() != "Buyer"%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                     <li><a href="/dashboard/sales-groups/archive">Archived Sales Groups</a></li>
                     {% endif %}
                 </ul>
             </li>
-            {% if g.account.sector_name() == "Auction House" %}
+            {% if dashboard_standard_account.sector_name() == "Auction House" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
                     <span><i class="feather icon-award"></i></span>
@@ -323,7 +323,7 @@
                 </ul>
             </li>
             {% endif %}
-            {% if g.account.sector_name() != "Buyer"%}
+            {% if dashboard_standard_account.sector_name() != "Buyer"%}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
