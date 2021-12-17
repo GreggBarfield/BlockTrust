@@ -865,3 +865,9 @@ CREATE TABLE `invited_users` (
 ALTER TABLE `users` 
 ADD COLUMN `ip_address` VARCHAR(64) NULL DEFAULT NULL AFTER `recaptcha_score`,
 ADD COLUMN `ip_country` VARCHAR(64) NULL DEFAULT NULL AFTER `ip_address`;
+
+/* Conner Charles 12/16/2021 */
+ALTER TABLE `example_db_1`.`usda_reports` 
+CHANGE COLUMN `avg_weight` `avg_weight` DOUBLE NULL DEFAULT NULL,
+DROP INDEX `report_date_idx`,
+ADD INDEX `published_date_idx` (`published_date` ASC) VISIBLE;

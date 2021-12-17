@@ -2,7 +2,6 @@ import requests
 
 from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT, USDA_PUBLIC_ENDPOINT, USDA_GET_DATA)
 from core.database.objects.usda_report import USDAReport
-from core.database.tables.usda_reports import USDAReports
 from core.database.tables.error_logs import ErrorLogs
 import traceback
 import datetime
@@ -48,16 +47,23 @@ class UsdaDataRetriever:
                         auth=(USDA_API_KEY, ''))
                     json_response = response.json()
 
-                print("USDADataRetriever.get_mandatory_reports(): Size of cattle report id " + str(item) 
-                    + ": " + str(len(json_response['results'])))
-
+                counter = 0
                 for row in json_response['results']:
-                    try:
-                        report = USDAReport(row)
-                        self._db.usda_reports.create_report(report)
-                    except Exception as e:
-                        print("USDADataRetreiver.get_mandatory_reports(): Result Row excepted. Row: ", row)
-                        raise Exception(e)
+                    age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
+
+                    # only add data that is within a month old
+                    if age_of_report.days <= 30:
+                        try:
+                            report = USDAReport(row)
+                            self._db.usda_reports.create_report(report)
+                            counter += 1
+                        except Exception as e:
+                            print("USDADataRetreiver.get_mandatory_reports(): Result Row excepted. Row: ", row)
+                            print(e)
+                            raise Exception(e)
+
+                print("USDADataRetriever.get_mandatory_reports(): Added reports for cattle report id " + str(item) 
+                    + ": " + str(counter))
         else:
             print("USDADataRetreiver.get_mandatory_reports(): USDA get data is turned off")
 
@@ -91,24 +97,37 @@ class UsdaDataRetriever:
                 response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(item), auth=(USDA_API_KEY, ''))
                 json_response = response.json()
 
-                print("USDADataRetriever.get_public_reports(): Size of report id " + str(item) + ": " + str(len(json_response['results'])))
-
+                counter = 0
                 for row in json_response['results']:
-                    try:
-                        report = USDAReport(row)
-                        self._db.usda_reports.create_report(report)
-                    except Exception as e:
-                        print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
-                        raise Exception(e)
+                    age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
+
+                    # only add data that is within a month old
+                    if age_of_report.days <= 30:
+                        try:
+                            report = USDAReport(row)
+                            self._db.usda_reports.create_report(report)
+                            counter += 1
+                        except Exception as e:
+                            print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
+                            print(e)
+                            raise Exception(e)
+
+                print("USDADataRetriever.get_public_reports(): Added reports for report id " + str(item) 
+                    + ": " + str(counter))
+
         else:
             print("USDADataRetreiver.get_public_reports():  USDA get data is turned off")
 
+    def clean_data(self):
+        self._db.usda_reports.delete_old_reports()
+        print("USDADataRetriever.clean_data(): Reports deleted") 
 
 def get_usda_data(db):
     try:
         retriever = UsdaDataRetriever(db)
         retriever.get_public_reports()
         retriever.get_mandatory_reports()
+        retriever.clean_data()
         print("USDADataRetreiver.get_usda_data(): Exiting. Current time: ", datetime.datetime.now().time())
     except Exception as e:
         ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
