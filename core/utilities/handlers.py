@@ -62,7 +62,7 @@ def attach_handlers(app):
             return dashboard_render("errors/no-paid-account.html")
         else:
             # Else send a 401
-            return respond(401, 'Account not paid', e)
+            return respond(401, 'No active subscription', e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):
