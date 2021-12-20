@@ -875,3 +875,16 @@ ALTER TABLE `sales_groups`
 ADD COLUMN `is_archived` TINYINT NULL DEFAULT '0' AFTER `group_name`,
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Nisheet Thakur 12/17/2021 */
+ALTER TABLE `eid_group_eids`
+ADD COLUMN `sales_group_id` INT;
+UPDATE `eid_group_eids`
+set `sales_group_id`=`eid_group`;
+ALTER TABLE `eid_group_eids`
+DROP COLUMN `eid_group`;
+ALTER TABLE `eid_group_eids`
+RENAME TO `sales_group_eids`;
+ALTER TABLE `sales_groups`
+DROP COLUMN `eid_group`;
+DROP TABLE `eid_groups`;

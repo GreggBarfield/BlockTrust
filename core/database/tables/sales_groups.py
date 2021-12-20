@@ -146,13 +146,12 @@ class SalesGroups:
 
         self._db.execute(
             """INSERT INTO sales_groups
-                (account, reported, eid_group)
-                VALUES (%(account)s, %(reported)s, %(eid_group)s)
+                (account, reported)
+                VALUES (%(account)s, %(reported)s)
             """,
             {
                 "account": account_id,
-                "reported": json.dumps(reported),  # Does this need to be converted to a string first?
-                "eid_group": self._db.eid_groups.new_group(owner=account_id)
+                "reported": json.dumps(reported)  # Does this need to be converted to a string first?
             }
         )
         return self.row_by_id(self._db.last_row_id())

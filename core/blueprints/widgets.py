@@ -10,6 +10,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..database.tables.sales_group_eids import SalesGroupEIDs
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -58,7 +59,7 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+        "eids": SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
@@ -94,7 +95,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+                "eids": SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
@@ -138,7 +139,7 @@ def serve_search_sales_groups_2():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "eids": SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -241,7 +242,7 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
 
-    g.db.eid_groups.set_group(original_row["eid_group"], request.json["eids"])
+    SalesGroupEIDs(g.db).update_sales_group_eids(original_row["id"], request.json["eids"])
 
     g.db.sales_groups.update_sales_group(
         request.json["id"],
@@ -294,7 +295,7 @@ def serve_archived_sales_group():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "eids": SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]),
             "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
