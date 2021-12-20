@@ -26,7 +26,7 @@ class SalesGroupEIDs:
             sales_group_id: The sales group ID
 
         Returns:
-            A list of EIDs
+            A list of objects containing EID and corresponding sales group id
         """
         eid_rows = self._db.execute_d(
             """
