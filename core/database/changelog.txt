@@ -877,7 +877,9 @@ ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 /* Conner Charles 12/16/2021 */
-ALTER TABLE `example_db_1`.`usda_reports` 
-CHANGE COLUMN `avg_weight` `avg_weight` DOUBLE NULL DEFAULT NULL,
+ALTER TABLE `usda_reports` 
 DROP INDEX `report_date_idx`,
-ADD INDEX `published_date_idx` (`published_date` ASC) VISIBLE;
+ADD INDEX `published_date_idx` (`published_date` ASC) VISIBLE,
+UPDATE usda_reports SET published_date = STR_TO_DATE(published_date,'%m/%d/%Y %H:%i:%s'),
+CHANGE COLUMN `published_date` `published_date` DATETIME NULL DEFAULT NULL ;
+
