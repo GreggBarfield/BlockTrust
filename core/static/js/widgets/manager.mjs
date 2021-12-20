@@ -1,6 +1,5 @@
 import { TableWidget } from './types/animal_data/table_widget.mjs';
 import { MapWidget } from './types/animal_data/map_widget.mjs';
-import { DataTableWidget } from './types/animal_data/data_table_widget.mjs';
 import { GradeWidget } from './types/animal_data/grade_widget.mjs';
 import { TimelineWidget } from './types/animal_data/timeline_widget.mjs';
 import { HealthTableWidget } from './types/animal_data/health_table_widget.mjs';
@@ -19,7 +18,16 @@ import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
-import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
+import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
+import { CowcalfQuestionaireWidget } from "./types/sustainability/cowcalf_questionaire.mjs";
+import { CowcalfSummaryWidget } from "./types/sustainability/cowcalf_summary.mjs";
+import { FeedyardQuestionaireWidget } from "./types/sustainability/feedyard_questionaire.mjs";
+import { FeedyardSummaryWidget } from "./types/sustainability/feedyard_summary.mjs";
+import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questionaire.mjs";
+import { AuctionSummaryWidget } from "./types/sustainability/auction_summary.mjs";
+import { SustainabilityTimelineWidget } from "./types/sustainability/sustainability_timeline.mjs";
+import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
+import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 
 
 // Immediately invoked
@@ -38,7 +46,6 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
 
     attach("map", MapWidget);
     attach("table", TableWidget);
-    attach("data table", DataTableWidget);
     attach("grade", GradeWidget);
     attach("timeline", TimelineWidget);
     attach("health table", HealthTableWidget);
@@ -55,7 +62,16 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
     attach("certificates", CertificatesWidget);
-    attach("sustainability questionaire", SustainabilityQuestionaireWidget);
+    attach("market data table", MarketDataTableWidget);
+    attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
+    attach("Cow-Calf summary", CowcalfSummaryWidget);
+    attach("Feedlot questionaire", FeedyardQuestionaireWidget);
+    attach("Feedlot summary", FeedyardSummaryWidget);
+    attach("Auction House questionaire", AuctionQuestionaireWidget);
+    attach("Auction House summary", AuctionSummaryWidget);
+    attach("market data filter table", MarketDataFilterWidget);
+    attach("archive sales group", ArchivedSalesGroupWidget);
+    attach("sustainability timeline", SustainabilityTimelineWidget);
 
     // Find widgets
     $(".widget").each(function () {

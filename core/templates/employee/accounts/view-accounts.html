@@ -1,0 +1,62 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "View Account" %}
+{% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+        <div class="card d-inline-block">
+            <div class="card-header">
+                <h5>Customers</h5>
+                <a class="btn btn-sm btn-primary float-right" href="/employee/dashboard/create-new-account">
+                    Create New Account
+                </a>
+            </div>
+            <div class="card-body">
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Account Number</th>
+                            <th>Account Name</th>
+                            <th>Sector</th>
+                            <th>Account city, state</th>
+                            <th>Admin Email</th>
+                            <th>Login as Admin</th>
+                            <th>Invite Admin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for account in accounts_and_account_admins%}
+                        <tr>
+                            <td>{{account.id}}</td>
+                            <td>
+                                <a href="/employee/dashboard/edit-account/{{account.id}}">
+                                    {{account.company}}
+                                </a>
+                            </td>
+                            <td>{{sectors_by_id[account.sector]}}</td>
+                            <td>{{account.city}}, {{account.state}}</td>
+                            <td>
+                                {% if account.account_admin_email == "" %}
+                                Employee generated Admin User
+                                {% else %}
+                                <a href="mailto:{{account.account_admin_email}}">{{account.account_admin_email}}</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
+                            </td>
+                            <td>
+                                <a href="/employee/dashboard/invite-admin/{{account.id}}">Invite Admin</a>
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+{% endblock employee_content %}

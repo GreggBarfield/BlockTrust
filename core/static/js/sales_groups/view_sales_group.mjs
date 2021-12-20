@@ -1,9 +1,7 @@
 import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
-import { DL } from "../core/dl.mjs";
-import { formatDate } from "../core/time.mjs";
-import { promptNewMessage } from "./messages.mjs";
+import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo = null) {
@@ -136,15 +134,44 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
-            let sendMessageButton = document.createElement("button");
+            if(this.data["is_archived"]==0){
+                let sendMessageButton = document.createElement("button");
+                sendMessageButton.className = "btn btn-sm btn-primary";
+                sendMessageButton.style = "float:right"
+                sendMessageButton.textContent = "Contact Seller";
+                sendMessageButton.addEventListener("click", () => {
+                    promptNewMessage(this.data.account, this.data.account_name);
+                });
+                left.append(sendMessageButton);
+            }
+            else{
+                let unarchiveButton = document.createElement("button");
 
-            sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.style = "float:right"
-            sendMessageButton.textContent = "Contact Seller";
-            sendMessageButton.addEventListener("click", () => {
-                promptNewMessage(this.data.account, this.data.account_name);
-            });
-            left.append(sendMessageButton);
+                unarchiveButton.className = "btn btn-sm btn-primary";
+                unarchiveButton.style = "float:right"
+                unarchiveButton.textContent = "Unarchive";
+                unarchiveButton.addEventListener("click", () => {
+                    $.ajax({
+                        url: "/widgets/data/unarchive_sales_group",
+                        data: JSON.stringify({
+                            "action": "unarchive_sales_group",
+                            "params": {
+                                id:this.data.id
+                            }
+                        }),
+                        contentType: 'application/json',
+                        method: "POST"
+                    }).then(()=>{
+                        let alert = document.createElement("div");
+                        alert.className = "alert alert-success";
+                        alert.textContent = "Unarchived success!";
+                        left.append(alert);   
+                        window.location.reload();
+                    })               
+                });
+                left.append(unarchiveButton);
+            }
+            
             let location = document.createElement("div");
 
             let milesAway = "--";
@@ -353,6 +380,11 @@ export class SalesGroupViewer {
             let thumb = document.createElement("div");
             thumb.className = "thumb";
             video.append(thumb);
+
+            
+            let embed = document.createElement("div");
+            embed.className ="embed-responsive embed-responsive-16by9";
+            thumb.append(embed);
 
             let videos = this.data.reported.videos;
             var videoUrls = [];

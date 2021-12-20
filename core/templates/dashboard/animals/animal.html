@@ -112,30 +112,11 @@ dashboard_content_header %} {% block dashboard_content %}
     </div>
   </div>
 </div>
-<div class="row">
-  <div class="col">
-    <a
-      href="#"
-      class="badge badge-secondary"
-      data-toggle="collapse"
-      data-target="#collapseAnimalDebug"
-      style="float: right; margin-right: 20px"
-      >Debug Info</a
-    >
-    <div class="collapse" id="collapseAnimalDebug" style="clear: both">
-      <div class="card" style="width: 100%">
-        <div class="card-body">
-          <h5 class="card-title">Debug Info</h5>
-          <p class="card-text">
-            Animal EID: {{ animal.eid() }}<br />
-            <br />
-            Matches: <br />
-          </p>
-          <div class="row">
-            {% for match in animal.matches() %}
-            <div class="col-md-4">
-              <div class="card">
-                <h5 class="card-header">Match {{match['id']}}</h5>
+<div class="row" style="visibility: hidden;">
+    <div class="col">
+        <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAnimalDebug" style="float:right;margin-right:20px;">Debug Info</a>
+        <div class="collapse" id="collapseAnimalDebug" style="clear:both;">
+            <div class="card" style="width:100%;">
                 <div class="card-body">
                   Type: {{match['type']}}<br />
                   Lat: {{match['lat']}}<br />

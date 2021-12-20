@@ -1,9 +1,24 @@
 from json import dumps, loads
 from time import time
-from enum import Enum
+from core.database.no_value import NoValue
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
+from core.reports.query_types import (
+    count_distribution, count_distribution_global, count_eid_distinct,
+    count_eid_distinct_by_account
+)
+import json
+
+NO_VALUE = NoValue()
+
+REPORT_STATUS = {
+    "Pending": 0,
+    "Ready": 1,
+    "Dropped": 2,
+    "Running": 3,
+    "Error": 4,  # Note that errors may also be uncaught, leading to infinite running
+}
 
 class Reports:
     """Model for reports.
@@ -21,18 +36,11 @@ class Reports:
         result
         status
         fulfilled
-        created
-
+        created_timestamp
+        last_updated_timestamp
     """
 
     """Statuses"""
-    REPORT_STATUSES = {
-        0: "Pending",
-        1: "Ready",
-        2: "Dropped",
-        3: "Running",
-        4: "Error",  # Note that errors may also be uncaught, leading to infinite running
-    }
 
     def __init__(self, db):
         self._db = db
@@ -62,8 +70,8 @@ class Reports:
         )
         return Reports._process_row(results[0]) if results else None
 
-    def insert_query(self, owner, query, issuer=None, priority=30):
-        """Insert a new query.
+    def insert_query(self, account_id, query, priority=30):
+        """Insert a new query. Status is always pending.
 
         Params:
             owner: The Account ID of the owner or None for system
@@ -72,17 +80,15 @@ class Reports:
                 (optional, default None)
             priority: Priority of the query (default 30)
         """
+
         self._db.exec_frag(
             frag_insert_into(
                 "reports",
                 [
                     {
-                        "priority": priority,
-                        "owner": owner,
-                        "issuer": issuer,
+                        "account_id": account_id,
                         "query": dumps(query),
-                        "status": 0,
-                        "created": time()
+                        "status": 0
                     }
                 ]
             )
@@ -94,13 +100,14 @@ class Reports:
         Returns:
             A standard report dictionary, or None
         """
+        # gets reports row where status is pending (0), sets it to running (3) and returns the row
         results = self._db.exec_multi_frag_d(
             frag(
                 """
                 LOCK TABLES reports WRITE;
                 SET @work_report_id = (
                     SELECT id FROM reports WHERE status=:pending_status
-                    ORDER BY priority DESC, created ASC
+                    ORDER BY priority DESC, create_timestamp ASC
                     LIMIT 1
                 );
                 UPDATE reports SET status=:running_status WHERE id=@work_report_id;
@@ -140,6 +147,79 @@ class Reports:
                 )
             )
         )
+
+    def make_reports_for_account(self, account_id):
+        queries = [
+            count_distribution.create(account_id, "USDA Yield Grade"),
+            count_distribution.create(account_id, "USDA Quality Grade"),
+            count_eid_distinct_by_account.create(account_id)
+        ]
+
+        for query in queries:
+            self.insert_query(account_id, query)
+
+    def mark_account_reports_for_reprocessing(self):
+        """Marking reports linked to accounts for reprocessing. Reports need to be in ready state to be marked.
+
+        """
+        self._db.execute(
+            """
+                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s) AND account_id IS NOT NULL
+
+            """,
+            {
+                "status": REPORT_STATUS["Pending"],
+                "ready_status": REPORT_STATUS["Ready"]
+            }
+
+        )
+
+    def get_reports(self, query=NO_VALUE, selectColumns=[]):
+        """Generic get report routine
+
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        base_query = "SELECT " + selectColumns + " FROM reports"
+
+        query_conditions = []
+        query_values = {}
+
+        if query is not NO_VALUE:
+            query_conditions.append(" query = CAST(%(query)s AS JSON)")
+            query_values["query"] = json.dumps(query)
+
+        if len(query_conditions) > 0:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        report_rows = self._db.execute_d(query, query_values)
+        if len(report_rows) > 0:
+            return report_rows
+        else:
+            return []
+
+    def update_report(self, id, status=NO_VALUE):
+        """Generic update report routine
+
+        """
+        if status is not NO_VALUE:
+            self._db.execute(
+                """
+                    UPDATE reports SET status=%(status)s WHERE id=%(id)s
+
+                """,
+                {
+                    "status": status,
+                    "id": id
+                }
+
+            )
 
     @staticmethod
     def _process_row(row):

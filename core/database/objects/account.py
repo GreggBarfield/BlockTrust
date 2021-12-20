@@ -46,7 +46,7 @@ class Account:
     def sector_name(self):
         return sectors_by_id[self._row['sector']]
 
-    def partner(self):
+    def partner_account_id(self):
         return self._row['partner_account']
 
     def affiliate_id(self):
@@ -85,6 +85,12 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
+    def account_manager_id(self):
+        return self._row['account_manager_id']
+
+    def archived(self):
+        return self._row['archived']
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
@@ -109,12 +115,3 @@ class Account:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
 
-    def update_account_links(self):
-        """Update the account links table with the matching account 
-
-         Returns:
-            None
-        """
-        if self.partner() != None and self.affiliate_id() != None:
-            self._db.account_links.add_account_to_account_link(self.partner(), self.affiliate_id(), self.id())
-      

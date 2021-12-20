@@ -17,7 +17,17 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
-let personal_phone = signupForm.find("#signup_form_personal_phone")
+let personal_phone = signupForm.find("#signup_form_personal_phone");
+
+let ip="", country="";
+if(checkIP.toLowerCase() === "true") {
+    const response = await fetch("https://ipinfo.io/json?token=" + ipInfoAccessToken);
+    const clientMachineDetails = await response.json();
+    if ("ip" in clientMachineDetails && "country" in clientMachineDetails){
+        ip = clientMachineDetails.ip;
+        country = clientMachineDetails.country;
+    }
+}
 
 let form = new AsyncForm({
     action: "/signup/action",
@@ -26,6 +36,9 @@ let form = new AsyncForm({
     error: errorMessage[0],
     redirectMessage: "Signed up successfully!",
     loadingMessage: "Hang on, we're setting up your account...",
+    reCaptcha: true,
+    reCaptchaAction: "registration",
+    reCaptchaSiteKey: siteKey,
     getData: () => {
         return {
             username: email.val(), //the email will be stored here in the backend
@@ -37,13 +50,15 @@ let form = new AsyncForm({
             phone: phone.val(),
             partner: partner.val(),
             affiliate_id: partner_id.val(),
-            sector: sector_id, //must be set in the parent page
+            sector: sectorId, //must be set in the parent page
             company: company.val(),
             address: address.val(),
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            personal_phone: personal_phone.val()
+            personal_phone: personal_phone.val(),
+            ip_address: ip,
+            ip_country: country
         }
     }
 });
