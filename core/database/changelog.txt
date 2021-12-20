@@ -867,7 +867,7 @@ CREATE TABLE `invited_users` (
   
 /* Nisheet Thakur 12/6/2021 */
 ALTER TABLE `accounts`
-ADD COLUMN `partner_private_logo` VARCHAR(127) DEFAULT NULL;
+ADD COLUMN `partner_private_logo` VARCHAR(256) DEFAULT NULL;
 
 /* Rohan Sureshkumar 12/8/2021 */
 ALTER TABLE `users` 
