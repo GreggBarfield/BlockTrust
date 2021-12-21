@@ -155,7 +155,7 @@
 <header class="b-header">
     <div class="b-header-bar">
         <a class="b-header-logo" href="/">
-            {% if dashboard_standard_account.partner_private_logo() is not none %}
+            {% if dashboard_standard_account is not none and dashboard_standard_account.partner_private_logo() is not none %}
             <img class="b-header-logo-desktop"src="{{dashboard_standard_account.partner_private_logo()}}"/>
             <img class="b-header-logo-mobile" src="{{dashboard_standard_account.partner_private_logo()}}"/>
             {% else %}
