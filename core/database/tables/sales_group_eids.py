@@ -19,9 +19,10 @@ class SalesGroupEIDs:
 
     def get_sales_group_eids(self, sales_group_id=NO_VALUE, eid=NO_VALUE):
         """
-        Gets all EIDs for a sales group.
+        Gets sales group eids row(s) based on provided arguments
         Params:
             sales_group_id: The sales group ID
+            eid: EID
 
         Returns:
             A list of objects containing EID and corresponding sales group id
