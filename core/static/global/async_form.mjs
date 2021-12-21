@@ -113,21 +113,21 @@ export class AsyncForm {
                     }
                 }
                 catch(e) {
-                    that.setError("An error occurred: " + e);
+                    that.setError(e);
                 }
             })
             .fail(function(xhr, status){
                 try {
                     let data = JSON.parse(xhr.responseText);
                     if ("error" in data) {
-                        that.setError("An error occurred: " + data.error);
+                        that.setError(data.error);
                     }
                     else {
                         throw "Nope";
                     }
                 }
                 catch {
-                    that.setError("An error occurred: " + status + ", " + xhr.status + ", " + xhr.responseText);
+                    that.setError(status + ", " + xhr.status + ", " + xhr.responseText);
                 }
             });
 
