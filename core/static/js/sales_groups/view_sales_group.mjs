@@ -524,7 +524,7 @@ export class SalesGroupViewer {
 
                     let row = [];
 
-                    row.push(eid.eid);
+                    row.push(eid);
 
                     for (const value of row) {
                         let td = document.createElement("td");
@@ -537,7 +537,7 @@ export class SalesGroupViewer {
 
                     let button = document.createElement("a");
                     button.className = "btn btn-outline-secondary btn-sm";
-                    button.setAttribute("href", "/dashboard/animals/" + eid.eid);
+                    button.setAttribute("href", "/dashboard/animals/" + eid);
                     button.textContent = "View";
                     tdOptions.appendChild(button);
                 }

@@ -1,7 +1,5 @@
-from ..frag import frag, frag_insert_into
-from .. import database
-
-
+from ..no_value import NoValue
+NO_VALUE = NoValue()
 class SalesGroupEIDsException(Exception):
     """SalesGroupEIDs generic exception."""
 
@@ -16,10 +14,10 @@ class SalesGroupEIDsException(Exception):
 
 class SalesGroupEIDs:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
-    def get_sales_group_eids(self, sales_group_id):
+    def get_sales_group_eids(self, sales_group_id=NO_VALUE, eid=NO_VALUE):
         """
         Gets all EIDs for a sales group.
         Params:
@@ -28,16 +26,31 @@ class SalesGroupEIDs:
         Returns:
             A list of objects containing EID and corresponding sales group id
         """
-        eid_rows = self._db.execute_d(
-            """
-            SELECT * FROM sales_group_eids
-            WHERE sales_group_id = %(sales_group_id)s
-            """,
-            {
-                "sales_group_id": sales_group_id
-            }
-        )
-        return eid_rows
+        # base query
+        base_query = "SELECT * FROM sales_group_eids"
+        query_conditions = []
+        query_values = {}
+
+        if sales_group_id is not NO_VALUE:
+            query_conditions.append(" sales_group_id = %(sales_group_id)s")
+            query_values["sales_group_id"] = sales_group_id
+
+        if eid is not NO_VALUE:
+            query_conditions.append(" eid = %(eid)s")
+            query_values["eid"] = eid
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        sales_group_eids_rows = self._db.execute_d(query, query_values)
+        if len(sales_group_eids_rows) > 0:
+            return sales_group_eids_rows
+        else:
+            return []
 
     def insert_sales_group_eids(self, sales_group_id, eids):
         """
@@ -75,14 +88,3 @@ class SalesGroupEIDs:
                 "sales_group_id": sales_group_id
             }
         )
-
-    def update_sales_group_eids(self, sales_group_id, eids):
-        """
-        Update eids for a sales group
-
-        Params:
-            sales_group_id: Sales group ID
-            eids: Alist of new eids for a sales group
-        """
-        self.delete_sales_group_eids(sales_group_id)
-        self.insert_sales_group_eids(sales_group_id, eids)
