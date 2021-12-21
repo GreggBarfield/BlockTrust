@@ -9,37 +9,44 @@ export class CertificatesWidget extends Widget {
         this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
         this.frame.innerHTML = "";
         this.getData(
-            "update_certificates",
-            {
-                request: {
-                    type: 'matches_by_eids',
-                    params: {
-                        eids: [this.animal],
-                        ljoin_account_links: true,
-                        types: ["Weaned","First Birth","Medical"]
+            "direct/match_types_by_name",
+            {}
+        ).then((data) => {
+
+            this.match_types = data.match_types_by_name;
+            this.getData(
+                "update_certificates",
+                {
+                    request: {
+                        type: 'matches_by_eids',
+                        params: {
+                            eids: [this.animal],
+                            ljoin_account_links: true,
+                            types: ["Weaned","First Birth","Medical"]
+                        }
                     }
                 }
-            }
-        ).then((data)=>
-        {
-            this.match_rows=[]
-            this.wean_data=""
-            this.first_born=""
-            for ( const match of data.result.matches)
+            ).then((data)=>
             {
-                if (match.type==20){
-                    this.match_rows.push(match)
+                this.medical_rows=[]
+                this.wean_data=""
+                this.first_born=""
+                for ( const match of data.result.matches)
+                {
+                    if (match.type == this.match_types["Medical"]){
+                        this.medical_rows.push(match)
+                    }
+                    else if(match.type == this.match_types["Weaned"]){
+                        this.wean_data=match;
+                    }
+                    else if(match.type == this.match_types["First Birth"]){
+                        this.first_born=match
+                    }
                 }
-                else if(match.type==11){
-                    this.wean_data=match;
-                }
-                else if(match.type==12){
-                    this.first_born=match
-                }
-            }
-            this.createDisplay();
-        })
-        
+                this.createDisplay();
+            })
+            
+        });
     }
     formatDate(epoch) {
         if (epoch == null || epoch <= 0)
@@ -66,7 +73,7 @@ export class CertificatesWidget extends Widget {
 
         let prodName =document.createElement("div");
         prodName.className = "col-md-4";
-        prodName.textContent="Producer Name: "+ this.wean_data["account_links.uid"]
+        prodName.textContent="Producer Name: "+ this.wean_data["account_links.company"]
         row.append(prodName)
         let tagRange =document.createElement("div");
         tagRange.className = "col-md-4";
@@ -106,7 +113,7 @@ export class CertificatesWidget extends Widget {
 
         // Header
 
-        this.headers = ["Date", "Product Name", "Location", "Admin Route"];
+        this.headers = ["Date", "Product Name", "Location"];
 
         this.mainTableHead = document.createElement("thead");
         this.mainTableHead.className = "thead-light";
@@ -126,12 +133,11 @@ export class CertificatesWidget extends Widget {
         }
 
         this.rows = [];
-        this.wean_dataHeader=["date","product","location","route"]
-        for (const match_row of this.match_rows) {
-            let data_obj = match_row["data"];
-            data_obj.date = this.formatDate(match_row.time);
+        this.wean_dataHeader=["date","product","location"]
+        for (const medical_row of this.medical_rows) {
+            let data_obj = medical_row["data"];
+            data_obj.date = this.formatDate(medical_row.time);
             let row = [];
-
             for (const header of this.wean_dataHeader) {
                 if (header in data_obj) {
                     row.push(data_obj[header]);
