@@ -117,7 +117,7 @@ class USDAReports:
 
         return result
 
-    def get_all_published_dates_per_slug_id(self):
+    def get_unique_published_dates_and_slug_id(self):
         """Gets all the unique published date/slug_id combinations
 
         Returns:
@@ -249,16 +249,14 @@ class USDAReports:
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
 
-    def delete_reports_older_than(self, time_length):
-        """Deletes all reports that are older than 30 days
-        
-            WARNING: time_length is an amount in days. 
+    def delete_reports_older_than(self, time_length_in_days):
+        """Deletes all reports that are older than time_length in days
 
         Returns:
             The row count in the database
         """
 
-        cutoff_date = (datetime.now().date() - timedelta(days=time_length))
+        cutoff_date = (datetime.now().date() - timedelta(days=time_length_in_days))
 
         self._db.execute(
             """

@@ -21,7 +21,7 @@ class UsdaDataRetriever:
             json_response = response.json()
 
             cattleReports = dict()
-            published_dates = self._db.usda_reports.get_all_published_dates_per_slug_id()
+            published_dates = self._db.usda_reports.get_unique_published_dates_and_slug_id()
 
             for row in json_response:
                 if 'Cattle' in row['market_types'][0]:
@@ -62,6 +62,7 @@ class UsdaDataRetriever:
                             print(e)
                             raise Exception(e)
 
+                # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_mandatory_reports(): Added reports for cattle slug_id " + str(slug_id) 
                     + ": " + str(reportsAddedCounter))
         else:
@@ -74,7 +75,7 @@ class UsdaDataRetriever:
             marketTypeIDs = [1000, 1010, 1011, 1012, 1013, 1031, 1085]
 
             reports = dict()
-            published_dates = self._db.usda_reports.get_all_published_dates_per_slug_id()
+            published_dates = self._db.usda_reports.get_unique_published_dates_and_slug_id()
             for id in marketTypeIDs:
                 response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(id), 
                     auth=(USDA_API_KEY, ''))
@@ -112,6 +113,7 @@ class UsdaDataRetriever:
                             print(e)
                             raise Exception(e)
 
+                # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_public_reports(): Added reports for slug_id " + str(slug_id) 
                     + ": " + str(reportsAddedCounter))
 
