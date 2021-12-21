@@ -51,8 +51,8 @@ class UsdaDataRetriever:
                 for row in json_response['results']:
                     age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
 
-                    # only add data that is within a month old
-                    if age_of_report.days <= 30:
+                    # only add data that is within the cutoff period
+                    if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
                         try:
                             report = USDAReport(row)
                             self._db.usda_reports.create_report(report)
@@ -102,8 +102,8 @@ class UsdaDataRetriever:
                 for row in json_response['results']:
                     age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
 
-                    # only add data that is within a month old
-                    if age_of_report.days <= 30:
+                    # only add data that is within the cutoff period
+                    if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
                         try:
                             report = USDAReport(row)
                             self._db.usda_reports.create_report(report)
