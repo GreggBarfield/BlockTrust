@@ -24,7 +24,7 @@ class ConnectionInvites:
             raise Exception("The email you entered is incomplete.")
         if ' ' in company_email:
             raise Exception("Spaces cannot be in the email.")
-        if len(self.get_connection_invite(from_account=from_account, company_email=company_email)) > 0:
+        if len(self.get_connection_invites(from_account=from_account, company_email=company_email)) > 0:
             raise Exception("Connection Invite already sent.")
         self._db.execute(
             """
@@ -53,7 +53,7 @@ class ConnectionInvites:
         Returns:
             None
         """
-        invites = self.get_connection_invite(company_email=email)
+        invites = self.get_connection_invites(company_email=email)
         if len(invites) >= 1:
             for invite in invites:
                 Connections(self._db).create_connection(
@@ -62,8 +62,8 @@ class ConnectionInvites:
                     status=connection_status["Connected"]
                 )
 
-    def get_connection_invite(self, from_account=NO_VALUE, to_account=NO_VALUE, company_sector=NO_VALUE,
-                                company_name=NO_VALUE, company_contact=NO_VALUE, company_email=NO_VALUE, selectColumns=[]):
+    def get_connection_invites(self, from_account=NO_VALUE, to_account=NO_VALUE, company_sector=NO_VALUE,
+                                company_name=NO_VALUE, company_contact=NO_VALUE, company_email=NO_VALUE):
         """
         Gets the connection invite by the values specified
 
@@ -77,13 +77,8 @@ class ConnectionInvites:
         Returns:
             A list of connection invite(s) record if found else []
         """
-        if len(selectColumns) > 0:
-            selectColumns = ",".join(selectColumns)
-        else:
-            selectColumns = "*"
-
         # base query
-        base_query = "SELECT " + selectColumns + " FROM connection_invites"
+        base_query = "SELECT * FROM connection_invites"
 
         query_conditions = []
         query_values = {}
