@@ -10,7 +10,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
-from ..database.tables.eid_groups import EIDGroups
+from ..database.tables.sales_group_eids import SalesGroupEIDs
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -60,7 +60,7 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+        "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"], 
         "market_location": sales_group_row["market_location"],
@@ -96,7 +96,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+                "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
@@ -140,7 +140,7 @@ def serve_search_sales_groups_2():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -242,9 +242,6 @@ def serve_save_sales_group():
             raise ExportException("Auction sale specified is not published yet.")
 
     # Alright, go ahead...
-
-    g.db.eid_groups.insert_eids(original_row["eid_group"], request.json["eids"])
-
     g.db.sales_groups.update_sales_group(
         request.json["id"],
         request.json["reported"],
@@ -279,7 +276,7 @@ def unarchive_sales_group():
         0
     )
     return {}, 200
-   
+
 
 @bp.route('/widgets/data/archived_sales_group', methods=['POST'])
 @crut.require_account
@@ -296,11 +293,11 @@ def serve_archived_sales_group():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
-            "delivery_location":sales_group_row["delivery_location"],
+            "delivery_location": sales_group_row["delivery_location"],
             "start": sales_group_row["start"],
             "end": sales_group_row["end"],
             "auction_sale": sales_group_row["auction_sale"],
@@ -310,7 +307,7 @@ def serve_archived_sales_group():
             "name": g.user.first_name() + ' ' + g.user.last_name(),
             "companyId": request.json["search"]["params"]["ID"],
             "company": g.account.company(),
-            "is_archived":sales_group_row["is_archived"]
+            "is_archived": sales_group_row["is_archived"]
         })
 
     return {
@@ -327,7 +324,7 @@ def serve_manage_sales_group_eids():
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
     #  Getting eid_groups owned by account and corresponding eid's
-    account_eid_groups = g.db.eid_groups.get_eid_groups(owner=g.account.id())
+    account_eid_groups = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"])))
     assigned_eids_for_account = []
     for account_eid_group in account_eid_groups:
         assigned_eids = g.db.eid_groups.get_eids(account_eid_group["id"])
@@ -339,7 +336,7 @@ def serve_manage_sales_group_eids():
             available_eids.append(distinct_eid["eid"])
     return {
         "id": sales_group_row["id"],
-        "assigned_eids": g.db.eid_groups.get_eids(sales_group_row["eid_group"]),
+        "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
         "available_eids": available_eids
     }
 

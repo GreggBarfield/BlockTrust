@@ -151,12 +151,6 @@ def serve_accounts():
     return dashboard_render("accounts/account_select.html", {"accounts": accounts})
 
 
-@bp.route('/dashboard/sales-groups', methods=['GET'])
-@crut.require_account
-def serve_sales_groups():
-    return dashboard_render("sales-groups/list.html")
-
-
 @bp.route('/dashboard/messages', methods=['GET'])
 @crut.require_account
 def serve_messages(open_message_id=None):
@@ -180,8 +174,14 @@ def serve_messages_specific(open_message_id):
     return serve_messages(open_message_id)
 
 
+@bp.route('/dashboard/sales-groups', methods=['GET'])
+@crut.require_paid_account
+def serve_sales_groups():
+    return dashboard_render("sales-groups/list.html")
+
+
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_new_sales_group():
     new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
 
@@ -189,7 +189,7 @@ def serve_new_sales_group():
 
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_edit_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
@@ -206,7 +206,7 @@ def serve_sales_group_archive():
 
 
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_view_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
@@ -231,14 +231,14 @@ def serve_manage_eids_sales_group(sales_group_id):
 
 
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
-@crut.require_user
+@crut.require_paid_account
 def serve_manage_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
 
 @bp.route('/dashboard/auction-sales', methods=['GET'])
 @bp.route('/dashboard/auction-sales/manage', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_auction_sales_manage(new_auction_sale=False):
     manage_auction_sales_attr = ""
 
@@ -254,6 +254,7 @@ def serve_auction_sales_manage(new_auction_sale=False):
 
 
 @bp.route('/dashboard/auction-sales/new', methods=['GET'])
+@crut.require_paid_account
 def serve_auction_sales_new():
     return serve_auction_sales_manage(True)
 
@@ -271,7 +272,7 @@ def serve_subscribe():
 
 
 @bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
-@crut.require_account
+@crut.require_paid_account
 def serve_upload_tags():
     if request.method == 'POST':
         data = json.loads(request.data)
@@ -286,7 +287,7 @@ def serve_upload_tags():
 
 
 @bp.route('/dashboard/sustainability', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_sustainability():
     return dashboard_render("sustainability/summary.html", 
     { 
@@ -296,7 +297,7 @@ def serve_sustainability():
 
 
 @bp.route('/dashboard/sustainability/survey', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_sustainability_survey():
     return dashboard_render("sustainability/questionaire.html", 
     { 
@@ -305,13 +306,13 @@ def serve_sustainability_survey():
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_market_state_data():
     return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
     market_states = g.db.usda_reports.get_all_states()

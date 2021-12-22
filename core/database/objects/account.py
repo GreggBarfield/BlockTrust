@@ -85,6 +85,9 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
+    def partner_private_logo(self):
+        return self._row['partner_private_logo']
+
     def account_manager_id(self):
         return self._row['account_manager_id']
 
