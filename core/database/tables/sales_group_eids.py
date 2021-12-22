@@ -1,5 +1,7 @@
 from ..no_value import NoValue
+
 NO_VALUE = NoValue()
+
 class SalesGroupEIDsException(Exception):
     """SalesGroupEIDs generic exception."""
 
