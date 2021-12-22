@@ -323,11 +323,11 @@ def serve_get_eids_for_sales_group():
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
-    #  Getting eid_groups owned by account and corresponding eid's
-    account_eid_groups = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"])))
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
     assigned_eids_for_account = []
-    for account_eid_group in account_eid_groups:
-        assigned_eids = g.db.eid_groups.get_eids(account_eid_group["id"])
+    for account_sales_group in account_sales_groups:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=account_sales_group)))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
     available_eids = []
@@ -345,8 +345,8 @@ def serve_get_eids_for_sales_group():
 @crut.require_account
 def serve_save_eids_for_sales_group():
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
-    g.db.eid_groups.empty_group(original_row["eid_group"])
-    g.db.eid_groups.insert_eids(original_row["eid_group"], request.json["eids"])
+    SalesGroupEIDs(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
+    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids=request.json["eids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
