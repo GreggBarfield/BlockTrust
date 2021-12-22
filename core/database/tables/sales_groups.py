@@ -154,7 +154,7 @@ class SalesGroups:
                 "reported": json.dumps(reported)  # Does this need to be converted to a string first?
             }
         )
-        return self.row_by_id(self._db.last_row_id())
+        return self.get_sales_group_by_id(self._db.last_row_id())
 
     def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived):
         """Updates a row.

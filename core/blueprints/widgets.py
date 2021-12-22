@@ -315,9 +315,9 @@ def serve_archived_sales_group():
     }
 
 
-@bp.route('/widgets/data/manage_eids', methods=['POST'])
+@bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
-def serve_manage_sales_group_eids():
+def serve_get_eids_for_sales_group():
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
@@ -341,9 +341,9 @@ def serve_manage_sales_group_eids():
     }
 
 
-@bp.route('/widgets/data/save_sales_group_eids', methods=['POST'])
+@bp.route('/widgets/data/save_eids_for_sales_group', methods=['POST'])
 @crut.require_account
-def serve_save_sales_group_eids():
+def serve_save_eids_for_sales_group():
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     g.db.eid_groups.empty_group(original_row["eid_group"])
     g.db.eid_groups.insert_eids(original_row["eid_group"], request.json["eids"])
