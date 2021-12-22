@@ -868,6 +868,8 @@ CREATE TABLE `invited_users` (
 /* Nisheet Thakur 12/6/2021 */
 ALTER TABLE `accounts`
 ADD COLUMN `partner_private_logo` VARCHAR(256) DEFAULT NULL;
+SET @partner_id := (SELECT id FROM accounts WHERE company='Red Angus Assoc' AND is_partner=1);
+UPDATE `accounts` SET partner_private_logo = '/static/images/partners/logos/red-angus-logo.png' WHERE id = @partner_id
 
 /* Rohan Sureshkumar 12/8/2021 */
 ALTER TABLE `users` 
@@ -879,3 +881,16 @@ ALTER TABLE `sales_groups`
 ADD COLUMN `is_archived` TINYINT NULL DEFAULT '0' AFTER `group_name`,
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Nisheet Thakur 12/17/2021 */
+ALTER TABLE `eid_group_eids`
+ADD COLUMN `sales_group_id` INT;
+UPDATE `eid_group_eids`
+set `sales_group_id`=`eid_group`;
+ALTER TABLE `eid_group_eids`
+DROP COLUMN `eid_group`;
+ALTER TABLE `eid_group_eids`
+RENAME TO `sales_group_eids`;
+ALTER TABLE `sales_groups`
+DROP COLUMN `eid_group`;
+DROP TABLE `eid_groups`;
