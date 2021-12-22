@@ -450,7 +450,8 @@ class Accounts:
             )
 
     def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
-                            affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, selectColumns=()):
+                            affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
+                            token=NO_VALUE, selectColumns=()):
         """
         Get an account by the values specified.
 
@@ -503,6 +504,10 @@ class Accounts:
         if zip is not NO_VALUE:
             query_conditions.append(" zip = %(zip)s")
             query_values["zip"] = zip
+
+        if token is not NO_VALUE:
+            query_conditions.append(" token = %(token)s")
+            query_values["token"] = token
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
