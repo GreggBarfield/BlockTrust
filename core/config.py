@@ -84,6 +84,7 @@ USDA_API_KEY = config_file["usda"]["api_key"]
 USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
 USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
 USDA_GET_DATA = config_file["usda"]["get_data"]
+USDA_CUTOFF_PERIOD_IN_DAYS = config_file["usda"]["report_cutoff_period_in_days"]
 
 FLATFILE_LICENSE = config_file["flatfile_license"]
 

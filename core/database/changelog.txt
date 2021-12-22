@@ -882,6 +882,13 @@ ADD COLUMN `is_archived` TINYINT NULL DEFAULT '0' AFTER `group_name`,
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
+/* Conner Charles 12/16/2021 */
+UPDATE usda_reports SET published_date = STR_TO_DATE(published_date,'%m/%d/%Y %H:%i:%s');
+ALTER TABLE `usda_reports` 
+DROP INDEX `report_date_idx`,
+ADD INDEX `published_date_idx` (`published_date` ASC) VISIBLE,
+CHANGE COLUMN `published_date` `published_date` DATETIME NULL DEFAULT NULL ;
+
 /* Nisheet Thakur 12/17/2021 */
 ALTER TABLE `eid_group_eids`
 ADD COLUMN `sales_group_id` INT;
