@@ -50,7 +50,8 @@ def serve_direct(name):
 @bp.route('/widgets/data/sales_group', methods=['POST'])
 @crut.require_account
 def serve_sales_group():
-    sales_group_row = g.db.sales_groups.row_by_id(request.json["sales_group"])
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
+
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -61,9 +62,9 @@ def serve_sales_group():
         "account_name": sales_group_row["account_name"],
         "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
-        "zip": sales_group_row["zip"],
+        "zip": sales_group_row["zip"], 
         "market_location": sales_group_row["market_location"],
-        "delivery_location":sales_group_row["delivery_location"],
+        "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
         "auction_sale": sales_group_row["auction_sale"],
@@ -99,7 +100,7 @@ def serve_search_sales_groups():
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
-                "delivery_location":sales_group_row["delivery_location"],
+                "delivery_location": sales_group_row["delivery_location"],
                 "start": sales_group_row["start"],
                 "end": sales_group_row["end"],
                 "auction_sale": sales_group_row["auction_sale"],
@@ -191,7 +192,7 @@ def serve_search_by_eid_and_visual_id():
 @crut.require_account
 def serve_save_sales_group():
     # Check that the account selected is the owner of the sales group
-    original_row = g.db.sales_groups.row_by_id(request.json["id"])
+    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
     # Verify that the images provided are allowed
@@ -261,7 +262,7 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    original_row = g.db.sales_groups.row_by_id(request.json["params"]["id"])
+    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["params"]["id"])
     g.db.sales_groups.update_sales_group(
         original_row["id"],
         original_row["reported"],
@@ -312,6 +313,41 @@ def serve_archived_sales_group():
     return {
         "sales_groups": results
     }
+
+
+@bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
+@crut.require_account
+def serve_get_eids_for_sales_group():
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
+    if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
+        raise ExportException("Insufficient Permissions")
+    # Getting eids owned by the account
+    distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    assigned_eids_for_account = []
+    for sales_group_id in account_sales_groups_ids:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_id)))
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_eids = []
+    for distinct_eid in distinct_eids:
+        if distinct_eid["eid"] not in assigned_eids_for_account:
+            available_eids.append(distinct_eid["eid"])
+    return {
+        "id": sales_group_row["id"],
+        "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+        "available_eids": available_eids
+    }
+
+
+@bp.route('/widgets/data/save_eids_for_sales_group', methods=['POST'])
+@crut.require_account
+def serve_save_eids_for_sales_group():
+    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
+    SalesGroupEIDs(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
+    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids=request.json["eids"])
+    return {"redirect": "/dashboard/sales-groups/manage"}
 
 
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])

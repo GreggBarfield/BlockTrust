@@ -26,6 +26,7 @@ import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questi
 import { AuctionSummaryWidget } from "./types/sustainability/auction_summary.mjs";
 import { SustainabilityTimelineWidget } from "./types/sustainability/sustainability_timeline.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
+import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 
 
@@ -68,6 +69,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("Auction House questionaire", AuctionQuestionaireWidget);
     attach("Auction House summary", AuctionSummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
+    attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
 
