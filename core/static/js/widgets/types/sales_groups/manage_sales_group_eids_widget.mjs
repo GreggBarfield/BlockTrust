@@ -20,7 +20,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             this.makeForm();
         });
 
-
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
@@ -37,8 +36,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         form.append(document.createElement("br"));
         return row;
     }
-
-    
+  
     createGroup(row, name, htmlFor) {
         let group = document.createElement("div");
         group.className = "form-group col-md-6";
