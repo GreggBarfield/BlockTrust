@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    request, Blueprint, g
 )
 from core.database.database import Database
 from core.database.tables.accounts import AccountsException
