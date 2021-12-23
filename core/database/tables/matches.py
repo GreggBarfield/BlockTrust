@@ -385,14 +385,11 @@ class Matches:
         """
         return self._db.execute_d(
                 """
-                SELECT
-                    DISTINCT eid, created_timestamp
-                FROM
-                    matches
+                SELECT DISTINCT eid
+                FROM matches
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=%(account)s
-                ) AND
-                YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
+                ) AND YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
                 """, {
                     "account": account_id,
                     "number_of_years": number_of_years
