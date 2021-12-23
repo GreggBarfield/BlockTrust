@@ -72,7 +72,7 @@ class AccountLinks:
             company: company to search
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
             insert_sector: optional, if set to an integer it will be inserted if the row is inserted
-        
+
         Returns:
             A list of AccountLink objects (could be empty)
         """

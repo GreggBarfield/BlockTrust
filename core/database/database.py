@@ -15,7 +15,6 @@ from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
 from .tables.reports import Reports
-from .tables.eid_groups import EIDGroups
 from .tables.products import ProductTable
 from .tables.orders import Orders
 from .tables.order_products import OrderProducts
@@ -59,7 +58,6 @@ class Database:
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
         self.reports = Reports(self)
-        self.eid_groups = EIDGroups(self)
         self.usda_reports = USDAReports(self)
         self.products = ProductTable(self)
         self.orders = Orders(self)
