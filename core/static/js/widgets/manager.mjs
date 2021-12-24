@@ -28,7 +28,7 @@ import { SustainabilityTimelineWidget } from "./types/sustainability/sustainabil
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
-
+import { SummaryGraphWidget } from './types/employee/summary_graphs.mjs';
 
 // Immediately invoked
 (function () {
@@ -72,6 +72,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
+    attach("summary graphs", SummaryGraphWidget);
 
     // Find widgets
     $(".widget").each(function () {

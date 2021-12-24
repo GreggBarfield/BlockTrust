@@ -532,3 +532,16 @@ def serve_get_sustainability_timeline_data():
             'timeline_data': data,
             'order': ordering
         }, 200
+
+
+@bp.route('/widgets/data/employee_summary_graphs_data', methods=['POST'])
+@crut.require_employee
+def serve_employee_summary_graphs():
+    all_accounts = g.db.accounts.get_accounts()
+    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"])
+    all_accounts = sorted(all_accounts, key=lambda i: i['created_timestamp'])
+    feedyards = sorted(feedyards, key=lambda i: i['created_timestamp'])
+    return {
+        "accounts": all_accounts,
+        "feedyards": feedyards
+    }
