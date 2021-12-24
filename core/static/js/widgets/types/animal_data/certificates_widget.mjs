@@ -1,26 +1,28 @@
 import { Widget } from '../../widget.mjs';
-
+import { formatDate } from "../../../core/time.mjs";
 
 export class CertificatesWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
+
     initType() {
-        this.animal = parseInt(this.frame.getAttribute("data-widget-animal"));
+        this.eid = parseInt(this.frame.getAttribute("data-widget-animal"));
+        this.company = this.frame.getAttribute("data-widget-company");
         this.frame.innerHTML = "";
         this.getData(
             "direct/match_types_by_name",
             {}
         ).then((data) => {
 
-            this.match_types = data.match_types_by_name;
+            this.matchTypes = data.match_types_by_name;
             this.getData(
-                "update_certificates",
+                "data_request",
                 {
                     request: {
                         type: 'matches_by_eids',
                         params: {
-                            eids: [this.animal],
+                            eids: [this.eid],
                             ljoin_account_links: true,
                             types: ["Weaned","First Birth","Medical"]
                         }
@@ -29,17 +31,18 @@ export class CertificatesWidget extends Widget {
             ).then((data)=>
             {
                 this.medical_rows=[]
-                this.wean_data=""
-                this.first_born=""
+                this.wean_data=null
+                this.first_born=null
+                console.log("result matches", data)
                 for ( const match of data.result.matches)
                 {
-                    if (match.type == this.match_types["Medical"]){
+                    if (match.type == this.matchTypes["Medical"]){
                         this.medical_rows.push(match)
                     }
-                    else if(match.type == this.match_types["Weaned"]){
+                    else if(match.type == this.matchTypes["Weaned"]){
                         this.wean_data=match;
                     }
-                    else if(match.type == this.match_types["First Birth"]){
+                    else if(match.type == this.matchTypes["First Birth"]){
                         this.first_born=match
                     }
                 }
@@ -48,12 +51,7 @@ export class CertificatesWidget extends Widget {
             
         });
     }
-    formatDate(epoch) {
-        if (epoch == null || epoch <= 0)
-            return "--";
-        let d = new Date(parseInt(epoch) * 1000);
-        return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
-    }
+
     createDisplay(){
 
         let certHeader = document.createElement("h2");
@@ -73,37 +71,38 @@ export class CertificatesWidget extends Widget {
 
         let prodName =document.createElement("div");
         prodName.className = "col-md-4";
-        prodName.textContent="Producer Name: "+ this.wean_data["account_links.company"]
+        prodName.textContent="Producer Name: "+ this.company
         row.append(prodName)
         let tagRange =document.createElement("div");
         tagRange.className = "col-md-4";
-        tagRange.textContent="Tag Range: "+this.wean_data["eid"]
+        tagRange.textContent="Tag Range: "+this.eid
         row.append(tagRange)
         let firstBD =document.createElement("div");
         firstBD.className = "col-md-4";
-        firstBD.textContent="First Birth Date: "+ ((this.first_born!="")? this.formatDate(this.first_born.time):" ")
+        firstBD.textContent="First Birth Date: "+ ((this.first_born!==null)? formatDate(this.first_born.time):" ")
         row.append(firstBD)
         let weanDate =document.createElement("div");
         weanDate.className = "col-md-4";
-        weanDate.textContent="Wean Date: "+ this.formatDate(this.wean_data.time)
+        weanDate.textContent="Wean Date: "+ ((this.wean_data!==null)? formatDate(this.wean_data.time):" ")
         row.append(weanDate)
         let firstMD =document.createElement("div");
         firstMD.className = "col-md-4";
-        firstMD.textContent="First Eligible Movement Date: "+ (("first_14_date" in this.wean_data["data"])? this.wean_data["data"]["first_14_date"]:" ")
-        row.append(firstMD)
-        let creepFeed =document.createElement("div");
-        creepFeed.className = "col-md-4";
-        creepFeed.textContent="Creep Feed: "+ (("creep_feed" in this.wean_data["data"])? this.wean_data["data"]["creep_feed"]:" ")
-        row.append(creepFeed)
-        let first14DF =document.createElement("div");
-        first14DF.className = "col-md-4";
-        first14DF.textContent="First 14 Day Feed: "+ (("first_14_feed" in this.wean_data["data"])? this.wean_data["data"]["first_14_feed"]:" ")
-        row.append(first14DF)
+        if (this.wean_data !== null) {
+            firstMD.textContent="First Eligible Movement Date: "+ (("first_14_date" in this.wean_data["data"])? this.wean_data["data"]["first_14_date"]:" ")
+            row.append(firstMD)
+            let creepFeed =document.createElement("div");
+            creepFeed.className = "col-md-4";
+            creepFeed.textContent="Creep Feed: "+ (("creep_feed" in this.wean_data["data"])? this.wean_data["data"]["creep_feed"]:" ")
+            row.append(creepFeed)
+            let first14DF =document.createElement("div");
+            first14DF.className = "col-md-4";
+            first14DF.textContent="First 14 Day Feed: "+ (("first_14_feed" in this.wean_data["data"])? this.wean_data["data"]["first_14_feed"]:" ")
+            row.append(first14DF)
+        }
 
         //table
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "table-responsive";
-
         this.divTableResponsive.style = "margin: auto;width:100%;padding-top:10px;padding-bottom:0px;";
 
         this.mainTable = document.createElement("table");
@@ -121,24 +120,22 @@ export class CertificatesWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHeadRow0.style ="font-size:15px;padding:0px;padding-bottom:0px;margin-top:0px;margin-bottom:0px"
-
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
 
         for (const header of this.headers) {
             let th = document.createElement("th");
             th.textContent = header;
             th.style =" background-color:#e83c3c;color: black;font-weight: bold;font-size:15px;padding-top:0px;padding:0px;margin-top:0px;margin-bottom:0px"
-
             this.mainTableHeadRow0.appendChild(th);
         }
 
-        this.rows = [];
-        this.wean_dataHeader=["date","product","location"]
+        this.displayRows = [];
+        this.weanDataHeader=["date","product","location"]
         for (const medical_row of this.medical_rows) {
             let data_obj = medical_row["data"];
-            data_obj.date = this.formatDate(medical_row.time);
+            data_obj.date = formatDate(medical_row.time);
             let row = [];
-            for (const header of this.wean_dataHeader) {
+            for (const header of this.weanDataHeader) {
                 if (header in data_obj) {
                     row.push(data_obj[header]);
                 }
@@ -146,7 +143,7 @@ export class CertificatesWidget extends Widget {
                     row.push("");
                 }
             }
-            this.rows.push(row);
+            this.displayRows.push(row);
         }
 
         // Body
@@ -156,14 +153,14 @@ export class CertificatesWidget extends Widget {
 
         this.mainTable.appendChild(this.mainTableBody);
 
-        if (this.rows.length == 0) {
+        if (this.displayRows.length == 0) {
             let noData = document.createElement("div");
             noData.style = "text-align:center;padding:10px;width:100%;";
             noData.textContent = "No health data is available for this animal.";
             this.divTableResponsive.append(noData);
         }
         else {
-            for (const row of this.rows) {
+            for (const row of this.displayRows) {
                 let tr = document.createElement("tr");
                 tr.style="height:2px; font-size:13px;padding:0px;padding-bottom:0px"
                 this.mainTableBody.append(tr);
