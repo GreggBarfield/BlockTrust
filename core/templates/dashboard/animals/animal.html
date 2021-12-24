@@ -4,10 +4,10 @@
 {% endblock head_section_per_dashboard_page %}
 
 {% set page_title = "Animal "+ animal.eid()|string %} 
-{% set dashboard_locations = [("/dashboard","Animals"), ("/dashboard/animals/" + animal.eid() |string, animal.eid()|e)] %}
+{% set dashboard_locations = [("/dashboard","Animals"), ("/dashboard/animals/" + animal.eid() |string, animal.eid()|string)] %}
 
 {% block dashboard_content_header %} 
-Animal {{ animal.eid()|e }} 
+Animal {{ animal.eid()|string }} 
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -103,18 +103,19 @@ Animal {{ animal.eid()|e }}
 <script>
   function generatePDF() {
     var element=document.querySelector("#cert");
+    
     var opt = {
-  margin:       1,
-  filename:     'myCertificate.pdf',
-  image:        { type: 'png', quality: 1 },html2canvas: {
+        margin: 1,
+        filename: 'myCertificate.pdf',
+        image: { type: 'png', quality: 1 },html2canvas: {
         dpi: 192,
-        scale:4,
+        scale: 4,
         letterRendering: true,
         useCORS: true
       },
-
-  jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
-};
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+    };
+    
     html2pdf().set(opt).from(element).save();
   }
 </script>
