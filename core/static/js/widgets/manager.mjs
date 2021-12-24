@@ -17,6 +17,7 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { CowcalfQuestionaireWidget } from "./types/sustainability/cowcalf_questionaire.mjs";
 import { CowcalfSummaryWidget } from "./types/sustainability/cowcalf_summary.mjs";
@@ -61,6 +62,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    attach("certificates", CertificatesWidget);
     attach("market data table", MarketDataTableWidget);
     attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
     attach("Cow-Calf summary", CowcalfSummaryWidget);
