@@ -33,26 +33,7 @@ class Files:
             },
             ExpiresIn=expires_in,
         )
-    def get_pdf_url(self,folder_name,file_id,expires_in=3600):
-        """Gets a signed URL to a file by the ID.
 
-        Params:
-            folder_name: s3 folder's name : background/ or reported_certificates/ 
-            file_id: The file's ID
-
-            expires_in: The number of seconds before the link is no longer available
-                (default 1 hour (3600))
-        """
-        key= "animal_certificates/"+str(folder_name)+"/"+str(file_id)+".pdf"
-        return aws.get_s3_client().generate_presigned_url(
-            ClientMethod="get_object",
-            Params={
-                "Bucket": config.AWS_S3_BUCKET,
-                "Key": key
-            },
-            ExpiresIn=expires_in,
-        )
-    
     def is_owner(self, user_id, account_id, file_id):
         """Determines whether the user or account is the owner of the file.
 
@@ -60,7 +41,7 @@ class Files:
             user_id: The user ID to check if is the owner, or None to skip.
             account_id: The account ID to check if is the owner, or None to skip.
             file_id: The file ID to check on
-        
+
         Returns:
             True if user or account is the owner
         """

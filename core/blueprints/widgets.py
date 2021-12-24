@@ -499,9 +499,3 @@ def serve_get_sustainability_timeline_data():
             'timeline_data': data,
             'order': ordering
         }, 200
-
-@bp.route('/widgets/data/update_certificates', methods=['POST'])
-@crut.require_account
-def serve_update_certificates():
-    medical_data =unauth_route(request.json['request'])
-    return medical_data
