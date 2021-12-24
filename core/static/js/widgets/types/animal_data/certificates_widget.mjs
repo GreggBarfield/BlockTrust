@@ -23,17 +23,16 @@ export class CertificatesWidget extends Widget {
                         type: 'matches_by_eids',
                         params: {
                             eids: [this.eid],
-                            ljoin_account_links: true,
+                            ljoin_account_links: false,
                             types: ["Weaned","First Birth","Medical"]
                         }
                     }
                 }
             ).then((data)=>
             {
-                this.medical_rows=[]
-                this.wean_data=null
-                this.first_born=null
-                console.log("result matches", data)
+                this.medical_rows=[];
+                this.wean_data=null;
+                this.first_born=null;
                 for ( const match of data.result.matches)
                 {
                     if (match.type == this.matchTypes["Medical"]){
