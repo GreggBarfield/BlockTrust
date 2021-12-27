@@ -66,6 +66,8 @@ INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 
 SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 
+SUPPORT_TAG_STORE_EMAIL = config_file["support"]["general_tag_store_email"]
+
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
 
 EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
@@ -78,5 +80,10 @@ STRIPE_BASIC_PRICE = config_file["stripe"]["basic"]
 USDA_API_KEY = config_file["usda"]["api_key"]
 USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
 USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
+USDA_GET_DATA = config_file["usda"]["get_data"]
 
 FLATFILE_LICENSE = config_file["flatfile_license"]
+
+BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
+BLOCKCHAIN_UPLOADS = config_file["blockchain"]["upload"]
+BLOCKCHAIN_BATCH_SIZE = config_file["blockchain"]["batch_size"]

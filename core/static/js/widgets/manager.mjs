@@ -1,6 +1,6 @@
 import { TableWidget } from './types/animal_data/table_widget.mjs';
 import { MapWidget } from './types/animal_data/map_widget.mjs';
-import { DataTableWidget } from './types/animal_data/data_table_widget.mjs';
+// import { DataTableWidget } from './types/animal_data/data_table_widget.mjs';
 import { GradeWidget } from './types/animal_data/grade_widget.mjs';
 import { TimelineWidget } from './types/animal_data/timeline_widget.mjs';
 import { HealthTableWidget } from './types/animal_data/health_table_widget.mjs';
@@ -18,7 +18,10 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustainability_questionaire.mjs";
+import { SustainabilitySummaryWidget } from "./types/sustainability/sustainability_summary.mjs";
+import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 
 
 // Immediately invoked
@@ -37,7 +40,7 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
 
     attach("map", MapWidget);
     attach("table", TableWidget);
-    attach("data table", DataTableWidget);
+    // attach("data table", DataTableWidget);
     attach("grade", GradeWidget);
     attach("timeline", TimelineWidget);
     attach("health table", HealthTableWidget);
@@ -53,7 +56,10 @@ import { SustainabilityQuestionaireWidget } from "./types/sustainability/sustain
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    attach("market data table", MarketDataTableWidget);
     attach("sustainability questionaire", SustainabilityQuestionaireWidget);
+    attach("sustainability summary", SustainabilitySummaryWidget);
+    attach("market data filter table", MarketDataFilterWidget);
 
     // Find widgets
     $(".widget").each(function () {

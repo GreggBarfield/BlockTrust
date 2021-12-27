@@ -1,5 +1,41 @@
 /* 12/21/2020 Evan K */
 
+CREATE TABLE `matches` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `api_insert` int DEFAULT NULL,
+  `partner_account` int DEFAULT NULL,
+  `account_link` int DEFAULT NULL,
+  `eid` bigint DEFAULT NULL,
+  `visual_id` int DEFAULT NULL,
+  `grouping_id` int DEFAULT NULL,
+  `lat` double DEFAULT NULL,
+  `lon` double DEFAULT NULL,
+  `time` int DEFAULT NULL,
+  `created` int DEFAULT NULL,
+  `type` int DEFAULT NULL,
+  `debug` json DEFAULT NULL,
+  `data` json DEFAULT NULL,
+  `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `eid_lookup` (`eid`),
+  KEY `account_link_lookup` (`account_link`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ CREATE TABLE `account_links` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `account` int DEFAULT NULL,
+  `partner_account` int DEFAULT NULL,
+  `affiliate_id` varchar(127) DEFAULT NULL,
+  `company` varchar(127) DEFAULT NULL,
+  `sector` int DEFAULT NULL,
+  `api_insert` int DEFAULT NULL,
+  `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `find_account` (`account`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE `messages` (
   `id` int NOT NULL AUTO_INCREMENT,
   `from_account` int DEFAULT NULL,
@@ -433,7 +469,7 @@ CREATE TABLE `usda_reports` (
   `current_volume` mediumint DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-  
+
 /* Rohan Sureshkumar 7/7/2021 */
 ALTER TABLE `example_db_1`.`matches` 
 ADD COLUMN `grouping_id` INT NULL DEFAULT NULL AFTER `eid`,
@@ -500,10 +536,236 @@ CREATE TABLE `example_db_1`.`job_runs` (
   
 /* Rohan Sureshkumar 8/25/2021 */
 ALTER TABLE `example_db_1`.`account_links` 
-CHANGE COLUMN `uid_type` `affiliate_id_type` VARCHAR(127) NULL DEFAULT NULL ,
 CHANGE COLUMN `uid` `affiliate_id` VARCHAR(127) NULL DEFAULT NULL ,
 ADD COLUMN `api_insert` INT NULL DEFAULT NULL AFTER `sector`;
 
-/* Rohan Sureshkumar 2/9/2021 */
+/* Conner Charles 8/26/2021 */
+ALTER TABLE `example_db_1`.`sustainability` 
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+/* Nisheet Thakur 8/31/2021 */
+CREATE TABLE connections(
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `from_account_id` INT,
+  `to_account_id` INT,
+  `from_account_name` VARCHAR(127),
+  `to_account_name` VARCHAR(127),
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` INT,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  );
+CREATE TABLE connection_invites(
+  `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  `from_account` INT,
+  `to_account` INT DEFAULT NULL,
+  `company_sector` INT,
+  `company_name` VARCHAR(127),
+  `company_contact` VARCHAR(127),
+  `company_email` VARCHAR(127),
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+/* Rohan Sureshkumar 9/2/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
 DROP COLUMN `name`;
+
+/* Rohan Sureshkumar 9/6/2021 */
+/* script to link unlinked accounts in account_links using affiliate_id. */
+UPDATE account_links AL 
+INNER JOIN accounts A 
+ON AL.affiliate_id = A.affiliate_id AND AL.partner_account = A.partner_account
+SET AL.account = a.id, AL.sector = A.sector, AL.company = A.company
+WHERE AL.account IS NULL;
+
+/* Rohan Sureshkumar 9/7/2021 */
+ALTER TABLE `example_db_1`.`account_links` 
+DROP INDEX `company_must_be_unique` ;
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `api_insert` `api_insert` INT NULL DEFAULT NULL AFTER `id`;
+
+/* Rohan Sureshkumar 9/9/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `visual_id` INT NULL DEFAULT NULL AFTER `eid`;
+
+/* Rohan Sureshkumar 9/10/2021 */
+/* You might have to set all the data in matches.raw_identifier column to NULL before running below query */
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `account` `partner_account` INT NULL DEFAULT NULL ,
+CHANGE COLUMN `raw_identifier` `debug` JSON NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`account_links` 
+DROP COLUMN `affiliate_id_type`,
+DROP INDEX `uid_must_be_unique` ;
+
+/* Rohan Sureshkumar 9/10/2021 */
+/* Insert packer accounts. Needs partner ILS entry in accounts */
+SELECT id FROM accounts WHERE company LIKE '%ILS%' AND is_partner=1 INTO @partner_id;
+INSERT INTO accounts(affiliate_id, company,sector,partner_account,city,state,zip)
+values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
+('023','Tyson - Amarillo',7,@partner_id,'Amarillo','TX',79101),
+('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
+('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
+('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257);
+
+/* Rohan Sureshkumar 9/10/2021 */
+CREATE TABLE `employees` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `password` varchar(128) NOT NULL,
+  `username` varchar(128) NOT NULL,
+  `email` varchar(128) NOT NULL,
+  `phone` bigint DEFAULT NULL,
+  `first_name` varchar(128) NOT NULL,
+  `last_name` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/* Rohan Sureshkumar 9/15/2021 */
+/* Creating foreign keys in matches and account_links */
+/* Naming convention: fk_childtablename_childtablecolumn_parenttablecolumn_parenttablename */
+ALTER TABLE `example_db_1`.`accounts` 
+CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `fk_matches_account_link_id_account_links_idx` (`account_link` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`matches` 
+ADD CONSTRAINT `fk_matches_account_link_id_account_links`
+  FOREIGN KEY (`account_link`)
+  REFERENCES `example_db_1`.`account_links` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `fk_matches_partner_account_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`matches` 
+ADD CONSTRAINT `fk_matches_partner_account_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`account_links` 
+ADD INDEX `fk_account_links_partner_account_id_accounts_idx` (`partner_account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`account_links` 
+ADD CONSTRAINT `fk_account_links_partner_account_id_accounts`
+  FOREIGN KEY (`partner_account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`account_links` 
+ADD INDEX `fk_account_links_account_id_accounts_idx` (`account` ASC) VISIBLE;
+;
+ALTER TABLE `example_db_1`.`account_links` 
+ADD CONSTRAINT `fk_account_links_account_id_accounts`
+  FOREIGN KEY (`account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 9/16/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+CHANGE COLUMN `visual_id` `visual_id` VARCHAR(16) NULL DEFAULT NULL ;
+ALTER TABLE `example_db_1`.`api_inserts` 
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `priority`;
+ALTER TABLE `example_db_1`.`api_inserts` 
+CHARACTER SET = utf8mb4 , COLLATE = utf8mb4_0900_ai_ci ;
+
+/* Nisheet Thakur 9/16/2021 */
+ALTER TABLE `example_db_1`.`users`
+ADD `is_email_verified` TINYINT DEFAULT 0;
+
+UPDATE `example_db_1`.`users`
+SET is_email_verified=1 
+WHERE email_verified="Y";
+
+ALTER TABLE `example_db_1`.`users` 
+DROP COLUMN `email_verified`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `first` TO `first_name`;
+
+ALTER TABLE `example_db_1`.`users`
+RENAME COLUMN `last` TO `last_name`;
+
+/* Rohan Sureshkumar 9/17/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_transaction_id` VARCHAR(64) NULL AFTER `data`,
+ADD COLUMN `bc_hash` VARCHAR(64) NULL AFTER `bc_transaction_id`;
+
+/* Rohan Sureshkumar 9/21/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD COLUMN `bc_upload` TINYINT NOT NULL DEFAULT 0 AFTER `bc_hash`,
+ADD INDEX `bc_upload` (`bc_upload` ASC) VISIBLE;
+UPDATE matches SET bc_upload=1  
+WHERE bc_transaction_id IS NOT NULL;
+
+/* Rohan Sureshkumar 9/29/2021 */
+ALTER TABLE `example_db_1`.`matches` 
+ADD INDEX `match_type` (`type` ASC) VISIBLE;
+
+/* Rohan Sureshkumar 9/29/2021 */
+ALTER TABLE `example_db_1`.`error_logs` 
+DROP COLUMN `column_value`,
+CHANGE COLUMN `column_name` `details` JSON NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/1/2021 */
+ALTER TABLE `reports` 
+ADD COLUMN `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `created`,
+ADD COLUMN `last_update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `create_timestamp`;
+ALTER TABLE `reports` 
+ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `id`;
+ALTER TABLE `example_db_1`.`reports` 
+DROP COLUMN `created`,
+DROP COLUMN `issuer`,
+DROP COLUMN `owner`;
+
+/* Rohan Sureshkumar 10/3/2021 */
+ALTER TABLE `example_db_1`.`job_runs` 
+ADD COLUMN `end_timestamp` TIMESTAMP NULL AFTER `create_timestamp`;
+ALTER TABLE `example_db_1`.`job_runs` 
+ADD COLUMN `details` JSON NULL AFTER `routine`;
+
+/* Rohan Sureshkumar 10/6/2021 */
+CREATE TABLE `example_db_1`.`user_logins_by_employee` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `employee_id` INT NOT NULL,
+  `create_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 10/8/2021 */
+ALTER TABLE orders
+ADD `premise_id` VARCHAR(16);
+ALTER TABLE `products`
+ADD `is_premise_id_required` TINYINT DEFAULT 0;
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+UPDATE `products` SET is_premise_id_required=1
+WHERE product="Large Panel Tag" AND partner=@partner_id;
+/* Dropping unused columns */
+ALTER TABLE products
+DROP COLUMN `num_text`,
+DROP COLUMN `end_no`,
+DROP COLUMN `start_no`,
+DROP COLUMN `number_y_n`,
+DROP COLUMN `original_price`,
+DROP COLUMN `creditcard_charge`,
+DROP COLUMN `m2_short`,
+DROP COLUMN `menu2`,
+DROP COLUMN `m1_short`,
+DROP COLUMN `menu1`;
+ALTER TABLE `example_db_1`.`orders` 
+DROP COLUMN `shipping_country`,
+DROP COLUMN `transaction_date`,
+DROP COLUMN `session_flag`,
+DROP COLUMN `approval_code`,
+DROP COLUMN `approved`;
+
+/* Rohan Sureshkumar 10/15/2021 */
+ALTER TABLE `employees` 
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `last_name`,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
