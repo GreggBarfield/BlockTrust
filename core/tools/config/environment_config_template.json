@@ -45,7 +45,8 @@
         "api_key": "YEULfkcsaG943pPgePJa/6KIWH8Fajkj",
         "public_endpoint": "https://marsapi.ams.usda.gov/services/v1.2/",
         "mandatory_endpoint": "https://mpr.datamart.ams.usda.gov/services/v1.1/reports/",
-        "get_data": false
+        "get_data": false,
+        "report_cutoff_period_in_days": 30
     },
     "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
     "blockchain": {

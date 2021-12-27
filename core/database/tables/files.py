@@ -33,7 +33,7 @@ class Files:
             },
             ExpiresIn=expires_in,
         )
-    
+
     def is_owner(self, user_id, account_id, file_id):
         """Determines whether the user or account is the owner of the file.
 
@@ -41,7 +41,7 @@ class Files:
             user_id: The user ID to check if is the owner, or None to skip.
             account_id: The account ID to check if is the owner, or None to skip.
             file_id: The file ID to check on
-        
+
         Returns:
             True if user or account is the owner
         """

@@ -1,5 +1,5 @@
 from ..objects.usda_report import USDAReport
-
+from datetime import datetime, timedelta
 
 class USDAReportsException(Exception):
     """Generic USDA reports exception."""
@@ -117,7 +117,7 @@ class USDAReports:
 
         return result
 
-    def get_all_published_dates(self):
+    def get_unique_published_dates_and_slug_id(self):
         """Gets all the unique published date/slug_id combinations
 
         Returns:
@@ -248,18 +248,24 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
- 
-    def get_all_published_dates(self):
-        """Gets all the unique published date/slug_id combinations
+
+    def delete_reports_older_than(self, time_length_in_days):
+        """Deletes all reports that are older than time_length in days
 
         Returns:
-            A list of published dates and slug_ids
-            on success, or None on no match.
+            The row count in the database
         """
-        result = self._db.execute_d(
+
+        cutoff_date = (datetime.now().date() - timedelta(days=time_length_in_days))
+
+        self._db.execute(
             """
-                SELECT DISTINCT slug_id, published_date
-                FROM usda_reports 
-            """
+                DELETE FROM usda_reports
+                WHERE published_date < %(published_date_cutoff)s;
+            """,
+            {
+                "published_date_cutoff": cutoff_date
+            }
         )
-        return result
+
+        return self._db.row_count()

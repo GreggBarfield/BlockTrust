@@ -1,0 +1,25 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "No Active Subscription" %}
+{% set dashboard_locations = [] %}
+
+{% block dashboard_content_header %}
+No Active Subscription
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">No Active Subscription</h5>
+                <p class="card-text">You have accessed a premium feature which requires an active subscription plan</p>
+                <p class="card-text">This account is currently not subscribed to any plan</p>
+                <p class="card-text"><a href="/dashboard/plans">Select Subscription Plan</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

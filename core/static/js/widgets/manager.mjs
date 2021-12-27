@@ -17,6 +17,7 @@ import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { CowcalfQuestionaireWidget } from "./types/sustainability/cowcalf_questionaire.mjs";
 import { CowcalfSummaryWidget } from "./types/sustainability/cowcalf_summary.mjs";
@@ -26,6 +27,7 @@ import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questi
 import { AuctionSummaryWidget } from "./types/sustainability/auction_summary.mjs";
 import { SustainabilityTimelineWidget } from "./types/sustainability/sustainability_timeline.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
+import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 
 
@@ -60,6 +62,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
+    attach("certificates", CertificatesWidget);
     attach("market data table", MarketDataTableWidget);
     attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
     attach("Cow-Calf summary", CowcalfSummaryWidget);
@@ -68,6 +71,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("Auction House questionaire", AuctionQuestionaireWidget);
     attach("Auction House summary", AuctionSummaryWidget);
     attach("market data filter table", MarketDataFilterWidget);
+    attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
 
