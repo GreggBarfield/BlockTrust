@@ -100,7 +100,7 @@ export class AsyncForm {
             .done(function(data){
                 try {
                     if ('error' in data) {
-                        that.setError(data.error);
+                        that.setStatus(data.error);
                     }
                     if ('redirect' in data) {
                         if (that.redirectMessage !== undefined) {
@@ -113,7 +113,7 @@ export class AsyncForm {
                     }
                 }
                 catch(e) {
-                    that.setError(e);
+                    that.setError("An error occurred: " + e);
                 }
             })
             .fail(function(xhr, status){
@@ -127,7 +127,7 @@ export class AsyncForm {
                     }
                 }
                 catch {
-                    that.setError(status + ", " + xhr.status + ", " + xhr.responseText);
+                    that.setError("An error occurred: " + status + ", " + xhr.status + ", " + xhr.responseText);
                 }
             });
 
