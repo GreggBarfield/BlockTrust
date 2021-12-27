@@ -90,7 +90,7 @@ def serve_dashboard():
 #         except AccountsException as e:
 #             raise ExportException("Account creation failed: " + str(e))
 #     except ExportException as e:
-#         return {"error": str(e)}
+#         return {"error": str(e)}, 400
 
 # # 6/3/21 Deprecated
 # @bp.route('/dashboard/accounts/join-account', methods=['GET'])
@@ -350,7 +350,7 @@ def serve_edit_account():
                         )
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
 
@@ -371,7 +371,7 @@ def serve_edit_edituser():
                         )
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
         return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
@@ -405,7 +405,7 @@ def serve_invite_user():
             InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
             return {"redirect": "/dashboard"}
         except ExportException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
 
@@ -450,7 +450,7 @@ def serve_add_connection_request():
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
