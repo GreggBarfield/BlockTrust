@@ -19,7 +19,7 @@ export class SummaryGraphWidget extends Widget {
     
     makeSummaryGraphs(){
         let cardBody = document.getElementById("card")
-
+        /*
         let lineGraphRanches = document.createElement("div");
         lineGraphRanches.style = "height: 18em;";
         let graphLabel = document.createElement("label");
@@ -37,6 +37,20 @@ export class SummaryGraphWidget extends Widget {
         let lineGraphCattle = document.createElement("div");
         lineGraphCattle.style = "height: 18em;";
         cardBody.append(lineGraphCattle);
+        */
+        this.makeLineGraphContainer(cardBody, "Ranches", this.data.accounts);
+        this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards);
+    }
+
+    makeLineGraphContainer(section, title, values){
+        let lineGraphContainer = document.createElement("div");
+        lineGraphContainer.style = "height: 18em;";
+        let graphLabel = document.createElement("label");
+        graphLabel.className = "form-label";
+        graphLabel.textContent = title;
+        section.append(graphLabel);
+        section.append(lineGraphContainer);
+        this.makeLineGraph(lineGraphContainer, values);
     }
 
     getGraphableLineData(values){
