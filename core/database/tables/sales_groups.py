@@ -1,6 +1,8 @@
 import json
+from core.database.no_value import NoValue
 from ..tables import zip_codes
 
+NO_VALUE = NoValue()
 
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
@@ -45,7 +47,7 @@ class SalesGroups:
     """
 
     _STANDARD_SELECT = """
-        SELECT sales_groups.*, accounts.company AS account_name,
+        SELECT sales_groups.*, accounts.name AS account_name,
                 auction_sales.name AS auction_sale_name
             FROM sales_groups
             LEFT JOIN accounts ON sales_groups.account=accounts.id
@@ -67,7 +69,7 @@ class SalesGroups:
                     d_actual["reported"] = json.loads(d_actual["reported"])
         return d
 
-    def row_by_id(self, row_id):
+    def get_sales_group_by_id(self, row_id):
         """Gets a sales group row by an ID.
 
         Params:
@@ -93,8 +95,8 @@ class SalesGroups:
             raise SalesGroupsException("No sales group found with that ID.")
         return self._translate_json(sales_groups[0])
 
-    def rows_by_account(self, account):
-        """Gets sales group rows by an account.
+    def get_sales_groups(self, account_id=NO_VALUE, is_archived=NO_VALUE):
+        """Gets sales group rows.
 
         Params:
             account: the account id
@@ -107,14 +109,28 @@ class SalesGroups:
         Raises:
             SalesGroupsException
         """
-        sales_groups = self._db.execute_d(
-            SalesGroups._STANDARD_SELECT + """
-                WHERE sales_groups.account=%(account)s
-            """,
-            {
-                "account": account
-            }
-        )
+        # base query
+        base_query = SalesGroups._STANDARD_SELECT
+
+        query_conditions = []
+        query_values = {}
+
+        if account_id is not NO_VALUE:
+            query_conditions.append(" sales_groups.account = %(account_id)s")
+            query_values["account_id"] = account_id
+        
+        if is_archived is not NO_VALUE:
+            query_conditions.append(" sales_groups.is_archived = %(is_archived)s")
+            query_values["is_archived"] = is_archived
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        sales_groups = self._db.execute_d(query, query_values)
         return self._translate_json(sales_groups)
 
     def insert(self, account_id, reported):
@@ -130,18 +146,17 @@ class SalesGroups:
 
         self._db.execute(
             """INSERT INTO sales_groups
-                (account, reported, eid_group)
-                VALUES (%(account)s, %(reported)s, %(eid_group)s)
+                (account, reported)
+                VALUES (%(account)s, %(reported)s)
             """,
             {
                 "account": account_id,
-                "reported": json.dumps(reported),  # Does this need to be converted to a string first?
-                "eid_group": self._db.eid_groups.new_group(owner=account_id)
+                "reported": json.dumps(reported)  # Does this need to be converted to a string first?
             }
         )
-        return self.row_by_id(self._db.last_row_id())
+        return self.get_sales_group_by_id(self._db.last_row_id())
 
-    def update(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name):
+    def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived):
         """Updates a row.
 
         Params:
@@ -159,7 +174,7 @@ class SalesGroups:
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
                     start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
-                    auction_sale=%(auction_sale)s, group_name=%(group_name)s
+                    auction_sale=%(auction_sale)s, group_name=%(group_name)s , is_archived=%(is_archived)s
                 WHERE id=%(id)s
             """,
             {
@@ -169,15 +184,16 @@ class SalesGroups:
                 "start": start,
                 "end": end,
                 "zip": zip_code,
-                "market_location":market_location,
-                "delivery_location":delivery_location,
+                "market_location": market_location,
+                "delivery_location": delivery_location,
                 "auction_sale": auction_sale,
-                "group_name": group_name
+                "group_name": group_name,
+                "is_archived":is_archived
             }
         )
 
     def search_within(
-        self, zip_code, miles, start, end, skip=0, limit=10,
+        self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
         breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
     ):
         """Searches for sales groups.
@@ -228,6 +244,7 @@ class SalesGroups:
                         %s <= start AND start <= %s OR
                         %s <= end AND end <= %s
                     )
+                    AND sales_groups.is_archived = %s
                     AND sales_groups.published > 0
                     AND sales_groups.zip IN (""" + sql_zip_codes + """)
                     """ + sql_additionals_total + """
@@ -235,6 +252,6 @@ class SalesGroups:
 
         sales_groups = self._db.execute_d(
             sql,
-            [start, end, start, end] + zip_codes + additionals
+            [start, end, start, end, is_archived] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)

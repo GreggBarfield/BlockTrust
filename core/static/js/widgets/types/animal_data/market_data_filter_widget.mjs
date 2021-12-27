@@ -7,10 +7,16 @@ export class MarketDataFilterWidget extends Widget {
 
     initType() {
         this.getData(
-            "get_market_state_data",
-            {}
+            "data_request",
+            {
+                request: {
+                    type: 'market_data_cache',
+                    params: {}
+                }
+            }
         ).then((data) => {
-            this.state_rows = data.market_data;
+            this.state_rows = data.result.states;
+            this.city_rows = data.result.cities_per_state;
             this.frame.innerHTML = "";
             this.makeStateDropDown();
         });
@@ -76,33 +82,28 @@ export class MarketDataFilterWidget extends Widget {
     }
 
     getCityData() {
-        this.getData(
-            "get_market_city_data/" + this.state,
-            {}
-        ).then((data) => {
-            this.city_rows = data.market_data;
-            this.divCityDropDown.innerHTML = "";
+        this.divCityDropDown.innerHTML = "";
 
-            let cities = [];
-            let city_ids = {};
-            for (const row in this.city_rows) {
-                let item = this.city_rows[row]['market_location_city'];
-                cities.push(item);
-                city_ids[item] = this.city_rows[row]['slug_id'];
-            }
-            cities.sort();
-            let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
-            
-            let self = this;
+        let cities = [];
+        let city_ids = {};
+        for (const row in this.city_rows[this.state]) {
+            let item = this.city_rows[this.state][row]['market_location_city'] 
+                + " (" + this.city_rows[this.state][row]['slug_id'] + ")";
+            cities.push(item);
+            city_ids[item] = this.city_rows[this.state][row]['slug_id'];
+        }
+        cities.sort();
+        let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
+        
+        let self = this;
 
-            $(select).on("change", function() {
-                //since createBtn is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
-                createBtn(self, this);
-            });
-
-            // Put HTML in frame
-            this.row.append(this.divCityDropDown);
+        $(select).on("change", function() {
+            //since createBtn is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
+            createBtn(self, this);
         });
+
+        // Put HTML in frame
+        this.row.append(this.divCityDropDown);
     }
 
     makeStateDropDown() {

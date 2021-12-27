@@ -55,17 +55,14 @@ class Connections:
         Returns:
             None
         """
-        from_account = Accounts(self._db).get_by_id(self, account_id=from_account_id)
-        to_account = Accounts(self._db).get_by_id(self, account_id=to_account_id)
-        from_account_name = from_account.company()
-        to_account_name = to_account.company()
         # From account is the sender of the request, To is the reciever
         # For the from account we already have a an entry in the table with status 0(pending)
         self._db.execute(
             """
-            UPDATE TABLE connections
+            UPDATE connections
             SET status=%(status)s
-            WHERE from_account_id=%(from_account_id)s, to_account_id=%(to_account_id)s
+            WHERE ((from_account_id=%(from_account_id)s AND to_account_id=%(to_account_id)s) OR
+                (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
             """,
             {
                 "status": status,
@@ -90,10 +87,10 @@ class Connections:
             raise ConnectionException("Account is already connected!")
         if self.get_connection_between(from_account_id, to_account_id) == 0:
             raise ConnectionException("Request already sent!")
-        first_account = Accounts(self._db).get_by_id(self, account_id=from_account_id)
-        second_account = Accounts(self._db).get_by_id(self, account_id=to_account_id)
-        from_account_name = first_account.company()
-        to_account_name = second_account.company()
+        first_account = Accounts(self._db).get_by_id(account_id=from_account_id)
+        second_account = Accounts(self._db).get_by_id(account_id=to_account_id)
+        from_account_name = first_account.name()
+        to_account_name = second_account.name()
         self._db.execute(
             """
                 INSERT INTO  connections

@@ -1,8 +1,8 @@
 from os.path import join
 from flask import (
-    Flask, jsonify, request, render_template, redirect, url_for, g
+    render_template, g
 )
-
+from ..config import DOMAIN
 
 def outside_render(file, args={}):
     """Renders a template from templates/outside.
@@ -21,7 +21,8 @@ def outside_render(file, args={}):
         "outside_standard_user_username": g.user.username() if g.user is not None else "",
         "outside_standard_user_logged_in": g.user is not None,
         "outside_standard_employee_username": g.employee.username() if g.employee is not None else "",
-        "outside_standard_employee_logged_in": g.employee is not None
+        "outside_standard_employee_logged_in": g.employee is not None,
+        "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False
     }
     for key in args:
         if key in outside_standard_args:

@@ -43,3 +43,6 @@ class User:
 
     def phone(self):
         return self._row['phone']
+
+    def is_system_generated(self):
+        return self._row["is_system_generated"]
