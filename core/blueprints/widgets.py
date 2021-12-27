@@ -27,6 +27,7 @@ from ..data_requests.router import unauth_route
 from time import time
 
 from ..database.tables import zip_codes
+
 bp = Blueprint('widgets_bp', __name__)
 
 

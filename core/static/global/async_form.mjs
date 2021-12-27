@@ -100,7 +100,7 @@ export class AsyncForm {
             .done(function(data){
                 try {
                     if ('error' in data) {
-                        that.setError(data.error);
+                        that.setStatus(data.error);
                     }
                     if ('redirect' in data) {
                         if (that.redirectMessage !== undefined) {
@@ -120,7 +120,7 @@ export class AsyncForm {
                 try {
                     let data = JSON.parse(xhr.responseText);
                     if ("error" in data) {
-                        that.setError("An error occurred: " + data.error);
+                        that.setError(data.error);
                     }
                     else {
                         throw "Nope";

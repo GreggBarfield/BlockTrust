@@ -32,6 +32,6 @@ def auth(params):
         "matches": g.db.matches.get_by_eids(
             params["eids"],
             restrict_types=restrict_types,
-            ljoin_account_links="ljoin_account_links"
+            ljoin_account_links=ljoin_account_links
         )
     }
