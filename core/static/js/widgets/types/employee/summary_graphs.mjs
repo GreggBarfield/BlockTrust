@@ -19,36 +19,18 @@ export class SummaryGraphWidget extends Widget {
     
     makeSummaryGraphs(){
         let cardBody = document.getElementById("card")
-        /*
-        let lineGraphRanches = document.createElement("div");
-        lineGraphRanches.style = "height: 18em;";
-        let graphLabel = document.createElement("label");
-        graphLabel.className = "form-label";
-        graphLabel.textContent = "Ranches";
-        cardBody.append(graphLabel);
-        cardBody.append(lineGraphRanches);
-        this.makeLineGraph(lineGraphRanches, this.data.accounts);
-
-        let lineGraphFeedyards = document.createElement("div");
-        lineGraphFeedyards.style = "height: 18em;";
-        cardBody.append(lineGraphFeedyards);
-        this.makeLineGraph(lineGraphFeedyards, this.data.feedyards);
-
-        let lineGraphCattle = document.createElement("div");
-        lineGraphCattle.style = "height: 18em;";
-        cardBody.append(lineGraphCattle);
-        */
         this.makeLineGraphContainer(cardBody, "Ranches", this.data.accounts);
         this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards);
+        //this.makeLineGraphContainer(cardBody, "Tags", this.data.tags);
     }
 
     makeLineGraphContainer(section, title, values){
         let lineGraphContainer = document.createElement("div");
         lineGraphContainer.style = "height: 18em;";
-        let graphLabel = document.createElement("label");
-        graphLabel.className = "form-label";
+        let graphLabel = document.createElement("span");
+        graphLabel.className = "label label-info";
         graphLabel.textContent = title;
-        section.append(graphLabel);
+        section.appendChild(graphLabel);
         section.append(lineGraphContainer);
         this.makeLineGraph(lineGraphContainer, values);
     }

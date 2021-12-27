@@ -375,10 +375,11 @@ class Matches:
         )
 
     def get_distinct_eids_by_account(self, account_id, number_of_years):
-        """Return the distinct EIDs in the database for an account.
+        """Returns the distinct EIDs in the database for an account.
 
         Params:
             account_id: The account to generate data on
+            number_of_years: Age of records
 
         Returns:
             The array of distinct eids
@@ -392,6 +393,25 @@ class Matches:
                 ) AND YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
                 """, {
                     "account": account_id,
+                    "number_of_years": number_of_years
+                }
+        )
+
+    def get_distinct_eids(self, number_of_years):
+        """Returns the distinct EIDs in the database for number of years specified.
+
+        Params:
+            number_of_years: Age of records
+
+        Returns:
+            The array of distinct eids
+        """
+        return self._db.execute_d(
+                """
+                SELECT DISTINCT eid, created_timestamp
+                FROM matches
+                WHERE YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
+                """, {
                     "number_of_years": number_of_years
                 }
         )
