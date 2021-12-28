@@ -162,7 +162,7 @@ def serve_signup_action():
         else:
             raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 # About us
 
@@ -251,9 +251,9 @@ def serve_request_password_reset():
 def serve_password_request_action():
     user = g.db.users.get_by_email(request.form['email'])
     if user is None:
-        return {"error": "Sorry, we couldn't find this email address"}
+        return {"error": "Sorry, we couldn't find this email address"}, 400
     elif user.is_email_verified() != 1:
-        return {"error": "Sorry, this user does not have a verified email address"}
+        return {"error": "Sorry, this user does not have a verified email address"}, 400
     else:
         # Generating token identifier for changing password securely
         userToken = token.generateConfirmationToken(request.form['email'])
@@ -493,7 +493,7 @@ def serve_add_invited_user():
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route('/rfid-tags', methods=["GET"])
