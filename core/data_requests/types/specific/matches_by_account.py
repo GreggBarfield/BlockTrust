@@ -19,10 +19,11 @@ def auth(params):
                 ljoin_account_links: Whether to LJOIN account links (boolean)
                     (results as account_links.column_name)
     """
-    account = g.db.accounts.get_by_id(g.account.id())
+    account = g.db.accounts.get_account_by_id(g.account.id())
     account_link_id = 0
-    if len(account.account_links()) > 0:
-        account_link_id = account.account_links()[0].id()
+    if account is not None:
+        if len(account.account_links()) > 0:
+            account_link_id = account.account_links()[0].id()
     if 'animals_with_data' in params:
         return {
             "matches": g.db.matches.get_animals_with_data_for_account(account_link_id)

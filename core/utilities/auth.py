@@ -116,7 +116,7 @@ def session_open_account():
     """Load account session into app context."""
     g.account = None
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
-        g.account = g.db.accounts.get_by_id(session[SESSION_ACCOUNT_ID_VAR])
+        g.account = g.db.accounts.get_account_by_id(session[SESSION_ACCOUNT_ID_VAR])
         if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
             # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
             # role and therefore assuming is_admin will not change during an active session
@@ -488,7 +488,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
             phone=None,
             email_verified=1
         )
-        account = g.db.accounts.get_by_id(account_id)
+        account = g.db.accounts.get_account_by_id(account_id)
         if is_admin == 0:
             g.db.account_users.add_user_to_account(user, account)
         else:

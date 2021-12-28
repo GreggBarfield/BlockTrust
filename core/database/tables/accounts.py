@@ -21,7 +21,7 @@ class Accounts:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, account_id):
+    def get_account_by_id(self, account_id):
         """Gets an account by an ID.
 
         Params:
@@ -43,7 +43,7 @@ class Accounts:
             }
         )
         if len(account_rows) != 1:
-            raise AccountsException("No account found with that ID.")
+            return None
         return Account(self._db, account_rows[0])
         
     def get_partners_by_sector_id(self, sector_id):

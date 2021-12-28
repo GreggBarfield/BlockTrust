@@ -28,9 +28,9 @@ def handle(db, insert):
     api_insert = insert["id"]
     visual_id = fields["VisualID"] if "VisualID" in fields and fields["VisualID"] != "" else None
 
-    account = db.accounts.get_by_id(insert["account"])
+    account = db.accounts.get_account_by_id(insert["account"])
     account_link_id = account.account_links()[0].id()
-    if account is not None:      
+    if account is not None:     
         zipcode = str(account.zip())
         if len(zipcode) >= 5:
             f5 = zipcode[0:5]

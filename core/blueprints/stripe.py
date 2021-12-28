@@ -27,7 +27,7 @@ def serve_stripe_config():
 
 @bp.route('/stripe/config/<partner_id>', methods=['GET'])
 def serve_stripe_config_for_partner(partner_id):
-    account = g.db.accounts.get_by_id(partner_id)
+    account = g.db.accounts.get_account_by_id(partner_id)
     return  {
         'publishableKey': account.partner_stripe_publishable_key() 
     }
@@ -153,8 +153,8 @@ def create_subscription():
 @bp.route('/stripe/create-payment-intent/<partner_id>', methods=['POST'])
 def create_payment(partner_id):
     data = json.loads(request.data)
-    try:    
-        account = g.db.accounts.get_by_id(partner_id)
+    try:
+        account = g.db.accounts.get_account_by_id(partner_id)
         if account is not None:
             stripe.api_key = account.partner_stripe_secret_key()
             # Some example payment method types include `card`, `ideal`, and `alipay`.
