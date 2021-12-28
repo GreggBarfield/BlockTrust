@@ -499,10 +499,6 @@ class Accounts:
             query_conditions.append(" zip = %(zip)s")
             query_values["zip"] = zip
 
-        if token is not NO_VALUE:
-            query_conditions.append(" token = %(token)s")
-            query_values["token"] = token
-
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
         else:
