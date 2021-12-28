@@ -1,12 +1,13 @@
 import time as time_module
 import json
+from core.database.no_value import NoValue
 from ..frag import frag
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
-
+NO_VALUE = NoValue()
 
 class MatchesException(Exception):
     """Matches generic exception."""
@@ -213,7 +214,7 @@ class Matches:
         ))
 
     def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
-                  time=None, selectColumns=[]):
+                  time=None, visual_id_has_value=NO_VALUE, selectColumns=[]):
         """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
 
         Returns:
@@ -230,6 +231,12 @@ class Matches:
         if(visual_id is not None):
             query_string_list.append("AND visual_id = %(visual_id)s")
             query_values["visual_id"] = visual_id
+
+        if visual_id_has_value != NO_VALUE:
+            if visual_id_has_value is True:
+                query_string_list.append("AND visual_id IS NOT NULL")
+            elif visual_id_has_value is False:
+                query_string_list.append("AND visual_id IS NULL")
 
         if(type_int is not None):
             query_string_list.append("AND type = %(type)s")

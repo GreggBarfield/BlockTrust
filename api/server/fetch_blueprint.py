@@ -31,13 +31,13 @@ def serve_fetch_animal_data():
     except AccountsException:
         raise ExportException("Bad account ID")
     match_birth_date_row = g.db.matches.get_by_eids(eids=eid, restrict_types=match_types_by_name["Born"])
-    match_visual_id_row = g.db.matches.get_by_eids(eids=eid, restrict_types=match_types_by_name["Visual ID"])
+    match_visual_id_row = g.db.matches.get_match(eid=eid, visual_id_has_value=True)
     match_birth_date = ""
     match_visual_id = ""
     if len(match_birth_date_row) > 0:
         match_birth_date = match_birth_date_row[0]['data']
-    if len(match_visual_id_row) > 0:
-        match_visual_id = match_visual_id_row[0]['data']
+    if match_visual_id_row is not None:
+        match_visual_id = match_visual_id_row['visual_id']
     animal_data = {
         "animal_eid": eid,
         "animal_birth_date": match_birth_date,
