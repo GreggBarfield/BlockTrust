@@ -27,13 +27,13 @@ app = Flask(__name__)
 
 from . import input_blueprint
 from . import internal_blueprint
-from . import fetch_blueprint
+from . import external_blueprint
 from core.common_exceptions import ExportException
 
 
 app.register_blueprint(input_blueprint.bp)
 app.register_blueprint(internal_blueprint.bp)
-app.register_blueprint(fetch_blueprint.bp)
+app.register_blueprint(external_blueprint.bp)
 
 
 @app.errorhandler(ExportException)
