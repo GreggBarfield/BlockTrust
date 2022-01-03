@@ -338,7 +338,7 @@ def login(identifier, password=""):
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
-        locked_account_error = "Your account "+user_row["username"]+" is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
+        locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
         if int(user_row["is_user_locked"]) == 1:
             
             # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
