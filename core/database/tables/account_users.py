@@ -125,7 +125,7 @@ class AccountUsers:
             }
         )
 
-    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE, selectColumns=[]):
+    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE):
         """
         Gets the account records based on conditions provided
 
@@ -137,13 +137,8 @@ class AccountUsers:
         Return:
             List of results based on conditions provided
         """
-        if len(selectColumns) > 0:
-            selectColumns = ",".join(selectColumns)
-        else:
-            selectColumns = "*"
-
         # Base query
-        query = "SELECT " + selectColumns + " FROM account_users"
+        query = "SELECT * FROM account_users"
 
         query_condition_list = []
         query_values = {}

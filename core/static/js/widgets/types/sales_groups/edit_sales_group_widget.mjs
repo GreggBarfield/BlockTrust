@@ -15,7 +15,6 @@ export class EditSalesGroupWidget extends Widget {
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.formElements = {};
-
         this.getData(
             "sales_group",
             {
@@ -25,12 +24,9 @@ export class EditSalesGroupWidget extends Widget {
             this.data = data;
             this.makeForm();
         });
-
-
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
-
     }
     
     makeForm() {
@@ -116,20 +112,16 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
-
             let id = "domuid" + window.DOMUIDNext++;
-
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
             select.required = true
             group.append(select);
-
             let optionsStacked = [];
             for (const option of options) {
                 optionsStacked.push({
@@ -174,8 +166,6 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
-        
-
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -320,7 +310,6 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Process Verified Program"
         },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
-
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -395,6 +384,7 @@ export class EditSalesGroupWidget extends Widget {
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
+        let archiveSwitch = new SwitchFormGroup(form, "Archive", this.data.is_archived);
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -471,10 +461,10 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     "group_name": salesGroupName.value,
+                    "is_archived": archiveSwitch.isChecked(),
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
-                    auction_sale: null
-                    
+                    auction_sale: null                    
                 }
             }
         });

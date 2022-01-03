@@ -39,7 +39,7 @@ export class AccountSalesGroupsWidget extends Widget {
     displaySalesGroups() {
         this.table = new Table();
 
-        this.table.setHeader(["ID", "Name", "Published", "Options"]);
+        this.table.setHeader(["ID", "Name", "Published", "Archived", "Options"]);
 
         for (const salesGroup of this.sales_groups) {
             let optionsGroup = document.createElement("div");
@@ -54,7 +54,12 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/edit/" + salesGroup.id
             );
-            this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No", optionsGroup]);
+            controls.addA(
+                "Manage EIDs",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/manage-eids/" + salesGroup.id
+            );
+            this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No",  salesGroup.is_archived ? "Yes" : "No", optionsGroup]);
         }
 
         this.table.attach(this.frame);

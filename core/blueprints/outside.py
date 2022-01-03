@@ -25,18 +25,12 @@ def serve_landing():
 
 
 @bp.route('/logout', methods=['GET'])
-@bp.route('/log-out', methods=['GET'])
-@bp.route('/signout', methods=['GET'])
-@bp.route('/sign-out', methods=['GET'])
 def serve_logout():
     auth.logout()
     return redirect('/')
 
 
 @bp.route('/login', methods=['GET'])
-@bp.route('/log-in', methods=['GET'])
-@bp.route('/signin', methods=['GET'])
-@bp.route('/sign-in', methods=['GET'])
 def serve_login():
     redirect_to = ''
 
@@ -75,11 +69,9 @@ def serve_login_action():
         except auth.SignupFailedException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 
 
-@bp.route('/sign-up', methods=['GET'])
-@bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
     # Only add cowcalf partners
@@ -162,7 +154,7 @@ def serve_signup_action():
         else:
             raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 # About us
 
@@ -251,9 +243,9 @@ def serve_request_password_reset():
 def serve_password_request_action():
     user = g.db.users.get_by_email(request.form['email'])
     if user is None:
-        return {"error": "Sorry, we couldn't find this email address"}
+        return {"error": "Sorry, we couldn't find this email address"}, 400
     elif user.is_email_verified() != 1:
-        return {"error": "Sorry, this user does not have a verified email address"}
+        return {"error": "Sorry, this user does not have a verified email address"}, 400
     else:
         # Generating token identifier for changing password securely
         userToken = token.generateConfirmationToken(request.form['email'])
@@ -305,8 +297,6 @@ def serve_reset_password_action(tok):
     except Exception as e:
         return jsonify({"error": str(e)})
 
-# Route for user to confirm their account
-
 
 @bp.route('/confirm/<tok>', methods=['GET', 'POST'])
 def serve_confirm(tok):
@@ -319,8 +309,6 @@ def serve_confirm(tok):
         raise ExportException("User email could not be verified")
     # Redirect to user login page
     return outside_render('email_verified.html')
-
-# Route to display that user email is not verified and needs to be verified after signing up
 
 
 @bp.route('/email_not_verified', methods=['GET'])
@@ -493,7 +481,7 @@ def serve_add_invited_user():
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route('/rfid-tags', methods=["GET"])

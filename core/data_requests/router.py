@@ -6,7 +6,8 @@ from .exceptions import (
 from .types.aggregated import (
     count_eid_distinct,
     count_distribution_global,
-    market_data_cache
+    market_data_cache,
+    sustainability_averages
 )
 
 from .types.specific import (
@@ -22,7 +23,8 @@ routing_table = {
     'matches_by_auction_account': matches_by_auction_account,
     'count_distribution_global': count_distribution_global,
     'count_eid_distinct_by_account': count_eid_distinct_by_account,
-    'market_data_cache': market_data_cache
+    'market_data_cache': market_data_cache,
+    'sustainability_averages': sustainability_averages
 }
 
 

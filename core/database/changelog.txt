@@ -344,7 +344,7 @@ INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_conta
 values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
-    
+
 /* Nisheet Thakur 6/28/2021 */
 CREATE TABLE order_products(
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -799,6 +799,10 @@ ADD CONSTRAINT `fk_accounts_partner_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Conner Charles 11/08/2021 */
+INSERT INTO reports(query, status)
+values("{\"type\": \"sustainability_averages\", \"params\": {}}", 0)
+
 /* Rohan Sureshkumar 11/9/2021 */
 ALTER TABLE `job_runs` 
 CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
@@ -861,7 +865,55 @@ CREATE TABLE `invited_users` (
   ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `is_system_generated`,
   ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
   
+/* Nisheet Thakur 12/6/2021 */
+ALTER TABLE `accounts`
+ADD COLUMN `partner_private_logo` VARCHAR(256) DEFAULT NULL;
+SET @partner_id := (SELECT id FROM accounts WHERE company='Red Angus Assoc' AND is_partner=1);
+UPDATE `accounts` SET partner_private_logo = '/static/images/partners/logos/red-angus-logo.png' WHERE id = @partner_id
+
 /* Rohan Sureshkumar 12/8/2021 */
 ALTER TABLE `users` 
 ADD COLUMN `ip_address` VARCHAR(64) NULL DEFAULT NULL AFTER `recaptcha_score`,
 ADD COLUMN `ip_country` VARCHAR(64) NULL DEFAULT NULL AFTER `ip_address`;
+
+/* Lydia Qiao 12/13/2021 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `is_archived` TINYINT NULL DEFAULT '0' AFTER `group_name`,
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Conner Charles 12/16/2021 */
+UPDATE usda_reports SET published_date = STR_TO_DATE(published_date,'%m/%d/%Y %H:%i:%s');
+ALTER TABLE `usda_reports` 
+DROP INDEX `report_date_idx`,
+ADD INDEX `published_date_idx` (`published_date` ASC) VISIBLE,
+CHANGE COLUMN `published_date` `published_date` DATETIME NULL DEFAULT NULL ;
+
+/* Nisheet Thakur 12/17/2021 */
+ALTER TABLE `eid_group_eids`
+ADD COLUMN `sales_group_id` INT;
+UPDATE `eid_group_eids`
+set `sales_group_id`=`eid_group`;
+ALTER TABLE `eid_group_eids`
+DROP COLUMN `eid_group`;
+ALTER TABLE `eid_group_eids`
+RENAME TO `sales_group_eids`;
+ALTER TABLE `sales_groups`
+DROP COLUMN `eid_group`;
+DROP TABLE `eid_groups`;
+
+/*Rohan Sureshkumar 12/27/2021 */
+ALTER TABLE `users` 
+ADD COLUMN `failed_attempts` INT NULL DEFAULT 0 AFTER `is_email_verified`,
+ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempt`,
+ADD COLUMN `locked_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;
+
+/* Rohan Sureshkumar 12/29/2021 */
+CREATE TABLE `api_data_requests` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `api_route` VARCHAR(128) NOT NULL,
+  `request_data` JSON NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
