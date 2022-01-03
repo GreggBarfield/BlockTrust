@@ -9,6 +9,7 @@ import time
 from ..database.tables.connection_invites import ConnectionInvites
 
 from ..utilities.general_utilities import validate_email, format_field
+from .constants import SECONDS_IN_ONE_DAY
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -247,13 +248,12 @@ def confirm(email):
     g.db.users.verify_email(email)
 
 
-def login(identifier, password="", override=False):
+def login(identifier, password=""):
     """Performs a login.
 
     Params:
         identifier: Username, email, or user ID.
         password: Plaintext password (default "")
-        override: True to override default login
 
     Raises:
         UsersException, LoginException
@@ -264,10 +264,8 @@ def login(identifier, password="", override=False):
 
     try:
 
-        if password is None and override is not True:
+        if password is None:
             raise LoginException("password is None")
-        if override is not True and override is not False:
-            raise LoginException("override is bad")
 
         identifier = Users._format_field(identifier)
         password = Users._format_field(password)
@@ -330,87 +328,88 @@ def login(identifier, password="", override=False):
 
         # End of tries
         
-        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
-
-        unlock=False
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
 
         if user_row is None:
             raise LoginException(generic_error)
 
-        # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
-
-        if int(user_row["is_user_locked"])==1:
-            if int(user_row["locked_until_time"])<int(round(time.time())):
-                g.db.execute(
-                    """
-                        UPDATE users
-                        SET failed_attempts = %(failed_attempts)s, is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
-                        WHERE
-                            users.id=%(id)s
-                    """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts":  0,
-                        "is_user_locked": 0,
-                        "locked_until_time": None
-                    }
-                )
-                unlock =True
-            else:
-                raise LoginException("Your account "+user_row["username"]+" is locked for 24 hr due to reaching the maximum 3 failed login attempts. Contact us if you're having issues.")
-        
-        # Password does not match
-
-        if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
-            if unlock ==True:
-                g.db.execute_d(
-                """
-                    UPDATE users
-                    SET failed_attempts = %(failed_attempts)s
-                    WHERE
-                        users.id=%(id)s
-                """,
-                {
-                    "id": user_row["id"],
-                    "failed_attempts":  1
-                }
-            )
-            else:
-                g.db.execute(
-                    """
-                        UPDATE users
-                        SET failed_attempts = %(failed_attempts)s
-                        WHERE
-                            users.id=%(id)s
-                    """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts":  int(user_row["failed_attempts"])+1
-                    }
-                )
-                
-                if int(user_row['failed_attempts'])+1>=3:
-                    g.db.execute(
-                    """
-                        UPDATE users
-                        SET is_user_locked = %(is_user_locked)s, locked_until_time = %(locked_until_time)s
-                        WHERE
-                            users.id=%(id)s
-                    """,
-                    {
-                        "id": user_row["id"],
-                        "is_user_locked": 1,
-                        "locked_until_time": int(round(time.time()))+86400
-                    }
-                    )
-            raise LoginException(generic_error)
-            
         # To check if the user profile being accessed has a verified email
-
         if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
+        locked_account_error = "Your account "+user_row["username"]+" is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
+        if int(user_row["is_user_locked"]) == 1:
+            
+            # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
+            
+            if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+                raise LoginException(locked_account_error)
+            else:
+                g.db.execute(
+                """
+                    UPDATE users
+                    SET failed_attempts =  %(failed_attempts)s, 
+                    is_user_locked = %(is_user_locked)s, 
+                    locked_time = %(locked_time)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempts": 0,
+                        "is_user_locked": 0,
+                        "locked_time": None
+                    }
+                )
+
+        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):      
+            failed_attempts = user_row["failed_attempts"] + 1
+            g.db.execute_d(
+                    """
+                        UPDATE users
+                        SET failed_attempts =  %(failed_attempts)s
+                        WHERE
+                            users.id=%(id)s
+                    """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempts":  failed_attempts
+                    }
+            )
+ 
+            if failed_attempts == 3:
+                g.db.execute(
+                """
+                    UPDATE users
+                    SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                    {
+                        "id": user_row["id"],
+                        "is_user_locked": 1,
+                        "locked_time": int(round(time.time()))
+                    }
+                )
+                raise LoginException(locked_account_error)
+         
+            raise LoginException(generic_error)
+
+
+        if  user_row["failed_attempts"] > 0:
+            g.db.execute(
+            """
+                UPDATE users
+                SET failed_attempts =  %(failed_attempts)s
+                WHERE
+                    users.id=%(id)s
+            """,
+                {
+                    "id": user_row["id"],
+                    "failed_attempts": 0
+                }
+            )      
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
@@ -431,7 +430,6 @@ def employee_login(identifier, password=""):
     Params:
         identifier: Username, or email.
         password: Plaintext password (default "")
-        override: True to override default login
 
     Raises:
         UsersException, LoginException
