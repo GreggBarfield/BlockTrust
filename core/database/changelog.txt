@@ -907,3 +907,13 @@ ALTER TABLE `users`
 ADD COLUMN `failed_attempts` INT NULL DEFAULT 0 AFTER `is_email_verified`,
 ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempt`,
 ADD COLUMN `locked_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;
+
+/* Rohan Sureshkumar 12/29/2021 */
+CREATE TABLE `api_data_requests` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `api_route` VARCHAR(128) NOT NULL,
+  `request_data` JSON NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
