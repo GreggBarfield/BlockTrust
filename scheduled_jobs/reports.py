@@ -7,7 +7,8 @@ import datetime
 
 from core.reports.query_types import (
     count_distribution, count_distribution_global, count_eid_distinct,
-    count_eid_distinct_by_account, market_data_cache, sustainability_averages
+    count_eid_distinct_by_account, market_data_cache, sustainability_averages,
+    eid_list_global
 )
 
 
@@ -15,7 +16,8 @@ def make_global_reports(db):
     queries = [
         count_distribution_global.create("USDA Yield Grade"),
         count_distribution_global.create("USDA Quality Grade"),
-        count_eid_distinct.create()
+        count_eid_distinct.create(),
+        eid_list_global.create()
     ]
     for query in queries:
         Reports(db).insert_query(None, query)
@@ -48,11 +50,11 @@ def run_report_tasks(job_run_id, db):
         reports_table = Reports(db)
         reports_table.mark_account_reports_for_reprocessing()
 
-        market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
-        reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
+        # market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
+        # reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
 
-        sus_averages = reports_table.get_reports(query=sustainability_averages.create(), selectColumns=["id"])[0]
-        reports_table.update_report(sus_averages["id"], REPORT_STATUS["Pending"])
+        # sus_averages = reports_table.get_reports(query=sustainability_averages.create(), selectColumns=["id"])[0]
+        # reports_table.update_report(sus_averages["id"], REPORT_STATUS["Pending"])
 
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Reports Job Exiting. Current time: ", datetime.datetime.now().time())
