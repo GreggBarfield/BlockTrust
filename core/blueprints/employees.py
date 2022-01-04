@@ -79,7 +79,7 @@ def serve_employee_create_account_action():
         account.add_user(user, 1)
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route("/employee/dashboard/add-new-employee", methods=["GET"])
@@ -112,7 +112,7 @@ def serve_add_new_employee_action():
             )
         return {"redirect": "/employee/dashboard"}
     except (auth.SignupFailedException, EmployeesException) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route("/employee/dashboard/view-accounts", methods=["GET"])
@@ -169,7 +169,7 @@ def serve_invite_admin_action(account_id):
         if email_validation["success"]:
             user = g.db.users.get_by_email(email)
             if user is not None:
-                return {"error": "Email is already being used."}
+                return {"error": "Email is already being used."}, 400
             account_row = g.db.accounts.get_by_id(account_id)
             invite_object = {"admin_email": email, "account_id": account_id}
             invite_string = str(invite_object)
@@ -187,7 +187,7 @@ def serve_invite_admin_action(account_id):
         else:
             raise Exception(email_validation["message"])
     except (Exception, AccountsException) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route("/employee/dashboard/edit-accounts", methods=["GET"])

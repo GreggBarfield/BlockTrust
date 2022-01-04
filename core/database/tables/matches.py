@@ -1,12 +1,13 @@
 import time as time_module
 import json
+from core.database.no_value import NoValue
 from ..frag import frag
 from .match_types import MatchTypes
 from core.match_types import match_types_by_name
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
-
+NO_VALUE = NoValue()
 
 class MatchesException(Exception):
     """Matches generic exception."""
@@ -58,7 +59,7 @@ class Matches:
                     eid=eids
                 ),
                 frag(
-                    "AND matches.type IN (:types)",
+                    "AND matches.type IN :types",
                     types=restrict_types
                 ) if restrict_types else ""
             )
@@ -213,7 +214,7 @@ class Matches:
         ))
 
     def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
-                  time=None, selectColumns=[]):
+                  time=None, visual_id_has_value=NO_VALUE, selectColumns=[]):
         """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
 
         Returns:
@@ -230,6 +231,12 @@ class Matches:
         if(visual_id is not None):
             query_string_list.append("AND visual_id = %(visual_id)s")
             query_values["visual_id"] = visual_id
+
+        if visual_id_has_value != NO_VALUE:
+            if visual_id_has_value is True:
+                query_string_list.append("AND visual_id IS NOT NULL")
+            elif visual_id_has_value is False:
+                query_string_list.append("AND visual_id IS NULL")
 
         if(type_int is not None):
             query_string_list.append("AND type = %(type)s")
@@ -334,26 +341,6 @@ class Matches:
         )
         return self._db.fetch_all()[0]['count']
 
-    def get_unique_eids(self):
-        """Get the unique EIDs in the database.
-
-        Returns:
-            Tuple of the eids
-        """
-        self._db.execute(
-            """
-            SELECT DISTINCT
-                eid
-            FROM
-                matches
-            """
-        )
-        # Data from last 3 years, and USDAQualityGrade
-        return tuple(
-            row['eid'] for row in
-            self._db.fetch_all()
-        )
-
     def get_ils_eids(self):
         """Get EIDs that ILS still needs to process in the database.
 
@@ -392,6 +379,28 @@ class Matches:
         return tuple(
             row['eid'] for row in
             self._db.fetch_all()
+        )
+
+    def get_distinct_eids_by_account(self, account_id, number_of_years):
+        """Return the distinct EIDs in the database for an account.
+
+        Params:
+            account_id: The account to generate data on
+
+        Returns:
+            The array of distinct eids
+        """
+        return self._db.execute_d(
+                """
+                SELECT DISTINCT eid
+                FROM matches
+                WHERE account_link IN (
+                    SELECT id FROM account_links WHERE account=%(account)s
+                ) AND YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
+                """, {
+                    "account": account_id,
+                    "number_of_years": number_of_years
+                }
         )
 
     def get_count_eid_distinct_by_account(self, account_id):
@@ -449,7 +458,7 @@ class Matches:
             """
 
         full_sql = """
-                SELECT 
+                SELECT
                     data, COUNT(*) as 'count'
                 FROM
                     matches

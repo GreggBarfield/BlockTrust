@@ -22,6 +22,16 @@ def _require_account():
     raise RequireAccountFailed()
 
 
+class RequirePaidAccountFailed(Exception):
+    pass
+
+
+def _require_paid_account():
+    if g.account.generated_paid() == 1:
+        return
+    raise RequirePaidAccountFailed()
+
+
 class RequireEmployeeFailed(Exception):
     pass
 
@@ -60,6 +70,18 @@ def require_account(func):
     def wrapper(*args, **kwargs):
         _require_user()
         _require_account()
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def require_paid_account(func):
+    """Decorator to ensure a user has a paid account and is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user()
+        _require_account()
+        _require_paid_account()
         return func(*args, **kwargs)
     return wrapper
 

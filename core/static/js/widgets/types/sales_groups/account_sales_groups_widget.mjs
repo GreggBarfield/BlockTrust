@@ -54,6 +54,11 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/edit/" + salesGroup.id
             );
+            controls.addA(
+                "Manage EIDs",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/manage-eids/" + salesGroup.id
+            );
             this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No",  salesGroup.is_archived ? "Yes" : "No", optionsGroup]);
         }
 

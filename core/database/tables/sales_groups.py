@@ -69,7 +69,7 @@ class SalesGroups:
                     d_actual["reported"] = json.loads(d_actual["reported"])
         return d
 
-    def row_by_id(self, row_id):
+    def get_sales_group_by_id(self, row_id):
         """Gets a sales group row by an ID.
 
         Params:
@@ -146,16 +146,15 @@ class SalesGroups:
 
         self._db.execute(
             """INSERT INTO sales_groups
-                (account, reported, eid_group)
-                VALUES (%(account)s, %(reported)s, %(eid_group)s)
+                (account, reported)
+                VALUES (%(account)s, %(reported)s)
             """,
             {
                 "account": account_id,
-                "reported": json.dumps(reported),  # Does this need to be converted to a string first?
-                "eid_group": self._db.eid_groups.new_group(owner=account_id)
+                "reported": json.dumps(reported)  # Does this need to be converted to a string first?
             }
         )
-        return self.row_by_id(self._db.last_row_id())
+        return self.get_sales_group_by_id(self._db.last_row_id())
 
     def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived):
         """Updates a row.
