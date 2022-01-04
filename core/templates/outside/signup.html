@@ -66,7 +66,7 @@
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
                                     {% for p in partners %}
-                                    <option value="{{p.id()}}">{{p.name()|e}}</option>
+                                    <option value="{{p.id}}">{{p.name|e}}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="focus-border"></span>

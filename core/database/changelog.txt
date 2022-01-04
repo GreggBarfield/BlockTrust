@@ -917,3 +917,10 @@ CREATE TABLE `api_data_requests` (
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 01/04/2021 */
+ALTER TABLE `accounts` 
+ADD COLUMN `show_on_signup` TINYINT NULL DEFAULT '0';
+UPDATE `accounts`
+SET `show_on_signup`=1
+WHERE `id`=604;

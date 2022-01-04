@@ -450,7 +450,7 @@ class Accounts:
             )
 
     def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
-                            affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE):
+                            affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, show_on_signup=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -498,6 +498,10 @@ class Accounts:
         if zip is not NO_VALUE:
             query_conditions.append(" zip = %(zip)s")
             query_values["zip"] = zip
+
+        if show_on_signup is not NO_VALUE:
+            query_conditions.append(" show_on_signup = %(show_on_signup)s")
+            query_values["show_on_signup"] = show_on_signup
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
