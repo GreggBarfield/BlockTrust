@@ -540,7 +540,7 @@ def serve_get_sustainability_timeline_data():
 def serve_employee_summary_graphs():
     all_accounts = g.db.accounts.get_accounts()
     feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"])
-    tags = g.db.matches.get_count_eid_distinct()
+    tags = "a"
     all_accounts = sorted(all_accounts, key=lambda i: i['created_timestamp'])
     feedyards = sorted(feedyards, key=lambda i: i['created_timestamp'])
     return {
