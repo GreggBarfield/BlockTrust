@@ -901,3 +901,9 @@ RENAME TO `sales_group_eids`;
 ALTER TABLE `sales_groups`
 DROP COLUMN `eid_group`;
 DROP TABLE `eid_groups`;
+
+/* Nisheet Thakur 01/04/2021 */
+ALTER TABLE `accounts` 
+ADD COLUMN `is_partner_used_for_signup` TINYINT NULL DEFAULT '0';
+SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND is_partner=1);
+UPDATE `accounts` SET `is_partner_used_for_signup`=1 WHERE `id`=@partner_id;

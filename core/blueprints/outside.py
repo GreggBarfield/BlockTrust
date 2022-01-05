@@ -84,7 +84,11 @@ def serve_login_action():
 def serve_signup():
     # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
-    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
+    partners = g.db.accounts.get_accounts(
+        sector=cow_calf_sector_id,
+        is_partner=1,
+        is_partner_used_for_signup=1
+    )
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
