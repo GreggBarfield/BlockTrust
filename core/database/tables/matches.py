@@ -415,9 +415,10 @@ class Matches:
         """
         return self._db.execute_d(
                 """
-                SELECT DISTINCT eid, cast(created_timestamp as date)
+                SELECT DISTINCT eid, created_timestamp
                 FROM matches
                 WHERE YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
+                ORDER BY created_timestamp
                 """, {
                     "number_of_years": number_of_years
                 }

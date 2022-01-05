@@ -1,5 +1,6 @@
 from json import dumps, loads
 from time import time
+from datetime import date, datetime
 from core.database.no_value import NoValue
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
@@ -136,7 +137,7 @@ class Reports:
                     "result=:result,",
                     "status=:status,",
                     "fulfilled=:fulfilled",
-                    result=dumps(result),
+                    result=dumps(result, default=str),
                     status=status,
                     fulfilled=time()
                 ),
@@ -229,3 +230,4 @@ class Reports:
             if row[col] is not None:
                 row[col] = loads(row[col])
         return row
+

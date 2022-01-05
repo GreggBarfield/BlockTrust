@@ -10,7 +10,7 @@ export class SummaryGraphWidget extends Widget {
             {}
         ).then((data) => {
             this.data = data;
-            console.log(this.data.tags);
+            //console.log(this.data.tags.length);
             this.makeSummaryGraphs();
         });
         this.onSomeDataLoaded(function () {
@@ -20,12 +20,12 @@ export class SummaryGraphWidget extends Widget {
     
     makeSummaryGraphs(){
         let cardBody = document.getElementById("card");
-        this.makeLineGraphContainer(cardBody, "Ranches", this.data.accounts);
-        this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards);
-        //this.makeLineGraphContainer(cardBody, "Tags", this.data.tags);
+        this.makeLineGraphContainer(cardBody, "Ranches", this.data.accounts, false);
+        this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards, false);
+        this.makeLineGraphContainer(cardBody, "Tags", this.data.tags, true);
     }
 
-    makeLineGraphContainer(section, title, values){
+    makeLineGraphContainer(section, title, values, compressData){
         let lineGraphContainer = document.createElement("div");
         //lineGraphContainer.className = "col-md-6"
         lineGraphContainer.style = "height: 18em;";
@@ -34,7 +34,7 @@ export class SummaryGraphWidget extends Widget {
         graphLabel.textContent = title;
         section.append(graphLabel);
         section.append(lineGraphContainer);
-        this.makeLineGraph(lineGraphContainer, values);
+        this.makeLineGraph(lineGraphContainer, values, compressData);
     }
 
     getGraphableLineData(values){
@@ -50,7 +50,20 @@ export class SummaryGraphWidget extends Widget {
         return graphableData;
     }
 
-    makeLineGraph(container, values) {
+    getCompressedGraphableLineData(values){
+        let graphableData = [];
+        let valueCounter = 0;
+        for(let i=0;i<values.length;i=i+50) {
+            valueCounter += 50;
+            graphableData.push({
+                "date": new Date(values[i].created_timestamp),
+                "value": valueCounter
+            });
+        }
+        return graphableData;
+    }
+
+    makeLineGraph(container, values, compressData) {
         if (this.data == null) {
             container.textContent = "Data is not available yet.";
         }
@@ -62,9 +75,12 @@ export class SummaryGraphWidget extends Widget {
             am4core.ready(function() {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.XYChart);
-
-                chart.data = self.getGraphableLineData(values);
-
+                if(compressData){
+                    chart.data = self.getCompressedGraphableLineData(values);
+                }
+                else{
+                    chart.data = self.getGraphableLineData(values);
+                }
                 // Create axes
                 var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
                 dateAxis.renderer.minGridDistance = 40;

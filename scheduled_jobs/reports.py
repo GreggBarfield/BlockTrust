@@ -50,11 +50,11 @@ def run_report_tasks(job_run_id, db):
         reports_table = Reports(db)
         reports_table.mark_account_reports_for_reprocessing()
 
-        # market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
-        # reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
+        market_cache_report = reports_table.get_reports(query=market_data_cache.create(), selectColumns=["id"])[0]
+        reports_table.update_report(market_cache_report["id"], REPORT_STATUS["Pending"])
 
-        # sus_averages = reports_table.get_reports(query=sustainability_averages.create(), selectColumns=["id"])[0]
-        # reports_table.update_report(sus_averages["id"], REPORT_STATUS["Pending"])
+        sus_averages = reports_table.get_reports(query=sustainability_averages.create(), selectColumns=["id"])[0]
+        reports_table.update_report(sus_averages["id"], REPORT_STATUS["Pending"])
 
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Reports Job Exiting. Current time: ", datetime.datetime.now().time())
