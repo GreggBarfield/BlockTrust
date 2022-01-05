@@ -25,14 +25,15 @@ export class SummaryGraphWidget extends Widget {
     }
 
     makeLineGraphContainer(section, title, values, compressData){
+        let lineGraphOutline = document.createElement("div");
         let lineGraphContainer = document.createElement("div");
-        //lineGraphContainer.className = "col-md-6"
         lineGraphContainer.style = "height: 18em;";
         let graphLabel = document.createElement("span");
-        graphLabel.className = "label label-info";
+        graphLabel.className = "label label-info d-flex";
         graphLabel.textContent = title;
-        section.append(graphLabel);
-        section.append(lineGraphContainer);
+        lineGraphOutline.append(graphLabel);
+        lineGraphOutline.append(lineGraphContainer);
+        section.append(lineGraphOutline)
         this.makeLineGraph(lineGraphContainer, values, compressData);
     }
 
