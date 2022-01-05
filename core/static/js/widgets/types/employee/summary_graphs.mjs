@@ -10,7 +10,6 @@ export class SummaryGraphWidget extends Widget {
             {}
         ).then((data) => {
             this.data = data;
-            //console.log(this.data.tags.length);
             this.makeSummaryGraphs();
         });
         this.onSomeDataLoaded(function () {
