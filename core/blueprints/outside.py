@@ -79,7 +79,7 @@ def serve_signup():
     partners = g.db.accounts.get_accounts(
         sector=cow_calf_sector_id,
         is_partner=1,
-        show_on_signup=1
+        is_partner_used_for_signup=1
     )
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf

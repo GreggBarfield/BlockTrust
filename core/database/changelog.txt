@@ -920,7 +920,6 @@ CREATE TABLE `api_data_requests` (
 
 /* Nisheet Thakur 01/04/2021 */
 ALTER TABLE `accounts` 
-ADD COLUMN `show_on_signup` TINYINT NULL DEFAULT '0';
-UPDATE `accounts`
-SET `show_on_signup`=1
-WHERE `id`=604;
+ADD COLUMN `is_partner_used_for_signup` TINYINT NULL DEFAULT '0';
+SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND is_partner=1);
+UPDATE `accounts` SET `is_partner_used_for_signup`=1 WHERE `id`=@partner_id;
