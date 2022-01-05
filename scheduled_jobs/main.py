@@ -50,7 +50,7 @@ try:
         #     print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 8 and 9 AM UTC time
-        if datetime.time(21, 0, 0) <= current_time < datetime.time(22, 0, 0):
+        if datetime.time(8, 0, 0) <= current_time < datetime.time(9, 0, 0):
             # create new thread only if this thread is not already running
             if not any(t.getName() == "Reports" for t in threads):
                 job_run_id = JobRuns(db).insert("Reports", scheduled_jobs["Reports"].split('|')[0], scheduled_jobs["Reports"].split('|')[1])
