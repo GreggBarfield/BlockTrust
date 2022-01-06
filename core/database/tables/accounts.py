@@ -28,10 +28,7 @@ class Accounts:
             id: the account id
         
         Returns:
-            An Account() object
-
-        Raises:
-            AccountsException on ID not found
+            An Account() object or None if Account ID is not found
         """
         # TODO: Add account_links caching option
         account_rows = self._db.execute_d(

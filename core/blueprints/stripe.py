@@ -28,7 +28,7 @@ def serve_stripe_config():
 @bp.route('/stripe/config/<partner_id>', methods=['GET'])
 def serve_stripe_config_for_partner(partner_id):
     account = g.db.accounts.get_account_by_id(partner_id)
-    return  {
+    return {
         'publishableKey': account.partner_stripe_publishable_key() 
     }
 
