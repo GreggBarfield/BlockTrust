@@ -25,18 +25,12 @@ def serve_landing():
 
 
 @bp.route('/logout', methods=['GET'])
-@bp.route('/log-out', methods=['GET'])
-@bp.route('/signout', methods=['GET'])
-@bp.route('/sign-out', methods=['GET'])
 def serve_logout():
     auth.logout()
     return redirect('/')
 
 
 @bp.route('/login', methods=['GET'])
-@bp.route('/log-in', methods=['GET'])
-@bp.route('/signin', methods=['GET'])
-@bp.route('/sign-in', methods=['GET'])
 def serve_login():
     redirect_to = ''
 
@@ -75,16 +69,18 @@ def serve_login_action():
         except auth.SignupFailedException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 
 
-@bp.route('/sign-up', methods=['GET'])
-@bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
     # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
-    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
+    partners = g.db.accounts.get_accounts(
+        sector=cow_calf_sector_id,
+        is_partner=1,
+        is_partner_used_for_signup=1
+    )
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
@@ -305,8 +301,6 @@ def serve_reset_password_action(tok):
     except Exception as e:
         return jsonify({"error": str(e)})
 
-# Route for user to confirm their account
-
 
 @bp.route('/confirm/<tok>', methods=['GET', 'POST'])
 def serve_confirm(tok):
@@ -319,8 +313,6 @@ def serve_confirm(tok):
         raise ExportException("User email could not be verified")
     # Redirect to user login page
     return outside_render('email_verified.html')
-
-# Route to display that user email is not verified and needs to be verified after signing up
 
 
 @bp.route('/email_not_verified', methods=['GET'])
