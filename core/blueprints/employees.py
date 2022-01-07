@@ -226,7 +226,6 @@ def serve_view_partners():
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
 def serve_create_new_partner():
-    partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-partner.html", {
         "sectors_by_name": sectors_by_name
         })
