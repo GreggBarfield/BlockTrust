@@ -16,7 +16,7 @@
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-8 mb-2">
-                            <form class="bg-white p-3" id="employee_signup_form" method="POST">
+                            <form class="bg-white p-3" id="partner_form" method="POST">
                             <div id="form_inputs"> 
                                 <div class="row">
                                     <h4>Company Information:</h4>
@@ -32,10 +32,10 @@
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="signup_form_sector">
+                                            <label for="partner_form_sector">
                                                 Sector
                                             </label>
-                                            <select class="form-control" id="signup_form_sector">
+                                            <select class="form-control" id="partner_form_sector">
                                                 <option disabled selected value> -- Select an option -- </option>
                                                 {% for sector in sectors_by_name %}
                                                 <option value={{sectors_by_name[sector]}}>{{sector}}</option>
@@ -47,41 +47,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="signup_form_partner">
-                                                Partner
-                                                <a class="feather icon-info"
-                                                    style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
-                                                    data-toggle="tooltip"
-                                                    data-placement="right"
-                                                    title="These are cattle producer organizations or cooperatives where the user may be a member. If you don’t see it on the list, please choose “No Partner”.">
-                                                </a>
-                                            </label>
-                                            <select class="form-control" id="signup_form_partner">
-                                            </select>
-                                            <span class="focus-border"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div class="form-group">
-                                            <label for="signup_form_affiliate_id">
-                                                Partner ID
-                                                <a class="feather icon-info"
-                                                    style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
-                                                    data-toggle="tooltip"
-                                                    data-placement="right"
-                                                    title="This is an employee number assigned by the partner organization which associates the user with their organization. May be an “account number” or “patron ID”. If you do not know, put ‘9999’. ">
-                                                </a>
-                                            </label>
-                                            <input type="text" class="form-control" id="signup_form_partner_id" disabled=true>
-                                            <span class="focus-border"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-6">
                                         <div class="form-group required">
-                                            <label for="signup_form_company">
+                                            <label for="partner_form_company">
                                                 Company
                                                 <a class="feather icon-info"
                                                     style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
@@ -90,35 +57,51 @@
                                                     title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
                                                 </a>
                                             </label>
-                                            <input type="text" class="form-control" id="signup_form_company" required>
+                                            <input type="text" class="form-control" id="partner_form_company" required>
                                             <span class="focus-border"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="form-group">
-                                            <label for="signup_form_phone">Company Phone</label>
-                                            <input type="text" class="form-control" id="signup_form_phone">
+                                            <label for="partner_form_phone">Company Phone</label>
+                                            <input type="text" class="form-control" id="partner_form_phone">
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group required">
+                                            <label for="partner_form_contact_name">Partner Contact Name</label>
+                                            <input type="text" class="form-control" id="partner_form_contact_name" required>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="partner_form_contact_email">Partner Contact Email</label>
+                                            <input type="email" class="form-control" id="partner_form_contact_email">
                                             <span class="focus-border"></span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="form-group required">
-                                    <label for="signup_form_address">Address</label>
-                                    <input type="text" class="form-control" id="signup_form_address" required>
+                                    <label for="partner_form_address">Address</label>
+                                    <input type="text" class="form-control" id="partner_form_address" required>
                                     <span class="focus-border"></span>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4">
                                         <div class="form-group required">
-                                            <label for="signup_form_city">City</label>
-                                            <input type="text" class="form-control" id="signup_form_city" required>
+                                            <label for="partner_form_city">City</label>
+                                            <input type="text" class="form-control" id="partner_form_city" required>
                                             <span class="focus-border"></span>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group required">
-                                            <label for="signup_form_state">State</label>
-                                            <select class="form-control" id="signup_form_state" required>
+                                            <label for="partner_form_state">State</label>
+                                            <select class="form-control" id="partner_form_state" required>
                                                 <option value=""></option>
                                                 <option value="AL">Alabama</option>
                                                 <option value="AK">Alaska</option>
@@ -177,17 +160,22 @@
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="form-group required">
-                                            <label for="signup_form_zip">Zip</label>
-                                            <input type="text" class="form-control" id="signup_form_zip" required>
+                                            <label for="partner_form_zip">Zip</label>
+                                            <input type="text" class="form-control" id="partner_form_zip" required>
                                             <span class="focus-border"></span>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <input type="checkbox" id="partner_form_show_on_signup" checked>Show Partner on Signup
+                                    </div>
                                 </div>
-                                <button type="button" class="btn btn-primary" id="submitButton">Sign Up</button>
-                                <p class="mt-2 mb-0" id="signup_status_message" style="display:none;">Hang on, we're setting up your
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
+                                <p class="mt-2 mb-0" id="partner_status_message" style="display:none;">Hang on, we're setting up your
                                     account...</p>
-                                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
+                                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="partner_error_message">Loading
                                     error...</p>
                             </form>
                         </div>
@@ -197,9 +185,5 @@
         </div>
     </div>
 </div>
-<script type="text/javascript">
-var partners = JSON.parse('{{partners|tojson}}')
-var sectors_by_name = JSON.parse('{{sectors_by_name|tojson}}')
-</script>
 <script type="module" src="/static/entry_points/employee/accounts/create-new-partner.mjs"></script>
 {% endblock employee_content %}

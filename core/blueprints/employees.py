@@ -228,8 +228,7 @@ def serve_view_partners():
 def serve_create_new_partner():
     partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-partner.html", {
-        "sectors_by_name": sectors_by_name,
-        "partners": partners
+        "sectors_by_name": sectors_by_name
         })
 
 
@@ -238,7 +237,8 @@ def serve_create_new_partner_action():
     try:
         required = {
             'company': None, 'sector': None, 'address': None, 'city': None,
-            'state': None, 'zip_code': None, 'phone': None, 'company': None
+            'state': None, 'zip_code': None, 'phone': None, 'contact_name': None,
+            'contact_email': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -246,30 +246,23 @@ def serve_create_new_partner_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        print(request.form)
         # Creating an account without an admin
-        account = g.db.accounts.create_account(
+        print(request.form)
+        show_on_signup = 0
+        if request.form["show_on_signup"] == "true":
+            show_on_signup = 1
+        account = g.db.accounts.create_partner(
                 phone=format_field(request.form['phone']),
                 company=format_field(required['company']),
-                partner=format_field(request.form['partner']),
-                affiliate_id=format_field(request.form['affiliate_id']),
                 sector=format_field(required['sector']),
+                partner_contact_name=format_field(required['contact_name']),
+                partner_contact_email=format_field(required['contact_email']),
                 address=format_field(required['address']),
                 city=format_field(required['city']),
                 state=format_field(required['state']),
-                zip=format_field(required['zip_code'])
+                zip=format_field(required['zip_code']),
+                show_on_signup=show_on_signup
         )
-        # Creating a default pseudo admin user for created account
-        username = "DefaultAdminAccount#" + str(account.id())
-        first_name = "Default"
-        last_name = "Admin"
-        # password is a random 8 digit number
-        password = str(randint(10000000, 99999999))
-        user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
-        # Assigning user as admin
-        account.add_user(user, 1)
-        g.db.accounts.update_account(account_id=account.id(), is_partner=1)
-        g.db.accounts.update_account(account_id=account.id(), partner_private_logo=request.form["image"])
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
