@@ -344,6 +344,18 @@ class Accounts:
         Raises:
             AccountsException
         """
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
 
         self._db.execute(
             """INSERT INTO accounts
@@ -366,14 +378,15 @@ class Accounts:
             }
         )
         partner = self.get_by_id(self._db.last_row_id())
-        # update account name
+        # update partner name
         name = company
+        sector = int(sector)
         if sector == sectors_by_name["Cow-Calf"]:
             name = "Ranch " + str(partner.id())
-        self.update_account(partner.id(), name=name)
+        self.update_account(account_id=partner.id(), name=name)
         return partner
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
         phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
