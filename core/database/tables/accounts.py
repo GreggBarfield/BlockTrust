@@ -404,7 +404,6 @@ class Accounts:
             stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
-            partner_private_logo: The logo ID for a partner
         """
         if phone != NO_VALUE:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
