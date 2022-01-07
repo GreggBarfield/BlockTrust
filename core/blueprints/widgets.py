@@ -376,11 +376,13 @@ def serve_get_upload_config():
     account_owns = request.json["account_owns"] is True
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
+
     file_id, file_config = g.db.files.get_post(
         request.json["file_name"],
         g.user.id() if user_owns else None,
         g.account.id() if account_owns else None
     )
+
     return {
         "id": file_id,
         "config": file_config
