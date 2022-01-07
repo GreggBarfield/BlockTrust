@@ -323,7 +323,7 @@ class Accounts:
             self._db.reports.make_reports_for_account(account.id())
         return account
 
-    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, show_on_signup):
+    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup):
         """Creates a new partner without a user.
 
         Params:
@@ -336,7 +336,7 @@ class Accounts:
             state: company's state
             zip: company's zip
             phone: company's phone
-            show_on_signup: Show the partner name on signup page
+            is_partner_used_for_signup: Show the partner name on signup page
 
         Returns:
             An Account object
@@ -347,9 +347,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, show_on_signup)
+                (company, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
                 VALUES
-                    (%(company)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_on_signup)s)
+                    (%(company)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
             """,
             {
                 "company": company,
@@ -362,7 +362,7 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "show_on_signup": show_on_signup
+                "is_partner_used_for_signup": is_partner_used_for_signup
             }
         )
         partner = self.get_by_id(self._db.last_row_id())
@@ -374,7 +374,7 @@ class Accounts:
         return partner
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE, is_partner=NO_VALUE, partner_private_logo=NO_VALUE):
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -482,18 +482,6 @@ class Accounts:
                             set_frags,
                             "stripe_customer_id=:stripe_customer_id",
                             stripe_customer_id=stripe_customer_id
-                        )
-        if is_partner is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "is_partner=:is_partner",
-                            is_partner=is_partner
-                        )
-        if partner_private_logo is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "partner_private_logo=:partner_private_logo",
-                            partner_private_logo=partner_private_logo
                         )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:

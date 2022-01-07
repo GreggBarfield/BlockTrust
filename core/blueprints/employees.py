@@ -247,10 +247,9 @@ def serve_create_new_partner_action():
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         # Creating an account without an admin
-        print(request.form)
-        show_on_signup = 0
-        if request.form["show_on_signup"] == "true":
-            show_on_signup = 1
+        is_partner_used_for_signup = 0
+        if request.form["used_for_signup"] == "true":
+            is_partner_used_for_signup = 1
         account = g.db.accounts.create_partner(
                 phone=format_field(request.form['phone']),
                 company=format_field(required['company']),
@@ -261,7 +260,7 @@ def serve_create_new_partner_action():
                 city=format_field(required['city']),
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
-                show_on_signup=show_on_signup
+                is_partner_used_for_signup=is_partner_used_for_signup
         )
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:

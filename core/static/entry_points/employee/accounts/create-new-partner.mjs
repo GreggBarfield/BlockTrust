@@ -13,7 +13,7 @@ let state = partnerForm.find("#partner_form_state");
 let zip_code = partnerForm.find("#partner_form_zip");
 let contact_name = partnerForm.find("#partner_form_contact_name");
 let contact_email = partnerForm.find("#partner_form_contact_email");
-let show_on_signup = partnerForm.find("#partner_form_show_on_signup");
+let partner_form_used_for_signup = partnerForm.find("#partner_form_used_for_signup");
 let form = new AsyncForm({
     action: "/employee/dashboard/create-new-partner/action",
     form: partnerForm[0],
@@ -32,7 +32,7 @@ let form = new AsyncForm({
             zip_code: zip_code.val(),
             contact_name: contact_name.val(),
             contact_email: contact_email.val(),
-            show_on_signup: show_on_signup[0].checked
+            used_for_signup: partner_form_used_for_signup[0].checked
         }
     }
 });
