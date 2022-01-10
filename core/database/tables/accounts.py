@@ -359,12 +359,13 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
+                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
                 VALUES
-                    (%(company)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
+                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
             """,
             {
                 "company": company,
+                "name": company,
                 "sector": sector,
                 "is_partner": 1,
                 "partner_contact_name": partner_contact_name,
@@ -377,13 +378,8 @@ class Accounts:
                 "is_partner_used_for_signup": is_partner_used_for_signup
             }
         )
+        
         partner = self.get_by_id(self._db.last_row_id())
-        # update partner name
-        name = company
-        sector = int(sector)
-        if sector == sectors_by_name["Cow-Calf"]:
-            name = "Ranch " + str(partner.id())
-        self.update_account(account_id=partner.id(), name=name)
         return partner
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
