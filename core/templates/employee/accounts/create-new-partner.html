@@ -1,0 +1,189 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Create New Partner" %}
+{% set employee_locations = [("/employee/dashboard", "Create New Partner")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Create New Partner</h5>
+            <div class="card-body">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 mb-2">
+                            <form class="bg-white p-3" id="partner_form" method="POST">
+                            <div id="form_inputs"> 
+                                <div class="row">
+                                    <h4>Company Information:</h4>
+                                    <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                                        title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
+                                    </a>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 form-group">
+                                        <small class="text-muted"><span style="color: red;">*Required</span></small>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="partner_form_sector">
+                                                Sector
+                                            </label>
+                                            <select class="form-control" id="partner_form_sector">
+                                                <option disabled selected value> -- Select an option -- </option>
+                                                {% for sector in sectors_by_name %}
+                                                <option value={{sectors_by_name[sector]}}>{{sector}}</option>
+                                                {% endfor %}
+                                            </select>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group required">
+                                            <label for="partner_form_company">
+                                                Company
+                                                <a class="feather icon-info"
+                                                    style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                                    data-toggle="tooltip"
+                                                    data-placement="right"
+                                                    title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
+                                                </a>
+                                            </label>
+                                            <input type="text" class="form-control" id="partner_form_company" required>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="partner_form_phone">Company Phone</label>
+                                            <input type="text" class="form-control" id="partner_form_phone">
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group required">
+                                            <label for="partner_form_contact_name">Partner Contact Name</label>
+                                            <input type="text" class="form-control" id="partner_form_contact_name" required>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="partner_form_contact_email">Partner Contact Email</label>
+                                            <input type="email" class="form-control" id="partner_form_contact_email">
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group required">
+                                    <label for="partner_form_address">Address</label>
+                                    <input type="text" class="form-control" id="partner_form_address" required>
+                                    <span class="focus-border"></span>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div class="form-group required">
+                                            <label for="partner_form_city">City</label>
+                                            <input type="text" class="form-control" id="partner_form_city" required>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group required">
+                                            <label for="partner_form_state">State</label>
+                                            <select class="form-control" id="partner_form_state" required>
+                                                <option value=""></option>
+                                                <option value="AL">Alabama</option>
+                                                <option value="AK">Alaska</option>
+                                                <option value="AZ">Arizona</option>
+                                                <option value="AR">Arkansas</option>
+                                                <option value="CA">California</option>
+                                                <option value="CO">Colorado</option>
+                                                <option value="CT">Connecticut</option>
+                                                <option value="DE">Delaware</option>
+                                                <option value="DC">District Of Columbia</option>
+                                                <option value="FL">Florida</option>
+                                                <option value="GA">Georgia</option>
+                                                <option value="HI">Hawaii</option>
+                                                <option value="ID">Idaho</option>
+                                                <option value="IL">Illinois</option>
+                                                <option value="IN">Indiana</option>
+                                                <option value="IA">Iowa</option>
+                                                <option value="KS">Kansas</option>
+                                                <option value="KY">Kentucky</option>
+                                                <option value="LA">Louisiana</option>
+                                                <option value="ME">Maine</option>
+                                                <option value="MD">Maryland</option>
+                                                <option value="MA">Massachusetts</option>
+                                                <option value="MI">Michigan</option>
+                                                <option value="MN">Minnesota</option>
+                                                <option value="MS">Mississippi</option>
+                                                <option value="MO">Missouri</option>
+                                                <option value="MT">Montana</option>
+                                                <option value="NE">Nebraska</option>
+                                                <option value="NV">Nevada</option>
+                                                <option value="NH">New Hampshire</option>
+                                                <option value="NJ">New Jersey</option>
+                                                <option value="NM">New Mexico</option>
+                                                <option value="NY">New York</option>
+                                                <option value="NC">North Carolina</option>
+                                                <option value="ND">North Dakota</option>
+                                                <option value="OH">Ohio</option>
+                                                <option value="OK">Oklahoma</option>
+                                                <option value="OR">Oregon</option>
+                                                <option value="PA">Pennsylvania</option>
+                                                <option value="RI">Rhode Island</option>
+                                                <option value="SC">South Carolina</option>
+                                                <option value="SD">South Dakota</option>
+                                                <option value="TN">Tennessee</option>
+                                                <option value="TX">Texas</option>
+                                                <option value="UT">Utah</option>
+                                                <option value="VT">Vermont</option>
+                                                <option value="VA">Virginia</option>
+                                                <option value="WA">Washington</option>
+                                                <option value="WV">West Virginia</option>
+                                                <option value="WI">Wisconsin</option>
+                                                <option value="WY">Wyoming</option>
+                                            </select>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="form-group required">
+                                            <label for="partner_form_zip">Zip</label>
+                                            <input type="text" class="form-control" id="partner_form_zip" required>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <input type="checkbox" id="partner_form_used_for_signup" checked>Show Partner on Signup
+                                    </div>
+                                </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="submitButton">Sign Up</button>
+                                <p class="mt-2 mb-0" id="partner_status_message" style="display:none;">Hang on, we're setting up your
+                                    account...</p>
+                                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="partner_error_message">Loading
+                                    error...</p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/accounts/create-new-partner.mjs"></script>
+{% endblock employee_content %}
