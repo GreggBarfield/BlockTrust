@@ -376,7 +376,7 @@ class Accounts:
             }
         )
         
-        partner = self.get_by_id(self._db.last_row_id())
+        partner = self.get_account_by_id(self._db.last_row_id())
         return partner
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
