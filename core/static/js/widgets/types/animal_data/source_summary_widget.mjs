@@ -20,15 +20,7 @@ export class SourceSummaryWidget extends Widget {
                     }
                 }
             ).then((data) => {
-                console.log("Match row sourcing: ", data.result.matches);
                 this.match_rows = data.result.matches;
-            }),
-
-            this.getData(
-                "direct/match_types_by_name",
-                {}
-            ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
             }),
 
         ]).then(() => {
@@ -36,13 +28,6 @@ export class SourceSummaryWidget extends Widget {
             this.makeAnimals();
             this.makeTable();
         });
-    }
-
-    formatDate(epoch) {
-        if (epoch == null || epoch <= 0)
-            return "--";
-        let d = new Date(parseInt(epoch) * 1000);
-        return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
     }
 
     makeAnimals() {

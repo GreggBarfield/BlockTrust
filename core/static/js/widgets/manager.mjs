@@ -29,6 +29,7 @@ import { SustainabilityTimelineWidget } from "./types/sustainability/sustainabil
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
+import { SightingsWidget } from './types/animal_data/sightings_widget.mjs';
 
 
 // Immediately invoked
@@ -74,6 +75,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
+    attach("sightings", SightingsWidget);
 
     // Find widgets
     $(".widget").each(function () {
