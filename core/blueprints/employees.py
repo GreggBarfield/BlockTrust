@@ -36,7 +36,10 @@ def serve_employee_dashboard():
 @crut.require_employee
 def serve_employee_create_account():
     partners = Accounts(g.db).get_accounts(is_partner=1)
-    return employee_render("/employee/accounts/create-new-account.html", {"sectors_by_name": sectors_by_name, "partners": partners})
+    return employee_render("/employee/accounts/create-new-account.html", {
+        "sectors_by_name": sectors_by_name,
+        "partners": partners
+        })
 
 
 @bp.route("/employee/dashboard/create-new-account/action", methods=["POST"])
@@ -52,7 +55,6 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-
         # Creating an account without an admin
         account = g.db.accounts.create_account(
                 phone=format_field(request.form['phone']),
@@ -75,7 +77,6 @@ def serve_employee_create_account_action():
         user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
         # Assigning user as admin
         account.add_user(user, 1)
-
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}, 400
@@ -217,3 +218,51 @@ def serve_apply_changes_to_account(account_id):
         zip=request.form["zip_code"]
     )
     return {"redirect": "/employee/dashboard"}
+
+
+@bp.route("/employee/dashboard/view-partners", methods=["GET"])
+def serve_view_partners():
+    partner_rows = g.db.accounts.get_accounts(is_partner=1)
+    return employee_render("/employee/accounts/partners.html", {"partner_rows": partner_rows, "sectors_by_id": sectors_by_id})
+
+
+@bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
+def serve_create_new_partner():
+    return employee_render("/employee/accounts/create-new-partner.html", {
+        "sectors_by_name": sectors_by_name
+        })
+
+
+@bp.route("/employee/dashboard/create-new-partner/action", methods=["POST"])
+def serve_create_new_partner_action():
+    try:
+        required = {
+            'company': None, 'sector': None, 'address': None, 'city': None,
+            'state': None, 'zip_code': None, 'phone': None, 'contact_name': None,
+            'contact_email': None
+        }
+        for required_field in required:
+            if required_field not in request.form:
+                raise ExportException("internal error, {} missing from form".format(required_field))
+            required[required_field] = request.form[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        # Creating an account without an admin
+        is_partner_used_for_signup = 0
+        if request.form["used_for_signup"] == "true":
+            is_partner_used_for_signup = 1
+        account = g.db.accounts.create_partner(
+                phone=format_field(request.form['phone']),
+                company=format_field(required['company']),
+                sector=format_field(required['sector']),
+                partner_contact_name=format_field(required['contact_name']),
+                partner_contact_email=format_field(required['contact_email']),
+                address=format_field(required['address']),
+                city=format_field(required['city']),
+                state=format_field(required['state']),
+                zip=format_field(required['zip_code']),
+                is_partner_used_for_signup=is_partner_used_for_signup
+        )
+        return {"redirect": "/employee/dashboard/view-partners"}
+    except (ExportException, AccountsException, UsersException, ValueError) as e:
+        return {"error": str(e)}
