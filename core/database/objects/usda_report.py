@@ -1,11 +1,14 @@
 from copy import deepcopy
-
+from datetime import datetime
 
 class USDAReport:
 
     def __init__(self, row):
         """USDA Report constructor. 
         There are 48 columns in the row.
+
+        Noteworthy columns:
+        slug_id: A unique id corresponding to a specific sector location. (ex: Ocala, FL --> 1424)
 
         Params:
             db: Database object
@@ -32,8 +35,11 @@ class USDAReport:
         return None
 
     def publishedDate(self):
-        if 'published_date' in self._row:
-            return self._row['published_date']
+        if 'published_date' in self._row and self._row['published_date'] != None:
+            if isinstance(self._row['published_date'], str):
+                return datetime.strptime(self._row['published_date'], "%m/%d/%Y %H:%M:%S")
+            else:
+                return self._row['published_date']
         return None
 
     def officeName(self):
@@ -188,13 +194,19 @@ class USDAReport:
         return None
 
     def avgWeightMax(self):
-        if 'avg_weight_max' in self._row:
-            return self._row['avg_weight_max']
+        if 'avg_weight_max' in self._row and self._row['avg_weight_max'] != None:
+            if isinstance(self._row['avg_weight_max'], str):
+                return self._row['avg_weight_max'].replace(',', '')
+            else:
+                return self._row['avg_weight_max']
         return None
 
     def avgWeight(self):
-        if 'avg_weight' in self._row:
-            return self._row['avg_weight']
+        if 'avg_weight' in self._row and self._row['avg_weight'] != None:
+            if isinstance(self._row['avg_weight'], str):
+                return self._row['avg_weight'].replace(',', '')
+            else:
+                return self._row['avg_weight']
         return None
 
     def avgPriceMin(self):

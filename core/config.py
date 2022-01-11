@@ -39,8 +39,11 @@ CSP = {
         'https://i.imgur.com',
         'https://player.vimeo.com/',
         'https://www.youtube.com/',
+        'https://www.google.com/',
+        'https://www.gstatic.com/',
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
+        'https://ipinfo.io/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -81,9 +84,17 @@ USDA_API_KEY = config_file["usda"]["api_key"]
 USDA_PUBLIC_ENDPOINT = config_file["usda"]["public_endpoint"]
 USDA_MANDATORY_ENDPOINT = config_file["usda"]["mandatory_endpoint"]
 USDA_GET_DATA = config_file["usda"]["get_data"]
+USDA_CUTOFF_PERIOD_IN_DAYS = config_file["usda"]["report_cutoff_period_in_days"]
 
 FLATFILE_LICENSE = config_file["flatfile_license"]
 
 BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
 BLOCKCHAIN_UPLOADS = config_file["blockchain"]["upload"]
 BLOCKCHAIN_BATCH_SIZE = config_file["blockchain"]["batch_size"]
+
+RECAPTCHA_SITE_KEY = config_file["recaptcha"]["site_key"]
+RECAPTCHA_SECRET_KEY = config_file["recaptcha"]["secret_key"]
+RECAPTCHA_MIN_SCORE = config_file["recaptcha"]["min_score"]
+
+IPINFO_TOKEN = config_file["ipinfo"]["token"]
+CHECK_IP = config_file["ipinfo"]["check_ip"]

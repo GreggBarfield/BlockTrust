@@ -5,7 +5,11 @@ from ..database.objects.user import User
 from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
-from ..database.objects.account import Account
+import time
+from ..database.tables.connection_invites import ConnectionInvites
+
+from ..utilities.general_utilities import validate_email, format_field
+from .constants import SECONDS_IN_ONE_DAY
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -122,7 +126,8 @@ def session_open_account():
         session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, personal_phone):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
+            personal_phone, recaptcha_score, ip_address, ip_country):
     """Create new user account.
 
     Params:
@@ -146,22 +151,24 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     Raises:
         SignupFailedException on failure with the reason.
     """
-    username = Users._format_field(username)
-    email = Users._format_field(email)
-    phone = Users._format_field(phone)
-    first_name = Users._format_field(first_name)
-    last_name = Users._format_field(last_name)
-    password = Users._format_field(password)
-    confirm_password = Users._format_field(confirm_password)
-    company = Users._format_field(company)
-    partner = Users._format_field(partner)
-    affiliate_id = Users._format_field(affiliate_id)
-    sector = Users._format_field(sector)
-    address = Users._format_field(address)
-    city = Users._format_field(city)
-    state = Users._format_field(state)
-    zip_code = Users._format_field(zip_code)
-    personal_phone = Users._format_field(personal_phone)
+    username = format_field(username)
+    email = format_field(email)
+    phone = format_field(phone)
+    first_name = format_field(first_name)
+    last_name = format_field(last_name)
+    password = format_field(password)
+    confirm_password = format_field(confirm_password)
+    company = format_field(company)
+    partner = format_field(partner)
+    affiliate_id = format_field(affiliate_id)
+    sector = format_field(sector)
+    address = format_field(address)
+    city = format_field(city)
+    state = format_field(state)
+    zip_code = format_field(zip_code)
+    personal_phone = format_field(personal_phone)
+    ip_address = format_field(ip_address)
+    ip_country = format_field(ip_country)
 
     # Password should equal confirm_password
 
@@ -175,11 +182,14 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
-        email_verified=0
+        email_verified=0,
+        recaptcha_score = recaptcha_score,
+        ip_address = ip_address,
+        ip_country = ip_country
     )
 
     try:
-        g.db.accounts.create_account_with_admin(
+        account = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -191,6 +201,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
+        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
@@ -237,13 +248,12 @@ def confirm(email):
     g.db.users.verify_email(email)
 
 
-def login(identifier, password="", override=False):
+def login(identifier, password=""):
     """Performs a login.
 
     Params:
         identifier: Username, email, or user ID.
         password: Plaintext password (default "")
-        override: True to override default login
 
     Raises:
         UsersException, LoginException
@@ -253,10 +263,9 @@ def login(identifier, password="", override=False):
     """
 
     try:
-        if password is None and override is not True:
+
+        if password is None:
             raise LoginException("password is None")
-        if override is not True and override is not False:
-            raise LoginException("override is bad")
 
         identifier = Users._format_field(identifier)
         password = Users._format_field(password)
@@ -318,20 +327,89 @@ def login(identifier, password="", override=False):
                 user_row = email_results[0]
 
         # End of tries
-
-        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues."
+        
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
 
         if user_row is None:
             raise LoginException(generic_error)
 
-        if override is not True and not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
-            raise LoginException(generic_error)
         # To check if the user profile being accessed has a verified email
-
         if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
+        locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
+        if int(user_row["is_user_locked"]) == 1:
+            
+            # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
+            
+            if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+                raise LoginException(locked_account_error)
+            else:
+                g.db.execute(
+                """
+                    UPDATE users
+                    SET failed_attempts =  %(failed_attempts)s, 
+                    is_user_locked = %(is_user_locked)s, 
+                    locked_time = %(locked_time)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempts": 0,
+                        "is_user_locked": 0,
+                        "locked_time": None
+                    }
+                )
+
+        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):      
+            failed_attempts = user_row["failed_attempts"] + 1
+            g.db.execute_d(
+                    """
+                        UPDATE users
+                        SET failed_attempts =  %(failed_attempts)s
+                        WHERE
+                            users.id=%(id)s
+                    """,
+                    {
+                        "id": user_row["id"],
+                        "failed_attempts":  failed_attempts
+                    }
+            )
+ 
+            if failed_attempts == 3:
+                g.db.execute(
+                """
+                    UPDATE users
+                    SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+                    WHERE
+                        users.id=%(id)s
+                """,
+                    {
+                        "id": user_row["id"],
+                        "is_user_locked": 1,
+                        "locked_time": int(round(time.time()))
+                    }
+                )
+                raise LoginException(locked_account_error)
+         
+            raise LoginException(generic_error)
+
+
+        if  user_row["failed_attempts"] > 0:
+            g.db.execute(
+            """
+                UPDATE users
+                SET failed_attempts =  %(failed_attempts)s
+                WHERE
+                    users.id=%(id)s
+            """,
+                {
+                    "id": user_row["id"],
+                    "failed_attempts": 0
+                }
+            )      
         g.user = User(g.db, user_row)
         session.clear()
         session[SESSION_USER_ID_VAR] = g.user.id()
@@ -352,7 +430,6 @@ def employee_login(identifier, password=""):
     Params:
         identifier: Username, or email.
         password: Plaintext password (default "")
-        override: True to override default login
 
     Raises:
         UsersException, LoginException
@@ -437,7 +514,7 @@ def get_email_verified_value(email):
     return g.db.users.get_email_verified_status(email)
 
 
-def invited_signup(username, email, phone, first_name, last_name, password, confirm_password, account_name, account_id):
+def invited_signup(username, email, first_name, last_name, password, confirm_password, account_id, is_admin):
     """Add a user to an existing account.
 
     Params:
@@ -450,7 +527,8 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
         confirm_password: the confirmed password
             (if password comes from a user field, confirm_password should too;
             don't just duplicate password)
-        account: Account number of the inviting account
+        account: Account object
+        is_admin: Indicates whether the new user is an admin user
     Returns:
         Nothing
 
@@ -459,25 +537,31 @@ def invited_signup(username, email, phone, first_name, last_name, password, conf
     """
     username = Users._format_field(username)
     email = Users._format_field(email)
-    phone = Users._format_field(phone)
     first_name = Users._format_field(first_name)
     last_name = Users._format_field(last_name)
     password = Users._format_field(password)
     confirm_password = Users._format_field(confirm_password)
-    # Password should equal confirm_password
-    if password != confirm_password:
-        raise SignupFailedException("The passwords you entered were not identical.")
-    user = g.db.users.create_user(
-        username=username,
-        password=password,
-        email=email,
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        email_verified=1
-    )  
-    account_details = g.db.accounts.get_by_id(account_id)
-    g.db.account_users.add_user_to_account(user, account=account_details)
+    email_validation = validate_email(email)
+    if email_validation["success"]:
+        # Password should equal confirm_password
+        if password != confirm_password:
+            raise SignupFailedException("The passwords you entered were not identical.")
+        user = g.db.users.create_user(
+            username=username,
+            password=password,
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            phone=None,
+            email_verified=1
+        )
+        account = g.db.accounts.get_by_id(account_id)
+        if is_admin == 0:
+            g.db.account_users.add_user_to_account(user, account)
+        else:
+            g.db.account_users.add_user_to_account(user, account, 1)
+    else:
+        raise Exception(email_validation["message"])
 
 
 def employee_signup(first_name, last_name, email, phone, username, password, confirm_password):

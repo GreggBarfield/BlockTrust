@@ -14,7 +14,7 @@ let account_name = invitedUserSignup.find("#account_name");
 let account_id = invitedUserSignup.find("#account_id");
 
 let form = new AsyncForm({
-    action: "/adduser",
+    action: "/add-user/action",
     form: invitedUserSignup[0],
     status: statusMessage[0],
     error: errorMessage[0],
@@ -29,7 +29,8 @@ let form = new AsyncForm({
             confirm_password: confirm_password.val(),
             user_email: user_email.val(),
             account_name: account_name.val(),
-            account_id: account_id.val()
+            account_id: account_id.val(),
+            is_admin: is_admin
         }
     }
 });

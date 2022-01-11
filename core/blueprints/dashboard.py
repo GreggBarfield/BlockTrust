@@ -14,6 +14,8 @@ from ..data_requests.router import unauth_route
 
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.connections import connection_status
+from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
@@ -93,7 +95,7 @@ def serve_dashboard():
 #         except AccountsException as e:
 #             raise ExportException("Account creation failed: " + str(e))
 #     except ExportException as e:
-#         return {"error": str(e)}
+#         return {"error": str(e)}, 400
 
 # # 6/3/21 Deprecated
 # @bp.route('/dashboard/accounts/join-account', methods=['GET'])
@@ -144,20 +146,19 @@ def serve_animal_eid(animal_eid):
     if len(animal.matches()) == 0:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
 
-    return dashboard_render("animals/animal.html", {"animal": animal})
+    return dashboard_render("animals/animal.html", {"animal": animal, "company": g.account.company()})
 
+@bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
+@crut.require_user
+def serve_animal_cert(animal_eid):
+    animal = g.db.animals.get_by_eid(animal_eid)
+    return dashboard_render("animals/animal-certificate.html", {"animal": animal})
 
 @bp.route('/dashboard/accounts', methods=['GET'])
 @crut.require_user
 def serve_accounts():
     accounts = g.db.accounts.get_by_user(g.user)
     return dashboard_render("accounts/account_select.html", {"accounts": accounts})
-
-
-@bp.route('/dashboard/sales-groups', methods=['GET'])
-@crut.require_account
-def serve_sales_groups():
-    return dashboard_render("sales-groups/list.html")
 
 
 @bp.route('/dashboard/messages', methods=['GET'])
@@ -183,8 +184,14 @@ def serve_messages_specific(open_message_id):
     return serve_messages(open_message_id)
 
 
+@bp.route('/dashboard/sales-groups', methods=['GET'])
+@crut.require_paid_account
+def serve_sales_groups():
+    return dashboard_render("sales-groups/list.html")
+
+
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_new_sales_group():
     new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
 
@@ -192,9 +199,9 @@ def serve_new_sales_group():
 
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_edit_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
@@ -202,10 +209,16 @@ def serve_edit_sales_group(sales_group_id):
     return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
 
 
-@bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
+@bp.route('/dashboard/sales-groups/archive', methods=['GET'])
 @crut.require_account
+def serve_sales_group_archive():
+    return dashboard_render("sales-groups/sales-group/archive.html", {"account_id": g.account.id()})
+
+
+@bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
+@crut.require_paid_account
 def serve_view_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.row_by_id(sales_group_id)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         return dashboard_render(
@@ -215,15 +228,27 @@ def serve_view_sales_group(sales_group_id):
     return dashboard_render("sales-groups/sales-group/not-published.html")
 
 
+@bp.route('/dashboard/sales-groups/manage-eids/<int:sales_group_id>', methods=["GET"])
+@crut.require_account
+def serve_manage_eids_sales_group(sales_group_id):
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        return dashboard_render(
+            "sales-groups/sales-group/manage-eids.html",
+            {"sales_group": sales_group_row}
+        )
+    return dashboard_render("sales-groups/sales-group/no.html")
+
+
 @bp.route('/dashboard/sales-groups/manage', methods=['GET'])
-@crut.require_user
+@crut.require_paid_account
 def serve_manage_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
 
 @bp.route('/dashboard/auction-sales', methods=['GET'])
 @bp.route('/dashboard/auction-sales/manage', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_auction_sales_manage(new_auction_sale=False):
     manage_auction_sales_attr = ""
 
@@ -239,6 +264,7 @@ def serve_auction_sales_manage(new_auction_sale=False):
 
 
 @bp.route('/dashboard/auction-sales/new', methods=['GET'])
+@crut.require_paid_account
 def serve_auction_sales_new():
     return serve_auction_sales_manage(True)
 
@@ -256,7 +282,7 @@ def serve_subscribe():
 
 
 @bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
-@crut.require_account
+@crut.require_paid_account
 def serve_upload_tags():
     if request.method == 'POST':
         data = json.loads(request.data)
@@ -267,20 +293,21 @@ def serve_upload_tags():
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
     elif request.method == 'GET':
-        return dashboard_render("data/upload-tags.html",  {"account": g.account,"user":g.user, "license": FLATFILE_LICENSE})
+        return dashboard_render("data/upload-tags.html",  {"account": g.account, "user": g.user, "license": FLATFILE_LICENSE})
 
 
 @bp.route('/dashboard/sustainability', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_sustainability():
     return dashboard_render("sustainability/summary.html", 
     { 
-        "sector": sectors_by_id[g.account.sector_id()]
+        "sector": sectors_by_id[g.account.sector_id()],
+        "sectorID": g.account.sector_id()
     })
 
 
 @bp.route('/dashboard/sustainability/survey', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_sustainability_survey():
     return dashboard_render("sustainability/questionaire.html", 
     { 
@@ -289,19 +316,19 @@ def serve_sustainability_survey():
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_market_state_data():
     return dashboard_render("data/market-data-filter.html")
 
 
 @bp.route('/dashboard/data/market/<string:state>/<int:slug_id>', methods=['GET'])
-@crut.require_account
+@crut.require_paid_account
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
     market_states = g.db.usda_reports.get_all_states()
 
     if stateLabel in market_states:
-        return dashboard_render("data/market-data.html", 
+        return dashboard_render("data/market-data.html",
             {
                 "slug_id": slug_id,
                 "state": state
@@ -309,27 +336,29 @@ def serve_market_data(state, slug_id):
     raise Exception("Invalid state")
 
 # edit account profile
+
+
 @bp.route('/dashboard/edit/edit-account', methods=['GET', 'POST'])
 @crut.require_user
 def serve_edit_account():
-    #Get account information
+    # Get account information
     if request.method == 'POST':
         try:
             g.db.accounts.update_account(
-                    account_id= g.account.id(),
+                    account_id=g.account.id(),
                     company=request.form["company"],
-                    address=request.form["address"], 
-                    city=request.form["city"], 
-                    state=request.form["state"], 
-                    zip=request.form["zip"], 
-                    phone = request.form["phone"]
+                    address=request.form["address"],
+                    city=request.form["city"],
+                    state=request.form["state"],
+                    zip=request.form["zip"],
+                    phone=request.form["phone"]
                         )
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
-        
+
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
@@ -347,7 +376,7 @@ def serve_edit_edituser():
                         )
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
         return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
@@ -378,9 +407,10 @@ def serve_invite_user():
                     'user_name': g.user.first_name() + " " + g.user.last_name()
                 }), user_email
             )
+            InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
             return {"redirect": "/dashboard"}
         except ExportException as e:
-            return {"error": str(e)}
+            return {"error": str(e)}, 400
     elif request.method == 'GET':
         return dashboard_render("/dashboard/accounts/invite_user.html")
 
@@ -425,7 +455,7 @@ def serve_add_connection_request():
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
@@ -613,6 +643,38 @@ def serve_animal_data_download(eid):
     return {}
 
 
+@bp.route('/dashboard/accept-invite', methods=['POST'])
+@crut.require_account
+def serve_accept_invite():
+    Connections(g.db).update_connection(
+        from_account_id=request.json["account_id"],
+        to_account_id=g.account.id(),
+        status=connection_status["Connected"]
+    )
+    return {}
+
+
+@bp.route('/dashboard/decline-invite', methods=['POST'])
+@crut.require_account
+def serve_decline_invite():
+    Connections(g.db).update_connection(
+        from_account_id=request.json["account_id"],
+        to_account_id=g.account.id(),
+        status=connection_status["Declined"]
+    )
+    return {}
+
+
+@bp.route('/dashboard/view-profile/<int:account_id>', methods=['GET'])
+@crut.require_account
+def serve_view_profile(account_id):
+    account_details = g.db.accounts.get_by_id(account_id)
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == connection_status["Connected"]:
+        return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
+    else:
+        return redirect("/dashboard/connections")
+
+
 @bp.route('/dashboard/support', methods=['GET'])
 @crut.require_account
 def serve_support():
@@ -635,5 +697,3 @@ def serve_support_response():
         SUPPORT_GENERAL_EMAIL
         )
     return {"redirect": "/dashboard"}
-
-

@@ -15,7 +15,6 @@ export class EditSalesGroupWidget extends Widget {
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.formElements = {};
-
         this.getData(
             "sales_group",
             {
@@ -25,12 +24,9 @@ export class EditSalesGroupWidget extends Widget {
             this.data = data;
             this.makeForm();
         });
-
-
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
-
     }
     
     makeForm() {
@@ -89,6 +85,7 @@ export class EditSalesGroupWidget extends Widget {
             input.value = value;
             input.className = "form-control";
             input.id = id;
+            input.required = true
             group.append(input);
             return input;
         }
@@ -101,6 +98,7 @@ export class EditSalesGroupWidget extends Widget {
             input.value = value;
             input.className = "form-control";
             input.id = id;
+            input.required = true
             group.append(input);
             return input;
         }
@@ -114,19 +112,16 @@ export class EditSalesGroupWidget extends Widget {
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
-
             let id = "domuid" + window.DOMUIDNext++;
-
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
+            select.required = true
             group.append(select);
-
             let optionsStacked = [];
             for (const option of options) {
                 optionsStacked.push({
@@ -171,8 +166,6 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
-        
-
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -206,7 +199,6 @@ export class EditSalesGroupWidget extends Widget {
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
-
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -276,7 +268,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
-            options: ["Covexin 8", "One Shot BVD", "Infor"],
+            options: ["Not Applicable", "Covexin 8", "One Shot BVD", "Infor"],
             values: this.data.reported.vaccinations || [],
             multiple: true,
             tags: true,
@@ -285,7 +277,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
-            options: ["Native Range", "Improved Pasture"],
+            options: ["Not Applicable", "Native Range", "Improved Pasture"],
             values: this.data.reported.feeding_programs || [],
             multiple: true,
             tags: true,
@@ -294,7 +286,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
-            options: ["Raigro"],
+            options: ["Not Applicable", "Raigro"],
             values: this.data.reported.implants || [],
             multiple: true,
             tags: true,
@@ -303,7 +295,7 @@ export class EditSalesGroupWidget extends Widget {
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
-            options: ["Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
+            options: ["Not Applicable", "Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
             values: this.data.reported.castrated || "Not Castrated",
             multiple: false,
             tags: false,
@@ -318,7 +310,6 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Process Verified Program"
         },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
-
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -393,6 +384,7 @@ export class EditSalesGroupWidget extends Widget {
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
+        let archiveSwitch = new SwitchFormGroup(form, "Archive", this.data.is_archived);
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -469,10 +461,10 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     "group_name": salesGroupName.value,
+                    "is_archived": archiveSwitch.isChecked(),
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
-                    auction_sale: null
-                    
+                    auction_sale: null                    
                 }
             }
         });
