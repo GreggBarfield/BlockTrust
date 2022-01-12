@@ -8,7 +8,6 @@ export class SourceSummaryWidget extends Widget {
     initType() {
 
         this.display = this.frame.getAttribute("data-widget-display");
-        console.log(this.display)
         if(this.display == "animals-with-data") {
             this.request = {
                 type: "matches_by_account",

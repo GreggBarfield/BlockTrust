@@ -103,8 +103,8 @@ class Matches:
         else:
             return []
 
-    def get_matches_for_an_account(self, account_link_id=0, restrict_types=()):
-        """Gets all matches by an account.
+    def get_matches_for_an_account_link(self, account_link_id=0, restrict_types=()):
+        """Gets all animals by an account. Routine is deprecated - we should use get_match() instead.
 
         Params:
             account_links: all the account links of an account (should be 1)
@@ -116,11 +116,9 @@ class Matches:
         if account_link_id > 0:
 
             query_statements = []
-            query_statements.append("SELECT matches.eid, matches.visual_id")
-            query_statements.append("FROM matches")
+            query_statements.append("SELECT distinct matches.eid, matches.visual_id")
+            query_statements.append("FROM matches WHERE account_link in (%s)")
 
-            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
-            query_statements.append(al_clause)
             args = [account_link_id]
             if len(restrict_types) > 0:
                 type_clause = "AND matches.type IN (%s)"
