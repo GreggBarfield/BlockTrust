@@ -19,7 +19,7 @@ def auth(params):
                 ljoin_account_links: Whether to LJOIN account links (boolean)
                     (results as account_links.column_name)
     """
-    account = g.db.accounts.get_by_id(g.account.id())
+    account = g.db.accounts.get_account_by_id(g.account.id())
     account_link_id = 0
     if len(account.account_links()) > 0:
         account_link_id = account.account_links()[0].id()

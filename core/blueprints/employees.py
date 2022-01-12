@@ -170,7 +170,7 @@ def serve_invite_admin_action(account_id):
             user = g.db.users.get_by_email(email)
             if user is not None:
                 return {"error": "Email is already being used."}, 400
-            account_row = g.db.accounts.get_by_id(account_id)
+            account_row = g.db.accounts.get_account_by_id(account_id)
             invite_object = {"admin_email": email, "account_id": account_id}
             invite_string = str(invite_object)
             adminToken = token.generateConfirmationToken(invite_string)
@@ -200,7 +200,7 @@ def serve_edit_account():
 @bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET"])
 @crut.require_employee
 def serve_edit_selected_account(account_id):
-    account_row = g.db.accounts.get_by_id(account_id)
+    account_row = g.db.accounts.get_account_by_id(account_id)
     return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
 
 

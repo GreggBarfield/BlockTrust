@@ -29,13 +29,11 @@ def serve_get_animal_data():
         token = request_data["token"]
         account_id = request_data["account"]
         APIDataRequests(g.db).insert_api_data_request(account_id=account_id, api_route=request.path, request_data=request_data)
-
-        try:
-            account = g.db.accounts.get_by_id(account_id)
-            if account.token() != token:
-                raise ExportException("Bad token")
-        except AccountsException:
+        account = g.db.accounts.get_account_by_id(account_id)
+        if account is None:
             raise ExportException("Bad account ID")
+        if account.token() != token:
+            raise ExportException("Bad token")
         match_birth_date_row = g.db.matches.get_match(eid=eid, type_int=match_types_by_name["Born"])
         match_visual_id_row = g.db.matches.get_match(eid=eid, visual_id_has_value=True)
         birth_date = None
