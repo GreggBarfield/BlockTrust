@@ -27,7 +27,13 @@ def auth(params):
         return {
             "matches": g.db.matches.get_animals_with_data_for_account(account_link_id)
         }
-
+    elif 'all_matches' in params:
+        restrict_types = ()
+        if 'types' in params:
+            restrict_types = name_to_id(params['types'])
+        return {
+            "matches": g.db.matches.get_matches_for_an_account_link(account_link_id, restrict_types)
+        }
     else:
         ljoin_account_links = False
         if "ljoin_account_links" in params:
