@@ -21,17 +21,14 @@ class Accounts:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, account_id):
+    def get_account_by_id(self, account_id):
         """Gets an account by an ID.
 
         Params:
             id: the account id
         
         Returns:
-            An Account() object
-
-        Raises:
-            AccountsException on ID not found
+            An Account() object or None if Account ID is not found
         """
         # TODO: Add account_links caching option
         account_rows = self._db.execute_d(
@@ -43,7 +40,7 @@ class Accounts:
             }
         )
         if len(account_rows) != 1:
-            raise AccountsException("No account found with that ID.")
+            return None
         return Account(self._db, account_rows[0])
         
     def get_partners_by_sector_id(self, sector_id):
@@ -84,7 +81,7 @@ class Accounts:
         Raises:
             AccountsException
         """
-        return self.get_by_id(account_user.account_id())
+        return self.get_account_by_id(account_user.account_id())
     
 
     def get_by_user(self, user):
@@ -202,7 +199,7 @@ class Accounts:
                 "phone": phone
             }
         )
-        account = self.get_by_id(self._db.last_row_id())
+        account = self.get_account_by_id(self._db.last_row_id())
 
         # update account name
         name = company
@@ -307,7 +304,7 @@ class Accounts:
                 "phone": phone
             }
         )
-        account = self.get_by_id(self._db.last_row_id())
+        account = self.get_account_by_id(self._db.last_row_id())
 
         # update account name
         name = company
@@ -379,7 +376,7 @@ class Accounts:
             }
         )
         
-        partner = self.get_by_id(self._db.last_row_id())
+        partner = self.get_account_by_id(self._db.last_row_id())
         return partner
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,

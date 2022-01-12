@@ -49,7 +49,7 @@ def handle(db: Database, insert):
         feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
                                                                         sector=sectors_by_name["Feedlot"], insert=True)[0]
         if feeder_account_link.account_id() is not None:
-            feeder = db.accounts.get_by_id(feeder_account_link.account_id())
+            feeder = db.accounts.get_account_by_id(feeder_account_link.account_id())
         else:
             # See if account is present but not linked to account_links and if so link the account.
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
@@ -97,7 +97,7 @@ def handle(db: Database, insert):
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
         if packer_account_link.account_id() is not None:
-            packer = db.accounts.get_by_id(packer_account_link.account_id())
+            packer = db.accounts.get_account_by_id(packer_account_link.account_id())
         else:
             packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
             if packer is not None:

@@ -537,7 +537,9 @@ def serve_add_admin_user(invite_token):
         invite_object = eval(invite_string)
         account_id = invite_object["account_id"]
         admin_email = invite_object["admin_email"]
-        account_row = g.db.accounts.get_by_id(account_id)
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        if account_row is None:
+            raise Exception("Account not found.")
         return outside_render("/outside/add-user-signup.html", {
             "user_email": admin_email,
             "account_name": account_row.name(),
