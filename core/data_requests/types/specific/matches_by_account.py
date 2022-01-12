@@ -21,9 +21,8 @@ def auth(params):
     """
     account = g.db.accounts.get_account_by_id(g.account.id())
     account_link_id = 0
-    if account is not None:
-        if len(account.account_links()) > 0:
-            account_link_id = account.account_links()[0].id()
+    if len(account.account_links()) > 0:
+        account_link_id = account.account_links()[0].id()
     if 'animals_with_data' in params:
         return {
             "matches": g.db.matches.get_animals_with_data_for_account(account_link_id)

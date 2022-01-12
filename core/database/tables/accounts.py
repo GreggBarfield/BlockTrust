@@ -81,7 +81,7 @@ class Accounts:
         Raises:
             AccountsException
         """
-        return self.get_by_id(account_user.account_id())
+        return self.get_account_by_id(account_user.account_id())
     
 
     def get_by_user(self, user):
@@ -199,7 +199,7 @@ class Accounts:
                 "phone": phone
             }
         )
-        account = self.get_by_id(self._db.last_row_id())
+        account = self.get_account_by_id(self._db.last_row_id())
 
         # update account name
         name = company
@@ -304,7 +304,7 @@ class Accounts:
                 "phone": phone
             }
         )
-        account = self.get_by_id(self._db.last_row_id())
+        account = self.get_account_by_id(self._db.last_row_id())
 
         # update account name
         name = company

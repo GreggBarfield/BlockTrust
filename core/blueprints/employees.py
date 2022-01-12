@@ -171,8 +171,6 @@ def serve_invite_admin_action(account_id):
             if user is not None:
                 return {"error": "Email is already being used."}, 400
             account_row = g.db.accounts.get_account_by_id(account_id)
-            if account_row is None:
-                raise Exception("Account not found.")
             invite_object = {"admin_email": email, "account_id": account_id}
             invite_string = str(invite_object)
             adminToken = token.generateConfirmationToken(invite_string)
