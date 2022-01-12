@@ -7,23 +7,37 @@ export class SourceSummaryWidget extends Widget {
 
     initType() {
 
-        // TODO: This is a bad data request, optimize later
-        Promise.all([
-            this.getData(
-                "data_request",
-                {
-                    request: {
-                        type: "matches_by_account",
-                        params: {
-                            animals_with_data: true
-                        }
-                    }
+        this.display = this.frame.getAttribute("data-widget-display");
+        console.log(this.display)
+        if(this.display == "animals-with-data") {
+            this.request = {
+                type: "matches_by_account",
+                params: {
+                    animals_with_data: true
                 }
-            ).then((data) => {
-                this.match_rows = data.result.matches;
-            }),
+            }
+        }
+        else {
+            this.request = {
+                type: "matches_by_account",
+                params: {
+                    all_matches: true,
+                    params: {
+                        types: ["Sighting"]
+                    }
 
-        ]).then(() => {
+                }
+            }
+        }
+
+        this.getData(
+            "data_request",
+            {
+                request: this.request
+            }
+        ).then((data) => {
+            this.match_rows = data.result.matches;
+        }).then(() => {
             this.frame.innerHTML = "";
             this.makeAnimals();
             this.makeTable();
