@@ -21,10 +21,7 @@ export class SourceSummaryWidget extends Widget {
                 type: "matches_by_account",
                 params: {
                     all_matches: true,
-                    params: {
-                        types: ["Sighting"]
-                    }
-
+                    types: ["Sighting"]      
                 }
             }
         }
