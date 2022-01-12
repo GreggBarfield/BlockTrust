@@ -58,11 +58,10 @@ def serve_api():
 
     # Check account
     account = g.db.accounts.get_account_by_id(data["account"])
-    if account is not None:
-        if account.token() != data["token"]:
-            raise ExportException("Bad token")
-    else:
+    if account is None:
         raise ExportException("Bad account ID")
+    if account.token() != data["token"]:
+        raise ExportException("Bad token")
 
     # Check for bad syntax
 
