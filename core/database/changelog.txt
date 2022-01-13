@@ -925,15 +925,21 @@ SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND
 UPDATE `accounts` SET `is_partner_used_for_signup`=1 WHERE `id`=@partner_id;
 
 /* Nisheet Thakur 01/10/2021 */
-CREATE TABLE `system_messages` (
+CREATE TABLE `notifications` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `message_subject` VARCHAR(127) NOT NULL,
   `message` VARCHAR(500) NOT NULL,
-  `message_type` INT NULL DEFAULT 0,
-  `sector` INT DEFAULT NULL,
-  `partner_account_id` INT DEFAULT NULL,
   `is_archived` TINYINT DEFAULT 0,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+CREATE TABLE `notification_recipients` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `notification_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `notification_seen` TINYINT NULL DEFAULT '0',
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  );
