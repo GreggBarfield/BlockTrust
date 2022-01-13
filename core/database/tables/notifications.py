@@ -41,7 +41,7 @@ class Notifications:
         Gets the system messages for an account
 
         Params:
-            account_id: Account Id of user for which messages need to be retrieved
+            user_id: User ID of user for which messages need to be retrieved
 
         Returns:
             An array of messages
