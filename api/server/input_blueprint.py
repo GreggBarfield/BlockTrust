@@ -57,12 +57,11 @@ def serve_api():
     assert version[0] == 1
 
     # Check account
-    try:
-        account = g.db.accounts.get_by_id(data["account"])
-        if account.token() != data["token"]:
-            raise ExportException("Bad token")
-    except AccountsException:
+    account = g.db.accounts.get_account_by_id(data["account"])
+    if account is None:
         raise ExportException("Bad account ID")
+    if account.token() != data["token"]:
+        raise ExportException("Bad token")
 
     # Check for bad syntax
 

@@ -76,7 +76,11 @@ def serve_login_action():
 def serve_signup():
     # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
-    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
+    partners = g.db.accounts.get_accounts(
+        sector=cow_calf_sector_id,
+        is_partner=1,
+        is_partner_used_for_signup=1
+    )
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
@@ -533,7 +537,9 @@ def serve_add_admin_user(invite_token):
         invite_object = eval(invite_string)
         account_id = invite_object["account_id"]
         admin_email = invite_object["admin_email"]
-        account_row = g.db.accounts.get_by_id(account_id)
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        if account_row is None:
+            raise Exception("Account not found.")
         return outside_render("/outside/add-user-signup.html", {
             "user_email": admin_email,
             "account_name": account_row.name(),

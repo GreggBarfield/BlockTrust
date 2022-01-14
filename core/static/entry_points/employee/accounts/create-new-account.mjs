@@ -44,8 +44,6 @@ $(document).ready(function(){
         }
     })
 })
-
-
 let signupForm = $("#employee_signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
