@@ -905,7 +905,7 @@ DROP TABLE `eid_groups`;
 /*Rohan Sureshkumar 12/27/2021 */
 ALTER TABLE `users` 
 ADD COLUMN `failed_attempts` INT NULL DEFAULT 0 AFTER `is_email_verified`,
-ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempt`,
+ADD COLUMN `is_user_locked` TINYINT NULL DEFAULT 0 AFTER `failed_attempts`,
 ADD COLUMN `locked_time` INT NULL DEFAULT NULL AFTER `is_user_locked`;
 
 /* Rohan Sureshkumar 12/29/2021 */
