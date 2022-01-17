@@ -34,14 +34,14 @@ def serve_get_animal_data():
             raise ExportException("Bad account ID")
         if account.token() != token:
             raise ExportException("Bad token")
-        match_birth_date_row = g.db.matches.get_match(eid=eid, type_int=match_types_by_name["Born"])
-        match_visual_id_row = g.db.matches.get_match(eid=eid, visual_id_has_value=True)
+        match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
+        match_visual_id_row = g.db.matches.get_matches(eid=eid, visual_id_has_value=True)
         birth_date = None
         visual_id = None
-        if match_birth_date_row is not None:
-            birth_date = datetime.utcfromtimestamp(match_birth_date_row['time']).strftime('%Y-%m-%d %H:%M:%S')
-        if match_visual_id_row is not None:
-            visual_id = match_visual_id_row['visual_id']
+        if len(match_birth_date_row) > 0:
+            birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
+        if len(match_visual_id_row) > 0:
+            visual_id = match_visual_id_row[0]['visual_id']
         animal_data = {
             "eid": eid,
             "birthDate": birth_date,
