@@ -9,6 +9,8 @@ from ..utilities.email import send_tag_store_email, send_multiple_tag_store_emai
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL
 from ..sectors import sectors_by_id, sectors_by_name
+from ..product_types import product_types_by_id, product_types_by_name
+
 import json
 
 bp = Blueprint('shop_bp', __name__)
@@ -19,7 +21,11 @@ bp = Blueprint('shop_bp', __name__)
 @bp.route('/external/shop/<tok>', methods=['GET'])
 def serve_partner_shop(tok):
     allProductData = g.db.products.get_partner_products(tok)
-    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id": tok})
+    return outside_render('shop-iframe/shop-homepage.html', {
+        "allProductData": allProductData,
+        "partner_id": tok,
+        "product_types": product_types_by_name
+        })
 
 
 @bp.route('/external/shop', methods=['GET'])

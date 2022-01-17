@@ -35,7 +35,7 @@ $( ".form-inline" ).submit(function( event ) {
     // Get input values to add products to cart
     var values = $(this).serializeArray();
     // Create tuple to add to shoppingCart object in localStorage
-    var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value), is_premise_id_required: parseInt(values[4].value)};
+    var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value), is_premise_id_required: parseInt(values[4].value), units: values[5].value};
     var product_no=values[0].value;
     // Checking if product is already present in the localStorage and performing necessary actions
     if(!(product_no in shopCart)){
