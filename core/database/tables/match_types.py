@@ -19,10 +19,10 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        match = self._matches.get_match(eid=kwargs["eid"], type_int=match_types_by_name["Sighting"],
+        match = self._matches.get_matches(eid=kwargs["eid"], restrict_type=match_types_by_name["Sighting"],
                                         account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
-        if match is not None:
-            print("Sighting match exists. Match ID: ", match["id"])
+        if len(match) > 0:
+            print("Sighting match exists. Match ID: ", match[0]["id"])
         else:
             self._generic_insert(
                 type_int=match_types_by_name["Sighting"],
@@ -189,10 +189,10 @@ class MatchTypes:
         Params:
             data: json-serializable data
         """
-        match = self._matches.get_match(eid=eid, visual_id=visual_id, type_int=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
+        match = self._matches.get_matches(eid=eid, visual_id=visual_id, restrict_type=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
                                             account_link=account_link, lat=lat, lon=lon, time=time, selectColumns=["id"])
-        if match is not None:
-            print("Match exists. Match ID: ", match["id"])
+        if len(match) > 0:
+            print("Match exists. Match ID: ", match[0]["id"])
         else:
             # Insert a match only if match doesn't already exist
             self._matches.insert(

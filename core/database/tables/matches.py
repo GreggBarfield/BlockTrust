@@ -34,6 +34,8 @@ class Matches:
     def __init__(self, db):
         self.types = MatchTypes(self)
         self._db = db
+        self._match_cols = ("id", "partner_account", "account_link", "eid", "visual_id", "grouping_id", "lat", "lon", "time", "created", "type"
+        "data", "bc_transaction_id", "bc_hash", "bc_upload")
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -90,44 +92,6 @@ class Matches:
                                 + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
             args = [account_link_id]
             
-            if len(restrict_types) > 0:
-                type_clause = "AND matches.type IN (%s)"
-                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
-                type_clause = type_clause % in_clause
-                query_statements.append(type_clause)
-                args += restrict_types
-
-            query = " ".join(query_statements)
-            matches = self._db.execute_d(query, args)
-            return matches
-        else:
-            return []
-
-    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
-        """Gets all matches by an account.
-
-        Params:
-            account_links: all the account links of an account (should be 1)
-            restrict_types: match types
-            ljoin_account_links: Whether to left join account links
-            match_cols: optional specify the columns needed from the matches table
-
-        Returns:
-            A list of dictionaries containing matches and account_links data if joined (possibly empty)
-            No duplicates
-        """
-        if account_link_id > 0:
-            match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
-
-            query_statements = []
-            query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
-            query_statements.append(Matches._account_links_clause if ljoin_account_links else "")
-            query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
-
-            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
-            query_statements.append(al_clause)
-            args = [account_link_id]
-
             if len(restrict_types) > 0:
                 type_clause = "AND matches.type IN (%s)"
                 in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
@@ -213,70 +177,90 @@ class Matches:
             )
         ))
 
-    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
-                  time=None, visual_id_has_value=NO_VALUE, selectColumns=[]):
-        """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
+    def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
+        account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
+        selectColumns=[]):
+        """
+        Get an account by the values specified.
 
         Returns:
-            The match record if found else None
+            A list of account(s) record if found else []
         """
+        
         if len(selectColumns) > 0:
-            selectColumns = ", ".join(selectColumns)
+            incorrect_cols = [col for col in selectColumns if col not in self._match_cols]
+            
+            if len(incorrect_cols) > 0:
+                raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in match table")
+            
+            base_query = "SELECT "
+            if use_distinct:
+                base_query += "DISTINCT "
+            base_query += ",".join(selectColumns) + " FROM matches"
         else:
-            selectColumns = "*"
+            base_query = "SELECT * FROM matches"
 
-        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
-        query_values = {"eid": eid}
+        query_conditions = []
+        query_values = {}
 
-        if(visual_id is not None):
-            query_string_list.append("AND visual_id = %(visual_id)s")
+
+        if eid is not NO_VALUE:
+            query_conditions.append("eid = %(eid)s" if eid is not None else "eid IS %(eid)s")
+            query_values["eid"] = eid
+
+        if visual_id is not NO_VALUE:
+            query_conditions.append("visual_id = %(visual_id)s" if visual_id is not None else "visual_id IS %(visual_id)s")
             query_values["visual_id"] = visual_id
-
+        
         if visual_id_has_value != NO_VALUE:
             if visual_id_has_value is True:
-                query_string_list.append("AND visual_id IS NOT NULL")
+                query_conditions.append("visual_id IS NOT NULL")
             elif visual_id_has_value is False:
-                query_string_list.append("AND visual_id IS NULL")
+                query_conditions.append("visual_id IS NULL")
 
-        if(type_int is not None):
-            query_string_list.append("AND type = %(type)s")
-            query_values["type"] = type_int
+        if restrict_type is not NO_VALUE:
+            query_conditions.append("type = %(restrict_type)s" if restrict_type is not None else "type IS %(restrict_type)s")
+            query_values["restrict_type"] = restrict_type
 
-        if(grouping_id is not None):
-            query_string_list.append("AND grouping_id = %(grouping_id)s")
+        if grouping_id is not NO_VALUE:
+            query_conditions.append("grouping_id = %(grouping_id)s" if grouping_id is not None else "grouping_id IS %(grouping_id)s")
             query_values["grouping_id"] = grouping_id
 
-        if(data is not None):
-            query_string_list.append("AND data = CAST(%(data)s AS JSON)")
-            query_values["data"] = json.dumps(data)
-
-        if(partner_account is not None):
-            query_string_list.append("AND partner_account = %(partner_account)s")
+        if partner_account is not NO_VALUE:
+            query_conditions.append("partner_account = %(partner_account)s" if partner_account is not None else "partner_account IS %(partner_account)s")
             query_values["partner_account"] = partner_account
 
-        if(account_link is not None):
-            query_string_list.append("AND account_link = %(account_link)s")
+        if account_link is not NO_VALUE:
+            query_conditions.append("account_link = %(account_link)s" if account_link is not None else "account_link IS %(account_link)s")
             query_values["account_link"] = account_link
 
-        if(lat is not None):
-            query_string_list.append("AND lat = %(lat)s")
+        if lat is not NO_VALUE:
+            query_conditions.append("lat = %(lat)s" if lat is not None else "lat IS %(lat)s")
             query_values["lat"] = lat
 
-        if(lon is not None):
-            query_string_list.append("AND lon = %(lon)s")
-            query_values["lon"] = lon
+        if lon is not NO_VALUE:
+            query_conditions.append("lon = %(lon)s" if lon is not None else "lon IS %(lon)s")
+            query_values["lon"] = lon 
+        
+        if data is not NO_VALUE:
+            query_conditions.append("data = CAST(%(data)s AS JSON)" if data is not None else "data IS %(data)s")
+            query_values["data"] = json.dumps(data) if data is not None else None
 
-        if(time is not None):
-            query_string_list.append("AND time = %(time)s")
+        if time is not NO_VALUE:
+            query_conditions.append("time = %(time)s" if time is not None else "time IS %(time)s")
             query_values["time"] = time
 
-        query = ' '.join(query_string_list)
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
 
+        query = base_query + combined_query_condition
         match_rows = self._db.execute_d(query, query_values)
         if len(match_rows) > 0:
-            return match_rows[0]
+            return match_rows
         else:
-            return None
+            return []
 
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,

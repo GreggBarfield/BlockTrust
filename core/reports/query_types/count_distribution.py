@@ -8,7 +8,7 @@ def execute(db, query):
     """Execute the query."""
     params = query['params']
 
-    account = db.accounts.get_by_id(params['account'])
+    account = db.accounts.get_account_by_id(params['account'])
     account_links = account.account_links()
 
     if len(account_links) == 0:

@@ -516,7 +516,7 @@ def serve_get_sustainability_timeline_data():
         for account_data in matched_accounts:
             response = g.db.sustainability.get_sustainability_by_account(account_data['account'], True)
             if response == []:
-                account = g.db.accounts.get_by_id(account_data['account'])
+                account = g.db.accounts.get_account_by_id(account_data['account'])
                 response = {
                     'sector': account.sector_id(),
                     'name': account.name(),
