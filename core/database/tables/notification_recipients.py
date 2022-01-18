@@ -82,14 +82,14 @@ class NotificationRecipients:
                 users.append(account_user["user"])
         self.insert_notification_recipients(notification_id=notification_id, users=users)
 
-    def get_notification_recipients(self, id=NO_VALUE, notification_id=NO_VALUE, user_id=NO_VALUE, notification_seen=NO_VALUE):
+    def get_notification_recipients(self, id=NO_VALUE, notification_id=NO_VALUE, user_id=NO_VALUE, is_notification_seen=NO_VALUE):
         """
         Gets the notification_recipients rows based on the attributes provided
 
         Params:
             notifcation_id: ID of the notification in the notifications table
             user_id: User ID of the recipient
-            notification_seen: Whether the notification was viewed or not
+            is_notification_seen: Whether the notification was viewed or not
         Returns:
             A list of notification recipients or an empty array
         """
@@ -107,9 +107,9 @@ class NotificationRecipients:
         if user_id is not NO_VALUE:
             query_conditions.append(" user_id = %(user_id)s")
             query_values["user_id"] = user_id
-        if notification_seen is not NO_VALUE:
-            query_conditions.append(" notification_seen = %(notification_seen)s")
-            query_values["notification_seen"] = notification_seen
+        if is_notification_seen is not NO_VALUE:
+            query_conditions.append(" is_notification_seen = %(is_notification_seen)s")
+            query_values["is_notification_seen"] = is_notification_seen
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
         else:
@@ -123,7 +123,7 @@ class NotificationRecipients:
         else:
             return []
 
-    def update_notification_recipients(self, id, notification_id=NO_VALUE, user_id=NO_VALUE, notification_seen=NO_VALUE):
+    def update_notification_recipients(self, id, notification_id=NO_VALUE, user_id=NO_VALUE, is_notification_seen=NO_VALUE):
         """
         Updates the specified notification recipient row based on ID 
 
@@ -131,7 +131,7 @@ class NotificationRecipients:
             id: Notification recipient ID which needs to be updated
             notifcation_id: ID of the notification in the notifications table
             user_id: User ID of the recipient
-            notification_seen: Whether the notification was viewed or not
+            is_notification_seen: Whether the notification was viewed or not
         """
         base_query = "UPDATE notification_recipients "
 
@@ -145,8 +145,8 @@ class NotificationRecipients:
             query_updated_columns.append(" user_id = %(user_id)s")
             query_updated_values["user_id"] = user_id
         if notification_id is not NO_VALUE:
-            query_updated_columns.append(" notification_seen = %(notification_seen)s")
-            query_updated_values["notification_seen"] = notification_seen
+            query_updated_columns.append(" is_notification_seen = %(is_notification_seen)s")
+            query_updated_values["is_notification_seen"] = is_notification_seen
         if len(query_updated_columns) >= 1:
             combined_query_updated_values = " SET " + ",".join(query_updated_columns) + "WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
