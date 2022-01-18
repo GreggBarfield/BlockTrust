@@ -17,12 +17,7 @@ $(document).ready(function() {
     }
     Object.values(shopCart).forEach(val=>{
         var total_product_price=Math.round((val.price*val.quantity)*100)/100;
-        if(val.quantity===1){
         $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity +' '+ val.units +'</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/external/cart/'+partner_id+'"><button href="/external/cart/'+partner_id+'" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
-        }
-        else{        
-        $('#shopping-cart > tbody:last-child').append('<tr><td>' + val.product_name + '</td><td>' + val.quantity +' '+ val.units +'</td><td>$'+ val.price.toFixed(2) +'</td><td>$'+ total_product_price.toFixed(2) +'</td><td><a href="/external/cart/'+partner_id+'"><button href="/external/cart/'+partner_id+'" class="removeItem" style="  color: #fff;background-color: #8B4513;border-color: #8B4513;" value="'+ val.prod_no +'">Remove</button></a></td></tr>');
-        }
     });
     var subTotal=parseFloat(localStorage.getItem('totalPrice'));
     var subTotalDisplay=subTotal.toFixed(2);
