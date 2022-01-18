@@ -178,7 +178,8 @@ class Matches:
         ))
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
-        account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, selectColumns=[]):
+        account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
+        selectColumns=[]):
         """
         Get an account by the values specified.
 
@@ -192,8 +193,10 @@ class Matches:
             if len(incorrect_cols) > 0:
                 raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in match table")
             
-            base_query = "SELECT "+ ",".join(selectColumns) + " FROM matches"
-
+            base_query = "SELECT "
+            if use_distinct:
+                base_query += "DISTINCT "
+            base_query += ",".join(selectColumns) + " FROM matches"
         else:
             base_query = "SELECT * FROM matches"
 
