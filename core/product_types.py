@@ -1,8 +1,5 @@
 # This dictionary specifies the product type for each product in the products table
 
-from curses import keyname
-
-
 product_types_by_id = {
     1: "Dual Frequency",
     2: "High Frequency",
