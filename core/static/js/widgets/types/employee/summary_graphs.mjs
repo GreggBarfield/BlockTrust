@@ -19,7 +19,7 @@ export class SummaryGraphWidget extends Widget {
     
     makeSummaryGraphs(){
         let cardBody = document.getElementById("card");
-        this.makeLineGraphContainer(cardBody, "Ranches", this.data.accounts, false);
+        this.makeLineGraphContainer(cardBody, "Ranches", this.data.ranches, false);
         this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards, false);
         this.makeLineGraphContainer(cardBody, "Tags", this.data.tags, true);
     }
