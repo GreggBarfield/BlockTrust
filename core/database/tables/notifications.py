@@ -1,4 +1,3 @@
-from .. import database
 from ..no_value import NoValue
 from ..objects.notification import Notification
 from ...sectors import sectors_by_id
@@ -10,7 +9,7 @@ NO_VALUE = NoValue()
 
 class Notifications:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get_notification_by_id(self, notification_id):
