@@ -1,4 +1,3 @@
-from .. import database
 from ..no_value import NoValue
 
 from .accounts import Accounts
@@ -13,7 +12,7 @@ NO_VALUE = NoValue()
 
 class NotificationRecipients:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def insert_notification_recipients(self, notification_id, users=[]):
