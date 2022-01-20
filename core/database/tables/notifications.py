@@ -67,13 +67,13 @@ class Notifications:
         """
         self._db.execute(
             """
-            INSERT INTO notifications
-            VALUES
-            (%(message_subject)s, %(message)s)
+            INSERT INTO notifications (message_subject, message, is_archived)
+            VALUES (%(message_subject)s, %(message)s, %(is_archived)s)
             """,
             {
                 "message_subject": message_subject,
-                "message": message
+                "message": message,
+                "is_archived": 0
             }
         )
         notification = self.get_notification_by_id(self._db.last_row_id())
@@ -118,7 +118,7 @@ class Notifications:
         else:
             return []
 
-    def update_system_messaage(self, id, message_subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE):
+    def update_notification(self, id, message_subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE):
         """
         Updates the message based on the id specified
 
@@ -143,6 +143,6 @@ class Notifications:
             query_updated_columns.append(" is_archived = %(is_archived)s")
             query_updated_values["is_archived"] = is_archived
         if len(query_updated_columns) >= 1:
-            combined_query_updated_values = " SET " + ",".join(query_updated_columns) + "WHERE id=%(id)s"
+            combined_query_updated_values = " SET " + ",".join(query_updated_columns) + " WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
             self._db.execute(query, query_updated_values)

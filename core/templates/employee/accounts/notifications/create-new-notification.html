@@ -1,0 +1,33 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Create new notification" %}
+{% set employee_locations = [("/employee/notifications", "Create new notification")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+
+        <div class="card">
+            <h5 class="card-header">
+                Select Notification Type
+            </h5>
+            <div class="card-body">
+                <div class="form-group required col-lg-4">
+                <select class="form-control" id="notification_type" required>
+                    <option value="">---Please select an option---</option>
+                    <option value="global">Global</option>
+                    <option value="sector">Sector</option>
+                    <option value="partner">Partner</option>
+                </select>
+                </div>
+                <button class="btn btn-primary" type="button" id="notification_type_button">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/accounts/notifications/create-new-notification.mjs"></script>
+{% endblock employee_content %}

@@ -23,18 +23,14 @@ class NotificationRecipients:
             notifcation_id: ID of the otification in the notifications table
             users: A list of user ID which need to receive the notification
         """
+        base_query = "INSERT INTO notification_recipients (notification_id, user_id) "
+        query_inserts = []
         for user in users:
-            self._db.execute(
-                """
-                INSERT INTO notification_recipients
-                VALUES
-                (%(notification_id)s, %(user_id)s)
-                """,
-                {
-                    "notification_id": notification_id,
-                    "user_id": user
-                }
-            )
+            query_inserts.append("(" + str(notification_id) + "," + str(user) + ")")
+        if len(query_inserts) >= 1:
+            combined_query_inserts = " VALUES " + ",".join(query_inserts)
+        query = base_query + combined_query_inserts
+        self._db.execute(query, {})
 
     def insert_global_notification_recipients(self, notification_id):
         """
@@ -60,7 +56,7 @@ class NotificationRecipients:
         account_rows = Accounts(self._db).get_accounts(sector=sector)
         users = []
         for account_row in account_rows:
-            account_users = AccountUsers(self._db).get_account_users(account=account_row.id())
+            account_users = AccountUsers(self._db).get_account_users(account=account_row["id"])
             for account_user in account_users:
                 users.append(account_user["user"])
         self.insert_notification_recipients(notification_id=notification_id, users=users)
@@ -76,7 +72,7 @@ class NotificationRecipients:
         account_rows = Accounts(self._db).get_accounts(partner_account=partner_id)
         users = []
         for account_row in account_rows:
-            account_users = AccountUsers(self._db).get_account_users(account=account_row.id())
+            account_users = AccountUsers(self._db).get_account_users(account=account_row["id"])
             for account_user in account_users:
                 users.append(account_user["user"])
         self.insert_notification_recipients(notification_id=notification_id, users=users)
