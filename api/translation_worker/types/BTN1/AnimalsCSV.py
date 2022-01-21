@@ -121,7 +121,7 @@ def handle(db: Database, insert):
     if fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if fields['numberofca'] != '':
+    if fields['numberofca'] != '' and int(fields['numberofca']) > 0:
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
