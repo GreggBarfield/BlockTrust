@@ -38,3 +38,25 @@ class ProductCategories:
             return product_category_rows
         else:
             return []
+
+    def insert_product_category(self, category_name):
+        """
+        Inserts a new product category in the table
+
+        Params:
+            category_name: Name of the new product category
+        """
+        self._db.execute(
+            """
+            INSERT INTO product_categories (category_name)
+            VALUES (%(category_name)s)
+            """,
+            {
+                "category_name": category_name
+            }
+        )
+        product_category_row = self.get_product_categories(id=self._db.last_row_id())
+        if len(product_category_row) == 1:
+            product_category = product_category_row[0]
+            return product_category[0]
+        return []
