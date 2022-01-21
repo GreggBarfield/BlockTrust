@@ -29,20 +29,6 @@ class MatchTypes:
                 **kwargs
             )
 
-    # Deprecated 9/22/21
-    def insert_visual_id(self, visual_id, **kwargs):
-        """Insert a visual ID.
-
-        Params:
-            visual_id: A number or string of the visual ID
-            kwargs: See _generic_insert
-        """
-        self._generic_insert(
-            type_int=match_types_by_name["Visual ID"],
-            data=str(visual_id),
-            **kwargs
-        )
-
     def insert_weaned(self, **kwargs):
         """Insert a 'weaned' match.
 
@@ -177,6 +163,45 @@ class MatchTypes:
         """
         self._generic_insert(
             type_int=match_types_by_name["Sold"],
+            **kwargs
+        )
+
+    def insert_ribeye_area(self, ribeye_area, **kwargs):
+        """Insert a rib eye area record (from the packer).
+
+        Params:
+            ribeye_area: The rib eye area (number)
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Hot Weight"],
+            data=float(ribeye_area),
+            **kwargs
+        )
+
+    def insert_marbling_score(self, score, **kwargs):
+        """Insert a marbling score record (from the packer).
+
+        Params:
+            score: The marbling score(number)
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Marbling Score"],
+            data=float(score),
+            **kwargs
+        )
+
+    def insert_fat_thickness(self, thickness, **kwargs):
+        """Insert a fat thickness record (from the packer).
+
+        Params:
+            thickness: The fat thickness (number)
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Fat Thickness"],
+            data=float(thickness),
             **kwargs
         )
 
