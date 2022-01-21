@@ -9,7 +9,6 @@ match_types_by_id = {
     10: "Visual ID",
     11: "Weaned",
     12: "First Birth",
-    13: "Visual ID Complex",
     14: "Hot Weight",
     15: "Packer",
     16: "USDA Quality Grade",
@@ -17,7 +16,10 @@ match_types_by_id = {
     18: "Died",
     19: "Railed",
     20: "Medical",
-    21: "Sold"
+    21: "Sold",
+    22: "Ribeye Area",
+    23: "Marbling Score",
+    24: "Fat Thickness"
 }
 
 match_types_by_name = {
