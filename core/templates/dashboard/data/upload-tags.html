@@ -185,7 +185,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -201,13 +201,14 @@ const importer = new FlatfileImporter('{{license}}', {
       ]},
       { 
         key: "Sex", label: "Sex",
-        validators: [
-        {
-          validate: 'regex_matches',
-          regex: '^(?:m|M|male|Male|f|F|female|Female)$',
-          error: 'Only can be male or female (m/f).'
-        }
-      ]},
+        type: "select",
+        options: [
+          { value: "Male", label: "Male",
+            alternates: ["m", "male", "M"] },
+          { value: "Female", label: "Female",
+            alternates: ["f", "female", "F"] },
+        ]
+      },
       { 
         key: "CalfBirthDate", label: "Calf Birth Date",
         validators: [
@@ -218,7 +219,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -266,7 +267,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -276,42 +277,63 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]},
       { 
-        key: "Packer Company", label: "Packer Company",
+        key: "PackerCompany", label: "Packer Company",
         validators: [
 
       ]},
       { 
-        key: "Sighted", label: "Sighted",
+        key: "SightedDate", label: "Sighted",
         validators: [
 
       ]},
       { 
-        key: "Hot Weight", label: "Hot Weight",
+        key: "HotWeight", label: "Hot Weight",
         validators: [
-
+          {
+            validate: 'regex_matches',
+            regex: '^([0-9]*[.])?[0-9]+$',
+            error: 'Only can be a number and/or decimal.'
+          }
       ]},
       { 
-        key: "USDA Quality Grade", label: "USDA Quality Grade",
+        key: "USDAQualityGrade", label: "USDA Quality Grade",
+        type: "select",
+        options: [
+          { value: "Prime", label: "Prime" },
+          { value: "Choice", label: "Choice" },
+          { value: "SelectOrLower", label: "Select or Lower" },
+          { value: "Select", label: "Select" }
+        ]
+      },
+      { 
+        key: "USDAYieldGrade", label: "USDA Yield Grade",
         validators: [
-
+          {
+            validate: 'regex_matches',
+            regex: '^[1-5]$',
+            error: 'Only can be a number between 1-5.'
+          }
       ]},
       { 
-        key: "USDA Yield Grade", label: "USDA Yield Grade",
+        key: "RibeyeArea", label: "Ribeye area",
         validators: [
-
+          {
+            validate: 'regex_matches',
+            regex: '^\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?$',
+            error: 'Only can be a number, decimal, and/or fraction.'
+          }
       ]},
       { 
-        key: "Ribeye area", label: "Ribeye area",
+        key: "MarblingScore", label: "Marbling Score",
         validators: [
-
+          {
+            validate: 'regex_matches',
+            regex: '^[0-9]*$',
+            error: 'Only can be a number.'
+          }
       ]},
       { 
-        key: "Marbling Score", label: "Marbling Score",
-        validators: [
-
-      ]},
-      { 
-        key: "Fat Thickness", label: "Fat Thickness",
+        key: "FatThickness", label: "Fat Thickness",
         validators: [
 
       ]}
