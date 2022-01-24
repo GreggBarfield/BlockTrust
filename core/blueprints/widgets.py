@@ -356,7 +356,8 @@ def serve_save_eids_for_sales_group():
 def serve_save_sustainability():
     g.db.sustainability.insert(
         g.account.id(),
-        request.json["response"]
+        request.json["response"],
+        request.json["sectorScoreCounter"]
     )
     return { "redirect": "/dashboard/sustainability"}
 

@@ -1,21 +1,64 @@
 import { Widget } from "../../widget.mjs";
-
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
+        this.getResponseData();
         this.getSectorData();
     }
 
-    setDataSet(dataCounter) {
-        this.dataCounter = dataCounter;
-        this.dataCounter['this_sector'] = this.sectorData[this.sector].allSections; 
-        this.dataCounter['all_sectors'] = this.sectorData['allSectors'];
+    /* Note: this will be called at the end of getSectorData()'s Promise
+       
+       This is left blank because the subclasses will need to override this method.
+       If this is not done, then the other make charts methods will run before
+       getResponseData() and getSectorData() have finished their Promises.
+    */ 
+    createCharts() {}
+
+    getResponseData() {
+        this.getData(
+            "get_sustainability",
+            {}
+            ).then((data) => {
+            this.responses = data.results;
+            this.dataCounter = {};
+            
+            if (data.results.length > 0) {
+                this.responseData = data.results[0];
+                let sections = getSustainabilitySections();
+
+                for(const key in sections) {
+                    switch(key){
+                        case "air":
+                            this.dataCounter[key] = JSON.parse(this.responseData.air_score);
+                            break;
+                        case "land":
+                            this.dataCounter[key] = JSON.parse(this.responseData.land_score);
+                            break;
+                        case "water":
+                            this.dataCounter[key] = JSON.parse(this.responseData.water_score);
+                            break;
+                        case "animal":
+                            this.dataCounter[key] = JSON.parse(this.responseData.animal_score);
+                            break;
+                        case "safety":
+                            this.dataCounter[key] = JSON.parse(this.responseData.safety_score);
+                            break;
+                        case "efficiency":
+                            this.dataCounter[key] = JSON.parse(this.responseData.efficiency_score);
+                            break;
+                        default:
+                            this.dataCounter[key] = null;
+                    }
+                }
+            }
+        });
     }
 
     getSectorData() {
         //This grabs the sector number for the current user pass in from dashboard.py.
-        this.sector = this.frame.getAttribute('data-widget-sector');
+        let sector = this.frame.getAttribute('data-widget-sector');
 
         this.getData(
             "data_request",
@@ -26,7 +69,11 @@ export class AbstractBaseSummaryWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.sectorData = data.result;
+            let sectorData = data.result;
+            this.dataCounter['this_sector'] = sectorData[sector].allSections; 
+            this.dataCounter['all_sectors'] = sectorData['allSectors'];
+
+            this.createCharts();
         });
     }
 
@@ -142,6 +189,7 @@ export class AbstractBaseSummaryWidget extends Widget {
     }
 
     makeOtherPieGraphs(sections) {
+
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
@@ -257,6 +305,7 @@ export class AbstractBaseSummaryWidget extends Widget {
 
     makeGraph(container, dataType) {
         if (this.dataCounter == null 
+            || this.dataCounter == {} 
             || this.dataCounter[dataType] == null) {
             container.textContent = "Data is not available yet.";
         }

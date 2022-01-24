@@ -8,15 +8,51 @@ class Sustainability:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, account, response):
+    def insert(self, account, response, sectorScoreCounterJSON):
+        sectorScoreCounter = json.loads(sectorScoreCounterJSON)
+
+        air_score = None
+        land_score = None
+        water_score = None
+        animal_score = None
+        safety_score = None
+        efficiency_score = None
+        total_score = None
+
+        for section in sectorScoreCounter:
+            if section == 'air':
+                air_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'land':
+                land_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'water':
+                water_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'animal':
+                animal_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'safety':
+                safety_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'efficiency':
+                efficiency_score = json.dumps(sectorScoreCounter[section])
+            elif section == 'allSections':
+                total_score = json.dumps(sectorScoreCounter[section])
+
         self._db.execute(
             """INSERT INTO sustainability
-                (account, response)
-                VALUES (%(account)s, %(response)s)
+                (account, total_score, air_score, land_score, water_score, 
+                    animal_score, safety_score, efficiency_score, response)
+                VALUES (%(account)s, %(total_score)s, %(air_score)s, %(land_score)s, 
+                        %(water_score)s, %(animal_score)s, %(safety_score)s, 
+                        %(efficiency_score)s, %(response)s)
             """,
             {
                 "account": account,
-                "response": json.dumps(response),  # Does this need to be converted to a string first?
+                "total_score": total_score,
+                "air_score": air_score,
+                "land_score": land_score,
+                "water_score": water_score,
+                "animal_score": animal_score,
+                "safety_score": safety_score,
+                "efficiency_score": efficiency_score,
+                "response": json.dumps(response),
             }
         )
 
@@ -35,7 +71,14 @@ class Sustainability:
 
             return data
         else:
-            data = self.get_sustainability(account=account, order_by_column='created_timestamp', order_desc=True)
+            data = self._db.execute_d(
+                """SELECT * FROM sustainability 
+                WHERE account=%(account)s 
+                ORDER BY created_timestamp DESC
+                """, 
+                {
+                    "account": account
+                })
 
             return data
 

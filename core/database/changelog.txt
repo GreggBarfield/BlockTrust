@@ -959,3 +959,13 @@ ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
   REFERENCES `notifications` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Conner Charles 1/21/2022 */
+ALTER TABLE `sustainability`
+ADD COLUMN `total_score` JSON NULL DEFAULT NULL AFTER `account`,
+ADD COLUMN `air_score` JSON NULL DEFAULT NULL AFTER `total_score`,
+ADD COLUMN `land_score` JSON NULL DEFAULT NULL AFTER `air_score`,
+ADD COLUMN `water_score` JSON NULL DEFAULT NULL AFTER `land_score`,
+ADD COLUMN `animal_score` JSON NULL DEFAULT NULL AFTER `water_score`,
+ADD COLUMN `safety_score` JSON NULL DEFAULT NULL AFTER `animal_score`,
+ADD COLUMN `efficiency_score` JSON NULL DEFAULT NULL AFTER `safety_score`;
