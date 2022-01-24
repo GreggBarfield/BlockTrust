@@ -1,14 +1,13 @@
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
-from ..utilities.aws.aws import get_ses_client
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
+from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id, sectors_by_name
+
 import json
 
 bp = Blueprint('shop_bp', __name__)
@@ -16,15 +15,20 @@ bp = Blueprint('shop_bp', __name__)
 # Routes for shop homepage and cart iframes
 
 
-@bp.route('/external/shop/<tok>', methods=['GET'])
-def serve_partner_shop(tok):
-    allProductData = g.db.products.get_partner_products(tok)
-    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id": tok})
+@bp.route('/external/shop/<int:partner_id>', methods=['GET'])
+def serve_partner_shop(partner_id):
+    allProductData = g.db.products.get_products(partner=partner_id)
+    productCategories = ProductCategories(g.db).get_product_categories()
+    return outside_render('shop-iframe/shop-homepage.html', {
+        "allProductData": allProductData,
+        "partner_id": partner_id,
+        "product_categories": productCategories
+        })
 
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
-    allProductData = g.db.products.get_all_products()
+    allProductData = g.db.products.get_products()
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
