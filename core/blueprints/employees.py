@@ -334,4 +334,5 @@ def serve_create_sector_notification_action():
 @bp.route("/employee/dashboard/archive-notification", methods=["POST"])
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
+    NotificationRecipients(g.db).remove_notification_recipients(notification_id=int(request.json["notification_id"]))
     return {}

@@ -146,3 +146,20 @@ class NotificationRecipients:
             combined_query_updated_values = " SET " + ",".join(query_updated_columns) + "WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
             self._db.execute(query, query_updated_values)
+
+    def remove_notification_recipients(self, notification_id):
+        """
+        Removes all notification recipient rows for a given notification
+
+        Params:
+            notification_id: Notification ID whose recipients need to be removed
+        """
+        self._db.execute(
+            """
+            DELETE FROM notification_recipients
+            WHERE notification_id=%(notification_id)s
+            """,
+            {
+                "notification_id": notification_id
+            }
+        )

@@ -36,7 +36,7 @@
                             <td>{{notification.message_subject}}</td>
                             <td>{{notification.message}}</td>
                             <td>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
-                            <td><button class ="btn btn-primary" id="archive" value="{{notification.id}}" onClick="archive(this)">Archive</button></td>
+                            <td><button class ="btn btn-danger" id="archive" value="{{notification.id}}" onClick="archive(this)">Archive</button></td>
                         </tr>
                         {% endif %}
                         {% endfor %}
