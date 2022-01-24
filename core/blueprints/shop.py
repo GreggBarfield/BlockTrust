@@ -1,16 +1,12 @@
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
-from ..utilities.aws.aws import get_ses_client
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id, sectors_by_name
-from ..product_types import product_types_by_id, product_types_by_name
 
 import json
 
@@ -26,7 +22,6 @@ def serve_partner_shop(partner_id):
     return outside_render('shop-iframe/shop-homepage.html', {
         "allProductData": allProductData,
         "partner_id": partner_id,
-        "product_types": product_types_by_name,
         "product_categories": productCategories
         })
 

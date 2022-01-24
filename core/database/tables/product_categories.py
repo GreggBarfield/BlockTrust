@@ -55,8 +55,5 @@ class ProductCategories:
                 "category_name": category_name
             }
         )
-        product_category_row = self.get_product_categories(id=self._db.last_row_id())
-        if len(product_category_row) == 1:
-            product_category = product_category_row[0]
-            return product_category[0]
-        return []
+        product_category_rows = self.get_product_categories(id=self._db.last_row_id())
+        return product_category_rows[0]
