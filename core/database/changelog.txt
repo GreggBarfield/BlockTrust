@@ -959,3 +959,9 @@ ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
   REFERENCES `notifications` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 01/19/2021 */
+ALTER TABLE `products` ADD COLUMN `is_active` TINYINT NULL DEFAULT 1;
+UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
+UPDATE `products` SET `is_active`=0 WHERE `post`="N";
+ALTER TABLE `products` DROP COLUMN `post`;
