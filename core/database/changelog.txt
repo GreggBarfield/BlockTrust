@@ -1023,3 +1023,9 @@ VALUES (@dual_frequency_id, @partner_id),
 (@high_frequency_id, @partner_id),
 (@low_frequency_id, @partner_id),
 (@usda_840_id, @partner_id);
+
+/* Nisheet Thakur 01/19/2021 */
+ALTER TABLE `products` ADD COLUMN `is_active` TINYINT NULL DEFAULT 1;
+UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
+UPDATE `products` SET `is_active`=0 WHERE `post`="N";
+ALTER TABLE `products` DROP COLUMN `post`;
