@@ -58,7 +58,7 @@ export class AbstractBaseSummaryWidget extends Widget {
             }
         ).then((data) => {
             let sectorData = data.result;
-            this.dataCounter['this_sector'] = sectorData[sector].allSections; 
+            this.dataCounter['this_sector'] = sectorData[sector]; 
             this.dataCounter['all_sectors'] = sectorData['allSectors'];
 
             this.createCharts();

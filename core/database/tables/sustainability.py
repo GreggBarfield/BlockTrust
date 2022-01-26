@@ -144,14 +144,21 @@ class Sustainability:
 
             return data
 
-    def get_sustainability_by_sector(self, sectorID):
+    def get_sustainability_totals_by_sector(self, sectorID):
         data = self._db.execute_d(
-            """SELECT s.*, a.sector, a.company FROM sustainability AS s
+            """SELECT 
+               SUM(air_excellent_score + land_excellent_score + water_excellent_score 
+               + animal_excellent_score + safety_excellent_score + efficiency_excellent_score) AS "total_excellent_score",
+               SUM(air_acceptable_score + land_acceptable_score + water_acceptable_score 
+               + animal_acceptable_score + safety_acceptable_score + efficiency_acceptable_score) AS "total_acceptable_score",
+               SUM(air_needsWork_score + land_needsWork_score + water_needsWork_score 
+               + animal_needsWork_score + safety_needsWork_score + efficiency_needsWork_score) AS "total_needsWork_score"
+               FROM sustainability AS s
                INNER JOIN accounts AS a ON s.account=a.id
                WHERE s.created_timestamp = ANY (
-		        SELECT MAX(created_timestamp) AS most_recent FROM sustainability
-		        GROUP BY account
-	           )
+                   SELECT MAX(created_timestamp) AS most_recent FROM sustainability
+                   GROUP BY account
+               )
                AND a.sector = %(sector)s;
             """,
             {

@@ -1,5 +1,4 @@
 from ...sectors import sectors_by_id
-import json
 
 TYPE_NAME = "sustainability_averages"
 
@@ -16,37 +15,25 @@ def execute(db, query):
 
     for sectorID in sectors_by_id:
         results[sectorID] = {}
-        data = db.sustainability.get_sustainability_by_sector(sectorID)
+        data = db.sustainability.get_sustainability_totals_by_sector(sectorID)[0]
+        print(data)
 
         sectorTotals = {
-            'allSections': {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            }
+            "excellent": 0,
+            "acceptable": 0,
+            "needsWork": 0
         }
-        for item in data:
-            response = json.loads(item['response'])
-            for section_type in response:
-                sectorTotals[section_type] = {
-                    "excellent": 0, 
-                    "acceptable": 0,
-                    "needsWork": 0
-                }
 
-                for answer in response[section_type]:
-                    if 'a' in answer:
-                        sectorTotals['allSections']['excellent'] += 1
-                        sectorTotals[section_type]['excellent'] += 1
-                        results['allSectors']['excellent'] += 1
-                    elif 'b' in answer:
-                        sectorTotals['allSections']['acceptable'] += 1
-                        sectorTotals[section_type]['acceptable'] += 1
-                        results['allSectors']['acceptable'] += 1
-                    elif 'c' in answer:
-                        sectorTotals['allSections']['needsWork'] += 1
-                        sectorTotals[section_type]['needsWork'] += 1
-                        results['allSectors']['needsWork'] += 1
+        if data["total_excellent_score"] != None:
+            sectorTotals = {
+                "excellent": int(data["total_excellent_score"]), 
+                "acceptable": int(data["total_acceptable_score"]),
+                "needsWork": int(data["total_needsWork_score"])
+            }
+
+            allSectorTotals["excellent"] += int(data["total_excellent_score"])
+            allSectorTotals["acceptable"] += int(data["total_acceptable_score"])
+            allSectorTotals["needsWork"] += int(data["total_needsWork_score"])
 
         results[sectorID] = sectorTotals
 
