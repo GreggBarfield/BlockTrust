@@ -8,16 +8,17 @@ View Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
-
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}</h5>
+            <h5 class="card-header">
+                Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
+            <img class="float-right" src="{{ qrcode('https://blocktrustnetwork.com/markettrust/'+sales_group['id']|string, box_size=3, border=5) }}">
+            </h5>
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="view sales group" data-widget-sales-group="{{ sales_group['id'] }}"></p>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock dashboard_content %}

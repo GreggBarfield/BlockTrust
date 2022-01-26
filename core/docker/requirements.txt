@@ -6,3 +6,4 @@ bcrypt
 boto3
 stripe
 pyzipcode
+Flask-QRcode
