@@ -16,10 +16,7 @@ match_types_by_id = {
     18: "Died",
     19: "Railed",
     20: "Medical",
-    21: "Sold",
-    22: "Ribeye Area",
-    23: "Marbling Score",
-    24: "Fat Thickness"
+    21: "Sold"
 }
 
 match_types_by_name = {

@@ -156,33 +156,25 @@ def handle(db: Database, insert):
             )
 
         # Ribeye Area
+        # packer_data = {}
         # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
-        #     db.matches.types.insert_ribeye_area(
-        #         weight=float(fields["RibEyeArea"]),
-        #         eid=eid,
-        #         partner_account=partner_account,
-        #         account_link=packer_account_link.id(),
-        #         api_insert=api_insert
-        #     )
+        #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
 
         # Marbling Score
-        # if fields["MarblingScore"] != "" and float(fields["MarblingScore"]) != 0:
-        #     db.matches.types.insert_marbling_score(
-        #         weight=float(fields["MarblingScore"]),
-        #         eid=eid,
-        #         partner_account=partner_account,
-        #         account_link=packer_account_link.id(),
-        #         api_insert=api_insert
-        #     )
+        # if fields["MarblingScore"] != "" and int(fields["MarblingScore"]) != 0:
+        #     packer_data["MarblingScore"] = int(fields["MarblingScore"])
 
         # Fat Thickness
-        # if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:
-        #     db.matches.types.insert_fat_thickness(
-        #         weight=float(fields["FatThickness"]),
-        #         eid=eid,
-        #         partner_account=partner_account,
-        #         account_link=packer_account_link.id(),
-        #         api_insert=api_insert
+        # if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
+        #     packer_data["FatThickness"] = float(fields["FatThickness"])
+            
+        # if packer_data:
+        #     db.matches.types.insert_packer(
+        #         data = packer_data,
+            # eid=eid,
+            # partner_account=partner_account,
+            # account_link=packer_account_link.id(),
+            # api_insert=api_insert
         #     )
 
     else:
