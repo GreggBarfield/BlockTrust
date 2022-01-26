@@ -125,7 +125,7 @@ export class SustainabilityTimelineWidget extends Widget {
             let cardGraph = document.createElement("div");
             cardGraph.className = "card-body";
             itemDiv.append(cardGraph);
-            this.makeGraph(cardGraph, match.account, "allSections");
+            this.makeGraph(cardGraph, match.account, "total");
 
             itemsGroup.append(itemDiv);
             section.append(itemsGroup);
@@ -141,37 +141,25 @@ export class SustainabilityTimelineWidget extends Widget {
         
         for(const match in this.matches){
             this.responseData[match] = {};
-            let totals = {
-                "excellent": 0, 
-                "acceptable": 0,
-                "needsWork": 0
-            };
 
-            let responses = JSON.parse(this.matches[match].response);
-            
-            for(const section_type in responses){
-                this.responseData[match][section_type] = {
-                    "excellent": 0, 
-                    "acceptable": 0,
-                    "needsWork": 0
-                };
+            if (this.matches[match].response != null) {
+                let sections = getSustainabilitySections();
+                sections["total"] = "Total for all Sections";
 
-                for(const item of responses[section_type]) {
-
-                    if (item.includes('a')) {
-                        this.responseData[match][section_type].excellent += 1;
-                        totals.excellent += 1;
-                    } else if (item.includes('b')) {
-                        this.responseData[match][section_type].acceptable += 1;
-                        totals.acceptable += 1;
-                    } else if (item.includes('c')) {
-                        this.responseData[match][section_type].needsWork += 1;
-                        totals.needsWork += 1;
+                for(const key in sections) {
+                    if (this.matches[match][key + "_excellent_score"] != null) {
+                        this.responseData[match][key] = {
+                            "excellent": 0,
+                            "acceptable": 0,
+                            "needsWork": 0
+                        }
+                        this.responseData[match][key].excellent = JSON.parse(this.matches[match][key + "_excellent_score"]);
+                        this.responseData[match][key].acceptable = JSON.parse(this.matches[match][key + "_acceptable_score"]);
+                        this.responseData[match][key].needsWork = JSON.parse(this.matches[match][key + "_needsWork_score"]);
                     }
+
                 }
             }
-
-            this.responseData[match]['allSections'] = totals;
         }
     }
 
@@ -198,7 +186,9 @@ export class SustainabilityTimelineWidget extends Widget {
     }
 
     makeGraph(container, id, type) {
-        if (this.responseData[id] == null == null) {
+        if (this.responseData[id] == null
+            || this.responseData[id][type] == null
+            || Object.keys(this.responseData[id]) == 0) {
             container.textContent = "Data is not available yet.";
         }
         else if (this.responseData[id][type].excellent == 0
@@ -243,8 +233,8 @@ export class SustainabilityTimelineWidget extends Widget {
 
         let sections = getSustainabilitySections();
 
-        for (const sectionType in this.responseData[match.id]) {
-            if (sectionType != "allSections") {
+        for (const sectionType in this.responseData[match.account]) {
+            if (this.responseData[match.account][sectionType] != null) {
                 let card = document.createElement("div");
                 let cardHeader = document.createElement("div");
                 cardHeader.className = "card-header";
@@ -254,7 +244,7 @@ export class SustainabilityTimelineWidget extends Widget {
                 card.append(cardHeader);
                 card.append(cardBody);
                 modalBody.append(card);
-                this.makeGraph(cardBody, match.id, sectionType);
+                this.makeGraph(cardBody, match.account, sectionType);
             }
         }
     }

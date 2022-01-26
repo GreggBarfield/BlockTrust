@@ -27,30 +27,18 @@ export class AbstractBaseSummaryWidget extends Widget {
             if (data.results.length > 0) {
                 this.responseData = data.results[0];
                 let sections = getSustainabilitySections();
+                sections["total"] = "Total";
 
                 for(const key in sections) {
-                    switch(key){
-                        case "air":
-                            this.dataCounter[key] = JSON.parse(this.responseData.air_score);
-                            break;
-                        case "land":
-                            this.dataCounter[key] = JSON.parse(this.responseData.land_score);
-                            break;
-                        case "water":
-                            this.dataCounter[key] = JSON.parse(this.responseData.water_score);
-                            break;
-                        case "animal":
-                            this.dataCounter[key] = JSON.parse(this.responseData.animal_score);
-                            break;
-                        case "safety":
-                            this.dataCounter[key] = JSON.parse(this.responseData.safety_score);
-                            break;
-                        case "efficiency":
-                            this.dataCounter[key] = JSON.parse(this.responseData.efficiency_score);
-                            break;
-                        default:
-                            this.dataCounter[key] = null;
+                    this.dataCounter[key] = {
+                        "excellent": 0,
+                        "acceptable": 0,
+                        "needsWork": 0
                     }
+
+                    this.dataCounter[key].excellent = JSON.parse(this.responseData[key + "_excellent_score"]);
+                    this.dataCounter[key].acceptable = JSON.parse(this.responseData[key + "_acceptable_score"]);
+                    this.dataCounter[key].needsWork = JSON.parse(this.responseData[key + "_needsWork_score"]);
                 }
             }
         });

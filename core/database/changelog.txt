@@ -962,10 +962,21 @@ ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
 
 /* Conner Charles 1/21/2022 */
 ALTER TABLE `sustainability`
-ADD COLUMN `total_score` JSON NULL DEFAULT NULL AFTER `account`,
-ADD COLUMN `air_score` JSON NULL DEFAULT NULL AFTER `total_score`,
-ADD COLUMN `land_score` JSON NULL DEFAULT NULL AFTER `air_score`,
-ADD COLUMN `water_score` JSON NULL DEFAULT NULL AFTER `land_score`,
-ADD COLUMN `animal_score` JSON NULL DEFAULT NULL AFTER `water_score`,
-ADD COLUMN `safety_score` JSON NULL DEFAULT NULL AFTER `animal_score`,
-ADD COLUMN `efficiency_score` JSON NULL DEFAULT NULL AFTER `safety_score`;
+ADD COLUMN `air_excellent_score` INT NULL DEFAULT NULL AFTER `account`,
+ADD COLUMN `air_acceptable_score` INT NULL DEFAULT NULL AFTER `air_excellent_score`,
+ADD COLUMN `air_needsWork_score` INT NULL DEFAULT NULL AFTER `air_acceptable_score`,
+ADD COLUMN `land_excellent_score` INT NULL DEFAULT NULL AFTER `air_needsWork_score`,
+ADD COLUMN `land_acceptable_score` INT NULL DEFAULT NULL AFTER `land_excellent_score`,
+ADD COLUMN `land_needsWork_score` INT NULL DEFAULT NULL AFTER `land_acceptable_score`,
+ADD COLUMN `water_excellent_score` INT NULL DEFAULT NULL AFTER `land_needsWork_score`,
+ADD COLUMN `water_acceptable_score` INT NULL DEFAULT NULL AFTER `water_excellent_score`,
+ADD COLUMN `water_needsWork_score` INT NULL DEFAULT NULL AFTER `water_acceptable_score`,
+ADD COLUMN `animal_excellent_score` INT NULL DEFAULT NULL AFTER `water_needsWork_score`,
+ADD COLUMN `animal_acceptable_score` INT NULL DEFAULT NULL AFTER `animal_excellent_score`,
+ADD COLUMN `animal_needsWork_score` INT NULL DEFAULT NULL AFTER `animal_acceptable_score`,
+ADD COLUMN `safety_excellent_score` INT NULL DEFAULT NULL AFTER `animal_needsWork_score`,
+ADD COLUMN `safety_acceptable_score` INT NULL DEFAULT NULL AFTER `safety_excellent_score`,
+ADD COLUMN `safety_needsWork_score` INT NULL DEFAULT NULL AFTER `safety_acceptable_score`,
+ADD COLUMN `efficiency_excellent_score` INT NULL DEFAULT NULL AFTER `safety_needsWork_score`,
+ADD COLUMN `efficiency_acceptable_score` INT NULL DEFAULT NULL AFTER `efficiency_excellent_score`;
+ADD COLUMN `efficiency_needsWork_score` INT NULL DEFAULT NULL AFTER `efficiency_acceptable_score`,

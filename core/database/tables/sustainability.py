@@ -11,47 +11,90 @@ class Sustainability:
     def insert(self, account, response, sectorScoreCounterJSON):
         sectorScoreCounter = json.loads(sectorScoreCounterJSON)
 
-        air_score = None
-        land_score = None
-        water_score = None
-        animal_score = None
-        safety_score = None
-        efficiency_score = None
-        total_score = None
+        air_excellent_score = None
+        air_acceptable_score = None
+        air_needsWork_score = None
+        land_excellent_score = None
+        land_acceptable_score = None
+        land_needsWork_score = None
+        water_excellent_score = None
+        water_acceptable_score = None
+        water_needsWork_score = None
+        animal_excellent_score = None
+        animal_acceptable_score = None
+        animal_needsWork_score = None
+        safety_excellent_score = None
+        safety_acceptable_score = None
+        safety_needsWork_score = None
+        efficiency_excellent_score = None
+        efficiency_acceptable_score = None
+        efficiency_needsWork_score = None
 
         for section in sectorScoreCounter:
             if section == 'air':
-                air_score = json.dumps(sectorScoreCounter[section])
+                air_excellent_score = sectorScoreCounter[section]["excellent"]
+                air_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                air_needsWork_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'land':
-                land_score = json.dumps(sectorScoreCounter[section])
+                land_excellent_score = sectorScoreCounter[section]["excellent"]
+                land_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                land_needsWork_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'water':
-                water_score = json.dumps(sectorScoreCounter[section])
+                water_excellent_score = sectorScoreCounter[section]["excellent"]
+                water_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                water_needsWork_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'animal':
-                animal_score = json.dumps(sectorScoreCounter[section])
+                animal_excellent_score = sectorScoreCounter[section]["excellent"]
+                animal_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                animal_needsWork_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'safety':
-                safety_score = json.dumps(sectorScoreCounter[section])
+                safety_excellent_score = sectorScoreCounter[section]["excellent"]
+                safety_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                safety_needsWork_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'efficiency':
-                efficiency_score = json.dumps(sectorScoreCounter[section])
-            elif section == 'allSections':
-                total_score = json.dumps(sectorScoreCounter[section])
+                efficiency_excellent_score = sectorScoreCounter[section]["excellent"]
+                efficiency_acceptable_score = sectorScoreCounter[section]["acceptable"]
+                efficiency_needsWork_score = sectorScoreCounter[section]["needsWork"]
 
         self._db.execute(
             """INSERT INTO sustainability
-                (account, total_score, air_score, land_score, water_score, 
-                    animal_score, safety_score, efficiency_score, response)
-                VALUES (%(account)s, %(total_score)s, %(air_score)s, %(land_score)s, 
-                        %(water_score)s, %(animal_score)s, %(safety_score)s, 
-                        %(efficiency_score)s, %(response)s)
+                (account, air_excellent_score, air_acceptable_score, air_needsWork_score, 
+                land_excellent_score, land_acceptable_score, land_needsWork_score, 
+                water_excellent_score, water_acceptable_score, water_needsWork_score, 
+                animal_excellent_score, animal_acceptable_score, animal_needsWork_score, 
+                safety_excellent_score, safety_acceptable_score, safety_needsWork_score, 
+                efficiency_excellent_score, efficiency_acceptable_score, 
+                efficiency_needsWork_score, response)
+                VALUES (%(account)s, %(air_excellent_score)s, %(air_acceptable_score)s, 
+                        %(air_needsWork_score)s, %(land_excellent_score)s, %(land_acceptable_score)s,
+                        %(land_needsWork_score)s, %(water_excellent_score)s, 
+                        %(water_acceptable_score)s, %(water_needsWork_score)s,
+                        %(animal_excellent_score)s, %(animal_acceptable_score)s,
+                        %(animal_needsWork_score)s, %(safety_excellent_score)s,
+                        %(safety_acceptable_score)s, %(safety_needsWork_score)s,
+                        %(efficiency_excellent_score)s, %(efficiency_acceptable_score)s,
+                        %(efficiency_needsWork_score)s, %(response)s)
             """,
             {
                 "account": account,
-                "total_score": total_score,
-                "air_score": air_score,
-                "land_score": land_score,
-                "water_score": water_score,
-                "animal_score": animal_score,
-                "safety_score": safety_score,
-                "efficiency_score": efficiency_score,
+                "air_excellent_score": air_excellent_score,
+                "air_needsWork_score": air_needsWork_score,
+                "air_acceptable_score": air_acceptable_score,
+                "land_excellent_score": land_excellent_score,
+                "land_needsWork_score": land_needsWork_score,
+                "land_acceptable_score": land_acceptable_score,
+                "water_excellent_score": water_excellent_score,
+                "water_needsWork_score": water_needsWork_score,
+                "water_acceptable_score": water_acceptable_score,
+                "animal_excellent_score": animal_excellent_score,
+                "animal_needsWork_score": animal_needsWork_score,
+                "animal_acceptable_score": animal_acceptable_score,
+                "safety_excellent_score": safety_excellent_score,
+                "safety_needsWork_score": safety_needsWork_score,
+                "safety_acceptable_score": safety_acceptable_score,
+                "efficiency_excellent_score": efficiency_excellent_score,
+                "efficiency_needsWork_score": efficiency_needsWork_score,
+                "efficiency_acceptable_score": efficiency_acceptable_score,
                 "response": json.dumps(response),
             }
         )
@@ -59,7 +102,16 @@ class Sustainability:
     def get_sustainability_by_account(self, account, withAccountDetails=False):
         if withAccountDetails:
             data = self._db.execute_d(
-                """SELECT a.id, a.name, a.sector, s.response
+                """SELECT a.id, a.name, a.sector, s.*,
+                (air_excellent_score + land_excellent_score + water_excellent_score 
+                + animal_excellent_score + safety_excellent_score 
+                + efficiency_excellent_score) as "total_excellent_score",
+                (air_acceptable_score + land_acceptable_score + water_acceptable_score 
+                + animal_acceptable_score + safety_acceptable_score 
+                + efficiency_acceptable_score) as "total_acceptable_score",
+                (air_needsWork_score + land_needsWork_score + water_needsWork_score 
+                + animal_needsWork_score + safety_needsWork_score 
+                + efficiency_needsWork_score) as "total_needsWork_score"
                 FROM sustainability AS s
                 INNER JOIN accounts AS a ON s.account=a.id
                 WHERE account=%(account)s
@@ -72,7 +124,17 @@ class Sustainability:
             return data
         else:
             data = self._db.execute_d(
-                """SELECT * FROM sustainability 
+                """SELECT *, 
+                (air_excellent_score + land_excellent_score + water_excellent_score 
+                + animal_excellent_score + safety_excellent_score 
+                + efficiency_excellent_score) as "total_excellent_score",
+                (air_acceptable_score + land_acceptable_score + water_acceptable_score 
+                + animal_acceptable_score + safety_acceptable_score 
+                + efficiency_acceptable_score) as "total_acceptable_score",
+                (air_needsWork_score + land_needsWork_score + water_needsWork_score 
+                + animal_needsWork_score + safety_needsWork_score 
+                + efficiency_needsWork_score) as "total_needsWork_score"
+                FROM sustainability 
                 WHERE account=%(account)s 
                 ORDER BY created_timestamp DESC
                 """, 

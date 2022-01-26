@@ -171,11 +171,6 @@ export class AbstractBaseQuestionaireWidget extends Widget {
 
     parseData() {
         let dataCounter = {};
-        let totals = {
-            "excellent": 0, 
-            "acceptable": 0,
-            "needsWork": 0
-        };
 
         for(const section_type in this.submitResponse){
             dataCounter[section_type] = {
@@ -186,18 +181,14 @@ export class AbstractBaseQuestionaireWidget extends Widget {
             for(const response of this.submitResponse[section_type]){
                 if (response.includes('a')) {
                     dataCounter[section_type].excellent += 1;
-                    totals.excellent += 1;
                 } else if (response.includes('b')) {
                     dataCounter[section_type].acceptable += 1;
-                    totals.acceptable += 1;
                 } else if (response.includes('c')) {
                     dataCounter[section_type].needsWork += 1;
-                    totals.needsWork += 1;
                 }
             }
         }
 
-        dataCounter['allSections'] = totals;
         this.dataCounter = JSON.stringify(dataCounter);
     }
 }
