@@ -59,7 +59,7 @@ def serve_get_animal_data():
             birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
 
         match_ranch_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
-            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created", matches_sort_by="ASC")
+            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
         if len(match_ranch_sightings) > 0:
             match = match_ranch_sightings[0]
             if match["data"] is not None:
