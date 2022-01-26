@@ -16,7 +16,6 @@ def execute(db, query):
     for sectorID in sectors_by_id:
         results[sectorID] = {}
         data = db.sustainability.get_sustainability_totals_by_sector(sectorID)[0]
-        print(data)
 
         sectorTotals = {
             "excellent": 0,
