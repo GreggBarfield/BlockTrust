@@ -65,19 +65,6 @@ export class AbstractBaseSummaryWidget extends Widget {
         });
     }
 
-    makeNewSurveyBtn() {
-        let row = document.createElement("div");
-        row.className = "row mb-2 flex-row-reverse";
-        this.frame.appendChild(row);
-
-        let btn = document.createElement("a");
-        btn.className = "btn btn-outline-secondary btn-sm";
-        btn.setAttribute("href", "/dashboard/sustainability/survey");
-        btn.textContent = "New Survey";
-
-        row.append(btn);
-    }
-
     makeGraphOverTime(row) {
         let cardWrapper = document.createElement("div");
         cardWrapper.className = "col-md-6";
@@ -323,6 +310,7 @@ export class AbstractBaseSummaryWidget extends Widget {
 
                 chart.legend = new am4charts.Legend();
                 chart.legend.position = "left";
+                chart.legend.valueLabels.template.align = "left";
                 chart.legend.markers.template.width = 10;
                 chart.legend.markers.template.height = 10;
                 chart.legend.markers.template.children.getIndex(0).cornerRadius(20, 20, 20, 20);

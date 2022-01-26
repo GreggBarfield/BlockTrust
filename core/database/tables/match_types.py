@@ -29,20 +29,6 @@ class MatchTypes:
                 **kwargs
             )
 
-    # Deprecated 9/22/21
-    def insert_visual_id(self, visual_id, **kwargs):
-        """Insert a visual ID.
-
-        Params:
-            visual_id: A number or string of the visual ID
-            kwargs: See _generic_insert
-        """
-        self._generic_insert(
-            type_int=match_types_by_name["Visual ID"],
-            data=str(visual_id),
-            **kwargs
-        )
-
     def insert_weaned(self, **kwargs):
         """Insert a 'weaned' match.
 

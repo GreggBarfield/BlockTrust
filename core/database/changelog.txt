@@ -960,6 +960,76 @@ ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Nisheet Thakur 01/13/2021 */
+
+CREATE TABLE `product_categories`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `category_name` VARCHAR(127) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT INTO `product_categories` (category_name)
+VALUES ("Dual Frequency"),
+("High Frequency"),
+("Low Frequency"),
+("USDA 840");
+
+ALTER TABLE `products`
+ADD COLUMN `product_category_id` INT,
+ADD COLUMN `member_price` FLOAT DEFAULT NULL;
+SET @dual_frequency_id := (SELECT id FROM product_categories WHERE category_name="Dual Frequency");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @low_frequency_id := (SELECT id FROM product_categories WHERE category_name="Low Frequency");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,post,subheader,unit,details, partner, product_category_id, member_price)
+VALUES ("Dual Tech Tag", "dual_tech_thumbnail.png", "dual_tech_large.png", 26, 0, "Y", "", "Bag(s) of 10", "Ultra High Frequency Male Flag paired with an HDX Low Frequency Button; Exceptional male to female coupling and retention; Superb flexibility; High clarity Indelible laser printing; Full embedded wire (far-field antenna); Compatible with existing reader hardware be it LF or UHF; Full electronic compatibility at LF and UHF frequencies; Exceptional, high speed real-world read range", @partner_id, @dual_frequency_id, 20.80)
+,("UHF Tag", "uhf_thumbnail.png", "uhf_large.png", 17.50, 0, "Y", "", "Bag(s) of 10", "Ultra High Frequency Male Flag; 60 mm x 80 mm popular size & shape; Superb flexibility; Superior UV stability; High clarity Indelible laser printing; Fully embedded wire (far-field) antenna; Inductively coupled Internal (Stand-Alone) Impinj MONZA R6-P chip (BS ISO/IEC IS018000-6); Exceptional, high speed real-world read range", @partner_id, @high_frequency_id, 14)
+,("LF Tag", "lf_thumbnail.png", "lf_large.png", 15, 0, "Y", "", "Bag(s) of 10", "Low Frequency Button with Visual Male Flag; 60 mm x 80 mm popular size & shape; High clarity Indelible laser printing; Superb flexibility; Superior UV stability; Full electronic compatibility at Animal LF frequencies", @partner_id, @low_frequency_id, 15);
+
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @product_id := (SELECT id FROM products WHERE product='Strip Tag');
+UPDATE `products` SET `product_category_id`=@high_frequency_id, unit="Bag(s) of 20", member_price=35.20 WHERE `id`=@product_id;
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Tag');
+UPDATE `products` SET `product_category_id`=@usda_840_id, unit="Bag(s) of 20", member_price=35.40 WHERE `id`=@product_id;
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET `product_category_id`=@high_frequency_id, unit="Bag(s) of 20", member_price=44 WHERE `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET `post`='N' where `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
+values("USCT", @product_id, 20);
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
+values("USCT", @product_id, 20);
+
+CREATE TABLE `product_categories_partners`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `product_category_id` INT NOT NULL,
+  `partner_id` INT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+SET @dual_frequency_id := (SELECT id FROM product_categories WHERE category_name="Dual Frequency");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @low_frequency_id := (SELECT id FROM product_categories WHERE category_name="Low Frequency");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `product_categories_partners` (product_category_id, partner_id)
+VALUES (@dual_frequency_id, @partner_id),
+(@high_frequency_id, @partner_id),
+(@low_frequency_id, @partner_id),
+(@usda_840_id, @partner_id);
+
+/* Nisheet Thakur 01/19/2021 */
+ALTER TABLE `products` ADD COLUMN `is_active` TINYINT NULL DEFAULT 1;
+UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
+UPDATE `products` SET `is_active`=0 WHERE `post`="N";
+ALTER TABLE `products` DROP COLUMN `post`;
+
 /* Conner Charles 1/21/2022 */
 ALTER TABLE `sustainability`
 ADD COLUMN `air_excellent_score` INT NULL DEFAULT NULL AFTER `account`,
@@ -978,5 +1048,5 @@ ADD COLUMN `safety_excellent_score` INT NULL DEFAULT NULL AFTER `animal_needsWor
 ADD COLUMN `safety_acceptable_score` INT NULL DEFAULT NULL AFTER `safety_excellent_score`,
 ADD COLUMN `safety_needsWork_score` INT NULL DEFAULT NULL AFTER `safety_acceptable_score`,
 ADD COLUMN `efficiency_excellent_score` INT NULL DEFAULT NULL AFTER `safety_needsWork_score`,
-ADD COLUMN `efficiency_acceptable_score` INT NULL DEFAULT NULL AFTER `efficiency_excellent_score`;
-ADD COLUMN `efficiency_needsWork_score` INT NULL DEFAULT NULL AFTER `efficiency_acceptable_score`,
+ADD COLUMN `efficiency_acceptable_score` INT NULL DEFAULT NULL AFTER `efficiency_excellent_score`,
+ADD COLUMN `efficiency_needsWork_score` INT NULL DEFAULT NULL AFTER `efficiency_acceptable_score`;

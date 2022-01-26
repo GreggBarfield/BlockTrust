@@ -87,6 +87,9 @@ def handle(db: Database, insert):
     if fields["weaningstr"].strip() != "":
         weaned_object["at"] = fields["weaningstr"].strip()
 
+    if fields["weanweight"].strip() != "" and int(fields["weanweight"]) > 0:
+        weaned_object["wean_weight"] = int(fields["weanweight"])
+
     if weaned_object == {}:
         weaned_object = None
 
@@ -121,7 +124,7 @@ def handle(db: Database, insert):
     if fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if fields['numberofca'] != '':
+    if fields['numberofca'] != '' and int(fields['numberofca']) > 0:
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
@@ -135,6 +138,23 @@ def handle(db: Database, insert):
             grouping_id=grouping_id,
             api_insert=api_insert
         )
+
+
+    animal_details = {}
+    animal_object_tags = [
+        ("sex", "sex"),
+        ("description", "calfdescri")
+    ]
+
+    for tag in animal_object_tags:
+        if fields[tag[1]].strip() != "":
+            animal_details[tag[0]] = fields[tag[1]].strip()
+
+    if fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
+        animal_details["birth_weight"] = int(fields["birthweigh"])
+
+    if animal_details == {}:
+        animal_details = None
 
     if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
@@ -154,5 +174,6 @@ def handle(db: Database, insert):
                 account_link=account_link,
                 grouping_id=grouping_id,
                 debug={"zip": f5},
-                api_insert=api_insert
+                api_insert=api_insert,
+                data=animal_details
             )
