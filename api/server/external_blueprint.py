@@ -114,7 +114,7 @@ def serve_get_animal_data():
             "electronicID": eid,
             "first14DayFeedMethod": first_14_day_feed_method,
             "hotWeight": hot_weight,
-            "qualityGrade": quality_grade,
+            "usdaQualityGrade": quality_grade,
             "marketingDate": marketing_date,
             "marketingMethodName": marketing_method_name,
             "numberOfCalves": number_of_calves,
@@ -122,12 +122,12 @@ def serve_get_animal_data():
             "sale_location": sale_location,
             "second31DayFeedMethod": second_31_day_feed_method,
             "sex": sex,
-            "visualId": visual_id,
+            "visualID": visual_id,
             "weanDate": wean_date,
             "weanWeight": wean_weight,
             "weaningStrategy": weaning_strategy,
-            "yieldGrade": yield_grade,
-            "zip_code": zip_code
+            "usdaYieldGrade": yield_grade,
+            "zipCode": zip_code
         }
         return animal_data
     except ExportException as e:
