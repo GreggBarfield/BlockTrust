@@ -166,45 +166,6 @@ class MatchTypes:
             **kwargs
         )
 
-    def insert_ribeye_area(self, ribeye_area, **kwargs):
-        """Insert a rib eye area record (from the packer).
-
-        Params:
-            ribeye_area: The rib eye area (number)
-            kwargs: See _generic_insert
-        """
-        self._generic_insert(
-            type_int=match_types_by_name["Hot Weight"],
-            data=float(ribeye_area),
-            **kwargs
-        )
-
-    def insert_marbling_score(self, score, **kwargs):
-        """Insert a marbling score record (from the packer).
-
-        Params:
-            score: The marbling score(number)
-            kwargs: See _generic_insert
-        """
-        self._generic_insert(
-            type_int=match_types_by_name["Marbling Score"],
-            data=float(score),
-            **kwargs
-        )
-
-    def insert_fat_thickness(self, thickness, **kwargs):
-        """Insert a fat thickness record (from the packer).
-
-        Params:
-            thickness: The fat thickness (number)
-            kwargs: See _generic_insert
-        """
-        self._generic_insert(
-            type_int=match_types_by_name["Fat Thickness"],
-            data=float(thickness),
-            **kwargs
-        )
-
     def _generic_insert(
         self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
         lon=None, time=None, debug=None, api_insert=None
