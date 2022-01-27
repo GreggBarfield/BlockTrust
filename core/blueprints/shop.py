@@ -5,6 +5,7 @@ from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
+from ..database.tables.product_vendors import ProductVendors
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 
@@ -81,7 +82,8 @@ def update_order():
         # Updating the orders table if payment goes through
         g.db.orders.update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
-        order_details = eval(data["orderDetails"])               
+        order_details = eval(data["orderDetails"])
+        shopping_cart = eval(order_details["shoppingCart"])
         # Once payment goes through sending email to confirm order to buyer
         send_tag_store_email(
             "Tag Store Purchase Summary",
@@ -102,6 +104,35 @@ def update_order():
             order_details["email"]
         )
         # Once payment goes through sending email to confirm order to seller
+        # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
+        vendor_oriented_cart = {}
+        for key, value in shopping_cart.items():
+            product_row = g.db.products.get_products(id=key)
+            if len(product_row) > 0:
+                product_vendor = product_row[0]["product_vendor"]
+                if product_vendor in vendor_oriented_cart:
+                    vendor_oriented_cart[product_vendor].append(value)
+                else:
+                    vendor_oriented_cart[product_vendor] = [value]
+        for key, value in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=key)
+            if len(vendor_row) > 0:
+                vendor_email = vendor_row[0]["vendor_email"]
+                send_tag_store_email(
+                    "New order summary",
+                    render_email("purchase_summary_vendor.html", {
+                        'order_id': data["orderId"],
+                        'first': order_details["first_name"],
+                        'last': order_details["last_name"],
+                        'shipping_address_line': order_details["address_line"],
+                        'shipping_city': order_details["city"],
+                        'shipping_state': order_details["state"],
+                        'shipping_zip_code': order_details["zip_code"],
+                        'cart': value
+                        }),
+                    vendor_email
+                    )
+
         send_multiple_tag_store_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
@@ -119,9 +150,10 @@ def update_order():
                 'shipping_zip_code': order_details["zip_code"],
                 'cart': eval(order_details["shoppingCart"])
             }),
-            ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            # ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["nisheet.thakur@blocktrustnetwork.com"]
         )
-        
+
         return {"success": True}
     except Exception as e:
         return {"error": str(e)}, 400
