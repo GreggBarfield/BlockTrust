@@ -918,7 +918,7 @@ CREATE TABLE `api_data_requests` (
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
-/* Nisheet Thakur 01/04/2021 */
+/* Nisheet Thakur 01/04/2022 */
 ALTER TABLE `accounts` 
 ADD COLUMN `is_partner_used_for_signup` TINYINT NULL DEFAULT '0';
 SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND is_partner=1);
@@ -960,7 +960,7 @@ ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-/* Nisheet Thakur 01/13/2021 */
+/* Nisheet Thakur 01/13/2022 */
 
 CREATE TABLE `product_categories`(
   `id` INT NOT NULL AUTO_INCREMENT,
@@ -1024,8 +1024,45 @@ VALUES (@dual_frequency_id, @partner_id),
 (@low_frequency_id, @partner_id),
 (@usda_840_id, @partner_id);
 
-/* Nisheet Thakur 01/19/2021 */
+/* Nisheet Thakur 01/19/2022 */
 ALTER TABLE `products` ADD COLUMN `is_active` TINYINT NULL DEFAULT 1;
 UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
 UPDATE `products` SET `is_active`=0 WHERE `post`="N";
 ALTER TABLE `products` DROP COLUMN `post`;
+
+/* Nisheet Thakur 01/26/2022 */
+CREATE TABLE `product_vendors`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `vendor_name` VARCHAR(127) NOT NULL,
+  `vendor_email` VARCHAR(127) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("Fort Supply", "cattletrace@fort-supply.com"),
+("APK-ID Tags", "emilylynndavis1@gmail.com");
+
+ALTER TABLE `products` ADD COLUMN `product_vendor_id` INT DEFAULT 0;
+
+SET @apkid := (SELECT id FROM product_vendors WHERE vendor_name="APK-ID Tags");
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Strip Tag');
+UPDATE `products` SET `product`='UHF Strip Tag' WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Tag');
+UPDATE `products` SET `product`='UHF Large Panel Tag' WHERE `id`=@product_id;
+
+SET @fortsupply := (SELECT id FROM product_vendors WHERE vendor_name="Fort Supply");
+SET @product_id := (SELECT id FROM products WHERE product='UHF Strip Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+
+
