@@ -109,11 +109,11 @@ def update_order():
         for key, value in shopping_cart.items():
             product_row = g.db.products.get_products(id=key)
             if len(product_row) > 0:
-                product_vendor = product_row[0]["product_vendor"]
-                if product_vendor in vendor_oriented_cart:
-                    vendor_oriented_cart[product_vendor].append(value)
+                product_vendor_id = product_row[0]["product_vendor_id"]
+                if product_vendor_id in vendor_oriented_cart:
+                    vendor_oriented_cart[product_vendor_id].append(value)
                 else:
-                    vendor_oriented_cart[product_vendor] = [value]
+                    vendor_oriented_cart[product_vendor_id] = [value]
         for key, value in vendor_oriented_cart.items():
             vendor_row = ProductVendors(g.db).get_product_vendors(id=key)
             if len(vendor_row) > 0:

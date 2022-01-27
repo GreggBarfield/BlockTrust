@@ -1042,15 +1042,15 @@ INSERT INTO `product_vendors` (vendor_name, vendor_email)
 VALUES ("Fort Supply", "cattletrace@fort-supply.com"),
 ("APK-ID Tags", "emilylynndavis1@gmail.com");
 
-ALTER TABLE `products` ADD COLUMN `product_vendor` INT DEFAULT 0;
+ALTER TABLE `products` ADD COLUMN `product_vendor_id` INT DEFAULT 0;
 
 SET @apkid := (SELECT id FROM product_vendors WHERE vendor_name="APK-ID Tags");
 SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
-UPDATE `products` SET `is_premise_id_required`=0, product_vendor=@apkid WHERE `id`=@product_id;
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
 SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
-UPDATE `products` SET `is_premise_id_required`=0, product_vendor=@apkid WHERE `id`=@product_id;
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
 SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
-UPDATE `products` SET `is_premise_id_required`=0, product_vendor=@apkid WHERE `id`=@product_id;
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
 
 SET @product_id := (SELECT id FROM products WHERE product='Strip Tag');
 UPDATE `products` SET `product`='UHF Strip Tag' WHERE `id`=@product_id;
@@ -1059,10 +1059,10 @@ UPDATE `products` SET `product`='UHF Large Panel Tag' WHERE `id`=@product_id;
 
 SET @fortsupply := (SELECT id FROM product_vendors WHERE vendor_name="Fort Supply");
 SET @product_id := (SELECT id FROM products WHERE product='UHF Strip Tag');
-UPDATE `products` SET product_vendor=@fortsupply WHERE `id`=@product_id;
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
 SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
-UPDATE `products` SET product_vendor=@fortsupply WHERE `id`=@product_id;
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
 SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
-UPDATE `products` SET product_vendor=@fortsupply WHERE `id`=@product_id;
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
 
 
