@@ -35,7 +35,6 @@ def serve_get_animal_data():
         APIDataRequests(g.db).insert_api_data_request(account_id=account[0]["id"], api_route=request.path, request_data=request_data)
         birth_date = None
         visual_id = None
-        patron_id = None
         birth_weight = None
         description = None
         hot_weight = None
@@ -67,7 +66,6 @@ def serve_get_animal_data():
                 birth_weight = data.get("birth_weight", None)
                 description = data.get("description", None)
                 sex = data.get("sex", None)
-            patron_id = match["affiliate_id"]
             visual_id = match["visual_id"]
             if match["debug"] is not None:
                 zip_code = loads(match["debug"]).get("zip", None)
@@ -118,7 +116,6 @@ def serve_get_animal_data():
             "marketingDate": marketing_date,
             "marketingMethodName": marketing_method_name,
             "numberOfCalves": number_of_calves,
-            "patronId": patron_id,
             "sale_location": sale_location,
             "second31DayFeedMethod": second_31_day_feed_method,
             "sex": sex,
