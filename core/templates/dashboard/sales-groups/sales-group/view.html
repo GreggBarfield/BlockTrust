@@ -24,8 +24,4 @@ View Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
         </div>
     </div>
 </div>
-<script type="text/javascript">
-    var salesGroupID = "{{ sales_group['id'] }}"
-</script>
-<script type="module" src="/static/entry_points/dashboard/sales_groups/view.mjs"></script>
 {% endblock dashboard_content %}
