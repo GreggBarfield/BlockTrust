@@ -150,8 +150,7 @@ def update_order():
                 'shipping_zip_code': order_details["zip_code"],
                 'cart': eval(order_details["shoppingCart"])
             }),
-            # ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
-            ["nisheet.thakur@blocktrustnetwork.com"]
+            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
 
         return {"success": True}
