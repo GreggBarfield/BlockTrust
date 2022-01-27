@@ -26,12 +26,14 @@ def before_request():
 def serve_get_animal_data():
     try:
         request_data = loads(request.data)
+        if "eid" not in request_data or "token" not in request_data:
+            raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
         account = g.db.accounts.get_accounts(token=token)
         if len(account) == 0:
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
-            raise ExportException("Bad token. You are not authorized.")
+            raise ExportException("Bad token. You are not authorized")
         APIDataRequests(g.db).insert_api_data_request(account_id=account[0]["id"], api_route=request.path, request_data=request_data)
         birth_date = None
         visual_id = None
