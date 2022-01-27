@@ -106,6 +106,7 @@ def update_order():
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
+        # TODO: Name iterating variables explicitly. So here I think key should really be product_id. I am not sure what value stands for.
         for key, value in shopping_cart.items():
             product_row = g.db.products.get_products(id=key)
             if len(product_row) > 0:
@@ -114,6 +115,7 @@ def update_order():
                     vendor_oriented_cart[product_vendor_id].append(value)
                 else:
                     vendor_oriented_cart[product_vendor_id] = [value]
+        # TODO: Same comment as on line 109
         for key, value in vendor_oriented_cart.items():
             vendor_row = ProductVendors(g.db).get_product_vendors(id=key)
             if len(vendor_row) > 0:
