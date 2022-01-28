@@ -23,14 +23,20 @@ class NotificationRecipients:
             notifcation_id: ID of the otification in the notifications table
             users: A list of user ID which need to receive the notification
         """
-        base_query = "INSERT INTO notification_recipients (notification_id, user_id) "
-        query_inserts = []
+        notification_recipients = []
         for user in users:
-            query_inserts.append("(" + str(notification_id) + "," + str(user) + ")")
-        if len(query_inserts) >= 1:
-            combined_query_inserts = " VALUES " + ",".join(query_inserts)
-        query = base_query + combined_query_inserts
-        self._db.execute(query, {})
+            notification_recipients.append((
+                notification_id,
+                user
+            ))
+        self._db.execute_many(
+            """
+                INSERT INTO notification_recipients (notification_id, user_id) 
+                VALUES
+                (%s, %s)
+            """,
+            notification_recipients
+        )
 
     def insert_global_notification_recipients(self, notification_id):
         """
