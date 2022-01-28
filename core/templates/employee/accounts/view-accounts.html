@@ -25,6 +25,7 @@
                             <th>Sector</th>
                             <th>Account city, state</th>
                             <th>Admin Email</th>
+                            <th>Created</th>
                             <th>Login as Admin</th>
                             <th>Invite Admin</th>
                         </tr>
@@ -47,6 +48,7 @@
                                 <a href="mailto:{{account.account_admin_email}}">{{account.account_admin_email}}</a>
                                 {% endif %}
                             </td>
+                            <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                             <td>
                                 <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
                             </td>

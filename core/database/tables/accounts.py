@@ -507,7 +507,7 @@ class Accounts:
 
     def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
                         affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-                        is_partner_used_for_signup=NO_VALUE):
+                        is_partner_used_for_signup=NO_VALUE, token=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -521,47 +521,51 @@ class Accounts:
         query_values = {}
 
         if company is not NO_VALUE:
-            query_conditions.append(" company = %(company)s")
+            query_conditions.append("company = %(company)s")
             query_values["company"] = company
 
         if sector is not NO_VALUE:
-            query_conditions.append(" sector = %(sector)s")
+            query_conditions.append("sector = %(sector)s")
             query_values["sector"] = sector
 
         if is_partner is not NO_VALUE:
-            query_conditions.append(" is_partner = %(is_partner)s")
+            query_conditions.append("is_partner = %(is_partner)s")
             query_values["is_partner"] = is_partner
 
         if partner_account is not NO_VALUE:
-            query_conditions.append(" partner_account = %(partner_account)s")
+            query_conditions.append("partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
 
         if affiliate_id is not NO_VALUE:
-            query_conditions.append(" affiliate_id = %(affiliate_id)s")
+            query_conditions.append("affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
 
         if address is not NO_VALUE:
-            query_conditions.append(" address = %(address)s")
+            query_conditions.append("address = %(address)s")
             query_values["address"] = address
 
         if city is not NO_VALUE:
-            query_conditions.append(" city = %(city)s")
+            query_conditions.append("city = %(city)s")
             query_values["city"] = city
 
         if state is not NO_VALUE:
-            query_conditions.append(" state = %(state)s")
+            query_conditions.append("state = %(state)s")
             query_values["state"] = state
 
         if zip is not NO_VALUE:
-            query_conditions.append(" zip = %(zip)s")
+            query_conditions.append("zip = %(zip)s")
             query_values["zip"] = zip
 
         if is_partner_used_for_signup is not NO_VALUE:
-            query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
+            query_conditions.append("is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
+        
+        if token is not NO_VALUE:
+            query_conditions.append("token = %(token)s")
+            query_values["token"] = token
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
 

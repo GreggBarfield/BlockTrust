@@ -32,7 +32,7 @@ def auth(params):
         if 'types' in params:
             restrict_types = name_to_id(params['types'])
         return {
-            "matches": g.db.matches.get_matches_for_an_account_link(account_link_id, restrict_types)
+            "matches": g.db.matches.get_matches(account_link=account_link_id, restrict_type = restrict_types[0], selectColumns=["eid", "visual_id"])
         }
     else:
         ljoin_account_links = False

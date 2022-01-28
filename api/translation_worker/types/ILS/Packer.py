@@ -94,6 +94,11 @@ def handle(db: Database, insert):
             raise ExecutionException("; not allowed in packer info")
 
         # add sighting at packer using plant id
+
+        if fields["PlantID"].isdigit():
+            while len(fields["PlantID"]) < 3:
+                fields["PlantID"] = "0" + fields["PlantID"]
+
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
         if packer_account_link.account_id() is not None:
@@ -139,6 +144,38 @@ def handle(db: Database, insert):
             account_link=packer_account_link.id(),
             api_insert=api_insert
         )
+
+        # Hot Weight
+        if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
+            db.matches.types.insert_hot_weight(
+                weight=float(fields["CarcassWeight"]),
+                eid=eid,
+                partner_account=partner_account,
+                account_link=packer_account_link.id(),
+                api_insert=api_insert
+            )
+
+        # Ribeye Area
+        # packer_data = {}
+        # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
+        #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
+
+        # Marbling Score
+        # if fields["MarblingScore"] != "" and int(fields["MarblingScore"]) != 0:
+        #     packer_data["MarblingScore"] = int(fields["MarblingScore"])
+
+        # Fat Thickness
+        # if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
+        #     packer_data["FatThickness"] = float(fields["FatThickness"])
+            
+        # if packer_data:
+        #     db.matches.types.insert_packer(
+        #         data = packer_data,
+            # eid=eid,
+            # partner_account=partner_account,
+            # account_link=packer_account_link.id(),
+            # api_insert=api_insert
+        #     )
 
     else:
         # Packer data not available and hence Add feed yard sighting
