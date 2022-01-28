@@ -203,7 +203,6 @@ class Matches:
         query_conditions = []
         query_values = {}
 
-
         if eid is not NO_VALUE:
             query_conditions.append("eid = %(eid)s" if eid is not None else "eid IS %(eid)s")
             query_values["eid"] = eid
@@ -259,6 +258,53 @@ class Matches:
         match_rows = self._db.execute_d(query, query_values)
         if len(match_rows) > 0:
             return match_rows
+        else:
+            return []
+    
+    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_restrict_type=NO_VALUE, account_links_sector=NO_VALUE, matches_order_by=NO_VALUE, 
+        matches_sort_by=NO_VALUE):
+        """
+        Get an account by the values specified.
+
+        Returns:
+            A list of account(s) record if found else []
+        """
+
+        base_query = "SELECT * FROM matches m INNER JOIN account_links al ON m.account_link=al.id"
+
+        query_conditions = []
+        query_values = {}
+
+        if matches_eid is not NO_VALUE:
+            query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")
+            query_values["matches_eid"] = matches_eid
+
+        if matches_restrict_type is not NO_VALUE:
+            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "type IS %(matches_restrict_type)s")
+            query_values["matches_restrict_type"] = matches_restrict_type
+
+        if account_links_sector is not NO_VALUE:
+            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "eid IS %(account_links_sector)s")
+            query_values["account_links_sector"] = account_links_sector
+
+        if matches_order_by is not NO_VALUE:
+            if matches_order_by not in self._match_cols:
+                raise MatchesException("order_by column doesn't exist")
+            order_by_clause = "ORDER BY m." + matches_order_by
+            if matches_sort_by is not NO_VALUE:
+                if matches_sort_by not in ("ASC", "DESC"):
+                    raise MatchesException("Incorrect value for sort_by")
+                order_by_clause += " " + matches_sort_by
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions) + " " + order_by_clause
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
         else:
             return []
 
