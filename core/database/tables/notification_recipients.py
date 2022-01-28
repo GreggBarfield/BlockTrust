@@ -32,8 +32,7 @@ class NotificationRecipients:
         self._db.execute_many(
             """
                 INSERT INTO notification_recipients (notification_id, user_id) 
-                VALUES
-                (%s, %s)
+                VALUES (%s, %s)
             """,
             notification_recipients
         )
