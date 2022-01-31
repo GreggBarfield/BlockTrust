@@ -297,7 +297,8 @@ def serve_sustainability():
     return dashboard_render("sustainability/summary.html", 
     { 
         "sector": sectors_by_id[g.account.sector_id()],
-        "sectorID": g.account.sector_id()
+        "sectorID": g.account.sector_id(),
+        "accountName": g.account.name()
     })
 
 
