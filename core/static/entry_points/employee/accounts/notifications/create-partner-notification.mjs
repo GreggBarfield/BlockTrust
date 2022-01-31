@@ -17,7 +17,7 @@ let form = new AsyncForm({
     loadingMessage: "Hang on...",
     getData: () => {
         return {
-            message_subject: messageSubject.val(),
+            subject: messageSubject.val(),
             message: message.val(),
             partner: partner.val()
         }

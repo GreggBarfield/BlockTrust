@@ -12,6 +12,7 @@ from ..database.tables.employees import EmployeesException
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
+from ..database.tables.notifications import notification_type_by_name, notification_type_by_id
 
 from ..common_exceptions import ExportException
 
@@ -271,7 +272,10 @@ def serve_create_new_partner_action():
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
 def serve_notifications():
     notifications = Notifications(g.db).get_notifications()
-    return employee_render("/employee/accounts/notifications/notifications.html", {"notifications": notifications})
+    return employee_render("/employee/accounts/notifications/notifications.html", {
+        "notifications": notifications,
+        "notification_type_by_id": notification_type_by_id
+        })
 
 
 @bp.route("/employee/dashboard/create-new-notification", methods=["GET"])
@@ -287,8 +291,9 @@ def serve_create_global_notification():
 @bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
 def serve_create_global_notification_action():
     notification = Notifications(g.db).insert_notification(
-        message_subject=request.form["message_subject"],
-        message=request.form["message"]
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Global"]
     )
     NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification.id())
     return {"redirect": "/employee/dashboard/notifications"}
@@ -303,8 +308,9 @@ def serve_create_partner_notification():
 @bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
 def serve_create_partner_notification_action():
     notification = Notifications(g.db).insert_notification(
-        message_subject=request.form["message_subject"],
-        message=request.form["message"]
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Partner"]
     )
     NotificationRecipients(g.db).insert_partner_notification_recipients(
         notification_id=notification.id(),
@@ -321,8 +327,9 @@ def serve_create_sector_notification():
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
 def serve_create_sector_notification_action():
     notification = Notifications(g.db).insert_notification(
-        message_subject=request.form["message_subject"],
-        message=request.form["message"]
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Sector"]
     )
     NotificationRecipients(g.db).insert_sector_notification_recipients(
         notification_id=notification.id(),
@@ -334,5 +341,4 @@ def serve_create_sector_notification_action():
 @bp.route("/employee/dashboard/archive-notification", methods=["POST"])
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
-    NotificationRecipients(g.db).remove_notification_recipients(notification_id=int(request.json["notification_id"]))
     return {}

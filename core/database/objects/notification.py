@@ -17,8 +17,8 @@ class Notification:
     def id(self):
         return self._row['id']
 
-    def message_subject(self):
-        return self._row['message_subject']
+    def subject(self):
+        return self._row['subject']
 
     def message(self):
         return self._row['message']

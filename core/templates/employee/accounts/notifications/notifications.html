@@ -24,6 +24,7 @@
                             <th>Notification ID</th>
                             <th>Notification Subject</th>
                             <th>Notification Message</th>
+                            <th>Notification Type</th>
                             <th>Created Date</th>
                             <th></th>
                         </tr>
@@ -33,8 +34,9 @@
                         {% if notification.is_archived == 0 %}
                         <tr>
                             <td>{{notification.id}}</td>
-                            <td>{{notification.message_subject}}</td>
+                            <td>{{notification.subject}}</td>
                             <td>{{notification.message}}</td>
+                            <td>{{notification_type_by_id[notification.notification_type]}}</td>
                             <td>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                             <td><button class ="btn btn-danger" id="archive" value="{{notification.id}}" onClick="archive(this)">Archive</button></td>
                         </tr>
@@ -55,6 +57,7 @@
                             <th>Notification ID</th>
                             <th>Notification Subject</th>
                             <th>Notification Message</th>
+                            <th>Notification Type</th>
                             <th>Created Date</th>
                         </tr>
                     </thead>
@@ -63,8 +66,9 @@
                         {% if notification.is_archived == 1 %}
                         <tr>
                             <td>{{notification.id}}</td>
-                            <td>{{notification.message_subject}}</td>
+                            <td>{{notification.subject}}</td>
                             <td>{{notification.message}}</td>
+                            <td>{{notification_type_by_id[notification.notification_type]}}</td>
                             <th>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</th>
                         </tr>
                         {% endif %}

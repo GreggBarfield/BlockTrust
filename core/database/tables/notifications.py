@@ -6,6 +6,16 @@ from .accounts import Accounts
 
 NO_VALUE = NoValue()
 
+notification_type_by_name = {
+    "Global": 0,
+    "Sector": 1,
+    "Partner": 2
+}
+notification_type_by_id = {
+    value: key
+    for key, value in notification_type_by_name.items()
+}
+
 
 class Notifications:
 
@@ -57,34 +67,37 @@ class Notifications:
         )
         return notifications
 
-    def insert_notification(self, message_subject, message):
+    def insert_notification(self, subject, message, notification_type):
         """
         Inserts a new notification
 
         Params:
-            message_subject: The subject for the message
+            subject: The subject for the message
             message: Message text
+            notification_type: Notification type
         """
         self._db.execute(
             """
-            INSERT INTO notifications (message_subject, message, is_archived)
-            VALUES (%(message_subject)s, %(message)s, %(is_archived)s)
+            INSERT INTO notifications (subject, message, is_archived, notification_type)
+            VALUES (%(subject)s, %(message)s, %(is_archived)s, %(notification_type)s)
             """,
             {
-                "message_subject": message_subject,
+                "subject": subject,
                 "message": message,
-                "is_archived": 0
+                "is_archived": 0,
+                "notification_type": notification_type
             }
         )
         notification = self.get_notification_by_id(self._db.last_row_id())
         return notification
 
-    def get_notifications(self, message_subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE):
+    def get_notifications(self, subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE,
+                          notfication_type=NO_VALUE):
         """
         Gets the notifications based on the provided parameters
 
         Params:
-            message_subject: The subject for the message
+            subject: The subject for the message
             message: Message text
             is_archived: Message archive status. (0-Not archived, 1-Archived)
 
@@ -96,15 +109,18 @@ class Notifications:
         query_conditions = []
         query_values = {}
 
-        if message_subject is not NO_VALUE:
-            query_conditions.append(" message_subject = %(message_subject)s")
-            query_values["message_subject"] = message_subject
+        if subject is not NO_VALUE:
+            query_conditions.append(" subject = %(subject)s")
+            query_values["subject"] = subject
         if message is not NO_VALUE:
             query_conditions.append(" message = %(message)s")
             query_values["message"] = message
         if is_archived is not NO_VALUE:
             query_conditions.append(" is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
+        if notfication_type is not NO_VALUE:
+            query_conditions.append(" notfication_type = %(notfication_type)s")
+            query_values["notfication_type"] = notfication_type
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
         else:
@@ -118,13 +134,13 @@ class Notifications:
         else:
             return []
 
-    def update_notification(self, id, message_subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE):
+    def update_notification(self, id, subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE):
         """
         Updates the message based on the id specified
 
         Params:
             id: The ID of the system message to be updated
-            message_subject: The subject for the message
+            subject: The subject for the message
             message: Message text
             is_archived: Message archive status. (0-Not archived, 1-Archived)
         """
@@ -133,9 +149,9 @@ class Notifications:
         query_updated_columns = []
         query_updated_values = {}
         query_updated_values["id"] = id
-        if message_subject is not NO_VALUE:
-            query_updated_columns.append(" message_subject = %(message_subject)s")
-            query_updated_values["message_subject"] = message_subject
+        if subject is not NO_VALUE:
+            query_updated_columns.append(" subject = %(subject)s")
+            query_updated_values["subject"] = subject
         if message is not NO_VALUE:
             query_updated_columns.append(" message = %(message)s")
             query_updated_values["message"] = message

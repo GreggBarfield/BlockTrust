@@ -1066,3 +1066,8 @@ SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot T
 UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
 
 
+/* Nisheet Thakur 01/31/2022 */ 
+ALTER TABLE `notifications`
+ADD COLUMN `notification_type` INT DEFAULT 0;
+ALTER TABLE `notifications`
+RENAME COLUMN `message_subject` TO `subject`;
