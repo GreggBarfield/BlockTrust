@@ -158,7 +158,7 @@ export class AbstractBaseQuestionaireWidget extends Widget {
             
             if (allAnswered) {
                 this.internalErrorMessage.style.display = "none";
-                this.parseData();
+                this.calculateScores();
                 this.asyncForm.submit();
             }
             else{
@@ -169,22 +169,22 @@ export class AbstractBaseQuestionaireWidget extends Widget {
         });
     }
 
-    parseData() {
+    calculateScores() {
         let dataCounter = {};
 
-        for(const section_type in this.submitResponse){
-            dataCounter[section_type] = {
+        for(const sectionType in this.submitResponse){
+            dataCounter[sectionType] = {
                 "excellent": 0, 
                 "acceptable": 0,
                 "needsWork": 0
             }
-            for(const response of this.submitResponse[section_type]){
+            for(const response of this.submitResponse[sectionType]){
                 if (response.includes('a')) {
-                    dataCounter[section_type].excellent += 1;
+                    dataCounter[sectionType].excellent += 1;
                 } else if (response.includes('b')) {
-                    dataCounter[section_type].acceptable += 1;
+                    dataCounter[sectionType].acceptable += 1;
                 } else if (response.includes('c')) {
-                    dataCounter[section_type].needsWork += 1;
+                    dataCounter[sectionType].needsWork += 1;
                 }
             }
         }

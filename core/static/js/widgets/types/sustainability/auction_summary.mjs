@@ -7,7 +7,6 @@ export class AuctionSummaryWidget extends AbstractBaseSummaryWidget {
 
     initType() {
         this.frame.innerHTML = "";
-        this.makeNewSurveyBtn();
     }
 
     // This is overriding the Base Class method

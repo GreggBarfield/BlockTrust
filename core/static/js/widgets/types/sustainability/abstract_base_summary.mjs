@@ -29,16 +29,16 @@ export class AbstractBaseSummaryWidget extends Widget {
                 let sections = getSustainabilitySections();
                 sections["total"] = "Total";
 
-                for(const key in sections) {
-                    this.dataCounter[key] = {
+                for(const section in sections) {
+                    this.dataCounter[section] = {
                         "excellent": 0,
                         "acceptable": 0,
                         "needsWork": 0
                     }
 
-                    this.dataCounter[key].excellent = JSON.parse(this.responseData[key + "_excellent_score"]);
-                    this.dataCounter[key].acceptable = JSON.parse(this.responseData[key + "_acceptable_score"]);
-                    this.dataCounter[key].needsWork = JSON.parse(this.responseData[key + "_needsWork_score"]);
+                    this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score"]);
+                    this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score"]);
+                    this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score"]);
                 }
             }
         });
@@ -58,8 +58,8 @@ export class AbstractBaseSummaryWidget extends Widget {
             }
         ).then((data) => {
             let sectorData = data.result;
-            this.dataCounter['this_sector'] = sectorData[sector]; 
-            this.dataCounter['all_sectors'] = sectorData['allSectors'];
+            this.dataCounter['thisSector'] = sectorData[sector]; 
+            this.dataCounter['allSectors'] = sectorData['allSectors'];
 
             this.createCharts();
         });
@@ -154,13 +154,13 @@ export class AbstractBaseSummaryWidget extends Widget {
         susGraph.id = "sector";
         susGraph.className = "tab-pane fade show active";
         susTabContent.append(susGraph);
-        this.makeGraph(susGraph, "this_sector");
+        this.makeGraph(susGraph, "thisSector");
 
         let supplyChainGraph = document.createElement("div");
         supplyChainGraph.id = "supply-chain";
         supplyChainGraph.className = "tab-pane fade";
         susTabContent.append(supplyChainGraph);
-        this.makeGraph(supplyChainGraph, "all_sectors");
+        this.makeGraph(supplyChainGraph, "allSectors");
     }
 
     makeOtherPieGraphs(sections) {
@@ -278,13 +278,11 @@ export class AbstractBaseSummaryWidget extends Widget {
         }
     }
 
-    makeGraph(container, dataType) {
-        if (this.dataCounter == null 
-            || this.dataCounter == {} 
-            || this.dataCounter[dataType] == null) {
+    makeGraph(container, section) {
+        if (this.dataCounter == {}) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.dataCounter[dataType].length == 0) {
+        else if (this.dataCounter[section].length == 0) {
             container.textContent = "(no data)";
         }
         else {
@@ -293,7 +291,7 @@ export class AbstractBaseSummaryWidget extends Widget {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.PieChart);
 
-                chart.data = self.getGraphablePieData(dataType);
+                chart.data = self.getGraphablePieData(section);
                 
                 chart.innerRadius = am4core.percent(30);
                 

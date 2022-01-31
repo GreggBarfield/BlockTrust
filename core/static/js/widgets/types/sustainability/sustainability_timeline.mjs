@@ -147,17 +147,16 @@ export class SustainabilityTimelineWidget extends Widget {
                 sections["total"] = "Total for all Sections";
 
                 for(const key in sections) {
-                    if (this.matches[match][key + "_excellent_score"] != null) {
+                    if (this.matches[match][key + "_first_score"] != null) {
                         this.responseData[match][key] = {
                             "excellent": 0,
                             "acceptable": 0,
                             "needsWork": 0
                         }
-                        this.responseData[match][key].excellent = JSON.parse(this.matches[match][key + "_excellent_score"]);
-                        this.responseData[match][key].acceptable = JSON.parse(this.matches[match][key + "_acceptable_score"]);
-                        this.responseData[match][key].needsWork = JSON.parse(this.matches[match][key + "_needsWork_score"]);
+                        this.responseData[match][key].excellent = JSON.parse(this.matches[match][key + "_first_score"]);
+                        this.responseData[match][key].acceptable = JSON.parse(this.matches[match][key + "_second_score"]);
+                        this.responseData[match][key].needsWork = JSON.parse(this.matches[match][key + "_third_score"]);
                     }
-
                 }
             }
         }
@@ -188,7 +187,7 @@ export class SustainabilityTimelineWidget extends Widget {
     makeGraph(container, id, type) {
         if (this.responseData[id] == null
             || this.responseData[id][type] == null
-            || Object.keys(this.responseData[id]) == 0) {
+            || Object.keys(this.responseData[id]).length == 0) {
             container.textContent = "Data is not available yet.";
         }
         else if (this.responseData[id][type].excellent == 0

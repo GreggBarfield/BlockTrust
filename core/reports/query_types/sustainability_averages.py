@@ -23,16 +23,16 @@ def execute(db, query):
             "needsWork": 0
         }
 
-        if data["total_excellent_score"] != None:
+        if data["total_first_score"] != None:
             sectorTotals = {
-                "excellent": int(data["total_excellent_score"]), 
-                "acceptable": int(data["total_acceptable_score"]),
-                "needsWork": int(data["total_needsWork_score"])
+                "excellent": int(data["total_first_score"]),
+                "acceptable": int(data["total_second_score"]),
+                "needsWork": int(data["total_third_score"])
             }
 
-            allSectorTotals["excellent"] += int(data["total_excellent_score"])
-            allSectorTotals["acceptable"] += int(data["total_acceptable_score"])
-            allSectorTotals["needsWork"] += int(data["total_needsWork_score"])
+            allSectorTotals["excellent"] += int(data["total_first_score"])
+            allSectorTotals["acceptable"] += int(data["total_second_score"])
+            allSectorTotals["needsWork"] += int(data["total_third_score"])
 
         results[sectorID] = sectorTotals
 

@@ -10,91 +10,94 @@ class Sustainability:
 
     def insert(self, account, response, sectorScoreCounterJSON):
         sectorScoreCounter = json.loads(sectorScoreCounterJSON)
+        # First Score = Excellent
+        # Second Score = Acceptable
+        # Third Score = Needs Work
 
-        air_excellent_score = None
-        air_acceptable_score = None
-        air_needsWork_score = None
-        land_excellent_score = None
-        land_acceptable_score = None
-        land_needsWork_score = None
-        water_excellent_score = None
-        water_acceptable_score = None
-        water_needsWork_score = None
-        animal_excellent_score = None
-        animal_acceptable_score = None
-        animal_needsWork_score = None
-        safety_excellent_score = None
-        safety_acceptable_score = None
-        safety_needsWork_score = None
-        efficiency_excellent_score = None
-        efficiency_acceptable_score = None
-        efficiency_needsWork_score = None
+        air_first_score = None
+        air_second_score = None
+        air_third_score = None
+        land_first_score = None
+        land_second_score = None
+        land_third_score = None
+        water_first_score = None
+        water_second_score = None
+        water_third_score = None
+        animal_first_score = None
+        animal_second_score = None
+        animal_third_score = None
+        safety_first_score = None
+        safety_second_score = None
+        safety_third_score = None
+        efficiency_first_score = None
+        efficiency_second_score = None
+        efficiency_third_score = None
 
         for section in sectorScoreCounter:
             if section == 'air':
-                air_excellent_score = sectorScoreCounter[section]["excellent"]
-                air_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                air_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                air_first_score = sectorScoreCounter[section]["excellent"]
+                air_second_score = sectorScoreCounter[section]["acceptable"]
+                air_third_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'land':
-                land_excellent_score = sectorScoreCounter[section]["excellent"]
-                land_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                land_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                land_first_score = sectorScoreCounter[section]["excellent"]
+                land_second_score = sectorScoreCounter[section]["acceptable"]
+                land_third_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'water':
-                water_excellent_score = sectorScoreCounter[section]["excellent"]
-                water_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                water_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                water_first_score = sectorScoreCounter[section]["excellent"]
+                water_second_score = sectorScoreCounter[section]["acceptable"]
+                water_third_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'animal':
-                animal_excellent_score = sectorScoreCounter[section]["excellent"]
-                animal_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                animal_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                animal_first_score = sectorScoreCounter[section]["excellent"]
+                animal_second_score = sectorScoreCounter[section]["acceptable"]
+                animal_third_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'safety':
-                safety_excellent_score = sectorScoreCounter[section]["excellent"]
-                safety_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                safety_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                safety_first_score = sectorScoreCounter[section]["excellent"]
+                safety_second_score = sectorScoreCounter[section]["acceptable"]
+                safety_third_score = sectorScoreCounter[section]["needsWork"]
             elif section == 'efficiency':
-                efficiency_excellent_score = sectorScoreCounter[section]["excellent"]
-                efficiency_acceptable_score = sectorScoreCounter[section]["acceptable"]
-                efficiency_needsWork_score = sectorScoreCounter[section]["needsWork"]
+                efficiency_first_score = sectorScoreCounter[section]["excellent"]
+                efficiency_second_score = sectorScoreCounter[section]["acceptable"]
+                efficiency_third_score = sectorScoreCounter[section]["needsWork"]
 
         self._db.execute(
             """INSERT INTO sustainability
-                (account, air_excellent_score, air_acceptable_score, air_needsWork_score, 
-                land_excellent_score, land_acceptable_score, land_needsWork_score, 
-                water_excellent_score, water_acceptable_score, water_needsWork_score, 
-                animal_excellent_score, animal_acceptable_score, animal_needsWork_score, 
-                safety_excellent_score, safety_acceptable_score, safety_needsWork_score, 
-                efficiency_excellent_score, efficiency_acceptable_score, 
-                efficiency_needsWork_score, response)
-                VALUES (%(account)s, %(air_excellent_score)s, %(air_acceptable_score)s, 
-                        %(air_needsWork_score)s, %(land_excellent_score)s, %(land_acceptable_score)s,
-                        %(land_needsWork_score)s, %(water_excellent_score)s, 
-                        %(water_acceptable_score)s, %(water_needsWork_score)s,
-                        %(animal_excellent_score)s, %(animal_acceptable_score)s,
-                        %(animal_needsWork_score)s, %(safety_excellent_score)s,
-                        %(safety_acceptable_score)s, %(safety_needsWork_score)s,
-                        %(efficiency_excellent_score)s, %(efficiency_acceptable_score)s,
-                        %(efficiency_needsWork_score)s, %(response)s)
+                (account, air_first_score, air_second_score, air_third_score, 
+                land_first_score, land_second_score, land_third_score, 
+                water_first_score, water_second_score, water_third_score, 
+                animal_first_score, animal_second_score, animal_third_score, 
+                safety_first_score, safety_second_score, safety_third_score, 
+                efficiency_first_score, efficiency_second_score, 
+                efficiency_third_score, response)
+                VALUES (%(account)s, %(air_first_score)s, %(air_second_score)s, 
+                        %(air_third_score)s, %(land_first_score)s, %(land_second_score)s,
+                        %(land_third_score)s, %(water_first_score)s, 
+                        %(water_second_score)s, %(water_third_score)s,
+                        %(animal_first_score)s, %(animal_second_score)s,
+                        %(animal_third_score)s, %(safety_first_score)s,
+                        %(safety_second_score)s, %(safety_third_score)s,
+                        %(efficiency_first_score)s, %(efficiency_second_score)s,
+                        %(efficiency_third_score)s, %(response)s)
             """,
             {
                 "account": account,
-                "air_excellent_score": air_excellent_score,
-                "air_needsWork_score": air_needsWork_score,
-                "air_acceptable_score": air_acceptable_score,
-                "land_excellent_score": land_excellent_score,
-                "land_needsWork_score": land_needsWork_score,
-                "land_acceptable_score": land_acceptable_score,
-                "water_excellent_score": water_excellent_score,
-                "water_needsWork_score": water_needsWork_score,
-                "water_acceptable_score": water_acceptable_score,
-                "animal_excellent_score": animal_excellent_score,
-                "animal_needsWork_score": animal_needsWork_score,
-                "animal_acceptable_score": animal_acceptable_score,
-                "safety_excellent_score": safety_excellent_score,
-                "safety_needsWork_score": safety_needsWork_score,
-                "safety_acceptable_score": safety_acceptable_score,
-                "efficiency_excellent_score": efficiency_excellent_score,
-                "efficiency_needsWork_score": efficiency_needsWork_score,
-                "efficiency_acceptable_score": efficiency_acceptable_score,
+                "air_first_score": air_first_score,
+                "air_third_score": air_third_score,
+                "air_second_score": air_second_score,
+                "land_first_score": land_first_score,
+                "land_third_score": land_third_score,
+                "land_second_score": land_second_score,
+                "water_first_score": water_first_score,
+                "water_third_score": water_third_score,
+                "water_second_score": water_second_score,
+                "animal_first_score": animal_first_score,
+                "animal_third_score": animal_third_score,
+                "animal_second_score": animal_second_score,
+                "safety_first_score": safety_first_score,
+                "safety_third_score": safety_third_score,
+                "safety_second_score": safety_second_score,
+                "efficiency_first_score": efficiency_first_score,
+                "efficiency_third_score": efficiency_third_score,
+                "efficiency_second_score": efficiency_second_score,
                 "response": json.dumps(response),
             }
         )
@@ -103,15 +106,15 @@ class Sustainability:
         if withAccountDetails:
             data = self._db.execute_d(
                 """SELECT a.id, a.name, a.sector, s.*,
-                (air_excellent_score + land_excellent_score + water_excellent_score 
-                + animal_excellent_score + safety_excellent_score 
-                + efficiency_excellent_score) as "total_excellent_score",
-                (air_acceptable_score + land_acceptable_score + water_acceptable_score 
-                + animal_acceptable_score + safety_acceptable_score 
-                + efficiency_acceptable_score) as "total_acceptable_score",
-                (air_needsWork_score + land_needsWork_score + water_needsWork_score 
-                + animal_needsWork_score + safety_needsWork_score 
-                + efficiency_needsWork_score) as "total_needsWork_score"
+                (air_first_score + land_first_score + water_first_score 
+                + animal_first_score + safety_first_score 
+                + efficiency_first_score) as "total_first_score",
+                (air_second_score + land_second_score + water_second_score 
+                + animal_second_score + safety_second_score 
+                + efficiency_second_score) as "total_second_score",
+                (air_third_score + land_third_score + water_third_score 
+                + animal_third_score + safety_third_score 
+                + efficiency_third_score) as "total_third_score"
                 FROM sustainability AS s
                 INNER JOIN accounts AS a ON s.account=a.id
                 WHERE account=%(account)s
@@ -125,15 +128,15 @@ class Sustainability:
         else:
             data = self._db.execute_d(
                 """SELECT *, 
-                (air_excellent_score + land_excellent_score + water_excellent_score 
-                + animal_excellent_score + safety_excellent_score 
-                + efficiency_excellent_score) as "total_excellent_score",
-                (air_acceptable_score + land_acceptable_score + water_acceptable_score 
-                + animal_acceptable_score + safety_acceptable_score 
-                + efficiency_acceptable_score) as "total_acceptable_score",
-                (air_needsWork_score + land_needsWork_score + water_needsWork_score 
-                + animal_needsWork_score + safety_needsWork_score 
-                + efficiency_needsWork_score) as "total_needsWork_score"
+                (air_first_score + land_first_score + water_first_score 
+                + animal_first_score + safety_first_score 
+                + efficiency_first_score) as "total_first_score",
+                (air_second_score + land_second_score + water_second_score 
+                + animal_second_score + safety_second_score 
+                + efficiency_second_score) as "total_second_score",
+                (air_third_score + land_third_score + water_third_score 
+                + animal_third_score + safety_third_score 
+                + efficiency_third_score) as "total_third_score"
                 FROM sustainability 
                 WHERE account=%(account)s 
                 ORDER BY created_timestamp DESC
@@ -147,19 +150,16 @@ class Sustainability:
     def get_sustainability_totals_by_sector(self, sectorID):
         data = self._db.execute_d(
             """SELECT 
-               SUM(air_excellent_score + land_excellent_score + water_excellent_score 
-               + animal_excellent_score + safety_excellent_score + efficiency_excellent_score) AS "total_excellent_score",
-               SUM(air_acceptable_score + land_acceptable_score + water_acceptable_score 
-               + animal_acceptable_score + safety_acceptable_score + efficiency_acceptable_score) AS "total_acceptable_score",
-               SUM(air_needsWork_score + land_needsWork_score + water_needsWork_score 
-               + animal_needsWork_score + safety_needsWork_score + efficiency_needsWork_score) AS "total_needsWork_score"
+               SUM(air_first_score + land_first_score + water_first_score 
+               + animal_first_score + safety_first_score + efficiency_first_score) AS "total_first_score",
+               SUM(air_second_score + land_second_score + water_second_score 
+               + animal_second_score + safety_second_score + efficiency_second_score) AS "total_second_score",
+               SUM(air_third_score + land_third_score + water_third_score 
+               + animal_third_score + safety_third_score + efficiency_third_score) AS "total_third_score"
                FROM sustainability AS s
                INNER JOIN accounts AS a ON s.account=a.id
-               WHERE s.created_timestamp = ANY (
-                   SELECT MAX(created_timestamp) AS most_recent FROM sustainability
-                   GROUP BY account
-               )
-               AND a.sector = %(sector)s;
+               WHERE a.sector = %(sector)s
+               ORDER BY s.created_timestamp DESC LIMIT 1;
             """,
             {
                 "sector": sectorID,

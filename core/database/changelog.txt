@@ -1032,24 +1032,24 @@ ALTER TABLE `products` DROP COLUMN `post`;
 
 /* Conner Charles 1/21/2022 */
 ALTER TABLE `sustainability`
-ADD COLUMN `air_excellent_score` INT NULL DEFAULT NULL AFTER `account`,
-ADD COLUMN `air_acceptable_score` INT NULL DEFAULT NULL AFTER `air_excellent_score`,
-ADD COLUMN `air_needsWork_score` INT NULL DEFAULT NULL AFTER `air_acceptable_score`,
-ADD COLUMN `land_excellent_score` INT NULL DEFAULT NULL AFTER `air_needsWork_score`,
-ADD COLUMN `land_acceptable_score` INT NULL DEFAULT NULL AFTER `land_excellent_score`,
-ADD COLUMN `land_needsWork_score` INT NULL DEFAULT NULL AFTER `land_acceptable_score`,
-ADD COLUMN `water_excellent_score` INT NULL DEFAULT NULL AFTER `land_needsWork_score`,
-ADD COLUMN `water_acceptable_score` INT NULL DEFAULT NULL AFTER `water_excellent_score`,
-ADD COLUMN `water_needsWork_score` INT NULL DEFAULT NULL AFTER `water_acceptable_score`,
-ADD COLUMN `animal_excellent_score` INT NULL DEFAULT NULL AFTER `water_needsWork_score`,
-ADD COLUMN `animal_acceptable_score` INT NULL DEFAULT NULL AFTER `animal_excellent_score`,
-ADD COLUMN `animal_needsWork_score` INT NULL DEFAULT NULL AFTER `animal_acceptable_score`,
-ADD COLUMN `safety_excellent_score` INT NULL DEFAULT NULL AFTER `animal_needsWork_score`,
-ADD COLUMN `safety_acceptable_score` INT NULL DEFAULT NULL AFTER `safety_excellent_score`,
-ADD COLUMN `safety_needsWork_score` INT NULL DEFAULT NULL AFTER `safety_acceptable_score`,
-ADD COLUMN `efficiency_excellent_score` INT NULL DEFAULT NULL AFTER `safety_needsWork_score`,
-ADD COLUMN `efficiency_acceptable_score` INT NULL DEFAULT NULL AFTER `efficiency_excellent_score`,
-ADD COLUMN `efficiency_needsWork_score` INT NULL DEFAULT NULL AFTER `efficiency_acceptable_score`;
+ADD COLUMN `air_first_score` INT NULL DEFAULT 0 AFTER `account`,
+ADD COLUMN `air_second_score` INT NULL DEFAULT 0 AFTER `air_first_score`,
+ADD COLUMN `air_third_score` INT NULL DEFAULT 0 AFTER `air_second_score`,
+ADD COLUMN `land_first_score` INT NULL DEFAULT 0 AFTER `air_third_score`,
+ADD COLUMN `land_second_score` INT NULL DEFAULT 0 AFTER `land_first_score`,
+ADD COLUMN `land_third_score` INT NULL DEFAULT 0 AFTER `land_second_score`,
+ADD COLUMN `water_first_score` INT NULL DEFAULT 0 AFTER `land_third_score`,
+ADD COLUMN `water_second_score` INT NULL DEFAULT 0 AFTER `water_first_score`,
+ADD COLUMN `water_third_score` INT NULL DEFAULT 0 AFTER `water_second_score`,
+ADD COLUMN `animal_first_score` INT NULL DEFAULT 0 AFTER `water_third_score`,
+ADD COLUMN `animal_second_score` INT NULL DEFAULT 0 AFTER `animal_first_score`,
+ADD COLUMN `animal_third_score` INT NULL DEFAULT 0 AFTER `animal_second_score`,
+ADD COLUMN `safety_first_score` INT NULL DEFAULT 0 AFTER `animal_third_score`,
+ADD COLUMN `safety_second_score` INT NULL DEFAULT 0 AFTER `safety_first_score`,
+ADD COLUMN `safety_third_score` INT NULL DEFAULT 0 AFTER `safety_second_score`,
+ADD COLUMN `efficiency_first_score` INT NULL DEFAULT 0 AFTER `safety_third_score`,
+ADD COLUMN `efficiency_second_score` INT NULL DEFAULT 0 AFTER `efficiency_first_score`,
+ADD COLUMN `efficiency_third_score` INT NULL DEFAULT 0 AFTER `efficiency_second_score`;
 
 /* Nisheet Thakur 01/26/2022 */
 CREATE TABLE `product_vendors`(
