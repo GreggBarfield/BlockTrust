@@ -3,7 +3,7 @@ const MAX_COL_WIDTH = 15;
 const Y_SPACING_VAL = 8;
 
 
-export let PrintFlyerButton = (salesData) => {
+export let CreatePrintFlyerButton = (salesData) => {
     let data = salesData;
     let ySpacer = Y_SPACING_VAL;
     let button = null;
