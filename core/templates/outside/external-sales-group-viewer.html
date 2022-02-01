@@ -227,8 +227,34 @@
     </div>
 </section>
 <script type="text/javascript">
-    var start = '{{ sales_group["start"] }}'
-    var end = '{{ sales_group["end"] }}'
+    let start = '{{ sales_group["start"] }}'
+    let end = '{{ sales_group["end"] }}'
+    let startDate=document.getElementById("start_date");
+    let daysRemaining = document.getElementById("days_remaining");
+    let numberDaysRemaining = "--";
+
+    if (start !== null){
+        // Converting Unix timestamp to JS date timestamp
+        // Unix timestamp is in unit of second and JS Date timestamp is in unit of millisecond 
+        let date = new Date(start * 1000);
+        startDate.textContent = date.toDateString();
+    }
+    else{
+        startDate.textContent = "N/A"
+    }
+    if (end !== null) {
+        let currentEpoch = Date.now() / 1000;
+        numberDaysRemaining = Math.floor((end - currentEpoch) / (60 * 60 * 24));
+        if(numberDaysRemaining > 0){
+            daysRemaining.textContent = numberDaysRemaining
+        }
+        else{
+            daysRemaining.textContent = "--"
+        }
+    }
+    else{
+        daysRemaining.textContent = "--"
+    }
 </script>
 <script type="module" src="/static/entry_points/outside/external-sales-group-viewer.mjs"></script>
 {% endblock outside_content %}
