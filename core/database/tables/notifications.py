@@ -7,9 +7,9 @@ from .accounts import Accounts
 NO_VALUE = NoValue()
 
 notification_type_by_name = {
-    "Global": 0,
-    "Sector": 1,
-    "Partner": 2
+    "Global": 1,
+    "Sector": 2,
+    "Partner": 3
 }
 notification_type_by_id = {
     value: key

@@ -24,10 +24,17 @@
                     <option value="partner">Partner</option>
                 </select>
                 </div>
-                <button class="btn btn-primary" type="button" id="notification_type_button">Continue</button>
+                <button class="btn btn-primary" type="button" id="select_notification_type">Continue</button>
             </div>
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/employee/accounts/notifications/create-new-notification.mjs"></script>
+<script>
+    document.getElementById("select_notification_type").onclick = ()=>{
+        var type_selected = document.getElementById("notification_type");
+        if(type_selected.value!=""){
+            window.location.href = "/employee/dashboard/create-new-notification/"+type_selected.value;
+        }
+    }
+</script>
 {% endblock employee_content %}
