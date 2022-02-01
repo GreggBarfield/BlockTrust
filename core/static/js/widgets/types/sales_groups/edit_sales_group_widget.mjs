@@ -3,6 +3,7 @@ import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
@@ -22,6 +23,8 @@ export class EditSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;
+            this.printFlyerButton = CreatePrintFlyerButton(data);
+            this.frame.appendChild(this.printFlyerButton);
             this.makeForm();
         });
         this.onSomeDataLoaded(function () {
