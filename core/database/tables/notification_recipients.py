@@ -23,18 +23,19 @@ class NotificationRecipients:
             notifcation_id: ID of the otification in the notifications table
             users: A list of user ID which need to receive the notification
         """
+        notification_recipients = []
         for user in users:
-            self._db.execute(
-                """
-                INSERT INTO notification_recipients
-                VALUES
-                (%(notification_id)s, %(user_id)s)
-                """,
-                {
-                    "notification_id": notification_id,
-                    "user_id": user
-                }
-            )
+            notification_recipients.append((
+                notification_id,
+                user
+            ))
+        self._db.execute_many(
+            """
+                INSERT INTO notification_recipients (notification_id, user_id) 
+                VALUES (%s, %s)
+            """,
+            notification_recipients
+        )
 
     def insert_global_notification_recipients(self, notification_id):
         """
@@ -60,7 +61,7 @@ class NotificationRecipients:
         account_rows = Accounts(self._db).get_accounts(sector=sector)
         users = []
         for account_row in account_rows:
-            account_users = AccountUsers(self._db).get_account_users(account=account_row.id())
+            account_users = AccountUsers(self._db).get_account_users(account=account_row["id"])
             for account_user in account_users:
                 users.append(account_user["user"])
         self.insert_notification_recipients(notification_id=notification_id, users=users)
@@ -76,7 +77,7 @@ class NotificationRecipients:
         account_rows = Accounts(self._db).get_accounts(partner_account=partner_id)
         users = []
         for account_row in account_rows:
-            account_users = AccountUsers(self._db).get_account_users(account=account_row.id())
+            account_users = AccountUsers(self._db).get_account_users(account=account_row["id"])
             for account_user in account_users:
                 users.append(account_user["user"])
         self.insert_notification_recipients(notification_id=notification_id, users=users)
@@ -150,3 +151,20 @@ class NotificationRecipients:
             combined_query_updated_values = " SET " + ",".join(query_updated_columns) + "WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
             self._db.execute(query, query_updated_values)
+
+    def remove_notification_recipients(self, notification_id):
+        """
+        Removes all notification recipient rows for a given notification
+
+        Params:
+            notification_id: Notification ID whose recipients need to be removed
+        """
+        self._db.execute(
+            """
+            DELETE FROM notification_recipients
+            WHERE notification_id=%(notification_id)s
+            """,
+            {
+                "notification_id": notification_id
+            }
+        )
