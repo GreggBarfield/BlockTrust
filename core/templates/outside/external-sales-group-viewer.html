@@ -45,28 +45,24 @@
                         Animal Data
                     </div>
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Breed:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
-                                    {% if sales_group["reported"]["breeds"]|length == 0%}
-                                    N/A
-                                    {% else %}
-                                    {{ ",".join(sales_group["reported"]["breeds"])}}
-                                    {% endif %}
-                                </p>
+                            <dd class="col-sm-6 text-right">
+                                {% if sales_group["reported"]["breeds"]|length == 0%}
+                                N/A
+                                {% else %}
+                                {{ ",".join(sales_group["reported"]["breeds"])}}
+                                {% endif %}
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Base Weight:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
-                                    {% if sales_group["reported"]["weight"] == "None" %}
-                                    N/A
-                                    {% else %}
-                                    {{sales_group["reported"]["weight"]}}
-                                    {% endif %}
-                                </p>
+                            <dd class="col-sm-6 text-right">
+                                {% if sales_group["reported"]["weight"] == "None" %}
+                                N/A
+                                {% else %}
+                                {{sales_group["reported"]["weight"]}}
+                                {% endif %}
                             </dd>
                         </div>
                         <div class="row">
