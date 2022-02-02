@@ -283,7 +283,7 @@ const importer = new FlatfileImporter('{{license}}', {
     }
 });
 
-importer.setCustomer({userId: '{{user.id()}}' });
+importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email:'{{user.email()}}'});
 </script>
 
 {% endblock dashboard_content %}

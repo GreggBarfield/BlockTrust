@@ -157,7 +157,7 @@ const importer = new FlatfileImporter('{{license}}', {
     }
 });
 
-importer.setCustomer({userId: '{{employee.id()}}' });
+importer.setCustomer({userId: '{{employee.id()}}', name:'{{employee.first_name() + " " + employee.last_name()}}', email:'{{employee.email()}}', companyName:'Blocktrust Network' });
 </script>
 
 {% endblock employee_content %}
