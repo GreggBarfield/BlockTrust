@@ -276,7 +276,7 @@ def serve_upload_packer_data():
         data = json.loads(request.data)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(g.employee.id(), "SELF", "TagUpload", row)
+                g.db.api_inserts.insert(g.employee.id(), "EMP", "PackerDataUpload", row)
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400

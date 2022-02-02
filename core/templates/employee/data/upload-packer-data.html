@@ -46,9 +46,8 @@ Upload Packer Data
                 </p>
                 <button class="btn btn-primary" onclick="importer.requestDataFromUser().then(function(results) { 
                     // do something with the results
-                    // console.log(results);
-            
-                    importer.displaySuccess('Thanks for uploading your data!')
+    
+                    importer.displaySuccess('Thanks for uploading your data! It will take a maximum of 24 hours for it to be processed.')
                     console.log(results.$data);
                     fetch('/employee/upload-packer-data', {
                         method: 'POST',
@@ -69,10 +68,6 @@ Upload Packer Data
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
     
 <script>
-function DoPost()
-{
-
-}
 const importer = new FlatfileImporter('{{license}}', {
   type: "EID import",
   title: "EID import",
@@ -92,17 +87,18 @@ const importer = new FlatfileImporter('{{license}}', {
       {
         key: "PlantID", label: "Plant ID",
         validators: [
-
+        { validate: "required" }
       ]},
       { 
         key: "PackerCompany", label: "Packer Company",
-        validators: [
-
-      ]},
+      },
       { 
-        key: "SightedDate", label: "Sighted",
+        key: "FeederCompany", label: "Feeder Company",
+      },
+      { 
+        key: "SightedDate", label: "Sighted Date",
         validators: [
-
+        { validate: "required" }
       ]},
       { 
         key: "HotWeight", label: "Hot Weight",
@@ -115,13 +111,6 @@ const importer = new FlatfileImporter('{{license}}', {
       ]},
       { 
         key: "USDAQualityGrade", label: "USDA Quality Grade",
-        type: "select",
-        options: [
-          { value: "Prime", label: "Prime" },
-          { value: "Choice", label: "Choice" },
-          { value: "SelectOrLower", label: "Select or Lower" },
-          { value: "Select", label: "Select" }
-        ]
       },
       { 
         key: "USDAYieldGrade", label: "USDA Yield Grade",
@@ -137,8 +126,8 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
           {
             validate: 'regex_matches',
-            regex: '^\\d+(?:\\.\\d+)?(?:/\\d+(?:\\.\\d+)?)?$',
-            error: 'Only can be a number, decimal, and/or fraction.'
+            regex: '^([0-9]*[.])?[0-9]+$',
+            error: 'Only can be a number, and/or decimal.'
           }
       ]},
       { 
@@ -152,9 +141,7 @@ const importer = new FlatfileImporter('{{license}}', {
       ]},
       { 
         key: "FatThickness", label: "Fat Thickness",
-        validators: [
-
-      ]}
+      }
     ],
   theme: {
       buttons: {
