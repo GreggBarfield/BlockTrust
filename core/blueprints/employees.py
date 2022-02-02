@@ -9,7 +9,10 @@ from ..database.tables.accounts import Accounts
 from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
+from ..database.tables.notifications import Notifications
+from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
+from ..database.tables.notifications import notification_type_by_name, notification_type_by_id
 
 from ..common_exceptions import ExportException
 
@@ -280,3 +283,76 @@ def serve_upload_packer_data():
     elif request.method == 'GET':
         return employee_render("data/upload-packer-data.html",  {"employee": g.employee, "license": FLATFILE_LICENSE})
 
+@bp.route("/employee/dashboard/notifications", methods=["GET"])
+def serve_notifications():
+    notifications = Notifications(g.db).get_notifications()
+    return employee_render("/employee/accounts/notifications/notifications.html", {
+        "notifications": notifications,
+        "notification_type_by_id": notification_type_by_id
+        })
+
+
+@bp.route("/employee/dashboard/create-new-notification", methods=["GET"])
+def serve_create_new_notifcation():
+    return employee_render("/employee/accounts/notifications/create-new-notification.html")
+
+
+@bp.route("/employee/dashboard/create-new-notification/global", methods=["GET"])
+def serve_create_global_notification():
+    return employee_render("/employee/accounts/notifications/create-global-notification.html")
+
+
+@bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
+def serve_create_global_notification_action():
+    notification = Notifications(g.db).insert_notification(
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Global"]
+    )
+    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification.id())
+    return {"redirect": "/employee/dashboard/notifications"}
+
+
+@bp.route("/employee/dashboard/create-new-notification/partner", methods=["GET"])
+def serve_create_partner_notification():
+    partners = g.db.accounts.get_accounts(is_partner=1)
+    return employee_render("/employee/accounts/notifications/create-partner-notification.html", {"partners": partners})
+
+
+@bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
+def serve_create_partner_notification_action():
+    notification = Notifications(g.db).insert_notification(
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Partner"]
+    )
+    NotificationRecipients(g.db).insert_partner_notification_recipients(
+        notification_id=notification.id(),
+        partner_id=request.form["partner"]
+    )
+    return {"redirect": "/employee/dashboard/notifications"}
+
+
+@bp.route("/employee/dashboard/create-new-notification/sector", methods=["GET"])
+def serve_create_sector_notification():
+    return employee_render("/employee/accounts/notifications/create-sector-notification.html", {"sectors": sectors_by_id})
+
+
+@bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
+def serve_create_sector_notification_action():
+    notification = Notifications(g.db).insert_notification(
+        subject=request.form["subject"],
+        message=request.form["message"],
+        notification_type=notification_type_by_name["Sector"]
+    )
+    NotificationRecipients(g.db).insert_sector_notification_recipients(
+        notification_id=notification.id(),
+        sector=request.form["sector"]
+    )
+    return {"redirect": "/employee/dashboard/notifications"}
+
+
+@bp.route("/employee/dashboard/archive-notification", methods=["POST"])
+def serve_archive_notification():
+    Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
+    return {}

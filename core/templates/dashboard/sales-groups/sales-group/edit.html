@@ -9,8 +9,13 @@ Edit Sales Group {{sales_group['id']|e}} : {{sales_group['group_name']|e}}
 
 {% block dashboard_content %}
 
+<!-- jsPDF library -->
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+
 <div class="row">
-    <div class="col widget" data-widget-type="edit sales group" data-widget-sales-group="{{sales_group['id']|e}}">
+    <div class="col">
+        <div class="col-sm-12 widget" data-widget-type="edit sales group" data-widget-sales-group="{{sales_group['id']|e}}"></div>
     </div>
 </div>
 

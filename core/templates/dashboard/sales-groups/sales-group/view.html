@@ -9,8 +9,12 @@ View Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
 
 {% block dashboard_content %}
 
+<!-- jsPDF library -->
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+
 <div class="row">
-    <div class="col-md">
+    <div class="col">
         <div class="card">
             <h5 class="card-header">Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}</h5>
             <div class="card-body">
