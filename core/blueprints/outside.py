@@ -6,7 +6,6 @@ from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
-from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
