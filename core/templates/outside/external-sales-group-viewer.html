@@ -65,100 +65,84 @@
                                 {% endif %}
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Wt. Variance Frame</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["weight_variance"] == "None" %}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["weight_variance"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Horns</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["horns"] == "None" %}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["horns"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Precon Program</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["preconditioning_program"] == "None" %}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["preconditioning_program"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Implants</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["implants"]|length == 0%}
                                     N/A
                                     {% else %}
                                     {{ ",".join(sales_group["reported"]["implants"])}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Castrated</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["castrated"] == "None"%}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["castrated"]}}
                                     {% endif %}
-                                    </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Vaccinations</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["vaccinations"]|length == 0%}
                                     N/A
                                     {% else %}
                                     {{ ",".join(sales_group["reported"]["vaccinations"])}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Feeding Program</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["feeding_programs"]|length == 0%}
                                     N/A
                                     {% else %}
                                     {{ ",".join(sales_group["reported"]["feeding_programs"])}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">PVP Program</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["process_verified_program"] == "None" %}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["process_verified_program"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
                     </div>
@@ -170,42 +154,34 @@
                         Market Data
                     </div>
                     <div class="card-body">
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Total Count:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["reported"]["count"] == "None"%}
                                     N/A
                                     {% else %}
                                     {{sales_group["reported"]["count"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Delivery Location:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right">
+                            <dd class="col-sm-6 text-right">
                                     {% if sales_group["delivery_location"] == "None"%}
                                     N/A
                                     {% else %}
                                     {{sales_group["delivery_location"]}}
                                     {% endif %}
-                                </p>
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Sales Date:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right" id="start_date">
-                                </p>
+                            <dd class="col-sm-6 text-right" id="start_date">
                             </dd>
                         </div>
-                        <div class="row">
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Days Remaining:</dt>
-                            <dd class="col-sm-6">
-                                <p class="text-right" id="days_remaining">
-                                </p>
+                            <dd class="col-sm-6 text-right" id="days_remaining">
                             </dd>
                         </div>
                     
