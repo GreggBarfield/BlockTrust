@@ -1030,6 +1030,27 @@ UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
 UPDATE `products` SET `is_active`=0 WHERE `post`="N";
 ALTER TABLE `products` DROP COLUMN `post`;
 
+/* Conner Charles 1/21/2022 */
+ALTER TABLE `sustainability`
+ADD COLUMN `air_first_score` INT NULL DEFAULT 0 AFTER `account`,
+ADD COLUMN `air_second_score` INT NULL DEFAULT 0 AFTER `air_first_score`,
+ADD COLUMN `air_third_score` INT NULL DEFAULT 0 AFTER `air_second_score`,
+ADD COLUMN `land_first_score` INT NULL DEFAULT 0 AFTER `air_third_score`,
+ADD COLUMN `land_second_score` INT NULL DEFAULT 0 AFTER `land_first_score`,
+ADD COLUMN `land_third_score` INT NULL DEFAULT 0 AFTER `land_second_score`,
+ADD COLUMN `water_first_score` INT NULL DEFAULT 0 AFTER `land_third_score`,
+ADD COLUMN `water_second_score` INT NULL DEFAULT 0 AFTER `water_first_score`,
+ADD COLUMN `water_third_score` INT NULL DEFAULT 0 AFTER `water_second_score`,
+ADD COLUMN `animal_first_score` INT NULL DEFAULT 0 AFTER `water_third_score`,
+ADD COLUMN `animal_second_score` INT NULL DEFAULT 0 AFTER `animal_first_score`,
+ADD COLUMN `animal_third_score` INT NULL DEFAULT 0 AFTER `animal_second_score`,
+ADD COLUMN `safety_first_score` INT NULL DEFAULT 0 AFTER `animal_third_score`,
+ADD COLUMN `safety_second_score` INT NULL DEFAULT 0 AFTER `safety_first_score`,
+ADD COLUMN `safety_third_score` INT NULL DEFAULT 0 AFTER `safety_second_score`,
+ADD COLUMN `efficiency_first_score` INT NULL DEFAULT 0 AFTER `safety_third_score`,
+ADD COLUMN `efficiency_second_score` INT NULL DEFAULT 0 AFTER `efficiency_first_score`,
+ADD COLUMN `efficiency_third_score` INT NULL DEFAULT 0 AFTER `efficiency_second_score`;
+
 /* Nisheet Thakur 01/26/2022 */
 CREATE TABLE `product_vendors`(
   `id` INT NOT NULL AUTO_INCREMENT,
