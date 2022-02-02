@@ -6,6 +6,7 @@ from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
@@ -150,7 +151,6 @@ def serve_signup_action():
                         'confirm_url': confirm_url
                     }), required['email']
                 )
-
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)

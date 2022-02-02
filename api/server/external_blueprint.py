@@ -5,6 +5,7 @@ from core.database.database import Database
 from core.database.tables.accounts import AccountsException
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
@@ -35,6 +36,10 @@ def serve_get_animal_data():
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
         APIDataRequests(g.db).insert_api_data_request(account_id=account[0]["id"], api_route=request.path, request_data=request_data)
+        EventLogs(g.db).insert_event_log(
+            account_id=account[0]["id"],
+            event_type_id=event_type_by_name["API Data Request"]
+        )
         birth_date = None
         visual_id = None
         birth_weight = None

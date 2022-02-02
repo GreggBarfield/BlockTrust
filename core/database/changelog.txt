@@ -1092,3 +1092,16 @@ ALTER TABLE `notifications`
 ADD COLUMN `notification_type` INT NOT NULL AFTER `id`;
 ALTER TABLE `notifications`
 RENAME COLUMN `message_subject` TO `subject`;
+
+/* Nisheet Thakur 02/02/2022 */
+CREATE TABLE `event_logs`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `event_type_id` INT NULL,
+  `event_type_name` VARCHAR(100) NULL,
+  `event_details` VARCHAR(1000) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);

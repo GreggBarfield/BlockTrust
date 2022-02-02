@@ -5,6 +5,7 @@ from ..database.objects.user import User
 from ..database.tables.users import UsersException
 from ..database.objects.employee import Employee
 from ..database.tables.employees import Employees, EmployeesException
+from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
 
@@ -202,6 +203,11 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             phone=phone
         )
         ConnectionInvites(g.db).convert_invites_to_connections(email, account)
+        EventLogs(g.db).insert_event_log(
+            account_id=account.id(),
+            user_id=user.id(),
+            event_type_id=event_type_by_name["Signup"]
+        )
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
@@ -560,6 +566,11 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
             g.db.account_users.add_user_to_account(user, account)
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
+        EventLogs(g.db).insert_event_log(
+            account_id=account.id(),
+            user_id=user.id(),
+            event_type_id=event_type_by_name["Invited Signup"]
+        )
     else:
         raise Exception(email_validation["message"])
 
