@@ -66,7 +66,7 @@
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
                                     {% for p in partners %}
-                                    <option value="{{p.id()}}">{{p.company()|e}}</option>
+                                    <option value="{{p["id"]}}">{{p["name"]}}</option>
                                     {% endfor %}
                                 </select>
                                 <span class="focus-border"></span>
@@ -80,7 +80,7 @@
                                         style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
                                         data-toggle="tooltip"
                                         data-placement="right"
-                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”.   If you do not know, put ‘9999’. ">
+                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”. A partner ID is not needed if there is no partner. ">
                                     </a>
                                 </label>
                                 <input type="text" class="form-control" id="signup_form_partner_id" disabled=true>
@@ -266,8 +266,14 @@
     </div>
 </section>
 <script type="text/javascript">
-    var sector_id = '{{ default_sector_id }}'
+    var sectorId = '{{ default_sector_id }}'
+    var siteKey = '{{site_key}}'
+    var ipInfoAccessToken = '{{ipinfo_access_token}}'
+    var checkIP = '{{check_ip}}'
 </script>
+
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
+
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
 
 {% endblock outside_content %}

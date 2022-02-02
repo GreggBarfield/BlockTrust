@@ -9,7 +9,7 @@ def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert):
+def handle(db: Database, insert):
     insert["fields"] = fields = remap(insert["fields"], {
         "Symptoms": "symptoms",
         "LotNumber": "lot_no",

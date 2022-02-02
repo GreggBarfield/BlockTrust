@@ -1,4 +1,4 @@
-from ...sectors import sectors_by_id
+from ...sectors import sectors_by_id, sectors_by_name
 from ..objects.account import Account, AccountException
 from ..no_value import NoValue
 from ..frag import frag
@@ -21,17 +21,14 @@ class Accounts:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, account_id):
+    def get_account_by_id(self, account_id):
         """Gets an account by an ID.
 
         Params:
             id: the account id
         
         Returns:
-            An Account() object
-
-        Raises:
-            AccountsException on ID not found
+            An Account() object or None if Account ID is not found
         """
         # TODO: Add account_links caching option
         account_rows = self._db.execute_d(
@@ -43,7 +40,7 @@ class Accounts:
             }
         )
         if len(account_rows) != 1:
-            raise AccountsException("No account found with that ID.")
+            return None
         return Account(self._db, account_rows[0])
         
     def get_partners_by_sector_id(self, sector_id):
@@ -84,7 +81,7 @@ class Accounts:
         Raises:
             AccountsException
         """
-        return self.get_by_id(account_user.account_id())
+        return self.get_account_by_id(account_user.account_id())
     
 
     def get_by_user(self, user):
@@ -159,8 +156,8 @@ class Accounts:
         return Account(self._db, account_rows[0])
 
 
-    def create_account(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
-        """Creates a new account with the user automatically added.
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account with the user automatically added as the admin.
 
         Params:
             user: a User object (assumed to be safe)
@@ -182,31 +179,7 @@ class Accounts:
         """
 
         # Validations
-
-        account_links = self._db.account_links.get_account_links(affiliate_id=affiliate_id, partner_account=partner)
-        if len(account_links) > 0:
-            raise AccountsException("This partner id has already been taken by another account.")
-
-        try:
-            sector = int(sector)
-        except Exception as e:
-            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
-
-        if sector not in sectors_by_id:
-            raise AccountsException("Sector number is not listed internally.")
-
-        # Process phone number
-        if phone != None:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
+        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
             """INSERT INTO accounts
@@ -226,31 +199,223 @@ class Accounts:
                 "phone": phone
             }
         )
-        account = self.get_by_id(self._db.last_row_id())
+        account = self.get_account_by_id(self._db.last_row_id())
+
+        # update account name
+        name = company
+        if sector == sectors_by_name["Cow-Calf"]:
+            name = "Ranch "+ str(account.id())
+        self.update_account(account.id(), name=name)
+
         # make the first user the account admin
         account.add_user(user, 1)
+
         # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(),  account.id())
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+
         # Create reports needed for the account
-        self._db.reports.make_reports_for_account(account.id())
+        if account.sector_id() != sectors_by_name["Buyer"]:
+            self._db.reports.make_reports_for_account(account.id())
+        return account
+    
+    def validate_new_account(self, sector, partner, affiliate_id, phone):
+        """validates input to create account
+
+        Params:
+            sector: the sector number
+            partner: partner id
+            affiliate_id: account number in our partners system
+
+        Returns:
+            Processed sector and phone in that order
+
+        Raises:
+            AccountsException
+        """
+        if partner is not None:
+            if affiliate_id is None:
+                raise AccountsException("You have not entered a partner id for the selected partner")
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+
+        try:
+            sector = int(sector)
+        except Exception as e:
+            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
+
+        if sector not in sectors_by_id:
+            raise AccountsException("Sector number is not listed internally.")
+        
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        
+        return sector, phone
+
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account without a user.
+
+        Params:
+            company: the company name
+            sector: the sector number
+            partner: partner id
+            affiliate_id: account number in our partners system
+            address: company's address
+            city: company's city
+            state: company's state
+            zip: company's zip
+            phone: company's phone
+
+        Returns:
+            An Account object
+
+        Raises:
+            AccountsException
+        """
+
+        # Validations
+        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
+
+        self._db.execute(
+            """INSERT INTO accounts
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
+                VALUES
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+            """,
+            {
+                "company": company,
+                "sector": sector,
+                "partner": partner,
+                "affiliate_id": affiliate_id,
+                "address": address,
+                "city": city,
+                "state": state,
+                "zip": zip,
+                "phone": phone
+            }
+        )
+        account = self.get_account_by_id(self._db.last_row_id())
+
+        # update account name
+        name = company
+        if sector == sectors_by_name["Cow-Calf"]:
+            name = "Ranch " + str(account.id())
+        self.update_account(account.id(), name=name)
+
+        # Link the account appropriately in the database
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+
+        # Create reports needed for the account
+        if account.sector_id() != sectors_by_name["Buyer"]:
+            self._db.reports.make_reports_for_account(account.id())
         return account
 
+    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup):
+        """Creates a new partner without a user.
 
-    def update_account(self, account_id, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
-        phone = NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
+        Params:
+            company: the company name
+            sector: the sector number
+            partner_contact_name: Partner contact name
+            partner_contact_email: Partner contact email
+            address: company's address
+            city: company's city
+            state: company's state
+            zip: company's zip
+            phone: company's phone
+            is_partner_used_for_signup: Show the partner name on signup page
+
+        Returns:
+            An Account object
+
+        Raises:
+            AccountsException
+        """
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
+        self._db.execute(
+            """INSERT INTO accounts
+                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
+                VALUES
+                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
+            """,
+            {
+                "company": company,
+                "name": company,
+                "sector": sector,
+                "is_partner": 1,
+                "partner_contact_name": partner_contact_name,
+                "partner_contact_email": partner_contact_email,
+                "address": address,
+                "city": city,
+                "state": state,
+                "zip": zip,
+                "phone": phone,
+                "is_partner_used_for_signup": is_partner_used_for_signup
+            }
+        )
+        
+        partner = self.get_account_by_id(self._db.last_row_id())
+        return partner
+
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE):
         """Updates an account.
 
         Params:
             account_id: id of the account to update
             name: the account name
             company: the company name
-            sector: the sector number
+            sector_id: the sector number
+            address: Account address
+            city: Account city
+            state: Account state
+            zip: Account zip
+            phone: Phone number specified for the account
             token: token that we give the customer to use our apis
             stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
         """
+        if phone != NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
         set_frags = frag()
+        if name is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "name=:name,",
+                            name=name
+                        )
         if company is not NO_VALUE:
             set_frags = frag(
                             set_frags,
@@ -269,6 +434,12 @@ class Accounts:
                             "affiliate_id=:affiliate_id,",
                             affiliate_id=affiliate_id
                         )
+        if address is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "address=:address,",
+                            address=address
+                        )     
         if city is not NO_VALUE:
             set_frags = frag(
                             set_frags,
@@ -334,67 +505,71 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, company=None, sector=None, is_partner=None, partner_account=None,
-                            affiliate_id=None, address=None, city=None, state=None, zip=None, selectColumns=[]):
+    def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
+                        affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
+                        is_partner_used_for_signup=NO_VALUE, token=NO_VALUE):
         """
         Get an account by the values specified.
 
         Returns:
-            The account record if found else None
+            A list of account(s) record if found else []
         """
-        if len(selectColumns) > 0:
-            selectColumns = ",".join(selectColumns)
-        else:
-            selectColumns = "*"
+        # base query
+        base_query = "SELECT * FROM accounts"
 
-        #base query
-        query = "SELECT " + selectColumns + " FROM accounts"
-        
-        query_condition_list = []
+        query_conditions = []
         query_values = {}
 
-        if company is not None:
-            query_condition_list.append(" company = %(company)s")
+        if company is not NO_VALUE:
+            query_conditions.append("company = %(company)s")
             query_values["company"] = company
 
-        if sector is not None:
-            query_condition_list.append(" sector = %(sector)s")
+        if sector is not NO_VALUE:
+            query_conditions.append("sector = %(sector)s")
             query_values["sector"] = sector
 
-        if is_partner is not None:
-            query_condition_list.append(" is_partner = %(is_partner)s")
+        if is_partner is not NO_VALUE:
+            query_conditions.append("is_partner = %(is_partner)s")
             query_values["is_partner"] = is_partner
 
-        if partner_account is not None:
-            query_condition_list.append(" partner_account = %(partner_account)s")
+        if partner_account is not NO_VALUE:
+            query_conditions.append("partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
 
-        if affiliate_id is not None:
-            query_condition_list.append(" affiliate_id = %(affiliate_id)s")
+        if affiliate_id is not NO_VALUE:
+            query_conditions.append("affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
 
-        if address is not None:
-            query_condition_list.append(" address = %(address)s")
+        if address is not NO_VALUE:
+            query_conditions.append("address = %(address)s")
             query_values["address"] = address
 
-        if city is not None:
-            query_condition_list.append(" city = %(city)s")
+        if city is not NO_VALUE:
+            query_conditions.append("city = %(city)s")
             query_values["city"] = city
 
-        if state is not None:
-            query_condition_list.append(" state = %(state)s")
+        if state is not NO_VALUE:
+            query_conditions.append("state = %(state)s")
             query_values["state"] = state
 
-        if zip is not None:
-            query_condition_list.append(" zip = %(zip)s")
+        if zip is not NO_VALUE:
+            query_conditions.append("zip = %(zip)s")
             query_values["zip"] = zip
 
-        if len(query_condition_list) >= 1:
-            query_condition = " WHERE" + " AND ".join(query_condition_list)
-        else:
-            query_condition = ""
+        if is_partner_used_for_signup is not NO_VALUE:
+            query_conditions.append("is_partner_used_for_signup = %(is_partner_used_for_signup)s")
+            query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
         
-        query = query + query_condition
+        if token is not NO_VALUE:
+            query_conditions.append("token = %(token)s")
+            query_values["token"] = token
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
 
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:

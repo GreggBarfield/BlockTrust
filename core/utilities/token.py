@@ -1,5 +1,5 @@
 import itsdangerous
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import BadData, URLSafeTimedSerializer
 from ..config import EMAIL_TOKEN_SALT, EMAIL_SECRET_KEY
 from ..common_exceptions import ExportException
 
@@ -29,5 +29,7 @@ def confirmToken(token, expiration=86400):
             )
     except ExportException as e:
         return False
+    except BadData as e:
+        raise Exception(str(e))
 
     return email

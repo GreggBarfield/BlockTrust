@@ -1,6 +1,5 @@
 from flask import g
 from ....match_types import name_to_id
-from ...security.matches_visibility import apply_visibility
 
 
 def unauth(params):
@@ -33,6 +32,6 @@ def auth(params):
         "matches": g.db.matches.get_by_eids(
             params["eids"],
             restrict_types=restrict_types,
-            ljoin_account_links="ljoin_account_links"
+            ljoin_account_links=ljoin_account_links
         )
     }

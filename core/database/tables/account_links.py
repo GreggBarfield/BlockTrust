@@ -21,7 +21,7 @@ class AccountLinks:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, account_link_id):
+    def get_account_link_by_id(self, account_link_id):
         """Gets an account link by ID.
 
         Params:
@@ -42,7 +42,7 @@ class AccountLinks:
             }
         )
         if len(account_link_rows) != 1:
-            raise AccountLinkException("No account link with that ID")
+            return None
         return AccountLink(account_link_rows[0])
 
     def get_by_account_id(self, account_id):
@@ -72,7 +72,7 @@ class AccountLinks:
             company: company to search
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
             insert_sector: optional, if set to an integer it will be inserted if the row is inserted
-        
+
         Returns:
             A list of AccountLink objects (could be empty)
         """
@@ -100,7 +100,7 @@ class AccountLinks:
                         data_race_protection=False
                     )
                 raise e
-            return [self.get_by_id(self._db.last_row_id())]
+            return [self.get_account_link_by_id(self._db.last_row_id())]
         return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
     def get_by_affiliate_id(self, affiliate_id, partner_account=None, api_insert=None, sector=None, insert=False, data_race_protection=True):
@@ -136,7 +136,7 @@ class AccountLinks:
                         data_race_protection=False
                     )
                 raise e
-            return [self.get_by_id(self._db.last_row_id())]
+            return [self.get_account_link_by_id(self._db.last_row_id())]
         return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
     def insert(self, account=None, affiliate_id=None, company=None, sector=None, partner_account=None, api_insert=None):

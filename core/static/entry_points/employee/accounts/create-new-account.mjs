@@ -4,32 +4,32 @@ $(document).ready(function(){
     $('#signup_form_sector').change(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
-        $("#signup_form_partner").append('<option value=0>No Partner</option>')
+        $("#signup_form_partner").append('<option value="">No Partner</option>')
         if($(this).val()==sectors_by_name["Cow-Calf"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Cow-Calf"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
+                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_by_name["Cow-Calf"]){
+                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
                 }
             }
         }
         if($(this).val()==sectors_by_name["Auction House"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Auction House"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
+                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_by_name["Auction House"]){
+                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
                 }
             }
         }
         if($(this).val()==sectors_by_name["Feedlot"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Feedlot"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
+                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_by_name["Feedlot"]){
+                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
                 }
             }
         }
         if($(this).val()==sectors_by_name["Packer"]){
             for(let val in partners){
-                if(partners[val].company!=="" && partners[val].company!==null && partners[val].sector==sectors_by_name["Packer"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].company}</option>`);
+                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_by_name["Packer"]){
+                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
                 }
             }
         }
@@ -44,18 +44,11 @@ $(document).ready(function(){
         }
     })
 })
-
-
 let signupForm = $("#employee_signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
 let errorMessage = signupForm.find("#signup_error_message");
 
-let sector = signupForm.find('#signup_form_sector')
-let email = signupForm.find("#signup_form_email");
-let password = signupForm.find("#signup_form_password");
-let confirm_password = signupForm.find("#signup_form_confirm_password");
-let first_name = signupForm.find("#signup_form_first");
-let last_name = signupForm.find("#signup_form_last");
+let sector = signupForm.find('#signup_form_sector');
 let phone = signupForm.find("#signup_form_phone");
 let partner = signupForm.find("#signup_form_partner");
 let partner_id = signupForm.find("#signup_form_partner_id");
@@ -64,7 +57,6 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
-let personal_phone = signupForm.find("#signup_form_personal_phone")
 
 let form = new AsyncForm({
     action: "/employee/dashboard/create-new-account/action",
@@ -75,12 +67,6 @@ let form = new AsyncForm({
     loadingMessage: "Hang on, setting up the account...",
     getData: () => {
         return {
-            username: email.val(), //the email will be stored here in the backend
-            password: password.val(),
-            email: email.val(),
-            confirm_password: confirm_password.val(),
-            first_name: first_name.val(),
-            last_name: last_name.val(),
             phone: phone.val(),
             partner: partner.val(),
             affiliate_id: partner_id.val(),
@@ -89,8 +75,7 @@ let form = new AsyncForm({
             address: address.val(),
             city: city.val(),
             state: state.val(),
-            zip_code: zip_code.val(),
-            personal_phone: personal_phone.val()
+            zip_code: zip_code.val()
         }
     }
 });
