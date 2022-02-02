@@ -23,7 +23,8 @@ from ..utilities.email import send_email
 from random import randint
 from ..utilities.general_utilities import format_field, validate_email
 
-from core.config import ROOT as WEBSITE_ROOT
+from core.config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
+import json
 
 
 bp = Blueprint('employees_bp', __name__)
@@ -268,6 +269,19 @@ def serve_create_new_partner_action():
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
 
+
+@bp.route("/employee/upload-packer-data", methods=["GET", "POST"])
+def serve_upload_packer_data():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        try:
+            for row in data["eids"]:
+                g.db.api_inserts.insert(g.employee.id(), "EMP", "PackerDataUpload", row)
+            return "", 200
+        except Exception as e:
+            return {'error':{'message': str(e)}}, 400
+    elif request.method == 'GET':
+        return employee_render("data/upload-packer-data.html",  {"employee": g.employee, "license": FLATFILE_LICENSE})
 
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
 def serve_notifications():

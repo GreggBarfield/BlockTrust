@@ -177,7 +177,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -193,13 +193,14 @@ const importer = new FlatfileImporter('{{license}}', {
       ]},
       { 
         key: "Sex", label: "Sex",
-        validators: [
-        {
-          validate: 'regex_matches',
-          regex: '^(?:m|M|male|Male|f|F|female|Female)$',
-          error: 'Only can be male or female (m/f).'
-        }
-      ]},
+        type: "select",
+        options: [
+          { value: "Male", label: "Male",
+            alternates: ["m", "male", "M"] },
+          { value: "Female", label: "Female",
+            alternates: ["f", "female", "F"] },
+        ]
+      },
       { 
         key: "CalfBirthDate", label: "Calf Birth Date",
         validators: [
@@ -210,7 +211,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -258,7 +259,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -282,7 +283,7 @@ const importer = new FlatfileImporter('{{license}}', {
     }
 });
 
-importer.setCustomer({userId: '{{user.id()}}' });
+importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email:'{{user.email()}}'});
 </script>
 
 {% endblock dashboard_content %}
