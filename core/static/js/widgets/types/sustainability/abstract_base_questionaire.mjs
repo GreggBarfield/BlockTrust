@@ -126,6 +126,7 @@ export class AbstractBaseQuestionaireWidget extends Widget {
             getData: () => {
                 return {
                     response: that.submitResponse,
+                    sectorScoreCounter: that.dataCounter
                 };
             },
         });
@@ -157,6 +158,7 @@ export class AbstractBaseQuestionaireWidget extends Widget {
             
             if (allAnswered) {
                 this.internalErrorMessage.style.display = "none";
+                this.calculateScores();
                 this.asyncForm.submit();
             }
             else{
@@ -165,5 +167,28 @@ export class AbstractBaseQuestionaireWidget extends Widget {
                     "Please complete the questionnaire";
             }
         });
+    }
+
+    calculateScores() {
+        let dataCounter = {};
+
+        for(const sectionType in this.submitResponse){
+            dataCounter[sectionType] = {
+                "excellent": 0, 
+                "acceptable": 0,
+                "needsWork": 0
+            }
+            for(const response of this.submitResponse[sectionType]){
+                if (response.includes('a')) {
+                    dataCounter[sectionType].excellent += 1;
+                } else if (response.includes('b')) {
+                    dataCounter[sectionType].acceptable += 1;
+                } else if (response.includes('c')) {
+                    dataCounter[sectionType].needsWork += 1;
+                }
+            }
+        }
+
+        this.dataCounter = JSON.stringify(dataCounter);
     }
 }
