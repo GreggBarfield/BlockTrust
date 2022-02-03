@@ -548,3 +548,9 @@ def serve_add_admin_user(invite_token):
             })
     except Exception as e:
         return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
+
+
+@bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
+def serve_external_sales_group_viewer(sales_group_id):
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
