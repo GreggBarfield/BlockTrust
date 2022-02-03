@@ -274,9 +274,12 @@ def serve_create_new_partner_action():
 def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
+        #partner account is assumed to be ILS
+        partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=sectors_by_name["Feedlot"], is_partner=1)
+        print(partner_account)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(g.employee.id(), "EMP", "PackerDataUpload", row)
+                g.db.api_inserts.insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
