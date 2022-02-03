@@ -125,7 +125,7 @@ class NotificationRecipients:
 
     def update_notification_recipients(self, id, notification_id=NO_VALUE, user_id=NO_VALUE, is_notification_seen=NO_VALUE):
         """
-        Updates the specified notification recipient row based on ID 
+        Updates the specified notification recipient row based on ID
 
         Params:
             id: Notification recipient ID which needs to be updated
@@ -144,12 +144,14 @@ class NotificationRecipients:
         if user_id is not NO_VALUE:
             query_updated_columns.append(" user_id = %(user_id)s")
             query_updated_values["user_id"] = user_id
-        if notification_id is not NO_VALUE:
+        if is_notification_seen is not NO_VALUE:
             query_updated_columns.append(" is_notification_seen = %(is_notification_seen)s")
             query_updated_values["is_notification_seen"] = is_notification_seen
         if len(query_updated_columns) >= 1:
-            combined_query_updated_values = " SET " + ",".join(query_updated_columns) + "WHERE id=%(id)s"
+            combined_query_updated_values = " SET " + ",".join(query_updated_columns) + " WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
+            print(query)
+            print(query_updated_values)
             self._db.execute(query, query_updated_values)
 
     def remove_notification_recipients(self, notification_id):

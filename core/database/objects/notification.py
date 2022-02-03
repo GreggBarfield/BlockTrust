@@ -26,5 +26,8 @@ class Notification:
     def is_archived(self):
         return self._row['is_archived']
 
+    def notfication_type(self):
+        return self._row['notfication_type']
+
     def created_timestamp(self):
         return self._row['created_timestamp']

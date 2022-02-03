@@ -1,0 +1,69 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set page_title = Notifications %}
+{% set dashboard_locations = [("/dashboard/notifications","Notifications")] %}
+
+{% block dashboard_content_header %}
+
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:75%;">
+            <div class="card-header">
+                <h5>Notiifications</h5>
+            </div>
+            <div class="card-body" id="card-body">
+                <h3>New Notifications</h3>
+                <table  class="table">
+                    <thead>
+                        <tr>
+                            <th>Notification</th>
+                            <th>View Notification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notification in notifications %}
+                        {% if notification["is_notification_seen"] == 0 %}
+                        <tr>
+                            <th>{{notification["subject"]}}</th>
+                            <th><button class="btn btn-primary" value="{{notification['notification_id']}}" onClick="view(this)">View</button></th>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h3>Read Notifications</h3>
+                <table  class="table">
+                    <thead>
+                        <tr>
+                            <th>Notification</th>
+                            <th>View Notification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notification in notifications %}
+                        {% if notification["is_notification_seen"] == 1 %}
+                        <tr>
+                            <td>{{notification["subject"]}}</td>
+                            <td><button class="btn btn-primary" value="{{notification['notification_id']}}" onClick="view(this)">View</button></td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function view(notification_id){
+    window.location.href = "/dashboard/notifications/view-notification/"+notification_id.value;
+}
+</script>
+{% endblock dashboard_content %}

@@ -1,3 +1,4 @@
+from core.database.tables.notification_recipients import NotificationRecipients
 from core.renderers.outside import outside_render
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
@@ -14,6 +15,7 @@ from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
 from ..database.tables.invited_users import InvitedUsers
+from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
@@ -521,3 +523,33 @@ def serve_support_response():
         SUPPORT_GENERAL_EMAIL
         )
     return {"redirect": "/dashboard"}
+
+
+@bp.route('/dashboard/notifications', methods=["GET"])
+@crut.require_account
+def serve_notifications():
+    notifications = Notifications(g.db).get_notifications_for_user(user_id=g.user.id())
+    return dashboard_render("/dashboard/notifications/notifications.html", {"notifications": notifications})
+
+
+@bp.route('/dashboard/notifications/view-notification/<int:notification_id>', methods=["GET"])
+@crut.require_account
+def serve_view_notification(notification_id):
+    # Verifying if the notification is not archived and if user is an actual recipient
+    notification_recipients = NotificationRecipients(g.db).get_notification_recipients(
+        notification_id=notification_id,
+        user_id=g.user.id()
+    )
+    if len(notification_recipients) > 0:
+        notification_recipient_row = notification_recipients[0]
+        notification = Notifications(g.db).get_notification_by_id(notification_id=notification_id)
+        if notification.is_archived() == 0:
+            # Marking notification as read if it is unread
+            if notification_recipient_row["is_notification_seen"] == 0:
+                NotificationRecipients(g.db).update_notification_recipients(
+                    id=notification_recipient_row["id"],
+                    is_notification_seen=1
+                )
+            return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification})
+    # If notification is invalid return to main notifications page
+    return redirect('/dashboard/notifications')

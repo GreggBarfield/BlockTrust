@@ -47,22 +47,24 @@ class Notifications:
 
     def get_notifications_for_user(self, user_id):
         """
-        Gets the system messages for an account
+        Gets the unarchived system messages for a user in descending order of timestamp
 
         Params:
             user_id: User ID of user for which messages need to be retrieved
 
         Returns:
-            An array of messages
+            A list of messages
         """
         notifications = self._db.execute_d(
             """
             SELECT * FROM notification_recipients INNER JOIN notifications
             ON notifications.id = notification_recipients.notification_id
-            AND user_id = %(user_id)s
+            AND user_id = %(user_id)s AND is_archived= %(is_archived)s
+            ORDER BY notifications.created_timestamp DESC
             """,
             {
-                "user_id": user_id
+                "user_id": user_id,
+                "is_archived": 0
             }
         )
         return notifications

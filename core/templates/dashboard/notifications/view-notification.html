@@ -1,0 +1,33 @@
+{% extends "dashboard/standard.html" %}
+
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set page_title = "View Notification" %}
+{% set dashboard_locations = [("/dashboard/notifications","Notiifications")] %}
+
+{% block dashboard_content_header %}
+
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:50%;">
+            <div class="card-header">
+                <h4>{{notification.subject()}}</h4>
+            </div>
+            <div class="card-body" id="card-body">
+                
+                <h6>{{ notification.created_timestamp().strftime("%m/%d/%Y at %H:%M") }}</h6>
+                <p>
+                    {{notification.message()}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+</script>
+{% endblock dashboard_content %}

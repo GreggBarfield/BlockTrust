@@ -295,7 +295,6 @@ def login(identifier, password=""):
                 user_row = id_results[0]
 
         # Try username
-
         if user_row is None:
             username_results = g.db.execute_d(
                 """
@@ -327,7 +326,6 @@ def login(identifier, password=""):
                 user_row = email_results[0]
 
         # End of tries
-        
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
 
         if user_row is None:
@@ -363,7 +361,7 @@ def login(identifier, password=""):
                     }
                 )
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):      
+        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
             failed_attempts = user_row["failed_attempts"] + 1
             g.db.execute_d(
                     """
