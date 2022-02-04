@@ -1105,3 +1105,9 @@ CREATE TABLE `event_logs`(
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+
+/* Rohan Sureshkumar 1/31/2021 */
+UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7
+UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7

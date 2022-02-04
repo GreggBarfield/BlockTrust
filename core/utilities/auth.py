@@ -252,6 +252,12 @@ def change_user_password(email, new_password, confirm_password):
 def confirm(email):
     """Confirms that the user email is verified"""
     g.db.users.verify_email(email)
+    user_row = g.db.users.get_by_email(email)
+    if user_row is not None:
+        EventLogs(g.db).insert_event_log(
+            user_id=user_row.id(),
+            event_type_id=event_type_by_name["Email Verified"]
+        )
 
 
 def login(identifier, password=""):

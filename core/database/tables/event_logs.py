@@ -9,7 +9,8 @@ event_type_by_name = {
     "Account Info Edit": 3,
     "User Info Edit": 4,
     "API Insert": 5,
-    "API Data Request": 6
+    "API Data Request": 6,
+    "Email Verified": 7
 }
 event_type_by_id = {
     value: key
@@ -75,7 +76,7 @@ class EventLogs:
         else:
             return []
 
-    def insert_event_log(self, account_id, event_type_id, user_id=None, event_details=None):
+    def insert_event_log(self, event_type_id=None, account_id=None, user_id=None, event_details=None):
         """
         Inserts an event log
 

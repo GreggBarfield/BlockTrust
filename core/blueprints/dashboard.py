@@ -217,9 +217,15 @@ def serve_view_sales_group(sales_group_id):
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        external_shareable_link = WEBSITE_ROOT + url_for(
+            'outside_bp.serve_external_sales_group_viewer',
+            sales_group_id=sales_group_row['id']
+            )
         return dashboard_render(
-            "sales-groups/sales-group/view.html",
-            {"sales_group": sales_group_row}
+            "sales-groups/sales-group/view.html", {
+                "sales_group": sales_group_row,
+                "external_shareable_link": external_shareable_link
+                }
         )
     return dashboard_render("sales-groups/sales-group/not-published.html")
 
