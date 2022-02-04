@@ -23,9 +23,9 @@ Upload Packer Data
                 <p>Currently we are accepting the following data fields automatically:</p>
                 <ul class="mb-0">
                   <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
-                  <li>Plant ID</li>
-                  <li>Packer Company</li>
-                  <li>Sighted</li>
+                  <li>Plant ID of Packer Company</li>
+                  <li>Feeder Company Code</li>
+                  <li>Sighted Date</li>
                   <li>Hot Weight</li>
                   <li>USDA Quality Grade</li>
                   <li>USDA Yield Grade</li>
@@ -90,10 +90,7 @@ const importer = new FlatfileImporter('{{license}}', {
         { validate: "required" }
       ]},
       { 
-        key: "PackerCompany", label: "Packer Company",
-      },
-      { 
-        key: "FeederCompany", label: "Feeder Company",
+        key: "FeederCode", label: "Feeder Company Code",
       },
       { 
         key: "SightedDate", label: "Sighted Date",
