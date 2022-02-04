@@ -10,7 +10,8 @@ event_type_by_name = {
     "User Info Edit": 4,
     "API Insert": 5,
     "API Data Request": 6,
-    "Email Verified": 7
+    "Email Verified": 7,
+    "Invited Signup": 8
 }
 event_type_by_id = {
     value: key
