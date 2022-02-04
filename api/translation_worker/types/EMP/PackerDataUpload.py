@@ -23,10 +23,10 @@ def handle(db: Database, insert):
     eid = int(fields["EID"])
     api_insert = insert["id"]
 
-    if "FeederCompany" in fields and fields["FeederCompany"] != "":
+    if "FeederCode" in fields and fields["FeederCode"] != "":
         feeder_account_link_id = 0
         feeder_zip = 0
-        feeder_account_links = db.account_links.get_by_affiliate_id(fields["FeederCompany"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
+        feeder_account_links = db.account_links.get_by_affiliate_id(fields["FeederCode"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
                                                                         sector=sectors_by_name["Feedlot"], insert=True)
         if len(feeder_account_links) > 0:
             feeder_account_link = feeder_account_links[0]
