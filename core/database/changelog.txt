@@ -1092,3 +1092,9 @@ ALTER TABLE `notifications`
 ADD COLUMN `notification_type` INT NOT NULL AFTER `id`;
 ALTER TABLE `notifications`
 RENAME COLUMN `message_subject` TO `subject`;
+
+/* Rohan Sureshkumar 1/31/2021 */
+UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7
+UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7

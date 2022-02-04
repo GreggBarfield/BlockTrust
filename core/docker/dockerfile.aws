@@ -15,6 +15,7 @@ RUN python3 -m pip install -r requirements.txt
 # Install npm stuff
 
 WORKDIR /home/ubuntu/blocktrust
+RUN apt-get update
 RUN apt install nodejs npm -y
 COPY core/docker/webpack/package.json .
 RUN npm install
