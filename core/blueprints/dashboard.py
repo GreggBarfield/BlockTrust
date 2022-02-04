@@ -122,8 +122,14 @@ def serve_account_id(account_id):
 
     account = account_user.account()
     account_links = account.account_links()
+    # Indicator for unread notifications
+    unread_notifications = 0
+    # Checking if user has unread notifications
+    unread_notifications_list = Notifications(g.db).get_unread_notifications_for_user(user_id=g.user.id())
+    if len(unread_notifications_list) > 0:
+        unread_notifications = 1
 
-    sector_params = {"account": account, "account_links": account_links}
+    sector_params = {"account": account, "account_links": account_links, "unread_notifications": unread_notifications}
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", sector_params)

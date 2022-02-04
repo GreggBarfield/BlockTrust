@@ -69,6 +69,31 @@ class Notifications:
         )
         return notifications
 
+    def get_unread_notifications_for_user(self, user_id):
+        """
+        Gets the unarchived system messages for a user in descending order of timestamp
+
+        Params:
+            user_id: User ID of user for which messages need to be retrieved
+
+        Returns:
+            A list of messages
+        """
+        notifications = self._db.execute_d(
+            """
+            SELECT * FROM notification_recipients INNER JOIN notifications
+            ON notifications.id = notification_recipients.notification_id
+            AND user_id = %(user_id)s AND is_archived= %(is_archived)s AND is_notification_seen = %(is_notification_seen)s
+            ORDER BY notifications.created_timestamp DESC
+            """,
+            {
+                "user_id": user_id,
+                "is_archived": 0,
+                "is_notification_seen": 0
+            }
+        )
+        return notifications
+
     def insert_notification(self, subject, message, notification_type):
         """
         Inserts a new notification

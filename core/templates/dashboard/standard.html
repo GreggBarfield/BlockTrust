@@ -187,11 +187,23 @@
                   </a>
                 </li>
             {% endif %}
+            {% if unread_notifications==1 %}
+                <li>  
+                    <a href="/dashboard/notifications">
+                    <i 
+                        class="icon feather icon-bell" 
+                        title="You have unread notifications"
+                        style="color: blue;"
+                    ></i>
+                    </a>
+                </li>
+            {% else %}
                 <li>  
                     <a href="/dashboard/notifications">
                     <i class="icon feather icon-bell"></i>
                     </a>
                 </li>
+            {% endif %}
                 <li>  
                     <a href="/dashboard/messages">
                     <i class="icon feather icon-mail"></i>
