@@ -229,9 +229,9 @@ export class SectorsWidget extends Widget {
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
-        addData("Packer", "Quality", "Ribeye Area", "");
-        addData("Packer", "Quality", "Marbling Score", "");
-        addData("Packer", "Quality", "Fat Thickness", "");
+        addField("Packer", "Quality", "Ribeye Area", filterMatchType("Packer"), useDataJson("RibeyeArea"));
+        addField("Packer", "Quality", "Marbling Score", filterMatchType("Packer"), useDataJson("MarblingScore"));
+        addField("Packer", "Quality", "Fat Thickness", filterMatchType("Packer"), useDataJson("FatThickness"));
     }
 
     selectTab(tab, sector) {
