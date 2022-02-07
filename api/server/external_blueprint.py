@@ -54,6 +54,7 @@ def serve_get_animal_data():
         weaning_strategy = None
         wean_weight = None
         zip_code = None
+        sustainability = {}
 
         match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
         if len(match_birth_date_row) > 0:
@@ -71,6 +72,63 @@ def serve_get_animal_data():
             visual_id = match["visual_id"]
             if match["debug"] is not None:
                 zip_code = loads(match["debug"]).get("zip", None)
+
+            results = g.db.sustainability.get_sustainability(account=match["account"])
+            if len(results) > 0 :
+                result = results[0]
+
+                air_total_questions = result.get("air_first_score", 0) + result.get("air_second_score", 0) + result.get("air_third_score", 0)
+                if air_total_questions > 0:
+                    sustainability["air"] = {}
+                    sustainability["air"]["excellent"] = "{:.2%}".format(result.get("air_first_score", 0) / air_total_questions)
+                    sustainability["air"]["acceptable"] = "{:.2%}".format(result.get("air_second_score", 0) / air_total_questions)
+                    sustainability["air"]["needs_work"] = "{:.2%}".format(result.get("air_third_score", 0) / air_total_questions)
+
+                land_total_questions = result.get("land_first_score", 0) + result.get("land_second_score", 0) + result.get("land_third_score", 0)
+                if land_total_questions > 0:
+                    sustainability["land"] = {}
+                    sustainability["land"]["excellent"] = "{:.2%}".format(result.get("land_first_score", 0) / land_total_questions)
+                    sustainability["land"]["acceptable"] = "{:.2%}".format(result.get("land_second_score", 0) / land_total_questions)
+                    sustainability["land"]["needs_work"] = "{:.2%}".format(result.get("land_third_score", 0) / land_total_questions)
+
+                water_total_questions = result.get("water_first_score", 0) + result.get("water_second_score", 0) + result.get("water_third_score", 0)
+                if water_total_questions > 0:
+                    sustainability["water"] = {}
+                    sustainability["water"]["excellent"] = "{:.2%}".format(result.get("water_first_score", 0) / water_total_questions)
+                    sustainability["water"]["acceptable"] = "{:.2%}".format(result.get("water_second_score", 0) / water_total_questions)
+                    sustainability["water"]["needs_work"] = "{:.2%}".format(result.get("water_third_score", 0) / water_total_questions)
+
+                animal_total_questions = result.get("animal_first_score", 0) + result.get("animal_second_score", 0) + result.get("animal_third_score", 0)
+                if animal_total_questions > 0:
+                    sustainability["animal"] = {}
+                    sustainability["animal"]["excellent"] = "{:.2%}".format(result.get("animal_first_score", 0) / animal_total_questions)
+                    sustainability["animal"]["acceptable"] = "{:.2%}".format(result.get("animal_second_score", 0) / animal_total_questions)
+                    sustainability["animal"]["needs_work"] = "{:.2%}".format(result.get("animal_third_score", 0) / animal_total_questions)
+
+                safety_total_questions = result.get("safety_first_score", 0) + result.get("safety_second_score", 0) + result.get("safety_third_score", 0)
+                if safety_total_questions > 0:
+                    sustainability["safety"] = {}
+                    sustainability["safety"]["excellent"] = "{:.2%}".format(result.get("safety_first_score", 0) / safety_total_questions)
+                    sustainability["safety"]["acceptable"] = "{:.2%}".format(result.get("safety_second_score", 0) / safety_total_questions)
+                    sustainability["safety"]["needs_work"] = "{:.2%}".format(result.get("safety_third_score", 0) / safety_total_questions)
+
+                efficiency_total_questions = result.get("efficiency_first_score", 0) + result.get("efficiency_second_score", 0) + result.get("efficiency_third_score", 0)
+                if efficiency_total_questions > 0:
+                    sustainability["efficiency"] = {}
+                    sustainability["efficiency"]["excellent"] = "{:.2%}".format(result.get("efficiency_first_score", 0) / efficiency_total_questions)
+                    sustainability["efficiency"]["acceptable"] = "{:.2%}".format(result.get("efficiency_second_score", 0) / efficiency_total_questions)
+                    sustainability["efficiency"]["needs_work"] = "{:.2%}".format(result.get("efficiency_third_score", 0) / efficiency_total_questions)
+
+                total_questions = air_total_questions + land_total_questions + water_total_questions + animal_total_questions + safety_total_questions + efficiency_total_questions
+                total_first_score = (result.get("air_first_score", 0) + result.get("land_first_score", 0) + result.get("water_first_score", 0) 
+                    + result.get("animal_first_score", 0) + result.get("safety_first_score", 0) + result.get("efficiency_first_score", 0))
+                total_second_score = (result.get("air_second_score", 0) + result.get("land_second_score", 0) + result.get("water_second_score", 0) 
+                    + result.get("animal_second_score", 0) + result.get("safety_second_score", 0) + result.get("efficiency_second_score", 0))
+                total_third_score = (result.get("air_third_score", 0) + result.get("land_third_score", 0) + result.get("water_third_score", 0) 
+                    + result.get("animal_third_score", 0) + result.get("safety_third_score", 0) + result.get("efficiency_third_score", 0))
+                sustainability["totalExcellent"] = "{:.2%}".format(total_first_score / total_questions)
+                sustainability["totalAcceptable"] = "{:.2%}".format(total_second_score / total_questions)
+                sustainability["totalNeedsWork"] = "{:.2%}".format(total_third_score / total_questions)
 
         match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
         if len(match_wean_row) > 0:
@@ -126,7 +184,8 @@ def serve_get_animal_data():
             "weanWeight": wean_weight,
             "weaningStrategy": weaning_strategy,
             "usdaYieldGrade": yield_grade,
-            "zipCode": zip_code
+            "zipCode": zip_code,
+            "sustainabilityScores": sustainability if sustainability != {} else None
         }
         return animal_data
     except ExportException as e:
