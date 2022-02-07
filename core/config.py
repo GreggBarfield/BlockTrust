@@ -44,6 +44,7 @@ CSP = {
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
         'https://ipinfo.io/',
+        'https://www.googletagmanager.com/',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
