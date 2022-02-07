@@ -40,7 +40,7 @@ export let CreatePrintFlyerButton = (salesData) => {
             
         let qrcode = document.getElementById('sales_group_qrcode');
         let qrcodeCanvas = await html2canvas(qrcode, { 
-            scale: 0.8
+            scale: 0.9
         });
         let qrcodeData = qrcodeCanvas.toDataURL('image/png', 1);
         
@@ -64,7 +64,7 @@ export let CreatePrintFlyerButton = (salesData) => {
         pdf.text("Location: " + data.market_location, 15, 57);
 
         pdf.roundedRect(110, 40, 90, 25, 5, 5);
-        pdf.addImage(qrcodeData, 'PNG', 145, 42);
+        pdf.addImage(qrcodeData, 'PNG', 145, 40.5);
     }
 
     function createAnimalData(pdf) {
