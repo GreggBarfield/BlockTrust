@@ -41,6 +41,8 @@ CSP = {
         'https://www.youtube.com/',
         'https://www.google.com/',
         'https://www.gstatic.com/',
+        'https://www.googletagmanager.com/',
+        'https://www.google-analytics.com/',
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
         'https://ipinfo.io/',
