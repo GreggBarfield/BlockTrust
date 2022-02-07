@@ -64,7 +64,11 @@ export let CreatePrintFlyerButton = (salesData) => {
         pdf.text("Location: " + data.market_location, 15, 57);
 
         pdf.roundedRect(110, 40, 90, 25, 5, 5);
-        pdf.addImage(qrcodeData, 'PNG', 145, 40.5);
+        pdf.setFontSize(10);
+
+        let sideText="Scan this QR code to get detailed information on each animal and photos.";
+        pdf.text(processData(sideText), 125, 47);
+        pdf.addImage(qrcodeData, 'PNG', 165, 40.5);
     }
 
     function createAnimalData(pdf) {
