@@ -37,7 +37,6 @@ export let CreatePrintFlyerButton = (salesData) => {
         let logoData = logoCanvas.toDataURL('image/png', 1);
         pdf.addImage(logoData, 'PNG', (pageWidth / 2) - 40, 10);
 
-            
         let qrcode = document.getElementById('sales_group_qrcode');
         let qrcodeCanvas = await html2canvas(qrcode, { 
             scale: 0.9
