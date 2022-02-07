@@ -20,7 +20,7 @@ export let CreatePrintFlyerButton = (salesData) => {
 
     function makeFlyerButton() {
         button = document.createElement("button");
-        button.className = "btn btn-outline-secondary btn-sm";
+        button.className = "btn btn-primary btn-sm";
         button.textContent = "Create Flyer";
     }
 
@@ -29,15 +29,22 @@ export let CreatePrintFlyerButton = (salesData) => {
         let pdf = new jsPDF("p", "mm");
         
         const pageWidth = pdf.internal.pageSize.getWidth();
-        
+
         let logo = document.querySelector(".b-header-logo-desktop");
         let logoCanvas = await html2canvas(logo, { 
             scale: 1.5 
         });
         let logoData = logoCanvas.toDataURL('image/png', 1);
         pdf.addImage(logoData, 'PNG', (pageWidth / 2) - 40, 10);
+
+            
+        let qrcode = document.getElementById('sales_group_qrcode');
+        let qrcodeCanvas = await html2canvas(qrcode, { 
+            scale: 0.8
+        });
+        let qrcodeData = qrcodeCanvas.toDataURL('image/png', 1);
         
-        createHeaderData(pdf);
+        createHeaderData(pdf, qrcodeData);
         createAnimalData(pdf);
         createMarketData(pdf);
         createFooter(pdf, pageWidth);
@@ -46,7 +53,7 @@ export let CreatePrintFlyerButton = (salesData) => {
         document.body.style.cursor='default';
     }
 
-    function createHeaderData(pdf) {
+    function createHeaderData(pdf, qrcodeData) {
         pdf.setFillColor('white');
         pdf.setDrawColor('gray');
         pdf.roundedRect(10, 40, 90, 25, 5, 5);
@@ -55,8 +62,9 @@ export let CreatePrintFlyerButton = (salesData) => {
         pdf.text("Sales Group " + data.id, 15, 50);
         pdf.setFontSize(10);
         pdf.text("Location: " + data.market_location, 15, 57);
-        
+
         pdf.roundedRect(110, 40, 90, 25, 5, 5);
+        pdf.addImage(qrcodeData, 'PNG', 145, 42);
     }
 
     function createAnimalData(pdf) {
