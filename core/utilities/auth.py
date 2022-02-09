@@ -203,11 +203,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             phone=phone
         )
         ConnectionInvites(g.db).convert_invites_to_connections(email, account)
-        EventLogs(g.db).insert_event_log(
-            account_id=account.id(),
-            user_id=user.id(),
-            event_type_id=event_type_by_name["Signup"]
-        )
+        EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"])
     except Exception as e:
         # Delete the user if there are errors in account creation. This will let them register again.
         g.db.users.delete_by_user(user)
@@ -254,10 +250,7 @@ def confirm(email):
     g.db.users.verify_email(email)
     user_row = g.db.users.get_by_email(email)
     if user_row is not None:
-        EventLogs(g.db).insert_event_log(
-            user_id=user_row.id(),
-            event_type_id=event_type_by_name["Email Verified"]
-        )
+        EventLogs(g.db).insert_event_log(user_id=user_row.id(), event_type_id=event_type_by_name["Email Verified"])
 
 
 def login(identifier, password=""):
@@ -572,11 +565,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
             g.db.account_users.add_user_to_account(user, account)
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
-        EventLogs(g.db).insert_event_log(
-            account_id=account.id(),
-            user_id=user.id(),
-            event_type_id=event_type_by_name["Invited Signup"]
-        )
+        EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
     else:
         raise Exception(email_validation["message"])
 

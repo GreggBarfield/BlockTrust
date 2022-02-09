@@ -36,10 +36,6 @@ def serve_get_animal_data():
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
         APIDataRequests(g.db).insert_api_data_request(account_id=account[0]["id"], api_route=request.path, request_data=request_data)
-        EventLogs(g.db).insert_event_log(
-            account_id=account[0]["id"],
-            event_type_id=event_type_by_name["API Data Request"]
-        )
         birth_date = None
         visual_id = None
         birth_weight = None

@@ -291,11 +291,7 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
-            EventLogs(g.db).insert_event_log(
-                account_id=g.account.id(),
-                user_id=g.user.id(),
-                event_type_id=event_type_by_name["Tag Upload"]
-            )
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
@@ -361,11 +357,7 @@ def serve_edit_account():
                     zip=request.form["zip"],
                     phone=request.form["phone"]
                         )
-            EventLogs(g.db).insert_event_log(
-                account_id=g.account.id(),
-                user_id=g.user.id(),
-                event_type_id=event_type_by_name["Account Info Edit"]
-            )
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
             return {"error": str(e)}, 400
@@ -387,11 +379,7 @@ def serve_edit_edituser():
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
                         )
-            EventLogs(g.db).insert_event_log(
-                account_id=g.account.id(),
-                user_id=g.user.id(),
-                event_type_id=event_type_by_name["User Info Edit"]
-            )
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
             return {"error": str(e)}, 400
