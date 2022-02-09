@@ -358,3 +358,18 @@ def serve_create_sector_notification_action():
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
     return {}
+
+@bp.route("/employee/update-account-paid-status", methods=["POST"])
+@crut.require_employee
+def serve_update_account_paid_status():
+    request_data = json.loads(request.data)
+    account_id = int(request_data["account_id"])
+    paid_status = bool(request_data["paid_status"])
+    if paid_status:
+        g.db.accounts.update_account(account_id, manual_paid=1)
+    else:
+        account = g.db.accounts.get_account_by_id(account_id)
+        if account.stripe_paid() == 1:
+            raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
+        g.db.accounts.update_account(account_id, manual_paid=0)
+    return {}, 200
