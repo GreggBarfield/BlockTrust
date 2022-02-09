@@ -8,10 +8,8 @@ event_type_by_name = {
     "Tag Upload": 2,
     "Account Info Edit": 3,
     "User Info Edit": 4,
-    "API Insert": 5,
-    "API Data Request": 6,
-    "Email Verified": 7,
-    "Invited Signup": 8
+    "Email Verified": 5,
+    "Invited Signup": 6
 }
 event_type_by_id = {
     value: key

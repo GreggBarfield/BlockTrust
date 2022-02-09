@@ -5,7 +5,6 @@ from core.database.database import Database
 from core.database.tables.accounts import AccountsException
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
-from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name

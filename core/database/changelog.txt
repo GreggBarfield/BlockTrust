@@ -1104,6 +1104,8 @@ CREATE TABLE `event_logs`(
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+ALTER TABLE `event_logs` 
+ADD INDEX `event_type_id_idx` (`event_type_id`) VISIBLE;
 
 /* Rohan Sureshkumar 1/31/2021 */
 UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
