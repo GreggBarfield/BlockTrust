@@ -1092,3 +1092,13 @@ ALTER TABLE `notifications`
 ADD COLUMN `notification_type` INT NOT NULL AFTER `id`;
 ALTER TABLE `notifications`
 RENAME COLUMN `message_subject` TO `subject`;
+
+/* Conner Charles 02/04/2022 */
+CREATE TABLE `usda_account_favorites` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account` VARCHAR(127) NULL DEFAULT NULL,
+  `state` VARCHAR(5) NULL DEFAULT NULL,
+  `city_id` VARCHAR(10) NULL DEFAULT NULL,
+  `city_name` VARCHAR(51) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);

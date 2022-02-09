@@ -27,7 +27,6 @@ export class MarketDataTableWidget extends Widget {
         this.divTableResponsive.appendChild(this.mainTable);
 
         // Header
-
         this.mainTableHead = document.createElement("thead");
         this.mainTable.appendChild(this.mainTableHead);
 
@@ -41,7 +40,6 @@ export class MarketDataTableWidget extends Widget {
         }
 
         // Body
-
         this.mainTableBody = document.createElement("tbody");
         this.mainTable.appendChild(this.mainTableBody);
 
