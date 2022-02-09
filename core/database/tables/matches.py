@@ -433,6 +433,30 @@ class Matches:
                 }
         )
 
+    def get_distinct_eids_and_birthdate_by_account(self, account_id, number_of_years):
+        """Return the EIDs and corresponding birthdate in the database for an account.
+
+        Params:
+            account_id: The account to generate data on
+            number_of_years: Age limit of data to be fetched
+
+        Returns:
+            The array of dictionaries with eid and birthdate
+        """
+        return self._db.execute_d(
+                """
+                SELECT eid, time
+                FROM matches
+                WHERE account_link IN (
+                    SELECT id FROM account_links WHERE account=%(account)s
+                ) AND YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s AND type=%(type)s
+                """, {
+                    "account": account_id,
+                    "number_of_years": number_of_years,
+                    "type": match_types_by_name["Born"]
+                }
+        )
+
     def get_count_eid_distinct_by_account(self, account_id):
         """Count the number of distinct EIDs in the database for an account.
 

@@ -1098,3 +1098,6 @@ UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
 UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
+
+/* Nisheet Thakur 02/08/2022 */
+ALTER TABLE `sales_group_eids` ADD COLUMN `birth_timestamp`INT DEFAULT 0;
