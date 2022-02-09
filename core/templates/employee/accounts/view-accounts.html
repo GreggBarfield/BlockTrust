@@ -72,7 +72,7 @@
 
     for (let s of switches) {
         s.addEventListener('change', async() => {
-            let request_config = {
+            let requestConfig = {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -81,9 +81,9 @@
             }
             try {
                 if (s.checked) {
-                    request_config["body"] = JSON.stringify({"account_id": s.value, "paid_status": true})
+                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": true})
 
-                    const response = await fetch('/employee/update-account-paid-status', request_config);
+                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
                     if (response.ok) {
                         alert("Success! Account marked as paid")
                     }
@@ -94,9 +94,9 @@
                     }
                     
                 } else {
-                    request_config["body"] = JSON.stringify({"account_id": s.value, "paid_status": false})
+                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": false})
 
-                    const response = await fetch('/employee/update-account-paid-status', request_config);
+                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
                     if (response.ok) {
                         alert("Success! Account marked as unpaid")
                     }
