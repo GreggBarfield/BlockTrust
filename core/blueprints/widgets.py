@@ -335,15 +335,10 @@ def serve_get_eids_for_sales_group():
     for distinct_eid in distinct_eids:
         if distinct_eid["eid"] not in assigned_eids_for_account:
             available_eids.append(distinct_eid["eid"])
-    eids_with_birthdate = g.db.matches.get_distinct_eids_and_birthdate_by_account(
-        account_id=g.account.id(),
-        number_of_years=1
-        )
     return {
         "id": sales_group_row["id"],
         "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
-        "available_eids": available_eids,
-        "eids_with_birthdate": eids_with_birthdate
+        "available_eids": available_eids
     }
 
 

@@ -182,20 +182,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         submitFormGroup.append(submitButton);
         this.frame.append(card);
 
-        // Test card start
-        let cardnew = document.createElement("div");
-        cardnew.className = "card";
-
-        let cardBodynew = document.createElement("div");
-        cardBodynew.className = "card-body";
-        cardBodynew.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
-        cardBodynew.textContent = this.data.eids_with_birthdate;
-        cardnew.append(cardBodynew);
-        
-        this.frame.append(cardnew);
-
-        //Test card end
-
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
         statusMessage.className = "mt-2 mb-0";
