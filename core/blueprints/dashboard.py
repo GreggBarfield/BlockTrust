@@ -201,7 +201,11 @@ def serve_edit_sales_group(sales_group_id):
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
 
-    return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
+    external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
+        sales_group_id=sales_group_row['id'])
+    return dashboard_render(
+        "sales-groups/sales-group/edit.html", {"sales_group": sales_group_row, "external_shareable_link": external_shareable_link}
+    )
 
 
 @bp.route('/dashboard/sales-groups/archive', methods=['GET'])
