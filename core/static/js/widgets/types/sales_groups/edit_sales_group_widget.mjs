@@ -3,6 +3,7 @@ import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
@@ -14,6 +15,8 @@ export class EditSalesGroupWidget extends Widget {
 
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
+        this.qrSource = this.frame.getAttribute("data-widget-qr-src");
+        this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
         this.getData(
             "sales_group",
@@ -22,6 +25,8 @@ export class EditSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;
+            this.printFlyerButton = CreatePrintFlyerButton(data);
+            this.frame.appendChild(this.printFlyerButton);
             this.makeForm();
         });
         this.onSomeDataLoaded(function () {
@@ -170,16 +175,30 @@ export class EditSalesGroupWidget extends Widget {
         let card = document.createElement("div");
         card.className = "card";
 
-        let cardHeader = document.createElement("h3");
-        cardHeader.className = "col-form-label";
+        let cardHeader = document.createElement("h5");
+        cardHeader.className = "";
         cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
         cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
 
         let editGroupName = document.createElement("div");
-        editGroupName.className = "card-header form-group row";
+        editGroupName.className = "card-header form-group";
         editGroupName.style = "padding:5px;padding-left: 15px;"
-
         editGroupName.append(cardHeader);
+
+        let copyLinkButton = document.createElement("button");
+        copyLinkButton.className = "btn btn-primary";
+        copyLinkButton.innerHTML = "Copy Link";
+        copyLinkButton.onclick = function () {
+            navigator.clipboard.writeText(that.shareableLink);
+        };
+        editGroupName.append(copyLinkButton);
+
+        let qrImg = document.createElement("img");
+        qrImg.src = this.qrSource;
+        qrImg.className = "float-right";
+        qrImg.id = "sales_group_qrcode"
+        editGroupName.append(qrImg);
+
         card.append(editGroupName);
 
         let cardBody = document.createElement("div");

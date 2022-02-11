@@ -19,6 +19,7 @@ from flask import (
 )
 from flask_cors import CORS
 from flask_talisman import Talisman
+from flask_qrcode import QRcode
 
 from .config import *
 from urllib.parse import unquote_plus
@@ -38,6 +39,7 @@ Talisman(
     force_https=False  # Handle at nginx in deployment
 )
 CORS(app)
+qrcode = QRcode(app)
 
 attach_handlers(app)
 

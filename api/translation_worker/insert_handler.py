@@ -1,10 +1,9 @@
-from .types.MFA import Animal
-from .types.TestNS import TestTY
 from .types.ILS import Packer
 from .types.BTN1 import (
     AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
 )
 from .types.SELF import TagUpload
+from .types.EMP import PackerDataUpload
 from ..database.inserts_model import statuses_by_name, BlockNotAvailable
 
 
@@ -21,6 +20,9 @@ types = {
     },
     "SELF": {
         "TagUpload": TagUpload
+    },
+    "EMP": {
+        "PackerDataUpload": PackerDataUpload
     }
 }
 

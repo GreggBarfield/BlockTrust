@@ -356,7 +356,8 @@ def serve_save_eids_for_sales_group():
 def serve_save_sustainability():
     g.db.sustainability.insert(
         g.account.id(),
-        request.json["response"]
+        request.json["response"],
+        request.json["sectorScoreCounter"]
     )
     return { "redirect": "/dashboard/sustainability"}
 
@@ -526,8 +527,8 @@ def serve_get_sustainability_timeline_data():
                 response = response[0]
             #below line appends/updates elements of response dictionary into account_data dictionary
             account_data.update(response)
-            data[account_data['account']] = account_data
-            ordering.append(account_data['account'])
+            data[str(account_data['account'])] = account_data
+            ordering.append(str(account_data['account']))
 
         return {
             'timeline_data': data,

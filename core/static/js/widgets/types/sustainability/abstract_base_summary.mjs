@@ -1,20 +1,52 @@
 import { Widget } from "../../widget.mjs";
+import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
+        this.getResponseData();
         this.getSectorData();
     }
 
-    setDataSet(dataCounter) {
-        this.dataCounter = dataCounter;
-        this.dataCounter['this_sector'] = this.sectorData[this.sector].allSections; 
-        this.dataCounter['all_sectors'] = this.sectorData['allSectors'];
+    /* Note: this will be called at the end of getSectorData()'s Promise
+       
+       This is left blank because the subclasses will need to override this method.
+       If this is not done, then the other make charts methods will run before
+       getResponseData() and getSectorData() have finished their Promises.
+    */ 
+    createCharts() {}
+
+    getResponseData() {
+        this.getData(
+            "get_sustainability",
+            {}
+            ).then((data) => {
+            this.responses = data.results;
+            this.dataCounter = {};
+            
+            if (data.results.length > 0) {
+                this.responseData = data.results[0];
+                let sections = getSustainabilitySections();
+                sections["total"] = "Total";
+
+                for(const section in sections) {
+                    this.dataCounter[section] = {
+                        "excellent": 0,
+                        "acceptable": 0,
+                        "needsWork": 0
+                    }
+
+                    this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score"]);
+                    this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score"]);
+                    this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score"]);
+                }
+            }
+        });
     }
 
     getSectorData() {
         //This grabs the sector number for the current user pass in from dashboard.py.
-        this.sector = this.frame.getAttribute('data-widget-sector');
+        let sector = this.frame.getAttribute('data-widget-sector');
 
         this.getData(
             "data_request",
@@ -25,7 +57,11 @@ export class AbstractBaseSummaryWidget extends Widget {
                 }
             }
         ).then((data) => {
-            this.sectorData = data.result;
+            let sectorData = data.result;
+            this.dataCounter['thisSector'] = sectorData[sector]; 
+            this.dataCounter['allSectors'] = sectorData['allSectors'];
+
+            this.createCharts();
         });
     }
 
@@ -118,16 +154,17 @@ export class AbstractBaseSummaryWidget extends Widget {
         susGraph.id = "sector";
         susGraph.className = "tab-pane fade show active";
         susTabContent.append(susGraph);
-        this.makeGraph(susGraph, "this_sector");
+        this.makeGraph(susGraph, "thisSector");
 
         let supplyChainGraph = document.createElement("div");
         supplyChainGraph.id = "supply-chain";
         supplyChainGraph.className = "tab-pane fade";
         susTabContent.append(supplyChainGraph);
-        this.makeGraph(supplyChainGraph, "all_sectors");
+        this.makeGraph(supplyChainGraph, "allSectors");
     }
 
     makeOtherPieGraphs(sections) {
+
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
@@ -241,12 +278,11 @@ export class AbstractBaseSummaryWidget extends Widget {
         }
     }
 
-    makeGraph(container, dataType) {
-        if (this.dataCounter == null 
-            || this.dataCounter[dataType] == null) {
+    makeGraph(container, section) {
+        if (this.dataCounter == {}) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.dataCounter[dataType].length == 0) {
+        else if (this.dataCounter[section].length == 0) {
             container.textContent = "(no data)";
         }
         else {
@@ -255,7 +291,7 @@ export class AbstractBaseSummaryWidget extends Widget {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.PieChart);
 
-                chart.data = self.getGraphablePieData(dataType);
+                chart.data = self.getGraphablePieData(section);
                 
                 chart.innerRadius = am4core.percent(30);
                 

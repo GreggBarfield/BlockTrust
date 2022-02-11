@@ -1,5 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
+import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 
 export class ViewSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -17,6 +18,8 @@ export class ViewSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.sales_group = data;
+            this.printFlyerButton = CreatePrintFlyerButton(data);
+            this.frame.appendChild(this.printFlyerButton);
             this.displaySalesGroup();
         });
 
