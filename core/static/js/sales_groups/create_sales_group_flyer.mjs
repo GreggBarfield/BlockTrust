@@ -3,6 +3,8 @@ const MAX_COL_WIDTH = 15;
 const Y_SPACING_VAL = 8;
 
 
+// Returns the button if there is data to print. If there is no 
+// data.reported to be printed this will return null.
 export let CreatePrintFlyerButton = (salesData) => {
     let data = salesData;
     let ySpacer = Y_SPACING_VAL;
