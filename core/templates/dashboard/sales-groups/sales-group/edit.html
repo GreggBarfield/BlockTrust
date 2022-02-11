@@ -15,7 +15,14 @@ Edit Sales Group {{sales_group['id']|e}} : {{sales_group['group_name']|e}}
 
 <div class="row">
     <div class="col">
-        <div class="col-sm-12 widget" data-widget-type="edit sales group" data-widget-sales-group="{{sales_group['id']|e}}"></div>
+        <div 
+            class="col-sm-12 widget" 
+            data-widget-type="edit sales group" 
+            data-widget-sales-group="{{sales_group['id']|e}}"
+            data-widget-qr-src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}" 
+            data-widget-shareable-link="{{external_shareable_link}}"
+        >
+        </div>
     </div>
 </div>
 
