@@ -445,12 +445,14 @@ class Matches:
         """
         return self._db.execute_d(
                 """
-                SELECT DISTINCT eid, created_timestamp
+                SELECT eid, min(time) as time
                 FROM matches
-                WHERE YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s
-                ORDER BY created_timestamp
+                WHERE YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s AND type=%(type)s
+                GROUP BY eid
+                ORDER BY time
                 """, {
-                    "number_of_years": number_of_years
+                    "number_of_years": number_of_years,
+                    "type": match_types_by_name["Sighting"]
                 }
         )
 

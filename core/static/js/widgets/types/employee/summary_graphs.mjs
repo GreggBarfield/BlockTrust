@@ -53,10 +53,10 @@ export class SummaryGraphWidget extends Widget {
     getCompressedGraphableLineData(values){
         let graphableData = [];
         let valueCounter = 0;
-        for(let i=0;i<values.length;i=i+50) {
-            valueCounter += 50;
+        for(let i=0;i<values.length;i=i+10) {
+            valueCounter += 10;
             graphableData.push({
-                "date": new Date(values[i].created_timestamp),
+                "date": new Date(values[i].time*1000),
                 "value": valueCounter
             });
         }
