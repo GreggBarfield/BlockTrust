@@ -40,8 +40,6 @@ export class AbstractBaseSummaryWidget extends Widget {
                     this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score_points"]);
                     this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score_points"]);
                 }
-
-
             }
         });
     }
