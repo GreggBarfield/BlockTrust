@@ -147,15 +147,15 @@ export class SustainabilityTimelineWidget extends Widget {
                 sections["total"] = "Total for all Sections";
 
                 for(const key in sections) {
-                    if (this.matches[match][key + "_first_score"] != null) {
+                    if (this.matches[match][key + "_first_score_points"] != null) {
                         this.responseData[match][key] = {
                             "excellent": 0,
                             "acceptable": 0,
                             "needsWork": 0
                         }
-                        this.responseData[match][key].excellent = JSON.parse(this.matches[match][key + "_first_score"]);
-                        this.responseData[match][key].acceptable = JSON.parse(this.matches[match][key + "_second_score"]);
-                        this.responseData[match][key].needsWork = JSON.parse(this.matches[match][key + "_third_score"]);
+                        this.responseData[match][key].excellent = JSON.parse(this.matches[match][key + "_first_score_points"]);
+                        this.responseData[match][key].acceptable = JSON.parse(this.matches[match][key + "_second_score_points"]);
+                        this.responseData[match][key].needsWork = JSON.parse(this.matches[match][key + "_third_score_points"]);
                     }
                 }
             }
