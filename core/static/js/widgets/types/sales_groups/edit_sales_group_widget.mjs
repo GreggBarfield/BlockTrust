@@ -26,8 +26,7 @@ export class EditSalesGroupWidget extends Widget {
         ).then((data) => {
             this.data = data;
             this.printFlyerButton = CreatePrintFlyerButton(data);
-            if (this.printFlyerButton != null)
-                this.frame.appendChild(this.printFlyerButton);
+            this.frame.appendChild(this.printFlyerButton);
             this.makeForm();
         });
         this.onSomeDataLoaded(function () {

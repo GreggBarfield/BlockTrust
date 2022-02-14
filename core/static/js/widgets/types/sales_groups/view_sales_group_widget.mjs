@@ -19,8 +19,7 @@ export class ViewSalesGroupWidget extends Widget {
         ).then((data) => {
             this.sales_group = data;
             this.printFlyerButton = CreatePrintFlyerButton(data);
-            if (this.printFlyerButton != null)
-                this.frame.appendChild(this.printFlyerButton);
+            this.frame.appendChild(this.printFlyerButton);
             this.displaySalesGroup();
         });
 
