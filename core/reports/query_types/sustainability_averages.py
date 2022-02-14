@@ -24,16 +24,16 @@ def execute(db, query):
         }
 
         # for sectors which don't have any sustainability data, all the scores would be None
-        if data["total_first_score"] is not None:
+        if data["total_first_points"] is not None:
             sectorTotals = {
-                "excellent": int(data["total_first_score"]),
-                "acceptable": int(data["total_second_score"]),
-                "needsWork": int(data["total_third_score"])
+                "excellent": int(data["total_first_score_points"]),
+                "acceptable": int(data["total_second_score_points"]),
+                "needsWork": int(data["total_third_score_points"])
             }
 
-            allSectorTotals["excellent"] += int(data["total_first_score"])
-            allSectorTotals["acceptable"] += int(data["total_second_score"])
-            allSectorTotals["needsWork"] += int(data["total_third_score"])
+            allSectorTotals["excellent"] += int(data["total_first_score_points"])
+            allSectorTotals["acceptable"] += int(data["total_second_score_points"])
+            allSectorTotals["needsWork"] += int(data["total_third_score_points"])
 
         results[sectorID] = sectorTotals
 

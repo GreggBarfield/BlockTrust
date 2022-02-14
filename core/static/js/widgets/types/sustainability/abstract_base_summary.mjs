@@ -35,11 +35,13 @@ export class AbstractBaseSummaryWidget extends Widget {
                         "acceptable": 0,
                         "needsWork": 0
                     }
-
-                    this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score"]);
-                    this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score"]);
-                    this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score"]);
+                    
+                    this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score_points"]);
+                    this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score_points"]);
+                    this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score_points"]);
                 }
+
+
             }
         });
     }
