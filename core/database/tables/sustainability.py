@@ -167,9 +167,7 @@ class Sustainability:
 
         return data
 
-    def get_sustainability(self, account=NO_VALUE, response=NO_VALUE, 
-                                created_timestamp=NO_VALUE, order_by_column=NO_VALUE,
-                                order_desc=False):
+    def get_sustainability(self, account=NO_VALUE, response=NO_VALUE, created_timestamp=NO_VALUE):
         """
         Get sustainability by the values specified.
 
@@ -200,13 +198,8 @@ class Sustainability:
         else:
             combined_query_condition = ""
 
-        order_condition = ""
-
-        if order_by_column is not NO_VALUE:
-            order_condition = " ORDER BY %(order_by_column)s"
-            query_values["order_by_column"] = order_by_column
-            if order_desc:
-                order_condition += " DESC"
+        #ordering it by the latest first
+        order_condition = " ORDER BY ID DESC"
 
         query = base_query + combined_query_condition + order_condition
 
