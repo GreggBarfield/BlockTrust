@@ -14,6 +14,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
+from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
@@ -213,7 +214,11 @@ def serve_edit_sales_group(sales_group_id):
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
 
-    return dashboard_render("sales-groups/sales-group/edit.html", {"sales_group": sales_group_row})
+    external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
+        sales_group_id=sales_group_row['id'])
+    return dashboard_render(
+        "sales-groups/sales-group/edit.html", {"sales_group": sales_group_row, "external_shareable_link": external_shareable_link}
+    )
 
 
 @bp.route('/dashboard/sales-groups/archive', methods=['GET'])
@@ -302,6 +307,7 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
@@ -367,6 +373,7 @@ def serve_edit_account():
                     zip=request.form["zip"],
                     phone=request.form["phone"]
                         )
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
             return {"error": str(e)}, 400
@@ -388,6 +395,7 @@ def serve_edit_edituser():
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
                         )
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
             return {"error": str(e)}, 400

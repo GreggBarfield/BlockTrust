@@ -39,7 +39,7 @@ app.register_blueprint(external_blueprint.bp)
 @app.errorhandler(ExportException)
 def handle_export_exception(e):
     return {
-        "error": "An error occurred: " + str(e)
+        "error": str(e)
     }, 400
 
 

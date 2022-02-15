@@ -150,7 +150,6 @@ def serve_signup_action():
                         'confirm_url': confirm_url
                     }), required['email']
                 )
-
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)

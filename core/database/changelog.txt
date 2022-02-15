@@ -1093,8 +1093,43 @@ ADD COLUMN `notification_type` INT NOT NULL AFTER `id`;
 ALTER TABLE `notifications`
 RENAME COLUMN `message_subject` TO `subject`;
 
+/* Nisheet Thakur 02/02/2022 */
+CREATE TABLE `event_logs`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `event_type_id` INT NULL,
+  `details` JSON NULL DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+ALTER TABLE `event_logs` 
+ADD INDEX `event_type_id_idx` (`event_type_id`) VISIBLE;
+
 /* Rohan Sureshkumar 1/31/2021 */
 UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
 UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
+
+/* Conner Charles 2/11/2022 */
+ALTER TABLE `sustainability`
+CHANGE COLUMN `air_first_score` `air_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `air_third_score` `air_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `air_second_score` `air_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `land_first_score` `land_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `land_third_score` `land_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `land_second_score` `land_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `water_first_score` `water_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `water_third_score` `water_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `water_second_score` `water_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `animal_first_score` `animal_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `animal_third_score` `animal_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `animal_second_score` `animal_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `safety_first_score` `safety_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `safety_third_score` `safety_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `safety_second_score` `safety_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `efficiency_first_score` `efficiency_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `efficiency_third_score` `efficiency_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `efficiency_second_score` `efficiency_second_score_points` INT NULL DEFAULT '0';
