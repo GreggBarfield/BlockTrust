@@ -285,6 +285,7 @@ def serve_upload_packer_data():
     elif request.method == 'GET':
         return employee_render("data/upload-packer-data.html",  {"employee": g.employee, "license": FLATFILE_LICENSE})
 
+
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
 def serve_notifications():
     notifications = Notifications(g.db).get_notifications()
@@ -311,7 +312,7 @@ def serve_create_global_notification_action():
         message=request.form["message"],
         notification_type=notification_type_by_name["Global"]
     )
-    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification.id())
+    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification["id"])
     return {"redirect": "/employee/dashboard/notifications"}
 
 
@@ -329,7 +330,7 @@ def serve_create_partner_notification_action():
         notification_type=notification_type_by_name["Partner"]
     )
     NotificationRecipients(g.db).insert_partner_notification_recipients(
-        notification_id=notification.id(),
+        notification_id=notification["id"],
         partner_id=request.form["partner"]
     )
     return {"redirect": "/employee/dashboard/notifications"}
@@ -348,7 +349,7 @@ def serve_create_sector_notification_action():
         notification_type=notification_type_by_name["Sector"]
     )
     NotificationRecipients(g.db).insert_sector_notification_recipients(
-        notification_id=notification.id(),
+        notification_id=notification["id"],
         sector=request.form["sector"]
     )
     return {"redirect": "/employee/dashboard/notifications"}

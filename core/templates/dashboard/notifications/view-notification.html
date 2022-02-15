@@ -16,13 +16,13 @@
     <div class="col">
         <div class="card" style="width:50%;">
             <div class="card-header">
-                <h4>{{notification.subject()}}</h4>
+                <h4>{{notification["subject"]}}</h4>
             </div>
             <div class="card-body" id="card-body">
                 
-                <h6>{{ notification.created_timestamp().strftime("%m/%d/%Y at %H:%M") }}</h6>
+                <h6>{{ notification["created_timestamp"].strftime("%m/%d/%Y at %H:%M") }}</h6>
                 <p>
-                    {{notification.message()}}
+                    {{notification["message"]}}
                 </p>
             </div>
         </div>

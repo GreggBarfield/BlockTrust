@@ -125,7 +125,11 @@ def serve_account_id(account_id):
     # Indicator for unread notifications
     unread_notifications = 0
     # Checking if user has unread notifications
-    unread_notifications_list = Notifications(g.db).get_unread_notifications_for_user(user_id=g.user.id())
+    unread_notifications_list = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        is_archived=0,
+        is_notification_seen=0
+        )
     if len(unread_notifications_list) > 0:
         unread_notifications = 1
 
@@ -534,28 +538,34 @@ def serve_support_response():
 @bp.route('/dashboard/notifications', methods=["GET"])
 @crut.require_account
 def serve_notifications():
-    notifications = Notifications(g.db).get_notifications_for_user(user_id=g.user.id())
-    return dashboard_render("/dashboard/notifications/notifications.html", {"notifications": notifications})
+    notifications = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        is_archived=0,
+        notifications_order_by="created_timestamp",
+        notifications_sort_by="DESC"
+        )
+    return dashboard_render("/dashboard/notifications/notifications.html", {
+        "notifications": notifications
+        })
 
 
 @bp.route('/dashboard/notifications/view-notification/<int:notification_id>', methods=["GET"])
 @crut.require_account
 def serve_view_notification(notification_id):
     # Verifying if the notification is not archived and if user is an actual recipient
-    notification_recipients = NotificationRecipients(g.db).get_notification_recipients(
+    notification = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
         notification_id=notification_id,
-        user_id=g.user.id()
+        is_archived=0
     )
-    if len(notification_recipients) > 0:
-        notification_recipient_row = notification_recipients[0]
-        notification = Notifications(g.db).get_notification_by_id(notification_id=notification_id)
-        if notification.is_archived() == 0:
-            # Marking notification as read if it is unread
-            if notification_recipient_row["is_notification_seen"] == 0:
-                NotificationRecipients(g.db).update_notification_recipients(
-                    id=notification_recipient_row["id"],
-                    is_notification_seen=1
-                )
-            return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification})
+    if len(notification) > 0:
+        notification_row = notification[0]
+        # Marking notification as read if it is unread
+        if notification_row["is_notification_seen"] == 0:
+            NotificationRecipients(g.db).update_notification_recipients(
+                id=notification_row["nr_id"],
+                is_notification_seen=1
+            )
+        return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
     # If notification is invalid return to main notifications page
     return redirect('/dashboard/notifications')
