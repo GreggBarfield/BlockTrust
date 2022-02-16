@@ -1099,6 +1099,5 @@ CREATE TABLE `usda_account_favorites` (
   `account` VARCHAR(127) NULL DEFAULT NULL,
   `state` VARCHAR(5) NULL DEFAULT NULL,
   `city_id` VARCHAR(10) NULL DEFAULT NULL,
-  `city_name` VARCHAR(51) NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 );

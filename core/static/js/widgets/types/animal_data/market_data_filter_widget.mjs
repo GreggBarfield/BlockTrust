@@ -11,15 +11,20 @@ export class MarketDataFilterWidget extends Widget {
             {}
         ).then((data) => {
             this.favorites = data.favorites;
-            console.log(this.favorites);
             if(this.favorites != null && this.favorites.length > 0)
                 this.makeFavorites();
         });
 
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
-            this.form = document.createElement("form");
-            this.frame.append(this.form);    
+            
+            let firstRow = document.createElement("div");
+            firstRow.id = "first";
+            this.frame.append(firstRow);
+
+            let secondRow = document.createElement("div");
+            secondRow.id = "second";
+            this.frame.append(secondRow);            
         });
 
         this.getData(
@@ -33,8 +38,6 @@ export class MarketDataFilterWidget extends Widget {
         ).then((data) => {
             this.state_rows = data.result.states;
             this.city_rows = data.result.cities_per_state;
-            console.log(this.city_rows);
-            // this.frame.innerHTML = "";
             this.makeStateDropDown();
         });
     }
@@ -120,7 +123,6 @@ export class MarketDataFilterWidget extends Widget {
         $(select).on("change", function() {
             //since createFilterViewBtn() is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
             self.createFilterViewBtn(this);
-            self.createAddToFavBtn(this);
             self.filterRow.append(self.divFilterBtn);
         });
 
@@ -140,7 +142,8 @@ export class MarketDataFilterWidget extends Widget {
         }
         values.sort();
 
-        this.filterRow = this.createSection(this.form, "Filter")
+        let secondRow = document.getElementById("second");
+        this.filterRow = this.createSection(secondRow, "Filter")
         let select = this.createSelect(this.divStateDropDown, "State", values)
 
         let self = this;
@@ -168,16 +171,18 @@ export class MarketDataFilterWidget extends Widget {
             city_ids[item] = this.favorites[row]['city_id'];
         }
         cities.sort();
-        this.favRow = this.createSection(this.form, "Favorites")
+
+        let firstRow = document.getElementById("first");
+        this.favRow = this.createSection(firstRow, "Favorites")
         let select = this.createSelect(this.divFavDropDown, "", 
             cities, city_ids, "Select a favorite location");
 
         let self = this;
         
         $(select).on("change", function() {
-            //since createViewFavBtn() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
+            //since createFavViewBtn() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
             self.createFavRowBtns();
-            self.createViewFavBtn(this);
+            self.createFavViewBtn(this);
             self.createRemoveFavBtn(this);
         });
 
@@ -188,10 +193,6 @@ export class MarketDataFilterWidget extends Widget {
         let viewBtn = document.getElementById("filter-view-btn");
         if(viewBtn != null)
             viewBtn.remove();
-
-        let addToFavBtn = document.getElementById("add-fav-btn");
-        if(addToFavBtn != null)
-            addToFavBtn.remove();
 
         if(this.divFilterBtn != null)
             this.divFilterBtn.remove();
@@ -261,10 +262,9 @@ export class MarketDataFilterWidget extends Widget {
         }
     
         this.divFilterBtn.append(button);
-        // this.filterRow.append(this.divFilterBtn);
     }
 
-    createViewFavBtn(selectSelf) {    
+    createFavViewBtn(selectSelf) {    
         if(selectSelf.value == "") {
             return;
         }
@@ -327,49 +327,4 @@ export class MarketDataFilterWidget extends Widget {
     
         this.divFavBtn.append(button);
     }
-
-    createAddToFavBtn(selectSelf) {    
-        if(selectSelf.value == "") {
-            return;
-        }
-        let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
-        let button = document.getElementById("add-fav-btn");
-    
-        if (button == null) {
-            button = document.createElement("a");
-            button.id = "add-fav-btn";
-            button.className = "btn btn-outline-secondary btn-sm mb-0";
-            button.textContent = "Add to favorites";
-            button.style = "cursor: pointer"; 
-
-            // Parse city name
-            let city_name = selectedItem.text.split(" (")[0];
-            let self = this;
-
-            button.addEventListener("click", () => {
-                $.ajax({
-                    url: "/widgets/data/save_usda_favorite",
-                    data: JSON.stringify({
-                        "state": self.state,
-                        "city_id": selectedItem.value,
-                        "city_name": city_name
-                    }),
-                    contentType: 'application/json',
-                    method: "POST"
-                }).then(()=>{
-                    // TODO: change to delete them from favorites list
-                    // button.textContent = "Remove from favorites";
-                    // button.className += 'disabled';
-                    // button.prop('disabled', true);
-                });    
-            });
-
-        } else {
-            // button.setAttribute("href", "/dashboard/data/market/" + 
-            //     this.state + "/" + selectedItem.value);        
-        }
-    
-        this.divFilterBtn.append(button);
-    }
-
 }

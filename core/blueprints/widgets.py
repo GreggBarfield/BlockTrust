@@ -538,9 +538,9 @@ def serve_get_sustainability_timeline_data():
 @bp.route('/widgets/data/get_usda_favorites', methods=['POST'])
 @crut.require_account
 def serve_get_usda_favorites():
-    return {
-        'favorites': g.db.usda_account_favorites.get_all_by_account(g.account.id())
-    }, 200
+        return {
+            'favorites': g.db.usda_account_favorites.get_by_account_with_names(account=g.account.id())
+        }, 200
 
 @bp.route('/widgets/data/save_usda_favorite', methods=['POST'])
 @crut.require_account
@@ -548,8 +548,7 @@ def serve_save_usda_favorites():
     g.db.usda_account_favorites.insert(
         g.account.id(), 
         request.json["state"],
-        request.json["city_id"],
-        request.json["city_name"])
+        request.json["city_id"])
 
     return {}, 200
 

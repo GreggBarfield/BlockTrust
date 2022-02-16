@@ -21,6 +21,3 @@ class USDAAccountFavorite:
 
     def city_id(self):
         return self._row['city_id']
-
-    def city_name(self):
-        return self._row['city_name']
