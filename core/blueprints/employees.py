@@ -274,9 +274,11 @@ def serve_create_new_partner_action():
 def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
+        #partner account is assumed to be ILS
+        partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=sectors_by_name["Feedlot"], is_partner=1)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(g.employee.id(), "EMP", "PackerDataUpload", row)
+                g.db.api_inserts.insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
@@ -356,3 +358,18 @@ def serve_create_sector_notification_action():
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
     return {}
+
+@bp.route("/employee/update-account-paid-status", methods=["POST"])
+@crut.require_employee
+def serve_update_account_paid_status():
+    request_data = json.loads(request.data)
+    account_id = int(request_data["account_id"])
+    paid_status = bool(request_data["paid_status"])
+    if paid_status:
+        g.db.accounts.update_account(account_id, manual_paid=1)
+    else:
+        account = g.db.accounts.get_account_by_id(account_id)
+        if account.stripe_paid() == 1:
+            raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
+        g.db.accounts.update_account(account_id, manual_paid=0)
+    return {}, 200

@@ -164,6 +164,7 @@ class AccountLinks:
                 "api_insert": api_insert
             }
         )
+        return self._db.last_row_id()
 
     def update_account_link_with_account(self, partner_id, affiliate_id, sector, company,  account_id):
         """Updates a account link with the account id
@@ -191,7 +192,7 @@ class AccountLinks:
             # insert the account_link
             self.insert(account=account_id, affiliate_id=affiliate_id, company=company, sector=sector, partner_account=partner_id)
 
-    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, selectColumns=[]):
+    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account=NO_VALUE, selectColumns=[]):
         """
         Get an account link by the values specified.
 
@@ -215,6 +216,10 @@ class AccountLinks:
         if partner_account is not NO_VALUE:
             query_conditions.append(" partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
+        
+        if account is not NO_VALUE:
+            query_conditions.append(" account = %(account)s")
+            query_values["account"] = account
 
         if len(query_conditions) > 0:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)

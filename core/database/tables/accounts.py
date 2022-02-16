@@ -505,14 +505,14 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, company=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
+    def get_accounts(self, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
                         affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
                         is_partner_used_for_signup=NO_VALUE, token=NO_VALUE):
         """
         Get an account by the values specified.
 
         Returns:
-            A list of account(s) record if found else []
+            A list of account row(s) if found else []
         """
         # base query
         base_query = "SELECT * FROM accounts"
@@ -523,6 +523,10 @@ class Accounts:
         if company is not NO_VALUE:
             query_conditions.append("company = %(company)s")
             query_values["company"] = company
+
+        if company_like is not NO_VALUE:
+            query_conditions.append("company LIKE %(company_like)s")
+            query_values["company_like"] = "%" + company_like + "%"
 
         if sector is not NO_VALUE:
             query_conditions.append("sector = %(sector)s")
