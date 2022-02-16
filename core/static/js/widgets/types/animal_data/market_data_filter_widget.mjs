@@ -143,7 +143,7 @@ export class MarketDataFilterWidget extends Widget {
         values.sort();
 
         let secondRow = document.getElementById("second");
-        this.filterRow = this.createSection(secondRow, "Filter")
+        this.filterRow = this.createSection(secondRow, "New Selection")
         let select = this.createSelect(this.divStateDropDown, "State", values)
 
         let self = this;
