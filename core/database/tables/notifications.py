@@ -5,23 +5,22 @@ from .accounts import Accounts
 
 NO_VALUE = NoValue()
 
-notification_type_by_name = {
+notification_type_name_to_id = {
     "Global": 1,
     "Sector": 2,
     "Partner": 3
 }
-notification_type_by_id = {
+notification_type_id_to_name = {
     value: key
-    for key, value in notification_type_by_name.items()
+    for key, value in notification_type_name_to_id.items()
 }
+notification_cols = ("id", "subject", "message", "is_archived", "notification_type_id", "created_timestamp", "last_updated_timestamp")
 
 
 class Notifications:
 
     def __init__(self, db):
         self._db = db
-        self._match_cols = ("id", "subject", "message", "is_archived", "notification_type", "created_timestamp",
-                            "last_updated_timestamp")
 
     def get_notification_by_id(self, notification_id):
         """
@@ -57,7 +56,7 @@ class Notifications:
         """
         self._db.execute(
             """
-            INSERT INTO notifications (subject, message, is_archived, notification_type)
+            INSERT INTO notifications (subject, message, is_archived, notification_type_id)
             VALUES (%(subject)s, %(message)s, %(is_archived)s, %(notification_type)s)
             """,
             {
@@ -79,7 +78,7 @@ class Notifications:
             subject: The subject for the message
             message: Message text
             is_archived: Message archive status. (0-Not archived, 1-Archived)
-            notification_type: Type of notification based on notification_type_by_name dictionary
+            notification_type: Type of notification based on notification_type_name_to_id dictionary
 
         Returns:
             A list of notifications or an empty array
@@ -99,7 +98,7 @@ class Notifications:
             query_conditions.append(" is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
         if notfication_type is not NO_VALUE:
-            query_conditions.append(" notfication_type = %(notfication_type)s")
+            query_conditions.append(" notification_type_id = %(notfication_type)s")
             query_values["notfication_type"] = notfication_type
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -154,7 +153,7 @@ class Notifications:
             subject: The subject for the message
             message: Message text
             is_archived: Message archive status. (0-Not archived, 1-Archived)
-            notification_type: Type of notification based on notification_type_by_name dictionary
+            notification_type: Type of notification based on notification_type_name_to_id dictionary
             notification_recipient_id: ID in the notification_recipients table
             user_id: User ID in notification_recipients table
             is_notification_seen: Notification seen status (0-Not Seen, 1-Seen)
@@ -162,8 +161,8 @@ class Notifications:
         Returns:
             A list of notifications or an empty list
         """
-        # Need to add nr_id and n_id as "id" columns get over written
-        base_query = "SELECT *, nr.id as nr_id, n.id as n_id FROM notification_recipients nr INNER JOIN notifications n ON nr.notification_id=n.id"
+        # Need to add notification_recipients_id and notification_id as "id" columns get over written
+        base_query = "SELECT *, nr.id as notification_recipients_id, n.id as notification_id FROM notification_recipients nr INNER JOIN notifications n ON nr.notification_id=n.id"
         query_conditions = []
         query_values = {}
         order_by_clause = ""
@@ -181,7 +180,7 @@ class Notifications:
             query_conditions.append("n.is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
         if notfication_type is not NO_VALUE:
-            query_conditions.append("n.notfication_type = %(notfication_type)s")
+            query_conditions.append("n.notification_type_id = %(notfication_type)s")
             query_values["notfication_type"] = notfication_type
 
         if notification_recipient_id is not NO_VALUE:
@@ -195,7 +194,7 @@ class Notifications:
             query_values["is_notification_seen"] = is_notification_seen
 
         if notifications_order_by is not NO_VALUE:
-            if notifications_order_by not in self._match_cols:
+            if notifications_order_by not in notification_cols:
                 raise Exception("notifications_order_by column doesn't exist")
             order_by_clause = "ORDER BY n." + notifications_order_by
             if notifications_sort_by is not NO_VALUE:

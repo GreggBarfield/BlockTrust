@@ -130,7 +130,7 @@ def serve_account_id(account_id):
         user_id=g.user.id(),
         is_archived=0,
         is_notification_seen=0
-        )
+    )
     if len(unread_notifications_list) > 0:
         unread_notifications = 1
 
@@ -546,14 +546,14 @@ def serve_support_response():
 @bp.route('/dashboard/notifications', methods=["GET"])
 @crut.require_account
 def serve_notifications():
-    notifications = Notifications(g.db).get_notification_and_notification_recipients(
+    notifications_and_data_for_user = Notifications(g.db).get_notification_and_notification_recipients(
         user_id=g.user.id(),
         is_archived=0,
-        notifications_order_by="created_timestamp",
+        notifications_order_by="id",
         notifications_sort_by="DESC"
-        )
+    )
     return dashboard_render("/dashboard/notifications/notifications.html", {
-        "notifications": notifications
+        "notifications_and_data_for_user": notifications_and_data_for_user
         })
 
 
@@ -571,7 +571,7 @@ def serve_view_notification(notification_id):
         # Marking notification as read if it is unread
         if notification_row["is_notification_seen"] == 0:
             NotificationRecipients(g.db).update_notification_recipients(
-                id=notification_row["nr_id"],
+                id=notification_row["notification_recipients_id"],
                 is_notification_seen=1
             )
         return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})

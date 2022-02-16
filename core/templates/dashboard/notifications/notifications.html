@@ -28,7 +28,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for notification in notifications %}
+                        {% for notification in notifications_and_data_for_user %}
                         {% if notification["is_notification_seen"] == 0 %}
                         <tr>
                             <th>{{notification["subject"]}}</th>
@@ -47,7 +47,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for notification in notifications %}
+                        {% for notification in notifications_and_data_for_user %}
                         {% if notification["is_notification_seen"] == 1 %}
                         <tr>
                             <td>{{notification["subject"]}}</td>
