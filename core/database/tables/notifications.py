@@ -22,29 +22,6 @@ class Notifications:
     def __init__(self, db):
         self._db = db
 
-    def get_notification_by_id(self, notification_id):
-        """
-        Gets the notification by ID
-
-        Params:
-            id: ID of the notification
-
-        Returns:
-            A notification id found or None
-        """
-        notification_rows = self._db.execute_d(
-            """
-                SELECT * FROM notifications
-                WHERE id=%(id)s
-            """,
-            {
-                "id": notification_id
-            }
-        )
-        if len(notification_rows) != 1:
-            return None
-        return notification_rows[0]
-
     def insert_notification(self, subject, message, notification_type):
         """
         Inserts a new notification
@@ -66,10 +43,9 @@ class Notifications:
                 "notification_type": notification_type
             }
         )
-        notification = self.get_notification_by_id(self._db.last_row_id())
-        return notification
+        return self._db.last_row_id()
 
-    def get_notifications(self, subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE,
+    def get_notifications(self, notification_id=NO_VALUE, subject=NO_VALUE, message=NO_VALUE, is_archived=NO_VALUE,
                           notfication_type=NO_VALUE):
         """
         Gets the notifications based on the provided parameters
@@ -87,7 +63,9 @@ class Notifications:
 
         query_conditions = []
         query_values = {}
-
+        if notification_id is not NO_VALUE:
+            query_conditions.append(" id = %(notification_id)s")
+            query_values["notification_id"] = notification_id
         if subject is not NO_VALUE:
             query_conditions.append(" subject = %(subject)s")
             query_values["subject"] = subject

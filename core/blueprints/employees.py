@@ -307,12 +307,12 @@ def serve_create_global_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
 def serve_create_global_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
         notification_type=notification_type_name_to_id["Global"]
     )
-    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification["id"])
+    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification_id)
     return {"redirect": "/employee/dashboard/notifications"}
 
 
@@ -324,13 +324,13 @@ def serve_create_partner_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
 def serve_create_partner_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
         notification_type=notification_type_name_to_id["Partner"]
     )
     NotificationRecipients(g.db).insert_partner_notification_recipients(
-        notification_id=notification["id"],
+        notification_id=notification_id,
         partner_id=request.form["partner"]
     )
     return {"redirect": "/employee/dashboard/notifications"}
@@ -343,13 +343,13 @@ def serve_create_sector_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
 def serve_create_sector_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
         notification_type=notification_type_name_to_id["Sector"]
     )
     NotificationRecipients(g.db).insert_sector_notification_recipients(
-        notification_id=notification["id"],
+        notification_id=notification_id,
         sector=request.form["sector"]
     )
     return {"redirect": "/employee/dashboard/notifications"}
