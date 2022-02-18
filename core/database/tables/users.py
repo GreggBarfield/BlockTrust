@@ -5,6 +5,11 @@ from ..frag import frag
 
 NO_VALUE = NoValue()
 
+onboarding_status = {
+    "subscribed": 1,
+    "initial_tag_upload": 2
+}
+
 
 class UsersException(Exception):
     """Generic user exception."""

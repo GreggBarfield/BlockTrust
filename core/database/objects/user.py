@@ -46,3 +46,6 @@ class User:
 
     def is_system_generated(self):
         return self._row["is_system_generated"]
+
+    def onboarding_status(self):
+        return self._row["onboarding_status"]
