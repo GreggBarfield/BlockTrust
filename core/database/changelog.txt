@@ -1137,3 +1137,6 @@ CHANGE COLUMN `efficiency_second_score` `efficiency_second_score_points` INT NUL
 /* Nisheet Thakur 02/16/2022 */
 ALTER TABLE `notifications`
 RENAME COLUMN `notification_type` TO `notification_type_id`;
+
+/* Nisheet Thakur 02/18/2022 */
+ALTER TABLE `users` ADD COLUMN `onboarding_status` TINYINT NULL DEFAULT 0;

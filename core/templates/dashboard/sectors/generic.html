@@ -28,12 +28,27 @@
             </div>
         </div>
     </div>
-    {% if g.user.onboarding_status != 3 %}
-    <div class="col-xl-6">
+    {% if g.user.onboarding_status() == 0 %}
+    <div class="col-sm-6 h-25">
         <div class="card">
             <h5 class="card-header">Pending Actions</h5>
             <div class=" card-body">
-                <p class="mb-0 widget" data-widget-type="onboarding" data-widget-user="{{ g.user.id() }}"></p>
+                <table class="table-sm">
+                    <tbody>
+                        <tr>
+                            <th><i class="icon feather icon-check" style="color: #2ca961;"></i></th>
+                            <th><span class="text-success">Tag your Animals</span></th></th>
+                        </tr>
+                        <tr>
+                            <th><i class="icon feather icon-clock" style="color: gray;"></i></th>
+                            <th><a href="/dashboard/upload-tags">Upload your Tag Numbers</a></th>
+                        </tr>
+                        <tr>
+                            <th><i class="icon feather icon-clock" style="color: gray;"></i></th>
+                            <th><a href="https://mfa-inc.com/powercalf">Add Data</a></th>
+                        </tr>
+                    </tbody>
+                </table>    
             </div>
         </div>
     </div>

@@ -19,7 +19,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
-from ..database.tables.users import UsersException
+from ..database.tables.users import Users, UsersException
 
 from ..renderers.email import render_email
 
@@ -307,6 +307,11 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
+            if g.user.onboarding_status() == 0:
+                Users(g.db).update_user(
+                    username=g.user.username(),
+                    onboarding_status=1
+                )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:

@@ -5,11 +5,6 @@ from ..frag import frag
 
 NO_VALUE = NoValue()
 
-onboarding_status = {
-    "subscribed": 1,
-    "initial_tag_upload": 2
-}
-
 
 class UsersException(Exception):
     """Generic user exception."""
@@ -272,7 +267,8 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
+    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE,
+                    onboarding_status=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -344,6 +340,12 @@ class Users:
                             set_frags,
                             "is_email_verified=:is_email_verified,",
                             is_email_verified=is_email_verified
+                        )
+        if onboarding_status is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "onboarding_status=:onboarding_status,",
+                            onboarding_status=onboarding_status
                         )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
