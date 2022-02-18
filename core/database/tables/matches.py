@@ -274,6 +274,7 @@ class Matches:
 
         query_conditions = []
         query_values = {}
+        order_by_clause = ""
 
         if matches_eid is not NO_VALUE:
             query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")

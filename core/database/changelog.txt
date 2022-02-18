@@ -1133,3 +1133,7 @@ CHANGE COLUMN `safety_second_score` `safety_second_score_points` INT NULL DEFAUL
 CHANGE COLUMN `efficiency_first_score` `efficiency_first_score_points` INT NULL DEFAULT '0' ,
 CHANGE COLUMN `efficiency_third_score` `efficiency_third_score_points` INT NULL DEFAULT '0' ,
 CHANGE COLUMN `efficiency_second_score` `efficiency_second_score_points` INT NULL DEFAULT '0';
+
+/* Nisheet Thakur 02/16/2022 */
+ALTER TABLE `notifications`
+RENAME COLUMN `notification_type` TO `notification_type_id`;
