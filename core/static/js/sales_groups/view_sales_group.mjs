@@ -136,7 +136,7 @@ export class SalesGroupViewer {
             left.append(salesGroupID);
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
-                sendMessageButton.className = "btn btn-sm btn-primary";
+                sendMessageButton.className = "btn btn-sm btn-outline-primary";
                 sendMessageButton.style = "float:right"
                 sendMessageButton.textContent = "Contact Seller";
                 sendMessageButton.addEventListener("click", () => {

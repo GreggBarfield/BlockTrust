@@ -9,8 +9,9 @@ export class ViewSalesGroupWidget extends Widget {
 
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
+        this.qrSource = this.frame.getAttribute("data-widget-qr-src");
+        this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
 
-        // TODO: This is a bad data request, optimize later
         this.getData(
             "sales_group",
             {
@@ -18,8 +19,14 @@ export class ViewSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.sales_group = data;
+            this.firstRow = document.createElement("div");
+            this.firstRow.className = "d-flex align-items-end";
+            this.frame.append(this.firstRow);
+
             this.printFlyerButton = CreatePrintFlyerButton(data);
-            this.frame.appendChild(this.printFlyerButton);
+            this.firstRow.appendChild(this.printFlyerButton);
+            this.createQRLinkBtn();
+            this.createQRCodeImg();
             this.displaySalesGroup();
         });
 
@@ -28,6 +35,25 @@ export class ViewSalesGroupWidget extends Widget {
             this.frame.innerHTML = "";
         });
 
+    }
+
+    createQRLinkBtn() {
+        let copyLinkButton = document.createElement("button");
+        copyLinkButton.className = "btn btn-outline-primary btn-sm";
+        copyLinkButton.innerHTML = "Copy Link";
+        let that = this;
+        copyLinkButton.onclick = function () {
+            navigator.clipboard.writeText(that.shareableLink);
+        };
+        this.firstRow.append(copyLinkButton);
+    }
+
+    createQRCodeImg() {
+        let qrImg = document.createElement("img");
+        qrImg.src = this.qrSource;
+        qrImg.className = "ml-auto";
+        qrImg.id = "sales_group_qrcode"
+        this.firstRow.append(qrImg);
     }
 
     displaySalesGroup() {
