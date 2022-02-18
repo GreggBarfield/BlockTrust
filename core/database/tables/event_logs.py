@@ -1,5 +1,4 @@
 from ..no_value import NoValue
-from ..objects.notification import Notification
 
 NO_VALUE = NoValue()
 

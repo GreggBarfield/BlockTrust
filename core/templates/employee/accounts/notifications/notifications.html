@@ -36,7 +36,7 @@
                             <td>{{notification.id}}</td>
                             <td>{{notification.subject}}</td>
                             <td>{{notification.message}}</td>
-                            <td>{{notification_type_by_id[notification.notification_type]}}</td>
+                            <td>{{notification_type_id_to_name[notification.notification_type_id]}}</td>
                             <td>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                             <td><button class ="btn btn-danger" id="archive" value="{{notification.id}}" onClick="archive(this)">Archive</button></td>
                         </tr>
@@ -68,7 +68,7 @@
                             <td>{{notification.id}}</td>
                             <td>{{notification.subject}}</td>
                             <td>{{notification.message}}</td>
-                            <td>{{notification_type_by_id[notification.notification_type]}}</td>
+                            <td>{{notification_type_id_to_name[notification.notification_type_id]}}</td>
                             <th>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</th>
                         </tr>
                         {% endif %}

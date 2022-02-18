@@ -1,3 +1,4 @@
+from core.database.tables.notification_recipients import NotificationRecipients
 from core.renderers.outside import outside_render
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
@@ -15,6 +16,7 @@ from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
+from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
@@ -121,8 +123,18 @@ def serve_account_id(account_id):
 
     account = account_user.account()
     account_links = account.account_links()
+    # Indicator for unread notifications
+    unread_notifications = 0
+    # Checking if user has unread notifications
+    unread_notifications_list = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        is_archived=0,
+        is_notification_seen=0
+    )
+    if len(unread_notifications_list) > 0:
+        unread_notifications = 1
 
-    sector_params = {"account": account, "account_links": account_links}
+    sector_params = {"account": account, "account_links": account_links, "unread_notifications": unread_notifications}
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", sector_params)
@@ -529,3 +541,39 @@ def serve_support_response():
         SUPPORT_GENERAL_EMAIL
         )
     return {"redirect": "/dashboard"}
+
+
+@bp.route('/dashboard/notifications', methods=["GET"])
+@crut.require_account
+def serve_notifications():
+    notifications_and_data_for_user = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        is_archived=0,
+        notifications_order_by="id",
+        notifications_sort_by="DESC"
+    )
+    return dashboard_render("/dashboard/notifications/notifications.html", {
+        "notifications_and_data_for_user": notifications_and_data_for_user
+        })
+
+
+@bp.route('/dashboard/notifications/view-notification/<int:notification_id>', methods=["GET"])
+@crut.require_account
+def serve_view_notification(notification_id):
+    # Verifying if the notification is not archived and if user is an actual recipient
+    notification = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        notification_id=notification_id,
+        is_archived=0
+    )
+    if len(notification) > 0:
+        notification_row = notification[0]
+        # Marking notification as read if it is unread
+        if notification_row["is_notification_seen"] == 0:
+            NotificationRecipients(g.db).update_notification_recipients(
+                id=notification_row["notification_recipients_id"],
+                is_notification_seen=1
+            )
+        return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
+    # If notification is invalid return to main notifications page
+    return redirect('/dashboard/notifications')
