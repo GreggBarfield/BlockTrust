@@ -177,9 +177,10 @@ def serve_search_by_eid_and_visual_id():
         return {
             "matches": rows
         }
-    return {
-            "matches": []
-    }
+    else:
+        return {
+                "matches": []
+        }
 
 
 @bp.route('/widgets/data/save_sales_group', methods=['POST'])
