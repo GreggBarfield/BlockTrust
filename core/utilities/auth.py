@@ -8,8 +8,10 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
+from ..renderers.email import render_email
 
 from ..utilities.general_utilities import validate_email, format_field
+from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
 
 # since session objects are easily decoded, we use key names which make no sense
@@ -251,6 +253,18 @@ def confirm(email):
     user_row = g.db.users.get_by_email(email)
     if user_row is not None:
         EventLogs(g.db).insert_event_log(user_id=user_row.id(), event_type_id=event_type_by_name["Email Verified"])
+        user_accounts = g.db.account_users.get_by_user(user=user_row)
+        if len(user_accounts) > 0:
+            user_account = user_accounts[0]
+            user_account_id = user_account.account_id()
+            account = g.db.accounts.get_account_by_id(account_id=user_account_id)
+            send_email(
+                "BlockTrust Network New Registration Information",
+                render_email("new_account_info.html", {
+                    'user': user_row,
+                    'account': account
+                }), "nisheet.thakur@blocktrustnetwork.com"
+            )
 
 
 def login(identifier, password=""):
