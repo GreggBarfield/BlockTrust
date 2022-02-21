@@ -172,18 +172,11 @@ def serve_search_sales_groups_2():
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    count = g.db.matches.get_count_by_eid_if_visible(eid_number)
-    if count > 0:
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_number,g.account.id())
+    if len(rows) > 0:
         return {
-            "matches": [ {"eid": request.json["search"]["eid"]} ]
+            "matches": rows
         }
-    else:
-        if g.account is not None:
-            rows = g.db.matches.get_visual_id_if_owner_and_visible(eid_number,g.account.id())
-            if len(rows) > 0:
-                return {
-                    "matches": rows
-                }
     return {
             "matches": []
     }
