@@ -35,7 +35,7 @@
 </head>
 <div class="card">
     <h3 class="card-header">Account Information</h3>
-    <table class="table table-bordered">
+    <table class="table">
         <tbody>
             <tr>
                 <th>Account Name</th>
@@ -48,6 +48,10 @@
             <tr>
                 <th>Sector</th>
                 <td>{{account.sector_name()}}</td>
+            </tr>
+            <tr>
+                <th>Partner</th>
+                <td>{{partner_account_company}}</td>
             </tr>
             <tr>
                 <th>Affiliate ID</th>
@@ -77,7 +81,7 @@
     </table>
     
     <h3 class="card-header">User Information</h3>
-    <table class="table table-bordered">
+    <table class="table">
     <tbody>
         <tr>
             <th>First Name</th>

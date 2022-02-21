@@ -554,16 +554,3 @@ def serve_external_sales_group_viewer(sales_group_id):
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
 
-
-@bp.route("/testemail", methods=["GET"])
-def serve_test_email():
-    user_row = g.db.users.get_user_by_id(user_id=88)
-    account = g.db.accounts.get_account_by_id(account_id=610)
-    send_email(
-            "BlockTrust Network New Registration Information",
-            render_email("new_account_info.html", {
-                'user': user_row,
-                'account': account
-            }), "nisheet.thakur@blocktrustnetwork.com"
-        )
-    return {}

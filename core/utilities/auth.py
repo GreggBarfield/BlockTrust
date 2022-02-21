@@ -257,12 +257,17 @@ def confirm(email):
         if len(user_accounts) > 0:
             user_account = user_accounts[0]
             user_account_id = user_account.account_id()
+            partner_account_company = ""
             account = g.db.accounts.get_account_by_id(account_id=user_account_id)
+            if account.partner_account_id() is not None:
+                partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
+                partner_account_company = partner_account.company()
             send_email(
                 "BlockTrust Network New Registration Information",
                 render_email("new_account_info.html", {
                     'user': user_row,
-                    'account': account
+                    'account': account,
+                    'partner_account_company': partner_account_company
                 }), "nisheet.thakur@blocktrustnetwork.com"
             )
 
