@@ -583,6 +583,18 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
+        partner_account_company = ""
+        if account.partner_account_id() is not None:
+            partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
+            partner_account_company = partner_account.company()
+        send_email(
+            "BlockTrust Network New Registration Information",
+            render_email("new_account_info.html", {
+                'user': user,
+                'account': account,
+                'partner_account_company': partner_account_company
+            }), "nisheet.thakur@blocktrustnetwork.com"
+        )
     else:
         raise Exception(email_validation["message"])
 
