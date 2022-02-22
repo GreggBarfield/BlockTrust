@@ -268,7 +268,7 @@ def confirm(email):
                     'user': user_row,
                     'account': account,
                     'partner_account_company': partner_account_company
-                }), "nisheet.thakur@blocktrustnetwork.com"
+                }), "info@blocktrustnetwork.com"
             )
 
 
@@ -593,7 +593,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                 'user': user,
                 'account': account,
                 'partner_account_company': partner_account_company
-            }), "nisheet.thakur@blocktrustnetwork.com"
+            }), "info@blocktrustnetwork.com"
         )
     else:
         raise Exception(email_validation["message"])
