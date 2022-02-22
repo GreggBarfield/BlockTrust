@@ -589,7 +589,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
             partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
             partner_account_company = partner_account.company()
         send_email(
-            "BlockTrust Network New Registration Information",
+            "BlockTrust Network New Invited User Registration Information",
             render_email("new_account_info.html", {
                 'user': user,
                 'account': account,
