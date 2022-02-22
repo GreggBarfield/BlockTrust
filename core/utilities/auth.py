@@ -13,6 +13,7 @@ from ..renderers.email import render_email
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
+from ..config import SUPPORT_GENERAL_EMAIL 
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -268,7 +269,7 @@ def confirm(email):
                     'user': user_row,
                     'account': account,
                     'partner_account_company': partner_account_company
-                }), "info@blocktrustnetwork.com"
+                }), SUPPORT_GENERAL_EMAIL
             )
 
 
@@ -593,7 +594,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                 'user': user,
                 'account': account,
                 'partner_account_company': partner_account_company
-            }), "info@blocktrustnetwork.com"
+            }), SUPPORT_GENERAL_EMAIL
         )
     else:
         raise Exception(email_validation["message"])
