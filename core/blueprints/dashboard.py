@@ -391,7 +391,11 @@ def serve_edit_edituser():
                         username=g.user.username(),
                         first_name=request.form["first"],
                         last_name=request.form["last"],
-                        phone=request.form["phone"],
+                        phone=request.form["phone"]
+                        )
+            if request.form["password"] != "" and request.form["confirm_password"] != "":
+                g.db.users.update_user(
+                        username=g.user.username(),
                         password=request.form["password"],
                         confirm_password=request.form["confirm_password"]
                         )
