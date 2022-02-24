@@ -19,7 +19,7 @@ export class ViewSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.sales_group = data;
-            
+
             let firstRow = document.createElement("div");
             firstRow.className = "d-flex align-items-end";
             firstRow.appendChild(CreatePrintFlyerButton(data));
