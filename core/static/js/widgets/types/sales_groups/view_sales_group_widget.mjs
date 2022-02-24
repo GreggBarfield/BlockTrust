@@ -19,14 +19,14 @@ export class ViewSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.sales_group = data;
-            this.firstRow = document.createElement("div");
-            this.firstRow.className = "d-flex align-items-end";
-            this.frame.append(this.firstRow);
+            
+            let firstRow = document.createElement("div");
+            firstRow.className = "d-flex align-items-end";
+            firstRow.appendChild(CreatePrintFlyerButton(data));
+            firstRow.appendChild(this.createQRLinkBtn());
+            firstRow.appendChild(this.createQRCodeImg());
+            this.frame.append(firstRow);
 
-            this.printFlyerButton = CreatePrintFlyerButton(data);
-            this.firstRow.appendChild(this.printFlyerButton);
-            this.createQRLinkBtn();
-            this.createQRCodeImg();
             this.displaySalesGroup();
         });
 
@@ -45,7 +45,7 @@ export class ViewSalesGroupWidget extends Widget {
         copyLinkButton.onclick = function () {
             navigator.clipboard.writeText(that.shareableLink);
         };
-        this.firstRow.append(copyLinkButton);
+        return copyLinkButton;
     }
 
     createQRCodeImg() {
@@ -53,7 +53,7 @@ export class ViewSalesGroupWidget extends Widget {
         qrImg.src = this.qrSource;
         qrImg.className = "ml-auto";
         qrImg.id = "sales_group_qrcode"
-        this.firstRow.append(qrImg);
+        return qrImg;
     }
 
     displaySalesGroup() {
