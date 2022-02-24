@@ -527,7 +527,6 @@ class Users:
             A list of user and account rows joined or an empty list
         """
 
-        # Need to add account_id and user_id in base query as "id" columns get over written
         base_query = """
             SELECT *, u.id as user_id, a.id as account_id FROM users u
             INNER JOIN account_users au on au.user = u.id
