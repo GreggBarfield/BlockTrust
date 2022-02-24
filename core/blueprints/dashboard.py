@@ -1,4 +1,3 @@
-from core.database.no_value import NoValue
 from core.database.tables.notification_recipients import NotificationRecipients
 from flask import (
     request, Blueprint, g, redirect, url_for
@@ -391,8 +390,8 @@ def serve_edit_edituser():
                 first_name=request.form["first"],
                 last_name=request.form["last"],
                 phone=request.form["phone"],
-                password=request.form["password"] if request.form["password"] != "" else NoValue(),
-                confirm_password=request.form["confirm_password"] if request.form["confirm_password"] != "" else NoValue()
+                password=request.form["password"] if request.form["password"] != "" else None,
+                confirm_password=request.form["confirm_password"] if request.form["confirm_password"] != "" else None
             )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
