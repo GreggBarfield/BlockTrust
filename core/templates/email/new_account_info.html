@@ -39,15 +39,15 @@
         <tbody>
             <tr>
                 <th>Account Name</th>
-                <td>{{account.name()}}</td>
+                <td>{{user_account.name}}</td>
             </tr>
             <tr>
                 <th>Account Company</th>
-                <td>{{account.company()}}</td>
+                <td>{{user_account.company}}</td>
             </tr>
             <tr>
                 <th>Sector</th>
-                <td>{{account.sector_name()}}</td>
+                <td>{{sectors_by_id[user_account.sector]}}</td>
             </tr>
             <tr>
                 <th>Partner</th>
@@ -55,27 +55,27 @@
             </tr>
             <tr>
                 <th>Affiliate ID</th>
-                <td>{{account.affiliate_id()}}</td>
+                <td>{{user_account.affiliate_id}}</td>
             </tr>
             <tr>
                 <th>Address</th>
-                <td>{{account.address()}}</td>
+                <td>{{user_account.address}}</td>
             </tr>
             <tr>
                 <th>City</th>
-                <td>{{account.city()}}</td>
+                <td>{{user_account.city}}</td>
             </tr>
             <tr>
                 <th>State</th>
-                <td>{{account.state()}}</td>
+                <td>{{user_account.state}}</td>
             </tr>
             <tr>
                 <th>Zip</th>
-                <td>{{account.zip()}}</td>
+                <td>{{user_account.zip}}</td>
             </tr>
             <tr>
                 <th>Account Phone</th>
-                <td>{{account.phone()}}</td>
+                <td>{{user_account.account_phone}}</td>
             </tr>
         </tbody>
     </table>
@@ -85,19 +85,19 @@
     <tbody>
         <tr>
             <th>First Name</th>
-            <td>{{user.first_name()}}</td>
+            <td>{{user_account.first_name}}</td>
         </tr>
         <tr>
             <th>Last Name</th>
-            <td>{{user.last_name()}}</td>
+            <td>{{user_account.last_name}}</td>
         </tr>
         <tr>
             <th>Email</th>
-            <td>{{user.email()}}</td>
+            <td>{{user_account.email}}</td>
         </tr>
         <tr>
             <th>Phone</th>
-            <td>{{user.phone()}}</td>
+            <td>{{user_account.user_phone}}</td>
         </tr>
     </tbody>
     </table>

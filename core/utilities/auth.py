@@ -13,7 +13,8 @@ from ..renderers.email import render_email
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
-from ..config import SUPPORT_GENERAL_EMAIL 
+from ..config import SUPPORT_GENERAL_EMAIL
+from ..sectors import sectors_by_id
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -251,26 +252,22 @@ def change_user_password(email, new_password, confirm_password):
 def confirm(email):
     """Confirms that the user email is verified"""
     g.db.users.verify_email(email)
-    user_row = g.db.users.get_by_email(email)
-    if user_row is not None:
-        EventLogs(g.db).insert_event_log(user_id=user_row.id(), event_type_id=event_type_by_name["Email Verified"])
-        user_accounts = g.db.account_users.get_by_user(user=user_row)
-        if len(user_accounts) > 0:
-            user_account = user_accounts[0]
-            user_account_id = user_account.account_id()
-            partner_account_company = ""
-            account = g.db.accounts.get_account_by_id(account_id=user_account_id)
-            if account.partner_account_id() is not None:
-                partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
-                partner_account_company = partner_account.company()
-            send_email(
-                "BlockTrust Network New Registration Information",
-                render_email("new_account_info.html", {
-                    'user': user_row,
-                    'account': account,
-                    'partner_account_company': partner_account_company
-                }), SUPPORT_GENERAL_EMAIL
-            )
+    user_accounts = g.db.users.get_user_and_accounts(user_email_id=email)
+    if len(user_accounts) > 0:
+        user_account = user_accounts[0]
+        EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
+        partner_account_company = ""
+        if user_account["partner_account"] is not None:
+            partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
+            partner_account_company = partner_account.company()
+        send_email(
+            "BlockTrust Network New Registration Information",
+            render_email("new_account_info.html", {
+                'user_account': user_account,
+                'partner_account_company': partner_account_company,
+                'sectors_by_id': sectors_by_id
+            }), "nisheet.thakur@blocktrustnetwork.com"
+        )
 
 
 def login(identifier, password=""):

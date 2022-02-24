@@ -516,7 +516,7 @@ class Users:
         else:
             return []
 
-    def get_user_and_accounts(self, user_id=NO_VALUE):
+    def get_user_and_accounts(self, user_id=NO_VALUE, user_email_id=NO_VALUE):
         """
         Gets the user and accounts based on parameters
 
@@ -528,7 +528,7 @@ class Users:
         """
 
         base_query = """
-            SELECT *, u.id as user_id, a.id as account_id FROM users u
+            SELECT *, u.id as user_id, a.id as account_id, u.phone as user_phone, a.phone as account_phone FROM users u
             INNER JOIN account_users au on au.user = u.id
             INNER JOIN accounts a on a.id = au.account 
         """
@@ -538,6 +538,10 @@ class Users:
         if user_id is not NO_VALUE:
             query_conditions.append("u.id = %(user_id)s")
             query_values["user_id"] = user_id
+
+        if user_email_id is not NO_VALUE:
+            query_conditions.append("u.email = %(user_email_id)s")
+            query_values["user_email_id"] = user_email_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
