@@ -49,7 +49,7 @@
                                         title="This is an internal number assigned to the partner organization which associates the account with their organization.  May be an “account number” or “patron ID”. A partner ID is not needed if there is no partner. ">
                                     </a>
                                 </label>
-                                <input type="text" class="form-control" id="edit_partner_id">
+                                <input type="text" class="form-control" id="edit_affiliate_id">
                                 <span class="focus-border"></span>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
     var account_state = '{{account_row.state()}}'
     var account_id = '{{account_row.id()}}'
     var account_partner = '{{account_row.partner_account_id()}}'
-    var affiliate_id = '{{account_row.affiliate_id()}}'
+    var account_affiliate_id = '{{account_row.affiliate_id()}}'
 </script>
 <script type="module" src="/static/entry_points/employee/accounts/edit-selected-account.mjs"></script>
 {% endblock employee_content %}
