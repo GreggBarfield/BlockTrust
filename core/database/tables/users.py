@@ -515,3 +515,39 @@ class Users:
             return user_rows
         else:
             return []
+
+    def get_user_and_accounts(self, user_id=NO_VALUE):
+        """
+        Gets the user and accounts based on parameters
+
+        Params:
+            user_id: user id
+
+        Returns:
+            A list of user and account rows joined or an empty list
+        """
+
+        # Need to add account_id and user_id in base query as "id" columns get over written
+        base_query = """
+            SELECT *, u.id as user_id, a.id as account_id FROM users u
+            INNER JOIN account_users au on au.user = u.id
+            INNER JOIN accounts a on a.id = au.account 
+        """
+        query_conditions = []
+        query_values = {}
+
+        if user_id is not NO_VALUE:
+            query_conditions.append("u.id = %(user_id)s")
+            query_values["user_id"] = user_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
+        else:
+            return []
