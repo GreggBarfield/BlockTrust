@@ -3,7 +3,7 @@ const Y_SPACING_VAL = 8;
 
 export let CreatePrintFlyerButton = (salesData) => {
     let button = document.createElement("button");
-    button.className = "btn btn-primary btn-sm";
+    button.className = "btn btn-outline-primary btn-sm";
     button.textContent = "Create Flyer";
     button.style.display="none"
 
