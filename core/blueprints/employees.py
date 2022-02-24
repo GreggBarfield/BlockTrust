@@ -205,7 +205,15 @@ def serve_edit_account():
 @crut.require_employee
 def serve_edit_selected_account(account_id):
     account_row = g.db.accounts.get_account_by_id(account_id)
-    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
+    partners = g.db.accounts.get_accounts(
+        sector=sectors_by_name["Cow-Calf"],
+        is_partner=1,
+        is_partner_used_for_signup=1
+    )
+    return employee_render("/employee/accounts/edit-selected-account.html", {
+        "account_row": account_row,
+        "partners": partners
+        })
 
 
 @bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
@@ -213,11 +221,13 @@ def serve_edit_selected_account(account_id):
 def serve_apply_changes_to_account(account_id):
     g.db.accounts.update_account(
         account_id=account_id,
-        company=request.form["company"],
-        address=request.form["address"],
-        city=request.form["city"],
-        state=request.form["state"],
-        zip=request.form["zip_code"]
+        partner_account=format_field(request.form["partner"]),
+        affiliate_id=format_field(request.form["partner_id"]),
+        company=format_field(request.form["company"]),
+        address=format_field(request.form["address"]),
+        city=format_field(request.form["city"]),
+        state=format_field(request.form["state"]),
+        zip=format_field(request.form["zip_code"])
     )
     return {"redirect": "/employee/dashboard"}
 
