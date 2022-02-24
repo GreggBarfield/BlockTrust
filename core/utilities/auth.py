@@ -266,7 +266,7 @@ def confirm(email):
                 'user_account': user_account,
                 'partner_account_company': partner_account_company,
                 'sectors_by_id': sectors_by_id
-            }), "nisheet.thakur@blocktrustnetwork.com"
+            }), SUPPORT_GENERAL_EMAIL
         )
 
 
@@ -581,18 +581,21 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
-        partner_account_company = ""
-        if account.partner_account_id() is not None:
-            partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
-            partner_account_company = partner_account.company()
-        send_email(
-            "BlockTrust Network New Invited User Registration Information",
-            render_email("new_account_info.html", {
-                'user': user,
-                'account': account,
-                'partner_account_company': partner_account_company
-            }), SUPPORT_GENERAL_EMAIL
-        )
+        user_accounts = g.db.users.get_user_and_accounts(user_email_id=email)
+        if len(user_accounts) > 1:
+            user_account = user_accounts[0]
+            partner_account_company = ""
+            if account.partner_account_id() is not None:
+                partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
+                partner_account_company = partner_account.company()
+            send_email(
+                "BlockTrust Network New Invited User Registration Information",
+                render_email("new_account_info.html", {
+                    'user_account': user_account,
+                    'partner_account_company': partner_account_company,
+                    'sectors_by_id': sectors_by_id
+                }), SUPPORT_GENERAL_EMAIL
+            )
     else:
         raise Exception(email_validation["message"])
 
