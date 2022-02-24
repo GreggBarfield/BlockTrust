@@ -171,8 +171,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
 
-    print(partner)
-    print(affiliate_id)
     # Password should equal confirm_password
 
     if password != confirm_password:
