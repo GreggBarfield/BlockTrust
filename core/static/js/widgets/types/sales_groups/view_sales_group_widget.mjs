@@ -21,40 +21,34 @@ export class ViewSalesGroupWidget extends Widget {
             let firstRow = document.createElement("div");
             firstRow.className = "d-flex align-items-end";
             firstRow.appendChild(CreatePrintFlyerButton(salesGroup));
-            firstRow.appendChild(this.createQRLinkBtn());
-            firstRow.appendChild(this.createQRCodeImg());
+            firstRow.appendChild(createQRLinkBtn(this.shareableLink));
+            firstRow.appendChild(createQRCodeImg(this.qrSource));
             this.frame.append(firstRow);
 
-            this.displaySalesGroup(salesGroup);
+            new SalesGroupViewer(salesGroup, this.frame);
         });
-
 
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
 
     }
+}
 
-    createQRLinkBtn() {
-        let copyLinkButton = document.createElement("button");
-        copyLinkButton.className = "btn btn-outline-primary btn-sm";
-        copyLinkButton.innerHTML = "Copy Link";
-        let that = this;
-        copyLinkButton.onclick = function () {
-            navigator.clipboard.writeText(that.shareableLink);
-        };
-        return copyLinkButton;
-    }
+function createQRLinkBtn(shareableLink) {
+    let copyLinkButton = document.createElement("button");
+    copyLinkButton.className = "btn btn-outline-primary btn-sm";
+    copyLinkButton.innerHTML = "Copy Link";
+    copyLinkButton.onclick = function () {
+        navigator.clipboard.writeText(shareableLink);
+    };
+    return copyLinkButton;
+}
 
-    createQRCodeImg() {
-        let qrImg = document.createElement("img");
-        qrImg.src = this.qrSource;
-        qrImg.className = "ml-auto";
-        qrImg.id = "sales_group_qrcode"
-        return qrImg;
-    }
-
-    displaySalesGroup(salesGroup) {
-        this.salesGroupViewer = new SalesGroupViewer(salesGroup, this.frame);
-    }
+function createQRCodeImg(qrSource) {
+    let qrImg = document.createElement("img");
+    qrImg.src = qrSource;
+    qrImg.className = "ml-auto";
+    qrImg.id = "sales_group_qrcode"
+    return qrImg;
 }
