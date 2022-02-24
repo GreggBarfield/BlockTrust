@@ -267,7 +267,7 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
+    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -286,7 +286,7 @@ class Users:
         """
         username = Users._format_field(username)
 
-        if password is not NO_VALUE and len(password) > 0:
+        if password is not None:
             password = Users._format_field(password)
             if len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
@@ -298,7 +298,7 @@ class Users:
                 raise UsersException("Password and Confirm password are not the same!")
 
         # Process phone number
-        if phone != NO_VALUE:
+        if phone is not NO_VALUE:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:
@@ -328,7 +328,8 @@ class Users:
                             "phone=:phone,",
                             phone=phone
                         )
-        if password is not NO_VALUE:
+        #password should never be none
+        if password is not None:
             set_frags = frag(
                             set_frags,
                             "password=:password,",
