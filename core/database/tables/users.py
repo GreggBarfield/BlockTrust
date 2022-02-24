@@ -286,9 +286,9 @@ class Users:
         """
         username = Users._format_field(username)
 
-        if password is not NO_VALUE and len(password) > 0:
+        if password is not NO_VALUE:
             password = Users._format_field(password)
-            if len(password) < 8:
+            if password is None or len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
 
             if len(password.encode("utf-8")) > 60:
@@ -298,7 +298,7 @@ class Users:
                 raise UsersException("Password and Confirm password are not the same!")
 
         # Process phone number
-        if phone != NO_VALUE:
+        if phone is not NO_VALUE:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:

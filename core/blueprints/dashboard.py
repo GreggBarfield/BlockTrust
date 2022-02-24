@@ -1,7 +1,7 @@
+from core.database.no_value import NoValue
 from core.database.tables.notification_recipients import NotificationRecipients
-from core.renderers.outside import outside_render
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
+    request, Blueprint, g, redirect, url_for
 )
 
 from core.config import FLATFILE_LICENSE
@@ -18,7 +18,6 @@ from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException
 from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
@@ -388,13 +387,13 @@ def serve_edit_edituser():
     if request.method == 'POST':
         try:
             g.db.users.update_user(
-                        username=g.user.username(),
-                        first_name=request.form["first"],
-                        last_name=request.form["last"],
-                        phone=request.form["phone"],
-                        password=request.form["password"],
-                        confirm_password=request.form["confirm_password"]
-                        )
+                username=g.user.username(),
+                first_name=request.form["first"],
+                last_name=request.form["last"],
+                phone=request.form["phone"],
+                password=request.form["password"] if request.form["password"] != "" else NoValue(),
+                confirm_password=request.form["confirm_password"] if request.form["confirm_password"] != "" else NoValue()
+            )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
