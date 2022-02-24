@@ -17,17 +17,15 @@ export class ViewSalesGroupWidget extends Widget {
             {
                 "sales_group": this.salesGroupID
             }
-        ).then((data) => {
-            this.sales_group = data;
-
+        ).then((salesGroup) => {
             let firstRow = document.createElement("div");
             firstRow.className = "d-flex align-items-end";
-            firstRow.appendChild(CreatePrintFlyerButton(data));
+            firstRow.appendChild(CreatePrintFlyerButton(salesGroup));
             firstRow.appendChild(this.createQRLinkBtn());
             firstRow.appendChild(this.createQRCodeImg());
             this.frame.append(firstRow);
 
-            this.displaySalesGroup();
+            this.displaySalesGroup(salesGroup);
         });
 
 
@@ -56,7 +54,7 @@ export class ViewSalesGroupWidget extends Widget {
         return qrImg;
     }
 
-    displaySalesGroup() {
-        this.salesGroupViewer = new SalesGroupViewer(this.sales_group, this.frame);
+    displaySalesGroup(salesGroup) {
+        this.salesGroupViewer = new SalesGroupViewer(salesGroup, this.frame);
     }
 }
