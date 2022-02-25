@@ -173,24 +173,23 @@ export class EditSalesGroupWidget extends Widget {
         let card = document.createElement("div");
         card.className = "card";
 
-        let cardHeader = document.createElement("h5");
-        cardHeader.className = "mt-2";
-        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        let editGroupName = document.createElement("h5");
+        editGroupName.className = "mt-2";
+        editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
 
         let saleGroupNickname = "MarketTrust Sale";
         if (this.data.hasOwnProperty('group_name') && this.data.group_name != ""){
             saleGroupNickname = this.data.group_name;
         }
-        cardHeader.textContent = "Edit Sales Group " + this.data.id + ": " + saleGroupNickname;
+        editGroupName.textContent = "Edit Sales Group " + this.data.id + ": " + saleGroupNickname;
 
-        let editGroupName = document.createElement("div");
-        editGroupName.className = "card-header form-group d-flex justify-content-between";
-        editGroupName.style = "padding:5px;padding-left: 15px;"
-        editGroupName.append(cardHeader);
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between";
+        cardHeader.style = "padding:5px;padding-left: 15px;"
+        cardHeader.append(editGroupName);
 
         let btnQrDiv = document.createElement("div");
         btnQrDiv.className = "d-flex align-items-end flex-row";
-        editGroupName.append(btnQrDiv);
 
         this.printFlyerButton = CreatePrintFlyerButton(this.data);
         btnQrDiv.appendChild(this.printFlyerButton);
@@ -208,7 +207,8 @@ export class EditSalesGroupWidget extends Widget {
         qrImg.id = "sales_group_qrcode"
         btnQrDiv.append(qrImg);
 
-        card.append(editGroupName);
+        cardHeader.append(btnQrDiv);
+        card.append(cardHeader);
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body";
