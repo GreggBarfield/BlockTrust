@@ -297,6 +297,7 @@ export class MarketDataFilterWidget extends Widget {
             let url = "/widgets/data/remove_usda_favorites_for_account";
             fetch(url, options).then(() => {
                 selectSelf.remove(selectSelf.options.selectedIndex);
+                // resetting the select so the placeholder text appears and there is no selected value
                 $(selectSelf).select2('val', 0);
                 this.resetFavRowBtns(btnDiv);
             });
