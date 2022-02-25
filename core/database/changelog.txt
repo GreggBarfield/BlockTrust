@@ -1114,11 +1114,11 @@ UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
 
 /* Conner Charles 02/04/2022 */
-CREATE TABLE `usda_account_favorites` (
+CREATE TABLE `usda_favorites_for_accounts` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `account` VARCHAR(127) NULL DEFAULT NULL,
-  `state` VARCHAR(5) NULL DEFAULT NULL,
-  `city_id` VARCHAR(10) NULL DEFAULT NULL,
+  `account_id` INT NULL DEFAULT NULL,
+  `state` VARCHAR(2) NULL DEFAULT NULL,
+  `slug_id` INT NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
 

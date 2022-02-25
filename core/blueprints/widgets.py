@@ -1,3 +1,4 @@
+import json
 from flask import (
     Flask, request, session, Blueprint, g, redirect, render_template
 )
@@ -11,6 +12,8 @@ from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
+from ..database.tables import zip_codes
+from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -25,8 +28,6 @@ from ..utilities import crut
 from ..data_requests.router import unauth_route
 
 from time import time
-
-from ..database.tables import zip_codes
 
 bp = Blueprint('widgets_bp', __name__)
 
@@ -535,28 +536,21 @@ def serve_get_sustainability_timeline_data():
             'order': ordering
         }, 200
 
-@bp.route('/widgets/data/get_usda_favorites', methods=['POST'])
+@bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_get_usda_favorites():
-        return {
-            'favorites': g.db.usda_account_favorites.get_by_account_with_names(account=g.account.id())
-        }, 200
+    return { 'favorites': USDAFavoritesForAccounts(g.db).get_by_account_with_names(g.account.id()) }
 
-@bp.route('/widgets/data/save_usda_favorite', methods=['POST'])
+@bp.route('/widgets/data/save_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_save_usda_favorites():
-    g.db.usda_account_favorites.insert(
-        g.account.id(), 
-        request.json["state"],
-        request.json["city_id"])
-
+    request_json = json.loads(request.data)
+    USDAFavoritesForAccounts(g.db).insert_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
 
-@bp.route('/widgets/data/remove_usda_favorite', methods=['POST'])
+@bp.route('/widgets/data/remove_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_remove_usda_favorite():
-    g.db.usda_account_favorites.delete(
-        g.account.id(),
-        request.json["state"],
-        request.json["city_id"])
+    request_json = json.loads(request.data)
+    USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200

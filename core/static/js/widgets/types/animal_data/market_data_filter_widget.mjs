@@ -6,40 +6,40 @@ export class MarketDataFilterWidget extends Widget {
     }
 
     initType() {
-        this.getData(
-            "get_usda_favorites",
-            {}
-        ).then((data) => {
-            this.favorites = data.favorites;
-            if(this.favorites != null && this.favorites.length > 0)
-                this.makeFavorites();
-        });
+        Promise.all([
+            this.getData(
+                "get_usda_favorites_for_account",
+                {}
+            ).then((data) => {
+                this.favorites = data.favorites;
+            }),
 
-        this.onSomeDataLoaded(function () {
-            this.frame.innerHTML = "";
-            
-            let firstRow = document.createElement("div");
-            firstRow.id = "first";
-            this.frame.append(firstRow);
-
-            let secondRow = document.createElement("div");
-            secondRow.id = "second";
-            this.frame.append(secondRow);            
-        });
-
-        this.getData(
-            "data_request",
-            {
-                request: {
-                    type: 'market_data_cache',
-                    params: {}
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'market_data_cache',
+                        params: {}
+                    }
                 }
-            }
-        ).then((data) => {
-            this.state_rows = data.result.states;
-            this.city_rows = data.result.cities_per_state;
-            this.makeStateDropDown();
+            ).then((data) => {
+                this.state_rows = data.result.states;
+                this.city_rows = data.result.cities_per_state;
+            })
+
+        ]).then(() => {
+            this.frame.innerHTML = "";
+            let favRow = document.createElement("div");
+            this.frame.append(favRow);
+            let filterRow = document.createElement("div");
+            this.frame.append(filterRow);
+
+            if(this.favorites != null && this.favorites.length > 0)
+                this.makeFavorites(favRow);
+            this.makeStateDropDown(filterRow);
         });
+
+
     }
 
     createSection(form, name) {
@@ -83,14 +83,11 @@ export class MarketDataFilterWidget extends Widget {
             }
         }
 
-        let textPlaceHolder = "Select a State";
-        if(placeholder != "")
-            textPlaceHolder = placeholder
         $(select).select2({
             data: optionsStacked,
             multiple: false,
             tags: false,
-            placeholder: textPlaceHolder
+            placeholder: placeholder !="" ? placeholder : "Select a state"
         });
 
         // Add event handler - on change
@@ -104,9 +101,35 @@ export class MarketDataFilterWidget extends Widget {
         return select;
     }
 
-    getCityData() {
-        this.divCityDropDown.innerHTML = "";
+    makeStateDropDown(row) {
+        let divStateDropdown = document.createElement("div");
+        divStateDropdown.className = "col-4";
 
+        let values = [];
+        for (const row in this.state_rows) {
+            values.push(this.state_rows[row]['market_location_state']);
+        }
+        values.sort();
+
+        let filterSection = this.createSection(row, "New Selection")
+        let selectStateDropdown = this.createSelect(divStateDropdown, "State", values)
+
+        let divFilterBtn = document.createElement("div");
+        divFilterBtn.className = "col-4 text-left align-self-end";
+        let divCityDropdown = document.createElement("div");
+        divCityDropdown.className = "col-4";
+
+        selectStateDropdown.oninput = () => {
+            this.state = selectStateDropdown.value;
+            this.resetFilterRowBtns();
+            this.makeCityDropDown(filterSection, divFilterBtn, divCityDropdown);
+        };
+
+        filterSection.append(divStateDropdown);
+        filterSection.append(divCityDropdown);
+    }
+
+    makeCityDropDown(section, btnDiv, divCityDropdown) {
         let cities = [];
         let city_ids = {};
         for (const row in this.city_rows[this.state]) {
@@ -116,89 +139,64 @@ export class MarketDataFilterWidget extends Widget {
             city_ids[item] = this.city_rows[this.state][row]['slug_id'];
         }
         cities.sort();
-        let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
-        
-        let self = this;
 
-        $(select).on("change", function() {
-            //since createFilterViewBtn() is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
-            self.createFilterViewBtn(this);
-            self.filterRow.append(self.divFilterBtn);
-        });
-
-        // Put HTML in frame
-        this.filterRow.append(this.divCityDropDown);
-    }
-
-    makeStateDropDown() {
-        this.divStateDropDown = document.createElement("div");
-        this.divStateDropDown.className = "col-4";
-        this.divCityDropDown = document.createElement("div");
-        this.divCityDropDown.className = "col-4";
-
-        let values = [];
-        for (const row in this.state_rows) {
-            values.push(this.state_rows[row]['market_location_state']);
+        let cityDropdown = document.getElementById("city-dropdown");
+        if (cityDropdown == null) {
+            cityDropdown = document.createElement("div");
+            cityDropdown.id = "city-dropdown";
+            divCityDropdown.append(cityDropdown);
         }
-        values.sort();
 
-        let secondRow = document.getElementById("second");
-        this.filterRow = this.createSection(secondRow, "New Selection")
-        let select = this.createSelect(this.divStateDropDown, "State", values)
-
-        let self = this;
-
-        $(select).on("change", function() {
-            //since makeCityDropDown() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
-            self.resetFilterRowBtns();
-            self.makeCityDropDown(this);
-        });
-
-        this.filterRow.append(this.divStateDropDown);
+        let selectCityDropdown = this.createSelect(cityDropdown, "City", cities, city_ids);
+        
+        selectCityDropdown.oninput = () => {
+            this.createApplyFilterBtn(selectCityDropdown, btnDiv);
+            section.append(btnDiv);
+        };
     }
 
-    makeFavorites() {
-        this.divFavDropDown = document.createElement("div");
-        this.divFavDropDown.className = "col-4";
+    makeFavorites(row) {
+        let divFavDropdown = document.createElement("div");
+        divFavDropdown.className = "col-4";
 
         let cities = [];
         let city_ids = {};
         for (const row in this.favorites) {
             let item = this.favorites[row]['city_name'] 
                 + ", " + this.favorites[row]['state']
-                + " (" + this.favorites[row]['city_id'] + ")";
+                + " (" + this.favorites[row]['slug_id'] + ")";
             cities.push(item);
-            city_ids[item] = this.favorites[row]['city_id'];
+            city_ids[item] = this.favorites[row]['slug_id'];
         }
         cities.sort();
 
-        let firstRow = document.getElementById("first");
-        this.favRow = this.createSection(firstRow, "Favorites")
-        let select = this.createSelect(this.divFavDropDown, "", 
+        let favSection = this.createSection(row, "Favorites");
+        favSection.append(divFavDropdown);
+        let selectFavDropdown = this.createSelect(divFavDropdown, "", 
             cities, city_ids, "Select a favorite location");
 
-        let self = this;
-        
-        $(select).on("change", function() {
-            //since createFavViewBtn() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
-            self.createFavRowBtns();
-            self.createFavViewBtn(this);
-            self.createRemoveFavBtn(this);
-        });
+        let divFavBtn = document.createElement("div");
+        divFavBtn.className = "col-4 text-left align-self-end";
+        favSection.append(divFavBtn);
 
-        this.favRow.append(this.divFavDropDown);
+        selectFavDropdown.oninput = () => {
+            this.createFavRowBtns(favSection, divFavBtn);
+            this.createFavViewBtn(selectFavDropdown, divFavBtn);
+            this.createRemoveFavBtn(selectFavDropdown, divFavBtn);
+        };
     }
 
     resetFilterRowBtns() {
         let viewBtn = document.getElementById("filter-view-btn");
         if(viewBtn != null)
             viewBtn.remove();
-
-        if(this.divFilterBtn != null)
-            this.divFilterBtn.remove();
+        
+        let cityDropdown = document.getElementById("city-dropdown");
+        if(cityDropdown != null)
+            cityDropdown.remove();
     }
 
-    resetFavRowBtns() {
+    resetFavRowBtns(btnDiv) {
         let viewBtn = document.getElementById("fav-view-btn");
         if(viewBtn != null)
             viewBtn.remove();
@@ -207,42 +205,17 @@ export class MarketDataFilterWidget extends Widget {
         if(removeBtn != null)
             removeBtn.remove();
 
-        if(this.divFavBtn != null)
-            this.divFavBtn.remove();
+        if(btnDiv != null)
+            btnDiv.remove();
     }
 
-    createFavRowBtns() {
-        if(this.divFavBtn == null || this.favRow.lastChild != this.divFavBtn) {
-            this.divFavBtn = document.createElement("div");
-            this.divFavBtn.className = "col-4 text-left align-self-end";
-            this.favRow.append(this.divFavBtn);
+    createFavRowBtns(section, btnDiv) {
+        if(btnDiv.childNodes.length > 0 || section.lastChild != btnDiv) {
+            section.append(btnDiv);
         }
     }
 
-    makeCityDropDown(selectSelf) {
-        if(selectSelf.value == "") {
-            return;
-        }
-    
-        this.state = selectSelf.value;
-    
-        this.divCityDropDown.innerHTML = '\
-        <div class="d-flex justify-content-center">\
-            <div class="spinner-border" role="status">\
-                <span class="sr-only">Loading...</span>\
-            </div>\
-        </div>';
-    
-        this.getCityData();
-        this.filterRow.append(this.divCityDropDown);
-    }
-
-    createFilterViewBtn(selectSelf) {    
-        if(this.divFilterBtn == null) {
-            this.divFilterBtn = document.createElement("div");
-            this.divFilterBtn.className = "col-4 text-left align-self-end";
-        }
-    
+    createApplyFilterBtn(selectSelf, btnDiv) {
         if(selectSelf.value == "") {
             return;
         }
@@ -261,10 +234,10 @@ export class MarketDataFilterWidget extends Widget {
                 this.state + "/" + selectedItem.value);        
         }
     
-        this.divFilterBtn.append(button);
+        btnDiv.append(button);
     }
 
-    createFavViewBtn(selectSelf) {    
+    createFavViewBtn(selectSelf, btnDiv) {    
         if(selectSelf.value == "") {
             return;
         }
@@ -287,10 +260,10 @@ export class MarketDataFilterWidget extends Widget {
                 state + "/" + selectedItem.value);        
         }
     
-        this.divFavBtn.append(button);
+        btnDiv.append(button);
     }
 
-    createRemoveFavBtn(selectSelf) {
+    createRemoveFavBtn(selectSelf, btnDiv) {
         if(selectSelf.value == "") {
             return;
         }
@@ -309,22 +282,26 @@ export class MarketDataFilterWidget extends Widget {
         let state = selectedItem.text.split(", ")[1];
         state = state.split(" (")[0];
 
-        button.addEventListener("click", () => {
-            $.ajax({
-                url: "/widgets/data/remove_usda_favorite",
-                data: JSON.stringify({
+        button.onclick = () => {
+            let options = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
                     "state": state,
-                    "city_id": selectedItem.value
-                }),
-                contentType: 'application/json',
-                method: "POST"
-            }).then(()=>{
+                    "slug_id": selectedItem.value
+                })
+            };
+
+            let url = "/widgets/data/remove_usda_favorites_for_account";
+            fetch(url, options).then(() => {
                 selectSelf.remove(selectSelf.options.selectedIndex);
                 $(selectSelf).select2('val', 0);
-                this.resetFavRowBtns();
+                this.resetFavRowBtns(btnDiv);
             });
-        });
+        };
     
-        this.divFavBtn.append(button);
+        btnDiv.append(button);
     }
 }

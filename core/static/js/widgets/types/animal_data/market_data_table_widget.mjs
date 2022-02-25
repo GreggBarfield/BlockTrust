@@ -9,31 +9,32 @@ export class MarketDataTableWidget extends Widget {
         this.slug_id = this.frame.getAttribute('slug_id');
         this.state = this.frame.getAttribute('state');
 
-        this.getData(
-            "get_usda_favorites",
-            {}
-        ).then((data) => {
-            this.isFavorite = false;
-            this.favorite = null;
-
-            for (const item of data.favorites) {
-                if(item.city_id == this.slug_id) {
-                    this.isFavorite = true;
-                    this.favorite = item;
+        Promise.all([
+            this.getData(
+                "get_usda_favorites_for_account",
+                {}
+            ).then((data) => {
+                this.isFavorite = false;
+                this.favorite = null;
+    
+                for (const item of data.favorites) {
+                    if(item.slug_id == this.slug_id) {
+                        this.isFavorite = true;
+                        this.favorite = item;
+                    }
                 }
-            }
-            this.makeFavoriteBtn();
-        });
+            }),
 
-        this.onSomeDataLoaded(function () {
+            this.getData(
+                "get_market_data/" + this.slug_id,
+                {}
+            ).then((data) => {
+                this.match_rows = data.market_data;
+            })
+
+        ]).then(() => {
             this.frame.innerHTML = "";
-        });
-
-        this.getData(
-            "get_market_data/" + this.slug_id,
-            {}
-        ).then((data) => {
-            this.match_rows = data.market_data;
+            this.makeFavoriteBtn();
             this.makeTable();
         });
     }
@@ -41,7 +42,7 @@ export class MarketDataTableWidget extends Widget {
     makeFavoriteBtn() {
         let btnDiv = document.createElement("div");
         let button = document.createElement("a");
-        button.id = "add-fav-btn";
+        button.id = "fav-btn";
         button.className = "btn btn-primary btn-sm text-white mb-3";
         button.style = "cursor: pointer";
         if(this.isFavorite){
@@ -62,30 +63,33 @@ export class MarketDataTableWidget extends Widget {
         let btnText = null;
 
         if(this.isFavorite) {
-            handle = "remove_usda_favorite";
+            handle = "remove_usda_favorites_for_account";
             requestData = {
                 "state": this.state,
-                "city_id": this.slug_id
+                "slug_id": this.slug_id
             };
             btnText = "Add to favorites";
             this.isFavorite = false;
         } else {
-            handle = "save_usda_favorite";
+            handle = "save_usda_favorites_for_account";
             requestData = {
                 "state": this.state,
-                "city_id": this.slug_id
+                "slug_id": this.slug_id
             };
             btnText = "Remove from favorites";
             this.isFavorite = true;
         }
 
-        $.ajax({
-            url: "/widgets/data/" + handle,
-            data: JSON.stringify(requestData),
-            contentType: 'application/json',
-            method: "POST"
-        }).then(()=>{
-            let button = document.getElementById("add-fav-btn");
+        let options = {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        };
+
+        fetch("/widgets/data/" + handle, options).then(() => {
+            let button = document.getElementById("fav-btn");
             button.textContent = btnText;
         });
     }
