@@ -5,7 +5,7 @@ import { AsyncForm } from '../../../../global/async_form.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
-import { FormGroup, DateFormGroup } from '../../../ui/inputs.mjs';
+import { FormGroup, DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 
 export class EditSalesGroupWidget extends Widget {
@@ -46,7 +46,7 @@ export class EditSalesGroupWidget extends Widget {
             toolTip.setAttribute("title" ,title);
             position.append(toolTip);           
             $(document).ready(function(){
-                $('[data-toggle='+dataToggle+']').tooltip(); 
+                $('[data-toggle='+dataToggle+']').tooltip();
             });
         }
        
@@ -114,6 +114,14 @@ export class EditSalesGroupWidget extends Widget {
             if (hasTooltip)
                 addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
             return dateFormGroup;
+        }
+
+        function createDateRangePicker(row,name,startEpoch,endEpoch,hasTooltip=false,dataToggle="",tooltipText="") {
+            let startDate = new DateRangeFormGroup(row, name, startEpoch, endEpoch);
+            startDate.getFormGroup().classList.add("col-md-4");
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,startDate.getFormLabel());
+            return startDate;
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
@@ -215,8 +223,16 @@ export class EditSalesGroupWidget extends Widget {
         let salesGroupName = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
-        let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
-        let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
+        let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.data.start || null, this.data.end || null, true, "marketingRange","This is the date range for the sale.");
+        let marketingSaleLocationType = createSelect({
+            row: marketingRow,
+            name: "Sale Location Type",
+            options: ["Off Ranch", "Auction"],
+            values: "Off Ranch",
+            multiple: false,
+            tags: false,
+            placeholder: "Select Sale Location Type"
+        });
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
@@ -477,13 +493,13 @@ export class EditSalesGroupWidget extends Widget {
                     },
                     "delivery_location": marketingLocation.value,
                     "zip": parseInt(marketingZIP.value),
-                    "start": marketingStart.getTime(),
-                    "end": marketingEnd.getTime(),
+                    "start": marketingDates.getStartTime(),
+                    "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
                     "is_archived": archiveSwitch.isChecked(),
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
-                    auction_sale: null                    
+                    auction_sale: null                   
                 }
             }
         });
