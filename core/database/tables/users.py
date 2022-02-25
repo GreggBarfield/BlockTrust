@@ -122,28 +122,6 @@ class Users:
         )
         return rows
 
-    def verify_email(self, email):
-        """
-            Confirms a user profile and marks it as verified
-
-            Params:
-            email: User email to be verified
-
-            Returns:
-            None
-            """
-
-        self._db.execute_d(
-                """
-                UPDATE users
-                SET is_email_verified=1
-                WHERE users.email=%(email)s
-                """,
-                {
-                    "email": email
-                }
-                )
-
     def get_email_verified_status(self, email):
         """
         Confirms if the user email is verified
@@ -517,7 +495,7 @@ class Users:
         else:
             return []
 
-    def get_user_and_accounts(self, user_id=NO_VALUE, user_email_id=NO_VALUE):
+    def get_users_and_accounts(self, user_id=NO_VALUE, user_email=NO_VALUE):
         """
         Gets the user and accounts based on parameters
 
@@ -540,9 +518,9 @@ class Users:
             query_conditions.append("u.id = %(user_id)s")
             query_values["user_id"] = user_id
 
-        if user_email_id is not NO_VALUE:
-            query_conditions.append("u.email = %(user_email_id)s")
-            query_values["user_email_id"] = user_email_id
+        if user_email is not NO_VALUE:
+            query_conditions.append("u.email = %(user_email)s")
+            query_values["user_email"] = user_email
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

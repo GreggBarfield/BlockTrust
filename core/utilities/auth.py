@@ -251,23 +251,21 @@ def change_user_password(email, new_password, confirm_password):
 
 def confirm(email):
     """Confirms that the user email is verified"""
-    g.db.users.verify_email(email)
-    user_accounts = g.db.users.get_user_and_accounts(user_email_id=email)
-    if len(user_accounts) > 0:
-        user_account = user_accounts[0]
-        EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
-        partner_account_company = ""
-        if user_account["partner_account"] is not None:
-            partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
-            partner_account_company = partner_account.company()
-        send_email(
-            "BlockTrust Network New Registration Information",
-            render_email("new_account_info.html", {
-                'user_account': user_account,
-                'partner_account_company': partner_account_company,
-                'sectors_by_id': sectors_by_id
-            }), SUPPORT_GENERAL_EMAIL
-        )
+    user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
+    g.db.users.update_user(username=user_account["username"], is_email_verified=1)
+    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
+    partner_account_company = ""
+    if user_account["partner_account"] is not None:
+        partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
+        partner_account_company = partner_account.company()
+    send_email(
+        "BlockTrust Network New Registration Information",
+        render_email("new_account_info.html", {
+            'user_account': user_account,
+            'partner_account_company': partner_account_company,
+            'sectors_by_id': sectors_by_id
+        }), SUPPORT_GENERAL_EMAIL
+    )
 
 
 def login(identifier, password=""):
@@ -581,7 +579,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
-        user_accounts = g.db.users.get_user_and_accounts(user_email_id=email)
+        user_accounts = g.db.users.get_users_and_accounts(user_email_id=email)
         if len(user_accounts) > 1:
             user_account = user_accounts[0]
             partner_account_company = ""
