@@ -179,46 +179,6 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
 
-        function createCustomSelect({row, name, customOptions, selectedValues, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText=""){
-            let id = "domuid" + window.DOMUIDNext++;
-            if (!Array.isArray(selectedValues)) {
-                selectedValues = [selectedValues];
-            }
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
-            let select = document.createElement("select");
-            select.className = "select2-hidden-accessible";
-            select.id = id;
-            select.required = true
-            group.append(select);
-            let optionsStacked = [];
-            optionsStacked.push({
-                id:'0',
-                text: "----None----"
-            })
-            for (const option of customOptions) {
-                optionsStacked.push({
-                    id: option.id,
-                    text: option.text
-                })
-            }
-            for (const value of selectedValues) {
-                for (const option of optionsStacked) {
-                    if (option.text == value) {
-                        option.selected = true;
-                        break;
-                    }
-                }
-            }
-
-            $(select).select2({
-                data: optionsStacked,
-                multiple: multiple,
-                tags: tags,
-                placeholder: placeholder
-            });
-            return select;
-        }
-
         function processAuctionMarketsData(auctionMarkets){
             let selectData=[];
             selectData.push("None");
