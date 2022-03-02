@@ -139,7 +139,8 @@ export class EditSalesGroupWidget extends Widget {
             for (const option of options) {
                 optionsStacked.push({
                     id: option,
-                    text: option
+                    text: option,
+                    value: "1"
                 })
             }
 
@@ -179,6 +180,57 @@ export class EditSalesGroupWidget extends Widget {
             }
             return select;
         }
+
+        function createCustomSelect({row, name, customOptions, selectedValues, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText=""){
+            let id = "domuid" + window.DOMUIDNext++;
+            if (!Array.isArray(selectedValues)) {
+                selectedValues = [selectedValues];
+            }
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let select = document.createElement("select");
+            select.className = "select2-hidden-accessible";
+            select.id = id;
+            select.required = true
+            group.append(select);
+            let optionsStacked = [];
+            optionsStacked.push({
+                id:'0',
+                text: "----None----"
+            })
+            for (const option of customOptions) {
+                optionsStacked.push({
+                    id: option.id,
+                    text: option.text
+                })
+            }
+            for (const value of selectedValues) {
+                for (const option of optionsStacked) {
+                    if (option.text == value) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            }
+
+            $(select).select2({
+                data: optionsStacked,
+                multiple: multiple,
+                tags: tags,
+                placeholder: placeholder
+            });
+            return select;
+        }
+
+        function processAuctionMarketsData(auctionMarkets){
+            let selectData=[];
+            selectData.push("None");
+            for(const auctionMarket of auctionMarkets){
+                let optionText = auctionMarket.name+","+auctionMarket.city+","+auctionMarket.state;
+                selectData.push(optionText);
+            }
+            return selectData;
+        }
+
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -227,13 +279,48 @@ export class EditSalesGroupWidget extends Widget {
         let marketingSaleLocationType = createSelect({
             row: marketingRow,
             name: "Sale Location Type",
-            options: ["Off Ranch", "Auction"],
-            values: "Off Ranch",
+            options: ["Off-Ranch", "Auction"],
+            values: this.data.sale_location_type || "Off-Ranch",
             multiple: false,
             tags: false,
             placeholder: "Select Sale Location Type"
         });
-        let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
+        
+        let deliveryLocation = "";
+        let auctionMarket = "";
+        if(this.data.sale_location_type === "Off-Ranch"){
+            deliveryLocation = this.data.delivery_location;
+        }
+        else{
+            auctionMarket = this.data.delivery_location;
+        }
+        
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
+        let auctionMarketData = processAuctionMarketsData(this.data.auction_markets);
+        let marketingAuctionMarketLocation = createSelect({
+            row: marketingRow,
+            name: "Auction Market",
+            options: auctionMarketData,
+            values: auctionMarket || [],
+            multiple: false,
+            tags: false,
+            placeholder: "Select Auction Market"
+        })
+        marketingSaleLocationType.onchange = () => {
+            if(marketingSaleLocationType.value === "Off-Ranch"){
+                marketingOffRanchLocation.disabled=false;
+
+                marketingAuctionMarketLocation.value="None";
+                marketingAuctionMarketLocation.disabled=true;
+            }
+            else{
+                marketingAuctionMarketLocation.disabled=false;
+
+                marketingOffRanchLocation.value="";
+                marketingOffRanchLocation.disabled=true;
+            }
+        }
+        marketingSaleLocationType.onchange()
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -491,12 +578,14 @@ export class EditSalesGroupWidget extends Widget {
                         images: that.fileEditor.getFileIDs(),
                         videos: that.VideoEditor.getVideoLinks(),
                     },
-                    "delivery_location": marketingLocation.value,
+                    "sale_location_type": marketingSaleLocationType.value,
+                    "delivery_location": marketingOffRanchLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingDates.getStartTime(),
                     "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
                     "is_archived": archiveSwitch.isChecked(),
+                    "auction_market_location": marketingAuctionMarketLocation.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   

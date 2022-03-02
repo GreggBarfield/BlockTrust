@@ -11,6 +11,9 @@ from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
+from ..database.tables.auction_markets import AuctionMarkets
+from ..database.tables.sales_groups import sale_location_type_id_to_name, sale_location_type_name_to_id
+
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -52,7 +55,12 @@ def serve_direct(name):
 @crut.require_account
 def serve_sales_group():
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
-
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(
+        is_archived=0,
+        auction_markets_order_by="name",
+        auction_markets_sort_by="ASC"
+    )
+    sale_location_type_name = sale_location_type_id_to_name[sales_group_row["sale_location_type"]]
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -65,6 +73,7 @@ def serve_sales_group():
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"], 
         "market_location": sales_group_row["market_location"],
+        "sale_location_type": sale_location_type_name,
         "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
@@ -75,7 +84,8 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.name(),
-        "is_archived":sales_group_row["is_archived"]
+        "is_archived": sales_group_row["is_archived"],
+        "auction_markets": auction_markets
     }
 
 
@@ -202,8 +212,8 @@ def serve_save_sales_group():
         raise ExportException("Start date is not selected")
     if request.json["end"] is None:
         raise ExportException("End date is not selected")
-    if len(request.json["delivery_location"].strip()) == 0:
-        raise ExportException("Delivery Location does not have a value")
+    if request.json["sale_location_type"] is None:
+        raise ExportException("Sale location type is not selected.")
     if request.json["reported"]["count"] is None:
         raise ExportException("Total animals cannot be 0")
     if request.json["reported"]["weight"] is None:
@@ -235,19 +245,28 @@ def serve_save_sales_group():
         # it was changed to a non-None value, verify new is published
         if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
             raise ExportException("Auction sale specified is not published yet.")
-
     # Alright, go ahead...
+    delivery_location = ""
+    if request.json["sale_location_type"] == sale_location_type_id_to_name[1]:
+        if len(request.json["delivery_location"].strip()) == 0:
+            raise ExportException("Delivery Location does not have a value")
+        delivery_location = request.json["delivery_location"]
+    else:
+        if request.json["auction_market_location"] == "None":
+            raise ExportException("Please select an auction market location")
+        delivery_location = request.json["auction_market_location"]
     g.db.sales_groups.update_sales_group(
         request.json["id"],
         request.json["reported"],
         request.json["published"],
         request.json["zip"],
-        request.json["delivery_location"],
+        delivery_location,
         request.json["start"],
         request.json["end"],
         request.json["auction_sale"],
         request.json["group_name"],
-        request.json["is_archived"]
+        request.json["is_archived"],
+        sale_location_type_name_to_id[request.json["sale_location_type"]]
     )
 
     return {
