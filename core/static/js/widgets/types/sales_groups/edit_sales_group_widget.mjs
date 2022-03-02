@@ -25,8 +25,6 @@ export class EditSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;
-            this.printFlyerButton = CreatePrintFlyerButton(data);
-            this.frame.appendChild(this.printFlyerButton);
             this.makeForm();
         });
         this.onSomeDataLoaded(function () {
@@ -235,31 +233,42 @@ export class EditSalesGroupWidget extends Widget {
         let card = document.createElement("div");
         card.className = "card";
 
-        let cardHeader = document.createElement("h5");
-        cardHeader.className = "";
-        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
-        cardHeader.textContent = "Edit Sales Group " + this.data.id + ":  ";
+        let editGroupName = document.createElement("h5");
+        editGroupName.className = "mt-2";
+        editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
 
-        let editGroupName = document.createElement("div");
-        editGroupName.className = "card-header form-group";
-        editGroupName.style = "padding:5px;padding-left: 15px;"
-        editGroupName.append(cardHeader);
+        let saleGroupNickname = "MarketTrust Sale";
+        if (this.data.hasOwnProperty('group_name') && this.data.group_name != ""){
+            saleGroupNickname = this.data.group_name;
+        }
+        editGroupName.textContent = "Edit Sales Group " + this.data.id + ": " + saleGroupNickname;
+
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between";
+        cardHeader.style = "padding:5px;padding-left: 15px;"
+        cardHeader.append(editGroupName);
+
+        let btnQrDiv = document.createElement("div");
+        btnQrDiv.className = "d-flex align-items-end flex-row";
+
+        this.printFlyerButton = CreatePrintFlyerButton(this.data);
+        btnQrDiv.appendChild(this.printFlyerButton);
 
         let copyLinkButton = document.createElement("button");
-        copyLinkButton.className = "btn btn-primary";
+        copyLinkButton.className = "btn btn-outline-primary btn-sm";
         copyLinkButton.innerHTML = "Copy Link";
         copyLinkButton.onclick = function () {
             navigator.clipboard.writeText(that.shareableLink);
         };
-        editGroupName.append(copyLinkButton);
+        btnQrDiv.append(copyLinkButton);
 
         let qrImg = document.createElement("img");
         qrImg.src = this.qrSource;
-        qrImg.className = "float-right";
         qrImg.id = "sales_group_qrcode"
-        editGroupName.append(qrImg);
+        btnQrDiv.append(qrImg);
 
-        card.append(editGroupName);
+        cardHeader.append(btnQrDiv);
+        card.append(cardHeader);
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body";

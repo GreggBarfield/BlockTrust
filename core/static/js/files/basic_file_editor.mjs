@@ -48,7 +48,7 @@ export class BasicFileEditor {
         this.updateTable();
 
         this.addImageButton = document.createElement("button");
-        this.addImageButton.className = "btn btn-sm btn-primary";
+        this.addImageButton.className = "btn btn-sm btn-outline-primary";
         this.addImageButton.textContent = "Add Files"
         this.addImageButton.type = "button";
         this.addImageButton.addEventListener("click", function(e) {

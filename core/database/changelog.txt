@@ -1113,6 +1113,15 @@ WHERE sector = 7
 UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
 WHERE sector = 7
 
+/* Conner Charles 02/04/2022 */
+CREATE TABLE `usda_favorites_for_accounts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL DEFAULT NULL,
+  `state` VARCHAR(2) NULL DEFAULT NULL,
+  `slug_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
 /* Conner Charles 2/11/2022 */
 ALTER TABLE `sustainability`
 CHANGE COLUMN `air_first_score` `air_first_score_points` INT NULL DEFAULT '0' ,
