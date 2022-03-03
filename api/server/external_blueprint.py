@@ -59,15 +59,15 @@ def serve_get_animal_data():
 
         match_ranch_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
             account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
-        error_message = "Access to this EID is not allowed at this time"
+        unauthorized_message = "Access to this EID is not allowed at this time"
         if len(match_ranch_sightings) == 0:
-            return {"error": error_message}, 401
+            return {"error": unauthorized_message}, 401
         else:
             match = match_ranch_sightings[0]
 
             #check if connection is established
             if Connections(g.db).get_connection_between(match["account"], account[0]["id"], connection_status["Connected"]) is None:
-                return {"error": error_message}, 401
+                return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
             if len(match_birth_date_row) > 0:
