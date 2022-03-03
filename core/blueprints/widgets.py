@@ -274,6 +274,7 @@ def serve_save_sales_group():
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
