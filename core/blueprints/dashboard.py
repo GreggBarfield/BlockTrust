@@ -511,7 +511,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(account_id):
     account_details = g.db.accounts.get_account_by_id(account_id)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == connection_status["Connected"]:
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status["Connected"]) is not None:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")

@@ -3,6 +3,7 @@ from flask import (
 )
 from core.database.database import Database
 from core.database.tables.accounts import AccountsException
+from core.database.tables.connections import Connections, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
@@ -56,14 +57,22 @@ def serve_get_animal_data():
         zip_code = None
         sustainability = {}
 
-        match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
-        if len(match_birth_date_row) > 0:
-            birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
-
         match_ranch_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
             account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
-        if len(match_ranch_sightings) > 0:
+        unauthorized_message = "Access to this EID is not allowed at this time"
+        if len(match_ranch_sightings) == 0:
+            return {"error": unauthorized_message}, 401
+        else:
             match = match_ranch_sightings[0]
+
+            #check if connection is established
+            if Connections(g.db).get_connection_between(match["account"], account[0]["id"], connection_status["Connected"]) is None:
+                return {"error": unauthorized_message}, 401
+
+            match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
+            if len(match_birth_date_row) > 0:
+                birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
+
             if match["data"] is not None:
                 data = loads(match["data"])
                 birth_weight = data.get("birth_weight", None)
@@ -146,7 +155,8 @@ def serve_get_animal_data():
         match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
         if len(match_sold_row) > 0:        
             match = match_sold_row[0]
-            marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
+            if match['time'] is not None:
+                marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
             if match["data"] is not None:
                 data = loads(match["data"])
                 marketing_method_name = data.get("method", None)
