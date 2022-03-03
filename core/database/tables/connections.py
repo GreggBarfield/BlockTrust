@@ -83,9 +83,9 @@ class Connections:
         Raises:
             ConnectionException on connection being present or connection request being present
         """
-        if self.get_connection_between(from_account_id, to_account_id) == 1:
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
             raise ConnectionException("Account is already connected!")
-        if self.get_connection_between(from_account_id, to_account_id) == 0:
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
             raise ConnectionException("Request already sent!")
         first_account = Accounts(self._db).get_account_by_id(account_id=from_account_id)
         second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
@@ -107,7 +107,7 @@ class Connections:
             }
         )
 
-    def get_connection_between(self, from_account_id, to_account_id):
+    def  get_connection_between(self, from_account_id, to_account_id, status):
         """
         Checks the connection status between two accounts
 
@@ -116,20 +116,22 @@ class Connections:
         to_account_id: Account ID being sent the invite
 
         Returns:
-        Status of connection. 0-Pending. 1-Connected, 2-Declined
+        Connection object or None
         """
-
-        status = self._db.execute_d(
+        
+        connection = self._db.execute_d(
             """
-            SELECT status FROM connections
+            SELECT * FROM connections
             WHERE ((from_account_id= %(from_account_id)s AND to_account_id=%(to_account_id)s) OR
             (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
+            AND status = %(status)s
             """,
             {
                 "from_account_id": from_account_id,
-                "to_account_id": to_account_id
+                "to_account_id": to_account_id,
+                "status": status
             }
         )
-        if len(status) >= 1:
-            return status[0]["status"]
+        if len(connection) == 1:
+            return connection[0]
         return None
