@@ -4,14 +4,15 @@ from ..tables import zip_codes
 
 NO_VALUE = NoValue()
 
-sale_location_type_name_to_id = {
+delivery_location_type_name_to_id = {
     "Off-Ranch": 1,
     "Auction": 2
 }
-sale_location_type_id_to_name = {
+delivery_location_type_id_to_name = {
     value: key
-    for key, value in sale_location_type_name_to_id.items()
+    for key, value in delivery_location_type_name_to_id.items()
 }
+
 
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
@@ -166,7 +167,7 @@ class SalesGroups:
         return self.get_sales_group_by_id(self._db.last_row_id())
 
     def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived,
-                           sale_location_type):
+                           delivery_location_type_id):
         """Updates a row.
 
         Params:
@@ -174,7 +175,7 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
-            sale_location_type: Sale location type
+            delivery_location_type: Sale location type
             delivery_location: city and state of the zip code
             start: The start time
             end: The end time
@@ -184,8 +185,10 @@ class SalesGroups:
         self._db.execute(
             """UPDATE sales_groups
                 SET reported=%(reported)s, published=%(published)s,
-                    start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s, delivery_location =  %(delivery_location)s,
-                    auction_sale=%(auction_sale)s, group_name=%(group_name)s , is_archived=%(is_archived)s, sale_location_type=%(sale_location_type)s 
+                    start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s,
+                    delivery_location =  %(delivery_location)s,auction_sale=%(auction_sale)s,
+                    group_name=%(group_name)s , is_archived=%(is_archived)s,
+                    delivery_location_type_id=%(delivery_location_type_id)s
                 WHERE id=%(id)s
             """,
             {
@@ -199,8 +202,8 @@ class SalesGroups:
                 "delivery_location": delivery_location,
                 "auction_sale": auction_sale,
                 "group_name": group_name,
-                "is_archived":is_archived,
-                "sale_location_type": sale_location_type
+                "is_archived": is_archived,
+                "delivery_location_type_id": delivery_location_type_id
             }
         )
 

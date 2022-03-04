@@ -137,8 +137,7 @@ export class EditSalesGroupWidget extends Widget {
             for (const option of options) {
                 optionsStacked.push({
                     id: option,
-                    text: option,
-                    value: "1"
+                    text: option
                 })
             }
 
@@ -245,11 +244,11 @@ export class EditSalesGroupWidget extends Widget {
         let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.data.start || null, this.data.end || null, true, "marketingRange","This is the date range for the sale.");
-        let marketingSaleLocationType = createSelect({
+        let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
-            name: "Sale Location Type",
+            name: "Delivery Location Type",
             options: ["Off-Ranch", "Auction"],
-            values: this.data.sale_location_type || "Off-Ranch",
+            values: this.data.delivery_location_type || "Off-Ranch",
             multiple: false,
             tags: false,
             placeholder: "Select Sale Location Type"
@@ -257,7 +256,8 @@ export class EditSalesGroupWidget extends Widget {
         
         let deliveryLocation = "";
         let auctionMarket = "";
-        if(this.data.sale_location_type === "Off-Ranch"){
+        console.log(this.data.delivery_location_type_id);
+        if(this.data.delivery_location_type === "Off-Ranch"){
             deliveryLocation = this.data.delivery_location;
         }
         else{
@@ -275,8 +275,8 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Auction Market"
         })
-        marketingSaleLocationType.onchange = () => {
-            if(marketingSaleLocationType.value === "Off-Ranch"){
+        marketingDeliveryLocationType.onchange = () => {
+            if(marketingDeliveryLocationType.value === "Off-Ranch"){
                 marketingOffRanchLocation.disabled=false;
 
                 marketingAuctionMarketLocation.value="None";
@@ -289,7 +289,7 @@ export class EditSalesGroupWidget extends Widget {
                 marketingOffRanchLocation.disabled=true;
             }
         }
-        marketingSaleLocationType.onchange()
+        marketingDeliveryLocationType.onchange()
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -547,7 +547,7 @@ export class EditSalesGroupWidget extends Widget {
                         images: that.fileEditor.getFileIDs(),
                         videos: that.VideoEditor.getVideoLinks(),
                     },
-                    "sale_location_type": marketingSaleLocationType.value,
+                    "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "start": marketingDates.getStartTime(),

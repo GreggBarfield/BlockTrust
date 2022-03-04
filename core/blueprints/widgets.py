@@ -13,7 +13,7 @@ from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
 from ..database.tables.auction_markets import AuctionMarkets
-from ..database.tables.sales_groups import sale_location_type_id_to_name, sale_location_type_name_to_id
+from ..database.tables.sales_groups import delivery_location_type_id_to_name, delivery_location_type_name_to_id
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -61,7 +61,7 @@ def serve_sales_group():
         auction_markets_order_by="name",
         auction_markets_sort_by="ASC"
     )
-    sale_location_type_name = sale_location_type_id_to_name[sales_group_row["sale_location_type"]]
+    delivery_location_type_name = delivery_location_type_id_to_name[sales_group_row["delivery_location_type_id"]]
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -74,7 +74,7 @@ def serve_sales_group():
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"], 
         "market_location": sales_group_row["market_location"],
-        "sale_location_type": sale_location_type_name,
+        "delivery_location_type": delivery_location_type_name,
         "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
@@ -213,7 +213,7 @@ def serve_save_sales_group():
         raise ExportException("Start date is not selected")
     if request.json["end"] is None:
         raise ExportException("End date is not selected")
-    if request.json["sale_location_type"] is None:
+    if request.json["delivery_location_type"] is None:
         raise ExportException("Sale location type is not selected.")
     if request.json["reported"]["count"] is None:
         raise ExportException("Total animals cannot be 0")
@@ -248,7 +248,7 @@ def serve_save_sales_group():
             raise ExportException("Auction sale specified is not published yet.")
     # Alright, go ahead...
     delivery_location = ""
-    if request.json["sale_location_type"] == sale_location_type_id_to_name[1]:
+    if request.json["delivery_location_type"] == delivery_location_type_id_to_name[1]:
         if len(request.json["delivery_location"].strip()) == 0:
             raise ExportException("Delivery Location does not have a value")
         delivery_location = request.json["delivery_location"]
@@ -267,7 +267,7 @@ def serve_save_sales_group():
         request.json["auction_sale"],
         request.json["group_name"],
         request.json["is_archived"],
-        sale_location_type_name_to_id[request.json["sale_location_type"]]
+        delivery_location_type_name_to_id[request.json["delivery_location_type"]]
     )
 
     return {
