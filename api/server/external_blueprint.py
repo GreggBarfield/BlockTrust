@@ -9,7 +9,9 @@ from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
+from core.renderers.email import render_email
 from core.sectors import sectors_by_name
+from core.utilities.email import send_email
 from json import loads
 from datetime import datetime
 from traceback import format_exc
@@ -65,8 +67,18 @@ def serve_get_animal_data():
         else:
             match = match_ranch_sightings[0]
 
-            #check if connection is established
+            # check if connection is established
             if Connections(g.db).get_connection_between(match["account"], account[0]["id"], connection_status["Connected"]) is None:
+                Connections(g.db).create_connection(
+                    from_account_id=account[0]["id"],
+                    to_account_id=match["account"],
+                    status=connection_status["Pending"]
+                )
+                send_email(
+                    "BlockTrust Network New Connection Request",
+                    render_email("new_connection_request.html", {
+                    }), "aaaa"
+                )
                 return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
