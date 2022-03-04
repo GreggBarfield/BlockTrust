@@ -412,7 +412,6 @@ export class EditSalesGroupWidget extends Widget {
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
-        let archiveSwitch = new SwitchFormGroup(form, "Archive", this.data.is_archived);
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -489,7 +488,6 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingStart.getTime(),
                     "end": marketingEnd.getTime(),
                     "group_name": salesGroupName.value,
-                    "is_archived": archiveSwitch.isChecked(),
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                    
