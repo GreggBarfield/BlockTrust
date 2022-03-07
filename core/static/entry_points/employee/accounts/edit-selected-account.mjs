@@ -1,20 +1,17 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
-let edit_state = document.getElementById("edit_state");
-edit_state.value = account_state;
-let edit_partner = document.getElementById("edit_partner");
-let edit_affiliate_id = document.getElementById("edit_affiliate_id");
+document.getElementById("edit_state").value = account_state;
 if(account_partner === "None"){
-    edit_partner.value="";
+    document.getElementById("edit_partner").value="";
 }
 else{
-    edit_partner.value = account_partner;
+    document.getElementById("edit_partner").value = account_partner;
 }
 if(account_affiliate_id === "None"){
-    edit_affiliate_id.value = "";
+    document.getElementById("edit_affiliate_id").value = "";
 }
 else{
-    edit_affiliate_id.value = account_affiliate_id;
+    document.getElementById("edit_affiliate_id").value = account_affiliate_id;
 }
 
 let editAccountForm = $("#edit_account_form");
