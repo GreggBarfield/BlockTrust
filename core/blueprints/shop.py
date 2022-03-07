@@ -151,8 +151,8 @@ def update_order():
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
                 'cart': eval(order_details["shoppingCart"])
-            }),
-            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            }), ["nisheet.thakur@blocktrustnetwork.com"]
+            # ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
 
         return {"success": True}

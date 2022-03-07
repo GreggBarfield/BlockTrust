@@ -1146,3 +1146,15 @@ CHANGE COLUMN `efficiency_second_score` `efficiency_second_score_points` INT NUL
 /* Nisheet Thakur 02/16/2022 */
 ALTER TABLE `notifications`
 RENAME COLUMN `notification_type` TO `notification_type_id`;
+
+/* Nisheet Thakur 03/04/2022 */
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("All Data Tags", "support@alldatatags.com");
+
+SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, partner, product_category_id, product_vendor_id, member_price)
+VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 30, 0, "", "Bag(s) of 20", "USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency .;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.", @partner_id, @usda_840_id, @alldatatagsid, 30);
+
+
