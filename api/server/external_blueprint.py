@@ -77,7 +77,7 @@ def serve_get_animal_data():
                 send_email(
                     "BlockTrust Network New Connection Request",
                     render_email("new_connection_request.html", {
-                    }), "aaaa"
+                    }), "nisheet.thakur@blocktrustnetwork.com"
                 )
                 return {"error": unauthorized_message}, 401
 
