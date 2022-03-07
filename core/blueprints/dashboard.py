@@ -417,7 +417,7 @@ def serve_invite_user():
             # Generating token identifier with account and user email informatiom
             userToken = token.generateConfirmationToken(invite_string)
             # Creating URL for user to join an account
-            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', tok=userToken)
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', invite_token=userToken)
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",
@@ -511,7 +511,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(account_id):
     account_details = g.db.accounts.get_account_by_id(account_id)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id()) == connection_status["Connected"]:
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status["Connected"]) is not None:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")

@@ -122,28 +122,6 @@ class Users:
         )
         return rows
 
-    def verify_email(self, email):
-        """
-            Confirms a user profile and marks it as verified
-
-            Params:
-            email: User email to be verified
-
-            Returns:
-            None
-            """
-
-        self._db.execute_d(
-                """
-                UPDATE users
-                SET is_email_verified=1
-                WHERE users.email=%(email)s
-                """,
-                {
-                    "email": email
-                }
-                )
-
     def get_email_verified_status(self, email):
         """
         Confirms if the user email is verified
@@ -514,5 +492,44 @@ class Users:
         user_rows = self._db.execute_d(query, query_values)
         if len(user_rows) > 0:
             return user_rows
+        else:
+            return []
+
+    def get_users_and_accounts(self, user_id=NO_VALUE, user_email=NO_VALUE):
+        """
+        Gets the user and accounts based on parameters
+
+        Params:
+            user_id: user id
+
+        Returns:
+            A list of user and account rows joined or an empty list
+        """
+
+        base_query = """
+            SELECT *, u.id as user_id, a.id as account_id, u.phone as user_phone, a.phone as account_phone FROM users u
+            INNER JOIN account_users au on au.user = u.id
+            INNER JOIN accounts a on a.id = au.account 
+        """
+        query_conditions = []
+        query_values = {}
+
+        if user_id is not NO_VALUE:
+            query_conditions.append("u.id = %(user_id)s")
+            query_values["user_id"] = user_id
+
+        if user_email is not NO_VALUE:
+            query_conditions.append("u.email = %(user_email)s")
+            query_values["user_email"] = user_email
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
         else:
             return []
