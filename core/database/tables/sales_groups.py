@@ -1,6 +1,7 @@
 import json
 from core.database.no_value import NoValue
 from ..tables import zip_codes
+import time
 
 NO_VALUE = NoValue()
 
@@ -193,16 +194,15 @@ class SalesGroups:
         )
 
     def search_within(
-        self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
-        breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
+        self, zip_code, miles, skip=0, limit=10, is_archived=0,
+        breed=None, minimum_weight=None, preconditioning_program=None, 
+        process_verified_program=None, is_ongoing=False
     ):
         """Searches for sales groups.
 
         Params:
             zip_code: Origin zip code
             miles: Radius in miles
-            start: Start time
-            end: End time
             skip: Number of records to skip
             limit: Number of records to select
             breed, minimum_weight, preconditioning_program, process_verified_program:
@@ -238,12 +238,15 @@ class SalesGroups:
             additionals.append(minimum_weight)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
+
+        sql_end_time = ''
+        if is_ongoing:
+            current_date = str(int(time.time()))
+            sql_end_time = current_date + " <= end"
+
         sql = SalesGroups._STANDARD_SELECT + """
                 WHERE
-                    (
-                        %s <= start AND start <= %s OR
-                        %s <= end AND end <= %s
-                    )
+                    """ + sql_end_time + """
                     AND sales_groups.is_archived = %s
                     AND sales_groups.published > 0
                     AND sales_groups.zip IN (""" + sql_zip_codes + """)
@@ -252,6 +255,6 @@ class SalesGroups:
 
         sales_groups = self._db.execute_d(
             sql,
-            [start, end, start, end, is_archived] + zip_codes + additionals
+            [is_archived] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)
