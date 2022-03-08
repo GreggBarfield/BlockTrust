@@ -28,7 +28,7 @@ export class VideoSession {
 
         this.updateTable();
         this.addURLButton = document.createElement("button");
-        this.addURLButton.className = "btn btn-sm btn-primary";
+        this.addURLButton.className = "btn btn-sm btn-outline-primary";
         this.addURLButton.textContent = "Add Youtube/Vimeo link"
         this.addURLButton.type = "button";
         this.addURLButton.addEventListener("click", () => {

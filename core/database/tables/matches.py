@@ -261,8 +261,9 @@ class Matches:
         else:
             return []
     
-    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_restrict_type=NO_VALUE, account_links_sector=NO_VALUE, matches_order_by=NO_VALUE, 
-        matches_sort_by=NO_VALUE):
+    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
+        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
+        is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -270,7 +271,22 @@ class Matches:
             A list of account(s) record if found else []
         """
 
-        base_query = "SELECT * FROM matches m INNER JOIN account_links al ON m.account_link=al.id"
+        if is_distinct:
+            base_query = "SELECT distinct"
+        else:
+            base_query = "SELECT"
+
+        if len(matches_cols) > 0:
+            incorrect_cols = [col for col in matches_cols if col not in self._match_cols]
+            
+            if len(incorrect_cols) > 0:
+                raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in matches table")
+
+            base_query += " " + ",".join("m."+ c for c in matches_cols)
+        else:
+            base_query += " *"
+
+        base_query += " FROM matches m INNER JOIN account_links al ON m.account_link=al.id "
 
         query_conditions = []
         query_values = {}
@@ -280,13 +296,21 @@ class Matches:
             query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")
             query_values["matches_eid"] = matches_eid
 
+        if matches_visual_id is not NO_VALUE:
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_eid is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_values["matches_visual_id"] = matches_visual_id
+
         if matches_restrict_type is not NO_VALUE:
-            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "type IS %(matches_restrict_type)s")
+            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
 
         if account_links_sector is not NO_VALUE:
-            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "eid IS %(account_links_sector)s")
+            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
             query_values["account_links_sector"] = account_links_sector
+
+        if account_links_account_id is not NO_VALUE:
+            query_conditions.append("al.account = %(account_links_account_id)s" if account_links_account_id is not None else "al.account IS %(account_links_account_id)s")
+            query_values["account_links_account_id"] = account_links_account_id
 
         if matches_order_by is not NO_VALUE:
             if matches_order_by not in self._match_cols:
@@ -573,49 +597,25 @@ class Matches:
             )
         ))
 
-    def get_count_by_eid_if_visible(self, eid_number):
-        """Gets count of matches associated with an eid if visible.
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id):
+        """Gets matches data associated with a eid or visual id if it belongs to the account.
 
         Params:
-            eid_number: eid number
-
-        Returns:
-            One row indicating the count
-        """
-        return self._db.exec_frag_d(
-            frag(
-                """
-                SELECT count(eid) as 'count'
-                FROM matches
-                """,
-                frag(
-                    "WHERE eid=:eid_number",
-                    eid_number=eid_number
-                )
-            ),
-        )[0]['count']
-
-    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
-        """Gets matches data associated with an visual id if visible.
-
-        Params:
-            visual_id: The visual id to look up
+            eid_or_visual_id: The eid or visual id to look up
             account_id: current active account
 
         Returns:
-            All the matches table rows containing the visual id matches
+            All the matches table rows
         """
-        return self._db.execute_d(
-            """
-                SELECT distinct matches.eid, matches.visual_id
-                FROM matches
+        matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
+            is_distinct=True, matches_cols=("eid", "visual_id"))
 
-                WHERE matches.visual_id=%(visual_id)s
-            """,
-            {
-                "visual_id": visual_id
-            }
-        )
+        if len(matches) == 0:
+            matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
+                is_distinct=True, matches_cols=("eid", "visual_id"))
+        
+        return matches
+
 
     @staticmethod
     def _load_rows(rows):
