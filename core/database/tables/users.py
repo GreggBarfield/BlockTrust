@@ -5,6 +5,16 @@ from ..frag import frag
 
 NO_VALUE = NoValue()
 
+onboarding_status_name_to_id = {
+    "Animals Tagged": 0,
+    "Initial Tag Upload": 1,
+    "Viewed Onboarding Message": 2
+}
+onboarding_status_id_to_name = {
+    value: key
+    for key, value in onboarding_status_name_to_id.items()
+}
+
 
 class UsersException(Exception):
     """Generic user exception."""
