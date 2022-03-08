@@ -12,13 +12,13 @@
 
 {% block email_standard_subdescription %}
 <div>
-    Gregg,
+    {{match_admin_user.first_name()}} {{match_admin_user.last_name()}},<br>
 
-    RaboBank has requested permission to establish a connection with you for the purpose of seeing data on your cattle.
+    {{requesting_account.name}} has requested permission to establish a connection with you for the purpose of seeing data on your cattle.
     
-    Please click here to ACCEPT the request or click here to DENY.
+    Please log into your account to Accept/Deny the request.
     
-    Thanks.
+    Thank you.
 </div>
 <br><br>
 (Don't respond to this email.)<br>

@@ -3,7 +3,7 @@ from flask import (
 )
 from core.database.database import Database
 from core.database.tables.accounts import AccountsException
-from core.database.tables.connections import Connections, connection_status
+from core.database.tables.connections import Connections, ConnectionException, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
@@ -69,16 +69,31 @@ def serve_get_animal_data():
 
             # check if connection is established
             if Connections(g.db).get_connection_between(match["account"], account[0]["id"], connection_status["Connected"]) is None:
-                Connections(g.db).create_connection(
-                    from_account_id=account[0]["id"],
-                    to_account_id=match["account"],
-                    status=connection_status["Pending"]
+                # create a new pending connection
+                try:
+                    Connections(g.db).create_connection(
+                        from_account_id=account[0]["id"],
+                        to_account_id=match["account"],
+                        status=connection_status["Pending"]
+                    )
+                except ConnectionException as e:
+                    return {"error": str(e)}
+                # send an email to admin of match account
+                match_account_admin_users = g.db.account_users.get_account_users(
+                    account=match["account"],
+                    is_admin=1
                 )
-                send_email(
-                    "BlockTrust Network New Connection Request",
-                    render_email("new_connection_request.html", {
-                    }), "nisheet.thakur@blocktrustnetwork.com"
-                )
+                if len(match_account_admin_users) > 0:
+                    match_account_admin_user = match_account_admin_users[0]["user"]
+                    match_account_admin_user_row = g.db.users.get_user_by_id(user_id=match_account_admin_user)
+                    if match_account_admin_user_row is not None:
+                        send_email(
+                            "BlockTrust Network New Connection Request",
+                            render_email("new_connection_request.html", {
+                                "match_admin_user": match_account_admin_user_row,
+                                "requesting_account": account[0]
+                            }), match_account_admin_user_row.email()
+                        )
                 return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
