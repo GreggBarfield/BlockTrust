@@ -619,21 +619,21 @@ def serve_animal_data_download(eid):
     health_data_results = health_data_match_rows["result"]["matches"]
     animal_data = []
     animal_data.append(["Date", "Symptom", "Diagnosis", "Product", "Location"])
-    for result in health_data_results:
+    for health_data_result in health_data_results:
         symptom = ""
         product = ""
         diagnosis = ""
         location = ""
-        if "symptom" in result["data"]:
-            symptom = result["data"]["symptom"]
-        if "product" in result["data"]:
-            product = result["data"]["product"]
-        if "diagnosis" in result["data"]:
-            diagnosis = result["data"]["diagnosis"]
-        if "location" in result["data"]:
-            location = result["data"]["location"]
+        if "symptom" in health_data_result["data"]:
+            symptom = health_data_result["data"]["symptom"]
+        if "product" in health_data_result["data"]:
+            product = health_data_result["data"]["product"]
+        if "diagnosis" in health_data_result["data"]:
+            diagnosis = health_data_result["data"]["diagnosis"]
+        if "location" in health_data_result["data"]:
+            location = health_data_result["data"]["location"]
         animal_data.append([
-            result["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"),
+            health_data_result["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"),
             symptom,
             product,
             diagnosis,

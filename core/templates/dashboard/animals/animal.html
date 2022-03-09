@@ -19,6 +19,8 @@ Animal {{ animal.eid()|string }}
 <div class="row">
   <div class="col-xl-6">
     <div class="card">
+      
+  <a href= "/dashboard/animal-data/{{ animal.eid() }}/download" style="width:200px" class="btn btn-outline-primary float-right">Download Summary</a>
       <h5 class="card-header">Sightings</h5>
       <div class="card-body">
         <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting" data-widget-map-animal="{{ animal.eid() }}" style="height: 400px"></p>
