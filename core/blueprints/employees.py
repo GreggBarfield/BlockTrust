@@ -210,10 +210,7 @@ def serve_edit_selected_account(account_id):
         is_partner=1,
         is_partner_used_for_signup=1
     )
-    return employee_render("/employee/accounts/edit-selected-account.html", {
-        "account_row": account_row,
-        "partners": partners
-        })
+    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
 
 
 @bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
