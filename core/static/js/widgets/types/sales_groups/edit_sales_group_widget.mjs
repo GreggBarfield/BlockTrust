@@ -187,7 +187,7 @@ export class EditSalesGroupWidget extends Widget {
             let selectData=[];
             selectData.push("None");
             for(const auctionMarket of auctionMarkets){
-                let optionText = auctionMarket.name+","+auctionMarket.city+","+auctionMarket.state;
+                let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
                 selectData.push(optionText);
             }
         return selectData;

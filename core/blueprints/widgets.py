@@ -251,7 +251,6 @@ def serve_save_sales_group():
             raise ExportException("Auction sale specified is not published yet.")
     # Alright, go ahead...
     delivery_location = ""
-    print(request.json["delivery_location_type"])
     if request.json["delivery_location_type"] == "Off Ranch":
         if len(request.json["delivery_location"].strip()) == 0:
             raise ExportException("Delivery Location does not have a value")
