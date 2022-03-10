@@ -1,7 +1,7 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
 document.getElementById("edit_state").value = account_state;
-document.getElementById("edit_partner").value = account_partner;
+document.getElementById("edit_partner").value = account_partner != "None"? account_partner: "";
 if(account_affiliate_id === "None"){
     document.getElementById("edit_affiliate_id").value = "";
 }
