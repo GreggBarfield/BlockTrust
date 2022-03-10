@@ -25,7 +25,12 @@ export class EditSalesGroupWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;
-            this.makeForm();
+            this.getData(
+                "auction_markets"
+            ).then((data) => {
+                this.auctionMarketsData = data;
+                this.makeForm();
+            });       
         });
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
@@ -178,14 +183,14 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
 
-        function processAuctionMarketsData(auctionMarkets){
+        function processedAuctionMarketsData(auctionMarkets){
             let selectData=[];
             selectData.push("None");
             for(const auctionMarket of auctionMarkets){
                 let optionText = auctionMarket.name+","+auctionMarket.city+","+auctionMarket.state;
                 selectData.push(optionText);
             }
-            return selectData;
+        return selectData;
         }
 
         let that = this;
@@ -247,8 +252,8 @@ export class EditSalesGroupWidget extends Widget {
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
             name: "Delivery Location Type",
-            options: ["Off-Ranch", "Auction"],
-            values: this.data.delivery_location_type || "Off-Ranch",
+            options: ["Off Ranch", "Auction"],
+            values: this.data.delivery_location_type || "Off Ranch",
             multiple: false,
             tags: false,
             placeholder: "Select Sale Location Type"
@@ -256,8 +261,7 @@ export class EditSalesGroupWidget extends Widget {
         
         let deliveryLocation = "";
         let auctionMarket = "";
-        console.log(this.data.delivery_location_type_id);
-        if(this.data.delivery_location_type === "Off-Ranch"){
+        if(this.data.delivery_location_type === "Off Ranch"){
             deliveryLocation = this.data.delivery_location;
         }
         else{
@@ -265,7 +269,7 @@ export class EditSalesGroupWidget extends Widget {
         }
         
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
-        let auctionMarketData = processAuctionMarketsData(this.data.auction_markets);
+        let auctionMarketData =processedAuctionMarketsData(this.auctionMarketsData.auction_markets);
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market",
@@ -275,8 +279,9 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Auction Market"
         })
+
         marketingDeliveryLocationType.onchange = () => {
-            if(marketingDeliveryLocationType.value === "Off-Ranch"){
+            if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
 
                 marketingAuctionMarketLocation.value="None";

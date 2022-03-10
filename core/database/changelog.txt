@@ -1416,7 +1416,8 @@ VALUES ("Alabama Livestock Auction","Uniontown","AL"),
 ("Torrington Livestock Commission Co.","Torrington","WY"),
 ("Winter Livestock Auction","Riverton","WY");
 
-ALTER TABLE `sales_groups` ADD COLUMN `delivery_location_type_id` TINYINT NULL DEFAULT '1';
+ALTER TABLE `sales_groups` ADD COLUMN `delivery_location_type` VARCHAR(15) NULL DEFAULT 'Off Ranch';
+ALTER TABLE `sales_groups` ADD INDEX `delivery_location_type_idx` (`delivery_location_type`) VISIBLE;
 
 /* Nisheet Thakur 03/04/2022 */
 INSERT INTO `product_vendors` (vendor_name, vendor_email)

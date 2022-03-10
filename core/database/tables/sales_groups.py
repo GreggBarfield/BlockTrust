@@ -4,15 +4,6 @@ from ..tables import zip_codes
 
 NO_VALUE = NoValue()
 
-delivery_location_type_name_to_id = {
-    "Off-Ranch": 1,
-    "Auction": 2
-}
-delivery_location_type_id_to_name = {
-    value: key
-    for key, value in delivery_location_type_name_to_id.items()
-}
-
 
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
@@ -167,7 +158,7 @@ class SalesGroups:
         return self.get_sales_group_by_id(self._db.last_row_id())
 
     def update_sales_group(self, row_id, reported, published, zip_code, delivery_location, start, end, auction_sale, group_name, is_archived,
-                           delivery_location_type_id):
+                           delivery_location_type):
         """Updates a row.
 
         Params:
@@ -188,7 +179,7 @@ class SalesGroups:
                     start=%(start)s, end=%(end)s, zip=%(zip)s, market_location = %(market_location)s,
                     delivery_location =  %(delivery_location)s,auction_sale=%(auction_sale)s,
                     group_name=%(group_name)s , is_archived=%(is_archived)s,
-                    delivery_location_type_id=%(delivery_location_type_id)s
+                    delivery_location_type=%(delivery_location_type)s
                 WHERE id=%(id)s
             """,
             {
@@ -203,7 +194,7 @@ class SalesGroups:
                 "auction_sale": auction_sale,
                 "group_name": group_name,
                 "is_archived": is_archived,
-                "delivery_location_type_id": delivery_location_type_id
+                "delivery_location_type": delivery_location_type
             }
         )
 
