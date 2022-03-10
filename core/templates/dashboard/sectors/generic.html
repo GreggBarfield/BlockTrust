@@ -31,7 +31,6 @@
     </div>
 </div>
 <div class="column col-xl-6">
-    {% if g.user.onboarding_status() != 2 %}
     <div class="col-sm-12">
         <div class="card">
             <h5 class="card-header">Pending Actions</h5>
@@ -55,14 +54,35 @@
                         {% endif %}
                         <tr>
                             <th><i class="icon feather icon-clock" style="color: gray;"></i></th>
-                            <th><a href="https://mfa-inc.com/powercalf">Add Data</a></th>
+                            <th>
+                                <a href="#x" class="gallery-button" data-toggle="modal" data-target="#add-data">Add Data</a>
+                            </th>
                         </tr>
                     </tbody>
                 </table>    
             </div>
         </div>
     </div>
-    {% endif %}
+    <div class="modal fade" id="add-data" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Add Data</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h6>
+                    The BlockTrust Network is a platform designed for existing applications to be connected by using our API's.
+                    If you are not currently using an app, we recommend you get the PowerCalf app from MFA, which is already connected.  
+                    You can download a free trial from their website here: <a href="https://mfa-inc.com/powercalf">https://mfa-inc.com/powercalf</a><br>
+                    If you have questions, please <a href="/dashboard/support">contact us</a>.
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-xl-12">
         <div class="card">
             <h5 class="card-header">Maps and Charts</h5>
