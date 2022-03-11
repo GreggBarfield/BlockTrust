@@ -133,8 +133,11 @@ export class MarketDataFilterWidget extends Widget {
         let cities = [];
         let city_ids = {};
         for (const row in this.city_rows[this.state]) {
-            let item = this.city_rows[this.state][row]['market_location_city'] 
-                + " (" + this.city_rows[this.state][row]['slug_id'] + ")";
+            let city_name = this.city_rows[this.state][row]['market_location_city'];
+            let location_name = this.city_rows[this.state][row]['market_location_name'];
+            location_name = location_name.replace("- " + city_name);
+            let item = city_name + " - " + location_name;
+
             cities.push(item);
             city_ids[item] = this.city_rows[this.state][row]['slug_id'];
         }
@@ -163,9 +166,11 @@ export class MarketDataFilterWidget extends Widget {
         let cities = [];
         let city_ids = {};
         for (const row in this.favorites) {
-            let item = this.favorites[row]['city_name'] 
-                + ", " + this.favorites[row]['state']
-                + " (" + this.favorites[row]['slug_id'] + ")";
+            let location_name = this.favorites[row]['location_name'];
+            let city_name = this.favorites[row]['city_name'];
+            location_name = location_name.replace("- " + city_name, "");
+            let item = city_name + " - " + location_name + ", " + this.favorites[row]['state'];
+
             cities.push(item);
             city_ids[item] = this.favorites[row]['slug_id'];
         }
@@ -247,7 +252,7 @@ export class MarketDataFilterWidget extends Widget {
 
         // Parse state from text
         let state = selectedItem.text.split(", ")[1];
-        state = state.split(" (")[0];
+        state = state.substring(0, 3);
     
         if (button == null) {
             button = document.createElement("a");

@@ -40,7 +40,7 @@ class USDAFavoritesForAccounts:
         """
         matching_favorites = self._db.execute_d(
             """
-                SELECT DISTINCT f.*, r.market_location_city AS "city_name" 
+                SELECT DISTINCT f.*, r.market_location_city AS "city_name", r.market_location_name AS "location_name"
                 FROM usda_favorites_for_accounts AS f
                 INNER JOIN usda_reports AS r ON f.slug_id=r.slug_id
                 WHERE f.account_id=%(account_id)s 
