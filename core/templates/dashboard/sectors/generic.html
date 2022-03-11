@@ -39,12 +39,13 @@
                     <tbody>
                         <tr>
                             <th><i class="icon feather icon-check" style="color: #2ca961;"></i></th>
-                            <th><span class="text-success">Tag your Animals</span></th></th>
+                            <th><span class="text-success">Tag your Animals</span></th>
                         </tr>
-                        {% if g.user.onboarding_status() == 1 %}
+
+                        {% if g.user.onboarding_status() == 1  or g.user.onboarding_status() == 2 %}
                         <tr>
                             <th><i class="icon feather icon-check" style="color: #2ca961;"></i></th>
-                            <th><span class="text-success">Upload your Tag Numbers</span></th></th>
+                            <th><span class="text-success">Upload your Tag Numbers</span></th>
                         </tr>
                         {% else %}
                         <tr>
@@ -52,12 +53,27 @@
                             <th><a href="/dashboard/upload-tags">Upload your Tag Numbers</a></th>
                         </tr>
                         {% endif %}
+
+                        {% if g.user.onboarding_status() == 0 %}
+                        <tr>
+                            <th><i class="icon feather icon-clock" style="color: gray;"></i></th>
+                            <th>Add Data</th>
+                        </tr>
+                        {% elif g.user.onboarding_status() == 1  %}
                         <tr>
                             <th><i class="icon feather icon-clock" style="color: gray;"></i></th>
                             <th>
                                 <a href="#x" class="gallery-button" data-toggle="modal" data-target="#add-data">Add Data</a>
                             </th>
                         </tr>
+                        {% else %}
+                        <tr>
+                            <th><i class="icon feather icon-check" style="color: #2ca961;"></i></th>
+                            <th>
+                                <a href="#x" class="gallery-button" data-toggle="modal" data-target="#add-data">Add Data</a>
+                            </th>
+                        </tr>
+                        {% endif %}
                     </tbody>
                 </table>    
             </div>
@@ -186,5 +202,9 @@
         </div>
     </div>
 </div>
-
+<script type="text/javascript">
+    let user_id = '{{ g.user.id() }}'
+    let onboarding_status = '{{ g.user.onboarding_status() }}'
+</script>
+<script src="/static/entry_points/dashboard/sectors/generic.mjs"></script> 
 {% endblock dashboard_content %}

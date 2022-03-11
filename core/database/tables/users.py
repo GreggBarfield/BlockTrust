@@ -275,7 +275,7 @@ class Users:
         """
         username = Users._format_field(username)
 
-        if password is not None:
+        if password is not NO_VALUE:
             password = Users._format_field(password)
             if len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
@@ -318,7 +318,7 @@ class Users:
                             phone=phone
                         )
         #password should never be none
-        if password is not None:
+        if password is not NO_VALUE:
             set_frags = frag(
                             set_frags,
                             "password=:password,",

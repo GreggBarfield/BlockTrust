@@ -1,4 +1,5 @@
 from core.database.tables.notification_recipients import NotificationRecipients
+from core.utilities.crut.requirements import require_account
 from flask import (
     request, Blueprint, g, redirect, url_for
 )
@@ -580,3 +581,13 @@ def serve_view_notification(notification_id):
         return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
     # If notification is invalid return to main notifications page
     return redirect('/dashboard/notifications')
+
+
+@bp.route('/dashboard/complete-onboarding-status', methods=["POST"])
+@crut.require_account
+def serve_complete_onboarding_status():
+    Users(g.db).update_user(
+        username=g.user.username(),
+        onboarding_status=2
+    )
+    return {}
