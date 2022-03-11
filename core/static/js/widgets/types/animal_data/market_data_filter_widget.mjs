@@ -147,7 +147,8 @@ export class MarketDataFilterWidget extends Widget {
             divCityDropdown.append(cityDropdown);
         }
 
-        let selectCityDropdown = this.createSelect(cityDropdown, "City", cities, city_ids);
+        let selectCityDropdown = this.createSelect(cityDropdown, "City", 
+            cities, city_ids, "Select a city");
         
         selectCityDropdown.oninput = () => {
             this.createApplyFilterBtn(selectCityDropdown, btnDiv);
