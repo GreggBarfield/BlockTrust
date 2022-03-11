@@ -33,7 +33,7 @@ export class AccountSalesGroupsWidget extends Widget {
 
     displaySalesGroups() {
         this.table = new Table();
-        this.table.setHeader(["ID", "Name", "Published", "Options"]);
+        this.table.setHeader(["Number", "Name", "Published", "Options"]);
 
         for (const salesGroup of this.sales_groups) {
             let optionsGroup = document.createElement("div");

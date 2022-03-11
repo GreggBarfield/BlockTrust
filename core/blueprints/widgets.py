@@ -260,26 +260,14 @@ def serve_save_sales_group():
 @bp.route('/widgets/data/archive_sales_group', methods=['POST'])
 @crut.require_account
 def serve_archive_sales_group():
-    SalesGroups(g.db).update_sales_group(row_id=request.json["sales_group_id"], is_archived=1)
+    SalesGroups(g.db).update_sales_group(id=request.json["sales_group_id"], is_archived=1)
     return {}, 200
 
 
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["params"]["id"])
-    g.db.sales_groups.update_sales_group(
-        row_id=original_row["id"],
-        reported=original_row["reported"],
-        published=original_row["published"],
-        zipcode=original_row["zip"],
-        delivery_location=original_row["delivery_location"],
-        start=original_row["start"],
-        end=original_row["end"],
-        auction_sale=original_row["auction_sale"],
-        group_name=original_row["group_name"],
-        is_archived=0
-    )
+    SalesGroups(g.db).update_sales_group(id=request.json["params"]["id"], is_archived=0)
     return {}, 200
 
 

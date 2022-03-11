@@ -156,13 +156,13 @@ class SalesGroups:
         )
         return self.get_sales_group_by_id(self._db.last_row_id())
 
-    def update_sales_group(self, row_id, reported=NO_VALUE, published=NO_VALUE, 
+    def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE, 
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE, 
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE):
         """Updates a row.
 
         Params:
-            row_id: The row ID
+            id: The row ID
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
@@ -174,63 +174,50 @@ class SalesGroups:
         """
 
         # base query
-        base_query = "UPDATE sales_groups SET"
+        base_query = "UPDATE sales_groups "
 
         query_conditions = []
         query_values = {}
+        query_values["id"] = id
 
         if reported is not NO_VALUE:
             query_conditions.append(" reported = %(reported)s")
             query_values["reported"] = reported
-
         if published is not NO_VALUE:
             query_conditions.append(" published = %(published)s")
             query_values["published"] = published
-
         if zip_code is not NO_VALUE:
             query_conditions.append(" zip_code = %(zip_code)s")
             query_values["zip_code"] = zip_code
-
             market_location = self._db.zip_codes.get_locations(zip_code)
             query_conditions.append(" market_location = %(market_location)s")
             query_values["market_location"] = market_location
-
         if delivery_location is not NO_VALUE:
             query_conditions.append(" delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
-
         if start is not NO_VALUE:
             query_conditions.append(" start = %(start)s")
             query_values["start"] = start
-
         if end is not NO_VALUE:
             query_conditions.append(" end = %(end)s")
             query_values["end"] = end
-
         if auction_sale is not NO_VALUE:
             query_conditions.append(" auction_sale = %(auction_sale)s")
             query_values["auction_sale"] = auction_sale
-
         if group_name is not NO_VALUE:
             query_conditions.append(" group_name = %(group_name)s")
             query_values["group_name"] = group_name
-
         if is_archived is not NO_VALUE:
             query_conditions.append(" is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
 
-        if len(query_conditions) == 0:
-            raise Exception("Must give values for fields to update on Sales Group")
-
         if len(query_conditions) >= 1:
-            combined_query_condition = ", ".join(query_conditions)
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute_d(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sales Group")
 
-        where_id_condition = " WHERE id=" + str(row_id)
-
-        query = base_query + combined_query_condition + where_id_condition
-        self._db.execute_d(query, query_values)
 
     def search_within(
         self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
