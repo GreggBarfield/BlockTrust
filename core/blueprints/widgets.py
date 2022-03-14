@@ -14,6 +14,7 @@ from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
+from ..database.tables.sales_groups import SalesGroups
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
@@ -86,7 +87,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"])
+    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -239,38 +240,34 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
     g.db.sales_groups.update_sales_group(
-        request.json["id"],
-        request.json["reported"],
-        request.json["published"],
-        request.json["zip"],
-        request.json["delivery_location"],
-        request.json["start"],
-        request.json["end"],
-        request.json["auction_sale"],
-        request.json["group_name"],
-        request.json["is_archived"]
+        id=request.json["id"],
+        reported=request.json["reported"],
+        published=request.json["published"],
+        zipcode=request.json["zip"],
+        delivery_location=request.json["delivery_location"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        group_name=request.json["group_name"],
+        is_archived=0
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+
+@bp.route('/widgets/data/archive_sales_group', methods=['POST'])
+@crut.require_account
+def serve_archive_sales_group():
+    SalesGroups(g.db).update_sales_group(id=request.json["sales_group_id"], is_archived=1)
+    return {}, 200
+
+
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["params"]["id"])
-    g.db.sales_groups.update_sales_group(
-        original_row["id"],
-        original_row["reported"],
-        original_row["published"],
-        original_row["zip"],
-        original_row["delivery_location"],
-        original_row["start"],
-        original_row["end"],
-        original_row["auction_sale"],
-        original_row["group_name"],
-        0
-    )
+    SalesGroups(g.db).update_sales_group(id=request.json["params"]["id"], is_archived=0)
     return {}, 200
 
 
