@@ -21,7 +21,7 @@ from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
 
-from ..utilities import crut, auth
+from ..utilities import crut, auth, csrf
 from ..utilities import token
 from ..utilities.email import send_email
 
@@ -358,6 +358,7 @@ def serve_market_data(state, slug_id):
 
 @bp.route('/dashboard/edit/edit-account', methods=['GET', 'POST'])
 @crut.require_user
+@csrf.csrf_protect
 def serve_edit_account():
     # Get account information
     if request.method == 'POST':
@@ -382,6 +383,7 @@ def serve_edit_account():
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
 @crut.require_user
+@csrf.csrf_protect
 def serve_edit_edituser():
     if request.method == 'POST':
         try:

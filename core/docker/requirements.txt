@@ -7,3 +7,4 @@ boto3
 stripe
 pyzipcode
 Flask-QRcode
+Flask-WTF
