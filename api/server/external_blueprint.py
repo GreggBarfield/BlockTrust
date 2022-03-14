@@ -9,7 +9,7 @@ from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
-from renderers.email import render_email
+from core.renderers.email import render_email
 from core.sectors import sectors_by_name
 from core.utilities.email import send_email
 from json import loads

@@ -21,8 +21,8 @@ from flask import (
     Response
 )
 
-
-app = Flask(__name__)
+template_directory = os.path.abspath('core/templates')
+app = Flask(__name__, template_folder=template_directory)
 
 
 from . import input_blueprint
