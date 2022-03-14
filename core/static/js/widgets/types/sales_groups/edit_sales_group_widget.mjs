@@ -482,7 +482,6 @@ export class EditSalesGroupWidget extends Widget {
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.data.published);
 
-        let archiveSwitch = new SwitchFormGroup(form, "Archive", this.data.is_archived);
         // Save
 
         let submitFormGroup = document.createElement("div");
