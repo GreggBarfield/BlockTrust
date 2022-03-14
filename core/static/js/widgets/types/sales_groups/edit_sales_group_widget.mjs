@@ -18,20 +18,23 @@ export class EditSalesGroupWidget extends Widget {
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
-        this.getData(
+        const getSalesGroupData = this.getData(
             "sales_group",
             {
                 sales_group: this.salesGroupID
             }
         ).then((data) => {
-            this.data = data;
-            this.getData(
-                "auction_markets"
-            ).then((data) => {
-                this.auctionMarketsData = data;
-                this.makeForm();
-            });       
+            this.data = data;      
         });
+        const getAuctionMarketsData = this.getData(
+            "auction_markets"
+        ).then((data) => {
+            this.auctionMarketsData = data.auction_markets;
+        }); 
+        Promise.all([getSalesGroupData, getAuctionMarketsData]).then((values)=> {
+            this.makeForm();
+        })
+
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
@@ -190,7 +193,7 @@ export class EditSalesGroupWidget extends Widget {
                 let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
                 selectData.push(optionText);
             }
-        return selectData;
+            return selectData;
         }
 
         let that = this;
@@ -269,11 +272,10 @@ export class EditSalesGroupWidget extends Widget {
         }
         
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
-        let auctionMarketData =processedAuctionMarketsData(this.auctionMarketsData.auction_markets);
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market",
-            options: auctionMarketData,
+            options: processedAuctionMarketsData(this.auctionMarketsData),
             values: auctionMarket || [],
             multiple: false,
             tags: false,
