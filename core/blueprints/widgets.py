@@ -240,7 +240,7 @@ def serve_save_sales_group():
 
     # Alright, go ahead...
     g.db.sales_groups.update_sales_group(
-        row_id=request.json["id"],
+        id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
         zipcode=request.json["zip"],
