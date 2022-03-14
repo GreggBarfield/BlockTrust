@@ -559,7 +559,6 @@ export class EditSalesGroupWidget extends Widget {
                     "start": marketingDates.getStartTime(),
                     "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
-                    "is_archived": archiveSwitch.isChecked(),
                     "auction_market_location": marketingAuctionMarketLocation.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()

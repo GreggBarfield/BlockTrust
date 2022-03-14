@@ -182,15 +182,14 @@ class SalesGroups:
         query_conditions = []
         query_values = {}
         query_values["id"] = id
-
         if reported is not NO_VALUE:
             query_conditions.append(" reported = %(reported)s")
-            query_values["reported"] = reported
+            query_values["reported"] = json.dumps(reported)
         if published is not NO_VALUE:
             query_conditions.append(" published = %(published)s")
             query_values["published"] = published
         if zip_code is not NO_VALUE:
-            query_conditions.append(" zip_code = %(zip_code)s")
+            query_conditions.append(" zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
             market_location = self._db.zip_codes.get_locations(zip_code)
             query_conditions.append(" market_location = %(market_location)s")
@@ -220,7 +219,7 @@ class SalesGroups:
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
-            self._db.execute_d(query, query_values)
+            self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sales Group")
 

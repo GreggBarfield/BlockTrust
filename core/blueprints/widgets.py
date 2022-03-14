@@ -264,7 +264,7 @@ def serve_save_sales_group():
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
-        zipcode=request.json["zip"],
+        zip_code=request.json["zip"],
         delivery_location=delivery_location,
         start=request.json["start"],
         end=request.json["end"],
