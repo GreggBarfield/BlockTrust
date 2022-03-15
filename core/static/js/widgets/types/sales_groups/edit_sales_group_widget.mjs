@@ -18,6 +18,7 @@ export class EditSalesGroupWidget extends Widget {
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
+
         const getSalesGroupData = this.getData(
             "sales_group",
             {
@@ -29,15 +30,27 @@ export class EditSalesGroupWidget extends Widget {
         const getAuctionMarketsData = this.getData(
             "auction_markets"
         ).then((data) => {
-            this.auctionMarketsData = data.auction_markets;
+            this.auctionMarketsData = this.processAuctionMarketsData(data.auction_markets);
         }); 
-        Promise.all([getSalesGroupData, getAuctionMarketsData]).then((values)=> {
+        Promise.all([
+            getSalesGroupData, getAuctionMarketsData
+        ]).then(()=> {
             this.makeForm();
         })
 
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
+    }
+
+    processAuctionMarketsData(auctionMarkets){
+        let selectData=[];
+        selectData.push("None");
+        for(const auctionMarket of auctionMarkets){
+            let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
+            selectData.push(optionText);
+        }
+        return selectData;
     }
     
     makeForm() {
@@ -186,16 +199,6 @@ export class EditSalesGroupWidget extends Widget {
             return select;
         }
 
-        function processedAuctionMarketsData(auctionMarkets){
-            let selectData=[];
-            selectData.push("None");
-            for(const auctionMarket of auctionMarkets){
-                let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
-                selectData.push(optionText);
-            }
-            return selectData;
-        }
-
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -275,7 +278,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market",
-            options: processedAuctionMarketsData(this.auctionMarketsData),
+            options: this.auctionMarketsData,
             values: auctionMarket || [],
             multiple: false,
             tags: false,
