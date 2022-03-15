@@ -4,6 +4,7 @@ from ..tables import zip_codes
 
 NO_VALUE = NoValue()
 
+
 class SalesGroupsException(Exception):
     """Sales groups generic exception."""
 
@@ -156,9 +157,10 @@ class SalesGroups:
         )
         return self.get_sales_group_by_id(self._db.last_row_id())
 
-    def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE, 
-        zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE, 
-        auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE):
+    def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
+        zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
+        auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
+        delivery_location_type=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -166,6 +168,7 @@ class SalesGroups:
             reported: New data to be updated for reported col (dict)
             published: A number for the reported col
             zip_code: The zip code
+            delivery_location_type: Sale location type
             delivery_location: city and state of the zip code
             start: The start time
             end: The end time
@@ -179,15 +182,14 @@ class SalesGroups:
         query_conditions = []
         query_values = {}
         query_values["id"] = id
-
         if reported is not NO_VALUE:
             query_conditions.append(" reported = %(reported)s")
-            query_values["reported"] = reported
+            query_values["reported"] = json.dumps(reported)
         if published is not NO_VALUE:
             query_conditions.append(" published = %(published)s")
             query_values["published"] = published
         if zip_code is not NO_VALUE:
-            query_conditions.append(" zip_code = %(zip_code)s")
+            query_conditions.append(" zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
             market_location = self._db.zip_codes.get_locations(zip_code)
             query_conditions.append(" market_location = %(market_location)s")
@@ -210,14 +212,16 @@ class SalesGroups:
         if is_archived is not NO_VALUE:
             query_conditions.append(" is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
+        if delivery_location_type is not NO_VALUE:
+            query_conditions.append(" delivery_location_type = %(delivery_location_type)s")
+            query_values["delivery_location_type"] = delivery_location_type
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
-            self._db.execute_d(query, query_values)
+            self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sales Group")
-
 
     def search_within(
         self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
