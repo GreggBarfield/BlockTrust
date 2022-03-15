@@ -1432,3 +1432,8 @@ VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 30
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
 values("USCT", @product_id, 20);
+
+/* Rohan Sureshkumar 03/15/22 */
+ALTER TABLE `usda_reports`
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
