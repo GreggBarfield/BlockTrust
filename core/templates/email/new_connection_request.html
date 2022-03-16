@@ -12,7 +12,7 @@
 
 {% block email_standard_subdescription %}
 <div>
-    {{match_admin_user.first_name()}} {{match_admin_user.last_name()}},<br>
+    {{connection_receiving_user.first_name}} {{connection_receiving_user.last_name}},<br>
 
     {{requesting_account.name}} has requested permission to establish a connection with you for the purpose of seeing data on your cattle.
     
