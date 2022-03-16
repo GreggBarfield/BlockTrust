@@ -54,6 +54,16 @@ export class MarketDataFilterWidget extends Widget {
         return row;
     }
 
+    /**
+     * Creates a select element with title and puts it into group.
+     * 
+     * @param {Element} group The div that this select group will be added to
+     * @param {String} name The title of this new select that will display
+     * @param {Array} values Values for the select
+     * @param {Array} val_ids Associated ids to the values if needed
+     * @param {String} placeholder Placeholder text for when the select has no selected items
+     * @returns {Element} The new select element
+     */
     createSelect(group, name, values, val_ids="", placeholder="") {
         if (!Array.isArray(values)) {
             values = [values];
@@ -131,15 +141,17 @@ export class MarketDataFilterWidget extends Widget {
 
     makeCityDropDown(section, btnDiv, divCityDropdown) {
         let cities = [];
-        let city_ids = {};
+        let cityIds = {};
         for (const row in this.city_rows[this.state]) {
-            let city_name = this.city_rows[this.state][row]['market_location_city'];
-            let location_name = this.city_rows[this.state][row]['market_location_name'];
-            location_name = location_name.replace("- " + city_name);
-            let item = city_name + " - " + location_name;
+            let cityName = this.city_rows[this.state][row]['market_location_city'];
+            let locationName = this.city_rows[this.state][row]['market_location_name'];
+            // getting rid of the "- <cityName>" and/or ", <state>" that some locations have
+            locationName = locationName.replace("- " + cityName, "");
+            locationName = locationName.replace(", " + this.state, "");
+            let item = cityName + " - " + locationName;
 
             cities.push(item);
-            city_ids[item] = this.city_rows[this.state][row]['slug_id'];
+            cityIds[item] = this.city_rows[this.state][row]['slug_id'];
         }
         cities.sort();
 
@@ -151,7 +163,7 @@ export class MarketDataFilterWidget extends Widget {
         }
 
         let selectCityDropdown = this.createSelect(cityDropdown, "City", 
-            cities, city_ids, "Select a city");
+            cities, cityIds, "Select a city");
         
         selectCityDropdown.oninput = () => {
             this.createApplyFilterBtn(selectCityDropdown, btnDiv);
@@ -164,22 +176,23 @@ export class MarketDataFilterWidget extends Widget {
         divFavDropdown.className = "col-4";
 
         let cities = [];
-        let city_ids = {};
-        for (const row in this.favorites) {
-            let location_name = this.favorites[row]['location_name'];
-            let city_name = this.favorites[row]['city_name'];
-            location_name = location_name.replace("- " + city_name, "");
-            let item = city_name + " - " + location_name + ", " + this.favorites[row]['state'];
+        let cityIds = {};
+        for (const row of this.favorites) {
+            let cityName = row['market_location_city'];
+            // getting rid of the "- <cityName>" and/or ", <state>" that some locations have
+            let locationName = row['market_location_name'].replace("- " + cityName, "");
+            locationName = locationName.replace(", " + row['state'], "");
+            let item = cityName + " - " + locationName + ", " + row['state'];
 
             cities.push(item);
-            city_ids[item] = this.favorites[row]['slug_id'];
+            cityIds[item] = row['slug_id'];
         }
         cities.sort();
 
         let favSection = this.createSection(row, "Favorites");
         favSection.append(divFavDropdown);
         let selectFavDropdown = this.createSelect(divFavDropdown, "", 
-            cities, city_ids, "Select a favorite location");
+            cities, cityIds, "Select a favorite location");
 
         let divFavBtn = document.createElement("div");
         divFavBtn.className = "col-4 text-left align-self-end";
