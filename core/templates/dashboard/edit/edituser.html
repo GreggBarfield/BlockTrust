@@ -73,6 +73,7 @@ Edit User
                         </div>
                     </div>
                 </div>
+                <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}"></input>
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edituser_status_message" style="display:none;">Hang on, we're updating your account...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edituser_error_message">Loading error...</p>

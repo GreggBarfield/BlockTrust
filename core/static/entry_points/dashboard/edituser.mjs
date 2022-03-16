@@ -27,7 +27,7 @@ let form = new AsyncForm({
             confirm_password: confirm_password.val(),
             first: first.val(),
             last: last.val(),
-            phone: phone.val(),
+            phone: phone.val()
         }
     }
 });
