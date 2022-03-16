@@ -110,9 +110,11 @@ export class MarketDataTableWidget extends Widget {
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
         const headers = Object.keys(this.match_rows[0]);
         for (const headerText of headers) {
-            let th = document.createElement("th");
-            th.textContent = headerText;
-            this.mainTableHeadRow0.appendChild(th);
+            if (!headerText.includes("office")){
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                this.mainTableHeadRow0.appendChild(th);
+            }
         }
 
         // Body
@@ -124,12 +126,14 @@ export class MarketDataTableWidget extends Widget {
             this.mainTableBody.appendChild(rowTag);
 
             for (const item in this.match_rows[row]) {
-                let td = document.createElement("td");
-                rowTag.append(td);
-                if (item.includes('price') && this.match_rows[row][item] != null){
-                    td.textContent = '$' + this.match_rows[row][item];
-                } else {
-                    td.textContent = this.match_rows[row][item];
+                if (!item.includes("office")){
+                    let td = document.createElement("td");
+                    rowTag.append(td);
+                    if (item.includes('price') && this.match_rows[row][item] != null){
+                        td.textContent = '$' + this.match_rows[row][item];
+                    } else {
+                        td.textContent = this.match_rows[row][item];
+                    }
                 }
             }
         }
