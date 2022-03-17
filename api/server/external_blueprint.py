@@ -77,22 +77,22 @@ def serve_get_animal_data():
                         status=connection_status["Pending"]
                     )
                 except ConnectionException as e:
-                    return {"error": str(e)}
-                # send an email to admin of match account
-                match_account_admin_users = g.db.account_users.get_account_users(account=match["account"], is_admin=1)
-                if len(match_account_admin_users) > 0:
-                    match_account_admin_user = match_account_admin_users[0]["user"]
-                    match_account_admin_user_row = g.db.users.get_users(id=match_account_admin_user)
-                    if len(match_account_admin_user_row) == 0:
-                        raise Exception("Admin user not found for account "+str(match["account"]))
-                    send_email(
-                        "BlockTrust Network New Connection Request",
-                        render_email("new_connection_request.html", {
-                            "connection_receiving_user": match_account_admin_user_row[0],
-                            "requesting_account": requesting_account[0]
-                        }), match_account_admin_user_row[0]["email"]
-                    )
-                return {"error": unauthorized_message}, 401
+                    pass
+                else:
+                    # send an email to admin of match account
+                    match_account_admin_users = g.db.account_users.get_account_users(account=match["account"], is_admin=1)
+                    if len(match_account_admin_users) > 0:
+                        match_account_admin_user = match_account_admin_users[0]["user"]
+                        match_account_admin_user_row = g.db.users.get_users(id=match_account_admin_user)[0]
+                        send_email(
+                            "BlockTrust Network New Connection Request",
+                            render_email("new_connection_request.html", {
+                                "connection_receiving_user": match_account_admin_user_row,
+                                "requesting_account": requesting_account[0]
+                            }), match_account_admin_user_row["email"]
+                        )
+                finally:
+                    return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
             if len(match_birth_date_row) > 0:
