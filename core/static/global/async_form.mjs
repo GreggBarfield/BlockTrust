@@ -92,6 +92,11 @@ export class AsyncForm {
             postOptions.data.requestRedirectTo = this.requestRedirectTo;
         }
 
+        let csrfTokenElement = this.form.querySelector("#csrf_token");
+        if (csrfTokenElement !== null) {
+            postOptions.headers = {"X-CSRFToken": csrfTokenElement.value}
+        }
+
         $.post(postOptions)
             .always(function(){
                 that.clearStatus();

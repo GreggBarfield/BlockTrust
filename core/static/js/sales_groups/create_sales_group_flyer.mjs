@@ -122,7 +122,7 @@ function createMarketData(pdf, salesData) {
     yPlacement += Y_SPACING_VAL;
     pdf.text("Delivery Location:", xLabelColumn, yPlacement);
     pdf.text(processData(salesData.delivery_location), xDataColumn, yPlacement);
-    yPlacement += Y_SPACING_VAL;
+    yPlacement += Y_SPACING_VAL+8;
     
     let daysRemaining = "--";
     if ("end" in salesData && salesData.end !== null) {
