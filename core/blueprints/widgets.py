@@ -76,7 +76,8 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.name(),
-        "is_archived":sales_group_row["is_archived"]
+        "is_archived":sales_group_row["is_archived"],
+        "price": sales_group_row["price"]
     }
 
 
@@ -196,6 +197,7 @@ def serve_save_sales_group():
         for image in request.json["reported"]["images"]:
             if not g.db.files.is_owner(None, g.account.id(), image):
                 raise ExportException("Image " + str(image) + " is not owned by the selected account.")
+    print(request.json["price"])
     # Checking if required values are present
     if request.json["zip"] is None:
         raise ExportException("Zip code does not have a value")
@@ -205,6 +207,8 @@ def serve_save_sales_group():
         raise ExportException("End date is not selected")
     if len(request.json["delivery_location"].strip()) == 0:
         raise ExportException("Delivery Location does not have a value")
+    if request.json["price"] == "0":
+        raise ExportException("Sales Group price is not provided")
     if request.json["reported"]["count"] is None:
         raise ExportException("Total animals cannot be 0")
     if request.json["reported"]["weight"] is None:

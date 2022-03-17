@@ -1160,3 +1160,6 @@ VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 30
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
 values("USCT", @product_id, 20);
+
+/* Nisheet Thakur 03/16/2022 */
+ALTER TABLE `sales_groups` ADD COLUMN `price` FLOAT DEFAULT 0;

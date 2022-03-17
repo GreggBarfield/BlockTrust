@@ -93,6 +93,20 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
+        function createFloatNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
+            let id = "domuid" + window.DOMUIDNext++;
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let input = document.createElement("input");
+            input.type = "number";
+            input.step="0.01";
+            input.value = value;
+            input.className = "form-control";
+            input.id = id;
+            input.required = true
+            group.append(input);
+            return input;
+        }
+
         function createText(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
@@ -227,6 +241,7 @@ export class EditSalesGroupWidget extends Widget {
         let marketingStart = createDate(marketingRow, "Market Start Date", this.data.start || null, true, "marketingStart","This is the first date the cattle will be available for sale.");
         let marketingEnd = createDate(marketingRow, "Market End Date", this.data.end || null,true,"marketingEnd","This is the last date the cattle will be for sale. This ad will expire.");
         let marketingLocation = createText(marketingRow,"Delivery Location",this.data.delivery_location || null,true,"marketingLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
+        let marketingPrice = createFloatNumber(marketingRow, "Sales Group Price", this.data.price || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group");
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -490,6 +505,7 @@ export class EditSalesGroupWidget extends Widget {
                     "end": marketingEnd.getTime(),
                     "group_name": salesGroupName.value,
                     "is_archived": archiveSwitch.isChecked(),
+                    "price": marketingPrice.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                    

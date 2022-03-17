@@ -134,6 +134,14 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
+            if(current_account !== this.data["account"]){
+                let transactionButton = document.createElement("button");
+                transactionButton.className = "btn btn-sm btn-outline-primary";
+                transactionButton.style = "float:right"
+                transactionButton.textContent = "Transaction";
+                transactionButton.addEventListener("click", () => {});
+                left.append(transactionButton);
+            }
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
                 sendMessageButton.className = "btn btn-sm btn-outline-primary";
