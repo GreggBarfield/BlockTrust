@@ -100,18 +100,26 @@ class UsdaDataRetriever:
 
                 reportsAddedCounter = 0
                 for row in json_response['results']:
-                    age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
-
-                    # only add data that is within the cutoff period
-                    if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
+                    if 'published_date' in row:
                         try:
-                            report = USDAReport(row)
-                            self._db.usda_reports.create_report(report)
-                            reportsAddedCounter += 1
+                            age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
                         except Exception as e:
-                            print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
+                            print("USDADataRetreiver.get_public_reports(): Problem with row['published_date']. Row: ", row)
                             print(e)
                             raise Exception(e)
+
+                        # only add data that is within the cutoff period
+                        if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
+                            try:
+                                report = USDAReport(row)
+                                self._db.usda_reports.create_report(report)
+                                reportsAddedCounter += 1
+                            except Exception as e:
+                                print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
+                                print(e)
+                                raise Exception(e)
+                    else:
+                        print("USDADataRetreiver.get_public_reports(): 'published_date' is not in row. Row: ", row)
 
                 # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_public_reports(): Added reports for slug_id " + str(slug_id) 
