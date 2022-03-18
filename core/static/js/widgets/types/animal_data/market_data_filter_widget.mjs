@@ -60,7 +60,7 @@ export class MarketDataFilterWidget extends Widget {
      * @param {Element} group The div that this select group will be added to
      * @param {String} name The title of this new select that will display
      * @param {Array} values Values for the select
-     * @param {Array} val_ids Associated ids to the values if needed
+     * @param {Dictionary} val_ids Associated ids to the values if needed
      * @param {String} placeholder Placeholder text for when the select has no selected items
      * @returns {Element} The new select element
      */
@@ -142,16 +142,17 @@ export class MarketDataFilterWidget extends Widget {
     makeCityDropDown(section, btnDiv, divCityDropdown) {
         let cities = [];
         let cityIds = {};
-        for (const row in this.city_rows[this.state]) {
-            let cityName = this.city_rows[this.state][row]['market_location_city'];
-            let locationName = this.city_rows[this.state][row]['market_location_name'];
+
+        for (const [citySlug, cityData] of Object.entries(this.city_rows[this.state])) {
+            let cityName = cityData['market_location_city'];
+            let locationName = cityData['market_location_name'];
             // getting rid of the "- <cityName>" and/or ", <state>" that some locations have
             locationName = locationName.replace("- " + cityName, "");
             locationName = locationName.replace(", " + this.state, "");
             let item = cityName + " - " + locationName;
 
             cities.push(item);
-            cityIds[item] = this.city_rows[this.state][row]['slug_id'];
+            cityIds[item] = cityData['slug_id'];
         }
         cities.sort();
 
