@@ -80,10 +80,8 @@ def serve_get_animal_data():
                     pass
                 else:
                     # send an email to admin of match account
-                    match_account_admin_users = g.db.account_users.get_account_users(account=match["account"], is_admin=1)
-                    if len(match_account_admin_users) > 0:
-                        email_verified_admin_user = g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)
-                        if len(email_verified_admin_user) > 0: 
+                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=match["account"], is_admin=1)) > 0:
+                        if len(email_verified_admin_user := g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
                             send_email(
                                 "BlockTrust Network New Connection Request",
                                 render_email("new_connection_request.html", {
