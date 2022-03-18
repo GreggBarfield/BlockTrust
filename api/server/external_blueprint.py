@@ -82,15 +82,15 @@ def serve_get_animal_data():
                     # send an email to admin of match account
                     match_account_admin_users = g.db.account_users.get_account_users(account=match["account"], is_admin=1)
                     if len(match_account_admin_users) > 0:
-                        match_account_admin_user = match_account_admin_users[0]["user"]
-                        match_account_admin_user_row = g.db.users.get_users(id=match_account_admin_user)[0]
-                        send_email(
-                            "BlockTrust Network New Connection Request",
-                            render_email("new_connection_request.html", {
-                                "connection_receiving_user": match_account_admin_user_row,
-                                "requesting_account": requesting_account[0]
-                            }), match_account_admin_user_row["email"]
-                        )
+                        email_verified_admin_user = g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)
+                        if len(email_verified_admin_user) > 0: 
+                            send_email(
+                                "BlockTrust Network New Connection Request",
+                                render_email("new_connection_request.html", {
+                                    "connection_receiving_user": email_verified_admin_user[0],
+                                    "requesting_account": requesting_account[0]
+                                }), email_verified_admin_user[0]["email"]
+                            )
                 finally:
                     return {"error": unauthorized_message}, 401
 
