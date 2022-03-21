@@ -565,7 +565,7 @@ export class SalesGroupViewer {
     }
     
     formatData(data) {
-        if (data === null || data === undefined)
+        if (data === null)
             return "";
         else
             return data;
