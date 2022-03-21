@@ -80,7 +80,8 @@ def serve_sales_group():
         "companyId": g.account.id(),
         "company": g.account.name(),
         "is_archived": sales_group_row["is_archived"],
-        "price": sales_group_row["price"]
+        "price": sales_group_row["price"],
+        "sold": sales_group_row["sold"]
     }
 
 
@@ -176,7 +177,9 @@ def serve_search_sales_groups_2():
             },
             "auction_sale": sales_group_row["auction_sale"],
             "auction_sale_name": sales_group_row["auction_sale_name"],
-            "is_archived":sales_group_row["is_archived"]          
+            "is_archived": sales_group_row["is_archived"],
+            "price": sales_group_row["price"],
+            "sold": sales_group_row["sold"]         
         })
 
     return {
@@ -275,7 +278,8 @@ def serve_save_sales_group():
         auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
-        delivery_location_type=request.json["delivery_location_type"]
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
     )
 
     return {

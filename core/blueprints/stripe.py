@@ -180,3 +180,39 @@ def create_payment(partner_id):
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-payment-intent/sales-group/<account_id>', methods=['POST'])
+def create_sales_group_payment(account_id):
+    data = json.loads(request.data)
+    try:
+        account = g.db.accounts.get_account_by_id(account_id)
+        if account is not None:
+            if account.partner_stripe_secret_key() is not None:
+                stripe.api_key = account.partner_stripe_secret_key()
+                # Some example payment method types include `card`, `ideal`, and `alipay`.
+                payment_method_type = data['paymentMethodType']
+                currency = data['currency']
+                sales_group_id = data['sales_group_id']
+                amount = float(data['amount'])*100
+                amount = int(amount)
+                # Create a PaymentIntent with the amount, currency, and a payment method type.
+                params = {
+                    'payment_method_types': [payment_method_type],
+                    'amount': amount,
+                    'currency': currency,
+                    'metadata': {'sales_group_id': sales_group_id}
+                }
+                intent = stripe.PaymentIntent.create(**params)
+                # Send PaymentIntent details to the front end.
+                return {'clientSecret': intent.client_secret}
+            else:
+                # We might need to change this error message
+                raise Exception("Partner stripe account not available.")
+        else:
+            raise Exception("Incorrect partner id.")
+    except stripe.error.StripeError as e:
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400
+

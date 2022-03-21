@@ -577,3 +577,34 @@ def serve_view_notification(notification_id):
         return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
     # If notification is invalid return to main notifications page
     return redirect('/dashboard/notifications')
+
+
+@bp.route('/dashboard/sales-groups/transaction/<int:sales_group_id>', methods=["GET"])
+@crut.require_account
+def serve_sales_group_transaction(sales_group_id):
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    return dashboard_render("/dashboard/sales-groups/sales-group/transaction.html", {"sales_group_row": sales_group_row})
+
+
+@bp.route('/dashboard/sales-group/transaction/log-transaction-details', methods=["POST"])
+@crut.require_account
+def serve_log_transaction_details():
+    try:
+        data = json.loads(request.data)
+        details = {
+            'sales_group_id': data['sales_group_id'],
+            'transaction_amount': data['amount'],
+            'from_account_id': g.account.id(),
+            'to_account_id': data['to_account_id'],
+            'payment_intent': data['paymentIntent']
+        }
+        g.db.sales_groups.update_sales_group(id=data['sales_group_id'], sold=1)
+        EventLogs(g.db).insert_event_log(
+            account_id=g.account.id(),
+            user_id=g.user.id(),
+            event_type_id=event_type_by_name["Sales Group Transaction"],
+            details=json.dumps(details)
+        )
+        return {"success": True}
+    except Exception as e:
+        return {"error": str(e)}, 400

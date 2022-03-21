@@ -1434,7 +1434,9 @@ INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
 values("USCT", @product_id, 20);
 
 /* Nisheet Thakur 03/16/2022 */
-ALTER TABLE `sales_groups` ADD COLUMN `price` FLOAT DEFAULT 0;
+ALTER TABLE `sales_groups` 
+ADD COLUMN `price` FLOAT DEFAULT 0,
+ADD COLUMN `sold` TINYINT DEFAULT 0;
 
 /* Rohan Sureshkumar 03/15/22 */
 ALTER TABLE `usda_reports`

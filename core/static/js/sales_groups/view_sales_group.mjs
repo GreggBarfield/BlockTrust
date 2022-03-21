@@ -4,15 +4,14 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
-    constructor(data, attachTo = null) {
+    constructor(data, attachTo = null, currentAccount) {
         this.frame = null;
 
         this.box = document.createElement("div");
-
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
-
+        this.currentAccount = currentAccount;
         this.data = data;
         this.createDisplay();
 
@@ -134,12 +133,14 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
-            if(current_account !== this.data["account"]){
+            if(this.currentAccount !== this.data["account"] && this.data["sold"] == 0){
                 let transactionButton = document.createElement("button");
                 transactionButton.className = "btn btn-sm btn-outline-primary";
                 transactionButton.style = "float:right"
                 transactionButton.textContent = "Transaction";
-                transactionButton.addEventListener("click", () => {});
+                transactionButton.addEventListener("click", () => {
+                    window.location.href = "/dashboard/sales-groups/transaction/"+this.data["id"];
+                });
                 left.append(transactionButton);
             }
             if(this.data["is_archived"]==0){

@@ -11,7 +11,7 @@ export class SearchSalesGroupsWidget extends Widget {
         this.frame.innerHTML = "";
 
         this.inputs = {};
-
+        this.currentAccount = parseInt(this.frame.getAttribute("data-widget-current-account"));
         this.generate();
 
     }
@@ -236,12 +236,13 @@ export class SearchSalesGroupsWidget extends Widget {
         let isFirst = true;
         for (const sales_group of sales_groups) {
             let container = document.createElement("p");
+            let currentAccount = this.currentAccount;
             if (!isFirst) {
                 container.style.marginTop = "50px";
             }
             isFirst = false;
             this.results.append(container);
-            new SalesGroupViewer(sales_group, container);
+            new SalesGroupViewer(sales_group, container, currentAccount);
         }
 
         if (sales_groups.length == 0) {

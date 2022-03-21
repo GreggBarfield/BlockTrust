@@ -160,7 +160,7 @@ class SalesGroups:
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
-        delivery_location_type=NO_VALUE):
+        delivery_location_type=NO_VALUE, price=NO_VALUE, sold=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -215,6 +215,12 @@ class SalesGroups:
         if delivery_location_type is not NO_VALUE:
             query_conditions.append(" delivery_location_type = %(delivery_location_type)s")
             query_values["delivery_location_type"] = delivery_location_type
+        if price is not NO_VALUE:
+            query_conditions.append(" price = %(price)s")
+            query_values["price"] = price
+        if sold is not NO_VALUE:
+            query_conditions.append(" sold = %(sold)s")
+            query_values["sold"] = sold
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
