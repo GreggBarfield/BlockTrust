@@ -1,6 +1,5 @@
 import json
 from core.database.no_value import NoValue
-from ..tables import zip_codes
 
 NO_VALUE = NoValue()
 
@@ -269,6 +268,7 @@ class SalesGroups:
             additionals.append(minimum_weight)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
+
         sql = SalesGroups._STANDARD_SELECT + """
                 WHERE
                     (

@@ -30,7 +30,7 @@ from ..utilities import crut
 
 from ..data_requests.router import unauth_route
 
-from time import time
+import time
 
 bp = Blueprint('widgets_bp', __name__)
 
@@ -138,7 +138,7 @@ def serve_search_sales_groups_2():
     sales_group_rows = g.db.sales_groups.search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
-        start=0,
+        start=time.time(),
         end=9999999999,
         is_archived=0,
         breed=request.json["search"]["breed"],
