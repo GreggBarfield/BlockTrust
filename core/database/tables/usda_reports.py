@@ -86,7 +86,7 @@ class USDAReports:
         """
         result = self._db.execute_d(
             """
-                SELECT DISTINCT slug_id, market_location_city
+                SELECT DISTINCT slug_id, market_location_city, market_location_name
                 FROM usda_reports
                 WHERE market_location_state=%(state)s
             """,

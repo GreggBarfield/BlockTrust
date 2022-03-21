@@ -1433,6 +1433,12 @@ SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
 values("USCT", @product_id, 20);
 
+/* Conner Charles 03/11/2022 */
+ALTER TABLE `usda_reports` 
+DROP INDEX `city_idx` ,
+ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC, `market_location_name` ASC) VISIBLE;
+;
+
 /* Rohan Sureshkumar 03/15/22 */
 ALTER TABLE `usda_reports`
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
