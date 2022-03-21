@@ -30,7 +30,7 @@ from ..utilities import crut
 
 from ..data_requests.router import unauth_route
 
-from time import time
+import time
 
 bp = Blueprint('widgets_bp', __name__)
 
@@ -140,7 +140,7 @@ def serve_search_sales_groups_2():
     sales_group_rows = g.db.sales_groups.search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
-        start=0,
+        start=time.time(),
         end=9999999999,
         is_archived=0,
         breed=request.json["search"]["breed"],
@@ -560,7 +560,7 @@ def serve_get_sustainability_timeline_data():
 @bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_get_usda_favorites():
-    return { 'favorites': USDAFavoritesForAccounts(g.db).get_by_account_with_names(g.account.id()) }
+    return { 'favorites': USDAFavoritesForAccounts(g.db).get_favorites_for_account(g.account.id()) }
 
 @bp.route('/widgets/data/save_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
