@@ -1,7 +1,5 @@
 import json
 from core.database.no_value import NoValue
-from ..tables import zip_codes
-import time
 
 NO_VALUE = NoValue()
 
