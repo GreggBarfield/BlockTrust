@@ -65,7 +65,6 @@ export class CertificatesWidget extends Widget {
 
         let appNo =document.createElement("div");
         appNo.className = "col-md-4";
-
         appNo.textContent="App No:"+ ((this.wean_data["grouping_id"]!==null)? this.wean_data["grouping_id"]: "N/A");
         row.append(appNo)
 
