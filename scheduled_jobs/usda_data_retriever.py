@@ -71,7 +71,7 @@ class UsdaDataRetriever:
         else:
             print("USDADataRetreiver.get_mandatory_reports(): USDA get data is turned off")
             debug_logs = "USDA get data is turned off"
-        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_mandatory_reports()", "", "", {"details":debug_logs})
+        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_mandatory_reports()", "Run logs", "", {"details":debug_logs})
 
     def get_public_reports(self):
         """Gets the public report data from API and adds it to the database"""
@@ -135,7 +135,7 @@ class UsdaDataRetriever:
         else:
             print("USDADataRetreiver.get_public_reports():  USDA get data is turned off")
             debug_logs = "USDA get data is turned off"
-        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_public_reports()", "", "", {"details":debug_logs})
+        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_public_reports()", "Run logs", "", {"details":debug_logs})
 
     def delete_old_reports(self):
         rowCount = self._db.usda_reports.delete_reports_older_than(USDA_CUTOFF_PERIOD_IN_DAYS)
