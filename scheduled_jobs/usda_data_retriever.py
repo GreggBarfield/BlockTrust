@@ -60,7 +60,7 @@ class UsdaDataRetriever:
                         except Exception as e:
                             print("USDADataRetreiver.get_mandatory_reports(): Result Row excepted. Row: ", row)
                             print(e)
-                            raise Exception(e)
+                            raise Exception(e, row)
 
                 # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_mandatory_reports(): Added reports for cattle slug_id " + str(slug_id) 
@@ -106,7 +106,7 @@ class UsdaDataRetriever:
                         except Exception as e:
                             print("USDADataRetreiver.get_public_reports(): Problem with row['published_date']. Row: ", row)
                             print(e)
-                            raise Exception(e)
+                            raise Exception(e, row)
 
                         # only add data that is within the cutoff period
                         if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
@@ -117,7 +117,7 @@ class UsdaDataRetriever:
                             except Exception as e:
                                 print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
                                 print(e)
-                                raise Exception(e)
+                                raise Exception(e, row)
                     else:
                         print("USDADataRetreiver.get_public_reports(): 'published_date' is not in row. Row: ", row)
 
@@ -140,6 +140,9 @@ def get_usda_data(db):
         retriever.delete_old_reports()
         print("USDADataRetreiver.get_usda_data(): Exiting. Current time: ", datetime.datetime.now().time())
     except Exception as e:
-        ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+        if len(e.args) > 1:
+            ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e.args[0]), traceback.format_exc(), e.args[1])
+        else:
+            ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
     finally:
         db.close()
