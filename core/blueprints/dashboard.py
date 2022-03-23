@@ -344,12 +344,18 @@ def serve_market_state_data():
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
     market_states = g.db.usda_reports.get_all_states()
+    report = g.db.usda_reports.get_by_slug_id(slug_id)[0]
+    city = report["market_location_city"]
+    # get rid of any "- <city name>" and/or ", <state>" that some locations have
+    market_name = report["market_location_name"].replace("- " + city, "").replace(", " + state, "")
 
     if stateLabel in market_states:
         return dashboard_render("data/market-data.html",
             {
                 "slug_id": slug_id,
-                "state": state
+                "state": state,
+                "city": city,
+                "market_name": market_name
             })
     raise Exception("Invalid state")
 
