@@ -575,7 +575,7 @@ def serve_data_request():
 @crut.require_account
 def serve_get_market_data(slug_id):
     return {
-        'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
+        'market_data': g.db.usda_reports.get_by_slug_id(slug_id)
     }, 200
 
 
