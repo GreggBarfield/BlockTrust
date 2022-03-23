@@ -132,7 +132,11 @@ export class SalesGroupViewer {
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
             salesGroupID.style = "display: inline;";
-            salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
+            let saleGroupNickname = "MarketTrust Sale";
+            if (this.data.hasOwnProperty('group_name') && this.data.group_name != "" && this.data.group_name != null){
+                saleGroupNickname = this.data.group_name;
+            }
+            salesGroupID .textContent = "Sales Group "+this.data.id+": "+saleGroupNickname; 
             left.append(salesGroupID);
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");

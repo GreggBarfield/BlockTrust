@@ -208,7 +208,7 @@ export class EditSalesGroupWidget extends Widget {
         editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
 
         let saleGroupNickname = "MarketTrust Sale";
-        if (this.data.hasOwnProperty('group_name') && this.data.group_name != ""){
+        if (this.data.hasOwnProperty('group_name') && this.data.group_name != "" && this.data.group_name != null){
             saleGroupNickname = this.data.group_name;
         }
         editGroupName.textContent = "Edit Sales Group " + this.data.id + ": " + saleGroupNickname;

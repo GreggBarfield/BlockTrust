@@ -4,7 +4,7 @@
 {% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/edit/" + (sales_group['id']|e) + "", "Edit Sales Group " + (sales_group['id']|e))] %}
 
 {% block dashboard_content_header %}
-Edit Sales Group {{sales_group['id']|e}} : {{sales_group['group_name']|e}}
+Edit Sales Group {{sales_group['id']|e}}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}

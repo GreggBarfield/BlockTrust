@@ -1,0 +1,21 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Create New Sales Group" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups")] %}
+
+{% block dashboard_content_header %}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div 
+            class="col-sm-12 widget" 
+            data-widget-type="create new sales group"
+        >
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

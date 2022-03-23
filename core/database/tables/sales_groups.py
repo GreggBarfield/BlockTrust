@@ -156,6 +156,46 @@ class SalesGroups:
         )
         return self.get_sales_group_by_id(self._db.last_row_id())
 
+    def insert_new_sales_group(self, reported=None, published=None, zip_code=None, account=None,
+                               delivery_location=None, start=None, end=None, auction_sale=None,
+                               group_name=None, is_archived=None, delivery_location_type=None):
+        """
+        Inserts a new sales group into the table
+        Params:
+            account: Account owning the sales group
+            reported: Data to be added in reported col (dict)
+            published: A number for the reported col
+            zip_code: The zip code
+            delivery_location_type: Sale location type
+            delivery_location: city and state of the zip code
+            start: The start time
+            end: The end time
+            auction_sale: The auction sale ID
+            is_archived: 0 for no, 1 for yes
+        """
+        self._db.execute(
+            """
+            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
+            group_name, is_archived, delivery_location_type)
+            VALUES
+            (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
+            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s)
+            """, {
+                "account": account,
+                "reported": json.dumps(reported),
+                "published": published,
+                "zip_code": zip_code,
+                "delivery_location": delivery_location,
+                "start": start,
+                "end": end,
+                "auction_sale": auction_sale,
+                "group_name": group_name,
+                "is_archived": is_archived,
+                "delivery_location_type": delivery_location_type
+            }
+        )
+        return self._db.last_row_id()
+
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
