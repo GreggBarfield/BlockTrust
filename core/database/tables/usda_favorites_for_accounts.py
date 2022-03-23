@@ -35,12 +35,12 @@ class USDAFavoritesForAccounts:
             }
         )
 
-    def get_by_account_with_names(self, account_id):
+    def get_favorites_for_account(self, account_id):
         """Gets the favorites by account_id with their associated names.
         """
         matching_favorites = self._db.execute_d(
             """
-                SELECT DISTINCT f.*, r.market_location_city AS "city_name" 
+                SELECT DISTINCT f.*, r.market_location_city, r.market_location_name
                 FROM usda_favorites_for_accounts AS f
                 INNER JOIN usda_reports AS r ON f.slug_id=r.slug_id
                 WHERE f.account_id=%(account_id)s 

@@ -152,7 +152,7 @@ def serve_animal_eid(animal_eid):
     if len(animal.matches()) == 0:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
 
-    return dashboard_render("animals/animal.html", {"animal": animal, "company": g.account.company()})
+    return dashboard_render("animals/animal.html", {"animal": animal, "company": g.account.name()})
 
 @bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
 @crut.require_user

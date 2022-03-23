@@ -86,7 +86,7 @@ class Connections:
         if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
             raise ConnectionException("Account is already connected!")
         if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
-            raise ConnectionException("Request already sent!")
+            raise ConnectionException("Connection request already sent!")
         first_account = Accounts(self._db).get_account_by_id(account_id=from_account_id)
         second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
         from_account_name = first_account.name()
@@ -107,7 +107,7 @@ class Connections:
             }
         )
 
-    def  get_connection_between(self, from_account_id, to_account_id, status):
+    def get_connection_between(self, from_account_id, to_account_id, status):
         """
         Checks the connection status between two accounts
 

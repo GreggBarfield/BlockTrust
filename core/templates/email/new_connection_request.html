@@ -1,0 +1,25 @@
+{% extends "email/standard.html" %}
+
+{% block email_standard_center %}
+<table>
+    <tr>
+        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
+            <p style="margin: 0;">Blocktrust Network New connection request</p>
+        </td>
+    </tr>
+</table>
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
+<div>
+    {{connection_receiving_user.first_name}} {{connection_receiving_user.last_name}},<br>
+
+    {{requesting_account.name}} has requested permission to establish a connection with you for the purpose of seeing data on your cattle.
+    
+    Please log into your account to Accept/Deny the request.
+    
+    Thank you.
+</div>
+<br><br>
+(Don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

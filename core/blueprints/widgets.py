@@ -12,6 +12,8 @@ from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
+from ..database.tables.auction_markets import AuctionMarkets
+
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
@@ -28,7 +30,7 @@ from ..utilities import crut
 
 from ..data_requests.router import unauth_route
 
-from time import time
+import time
 
 bp = Blueprint('widgets_bp', __name__)
 
@@ -54,7 +56,6 @@ def serve_direct(name):
 @crut.require_account
 def serve_sales_group():
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
-
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -65,8 +66,9 @@ def serve_sales_group():
         "account_name": sales_group_row["account_name"],
         "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
-        "zip": sales_group_row["zip"], 
+        "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
+        "delivery_location_type": sales_group_row["delivery_location_type"],
         "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
@@ -77,8 +79,19 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.name(),
-        "is_archived":sales_group_row["is_archived"]
+        "is_archived": sales_group_row["is_archived"]
     }
+
+
+@bp.route('/widgets/data/auction_markets', methods=['POST'])
+@crut.require_account
+def serve_auction_markets():
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(
+        is_archived=0,
+        auction_markets_order_by="name",
+        auction_markets_sort_by="ASC"
+    )
+    return {"auction_markets": auction_markets}
 
 
 @bp.route('/widgets/data/search_sales_groups', methods=['POST'])
@@ -125,7 +138,7 @@ def serve_search_sales_groups_2():
     sales_group_rows = g.db.sales_groups.search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
-        start=0,
+        start=time.time(),
         end=9999999999,
         is_archived=0,
         breed=request.json["search"]["breed"],
@@ -204,8 +217,8 @@ def serve_save_sales_group():
         raise ExportException("Start date is not selected")
     if request.json["end"] is None:
         raise ExportException("End date is not selected")
-    if len(request.json["delivery_location"].strip()) == 0:
-        raise ExportException("Delivery Location does not have a value")
+    if request.json["delivery_location_type"] is None:
+        raise ExportException("Sale location type is not selected.")
     if request.json["reported"]["count"] is None:
         raise ExportException("Total animals cannot be 0")
     if request.json["reported"]["weight"] is None:
@@ -237,19 +250,28 @@ def serve_save_sales_group():
         # it was changed to a non-None value, verify new is published
         if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
             raise ExportException("Auction sale specified is not published yet.")
-
     # Alright, go ahead...
+    delivery_location = ""
+    if request.json["delivery_location_type"] == "Off Ranch":
+        if len(request.json["delivery_location"].strip()) == 0:
+            raise ExportException("Delivery Location does not have a value")
+        delivery_location = request.json["delivery_location"]
+    else:
+        if request.json["auction_market_location"] == "None":
+            raise ExportException("Please select an auction market location")
+        delivery_location = request.json["auction_market_location"]
     g.db.sales_groups.update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
-        zipcode=request.json["zip"],
-        delivery_location=request.json["delivery_location"],
+        zip_code=request.json["zip"],
+        delivery_location=delivery_location,
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
-        is_archived=0
+        is_archived=0,
+        delivery_location_type=request.json["delivery_location_type"]
     )
 
     return {
@@ -530,7 +552,7 @@ def serve_get_sustainability_timeline_data():
 @bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_get_usda_favorites():
-    return { 'favorites': USDAFavoritesForAccounts(g.db).get_by_account_with_names(g.account.id()) }
+    return { 'favorites': USDAFavoritesForAccounts(g.db).get_favorites_for_account(g.account.id()) }
 
 @bp.route('/widgets/data/save_usda_favorites_for_account', methods=['POST'])
 @crut.require_account

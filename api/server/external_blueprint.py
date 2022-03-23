@@ -3,13 +3,15 @@ from flask import (
 )
 from core.database.database import Database
 from core.database.tables.accounts import AccountsException
-from core.database.tables.connections import Connections, connection_status
+from core.database.tables.connections import Connections, ConnectionException, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
+from core.renderers.email import render_email
 from core.sectors import sectors_by_name
+from core.utilities.email import send_email
 from json import loads
 from datetime import datetime
 from traceback import format_exc
@@ -31,11 +33,11 @@ def serve_get_animal_data():
             raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
-        account = g.db.accounts.get_accounts(token=token)
-        if len(account) == 0:
+        requesting_account = g.db.accounts.get_accounts(token=token)
+        if len(requesting_account) == 0:
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
-        APIDataRequests(g.db).insert_api_data_request(account_id=account[0]["id"], api_route=request.path, request_data=request_data)
+        APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account[0]["id"], api_route=request.path, request_data=request_data)
         birth_date = None
         visual_id = None
         birth_weight = None
@@ -65,9 +67,30 @@ def serve_get_animal_data():
         else:
             match = match_ranch_sightings[0]
 
-            #check if connection is established
-            if Connections(g.db).get_connection_between(match["account"], account[0]["id"], connection_status["Connected"]) is None:
-                return {"error": unauthorized_message}, 401
+            # check if connection is established
+            if Connections(g.db).get_connection_between(match["account"], requesting_account[0]["id"], connection_status["Connected"]) is None:
+                # create a new pending connection
+                try:
+                    Connections(g.db).create_connection(
+                        from_account_id=requesting_account[0]["id"],
+                        to_account_id=match["account"],
+                        status=connection_status["Pending"]
+                    )
+                except ConnectionException as e:
+                    pass
+                else:
+                    # send an email to admin of match account
+                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=match["account"], is_admin=1)) > 0:
+                        if len(email_verified_admin_user := g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
+                            send_email(
+                                "BlockTrust Network New Connection Request",
+                                render_email("new_connection_request.html", {
+                                    "connection_receiving_user": email_verified_admin_user[0],
+                                    "requesting_account": requesting_account[0]
+                                }), email_verified_admin_user[0]["email"]
+                            )
+                finally:
+                    return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
             if len(match_birth_date_row) > 0:

@@ -2,6 +2,7 @@ import requests
 
 from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT, USDA_PUBLIC_ENDPOINT, USDA_GET_DATA, USDA_CUTOFF_PERIOD_IN_DAYS)
 from core.database.objects.usda_report import USDAReport
+from core.database.tables.debug_logs import DebugLogs
 from core.database.tables.error_logs import ErrorLogs
 import traceback
 import datetime
@@ -35,7 +36,7 @@ class UsdaDataRetriever:
                         cattleReports[row['slug_id']] = row
 
             print("USDADataRetriever.get_mandatory_reports(): Size of unique new cattle reports: " + str(len(cattleReports)))
-
+            debug_logs  =  "Size of unique new cattle reports: " + str(len(cattleReports))
             for slug_id in cattleReports:
                 response = requests.get(USDA_MANDATORY_ENDPOINT + str(slug_id) + '/national', 
                     auth=(USDA_API_KEY, ''))
@@ -43,6 +44,7 @@ class UsdaDataRetriever:
 
                 if type(json_response) is str:
                     print('USDADataRetriever thread: Got smaller data for: ' + str(slug_id))
+                    debug_logs += "Got smaller data for: " + str(slug_id)
                     response = requests.get(USDA_MANDATORY_ENDPOINT + str(slug_id), 
                         auth=(USDA_API_KEY, ''))
                     json_response = response.json()
@@ -60,13 +62,16 @@ class UsdaDataRetriever:
                         except Exception as e:
                             print("USDADataRetreiver.get_mandatory_reports(): Result Row excepted. Row: ", row)
                             print(e)
-                            raise Exception(e)
+                            raise Exception(e, row)
 
                 # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_mandatory_reports(): Added reports for cattle slug_id " + str(slug_id) 
                     + ": " + str(reportsAddedCounter))
+                debug_logs +=  "Added reports for cattle slug_id " + str(slug_id) + ": " + str(reportsAddedCounter)
         else:
             print("USDADataRetreiver.get_mandatory_reports(): USDA get data is turned off")
+            debug_logs = "USDA get data is turned off"
+        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_mandatory_reports()", "Run logs", "", {"details":debug_logs})
 
     def get_public_reports(self):
         """Gets the public report data from API and adds it to the database"""
@@ -93,6 +98,7 @@ class UsdaDataRetriever:
                         reports[row['slug_id']] = row
 
             print("USDADataRetriever.get_public_reports(): Size of unique new reports: " + str(len(reports)))
+            debug_logs  =  "Size of unique new cattle reports: " + str(len(reports))
 
             for slug_id in reports:
                 response = requests.get(USDA_PUBLIC_ENDPOINT + 'reports/' + str(slug_id), auth=(USDA_API_KEY, ''))
@@ -100,29 +106,41 @@ class UsdaDataRetriever:
 
                 reportsAddedCounter = 0
                 for row in json_response['results']:
-                    age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
-
-                    # only add data that is within the cutoff period
-                    if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
+                    if 'published_date' in row:
                         try:
-                            report = USDAReport(row)
-                            self._db.usda_reports.create_report(report)
-                            reportsAddedCounter += 1
+                            age_of_report = datetime.datetime.now() - datetime.datetime.strptime(row['published_date'],"%m/%d/%Y %H:%M:%S")
                         except Exception as e:
-                            print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
+                            print("USDADataRetreiver.get_public_reports(): Problem with row['published_date']. Row: ", row)
                             print(e)
-                            raise Exception(e)
+                            raise Exception(e, row)
+
+                        # only add data that is within the cutoff period
+                        if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
+                            try:
+                                report = USDAReport(row)
+                                self._db.usda_reports.create_report(report)
+                                reportsAddedCounter += 1
+                            except Exception as e:
+                                print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
+                                print(e)
+                                raise Exception(e, row)
+                    else:
+                        print("USDADataRetreiver.get_public_reports(): 'published_date' is not in row. Row: ", row)
+                        raise Exception("USDADataRetreiver.get_public_reports(): 'published_date' is not in row", row)
 
                 # for each report id (slug_id) we are getting possibly a couple hundred rows. Since for each report id (slug_id) there are multiple reports each day/week/etc.
                 print("USDADataRetriever.get_public_reports(): Added reports for slug_id " + str(slug_id) 
                     + ": " + str(reportsAddedCounter))
-
+                debug_logs += "Added reports for slug_id " + str(slug_id) + ": " + str(reportsAddedCounter)
         else:
             print("USDADataRetreiver.get_public_reports():  USDA get data is turned off")
+            debug_logs = "USDA get data is turned off"
+        DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_public_reports()", "Run logs", "", {"details":debug_logs})
 
     def delete_old_reports(self):
         rowCount = self._db.usda_reports.delete_reports_older_than(USDA_CUTOFF_PERIOD_IN_DAYS)
-        print("USDADataRetriever.delete_old_reports(): Reports deleted: " + str(rowCount)) 
+        print("USDADataRetriever.delete_old_reports(): Reports deleted: " + str(rowCount))
+        DebugLogs(self._db).insert_debug_log("USDADataRetriever.delete_old_reports()", "Reports deleted: " + str(rowCount))
 
 def get_usda_data(db):
     try:
@@ -132,6 +150,9 @@ def get_usda_data(db):
         retriever.delete_old_reports()
         print("USDADataRetreiver.get_usda_data(): Exiting. Current time: ", datetime.datetime.now().time())
     except Exception as e:
-        ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
+        if len(e.args) > 1:
+            ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e.args[0]), traceback.format_exc(), e.args[1])
+        else:
+            ErrorLogs(db).insert_error_log("USDA Data Retreiver", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
     finally:
         db.close()
