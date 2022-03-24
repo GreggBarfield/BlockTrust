@@ -206,6 +206,8 @@ def serve_create_new_sales_group():
             if not g.db.files.is_owner(None, g.account.id(), image):
                 raise ExportException("Image " + str(image) + " is not owned by the selected account.")
     # Checking if required values are present
+    if len(request.json["group_name"].strip()) == 0:
+        raise ExportException("Sales group name cannot be blank")
     if request.json["zip"] is None:
         raise ExportException("Zip code does not have a value")
     if request.json["start"] is None:
@@ -261,7 +263,6 @@ def serve_create_new_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"]
-
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
