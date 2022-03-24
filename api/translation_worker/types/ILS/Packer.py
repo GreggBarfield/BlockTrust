@@ -154,7 +154,7 @@ def handle(db: Database, insert):
                 api_insert=api_insert
             )
 
-        # Ribeye Area
+        # Ribeye Area. These are commented out because we don't know the keys that packer will send us
         # packer_data = {}
         # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
         #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
