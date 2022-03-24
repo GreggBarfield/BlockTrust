@@ -199,9 +199,7 @@ def serve_sales_groups():
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
 @crut.require_paid_account
 def serve_new_sales_group():
-    # new_id = g.db.sales_groups.insert(g.account.id(), {})['id']
     return dashboard_render("sales-groups/sales-group/create.html")
-    # return redirect('/dashboard/sales-groups/edit/' + str(new_id) + '')
 
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
