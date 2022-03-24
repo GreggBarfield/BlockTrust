@@ -1447,3 +1447,19 @@ ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC, `market_locatio
 ALTER TABLE `usda_reports`
 ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Rohan Sureshkumar 3/21/2022 */
+CREATE TABLE `debug_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `component` VARCHAR(100) NULL,
+  `short_info` VARCHAR(100) NULL,
+  `long_info` VARCHAR(3000) NULL,
+  `details` JSON NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  );
+  
+/* Rohan Sureshkumar 3/23/22 */
+ALTER TABLE `usda_reports` RENAME INDEX `city_idx` TO `favorites_idx`;
+ALTER TABLE `usda_reports` ALTER INDEX `favorites_idx` VISIBLE;
