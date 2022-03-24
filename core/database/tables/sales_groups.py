@@ -172,6 +172,9 @@ class SalesGroups:
             end: The end time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
+
+        Returns:
+            Sales group ID of new Sales group
         """
         self._db.execute(
             """
