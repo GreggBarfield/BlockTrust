@@ -73,7 +73,7 @@ $(document).ready(function() {
         total_discount=Math.round(total_discount*100)/100;
         var total_tax=Math.round((total_price-total_discount)*0.065*100)/100;
         // Grand total after adding total price, total tax and shipping
-        var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
+        var grand_total=Math.round((total_price+total_tax-total_discount+20)*100)/100;
         //Setting new values in localStorage
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
@@ -121,7 +121,7 @@ $(document).ready(function() {
         // Calculating tax
         var total_tax=Math.round((total_price)*0.065*100)/100;
         // Grand total after adding total price, total tax and shipping
-        var grand_total=Math.round((total_price+total_tax+15)*100)/100;     
+        var grand_total=Math.round((total_price+total_tax+20)*100)/100;     
         //Setting new values in localStorage
         localStorage.setItem('totalPrice', total_price);
         localStorage.setItem('totalTax', total_tax);
@@ -182,7 +182,7 @@ let form = new AsyncForm({
         // Calculating tax
         var total_tax=Math.round((total_price-total_discount)*0.065*100)/100;
         // Grand total after adding total price, total tax and shipping      
-        var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
+        var grand_total=Math.round((total_price+total_tax-total_discount+20)*100)/100;
         localStorage.setItem('discount', total_discount);
         localStorage.setItem('totalTax', total_tax);
         localStorage.setItem('grandTotal', grand_total); 
