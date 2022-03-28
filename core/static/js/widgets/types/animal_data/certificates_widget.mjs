@@ -8,7 +8,7 @@ export class CertificatesWidget extends Widget {
 
     initType() {
         this.eid = parseInt(this.frame.getAttribute("data-widget-animal"));
-        this.company = this.frame.getAttribute("data-widget-company");
+        this.company = this.frame.getAttribute("data-widget-account_name");
         this.frame.innerHTML = "";
         this.getData(
             "direct/match_types_by_name",
