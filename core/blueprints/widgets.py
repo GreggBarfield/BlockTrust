@@ -1,3 +1,4 @@
+import email
 import json
 from flask import (
     Flask, request, session, Blueprint, g, redirect, render_template
@@ -23,6 +24,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
+from ..utilities.general_utilities import format_field
 
 from ..config import ROOT as WEBSITE_ROOT
 
@@ -567,3 +569,28 @@ def serve_remove_usda_favorite():
     request_json = json.loads(request.data)
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
+
+@bp.route('/widgets/data/create-new-auction-market', methods=["POST"])
+def serve_create_new_auction_market():
+    if len(request.form["name"].strip()) == 0:
+        raise ExportException("Auction market Name cannot be blank")
+    if len(request.form["city"].strip()) == 0:
+        raise ExportException("Auction market City cannot be blank")
+    if len(request.form["state"].strip()) == 0:
+        raise ExportException("Auction market State cannot be blank")
+    if (
+        'requestRedirectTo' in request.form and
+        request.form['requestRedirectTo'] is not None and
+        request.form['requestRedirectTo'] != ''
+    ):
+        redirect_to = request.form['requestRedirectTo']
+    AuctionMarkets(g.db).insert_auction_market(
+        name=format_field(request.form["name"]),
+        address=format_field(request.form["address"]),
+        city=format_field(request.form["city"]),
+        state=format_field(request.form["state"]),
+        zip_code=format_field(request.form["zip"]),
+        phone=format_field(request.form["phone"]),
+        email=format_field(request.form["email"])
+    )
+    return {"redirect":  "/dashboard/sales-groups"+redirect_to}

@@ -7,6 +7,8 @@ import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
+import { NewAuctionMarketForm } from './create_new_auction_market.mjs';
+import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -15,6 +17,7 @@ export class EditSalesGroupWidget extends Widget {
 
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
+        this.redirectTo = "/edit/"+this.salesGroupID;
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
@@ -125,6 +128,20 @@ export class EditSalesGroupWidget extends Widget {
             input.required = true
             group.append(input);
             return input;
+        }
+
+        function createAuctionMarketWidgetLink(row, name,hasTooltip=false,dataToggle="",tooltipText="", redirectTo="") {
+            let id = "domuid" + window.DOMUIDNext++;
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let link = document.createElement("a");
+            link.href = "#";
+            link.textContent = "Not Listed?";
+            link.className = "form-control-plaintext text-blue";
+            link.onclick = () => {
+                let widget = new NewAuctionMarketForm(redirectTo);
+                widget.init();
+            }
+            group.append(link);
         }
 
         function createDate(row, name, epoch,hasTooltip=false,dataToggle="",tooltipText="") {
@@ -300,6 +317,7 @@ export class EditSalesGroupWidget extends Widget {
             }
         }
         marketingDeliveryLocationType.onchange()
+        let link1 = createAuctionMarketWidgetLink(marketingRow,"",false,"","", this.redirectTo);
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
