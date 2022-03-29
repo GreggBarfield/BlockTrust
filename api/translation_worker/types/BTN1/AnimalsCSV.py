@@ -59,7 +59,7 @@ def handle(db: Database, insert):
     if account_link.account_id() is None:
         account = db.accounts.get_by_partner_affiliate_id(account_link.partner_account_id(), account_link.affiliate_id())
         if account is not None:
-            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.name(), account.id())
+            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(), account.name(), account.id())
 
     account_link = account_link.id()
     eid = int(fields["electronic"])
