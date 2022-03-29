@@ -317,7 +317,7 @@ export class EditSalesGroupWidget extends Widget {
             }
         }
         marketingDeliveryLocationType.onchange()
-        let link1 = createAuctionMarketWidgetLink(marketingRow,"",false,"","", this.redirectTo);
+        let marketingNewAuctionMarketLink = createAuctionMarketWidgetLink(marketingRow,"",false,"","", this.redirectTo);
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
