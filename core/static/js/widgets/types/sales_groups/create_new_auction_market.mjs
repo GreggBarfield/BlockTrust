@@ -141,10 +141,5 @@ export class NewAuctionMarketForm extends Widget {
             },
             requestRedirectTo: this.requestRedirectTo
         });
-
-    }
-
-    submit(){
-
     }
 }
