@@ -8,7 +8,6 @@ import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { FormGroup, DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 import { NewAuctionMarketForm } from './create_new_auction_market.mjs';
-import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
