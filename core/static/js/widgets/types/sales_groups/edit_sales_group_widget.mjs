@@ -87,8 +87,6 @@ export class EditSalesGroupWidget extends Widget {
             let group = document.createElement("div");
             group.className = "form-group col-md-4";
             row.append(group);
-
-
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
@@ -101,9 +99,30 @@ export class EditSalesGroupWidget extends Widget {
             return group;
         }
 
-        function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
+        function createCompactGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
+            let group = document.createElement("div");
+            group.className = "form-group col-md-2";
+            row.append(group);
+            let groupLabel = document.createElement("label");
+            groupLabel.className = "form-label";
+            groupLabel.textContent = name;
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,groupLabel);
+            if (htmlFor !== null) {
+                groupLabel.htmlFor = htmlFor;
+            }
+            group.append(groupLabel);
+            return group;
+        }
+
+        function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="", compactInput=false) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            if(compactInput){
+                var group = createCompactGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            }
+            else{
+                var group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            }
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -252,8 +271,8 @@ export class EditSalesGroupWidget extends Widget {
         let marketingRow = createSection(form, "Marketing");
 
         let salesGroupName = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
-        let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
+        let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null, false, "", "", true);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", true);
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.data.start || null, this.data.end || null, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
@@ -274,7 +293,6 @@ export class EditSalesGroupWidget extends Widget {
             auctionMarket = this.data.delivery_location;
         }
         
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market",
@@ -284,6 +302,7 @@ export class EditSalesGroupWidget extends Widget {
             tags: false,
             placeholder: "Select Auction Market"
         })
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
 
         marketingDeliveryLocationType.onchange = () => {
             if(marketingDeliveryLocationType.value === "Off Ranch"){
@@ -322,7 +341,7 @@ export class EditSalesGroupWidget extends Widget {
             placeholder: "Select Applicable Breeds"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.");
         let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null,true,"characteristicsWeight",
-        "Please enter the average weight of the cattle in the group");
+        "Please enter the average weight of the cattle in the group", false);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)");
         let characteristicsFrame = createSelect({
