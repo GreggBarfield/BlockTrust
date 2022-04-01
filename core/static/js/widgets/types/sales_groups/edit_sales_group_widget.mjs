@@ -83,25 +83,9 @@ export class EditSalesGroupWidget extends Widget {
             return row;
         }
 
-        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
+        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText, groupColumnSize) {
             let group = document.createElement("div");
-            group.className = "form-group col-md-4";
-            row.append(group);
-            let groupLabel = document.createElement("label");
-            groupLabel.className = "form-label";
-            groupLabel.textContent = name;
-            if (hasTooltip)
-                addTooltip(dataToggle,tooltipText,groupLabel);
-            if (htmlFor !== null) {
-                groupLabel.htmlFor = htmlFor;
-            }
-            group.append(groupLabel);
-            return group;
-        }
-
-        function createCompactGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
-            let group = document.createElement("div");
-            group.className = "form-group col-md-2";
+            group.className = "form-group col-md-"+groupColumnSize;
             row.append(group);
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
@@ -117,11 +101,12 @@ export class EditSalesGroupWidget extends Widget {
 
         function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="", compactInput=false) {
             let id = "domuid" + window.DOMUIDNext++;
+            let group = "";
             if(compactInput){
-                var group = createCompactGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+                group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText, "2");
             }
             else{
-                var group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+                group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText, "4");
             }
             let input = document.createElement("input");
             input.type = "number";
@@ -135,7 +120,7 @@ export class EditSalesGroupWidget extends Widget {
 
         function createText(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText, "4");
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -167,7 +152,7 @@ export class EditSalesGroupWidget extends Widget {
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText, "4");
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
