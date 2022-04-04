@@ -210,10 +210,6 @@ def serve_create_new_sales_group():
         raise ExportException("Sales group name cannot be blank")
     if request.json["zip"] is None:
         raise ExportException("Zip code does not have a value")
-    if request.json["start"] is None:
-        raise ExportException("Start date is not selected")
-    if request.json["end"] is None:
-        raise ExportException("End date is not selected")
     if request.json["delivery_location_type"] is None:
         raise ExportException("Sale location type is not selected.")
     if request.json["reported"]["count"] is None:
