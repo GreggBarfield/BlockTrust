@@ -388,7 +388,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Implants"
-        },false,"","", 4);
+        }, false, "" , "", 4);
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -406,7 +406,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
         // Media
 
         let mediaRow = createSection(form, "Image");
