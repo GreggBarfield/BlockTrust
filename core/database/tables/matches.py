@@ -23,7 +23,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "affiliate_id", "company", "sector", "partner_account")
+    _account_links_cols = ("id", "account", "affiliate_id", "company", "name", "sector", "partner_account")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -87,7 +87,7 @@ class Matches:
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
-            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.name AS 'account_links.name',"
                                 + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
                                 + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
             args = [account_link_id]
