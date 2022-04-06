@@ -1,5 +1,11 @@
 import json
+from flask import g
 from core.database.no_value import NoValue
+from core.database.tables.auction_sales import AuctionSales
+from core.database.tables.files import Files
+from core.database.const.zip_codes_data import ZIP_CODES
+
+from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
 
@@ -329,3 +335,56 @@ class SalesGroups:
             [start, end, start, end, is_archived] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)
+
+    def validate_sales_group_json(self, sales_group_json):
+        """
+        Validates that the json object received for a sales group is valid
+
+        Params:
+            sales_group_json: JSON object for sales group
+
+        Raises:
+            ExportException if field is invalid
+        """
+        if 'images' in sales_group_json["reported"]:
+            for image in sales_group_json["reported"]["images"]:
+                if not g.db.files.is_owner(None, g.account.id(), image):
+                    raise ExportException("Image " + str(image) + " is not owned by the selected account.")
+        # Checking if required values are present
+        if len(sales_group_json["group_name"].strip()) == 0:
+            raise ExportException("Sales group name cannot be blank")
+        if sales_group_json["zip"] is None:
+            raise ExportException("Zip code does not have a value")
+        if sales_group_json["delivery_location_type"] is None:
+            raise ExportException("Sale location type is not selected.")
+        if sales_group_json["reported"]["count"] is None:
+            raise ExportException("Total animals cannot be 0")
+        if sales_group_json["reported"]["weight"] is None:
+            raise ExportException("Base weight does not have a value")
+        if len(sales_group_json["reported"]["weight_variance"].strip()) == 0:
+            raise ExportException("Weight variance does not have a value")
+        if len(sales_group_json["reported"]["breeds"]) == 0:
+            raise ExportException("Please select one or more breeds")
+        if sales_group_json["reported"]["usda_frame_size"] is None:
+            raise ExportException("Please select frame size")
+        if sales_group_json["reported"]["muscling"] is None:
+            raise ExportException("Please select relevant muscling")
+        if sales_group_json["reported"]["horns"] is None:
+            raise ExportException("Please select horns or no horns")
+        if sales_group_json["zip"] not in ZIP_CODES:
+            raise ExportException("Sorry, that zip code could not be found.")
+        if sales_group_json["start"] is None or sales_group_json["end"] is None:
+            raise ExportException("Sorry, start or end date missing.")
+        if sales_group_json["start"] > sales_group_json["end"]:
+            raise ExportException("Sorry, check the market start and end dates (specifically the order).")
+        if sales_group_json["auction_sale"] is not None:
+            # it was changed to a non-None value, verify new is published
+            if not g.db.auction_sales.get_auction_sale_by_id(sales_group_json["auction_sale"])["published"]:
+                raise ExportException("Auction sale specified is not published yet.")
+        # Alright, go ahead...
+        if sales_group_json["delivery_location_type"] == "Off Ranch":
+            if len(sales_group_json["delivery_location"].strip()) == 0:
+                raise ExportException("Delivery Location does not have a value")
+        else:
+            if sales_group_json["auction_market_location"] == "None":
+                raise ExportException("Please select an auction market location")
