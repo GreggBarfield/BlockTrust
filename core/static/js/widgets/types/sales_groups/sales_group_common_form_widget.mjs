@@ -7,9 +7,8 @@ import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 
-export class SalesGroupsCommonFormWidget extends Widget {
+export class SalesGroupsCommonFormWidget{
     constructor(data, auctionMarketsData, postRoute, attachTo = null) {
-        super(attachTo);
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -234,7 +233,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
             name: "Delivery Location Type",
-            options: ["Off Ranch", "Auction"],
+            options: SalesGroupFields.commonDeliveryLocationTypes,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
             tags: false,
@@ -304,7 +303,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
-            options: ["Small", "Medium", "Large"],
+            options: SalesGroupFields.commonFrames,
             values: this.characteristicsFrameValue,
             multiple: false,
             tags: false,
@@ -345,7 +344,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
-            options: ["Not Applicable", "Covexin 8", "One Shot BVD", "Infor"],
+            options: SalesGroupFields.commonVaccinations,
             values: this.maintenanceVaccinationsValue,
             multiple: true,
             tags: true,
@@ -354,7 +353,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
-            options: ["Not Applicable", "Native Range", "Improved Pasture"],
+            options: SalesGroupFields.commonFeedingPrograms,
             values: this.maintenanceFeedingProgramValue,
             multiple: true,
             tags: true,
@@ -363,7 +362,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
-            options: ["Not Applicable", "Raigro"],
+            options: SalesGroupFields.commonImplants,
             values: this.maintenanceImplantsValue,
             multiple: true,
             tags: true,
@@ -372,7 +371,7 @@ export class SalesGroupsCommonFormWidget extends Widget {
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
-            options: ["Not Applicable", "Not Castrated", "Banded", "Blade", "Chemicals", "Other"],
+            options: SalesGroupFields.commonCastrated,
             values: this.maintenanceCastratedValue,
             multiple: false,
             tags: false,
