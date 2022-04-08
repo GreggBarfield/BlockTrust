@@ -24,15 +24,14 @@ export class FeedyardTagSummaryWidget extends Widget {
                     request: this.request
                 }
             ).then((data) => {
-                
-                this.feedyardData = data.result.matched_data;
-                this.accountData = data.result.all_data;
+                this.feedyardData = data.result !== null ? data.result.matched_data : {};
+                this.accountData = data.result !== null ? data.result.all_data: {};
             }).then(() => {
                 this.frame.innerHTML = "";
                 this.frame.appendChild(this.createTabs());
                 let tabDataContainer = this.createContainer();
-                this.makeMatchedTabContents(tabDataContainer, this.feedyardData);
-                this.makeAllDataTabContents(tabDataContainer, this.accountData)
+                tabDataContainer.appendChild(this.makeMatchedTabContents(this.feedyardData));
+                tabDataContainer.appendChild(this.makeAllDataTabContents(this.accountData));
                 this.frame.appendChild(tabDataContainer);
             });
         })
@@ -76,38 +75,28 @@ export class FeedyardTagSummaryWidget extends Widget {
         return divTabContent;
     }
 
-    makeMatchedTabContents = (divContainer, distributionData) => {
+    makeMatchedTabContents = (distributionData) => {
 
         let divTab = document.createElement("div");
         divTab.className = "tab-pane fade show active"
         divTab.id = "matched-data"
         divTab.setAttribute("role", "tabpanel");
         divTab.setAttribute("aria-labelledby", "matched-data-tab")
-        divContainer.appendChild(divTab);
-        
         let table = this.makeTable(distributionData);
         divTab.appendChild(table);
-        // <div class="tab-pane fade show active" id="matched-data" role="tabpanel" aria-labelledby="matched-data-tab">
-        //     <p class="mb-0 widget" data-widget-type="feedyard tag summary"></p>
-        // </div>
-        // <!-- <div class="tab-pane fade" id="account-data" role="tabpanel" aria-labelledby="account-data-tab">
-        //     <p class="mb-0 widget" data-widget-type="source summary" data-widget-display="sightings"></p>
-        // </div> -->
-    
-
+        return divTab;
     }
 
-    makeAllDataTabContents = (divContainer, distributionData) => {
+    makeAllDataTabContents = (distributionData) => {
 
         let divTab = document.createElement("div");
         divTab.className = "tab-pane fade"
         divTab.id = "all-data"
         divTab.setAttribute("role", "tabpanel");
-        divTab.setAttribute("aria-labelledby", "all-data-tab")
-        divContainer.appendChild(divTab);
-        
+        divTab.setAttribute("aria-labelledby", "all-data-tab")       
         let table = this.makeTable(distributionData);
         divTab.appendChild(table);
+        return divTab;
     }
 
     makeTable = (distributionData) => {
@@ -148,21 +137,21 @@ export class FeedyardTagSummaryWidget extends Widget {
             let count = 0;
             Object.values(qualityDistribution).forEach(total => count+=total);
             row.push(count);
-            row.push("Prime" in qualityDistribution? qualityDistribution.Prime : 0);
-            row.push("Choice" in qualityDistribution? qualityDistribution.Choice : 0);
+            row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/count : 0).toFixed(2)+"%");
+            row.push(("Choice" in qualityDistribution? 100*qualityDistribution.Choice/count : 0).toFixed(2)+"%");
             if("Select" in qualityDistribution)
-                row.push(qualityDistribution.Select);
+                row.push((100*qualityDistribution.Select/count).toFixed(2)+"%");
             else if("Select or Lower" in qualityDistribution)
-                row.push(qualityDistribution["Select or Lower"]);
+                row.push((100*qualityDistribution["Select or Lower"]/count).toFixed(2)+"%");
             else 
-                row.push(0)
+                row.push((0).toFixed(2)+"%")
 
             let yieldDistribution = data.yield_distribution;
-            row.push("1" in yieldDistribution? yieldDistribution["1"] : 0);
-            row.push("2" in yieldDistribution? yieldDistribution["2"] : 0);
-            row.push("3" in yieldDistribution? yieldDistribution["3"] : 0);
-            row.push("4" in yieldDistribution? yieldDistribution["4"] : 0);
-            row.push("5" in yieldDistribution? yieldDistribution["5"] : 0);
+            row.push(("1" in yieldDistribution? 100*yieldDistribution["1"]/count : 0).toFixed(2)+"%");
+            row.push(("2" in yieldDistribution? 100*yieldDistribution["2"]/count : 0).toFixed(2)+"%");
+            row.push(("3" in yieldDistribution? 100*yieldDistribution["3"]/count : 0).toFixed(2)+"%");
+            row.push(("4" in yieldDistribution? 100*yieldDistribution["4"]/count : 0).toFixed(2)+"%");
+            row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/count : 0).toFixed(2)+"%");
 
             for (const value of row) {
                 let td = document.createElement("td");
