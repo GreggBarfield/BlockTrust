@@ -629,14 +629,14 @@ class Matches:
         all_result = {}
         if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
             related_account_details = self._db.execute_d("""
-                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1 
-                                        INNER JOIN matches m2 on m2.eid = m1.eid 
-                                        INNER JOIN account_links al on m2.account_link = al.id 
+                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
+                                        INNER JOIN matches m2 on m2.eid = m1.eid
+                                        INNER JOIN account_links al on m2.account_link = al.id
                                         INNER JOIN accounts a on al.account = a.id
-                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s 
-                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s 
+                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
+                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
                                         GROUP BY a.name, al.id
-                                    """, 
+                                    """,
                                     {
                                         "account_link_id": account_links[0]['id'],
                                         "sector_id": sector_id,

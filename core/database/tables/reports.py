@@ -157,7 +157,7 @@ class Reports:
             ]
 
             if sector_id == sectors_by_name["Feedlot"]:
-                queries.append(count_distribution_account_and_sector.create(account_id, sector_id))
+                queries.append(count_distribution_account_and_sector.create(account_id, sectors_by_name["Cow-Calf"]))
 
             for query in queries:
                 self.insert_query(account_id, query)
