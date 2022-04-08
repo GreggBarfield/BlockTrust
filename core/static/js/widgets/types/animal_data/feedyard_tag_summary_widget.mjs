@@ -76,7 +76,6 @@ export class FeedyardTagSummaryWidget extends Widget {
     }
 
     makeMatchedTabContents = (distributionData) => {
-
         let divTab = document.createElement("div");
         divTab.className = "tab-pane fade show active"
         divTab.id = "matched-data"
@@ -88,7 +87,6 @@ export class FeedyardTagSummaryWidget extends Widget {
     }
 
     makeAllDataTabContents = (distributionData) => {
-
         let divTab = document.createElement("div");
         divTab.className = "tab-pane fade"
         divTab.id = "all-data"
@@ -100,7 +98,6 @@ export class FeedyardTagSummaryWidget extends Widget {
     }
 
     makeTable = (distributionData) => {
-
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
 
@@ -163,6 +160,4 @@ export class FeedyardTagSummaryWidget extends Widget {
         $(this.mainTable).DataTable();
         return this.mainTable;
     }
-
-
 }
