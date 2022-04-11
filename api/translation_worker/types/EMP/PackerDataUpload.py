@@ -47,7 +47,7 @@ def handle(db: Database, insert):
         #     if len(feeders) > 0:
         #         feeder = feeders[0]
         #         feeder_zip = feeder["zip"]
-        #         feeder_account_links = db.account_links.get_account_links(account=feeder["id"])
+        #         feeder_account_links = db.account_links.get_account_links(account_id=feeder["id"])
         #         if len(feeder_account_links) == 0:
         #             feeder_account_link_id = db.account_links.insert(account=feeder["id"], affiliate_id=feeder["affiliate_id"], company=feeder["company"], 
         #               name=feeder["name"], sector=feeder["sector"],
