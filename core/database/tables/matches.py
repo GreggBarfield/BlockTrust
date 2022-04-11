@@ -616,6 +616,90 @@ class Matches:
         
         return matches
 
+    def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
+        """
+        Returns:
+            A dictionary of dictionaries
+                Keys
+                    both: result for both accounts (can be empty)
+                    self: result for single account (can be empty)
+        """
+        result = {}
+        matched_result = {}
+        all_result = {}
+        if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
+            related_account_details = self._db.execute_d("""
+                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
+                                        INNER JOIN matches m2 on m2.eid = m1.eid
+                                        INNER JOIN account_links al on m2.account_link = al.id
+                                        INNER JOIN accounts a on al.account = a.id
+                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
+                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
+                                        GROUP BY a.name, al.id
+                                    """,
+                                    {
+                                        "account_link_id": account_links[0]['id'],
+                                        "sector_id": sector_id,
+                                        "match_type_id": match_types_by_name["Sighting"]
+                                    }
+                                )
+
+            for account_detail in related_account_details:
+                account_result = {}
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in
+                                                          self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Quality Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in
+                                                        self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Yield Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                matched_result[account_detail["name"]] = account_result
+
+                account_result = {}
+                account = self._db.accounts.get_account_by_id(account_detail["account_id"])
+                account_link = account.account_links()
+                quality_distribution = self.get_count_distribution(match_types_by_name["USDA Quality Grade"], account_links=account_link)
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
+                yield_distribution = self.get_count_distribution(match_types_by_name["USDA Yield Grade"], account_links=account_link)
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                all_result[account_detail["name"]] = account_result
+
+        result['matched_data'] = matched_result
+        result['all_data'] = all_result
+        return result
+
+    def get_count_distribution_two_accounts(self, match_type_id, account_link_1_id, account_link_2_id):
+        """Gets the count of each data type for eids sighted at two accounts
+
+        Params:
+            match_type_id: The type as an int
+            account_link_1_id: account link of 1st account
+            account_link_2_id: account link of 2nd account
+
+        Returns:
+            A list of dictionaries
+                Keys
+                    data: value of data
+                    count: The number of times data existed
+        """
+
+        return Matches._load_rows(self._db.execute_d(
+            """
+                SELECT m1.data, count(distinct m1.eid) as 'count' from matches m1
+                INNER JOIN matches m2 on m1.eid = m2.eid
+                INNER JOIN matches m3 on m1.eid = m3.eid
+                WHERE m1.type=%(match_type_id)s and m2.account_link = %(account_link_1_id)s and m3.account_link = %(account_link_2_id)s
+                GROUP BY m1.data
+            """,
+            {
+                "match_type_id": match_type_id,
+                "account_link_1_id": account_link_1_id,
+                "account_link_2_id": account_link_2_id
+            }
+        ))
 
     @staticmethod
     def _load_rows(rows):
