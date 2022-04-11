@@ -1471,3 +1471,10 @@ ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
  INSERT INTO reports(account_id, query, status)
  SELECT id, CONCAT('{"type": "count_distribution_account_and_sector", "params": {"account_id": ',id,', "sector_id": 4}}'),0
  FROM accounts WHERE sector = 6
+
+/* Nisheet Thakur 4/11/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
+UPDATE `products` SET 
+`is_premise_id_required`=1,
+`price`=35
+WHERE id=@product_id;
