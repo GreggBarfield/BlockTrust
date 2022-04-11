@@ -55,7 +55,7 @@ class SalesGroupEIDs:
         else:
             return []
 
-    def insert_sales_group_eids(self, sales_group_id, eids):
+    def insert_sales_group_eids(self, sales_group_id, eids_and_visual_ids):
         """
         Inserts EIDs for a sales group
 
@@ -63,15 +63,16 @@ class SalesGroupEIDs:
             sales_group_id: The sales group id
             eids: EIDs which need to be added for a sales group
         """
-        for eid in eids:
+        for eid_and_visual_id in eids_and_visual_ids:
             self._db.execute(
                 """
-                INSERT INTO sales_group_eids (sales_group_id, eid)
-                VALUES (%(sales_group_id)s, %(eid)s)
+                INSERT INTO sales_group_eids (sales_group_id, eid, visual_id)
+                VALUES (%(sales_group_id)s, %(eid)s, %(visual_id)s)
                 """,
                 {
                     "sales_group_id": sales_group_id,
-                    "eid": eid
+                    "eid": eid_and_visual_id["eid"],
+                    "visual_id": eid_and_visual_id["visual_id"]
                 }
             )
 

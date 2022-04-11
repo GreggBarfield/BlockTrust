@@ -338,6 +338,7 @@ def serve_get_eids_for_sales_group():
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
+    print(len(distinct_eids))
     # Getting sales groups owned by account and corresponding eid's
     account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
     assigned_eids_for_account = []
@@ -345,14 +346,18 @@ def serve_get_eids_for_sales_group():
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_id)))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
-    available_eids = []
+    available_eids_with_visual_ids = []
     for distinct_eid in distinct_eids:
         if distinct_eid["eid"] not in assigned_eids_for_account:
-            available_eids.append(distinct_eid["eid"])
+            available_eids_with_visual_ids.append({
+                "eid": distinct_eid["eid"],
+                "visual_id": distinct_eid["visual_id"]
+            })
+    assigned_eids_for_sales_group = SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"])
     return {
         "id": sales_group_row["id"],
-        "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
-        "available_eids": available_eids
+        "assigned_eids_for_sales_group": assigned_eids_for_sales_group,
+        "available_eids_with_visual_ids": available_eids_with_visual_ids
     }
 
 
@@ -361,7 +366,7 @@ def serve_get_eids_for_sales_group():
 def serve_save_eids_for_sales_group():
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     SalesGroupEIDs(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
-    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids=request.json["eids"])
+    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 

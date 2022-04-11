@@ -15,8 +15,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;   
-            this.eids_selected = [];
-            this.eids_selected.push(...this.data.assigned_eids)
+            this.eids_and_visual_ids_selected = [];
+            this.eids_and_visual_ids_selected.push(...this.data.assigned_eids_for_sales_group)
             this.makeForm();
         });
 
@@ -60,7 +60,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         //Table header row
         let checkListTableHeadRow0 = document.createElement("tr");
         checkListTableHead.appendChild(checkListTableHeadRow0);
-        const checkListTableHeaders = ["select", valuesHeader];
+        const checkListTableHeaders = ["select", valuesHeader, "Visual ID"];
         for (const checkListTableHeaderText of checkListTableHeaders) {
             let th = document.createElement("th");
             th.textContent = checkListTableHeaderText;
@@ -85,19 +85,22 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             checkbox.onchange = ()=>{
                 var selectedCheckbox = document.getElementById(value);
                 if(selectedCheckbox.checked==true){
-                this.eids_selected.push(value);
+                this.eids_and_visual_ids_selected.push(value);
                 }
                 else{
-                    for(var i=0;i<this.eids_selected.length;i++){
-                        if(this.eids_selected[i]==value){this.eids_selected.splice(i,1);}
+                    for(var i=0;i<this.eids_and_visual_ids_selected.length;i++){
+                        if(this.eids_and_visual_ids_selected[i]==value){this.eids_and_visual_ids_selected.splice(i,1);}
                     }
                 }
             }
             tdCheckbox.appendChild(checkbox);
             rowTag.appendChild(tdCheckbox);
             let tdEID = document.createElement("td");
-            tdEID.textContent = value;
+            tdEID.textContent = value.eid;
             rowTag.appendChild(tdEID);
+            let tdVisualID = document.createElement("td")
+            tdVisualID.textContent = value.visual_id;
+            rowTag.appendChild(tdVisualID);
         }
         return checkListTable;
     }
@@ -115,7 +118,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 var specifiedCheckboxes = document.getElementsByName(checkboxName);
                 for(const specifiedCheckbox of specifiedCheckboxes){
                     specifiedCheckbox.checked=true;
-                    this.eids_selected.push(specifiedCheckbox.value);
+                    this.eids_and_visual_ids_selected.push(specifiedCheckbox.value);
                 }          
             }
             else{
@@ -123,7 +126,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 for(const specifiedCheckbox of specifiedCheckboxes){
                     specifiedCheckbox.checked=false;
                 }
-                this.eids_selected=[];
+                this.eids_and_visual_ids_selected=[];
             }
         }
         var label = document.createElement('label')
@@ -163,8 +166,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let availableEidGroup = this.createGroup(eidsRow,"Available EIDs:", id);
         let assignedEidGroup = this.createGroup(eidsRow, "Assigned EIDs:", id);
 
-        let availableEidsChecklist = this.createCheckList(this.data.available_eids, "EID", [], "eidCheckBox") ;
-        let assignedEidsCheckList = this.createCheckList(this.data.assigned_eids, "EID", this.data.assigned_eids, "eidCheckBox");
+        let availableEidsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, "EID", [], "eidCheckBox") ;
+        let assignedEidsCheckList = this.createCheckList(this.data.assigned_eids_for_sales_group, "EID", this.data.assigned_eids_for_sales_group, "eidCheckBox");
         let selectAll = this.createSelectAllCheckbox("eidCheckBox");
         
         availableEidGroup.append(selectAll);
@@ -202,7 +205,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             getData: () => {
                 return {
                     id: this.salesGroupID,
-                    eids: this.eids_selected
+                    eids_and_visual_ids: this.eids_and_visual_ids_selected
                 }
             }
         });
