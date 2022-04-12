@@ -1474,7 +1474,4 @@ ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
 
 /* Nisheet Thakur 4/11/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
-UPDATE `products` SET 
-`is_premise_id_required`=1,
-`price`=35
-WHERE id=@product_id;
+UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_id;
