@@ -130,8 +130,8 @@ export class EditSalesGroupWidget extends Widget {
             let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
             let link = document.createElement("a");
             link.href = "#";
-            link.textContent = "Not Listed?";
-            link.className = "form-control-plaintext text-blue";
+            link.textContent = "Auction Market not Listed?";
+            link.className = "form-control-plaintext text-primary";
             link.onclick = () => {
                 let widget = new NewAuctionMarketForm(redirectTo);
                 widget.init();

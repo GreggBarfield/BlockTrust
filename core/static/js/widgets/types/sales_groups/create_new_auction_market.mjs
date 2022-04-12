@@ -6,15 +6,13 @@ export class NewAuctionMarketForm extends Widget {
     constructor(requestRedirectTo) {
         let infoModal = new InfoModal("Create Auction Market");
         super(infoModal.getBody());
-        this.searchFrame = infoModal.getFooter();
+        this.auctionSaleFrame = infoModal.getFooter();
         this.requestRedirectTo = requestRedirectTo;
     }
 
     initType() {
         this.frame.innerHTML = "";
-        this.inputs = {};
         this.generate();
-
     }
 
     generate(){
@@ -40,19 +38,18 @@ export class NewAuctionMarketForm extends Widget {
         auctionMarketName.textContent = "Auction Market Name";
         auctionMarketFormGroup.append(auctionMarketName);
         auctionMarketFormGroup.append(requiredIconName);
-        this.inputs.auctionMarketName = document.createElement("input");
-        this.inputs.auctionMarketName.className = "form-control";
-        this.inputs.auctionMarketName.type = "text";
-        this.inputs.auctionMarketName.placeholder = "12345"
-        auctionMarketFormGroup.append(this.inputs.auctionMarketName);
+        let auctionMarketNameInput = document.createElement("input");
+        auctionMarketNameInput.className = "form-control";
+        auctionMarketNameInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketNameInput);
 
         let auctionMarketAddress = document.createElement("label");
         auctionMarketAddress.textContent = "Address";
         auctionMarketFormGroup.append(auctionMarketAddress);
-        this.inputs.auctionMarketAddress = document.createElement("input");
-        this.inputs.auctionMarketAddress.className = "form-control";
-        this.inputs.auctionMarketAddress.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketAddress);
+        let auctionMarketAddressInput = document.createElement("input");
+        auctionMarketAddressInput.className = "form-control";
+        auctionMarketAddressInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketAddressInput);
 
         let requiredIconCity = document.createElement("span");
         requiredIconCity.textContent = "*"
@@ -61,10 +58,10 @@ export class NewAuctionMarketForm extends Widget {
         auctionMarketCity.textContent = "City";
         auctionMarketFormGroup.append(auctionMarketCity);
         auctionMarketFormGroup.append(requiredIconCity);
-        this.inputs.auctionMarketCity = document.createElement("input");
-        this.inputs.auctionMarketCity.className = "form-control";
-        this.inputs.auctionMarketCity.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketCity);
+        let auctionMarketCityInput = document.createElement("input");
+        auctionMarketCityInput.className = "form-control";
+        auctionMarketCityInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketCityInput);
 
         let requiredIconState = document.createElement("span");
         requiredIconState.textContent = "*"
@@ -73,34 +70,34 @@ export class NewAuctionMarketForm extends Widget {
         auctionMarketState.textContent = "State";
         auctionMarketFormGroup.append(auctionMarketState);
         auctionMarketFormGroup.append(requiredIconState);
-        this.inputs.auctionMarketState = document.createElement("input");
-        this.inputs.auctionMarketState.className = "form-control";
-        this.inputs.auctionMarketState.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketState);
+        let auctionMarketStateInput = document.createElement("input");
+        auctionMarketStateInput.className = "form-control";
+        auctionMarketStateInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketStateInput);
 
         let auctionMarketZip = document.createElement("label");
         auctionMarketZip.textContent = "Zip";
         auctionMarketFormGroup.append(auctionMarketZip);
-        this.inputs.auctionMarketZip = document.createElement("input");
-        this.inputs.auctionMarketZip.className = "form-control";
-        this.inputs.auctionMarketZip.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketZip);
+        let auctionMarketZipInput = document.createElement("input");
+        auctionMarketZipInput.className = "form-control";
+        auctionMarketZipInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketZipInput);
 
         let auctionMarketPhone = document.createElement("label");
         auctionMarketPhone.textContent = "Phone";
         auctionMarketFormGroup.append(auctionMarketPhone);
-        this.inputs.auctionMarketPhone = document.createElement("input");
-        this.inputs.auctionMarketPhone.className = "form-control";
-        this.inputs.auctionMarketPhone.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketPhone);
+        let auctionMarketPhoneInput = document.createElement("input");
+        auctionMarketPhoneInput.className = "form-control";
+        auctionMarketPhoneInput.type = "number";
+        auctionMarketFormGroup.append(auctionMarketPhoneInput);
 
         let auctionMarketEmail = document.createElement("label");
         auctionMarketEmail.textContent = "Email";
         auctionMarketFormGroup.append(auctionMarketEmail);
-        this.inputs.auctionMarketEmail = document.createElement("input");
-        this.inputs.auctionMarketEmail.className = "form-control";
-        this.inputs.auctionMarketEmail.type = "text";
-        auctionMarketFormGroup.append(this.inputs.auctionMarketEmail);
+        let auctionMarketEmailInput = document.createElement("input");
+        auctionMarketEmailInput.className = "form-control";
+        auctionMarketEmailInput.type = "text";
+        auctionMarketFormGroup.append(auctionMarketEmailInput);
 
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
@@ -117,8 +114,7 @@ export class NewAuctionMarketForm extends Widget {
         submitButton.addEventListener("click", (e)=>{
             this.asyncForm.submit();
         });
-        this.searchFrame.prepend(submitButton);
-
+        this.auctionSaleFrame.prepend(submitButton);
         this.frame.append(form);
 
         this.asyncForm = new AsyncForm({
@@ -130,13 +126,13 @@ export class NewAuctionMarketForm extends Widget {
             loadingMessage: "Saving...",
             getData: () => {
                 return {
-                    name: this.inputs.auctionMarketName.value,
-                    address: this.inputs.auctionMarketAddress.value,
-                    city: this.inputs.auctionMarketCity.value,
-                    state: this.inputs.auctionMarketState.value,
-                    zip: this.inputs.auctionMarketZip.value,
-                    phone: this.inputs.auctionMarketPhone.value,
-                    email: this.inputs.auctionMarketEmail.value             
+                    name: auctionMarketNameInput.value,
+                    address: auctionMarketAddressInput.value,
+                    city: auctionMarketCityInput.value,
+                    state: auctionMarketStateInput.value,
+                    zip: auctionMarketZipInput.value,
+                    phone: auctionMarketPhoneInput.value,
+                    email: auctionMarketEmailInput.value             
                 }
             },
             requestRedirectTo: this.requestRedirectTo
