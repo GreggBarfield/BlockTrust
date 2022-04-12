@@ -201,7 +201,28 @@ def serve_search_by_eid_and_visual_id():
 @bp.route('/widgets/data/create_sales_group', methods=["POST"])
 @crut.require_account
 def serve_create_sales_group():
-    g.db.sales_groups.validate_sales_group_json(request.json)
+    images = []
+    if 'images' in request.json["reported"]:
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images
+        )
     # Alright, go ahead...
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
@@ -228,12 +249,32 @@ def serve_create_sales_group():
 @crut.require_account
 def serve_update_sales_group():
     # Check that the account selected is the owner of the sales group
-    print(request.json)
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
     # Validate sales group fields
-    g.db.sales_groups.validate_sales_group_json(request.json)
+    images = []
+    if 'images' in request.json["reported"]:
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images
+        )
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
         delivery_location = request.json["delivery_location"]

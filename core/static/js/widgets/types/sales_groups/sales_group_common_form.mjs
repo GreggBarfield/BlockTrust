@@ -1,4 +1,3 @@
-import { Widget } from '../../widget.mjs';
 import { ProgressBar } from '../../../core/progress_bar.mjs';
 import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
@@ -7,8 +6,8 @@ import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 
-export class SalesGroupsCommonFormWidget{
-    constructor(data, auctionMarketsData, postRoute, attachTo = null) {
+export class SalesGroupsCommonForm{
+    constructor(data, auctionMarketsData, postRoute) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -71,10 +70,7 @@ export class SalesGroupsCommonFormWidget{
         this.auctionMarketsData = auctionMarketsData;
         this.postRoute = postRoute;
         this.makeForm();
-        if (attachTo !== null){
-            attachTo.innerHTML = "";
-            this.attach(attachTo);
-        }
+        return this.box;
     }
     
     makeForm() {
@@ -552,20 +548,5 @@ export class SalesGroupsCommonFormWidget{
                     this.asyncForm.submit();
                 });
         });
-    }
-
-    attach(frame) {
-        if (this.frame !== null) {
-            this.detach();
-        }
-        this.frame = frame;
-        this.frame.append(this.box);
-    }
-
-    detach() {
-        if (this.frame !== null) {
-            this.box.remove();
-        }
-        this.frame = null;
     }
 }

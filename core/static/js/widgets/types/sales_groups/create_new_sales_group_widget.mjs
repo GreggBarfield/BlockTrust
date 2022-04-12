@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { SalesGroupsCommonFormWidget } from './sales_group_common_form_widget.mjs';
+import { SalesGroupsCommonForm } from './sales_group_common_form.mjs';
 
 export class CreateNewSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -53,6 +53,7 @@ export class CreateNewSalesGroupWidget extends Widget {
     card.append(cardBody);
     this.frame.append(card)
     // Widget containing common input fields used in sales group form
-    new SalesGroupsCommonFormWidget(null, this.auctionMarketsData, this.postRoute, cardBody);
-}
+    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarketsData, this.postRoute);
+    cardBody.append(salesGroupForm);
+    }
 }

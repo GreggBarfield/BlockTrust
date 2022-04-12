@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
-import { SalesGroupsCommonFormWidget } from './sales_group_common_form_widget.mjs';
+import { SalesGroupsCommonForm } from './sales_group_common_form.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -20,7 +20,7 @@ export class EditSalesGroupWidget extends Widget {
                 sales_group: this.salesGroupID
             }
         ).then((data) => {
-            this.data = data;      
+            this.data = data;  
         });
         const getAuctionMarketsData = this.getData(
             "auction_markets"
@@ -51,7 +51,7 @@ export class EditSalesGroupWidget extends Widget {
     makeForm() {
 
         // Sections
-        // Card header needs to custom based on function
+        // Card header needs to be custom based on function
         let that = this;
         let card = document.createElement("div");
         card.className = "card";
@@ -59,12 +59,7 @@ export class EditSalesGroupWidget extends Widget {
         let editGroupName = document.createElement("h5");
         editGroupName.className = "mt-2";
         editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
-
-        let saleGroupNickname = "MarketTrust Sale";
-        if (this.data.hasOwnProperty('group_name') && this.data.group_name != "" && this.data.group_name != null){
-            saleGroupNickname = this.data.group_name;
-        }
-        editGroupName.textContent = "Edit Sales Group " + this.data.id + ": " + saleGroupNickname;
+        editGroupName.textContent = `Edit Sales Group ${this.data.id}: ${this.data.group_name}`;
 
         let cardHeader = document.createElement("div");
         cardHeader.className = "card-header form-group d-flex justify-content-between";
@@ -96,11 +91,11 @@ export class EditSalesGroupWidget extends Widget {
         let cardBody = document.createElement("div");
         cardBody.className = "card-body";
         card.append(cardBody);
-
         // Setup
         this.frame.append(card);
         // Widget containing common input fields used in sales group form
-        new SalesGroupsCommonFormWidget(this.data, this.auctionMarketsData, this.postRoute, cardBody);
+        let salesGroupForm = new SalesGroupsCommonForm(this.data, this.auctionMarketsData, this.postRoute);
+        cardBody.append(salesGroupForm);
     }
 
     showError(error) {
