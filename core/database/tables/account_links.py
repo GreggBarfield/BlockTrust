@@ -139,7 +139,7 @@ class AccountLinks:
             return [self.get_account_link_by_id(self._db.last_row_id())]
         return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def insert(self, account=None, affiliate_id=None, company=None, sector=None, partner_account=None, api_insert=None):
+    def insert(self, account=None, affiliate_id=None, company=None, name=None, sector=None, partner_account=None, api_insert=None):
         """Inserts a new account link.
 
         Params:
@@ -152,13 +152,14 @@ class AccountLinks:
         self._db.execute(
             """
                 INSERT INTO account_links
-                    (account, affiliate_id, company, sector, partner_account, api_insert)
-                    VALUES (%(account)s, %(affiliate_id)s, %(company)s, %(sector)s, %(partner_account)s, %(api_insert)s)
+                    (account, affiliate_id, company, name, sector, partner_account, api_insert)
+                    VALUES (%(account)s, %(affiliate_id)s, %(company)s, %(name)s, %(sector)s, %(partner_account)s, %(api_insert)s)
             """,
             {
                 "account": account,
                 "affiliate_id": affiliate_id,
                 "company": company,
+                "name": name,
                 "sector": sector,
                 "partner_account": partner_account,
                 "api_insert": api_insert
@@ -166,7 +167,7 @@ class AccountLinks:
         )
         return self._db.last_row_id()
 
-    def update_account_link_with_account(self, partner_id, affiliate_id, sector, company,  account_id):
+    def update_account_link_with_account(self, partner_id, affiliate_id, sector, company, name, account_id):
         """Updates a account link with the account id
 
         Params:
@@ -177,22 +178,23 @@ class AccountLinks:
         self._db.execute(
             """
                 UPDATE account_links
-                SET account=%(account)s, sector=%(sector)s, company=%(company)s
+                SET account=%(account)s, sector=%(sector)s, company=%(company)s, name=%(name)s
                 WHERE account_links.partner_account=%(partner)s AND account_links.affiliate_id=%(affiliate_id)s
             """,
             {
                 "account": account_id,
                 "sector": sector,
                 "company": company,
+                "name": name,
                 "partner": partner_id,
                 "affiliate_id": affiliate_id
             }
         )
         if self._db.row_count() == 0:
             # insert the account_link
-            self.insert(account=account_id, affiliate_id=affiliate_id, company=company, sector=sector, partner_account=partner_id)
+            self.insert(account=account_id, affiliate_id=affiliate_id, company=company, name=name, sector=sector, partner_account=partner_id)
 
-    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account=NO_VALUE, selectColumns=[]):
+    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE, selectColumns=[]):
         """
         Get an account link by the values specified.
 
@@ -217,9 +219,9 @@ class AccountLinks:
             query_conditions.append(" partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
         
-        if account is not NO_VALUE:
-            query_conditions.append(" account = %(account)s")
-            query_values["account"] = account
+        if account_id is not NO_VALUE:
+            query_conditions.append(" account = %(account_id)s")
+            query_values["account_id"] = account_id
 
         if len(query_conditions) > 0:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)

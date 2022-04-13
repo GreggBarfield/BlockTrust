@@ -71,24 +71,20 @@ export class EditSalesGroupWidget extends Widget {
        
 
         function createSection(form, name) {
-
             let header = document.createElement("h6");
             header.textContent = name;
             form.append(header);
             let row = document.createElement("div");
             row.className = "form-row";
             form.append(row);
-
             form.append(document.createElement("br"));
             return row;
         }
 
-        function createGroup(row, name, htmlFor,hasTooltip,dataToggle,tooltipText) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4) {
             let group = document.createElement("div");
-            group.className = "form-group col-md-4";
+            group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
-
-
             let groupLabel = document.createElement("label");
             groupLabel.className = "form-label";
             groupLabel.textContent = name;
@@ -101,9 +97,9 @@ export class EditSalesGroupWidget extends Widget {
             return group;
         }
 
-        function createNumber(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
+        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -128,9 +124,9 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createText(row, name, value,hasTooltip=false,dataToggle="",tooltipText="") {
+        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -141,7 +137,7 @@ export class EditSalesGroupWidget extends Widget {
             return input;
         }
 
-        function createDate(row, name, epoch,hasTooltip=false,dataToggle="",tooltipText="") {
+        function createDate(row, name, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
             let dateFormGroup = new DateFormGroup(row, name, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
             if (hasTooltip)
@@ -149,7 +145,7 @@ export class EditSalesGroupWidget extends Widget {
             return dateFormGroup;
         }
 
-        function createDateRangePicker(row,name,startEpoch,endEpoch,hasTooltip=false,dataToggle="",tooltipText="") {
+        function createDateRangePicker(row, name, startEpoch, endEpoch, hasTooltip=false, dataToggle="", tooltipText="") {
             let startDate = new DateRangeFormGroup(row, name, startEpoch, endEpoch);
             startDate.getFormGroup().classList.add("col-md-4");
             if (hasTooltip)
@@ -157,12 +153,12 @@ export class EditSalesGroupWidget extends Widget {
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder},hasTooltip=false,dataToggle="",tooltipText="") {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -265,9 +261,9 @@ export class EditSalesGroupWidget extends Widget {
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupName = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group");
-        let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.");
+        let salesGroupName = createText(marketingRow,"Sales Group Nickname",this.data.group_name || null,true,"salesGroupNickname","This is the name for this sales group", 4);
+        let marketingCount = createNumber(marketingRow, "Total Animals", this.data.reported.count || null, false, "", "", 2);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.data.zip || null,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
         let marketingPrice = createFloatNumber(marketingRow, "Sales Group Price", this.data.price || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group");
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.data.start || null, this.data.end || null, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
@@ -278,7 +274,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Sale Location Type"
-        });
+        }, false, "", "", 4);
         
         let deliveryLocation = "";
         let auctionMarket = "";
@@ -289,7 +285,6 @@ export class EditSalesGroupWidget extends Widget {
             auctionMarket = this.data.delivery_location;
         }
         
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)");
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market",
@@ -298,7 +293,8 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Auction Market"
-        })
+        }, false, "", "", 4)
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
         marketingDeliveryLocationType.onchange = () => {
             if(marketingDeliveryLocationType.value === "Off Ranch"){
@@ -335,11 +331,11 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Applicable Breeds"
-        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.");
+        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
         let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.data.reported.weight || null,true,"characteristicsWeight",
-        "Please enter the average weight of the cattle in the group");
+        "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.data.reported.weight_variance || null,
-        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)");
+        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -348,7 +344,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Frame"
-        });
+        }, false, "", "", 4);
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
@@ -357,7 +353,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Muscling"
-        });
+        }, false, "", "", 4);
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
@@ -366,7 +362,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Horns"
-        });
+        }, false, "", "", 4);
 
         // Maintenance
 
@@ -380,7 +376,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: true,
             placeholder: "Select Precon Program"
-        },true,"maintenancePreconditioningProgram","Please enter the pre-conditioning program this group of cattle is on or “not listed”.");
+        }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4);
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
@@ -389,7 +385,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        },true,"maintenanceVaccinations","Please enter vaccinations given to the cattle in this group or “not listed”.");
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4);
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -398,7 +394,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Feeding Program"
-        },true,"maintenanceFeedingProgram","Please enter the feeding program this group of cattle is on or “not listed”.");
+        }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
@@ -407,7 +403,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: true,
             tags: true,
             placeholder: "Select Implants"
-        },false,"","");
+        }, false, "" , "", 4);
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -416,7 +412,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Castration Method"
-        });
+        }, false, "", "", 4);
         let maintenanceProcessVerifiedProgram = createSelect({
             row: maintenanceRow,
             name: "PVP Program",
@@ -425,7 +421,7 @@ export class EditSalesGroupWidget extends Widget {
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        },true,"maintenanceProcessVerifiedProgram","Please enter the Processed Verified  program this group of cattle is on or “not listed”.");
+        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
         // Media
 
         let mediaRow = createSection(form, "Image");

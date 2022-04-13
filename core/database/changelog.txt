@@ -1463,3 +1463,19 @@ CREATE TABLE `debug_logs` (
 /* Rohan Sureshkumar 3/23/22 */
 ALTER TABLE `usda_reports` RENAME INDEX `city_idx` TO `favorites_idx`;
 ALTER TABLE `usda_reports` ALTER INDEX `favorites_idx` VISIBLE;
+
+/* Rohan Sureshkumar 3/24/22 */
+ALTER TABLE `account_links` 
+ADD COLUMN `name` VARCHAR(127) NULL DEFAULT NULL AFTER `company`;
+UPDATE `account_links` SET name = company;
+UPDATE account_links AL INNER JOIN accounts A 
+ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
+
+/* Rohan Sureshkumar 4/8/22 */
+ INSERT INTO reports(account_id, query, status)
+ SELECT id, CONCAT('{"type": "count_distribution_account_and_sector", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+ FROM accounts WHERE sector = 6
+
+/* Nisheet Thakur 4/11/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
+UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_id;

@@ -211,13 +211,13 @@ class Accounts:
         account.add_user(user, 1)
 
         # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
 
         # Create reports needed for the account
-        if account.sector_id() != sectors_by_name["Buyer"]:
-            self._db.reports.make_reports_for_account(account.id())
+        self._db.reports.make_reports_for_account(account.id(), account.sector_id())
+
         return account
-    
+
     def validate_new_account(self, sector, partner, affiliate_id, phone):
         """validates input to create account
 
@@ -313,11 +313,11 @@ class Accounts:
         self.update_account(account.id(), name=name)
 
         # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), name, account.id())
+        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
 
         # Create reports needed for the account
-        if account.sector_id() != sectors_by_name["Buyer"]:
-            self._db.reports.make_reports_for_account(account.id())
+        self._db.reports.make_reports_for_account(account.id(), account.sector_id())
+
         return account
 
     def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup):

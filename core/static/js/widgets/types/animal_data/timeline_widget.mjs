@@ -79,15 +79,15 @@ export class TimelineWidget extends Widget {
         // Sort ascending
         availableRows.sort(function(a,b){return a.time-b.time;});
 
-        function createEventObject(title, description, time, company=null) {
+        function createEventObject(title, description, time, name=null) {
             let eventObj = {
                 "title": title,
                 "description": description,
                 "time": time
             };
 
-            if (company !== null) {
-                eventObj["company"] = company;
+            if (name !== null) {
+                eventObj["name"] = name;
             }
             return eventObj;
         }
@@ -96,22 +96,22 @@ export class TimelineWidget extends Widget {
         let handlers = {
             "Born": function(rows) {
                 return [
-                    createEventObject("Calf Born", "", rows[0].time, rows[0]["account_links.company"])
+                    createEventObject("Calf Born", "", rows[0].time, rows[0]["account_links.name"])
                 ];
             },
             "Weaned": function(rows) {
                 return [
-                    createEventObject("Calf Weaned", "", rows[0].time, rows[0]["account_links.company"])
+                    createEventObject("Calf Weaned", "", rows[0].time, rows[0]["account_links.name"])
                 ];
             },
             "Died": function(rows) {
                 return [
-                    createEventObject("Died", "", rows[0].time, rows[0]["account_links.company"])
+                    createEventObject("Died", "", rows[0].time, rows[0]["account_links.name"])
                 ];
             },
             "Sighting": function(rows) {
                 return [
-                    createEventObject("Sighting", "", rows[0].time, rows[0]["account_links.company"])
+                    createEventObject("Sighting", "", rows[0].time, rows[0]["account_links.name"])
                 ];
             },
             "Medical": function(rows) {
@@ -131,7 +131,7 @@ export class TimelineWidget extends Widget {
                     }
                 }
                 return [
-                    createEventObject("Health Event", description, rows[0].time, rows[0]["account_links.company"])
+                    createEventObject("Health Event", description, rows[0].time, rows[0]["account_links.name"])
                 ];
             }
         }
@@ -235,9 +235,9 @@ export class TimelineWidget extends Widget {
                 tcTitle.textContent = event["title"];
                 textComponent.append(tcTitle);
 
-                if (event.hasOwnProperty("company")) {
+                if (event.hasOwnProperty("name")) {
                     let tcCompany = document.createElement("h4");
-                    tcCompany.textContent = event["company"];
+                    tcCompany.textContent = event["name"];
                     textComponent.append(tcCompany);
                 }
 

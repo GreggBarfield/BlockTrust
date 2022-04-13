@@ -113,9 +113,9 @@ export class SectorsWidget extends Widget {
             return formatDate(v);
         }
 
-        function useAccountLinkCompany(converter=convAsIs) {
+        function useAccountLinkName(converter=convAsIs) {
             return function (row) {
-                return converter(row["account_links.company"]);
+                return converter(row["account_links.name"]);
             }
         }
         
@@ -202,7 +202,7 @@ export class SectorsWidget extends Widget {
         // Shared
         for (const displaySector of displaySectors) {
             addSector(displaySector);
-            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkCompany());
+            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkName());
             addField(displaySector, "Demographics", "Sighted", filterMatchTypeAccountLinkSector("Sighting", displaySector), useTime());
         }
 
