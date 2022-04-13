@@ -1,13 +1,13 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupsCommonForm } from './sales_group_common_form.mjs';
 
-export class CreateNewSalesGroupWidget extends Widget {
+export class CreateSalesGroupWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
 
     initType() {
-        this.postRoute = "/widgets/data/create_sales_group";
+        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
     this.getData(
         "auction_markets"
     ).then((data) => {

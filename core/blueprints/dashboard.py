@@ -199,7 +199,8 @@ def serve_sales_groups():
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])
 @crut.require_paid_account
 def serve_new_sales_group():
-    return dashboard_render("sales-groups/sales-group/create.html")
+    form_post_route = url_for('widgets_bp.serve_create_sales_group')
+    return dashboard_render("sales-groups/sales-group/create.html", {"form_post_route": form_post_route})
 
 
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
@@ -212,8 +213,12 @@ def serve_edit_sales_group(sales_group_id):
 
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
         sales_group_id=sales_group_row['id'])
+    form_post_route = url_for('widgets_bp.serve_update_sales_group')
     return dashboard_render(
-        "sales-groups/sales-group/edit.html", {"sales_group": sales_group_row, "external_shareable_link": external_shareable_link}
+        "sales-groups/sales-group/edit.html", {
+            "sales_group": sales_group_row,
+            "external_shareable_link": external_shareable_link,
+            "form_post_route": form_post_route}
     )
 
 

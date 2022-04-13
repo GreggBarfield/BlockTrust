@@ -12,7 +12,7 @@ export class EditSalesGroupWidget extends Widget {
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
-        this.postRoute = "/widgets/data/update_sales_group";
+        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
 
         const getSalesGroupData = this.getData(
             "sales_group",
