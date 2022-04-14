@@ -199,67 +199,87 @@ def serve_search_by_eid_and_visual_id():
         }
 
 
-@bp.route('/widgets/data/save_sales_group', methods=['POST'])
+@bp.route('/widgets/data/create_sales_group', methods=["POST"])
 @crut.require_account
-def serve_save_sales_group():
+def serve_create_sales_group():
+    images = []
+    if 'images' in request.json["reported"]:
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images
+        )
+    # Alright, go ahead...
+    delivery_location = ""
+    if request.json["delivery_location_type"] == "Off Ranch":
+        delivery_location = request.json["delivery_location"]
+    else:
+        delivery_location = request.json["auction_market_location"]
+    sales_group_id = g.db.sales_groups.insert_new_sales_group(
+        account=g.account.id(),
+        reported=request.json["reported"],
+        published=request.json["published"],
+        zip_code=request.json["zip"],
+        delivery_location=delivery_location,
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        group_name=request.json["group_name"],
+        is_archived=0,
+        delivery_location_type=request.json["delivery_location_type"]
+    )
+    return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
+
+
+@bp.route('/widgets/data/update_sales_group', methods=['POST'])
+@crut.require_account
+def serve_update_sales_group():
     # Check that the account selected is the owner of the sales group
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
-    # Verify that the images provided are allowed
+    # Validate sales group fields
+    images = []
     if 'images' in request.json["reported"]:
-        for image in request.json["reported"]["images"]:
-            if not g.db.files.is_owner(None, g.account.id(), image):
-                raise ExportException("Image " + str(image) + " is not owned by the selected account.")
-    # Checking if required values are present
-    if request.json["zip"] is None:
-        raise ExportException("Zip code does not have a value")
-    if request.json["start"] is None:
-        raise ExportException("Start date is not selected")
-    if request.json["end"] is None:
-        raise ExportException("End date is not selected")
-    if request.json["delivery_location_type"] is None:
-        raise ExportException("Sale location type is not selected.")
-    if request.json["reported"]["count"] is None:
-        raise ExportException("Total animals cannot be 0")
-    if request.json["reported"]["weight"] is None:
-        raise ExportException("Base weight does not have a value")
-    if len(request.json["reported"]["weight_variance"].strip()) == 0:
-        raise ExportException("Weight variance does not have a value")
-    if len(request.json["reported"]["breeds"]) == 0:
-        raise ExportException("Please select one or more breeds")
-    if request.json["reported"]["usda_frame_size"] is None:
-        raise ExportException("Please select frame size")
-    if request.json["reported"]["muscling"] is None:
-        raise ExportException("Please select relevant muscling")
-    if request.json["reported"]["horns"] is None:
-        raise ExportException("Please select horns or no horns")
-
-    if request.json["zip"] not in ZIP_CODES:
-        raise ExportException("Sorry, that zip code could not be found.")
-
-    if request.json["start"] is None or request.json["end"] is None:
-        raise ExportException("Sorry, start or end date missing.")
-
-    if request.json["start"] > request.json["end"]:
-        raise ExportException("Sorry, check the market start and end dates (specifically the order).")
-
-    if (
-        request.json["auction_sale"] is not None
-        and original_row['auction_sale'] != request.json["auction_sale"]
-    ):
-        # it was changed to a non-None value, verify new is published
-        if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
-            raise ExportException("Auction sale specified is not published yet.")
-    # Alright, go ahead...
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images
+        )
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
-        if len(request.json["delivery_location"].strip()) == 0:
-            raise ExportException("Delivery Location does not have a value")
         delivery_location = request.json["delivery_location"]
     else:
-        if request.json["auction_market_location"] == "None":
-            raise ExportException("Please select an auction market location")
         delivery_location = request.json["auction_market_location"]
     g.db.sales_groups.update_sales_group(
         id=request.json["id"],

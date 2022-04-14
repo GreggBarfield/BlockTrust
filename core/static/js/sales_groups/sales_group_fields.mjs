@@ -143,10 +143,54 @@ let commonPreconditioningProgramNames = [
 	"SelectVac WeanVac"
 ];
 
+let commonFrames = [
+	"Small",
+	"Medium",
+	"Large"
+];
+
+let commonVaccinations = [
+	"Not Applicable",
+	"Covexin 8",
+	"One Shot BVD",
+	"Infor"
+];
+
+let commonDeliveryLocationTypes = [
+	"Off Ranch",
+	"Auction"
+];
+
+let commonCastrated = [
+	"Not Applicable",
+	"Not Castrated",
+	"Banded",
+	"Blade",
+	"Chemicals",
+	"Other"
+];
+
+let commonFeedingPrograms = [
+	"Not Applicable",
+	"Native Range",
+	"Improved Pasture"
+];
+
+let commonImplants = [
+	"Not Applicable",
+	"Raigro"
+];
+
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
     commonPVPProgramNames: commonPVPProgramNames,
 	commonMiles: commonMiles,
 	commonWeights: commonWeights,
-	commonPreconditioningProgramNames: commonPreconditioningProgramNames
+	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
+	commonFrames: commonFrames,
+	commonVaccinations: commonVaccinations,
+	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
+	commonCastrated: commonCastrated,
+	commonFeedingPrograms: commonFeedingPrograms,
+	commonImplants: commonImplants
 };
