@@ -189,68 +189,18 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createCustomAuctionMarketSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false) {
             let id = "domuid" + window.DOMUIDNext++;
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroupWithLink(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, "Not Listed?", false, "");
-            let select = document.createElement("select");
-            select.className = "select2-hidden-accessible";
-            select.id = id;
-            select.required = true
-            group.append(select);
-            let optionsStacked = [];
-            for (const option of options) {
-                optionsStacked.push({
-                    id: option,
-                    text: option
-                })
+            let group = ""
+            if(addLink){
+                group = createGroupWithLink(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, "Not Listed?", false, "");
             }
-
-            for (const value of values) {
-                let good = false;
-                for (const option of optionsStacked) {
-                    if (option.id == value) {
-                        option.selected = true;
-                        good = true;
-                        break;
-                    }
-                }
-                if (!good) {
-                    optionsStacked.push({
-                        id: value,
-                        text: value,
-                        selected: true
-                    });
-                }
+            else{
+                group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             }
-
-            $(select).select2({
-                data: optionsStacked,
-                multiple: multiple,
-                tags: tags,
-                placeholder: placeholder
-            });
-
-            if (values.length == 0) {
-                // Patch
-                $(select).val([options[0]]);
-                $(select).trigger('change');
-                setTimeout(function () {
-                    $(select).val([]);
-                    $(select).trigger('change');
-                }, 1);
-            }
-            return select;
-        }
-
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
-            let id = "domuid" + window.DOMUIDNext++;
-            if (!Array.isArray(values)) {
-                values = [values];
-            }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -321,7 +271,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Sale Location Type"
-        }, false, "", "", 4);
+        }, false, "", "", 4, false);
         
         let deliveryLocation = "";
         let auctionMarket = "";
@@ -332,7 +282,7 @@ export class SalesGroupsCommonForm{
             auctionMarket = this.marketingDeliveryLocationValue;
         }
         
-        let marketingAuctionMarketLocation = createCustomAuctionMarketSelect({
+        let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market: ",
             options: this.auctionMarketsData,
@@ -340,7 +290,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Auction Market"
-        }, false, "", "", 4)
+        }, false, "", "", 4, true)
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
         marketingDeliveryLocationType.onchange = () => {
@@ -379,7 +329,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Applicable Breeds"
-        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
+        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4, false);
         let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
@@ -392,7 +342,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Frame"
-        }, false, "", "", 4);
+        }, false, "", "", 4, false);
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
@@ -401,7 +351,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Muscling"
-        }, false, "", "", 4);
+        }, false, "", "", 4, false);
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
@@ -410,7 +360,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Horns"
-        }, false, "", "", 4);
+        }, false, "", "", 4, false);
 
         // Maintenance
 
@@ -424,7 +374,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: true,
             placeholder: "Select Precon Program"
-        }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4, false);
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
@@ -433,7 +383,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, false);
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -442,7 +392,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Feeding Program"
-        }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4, false);
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
@@ -451,7 +401,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Implants"
-        }, false, "" , "", 4);
+        }, false, "" , "", 4, false);
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -460,7 +410,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Castration Method"
-        }, false, "", "", 4);
+        }, false, "", "", 4, false);
         let maintenanceProcessVerifiedProgram = createSelect({
             row: maintenanceRow,
             name: "PVP Program",
@@ -469,7 +419,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4, false);
         // Media
 
         let mediaRow = createSection(form, "Image");
