@@ -8,6 +8,7 @@ import { SourceSummaryWidget } from './types/animal_data/source_summary_widget.m
 import { EditSalesGroupWidget } from './types/sales_groups/edit_sales_group_widget.mjs';
 import { ViewSalesGroupWidget } from './types/sales_groups/view_sales_group_widget.mjs';
 import { AccountSalesGroupsWidget } from './types/sales_groups/account_sales_groups_widget.mjs';
+import { CreateSalesGroupWidget } from './types/sales_groups/create_sales_group_widget.mjs';
 import { SearchSalesGroupsWidget } from './types/sales_groups/search_sales_groups_widget.mjs';
 import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_sales_widget.mjs';
@@ -29,7 +30,7 @@ import { SustainabilityTimelineWidget } from "./types/sustainability/sustainabil
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
-import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs'
+import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
 
 
 // Immediately invoked
@@ -54,6 +55,7 @@ import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summa
     attach("edit sales group", EditSalesGroupWidget);
     attach("sectors", SectorsWidget);
     attach("account sales groups", AccountSalesGroupsWidget);
+    attach("create sales group", CreateSalesGroupWidget);
     attach("view sales group", ViewSalesGroupWidget);
     attach("search sales groups", SearchSalesGroupsWidget);
     attach("messages list", MessagesListWidget);
