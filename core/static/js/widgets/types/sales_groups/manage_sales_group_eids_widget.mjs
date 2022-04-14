@@ -89,7 +89,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 }
                 else{
                     for(var i=0;i<this.eids_and_visual_ids_selected.length;i++){
-                        if(this.eids_and_visual_ids_selected[i]==value){this.eids_and_visual_ids_selected.splice(i,1);}
+                        if(this.eids_and_visual_ids_selected[i].eid==value.eid){this.eids_and_visual_ids_selected.splice(i,1);}
                     }
                 }
             }
@@ -98,8 +98,12 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             let tdEID = document.createElement("td");
             tdEID.textContent = value.eid;
             rowTag.appendChild(tdEID);
+            let visual_id_value = "N/A"
+            if(value.visual_id!=null){
+                visual_id_value = value.visual_id;
+            }
             let tdVisualID = document.createElement("td")
-            tdVisualID.textContent = value.visual_id;
+            tdVisualID.textContent = visual_id_value;
             rowTag.appendChild(tdVisualID);
         }
         return checkListTable;
@@ -173,6 +177,9 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         availableEidGroup.append(selectAll);
         availableEidGroup.append(availableEidsChecklist);
         assignedEidGroup.append(assignedEidsCheckList);
+
+        $(availableEidsChecklist).DataTable();
+        $(assignedEidsCheckList).DataTable();
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";

@@ -437,7 +437,7 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_distinct_eids_by_account(self, account_id, number_of_years):
+    def get_distinct_eids_and_visual_ids_by_account(self, account_id, number_of_years):
         """Return the distinct EIDs in the database for an account.
 
         Params:
