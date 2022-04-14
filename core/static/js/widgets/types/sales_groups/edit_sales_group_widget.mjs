@@ -9,7 +9,6 @@ export class EditSalesGroupWidget extends Widget {
 
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
-        this.redirectTo = "/edit/"+this.salesGroupID;
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};

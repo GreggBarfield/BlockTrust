@@ -5,6 +5,7 @@ import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
+import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs'
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute) {
@@ -116,6 +117,36 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
+        function createGroupWithLink(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, linkText, isURL, linkURL) {
+            let group = document.createElement("div");
+            group.className = `form-group col-md-${groupColumnSize}`;
+            row.append(group);
+            let groupLabel = document.createElement("label");
+            groupLabel.className = "form-label";
+            groupLabel.textContent = name;
+            if (hasTooltip)
+                addTooltip(dataToggle,tooltipText,groupLabel);
+            if (htmlFor !== null) {
+                groupLabel.htmlFor = htmlFor;
+            }
+            let link = document.createElement("a");
+            link.className = "form-label text-primary";
+            link.textContent = linkText;
+            if(isURL){
+                link.href = linkURL;
+            }
+            else{
+                link.onclick = () => {
+                    link.href = "#";
+                    let widget = new CreateAuctionMarketWidget();
+                    widget.init();
+                }
+            }
+            groupLabel.append(link);
+            group.append(groupLabel);
+            return group;
+        }
+
         function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
@@ -158,18 +189,60 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createAuctionMarketWidgetLink(row, name,hasTooltip=false,dataToggle="",tooltipText="", redirectTo="") {
+        function createCustomAuctionMarketSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id,hasTooltip,dataToggle,tooltipText);
-            let link = document.createElement("a");
-            link.href = "#";
-            link.textContent = "Auction Market not Listed?";
-            link.className = "form-control-plaintext text-primary";
-            link.onclick = () => {
-                let widget = new NewAuctionMarketForm(redirectTo);
-                widget.init();
+            if (!Array.isArray(values)) {
+                values = [values];
             }
-            group.append(link);
+            let group = createGroupWithLink(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, "Not Listed?", false, "");
+            let select = document.createElement("select");
+            select.className = "select2-hidden-accessible";
+            select.id = id;
+            select.required = true
+            group.append(select);
+            let optionsStacked = [];
+            for (const option of options) {
+                optionsStacked.push({
+                    id: option,
+                    text: option
+                })
+            }
+
+            for (const value of values) {
+                let good = false;
+                for (const option of optionsStacked) {
+                    if (option.id == value) {
+                        option.selected = true;
+                        good = true;
+                        break;
+                    }
+                }
+                if (!good) {
+                    optionsStacked.push({
+                        id: value,
+                        text: value,
+                        selected: true
+                    });
+                }
+            }
+
+            $(select).select2({
+                data: optionsStacked,
+                multiple: multiple,
+                tags: tags,
+                placeholder: placeholder
+            });
+
+            if (values.length == 0) {
+                // Patch
+                $(select).val([options[0]]);
+                $(select).trigger('change');
+                setTimeout(function () {
+                    $(select).val([]);
+                    $(select).trigger('change');
+                }, 1);
+            }
+            return select;
         }
 
         function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
@@ -259,9 +332,9 @@ export class SalesGroupsCommonForm{
             auctionMarket = this.marketingDeliveryLocationValue;
         }
         
-        let marketingAuctionMarketLocation = createSelect({
+        let marketingAuctionMarketLocation = createCustomAuctionMarketSelect({
             row: marketingRow,
-            name: "Auction Market",
+            name: "Auction Market: ",
             options: this.auctionMarketsData,
             values: auctionMarket || "None",
             multiple: false,
@@ -284,7 +357,8 @@ export class SalesGroupsCommonForm{
                 marketingOffRanchLocation.disabled=true;
             }
         }
-        marketingDeliveryLocationType.onchange()
+        marketingDeliveryLocationType.onchange();
+
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,

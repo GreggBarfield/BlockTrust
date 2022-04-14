@@ -589,16 +589,14 @@ def serve_remove_usda_favorite():
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
 
-@bp.route('/widgets/data/create-new-auction-market', methods=["POST"])
-def serve_create_new_auction_market():
-    print(request.form)
+@bp.route('/widgets/data/create-auction-market', methods=["POST"])
+def serve_create_auction_market():
     if len(request.form["name"].strip()) == 0:
         raise ExportException("Auction market Name cannot be blank")
     if len(request.form["city"].strip()) == 0:
         raise ExportException("Auction market City cannot be blank")
     if len(request.form["state"].strip()) == 0:
         raise ExportException("Auction market State cannot be blank")
-    redirect_to = request.form['requestRedirectTo']
     AuctionMarkets(g.db).insert_auction_market(
         name=format_field(request.form["name"]),
         address=format_field(request.form["address"]),
@@ -608,4 +606,4 @@ def serve_create_new_auction_market():
         phone=format_field(request.form["phone"]),
         email=format_field(request.form["email"])
     )
-    return {"redirect": "/dashboard/sales-groups"+redirect_to}
+    return {"redirect": request.form['requestRedirectTo']}

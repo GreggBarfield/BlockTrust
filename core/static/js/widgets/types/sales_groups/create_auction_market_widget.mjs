@@ -2,12 +2,11 @@ import { Widget } from '../../widget.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 
-export class NewAuctionMarketForm extends Widget {
-    constructor(requestRedirectTo) {
+export class CreateAuctionMarketWidget extends Widget {
+    constructor() {
         let infoModal = new InfoModal("Create Auction Market");
         super(infoModal.getBody());
         this.auctionSaleFrame = infoModal.getFooter();
-        this.requestRedirectTo = requestRedirectTo;
     }
 
     initType() {
@@ -118,7 +117,7 @@ export class NewAuctionMarketForm extends Widget {
         this.frame.append(form);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data/create-new-auction-market",
+            action: "/widgets/data/create-auction-market",
             form: form,
             status: statusMessage,
             error: errorMessage,
@@ -135,7 +134,7 @@ export class NewAuctionMarketForm extends Widget {
                     email: auctionMarketEmailInput.value             
                 }
             },
-            requestRedirectTo: this.requestRedirectTo
+            requestRedirectTo: window.location.href
         });
     }
 }
