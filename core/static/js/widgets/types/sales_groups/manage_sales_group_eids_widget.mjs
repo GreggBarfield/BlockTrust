@@ -77,13 +77,13 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             checkbox.type="checkbox";
             checkbox.name = checkboxName;
             checkbox.className = "checkbox"
-            checkbox.id = value;
-            checkbox.value = value;
+            checkbox.id = value.eid;
+            checkbox.value = value.eid;
             if(valuesChecked.indexOf(value)!=-1){
                 checkbox.checked=true;
             }
             checkbox.onchange = ()=>{
-                var selectedCheckbox = document.getElementById(value);
+                var selectedCheckbox = document.getElementById(value.eid);
                 if(selectedCheckbox.checked==true){
                 this.eids_and_visual_ids_selected.push(value);
                 }
