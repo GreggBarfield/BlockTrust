@@ -1,5 +1,10 @@
 import json
 from core.database.no_value import NoValue
+from core.database.tables.auction_sales import AuctionSales
+from core.database.tables.files import Files
+from core.database.const.zip_codes_data import ZIP_CODES
+
+from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
 
@@ -156,6 +161,49 @@ class SalesGroups:
         )
         return self.get_sales_group_by_id(self._db.last_row_id())
 
+    def insert_new_sales_group(self, reported=None, published=None, zip_code=None, account=None,
+                               delivery_location=None, start=None, end=None, auction_sale=None,
+                               group_name=None, is_archived=None, delivery_location_type=None):
+        """
+        Inserts a new sales group into the table
+        Params:
+            account: Account owning the sales group
+            reported: Data to be added in reported col (dict)
+            published: A number for the reported col
+            zip_code: The zip code
+            delivery_location_type: Sale location type
+            delivery_location: city and state of the zip code
+            start: The start time
+            end: The end time
+            auction_sale: The auction sale ID
+            is_archived: 0 for no, 1 for yes
+
+        Returns:
+            Sales group ID of new Sales group
+        """
+        self._db.execute(
+            """
+            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
+            group_name, is_archived, delivery_location_type)
+            VALUES
+            (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
+            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s)
+            """, {
+                "account": account,
+                "reported": json.dumps(reported),
+                "published": published,
+                "zip_code": zip_code,
+                "delivery_location": delivery_location,
+                "start": start,
+                "end": end,
+                "auction_sale": auction_sale,
+                "group_name": group_name,
+                "is_archived": is_archived,
+                "delivery_location_type": delivery_location_type
+            }
+        )
+        return self._db.last_row_id()
+
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
@@ -286,3 +334,74 @@ class SalesGroups:
             [start, end, start, end, is_archived] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)
+
+    def validate_or_fail_sales_group(self, group_name=NO_VALUE, zip=NO_VALUE, account_id=NO_VALUE,
+            delivery_location_type=NO_VALUE, count=NO_VALUE, weight=NO_VALUE, weight_variance=NO_VALUE,
+            breeds=NO_VALUE, usda_frame_size=NO_VALUE, muscling=NO_VALUE, horns=NO_VALUE,
+            start=NO_VALUE, end=NO_VALUE, auction_sale=NO_VALUE, delivery_location=NO_VALUE,
+            auction_market_location=NO_VALUE, images=NO_VALUE):
+        """
+        Validates that the values received for a sales group is valid
+
+        Params:
+            group_name: Nickname for the sales group
+            zip: Zip code of the sales group
+            account_id: Account ID of the owner account
+            delivery_location_type: Off ranch or auction market
+            count: Cattle count
+            weight: Average weight for cattle in group
+            weight_variance: Variance of weight average
+            breeds: Breeds of cattle in group
+            usda_frame_size: Frame size
+            muscling: Muscling type
+            horns: Horns type
+            start: Start date for sale
+            end: End date for sale
+            auction_sale: Auction sale
+            delivery_location: Off ranch delivery location
+            auction_market_location: Auction market value
+            images: Images for sales group
+
+        Raises:
+            ExportException if field is invalid
+        """
+        for image in images:
+            if not Files(self._db).is_owner(None, account_id, image):
+                raise ExportException("Image " + str(image) + " is not owned by the selected account.")
+        # Checking if required values are present
+        if len(group_name.strip()) == 0:
+            raise ExportException("Sales group name cannot be blank")
+        if count is None:
+            raise ExportException("Total animals cannot be 0")
+        if zip is None:
+            raise ExportException("Zip code cannot be blank")
+        if zip not in ZIP_CODES:
+            raise ExportException("Sorry, that zip code could not be found.")
+        if start is None or end is None:
+            raise ExportException("Sorry, start or end date missing.")
+        if start > end:
+            raise ExportException("Sorry, check the market start and end dates (specifically the order).")
+        if delivery_location_type is None:
+            raise ExportException("Sale location type is not selected.")
+        if delivery_location_type == "Off Ranch":
+            if len(delivery_location.strip()) == 0:
+                raise ExportException("Delivery Location cannot be blank")
+        if delivery_location_type == "Auction":
+            if auction_market_location == "None":
+                raise ExportException("Please select an auction market location")
+        if len(breeds) == 0:
+            raise ExportException("Please select one or more breeds")
+        if weight is None:
+            raise ExportException("Base weight does not have a value")
+        if len(weight_variance.strip()) == 0:
+            raise ExportException("Weight variance does not have a value")
+        if usda_frame_size is None:
+            raise ExportException("Please select frame size")
+        if muscling is None:
+            raise ExportException("Please select relevant muscling")
+        if horns is None:
+            raise ExportException("Please select horns or no horns")
+        if auction_sale is not None:
+            # it was changed to a non-None value, verify new is published
+            if not AuctionSales(self._db).auction_sales.get_auction_sale_by_id(auction_sale)["published"]:
+                raise ExportException("Auction sale specified is not published yet.")
