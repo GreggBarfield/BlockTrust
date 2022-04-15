@@ -78,7 +78,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             checkbox.name = checkboxName;
             checkbox.className = "checkbox"
             checkbox.id = value.eid;
-            checkbox.value = value.eid;
+            checkbox.value = value;
             if(valuesChecked.indexOf(value)!=-1){
                 checkbox.checked=true;
             }

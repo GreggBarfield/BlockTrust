@@ -255,7 +255,6 @@ class Matches:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
-        print(query)
         match_rows = self._db.execute_d(query, query_values)
         if len(match_rows) > 0:
             return match_rows
