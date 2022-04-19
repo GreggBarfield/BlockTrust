@@ -11,6 +11,8 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
+from ..database.tables.notifications import Notifications
+from ..database.tables.connections import Connections, connection_status
 from ..database.tables.sales_group_eids import SalesGroupEIDs
 from ..database.tables.auction_markets import AuctionMarkets
 
@@ -587,3 +589,19 @@ def serve_remove_usda_favorite():
     request_json = json.loads(request.data)
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
+
+@bp.route('/widgets/data/get_notifications_for_user', methods=["POST"])
+@crut.require_account
+def serve_get_notifications_for_user():
+    unread_notifications_count = 0
+    unread_notifications_list = Notifications(g.db).get_notification_and_notification_recipients(
+        user_id=g.user.id(),
+        is_archived=0,
+        is_notification_seen=0
+    )
+    unread_notifications_count = len(unread_notifications_list)
+
+    pending_connection_requests_count = 0
+    pending_connection_requests_list = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
+    pending_connection_requests_count = len(pending_connection_requests_list)
+    return {"unread_notifications_count": unread_notifications_count, "pending_connection_requests_count": pending_connection_requests_count}, 200

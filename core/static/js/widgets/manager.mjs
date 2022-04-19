@@ -31,6 +31,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
+import { NotificationsWidget } from './types/notifications/notifications_widget.mjs'
 
 
 // Immediately invoked
@@ -78,6 +79,7 @@ import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summa
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
+    attach("notifications", NotificationsWidget);
 
     // Find widgets
     $(".widget").each(function () {
