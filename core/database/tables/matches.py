@@ -118,12 +118,12 @@ class Matches:
 
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector
-            FROM matches AS m
+            SELECT al.account, min(m.created_timestamp) as date, al.sector FROM matches AS m
             INNER JOIN account_links AS al ON m.account_link=al.id
             WHERE eid IN(
-                SELECT eid FROM matches 
-                WHERE account_link=%(account_link_id)s AND type=%(type)s)
+                SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
+            )
+            AND al.account IS NOT NULL
             GROUP BY al.account, al.sector
             ORDER BY al.sector, date
             """,
