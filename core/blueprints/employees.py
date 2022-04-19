@@ -213,6 +213,13 @@ def serve_edit_selected_account(account_id):
     return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
 
 
+@bp.route("/employee/dashboard/edit-partner/<int:account_id>", methods=["GET"])
+@crut.require_employee
+def serve_edit_selected_partner(account_id):
+    account_row = g.db.accounts.get_account_by_id(account_id)
+    return employee_render("/employee/accounts/edit-selected-partner.html", {"account_row": account_row})
+
+
 @bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
 @crut.require_employee
 def serve_apply_changes_to_account(account_id):
@@ -221,10 +228,30 @@ def serve_apply_changes_to_account(account_id):
         partner_account=format_field(request.form["partner"]),
         affiliate_id=format_field(request.form["affiliate_id"]),
         company=format_field(request.form["company"]),
+        phone=format_field(request.form["phone"]),
         address=format_field(request.form["address"]),
         city=format_field(request.form["city"]),
         state=format_field(request.form["state"]),
         zip=format_field(request.form["zip_code"])
+    )
+    return {"redirect": "/employee/dashboard"}
+
+
+@bp.route("/employee/dashboard/edit-partner/<int:account_id>/action", methods=["POST"])
+@crut.require_employee
+def serve_apply_changes_to_partner(account_id):
+    is_partner_used_for_signup = 0
+    if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
+        is_partner_used_for_signup = 1
+    g.db.accounts.update_account(
+        account_id=account_id,
+        company=format_field(request.form["company"]),
+        phone=format_field(request.form["phone"]),
+        address=format_field(request.form["address"]),
+        city=format_field(request.form["city"]),
+        state=format_field(request.form["state"]),
+        zip=format_field(request.form["zip_code"]),
+        is_partner_used_for_signup=is_partner_used_for_signup
     )
     return {"redirect": "/employee/dashboard"}
 

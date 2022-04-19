@@ -34,9 +34,11 @@
                 <tr>
                     <td>{{account.id}}</td>
                     <td>
-                        <a href={{"/employee/dashboard/edit-account/{{account.id}}" if sectors_by_id[account.sector]=="Cow-Calf" else ""}}>
-                            {{account.company}}
-                        </a>
+                        {% if sectors_by_id[account.sector]=="Cow-Calf" %}
+                        <a href="/employee/dashboard/edit-account/{{account.id}}">{{account.company}}</a>
+                        {% else %}
+                        <a href="">{{account.company}}</a>
+                        {% endif %}
                     </td>
                     <td>{{sectors_by_id[account.sector]}}</td>
                     <td>{{account.city}}, {{account.state}}</td>
