@@ -7,6 +7,9 @@
 {% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
 
 {% block dashboard_content_header %}
+<div class="col-xl-12">
+    <p class="mb-0 widget" data-widget-type="notifications"></p>
+</div>
 {{ account.name()|e }}
 {% endblock dashboard_content_header %}
 
