@@ -122,7 +122,6 @@ export class SalesGroupsCommonForm{
                 }
                 else{
                     link.onclick = () => {
-                        link.href = "#";
                         let widget = new CreateAuctionMarketWidget();
                         widget.init();
                     }
@@ -133,39 +132,9 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createGroupWithLink(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, linkText, isURL, linkURL) {
-            let group = document.createElement("div");
-            group.className = `form-group col-md-${groupColumnSize}`;
-            row.append(group);
-            let groupLabel = document.createElement("label");
-            groupLabel.className = "form-label";
-            groupLabel.textContent = name;
-            if (hasTooltip)
-                addTooltip(dataToggle,tooltipText,groupLabel);
-            if (htmlFor !== null) {
-                groupLabel.htmlFor = htmlFor;
-            }
-            let link = document.createElement("a");
-            link.className = "form-label text-primary";
-            link.textContent = linkText;
-            if(isURL){
-                link.href = linkURL;
-            }
-            else{
-                link.onclick = () => {
-                    link.href = "#";
-                    let widget = new CreateAuctionMarketWidget();
-                    widget.init();
-                }
-            }
-            groupLabel.append(link);
-            group.append(groupLabel);
-            return group;
-        }
-
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false, linkText="", linkURL="") {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:false,linkText:"",linkURL:""});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:addLink,linkText:linkText,linkURL:linkURL});
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -176,9 +145,9 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false, linkText="", linkURL="") {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:false,linkText:"",linkURL:""});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:addLink,linkText:linkText,linkURL:linkURL});
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -300,7 +269,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Auction Market"
-        }, false, "", "", 4, true, "Not Listed", "")
+        }, false, "", "", 4, true, "Not Listed?", "");
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
         marketingDeliveryLocationType.onchange = () => {

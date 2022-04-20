@@ -1,8 +1,8 @@
-import { Widget } from '../../widget.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
+import { Widget } from '../../widget.mjs';
 
-export class CreateAuctionMarketWidget extends Widget {
+export class CreateAuctionMarketWidget extends Widget{
     constructor() {
         let infoModal = new InfoModal("Create Auction Market");
         super(infoModal.getBody());
