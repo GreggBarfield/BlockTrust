@@ -59,7 +59,7 @@ try:
                 threads.append(t)
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
-        print("Main: Sleeping for 60 mins. Current_time:", current_time)
+        print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
 except Exception as e:
     print("Main:", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
