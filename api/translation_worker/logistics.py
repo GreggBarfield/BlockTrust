@@ -22,7 +22,7 @@ def run(db, inserts_model, verbose=False, insert_id=None):
                 if verbose:
                     print("Failed to find the insert!")
                 break
-            print("Sleeping for 60 mins. Current time:", datetime.datetime.now().time())
+            print("Sleeping for 60 mins. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
             sleep(3600)
         else:
             print("Running insert:", insert['id'], ", Partner account:", insert['account'])
