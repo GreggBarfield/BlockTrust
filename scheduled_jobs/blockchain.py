@@ -46,7 +46,7 @@ class Blockchain:
                 number_of_consecutive_uploads += 1
                 print("number of uploads:", number_of_consecutive_uploads)
                 if number_of_consecutive_uploads == 10:
-                    print("Blockchain thread: 10 uploads reached. Sleeping for 45s")
+                    print("Blockchain thread: 10 uploads reached. Sleeping for 40s")
                     time.sleep(40)
                     number_of_consecutive_uploads = 0
             else:
