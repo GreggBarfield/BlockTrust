@@ -39,6 +39,7 @@ export class NotificationsWidget extends Widget {
         closeButton.setAttribute("aria-label", "Close");
         this.alert.append(closeButton);
         let message = document.createElement('p');
+        message.className = "mt-2";
         if(this.data.unread_notifications_count>0 && this.data.pending_connection_requests_count>0){
             message.textContent = "You have ";
             let unreadNotificationslink = createLink("/dashboard/notifications", this.data.unread_notifications_count.toString() + " unread notification(s)");
