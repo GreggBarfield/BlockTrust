@@ -44,17 +44,16 @@ class Blockchain:
                     bc_transaction_id = blockchain_helper.transmit(hashes)
                 except RuntimeError as re:
                     tries += 1
-                    print("Try number: ", tries)
+                    print(f"Try number: ${tries}.")
                     if tries > 3:
                         raise re
                     else:
-                        time.sleep(60)
+                        time.sleep(120)
                         continue
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
-                print("number of uploads:", number_of_consecutive_uploads)
                 if number_of_consecutive_uploads == 5:
                     print("Blockchain thread: 5 uploads reached. Sleeping for 25s")
                     time.sleep(25)
