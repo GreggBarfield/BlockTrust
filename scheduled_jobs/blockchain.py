@@ -3,6 +3,7 @@ from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 import traceback
 from core.utilities.blockchain import blockchain_helper
+from core.match_types import match_types_by_id
 import datetime
 import time
 
@@ -25,19 +26,15 @@ class Blockchain:
                 hash_and_match_ids = []
                 for m in matches_to_be_uploaded:
                     match = {
-                            "id": m["id"],
                             "eid": m["eid"],
                             "visual_id": m["visual_id"],
-                            "type": m["type"],
+                            "type": match_types_by_id[m["type"]],
                             "grouping_id": m["grouping_id"],
                             "data": m["data"],
-                            "partner_account": m["partner_account"],
-                            "account_link": m["account_link"],
                             "lat": m["lat"],
                             "lon": m["lon"],
-                            "time": m["time"],
-                            "created": m["created"]
-                        }
+                            "time": m["time"]
+                    }
                     hash = blockchain_helper.generate_bc_hash(match)
                     hashes.append(hash)
                     hash_and_match_ids.append((hash, m["id"]))
@@ -72,7 +69,7 @@ def run_bc_tasks(job_run_id, db):
         bc = Blockchain(db)
         bc.insert_matches_to_bc()
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
-        print("Blockchain Job Exiting. Current time: ",  datetime.datetime.now().time())
+        print("Blockchain Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
         ErrorLogs(db).insert_error_log("Blockchain", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"), {"error": str(e)})
