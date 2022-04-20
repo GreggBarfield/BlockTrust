@@ -25,6 +25,7 @@ class Blockchain:
                 hash_and_match_ids = []
                 for m in matches_to_be_uploaded:
                     match = {
+                            "id": m["id"],
                             "eid": m["eid"],
                             "visual_id": m["visual_id"],
                             "type": m["type"],
