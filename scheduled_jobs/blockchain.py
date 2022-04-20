@@ -18,7 +18,7 @@ class Blockchain:
         if not BLOCKCHAIN_UPLOADS:
             print("Blockchain thread: Blockchain uploads turned off, exiting")
             return
-        number_of_consecutive_uploads = 0
+        # number_of_consecutive_uploads = 0
         while(True):
             matches_to_be_uploaded = self.get_next_batch_of_matches(BLOCKCHAIN_BATCH_SIZE)
             if len(matches_to_be_uploaded) > 0:
@@ -43,12 +43,14 @@ class Blockchain:
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
-                number_of_consecutive_uploads += 1
-                print("number of uploads:", number_of_consecutive_uploads)
-                if number_of_consecutive_uploads == 10:
-                    print("Blockchain thread: 10 uploads reached. Sleeping for 15s")
-                    time.sleep(15)
-                    number_of_consecutive_uploads = 0
+                print("bc_trans_id", bc_transaction_id)
+                time.sleep(3)
+                # number_of_consecutive_uploads += 1
+                # print("number of uploads:", number_of_consecutive_uploads)
+                # if number_of_consecutive_uploads == 10:
+                #     print("Blockchain thread: 10 uploads reached. Sleeping for 15s")
+                #     time.sleep(15)
+                #     number_of_consecutive_uploads = 0
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
                 break
