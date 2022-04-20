@@ -19,6 +19,7 @@ class Blockchain:
             print("Blockchain thread: Blockchain uploads turned off, exiting")
             return
         number_of_consecutive_uploads = 0
+        tries = 1
         while(True):
             matches_to_be_uploaded = self.get_next_batch_of_matches(BLOCKCHAIN_BATCH_SIZE)
             if len(matches_to_be_uploaded) > 0:
@@ -39,15 +40,24 @@ class Blockchain:
                     hashes.append(hash)
                     hash_and_match_ids.append((hash, m["id"]))
 
-                bc_transaction_id = blockchain_helper.transmit(hashes)
+                try:
+                    bc_transaction_id = blockchain_helper.transmit(hashes)
+                except RuntimeError as re:
+                    tries += 1
+                    print("Try number: ", tries)
+                    if tries > 3:
+                        raise re
+                    else:
+                        time.sleep(60)
+                        continue
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
                 print("number of uploads:", number_of_consecutive_uploads)
-                if number_of_consecutive_uploads == 10:
-                    print("Blockchain thread: 10 uploads reached. Sleeping for 40s")
-                    time.sleep(40)
+                if number_of_consecutive_uploads == 5:
+                    print("Blockchain thread: 5 uploads reached. Sleeping for 25s")
+                    time.sleep(25)
                     number_of_consecutive_uploads = 0
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
