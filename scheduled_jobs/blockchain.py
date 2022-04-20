@@ -55,7 +55,7 @@ class Blockchain:
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
                 if number_of_consecutive_uploads == 5:
-                    print("Blockchain thread: 5 uploads reached. Sleeping for 25s")
+                    print("Blockchain thread: 5 uploads reached. Sleeping for 25s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                     time.sleep(25)
                     number_of_consecutive_uploads = 0
             else:
