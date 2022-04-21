@@ -47,16 +47,17 @@ class Blockchain:
                     if tries > 3:
                         raise re
                     else:
-                        print(f"Blockchain Thread. Try number: ${tries}. Sleeping for 60 mins.", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                        print(f"Blockchain Thread. Try number: {tries}. Sleeping for 60 mins.", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                         time.sleep(3600)
                         continue
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
+                time.sleep(5)
                 if number_of_consecutive_uploads == 5:
-                    print("Blockchain thread: 5 uploads reached. Sleeping for 25s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
-                    time.sleep(25)
+                    print("Blockchain thread: 5 uploads reached. Sleeping for 30s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                    time.sleep(30)
                     number_of_consecutive_uploads = 0
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
