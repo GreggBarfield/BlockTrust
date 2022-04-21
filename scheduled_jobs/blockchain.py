@@ -55,7 +55,8 @@ class Blockchain:
                         print("Blockchain thread: Restarting. Number of uploads is 0. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                         number_of_consecutive_uploads = 0
                 else:
-                    time.sleep(8)
+                    print("Sleeping 10s")
+                    time.sleep(10)
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
                 break
