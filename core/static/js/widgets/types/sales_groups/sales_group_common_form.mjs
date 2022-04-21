@@ -101,7 +101,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, {addLink, linkText, linkURL}) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, link={}) {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -113,20 +113,20 @@ export class SalesGroupsCommonForm{
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
-            if(addLink){
-                let link = document.createElement("a");
-                link.className = "form-label text-primary";
-                link.textContent = linkText;
-                if(linkURL.length>0){
-                    link.href = linkURL;
+            if("text" in link && "URL" in link){
+                let newLink = document.createElement("a");
+                newLink.className = "form-label text-primary";
+                newLink.textContent = link.text;
+                if(link.URL.length>0){
+                    newLink.href = link.URL;
                 }
                 else{
-                    link.onclick = () => {
+                    newLink.onclick = () => {
                         let widget = new CreateAuctionMarketWidget();
                         widget.init();
                     }
                 }
-                groupLabel.append(link);
+                groupLabel.append(newLink);
             }
             group.append(groupLabel);
             return group;
@@ -179,7 +179,7 @@ export class SalesGroupsCommonForm{
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:addLink,linkText:linkText,linkURL:linkURL});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {text:linkText,URL:linkURL});
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
