@@ -46,7 +46,7 @@ class Blockchain:
                 number_of_consecutive_uploads += 1
                 if number_of_consecutive_uploads % 5 == 0:
                     print(f"Blockchain thread: 5x uploads reached {number_of_consecutive_uploads}. Sleeping for 35s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
-                    time.sleep(35)
+                    time.sleep(45)
                     #number_of_consecutive_uploads = 0
                     if number_of_consecutive_uploads == 300:
                         # longer nap
@@ -55,8 +55,8 @@ class Blockchain:
                         print("Blockchain thread: Restarting. Number of uploads is 0. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                         number_of_consecutive_uploads = 0
                 else:
-                    print("Sleeping 10s")
-                    time.sleep(10)
+                    print("Sleeping 12")
+                    time.sleep(12)
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
                 break
