@@ -587,3 +587,12 @@ def serve_remove_usda_favorite():
     request_json = json.loads(request.data)
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
+
+@bp.route('/widgets/data/get_accounts', methods=['POST'])
+@crut.require_account
+def serve_get_accounts():
+    account_rows = g.db.accounts.get_accounts(is_partner=0)
+    for account_row in account_rows:
+        if account_row["id"] == g.account.id():
+            account_rows.remove(account_row)
+    return {"account_rows": account_rows}

@@ -56,7 +56,7 @@ let form = new AsyncForm({
     getData: () => {
         return {
             sector: sector.val(),
-            company_id: company_name.value,
+            company_id: company_name.val(),
             new_company_name: new_company_name.val(),
             new_company_contact: new_company_contact.val(),
             new_company_email: new_company_email.val()

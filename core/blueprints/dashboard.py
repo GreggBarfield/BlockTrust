@@ -468,6 +468,7 @@ def serve_add_connection():
 def serve_add_connection_request():
     try:
         if len(request.form["company_id"]) != 0:
+            print(len(request.form["company_id"]))
             print(request.form["company_id"])
             # Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
         else:
