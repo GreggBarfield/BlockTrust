@@ -72,7 +72,7 @@ export class AccountSalesGroupsWidget extends Widget {
                     });
                 }
             );
-            this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No", optionsGroup]);
+            this.table.addRow([salesGroup.id, salesGroup.group_name || "", salesGroup.published ? "Yes" : "No", optionsGroup]);
         }
 
         this.table.attach(this.frame);

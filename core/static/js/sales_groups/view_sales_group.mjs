@@ -131,7 +131,7 @@ export class SalesGroupViewer {
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
             salesGroupID.style = "display: inline;";
-            salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
+            salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
             if(this.currentAccount !== this.data["account"] && this.data["is_sold"] == 0){
                 let transactionButton = document.createElement("button");
