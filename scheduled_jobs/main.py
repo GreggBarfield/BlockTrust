@@ -48,8 +48,6 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
-            else:
-                print("Main: Blockchain thread exists and so not adding a new one")
 
         # this will run once between 6 and 7 AM
         if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
