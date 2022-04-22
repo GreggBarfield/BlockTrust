@@ -19,13 +19,18 @@ Add Connections
                     <form class="bg-white"  id="add_connection_form"  method="POST"> 
                         <div class="col-lg-12">
                             <div class="form-group">
+                                <input type="checkbox" class="checkbox" id="select_all"><span>Select All Feeders and Packers in Network</span>
+                                <span class="focus-border"></span>
+                            </div>
+                            <div class="form-group">
                                 <label for="sector">Sector</label>
                                 <select class="form-control" id="sector" required>
-                                    <option disabled selected value> -- Select an option -- </option>
+                                    <option disabled selected value="0"> -- Select an option -- </option>
                                     <option value="4">Cow-Calf</option>
                                     <option value="5">Auction House</option>
                                     <option value="6">Feedlot</option>
                                     <option value="7">Packer</option>
+                                    <option value="3">All Sectors</option>
                                 </select>
                                 <span class="focus-border"></span>
                             </div>
@@ -33,6 +38,10 @@ Add Connections
                                 <label for="company_name" selected>Company name</label>
                                 <select class="form-control" id="company_name" required>
                                 </select>
+                                <span class="focus-border"></span>
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" class="checkbox" id="unlisted_company"><span>Comapny Not Listed?</span>
                                 <span class="focus-border"></span>
                             </div>
                             <div class="form-group">

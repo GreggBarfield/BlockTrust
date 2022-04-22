@@ -3,38 +3,24 @@ import {AsyncForm} from '/static/global/async_form.mjs';
 $(document).ready(function () {
     $('#sector').change(function () {
         $('#company_name').empty();
-        $('#company_name').append(`<option disabled selected value> -- Select an option -- </option>`)
         $('#company_name').append(`<option value=0>Not Listed</option>`);
-        if($(this).val() == 4){
-            for(let val in accounts){
-                if(accounts[val].name!=="" && accounts[val].sector==4){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
+        if($(this).val() == "3"){
+            for(let account in accounts){
+                if(accounts[account].name !== ""){
+                    $('#company_name').append(`<option value="${accounts[account].id}">${accounts[account].name}</option>`);
                 }
             }
         }
-        if($(this).val() == 5){
-            for(let val in accounts){
-                if(accounts[val].name!=="" && accounts[val].sector==5){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
+        else{
+            for(let account in accounts){
+                if(accounts[account].name !== "" && accounts[account].sector == $(this).val()){
+                    $('#company_name').append(`<option value="${accounts[account].id}">${accounts[account].name}</option>`);
                 }
             }
-        }
-        if($(this).val() == 6){
-            for(let val in accounts){
-                if(accounts[val].name!=="" && accounts[val].sector==6){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
-                }
-            } 
-        }
-        if($(this).val() == 7){
-            for(let val in accounts){
-                if(accounts[val].name!=="" && accounts[val].sector==7){
-                    $('#company_name').append(`<option value="${accounts[val].id}">${accounts[val].name}</option>`);
-                }
-            } 
-        }
-
+        } 
     });
+
+    $('#company_name').select2({multiple: true, placeholder: "Select companies"});
 
     $('#company_name').change(function () {
         if($(this).val() == 0){
@@ -70,10 +56,47 @@ let form = new AsyncForm({
     getData: () => {
         return {
             sector: sector.val(),
-            company_id: company_name.val(),
+            company_id: company_name.value,
             new_company_name: new_company_name.val(),
             new_company_contact: new_company_contact.val(),
             new_company_email: new_company_email.val()
         }
     }
 });
+
+let selectAll = document.getElementById("select_all");
+selectAll.onchange = () =>{
+    if(selectAll.checked==true){
+        let sectorSelect = document.getElementById("sector");
+        sectorSelect.value = "3";  
+        var event = new UIEvent("change", {"view": window,"bubbles": true,"cancelable": true});  
+        sectorSelect.dispatchEvent(event);
+        let feedlotAndPackerAccounts = [];
+        for(let account in accounts){
+            if(accounts[account].sector == "6" || accounts[account].sector == "7"){
+                feedlotAndPackerAccounts.push(accounts[account].id)
+            }
+        }
+        $('#company_name').val(feedlotAndPackerAccounts);
+    }
+    else{
+        let sectorSelect = document.getElementById("sector");
+        sectorSelect.value = "0";  
+        var event = new UIEvent("change", {"view": window,"bubbles": true,"cancelable": true});  
+        sectorSelect.dispatchEvent(event);
+    }
+}
+
+let unlistedCompany = document.getElementById("unlisted_company");
+unlistedCompany.onchange = () =>{
+    if(unlistedCompany.checked==true){
+        document.getElementById("new_company_name").disabled = false;
+        document.getElementById("new_company_contact").disabled = false;
+        document.getElementById("new_company_email").disabled = false;
+    }else{
+        document.getElementById("new_company_name").disabled = true;
+        document.getElementById("new_company_contact").disabled = true;
+        document.getElementById("new_company_email").disabled = true;
+
+    }
+}
