@@ -133,7 +133,7 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
             left.append(salesGroupID);
-            if(this.currentAccount !== this.data["account"] && this.data["sold"] == 0){
+            if(this.currentAccount !== this.data["account"] && this.data["is_sold"] == 0){
                 let transactionButton = document.createElement("button");
                 transactionButton.className = "btn btn-sm btn-outline-primary";
                 transactionButton.style = "float:right"

@@ -604,7 +604,7 @@ def serve_log_transaction_details():
             'to_account_id': data['to_account_id'],
             'payment_intent': data['paymentIntent']
         }
-        g.db.sales_groups.update_sales_group(id=data['sales_group_id'], sold=1)
+        g.db.sales_groups.update_sales_group(id=data['sales_group_id'], is_sold=1)
         EventLogs(g.db).insert_event_log(
             account_id=g.account.id(),
             user_id=g.user.id(),
