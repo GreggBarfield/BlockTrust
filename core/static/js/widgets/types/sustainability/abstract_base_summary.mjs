@@ -282,7 +282,7 @@ export class AbstractBaseSummaryWidget extends Widget {
         if (this.dataCounter == {}) {
             container.textContent = "Data is not available yet.";
         }
-        else if (this.dataCounter[section].length == 0) {
+        else if (!(section in this.dataCounter)) {
             container.textContent = "(no data)";
         }
         else {
