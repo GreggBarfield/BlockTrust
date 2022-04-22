@@ -19,7 +19,6 @@ class Blockchain:
             print("Blockchain thread: Blockchain uploads turned off, exiting")
             return
         number_of_consecutive_uploads = 0
-        tries = 1
         while(True):
             matches_to_be_uploaded = self.get_next_batch_of_matches(BLOCKCHAIN_BATCH_SIZE)
             if len(matches_to_be_uploaded) > 0:
@@ -40,24 +39,23 @@ class Blockchain:
                     hashes.append(hash)
                     hash_and_match_ids.append((hash, m["id"]))
 
-                try:
                     bc_transaction_id = blockchain_helper.transmit(hashes)
-                except RuntimeError as re:
-                    tries += 1
-                    if tries > 3:
-                        raise re
-                    else:
-                        print(f"Blockchain Thread. Try number: ${tries}. Sleeping for 60 mins.", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
-                        time.sleep(3600)
-                        continue
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
-                if number_of_consecutive_uploads == 5:
-                    print("Blockchain thread: 5 uploads reached. Sleeping for 25s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
-                    time.sleep(25)
-                    number_of_consecutive_uploads = 0
+                if number_of_consecutive_uploads % 5 == 0:
+                    print(f"Blockchain thread: 5x uploads reached {number_of_consecutive_uploads}. Sleeping for 45s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                    time.sleep(45)
+                    if number_of_consecutive_uploads == 300:
+                        # longer nap
+                        print(f"Blockchain thread: number of uploads reached 300. Taking 1 hour nap. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                        time.sleep(3600)
+                        print("Blockchain thread: Restarting. Number of uploads is 0. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                        number_of_consecutive_uploads = 0
+                else:
+                    print("Sleeping 12")
+                    time.sleep(12)
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
                 break
