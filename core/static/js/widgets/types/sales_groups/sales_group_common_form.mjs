@@ -101,7 +101,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, link={}) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, addAuctionMarketLink=false) {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -113,18 +113,13 @@ export class SalesGroupsCommonForm{
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
-            if("text" in link && "URL" in link){
+            if(addAuctionMarketLink){
                 let newLink = document.createElement("a");
                 newLink.className = "form-label text-primary";
-                newLink.textContent = link.text;
-                if(link.URL.length>0){
-                    newLink.href = link.URL;
-                }
-                else{
-                    newLink.onclick = () => {
-                        let widget = new CreateAuctionMarketWidget();
-                        widget.init();
-                    }
+                newLink.textContent = "Not Listed?";
+                newLink.onclick = () => {
+                    let widget = new CreateAuctionMarketWidget();
+                    widget.init();
                 }
                 groupLabel.append(newLink);
             }
@@ -132,9 +127,9 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false, linkText="", linkURL="") {
+        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:addLink,linkText:linkText,linkURL:linkURL});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
             input.value = value;
@@ -145,9 +140,9 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false, linkText="", linkURL="") {
+        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {addLink:addLink,linkText:linkText,linkURL:linkURL});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "text";
             input.value = value;
@@ -174,12 +169,12 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addLink=false, linkText="", linkURL="") {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false) {
             let id = "domuid" + window.DOMUIDNext++;
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, {text:linkText,URL:linkURL});
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, addAuctionMarketLink);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -269,7 +264,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Auction Market"
-        }, false, "", "", 4, true, "Not Listed?", "");
+        }, false, "", "", 4, true);
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
         marketingDeliveryLocationType.onchange = () => {
