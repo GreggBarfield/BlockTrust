@@ -1470,6 +1470,8 @@ ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
 /* Nisheet Thakur 04/08/2022 */
 ALTER TABLE `sales_group_eids`
 ADD COLUMN `visual_id` VARCHAR(16) NULL DEFAULT NULL;
+ALTER TABLE `sales_group_eids`
+RENAME TO `sales_group_animals`;
 
 /* Rohan Sureshkumar 4/8/22 */
  INSERT INTO reports(account_id, query, status)

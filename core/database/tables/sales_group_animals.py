@@ -2,11 +2,11 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-class SalesGroupEIDsException(Exception):
-    """SalesGroupEIDs generic exception."""
+class SalesGroupAnimalsException(Exception):
+    """SalesGroupAnimals generic exception."""
 
     def __init__(self, reason):
-        """Constructor for SalesGroupEIDsException.
+        """Constructor for SalesGroupAnimalsException.
 
         Params:
             reason: the reason for the exception
@@ -14,14 +14,14 @@ class SalesGroupEIDsException(Exception):
         super().__init__(reason)
 
 
-class SalesGroupEIDs:
+class SalesGroupAnimals:
 
     def __init__(self, db):
         self._db = db
 
-    def get_sales_group_eids(self, sales_group_id=NO_VALUE, eid=NO_VALUE):
+    def get_sales_group_animals(self, sales_group_id=NO_VALUE, eid=NO_VALUE):
         """
-        Gets sales group eids row(s) based on provided arguments
+        Gets sales group animal row(s) based on provided arguments
         Params:
             sales_group_id: The sales group ID
             eid: EID
@@ -30,7 +30,7 @@ class SalesGroupEIDs:
             A list of objects containing EID and corresponding sales group id
         """
         # base query
-        base_query = "SELECT * FROM sales_group_eids"
+        base_query = "SELECT * FROM sales_group_animals"
         query_conditions = []
         query_values = {}
 
@@ -66,7 +66,7 @@ class SalesGroupEIDs:
         for eid_and_visual_id in eids_and_visual_ids:
             self._db.execute(
                 """
-                INSERT INTO sales_group_eids (sales_group_id, eid, visual_id)
+                INSERT INTO sales_group_animals (sales_group_id, eid, visual_id)
                 VALUES (%(sales_group_id)s, %(eid)s, %(visual_id)s)
                 """,
                 {
@@ -85,7 +85,7 @@ class SalesGroupEIDs:
         """
         self._db.execute(
             """
-            DELETE FROM sales_group_eids
+            DELETE FROM sales_group_animals
             WHERE sales_group_id = %(sales_group_id)s
             """,
             {

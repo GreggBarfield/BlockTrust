@@ -14,9 +14,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
                 "sales_group": this.salesGroupID
             }
         ).then((data) => {
-            this.data = data;   
-            this.eids_and_visual_ids_selected = [];
-            this.eids_and_visual_ids_selected.push(...this.data.assigned_eids_for_sales_group)
+            this.data = data;
+            this.eids_and_visual_ids_selected=this.data.assigned_animals;
             this.makeForm();
         });
 
@@ -51,7 +50,14 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         return group;
     }
 
-    createCheckList(values, valuesHeader, valuesChecked, checkboxName){
+    /**
+     * Returns a checklist of EIDs along with corresponding Visual ID
+     * @param {Array} eidAndVisualIDList The list of EID/Visual ID objects
+     * @param {Array} checkedEidAndVisualIDList The list of EID/Visual ID objects which need to be checked
+     * @param {String} checkboxName The name for the checkboxes being created
+     * @returns 
+     */
+    createCheckList(eidAndVisualIDList, checkedEidAndVisualIDList, checkboxName){
         // Creating checklist table
         let checkListTable = document.createElement('table');
         checkListTable.className = "table table-striped table-bordered nowrap";
@@ -60,7 +66,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         //Table header row
         let checkListTableHeadRow0 = document.createElement("tr");
         checkListTableHead.appendChild(checkListTableHeadRow0);
-        const checkListTableHeaders = ["select", valuesHeader, "Visual ID"];
+        const checkListTableHeaders = ["select", "EID", "Visual ID"];
         for (const checkListTableHeaderText of checkListTableHeaders) {
             let th = document.createElement("th");
             th.textContent = checkListTableHeaderText;
@@ -69,7 +75,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let checkListTableBody = document.createElement("tbody");
         checkListTable.appendChild(checkListTableBody);
         //Creating checklist table body
-        for (const value of values) {
+        for (const eidAndVisualID of eidAndVisualIDList) {
             let rowTag = document.createElement("tr");
             checkListTableBody.appendChild(rowTag);
             let tdCheckbox = document.createElement("td");
@@ -77,33 +83,31 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             checkbox.type="checkbox";
             checkbox.name = checkboxName;
             checkbox.className = "checkbox"
-            checkbox.id = value.eid;
-            checkbox.value = value;
-            if(valuesChecked.indexOf(value)!=-1){
+            checkbox.id = eidAndVisualID.eid;
+            checkbox.value = eidAndVisualID;
+            if(checkedEidAndVisualIDList.indexOf(eidAndVisualID)!=-1){
                 checkbox.checked=true;
             }
             checkbox.onchange = ()=>{
-                var selectedCheckbox = document.getElementById(value.eid);
+                var selectedCheckbox = document.getElementById(eidAndVisualID.eid);
                 if(selectedCheckbox.checked==true){
-                this.eids_and_visual_ids_selected.push(value);
+                this.eids_and_visual_ids_selected.push(eidAndVisualID);
                 }
                 else{
                     for(var i=0;i<this.eids_and_visual_ids_selected.length;i++){
-                        if(this.eids_and_visual_ids_selected[i].eid==value.eid){this.eids_and_visual_ids_selected.splice(i,1);}
+                        if(this.eids_and_visual_ids_selected[i].eid==eidAndVisualID.eid){
+                            this.eids_and_visual_ids_selected.splice(i,1);
+                        }
                     }
                 }
             }
             tdCheckbox.appendChild(checkbox);
             rowTag.appendChild(tdCheckbox);
             let tdEID = document.createElement("td");
-            tdEID.textContent = value.eid;
+            tdEID.textContent = eidAndVisualID.eid;
             rowTag.appendChild(tdEID);
-            let visual_id_value = "N/A"
-            if(value.visual_id!=null){
-                visual_id_value = value.visual_id;
-            }
             let tdVisualID = document.createElement("td")
-            tdVisualID.textContent = visual_id_value;
+            tdVisualID.textContent = eidAndVisualID.visual_id != null ? eidAndVisualID.visual_id : "N/A";
             rowTag.appendChild(tdVisualID);
         }
         return checkListTable;
@@ -170,8 +174,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let availableEidGroup = this.createGroup(eidsRow,"Available EIDs:", id);
         let assignedEidGroup = this.createGroup(eidsRow, "Assigned EIDs:", id);
 
-        let availableEidsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, "EID", [], "eidCheckBox") ;
-        let assignedEidsCheckList = this.createCheckList(this.data.assigned_eids_for_sales_group, "EID", this.data.assigned_eids_for_sales_group, "eidCheckBox");
+        let availableEidsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, [], "eidCheckBox") ;
+        let assignedEidsCheckList = this.createCheckList(this.data.assigned_animals, this.data.assigned_animals, "eidCheckBox");
         let selectAll = this.createSelectAllCheckbox("eidCheckBox");
         
         availableEidGroup.append(selectAll);
