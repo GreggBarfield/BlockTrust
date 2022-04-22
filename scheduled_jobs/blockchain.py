@@ -44,11 +44,11 @@ class Blockchain:
                     bc_transaction_id = blockchain_helper.transmit(hashes)
                 except RuntimeError as re:
                     tries += 1
-                    print(f"Try number: ${tries}.")
                     if tries > 3:
                         raise re
                     else:
-                        time.sleep(120)
+                        print(f"Blockchain Thread. Try number: ${tries}. Sleeping for 60 mins.", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                        time.sleep(3600)
                         continue
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
