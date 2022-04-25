@@ -85,7 +85,75 @@ export class AddConnectionsWidget extends Widget {
         companiesFormGroup.append(companyOptions);
         $(companyOptions).select2({multiple: true, placeholder: "Select companies", width: "auto"});
 
+        let notListedCheckBoxFormGroup = document.createElement("div");
+        notListedCheckBoxFormGroup.className = "form-group col-md-6";
+        form.append(notListedCheckBoxFormGroup)
+        let notListedCheckBox = document.createElement("input");
+        notListedCheckBox.type = "checkbox";
+        notListedCheckBox.id = "not_listed";
+        notListedCheckBox.className = "checkbox";
+        let notListedLabel = document.createElement("label");
+        notListedLabel.textContent = "Company Not Listed?";
+        notListedCheckBoxFormGroup.append(notListedCheckBox);
+        notListedCheckBoxFormGroup.append(notListedLabel);
+        notListedCheckBox.onchange = () => {
+            if(document.getElementById("not_listed").checked == true){
+                newCompanyNameInput.disabled = false;
+                newCompanyContactNameInput.disabled = false;
+                newCompanyEmailInput.disabled = false;
+            }
+            else{
+                newCompanyNameInput.disabled = true;
+                newCompanyContactNameInput.disabled = true;
+                newCompanyEmailInput.disabled = true;
+            }
+        };
+
+        let newCompanyNameFormGroup = document.createElement("div")
+        newCompanyNameFormGroup.className = "form-group col-md-6";
+        form.append(newCompanyNameFormGroup);
+
+        let newCompanyNameLabel = document.createElement("label");
+        newCompanyNameLabel.textContent = "New Company name";
+        let newCompanyNameInput = document.createElement("input");
+        newCompanyNameInput.id = "new_company_name";
+        newCompanyNameInput.className = "form-control";
+        newCompanyNameInput.placeholder = "XYZ Feedyard";
+        newCompanyNameInput.disabled = true;
+        newCompanyNameFormGroup.append(newCompanyNameLabel);
+        newCompanyNameFormGroup.append(newCompanyNameInput);
+
+        let newCompanyContactNameFormGroup = document.createElement("div")
+        newCompanyContactNameFormGroup.className = "form-group col-md-6";
+        form.append(newCompanyContactNameFormGroup);
+
+        let newCompanyContactNameLabel = document.createElement("label");
+        newCompanyContactNameLabel.textContent = "Company Contatc name";
+        let newCompanyContactNameInput = document.createElement("input");
+        newCompanyContactNameInput.id = "new_company_contact_name";
+        newCompanyContactNameInput.className = "form-control";
+        newCompanyContactNameInput.placeholder = "John Smith";
+        newCompanyContactNameInput.disabled = true;
+        newCompanyContactNameFormGroup.append(newCompanyContactNameLabel);
+        newCompanyContactNameFormGroup.append(newCompanyContactNameInput);
+
+        let newCompanyEmailFormGroup = document.createElement("div")
+        newCompanyEmailFormGroup.className = "form-group col-md-6";
+        form.append(newCompanyEmailFormGroup);
+
+        let newCompanyEmailLabel = document.createElement("label");
+        newCompanyEmailLabel.textContent = "New Company Email";
+        let newCompanyEmailInput = document.createElement("input");
+        newCompanyEmailInput.id = "new_company_email";
+        newCompanyEmailInput.className = "form-control";
+        newCompanyEmailInput.placeholder = "jsmith@xyzfeedyard.com";
+        newCompanyEmailInput.disabled = true;
+        newCompanyEmailFormGroup.append(newCompanyEmailLabel);
+        newCompanyEmailFormGroup.append(newCompanyEmailInput);
+
         // Fix select2 auto sizing issue
         cardBody.append(form);
+
+        
     }
 }
