@@ -39,7 +39,7 @@ class Blockchain:
                     hashes.append(hash)
                     hash_and_match_ids.append((hash, m["id"]))
 
-                    bc_transaction_id = blockchain_helper.transmit(hashes)
+                bc_transaction_id = blockchain_helper.transmit(hashes)
                 # update matches rows with corresponding transaction id and hash
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
