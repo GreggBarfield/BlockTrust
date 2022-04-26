@@ -13,7 +13,7 @@ def run(db):
     report = db.reports.work_report()
 
     if report is None:
-        print("Sleeping. Current time:", datetime.datetime.now().time())
+        print("Sleeping. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
         sleep(3600)
     else:
         print("Running report:", report['id'], "account id:", report['account_id'])

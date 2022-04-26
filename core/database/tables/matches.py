@@ -436,7 +436,7 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_distinct_eids_by_account(self, account_id, number_of_years):
+    def get_distinct_eids_and_visual_ids_by_account(self, account_id, number_of_years):
         """Return the distinct EIDs in the database for an account.
 
         Params:
@@ -447,7 +447,7 @@ class Matches:
         """
         return self._db.execute_d(
                 """
-                SELECT DISTINCT eid
+                SELECT DISTINCT eid, visual_id
                 FROM matches
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=%(account)s
