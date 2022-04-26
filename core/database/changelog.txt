@@ -1481,3 +1481,7 @@ RENAME TO `sales_group_animals`;
 /* Nisheet Thakur 4/11/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_id;
+
+/* Nisheet Thakur 4/25/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
+UPDATE `products` SET `is_active`=0 WHERE id=@product_id;
