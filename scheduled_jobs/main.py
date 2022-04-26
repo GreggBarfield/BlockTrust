@@ -30,25 +30,25 @@ try:
 
         current_time = datetime.datetime.now().time()
         # this will run once between 3 and 4 AM
-        if datetime.time(3, 0, 0) <= current_time < datetime.time(4, 0, 0):
-            # create new thread only if this thread is not already running
-            if not any(t.getName() == "USDAData" for t in threads):
-                JobRuns(db).insert("USDAData", scheduled_jobs["USDAData"].split('|')[0], scheduled_jobs["USDAData"].split('|')[1])
-                t = Thread(target=get_usda_data, name="USDAData", args=[Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
+        # if datetime.time(3, 0, 0) <= current_time < datetime.time(4, 0, 0):
+        #     # create new thread only if this thread is not already running
+        #     if not any(t.getName() == "USDAData" for t in threads):
+        #         JobRuns(db).insert("USDAData", scheduled_jobs["USDAData"].split('|')[0], scheduled_jobs["USDAData"].split('|')[1])
+        #         t = Thread(target=get_usda_data, name="USDAData", args=[Database(MYSQL_CONFIG)])
+        #         t.start()
+        #         threads.append(t)
+        #         print('Main: Appended thread USDAData', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 7 and 8 AM
-        if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
-            if not any(t.getName() == "Blockchain" for t in threads):
-                job_run_id = JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
-                t = Thread(target=run_bc_tasks, name="Blockchain", args=[job_run_id, Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
-            else:
-                print('Main: Blockchain thread already exists. Not appending again.')
+        # if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
+        if not any(t.getName() == "Blockchain" for t in threads):
+            job_run_id = JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
+            t = Thread(target=run_bc_tasks, name="Blockchain", args=[job_run_id, Database(MYSQL_CONFIG)])
+            t.start()
+            threads.append(t)
+            print('Main: Appended thread Blockchain', 'Total number of threads:', len(threads), 'Current time:', current_time)
+        else:
+            print('Main: Blockchain thread already exists. Not appending again.')
 
         # this will run once between 6 and 7 AM
         if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
