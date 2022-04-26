@@ -13,6 +13,8 @@ from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_eids import SalesGroupEIDs
 from ..database.tables.auction_markets import AuctionMarkets
+from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connection_invites import ConnectionInvites
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -616,3 +618,29 @@ def serve_create_auction_market():
         email=format_field(request.form["email"])
     )
     return {"redirect": request.form['requestRedirectTo']}
+
+@bp.route('/widgets/data/add-connection-request', methods=["POST"])
+@crut.require_account
+def serve_add_connection_request():
+    try:
+        companies = request.json["companies_list"]
+        for company in companies:
+            Connections(g.db).create_connection(g.account.id(), company, connection_status["Pending"])
+        if request.json["unlisted_company"]:
+            ConnectionInvites(g.db).add_connection_invite(
+                from_account=g.account.id(),
+                company_sector=request.json["new_company_sector"],
+                company_name=request.json["new_company_name"],
+                company_contact=request.json["new_company_contact_name"],
+                company_email=request.json["new_company_email"]
+            )
+            send_email(
+                "BlockTrust Network Connection Invite",
+                render_email("send_connection_invite.html", {
+                    'new_company_contact': request.json["new_company_contact_name"],
+                    'account_company': g.account.name()
+                }), request.json["new_company_email"]
+            )
+        return {"redirect": "/dashboard/connections"}
+    except Exception as e:
+        return {"error": str(e)}

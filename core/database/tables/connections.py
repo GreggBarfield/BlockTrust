@@ -83,14 +83,14 @@ class Connections:
         Raises:
             ConnectionException on connection being present or connection request being present
         """
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
-            raise ConnectionException("Account is already connected!")
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
-            raise ConnectionException("Connection request already sent!")
         first_account = Accounts(self._db).get_account_by_id(account_id=from_account_id)
         second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
         from_account_name = first_account.name()
         to_account_name = second_account.name()
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
+            raise ConnectionException(to_account_name + " is already connected!")
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
+            raise ConnectionException("Connection Invite already sent to " + to_account_name)
         self._db.execute(
             """
                 INSERT INTO  connections
