@@ -248,8 +248,6 @@ export class AddConnectionsWidget extends Widget {
                     new_company_email: newCompanyEmailInput.value           
                 }
             }
-        });
-
-        
+        });    
     }
 }
