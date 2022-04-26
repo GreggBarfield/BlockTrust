@@ -213,11 +213,12 @@ def serve_edit_selected_account(account_id):
     return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
 
 
-@bp.route("/employee/dashboard/edit-partner/<int:account_id>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-partner/<int:partner_id>", methods=["GET"])
 @crut.require_employee
-def serve_edit_selected_partner(account_id):
-    account_row = g.db.accounts.get_account_by_id(account_id)
-    return employee_render("/employee/accounts/edit-selected-partner.html", {"account_row": account_row})
+def serve_edit_selected_partner(partner_id):
+    partner_rows = g.db.accounts.get_accounts(id=partner_id)
+    partner_row = partner_rows[0] if len(partner_rows) > 0 else {}
+    return employee_render("/employee/accounts/edit-selected-partner.html", {"partner_row": partner_row})
 
 
 @bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
@@ -237,14 +238,14 @@ def serve_apply_changes_to_account(account_id):
     return {"redirect": "/employee/dashboard"}
 
 
-@bp.route("/employee/dashboard/edit-partner/<int:account_id>/action", methods=["POST"])
+@bp.route("/employee/dashboard/edit-partner/<int:partner_id>/action", methods=["POST"])
 @crut.require_employee
-def serve_apply_changes_to_partner(account_id):
+def serve_apply_changes_to_partner(partner_id):
     is_partner_used_for_signup = 0
     if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
         is_partner_used_for_signup = 1
-    g.db.accounts.update_account(
-        account_id=account_id,
+    g.db.accounts.update_partner(
+        account_id=partner_id,
         company=format_field(request.form["company"]),
         phone=format_field(request.form["phone"]),
         address=format_field(request.form["address"]),

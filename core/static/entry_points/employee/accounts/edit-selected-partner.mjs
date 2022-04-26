@@ -1,13 +1,7 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
 
-$(document).ready(function(){
-    document.getElementById("edit_state").value = account_state;
-    if(account_used_for_signup == 1){
-        document.getElementById("is_partner_used_for_signup").checked = true;
-    }
-    else{
-        document.getElementById("is_partner_used_for_signup").checked = false;
-    }
+document.addEventListener("DOMContentLoaded", function() { 
+    document.getElementById("edit_state").value = partner_state;
 });
 
 let editPartnerAccountForm = $("#edit_partner_account_form");
@@ -22,7 +16,7 @@ let city = editPartnerAccountForm.find("#edit_city");
 let state = editPartnerAccountForm.find("#edit_state");
 let zip_code = editPartnerAccountForm.find("#edit_zip");
 let is_partner_used_for_signup = document.getElementById("is_partner_used_for_signup");
-let action_route = "/employee/dashboard/edit-partner/"+account_id+"/action"
+let action_route = "/employee/dashboard/edit-partner/"+partner_id+"/action"
 
 let form = new AsyncForm({
     action: action_route,
