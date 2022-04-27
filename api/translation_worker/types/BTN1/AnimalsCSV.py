@@ -147,7 +147,7 @@ def handle(db: Database, insert):
     ]
 
     for tag in animal_object_tags:
-        if fields[tag[1]].strip() != "":
+        if tag[1] in fields and fields[tag[1]].strip() != "":
             animal_details[tag[0]] = fields[tag[1]].strip()
 
     if "birthweigh" in fields and fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
