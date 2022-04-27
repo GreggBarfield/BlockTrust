@@ -45,8 +45,8 @@ class Blockchain:
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
                 if number_of_consecutive_uploads % 5 == 0:
-                    print(f"Blockchain thread: 5x uploads reached {number_of_consecutive_uploads}. Sleeping for 50s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
-                    time.sleep(50)
+                    print(f"Blockchain thread: 5x uploads reached {number_of_consecutive_uploads}. Sleeping for 75s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                    time.sleep(75)
                     # if number_of_consecutive_uploads == 300:
                     #     # longer nap
                     #     print(f"Blockchain thread: number of uploads reached 300. Taking 1 hour nap. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
@@ -54,8 +54,8 @@ class Blockchain:
                     #     print("Blockchain thread: Restarting. Number of uploads is 0. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                     #     number_of_consecutive_uploads = 0
                 else:
-                    print("Sleeping 50")
-                    time.sleep(50)
+                    print("Sleeping 75")
+                    time.sleep(75)
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
                 break
