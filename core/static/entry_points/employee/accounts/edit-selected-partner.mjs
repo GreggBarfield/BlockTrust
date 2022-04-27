@@ -16,7 +16,7 @@ let city = editPartnerAccountForm.find("#edit_city");
 let state = editPartnerAccountForm.find("#edit_state");
 let zip_code = editPartnerAccountForm.find("#edit_zip");
 let is_partner_used_for_signup = document.getElementById("is_partner_used_for_signup");
-let action_route = "/employee/dashboard/edit-partner/"+partner_id+"/action"
+let action_route = "/employee/dashboard/edit-partner/"+partner_id;
 
 let form = new AsyncForm({
     action: action_route,
