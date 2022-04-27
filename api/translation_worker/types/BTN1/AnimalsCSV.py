@@ -81,7 +81,7 @@ def handle(db: Database, insert):
     ]
 
     for tag in weaned_object_tags:
-        if fields[tag[1]].strip() != "":
+        if tag[1] in fields and fields[tag[1]].strip() != "":
             weaned_object[tag[0]] = fields[tag[1]].strip()
 
     if "weaningstr" in fields and fields["weaningstr"].strip() != "":
