@@ -382,3 +382,11 @@ def serve_update_account_paid_status():
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
         g.db.accounts.update_account(account_id, manual_paid=0)
     return {}, 200
+
+
+@bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
+def serve_animal_eid(animal_eid):
+    animal = g.db.animals.get_by_eid(animal_eid)
+    if len(animal.matches()) == 0:
+        return employee_render("animals/animal_not_found.html", {"eid": animal_eid})
+    return employee_render("animals/animal.html", {"animal": animal})

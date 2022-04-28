@@ -188,7 +188,7 @@ def serve_search_sales_groups_2():
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_number,g.account.id())
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number, account_id=g.account.id())
     if len(rows) > 0:
         return {
             "matches": rows
@@ -611,3 +611,17 @@ def serve_create_auction_market():
         email=format_field(request.form["email"])
     )
     return {"redirect": request.form['requestRedirectTo']}
+
+@bp.route('/widgets/data/employee_search_by_eid_and_visual_id', methods=['POST'])
+@crut.require_employee
+def serve_employee_search_by_eid_and_visual_id():
+    eid_number = int(request.json["search"]["eid"])
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number, get_results_for_employee=True)
+    if len(rows) > 0:
+        return {
+            "matches": rows
+        }
+    else:
+        return {
+                "matches": []
+        }
