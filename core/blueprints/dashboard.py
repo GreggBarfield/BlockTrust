@@ -586,9 +586,3 @@ def serve_view_notification(notification_id):
         return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
     # If notification is invalid return to main notifications page
     return redirect('/dashboard/notifications')
-
-
-@bp.route("/dashboard/testnewdeco", methods=["GET"])
-@crut.require_account_or_employee
-def serve_testnewdeco():
-    return {"test": "test"}
