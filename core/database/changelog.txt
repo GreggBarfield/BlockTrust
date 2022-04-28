@@ -1471,6 +1471,12 @@ UPDATE `account_links` SET name = company;
 UPDATE account_links AL INNER JOIN accounts A 
 ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
 
+/* Nisheet Thakur 04/08/2022 */
+ALTER TABLE `sales_group_eids`
+ADD COLUMN `visual_id` VARCHAR(16) NULL DEFAULT NULL;
+ALTER TABLE `sales_group_eids`
+RENAME TO `sales_group_animals`;
+
 /* Rohan Sureshkumar 4/8/22 */
  INSERT INTO reports(account_id, query, status)
  SELECT id, CONCAT('{"type": "count_distribution_account_and_sector", "params": {"account_id": ',id,', "sector_id": 4}}'),0
@@ -1484,3 +1490,7 @@ UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_i
 ALTER TABLE `accounts` 
 ADD COLUMN `stripe_account_id` VARCHAR(127) NULL AFTER `stripe_customer_id`,
 ADD COLUMN `is_stripe_charges_enabled` TINYINT NULL DEFAULT 0 AFTER `stripe_account_id`;
+
+/* Nisheet Thakur 4/25/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
+UPDATE `products` SET `is_active`=0 WHERE id=@product_id;

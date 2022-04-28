@@ -11,7 +11,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
-from ..database.tables.sales_group_eids import SalesGroupEIDs
+from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 
 from ..database.tables import zip_codes
@@ -23,6 +23,7 @@ from ..database.const.zip_codes_data import ZIP_CODES
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
+from ..utilities.general_utilities import format_field
 
 from ..config import ROOT as WEBSITE_ROOT
 
@@ -64,8 +65,8 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "account_charges_enabled": sales_group_row["account_charges_enabled"],
-        "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+        "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+        "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
@@ -115,7 +116,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+                "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
@@ -159,7 +160,7 @@ def serve_search_sales_groups_2():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -336,7 +337,7 @@ def serve_archived_sales_group():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
@@ -365,22 +366,26 @@ def serve_get_eids_for_sales_group():
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
-    distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
+    distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
     account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
-        assigned_eids = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_id)))
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
-    available_eids = []
+    available_eids_with_visual_ids = []
     for distinct_eid in distinct_eids:
         if distinct_eid["eid"] not in assigned_eids_for_account:
-            available_eids.append(distinct_eid["eid"])
+            available_eids_with_visual_ids.append({
+                "eid": distinct_eid["eid"],
+                "visual_id": distinct_eid["visual_id"]
+            })
+    assigned_animals = SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"])
     return {
         "id": sales_group_row["id"],
-        "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
-        "available_eids": available_eids
+        "assigned_animals": assigned_animals,
+        "available_eids_with_visual_ids": available_eids_with_visual_ids
     }
 
 
@@ -388,8 +393,8 @@ def serve_get_eids_for_sales_group():
 @crut.require_account
 def serve_save_eids_for_sales_group():
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
-    SalesGroupEIDs(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
-    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids=request.json["eids"])
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
@@ -595,3 +600,22 @@ def serve_remove_usda_favorite():
     request_json = json.loads(request.data)
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
+
+@bp.route('/widgets/data/create-auction-market', methods=["POST"])
+def serve_create_auction_market():
+    if len(request.form["name"].strip()) == 0:
+        raise ExportException("Auction market Name cannot be blank")
+    if len(request.form["city"].strip()) == 0:
+        raise ExportException("Auction market City cannot be blank")
+    if len(request.form["state"].strip()) == 0:
+        raise ExportException("Auction market State cannot be blank")
+    AuctionMarkets(g.db).insert_auction_market(
+        name=format_field(request.form["name"]),
+        address=format_field(request.form["address"]),
+        city=format_field(request.form["city"]),
+        state=format_field(request.form["state"]),
+        zip_code=format_field(request.form["zip"]),
+        phone=format_field(request.form["phone"]),
+        email=format_field(request.form["email"])
+    )
+    return {"redirect": request.form['requestRedirectTo']}
