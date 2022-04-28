@@ -375,12 +375,11 @@ class Accounts:
                 "is_partner_used_for_signup": is_partner_used_for_signup
             }
         )
-        
         partner = self.get_account_by_id(self._db.last_row_id())
         return partner
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE,
-        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE, partner_account=NO_VALUE):
+        phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE, partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -494,6 +493,12 @@ class Accounts:
                             "partner_account=:partner_account",
                             partner_account=partner_account
                         )
+        if is_partner_used_for_signup is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "is_partner_used_for_signup=:is_partner_used_for_signup",
+                            is_partner_used_for_signup=is_partner_used_for_signup
+                        )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
             #  check if last character in SQL is , and remove it if so
@@ -511,7 +516,87 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
+    def update_partner(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
+                       address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
+                       stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
+                       partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE):
+        """
+        Updates an account.
+
+        Params:
+            account_id: id of the account to update
+            name: the account name
+            company: the company name
+            sector_id: the sector number
+            address: Account address
+            city: Account city
+            state: Account state
+            zip: Account zip
+            phone: Phone number specified for the account
+            token: token that we give the customer to use our apis
+            stripe_paid: indicates if this account has an active subscription in stripe
+            manual_paid: indicates if it is a manually marked paid account
+            stripe_customer_id: the id for the corresponding customer object in stripe
+        """
+        # base query
+        base_query = "UPDATE accounts "
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = account_id
+        if name is not NO_VALUE:
+            query_conditions.append(" name = %(name)s")
+            query_values["name"] = name
+        if company is not NO_VALUE:
+            query_conditions.append(" company = %(company)s")
+            query_values["company"] = company
+        if sector_id is not NO_VALUE:
+            query_conditions.append(" sector = %(sector_id)s")
+            query_values["sector_id"] = sector_id
+        if affiliate_id is not NO_VALUE:
+            query_conditions.append(" affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+        if address is not NO_VALUE:
+            query_conditions.append(" address = %(address)s")
+            query_values["address"] = address
+        if city is not NO_VALUE:
+            query_conditions.append(" city = %(city)s")
+            query_values["city"] = city
+        if state is not NO_VALUE:
+            query_conditions.append(" state = %(state)s")
+            query_values["state"] = state
+        if zip is not NO_VALUE:
+            query_conditions.append(" zip = %(zip)s")
+            query_values["zip"] = zip
+        if phone is not NO_VALUE:
+            query_conditions.append(" phone = %(phone)s")
+            query_values["phone"] = phone
+        if token is not NO_VALUE:
+            query_conditions.append(" token = %(token)s")
+            query_values["token"] = token
+        if stripe_paid is not NO_VALUE:
+            query_conditions.append(" stripe_paid = %(stripe_paid)s")
+            query_values["stripe_paid"] = stripe_paid
+        if manual_paid is not NO_VALUE:
+            query_conditions.append(" manual_paid = %(manual_paid)s")
+            query_values["manual_paid"] = manual_paid
+        if stripe_customer_id is not NO_VALUE:
+            query_conditions.append(" stripe_customer_id = %(stripe_customer_id)s")
+            query_values["stripe_customer_id"] = stripe_customer_id
+        if partner_account is not NO_VALUE:
+            query_conditions.append(" partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+        if is_partner_used_for_signup is not NO_VALUE:
+            query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
+            query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Account")
+
+    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
                         affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, 
                         is_partner_used_for_signup=NO_VALUE, token=NO_VALUE):
         """
@@ -525,6 +610,10 @@ class Accounts:
 
         query_conditions = []
         query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
 
         if company is not NO_VALUE:
             query_conditions.append("company = %(company)s")
