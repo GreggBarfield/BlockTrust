@@ -20,6 +20,7 @@ export class SalesGroupsCommonForm{
             this.marketingEndDateValue = this.data.end;
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
+            this.marketingPriceValue = this.data.price;
             this.characteristicBreedsValue = this.data.reported.breeds;
             this.characteristicsWeightValue = this.data.reported.weight;
             this.characteristicsWeightVarianceValue = this.data.reported.weight_variance;
@@ -49,6 +50,7 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = "Off Ranch";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
+            this.marketingPriceValue = 0;
             this.characteristicBreedsValue = [];
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
@@ -116,11 +118,14 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
+            if (isDecimal) {
+                input.step = "0.01";
+            }
             input.value = value;
             input.className = "form-control";
             input.id = id;
@@ -225,6 +230,7 @@ export class SalesGroupsCommonForm{
         let salesGroupName = createText(marketingRow,"Sales Group Nickname", this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
         let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
+        let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
@@ -529,6 +535,7 @@ export class SalesGroupsCommonForm{
                     "start": marketingDates.getStartTime(),
                     "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
+                    "price": marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
