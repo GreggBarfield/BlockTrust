@@ -9,7 +9,7 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import AccountsException, Accounts
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
@@ -627,9 +627,15 @@ def serve_create_auction_market():
 @crut.require_account
 def serve_add_connection_request():
     try:
-        companies = request.json["invited_account_ids_list"]
-        for company in companies:
-            Connections(g.db).create_connection(g.account.id(), company, connection_status["Pending"])
+        invited_accounts = request.json["invited_account_ids_list"]
+        for invited_account in invited_accounts:
+            invited_account_row = Accounts(g.db).get_account_by_id(account_id=invited_account)
+            if Connections(g.db).get_connection_between(g.account.id(), invited_account, connection_status["Connected"]) is not None:
+                raise ExportException(invited_account_row.name() + " is already connected!")
+            if Connections(g.db).get_connection_between(g.account.id(), invited_account, connection_status["Pending"]) is not None:
+                raise ExportException("Connection Invite already sent to " + invited_account_row.name())
+        for invited_account in invited_accounts:
+            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
@@ -647,4 +653,4 @@ def serve_add_connection_request():
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:
-        return {"error": str(e)}
+        raise ExportException(str(e))
