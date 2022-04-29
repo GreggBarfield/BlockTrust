@@ -22,7 +22,8 @@ bp = Blueprint('input_blueprint', __name__)
 def before_request():
     """Per-request setup."""
     g.db = Database(MYSQL_CONFIG)
-    g.api_dev_db = Database(API_DEV_MYSQL_CONFIG)
+    if API_DEV_MYSQL_CONFIG != "same":
+        g.api_dev_db = Database(API_DEV_MYSQL_CONFIG)
 
 
 @bp.route('/', methods=["GET", "POST"])
@@ -111,7 +112,7 @@ def serve_api():
                 sql, ss
             )
 
-            if g.api_dev_db != "same":
+            if API_DEV_MYSQL_CONFIG != "same":
                 g.api_dev_db.execute(
                     sql, ss
                 )
