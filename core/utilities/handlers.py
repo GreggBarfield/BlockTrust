@@ -66,7 +66,7 @@ def attach_handlers(app):
 
     @app.errorhandler(RequireAccountOrEmployeeFailed)
     def handle_require_account_or_employee_failed(e):
-        return redirect("/login")
+        return respond(401, "Not authorized", e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):

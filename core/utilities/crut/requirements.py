@@ -47,8 +47,8 @@ class RequireAccountOrEmployeeFailed(Exception):
 
 
 def _require_account_or_employee():
-    if 'account' in g and g.account is not None:
-        if 'user' in g and g.user is not None:
+    if 'user' in g and g.user is not None:
+        if 'account' in g and g.account is not None:
             return
     if 'employee' in g and g.employee is not None:
         return
