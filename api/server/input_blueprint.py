@@ -11,7 +11,7 @@ from flask import (
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
 from core.database.database import Database
-from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG
+from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, API_DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
 
 
@@ -22,6 +22,7 @@ bp = Blueprint('input_blueprint', __name__)
 def before_request():
     """Per-request setup."""
     g.db = Database(MYSQL_CONFIG)
+    g.api_dev_db = Database(API_DEV_MYSQL_CONFIG)
 
 
 @bp.route('/', methods=["GET", "POST"])
@@ -109,6 +110,11 @@ def serve_api():
             g.db.execute(
                 sql, ss
             )
+
+            if g.api_dev_db != "same":
+                g.api_dev_db.execute(
+                    sql, ss
+                )
 
             left = right
 
