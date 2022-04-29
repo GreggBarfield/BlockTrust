@@ -94,6 +94,9 @@ class Account:
     def archived(self):
         return self._row['archived']
 
+    def is_partner_used_for_signup(self):
+        return self._row['is_partner_used_for_signup']
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
