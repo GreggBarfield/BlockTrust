@@ -595,14 +595,14 @@ def serve_remove_usda_favorite():
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
 
-@bp.route('/widgets/data/get_accounts', methods=['POST'])
+@bp.route('/widgets/data/get_accounts_except_current_and_sectors', methods=['POST'])
 @crut.require_account
 def serve_get_accounts():
     account_rows = g.db.accounts.get_accounts(is_partner=0)
     for account_row in account_rows:
         if account_row["id"] == g.account.id():
             account_rows.remove(account_row)
-    return {"account_rows": account_rows}
+    return {"account_rows": account_rows, "sectors_by_name": sectors_by_name}
 
 @bp.route('/widgets/data/create-auction-market', methods=["POST"])
 def serve_create_auction_market():
@@ -627,23 +627,23 @@ def serve_create_auction_market():
 @crut.require_account
 def serve_add_connection_request():
     try:
-        companies = request.json["companies_list"]
+        companies = request.json["invited_account_ids_list"]
         for company in companies:
             Connections(g.db).create_connection(g.account.id(), company, connection_status["Pending"])
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
-                company_sector=request.json["new_company_sector"],
-                company_name=request.json["new_company_name"],
-                company_contact=request.json["new_company_contact_name"],
-                company_email=request.json["new_company_email"]
+                company_sector=request.json["new_account_sector"],
+                company_name=request.json["new_account_name"],
+                company_contact=request.json["new_account_contact_name"],
+                company_email=request.json["new_account_email"]
             )
             send_email(
                 "BlockTrust Network Connection Invite",
                 render_email("send_connection_invite.html", {
-                    'new_company_contact': request.json["new_company_contact_name"],
+                    'new_company_contact': request.json["new_account_contact_name"],
                     'account_company': g.account.name()
-                }), request.json["new_company_email"]
+                }), request.json["new_account_email"]
             )
         return {"redirect": "/dashboard/connections"}
     except Exception as e:

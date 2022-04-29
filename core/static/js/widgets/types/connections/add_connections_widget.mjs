@@ -8,9 +8,10 @@ export class AddConnectionsWidget extends Widget {
 
     initType() {
     this.getData(
-        "get_accounts"
+        "get_accounts_except_current_and_sectors"
     ).then((data) => {
-        this.account_rows = data.account_rows;
+        this.accountRows = data.account_rows;
+        this.sectorsByName = data.sectors_by_name;
         this.makeForm();
     });
 
@@ -53,61 +54,63 @@ export class AddConnectionsWidget extends Widget {
         selectAllFeedersPackersFormGroup.append(selectAllFeedersPackersCheckBox);
         selectAllFeedersPackersFormGroup.append(selectAllFeedersPackersLabel);
         selectAllFeedersPackersCheckBox.onchange = () => {
-            if(document.getElementById("select_all_feeders_packers").checked == true){
-                $(companyOptions).empty().trigger('change');
+            if(selectAllFeedersPackersCheckBox.checked == true){
+                $(companyOptionsSelect).empty().trigger('change');
                 let selectedCompanyData = [];
-                sectorOptions.value = 3;
-                //$(sectorOptions).trigger('change');
-                sectorOptions.onchange();
-                for(const account_row of this.account_rows){
-                    if(account_row.sector == "6" || account_row.sector == "7"){
-                        selectedCompanyData.push(account_row.id);
+                sectorOptionsSelect.value = 3;
+                sectorOptionsSelect.onchange();
+                for(const accountRow of this.accountRows){
+                    if(accountRow.sector == this.sectorsByName["Feedlot"]|| accountRow.sector == this.sectorsByName["Buyer"]){
+                        selectedCompanyData.push(accountRow.id);
                     } 
                 }
-                $(companyOptions).val(selectedCompanyData);
-                $(companyOptions).trigger('change');
+                $(companyOptionsSelect).val(selectedCompanyData);
+                $(companyOptionsSelect).trigger('change');
             }
             else{
-                sectorOptions.value = 0;
-                $(sectorOptions).trigger('change');
-                $(companyOptions).trigger('change');
+                sectorOptionsSelect.value = 0;
+                sectorOptionsSelect.onchange();
             }
-            
         }
 
-        let sectors = [{id: 4, name: "Cow-Calf"}, {id: 5, name: "Auction House"}, {id: 6, name: "Feedlot"}, {id: 7, name: "Packer"}, {id: 3, name: "All Sectors"}];
         let sectorOptionsFormGroup = document.createElement("div");
         sectorOptionsFormGroup.className = "form-group col-md-6";
         form.append(sectorOptionsFormGroup);
 
         let sectorOptionsLabel = document.createElement("label");
         sectorOptionsLabel.textContent = "Sector";
-        let sectorOptions = document.createElement("select");
-        sectorOptions.id = "sector";
-        sectorOptions.className = "form-control";
-        $(sectorOptions).append('<option disabled selected value="0"> -- Select an option -- </option>');
-        for (var sector of sectors) {
-            $(sectorOptions).append('<option value=' + sector.id + '>' + sector.name + '</option>');
+        let sectorOptionsSelect = document.createElement("select");
+        sectorOptionsSelect.id = "sector";
+        sectorOptionsSelect.className = "form-control";
+        let defaultOption = new Option("---Select an option---", 0);
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        let allSectorsOption = new Option("All Sectors", 3);
+        sectorOptionsSelect.appendChild(defaultOption);
+        sectorOptionsSelect.appendChild(allSectorsOption);
+        for (var sectorName in this.sectorsByName) {
+            var option = new Option(sectorName, this.sectorsByName[sectorName]);
+            sectorOptionsSelect.appendChild(option);
         }
         sectorOptionsFormGroup.append(sectorOptionsLabel);
-        sectorOptionsFormGroup.append(sectorOptions);
-        sectorOptions.onchange = () =>{
-            $(companyOptions).empty().trigger("change");
-            let companyData = [];
-            if(sectorOptions.value == 3){
-                for(const account_row of this.account_rows){
-                        companyData.push({id: account_row.id, text: account_row.name});
+        sectorOptionsFormGroup.append(sectorOptionsSelect);
+        sectorOptionsSelect.onchange = () =>{
+            $(companyOptionsSelect).empty().trigger("change");
+            let accountsList = [];
+            if(sectorOptionsSelect.value == 3){
+                for(const accountRow of this.accountRows){
+                        accountsList.push({id: accountRow.id, text: accountRow.name});
                 }
             }
             else{
-                for(const account_row of this.account_rows){
-                    if(sectorOptions.value == account_row.sector){
-                        companyData.push({id: account_row.id, text: account_row.name});
+                for(const accountRow of this.accountRows){
+                    if(sectorOptionsSelect.value == accountRow.sector){
+                        accountsList.push({id: accountRow.id, text: accountRow.name});
                     } 
                 }
             }
-            $(companyOptions).select2({
-                data: companyData,
+            $(companyOptionsSelect).select2({
+                data: accountsList,
                 multiple: true,
                 placeholder: "Select companies"
             });
@@ -119,98 +122,100 @@ export class AddConnectionsWidget extends Widget {
 
         let companiesLabel = document.createElement("label");
         companiesLabel.textContent = "Companies";
-        let companyOptions = document.createElement("select");
-        companyOptions.id = "companies";
-        companyOptions.className = "select2-hidden-accessible";
+        let companyOptionsSelect = document.createElement("select");
+        companyOptionsSelect.id = "companies";
         companiesFormGroup.append(companiesLabel);
-        companiesFormGroup.append(companyOptions);
-        $(companyOptions).select2({multiple: true, placeholder: "Select companies"});
+        companiesFormGroup.append(companyOptionsSelect);
+        $(companyOptionsSelect).select2({multiple: true, placeholder: "Select companies"});
 
         let notListedCheckBoxFormGroup = document.createElement("div");
         notListedCheckBoxFormGroup.className = "form-group col-md-6";
         form.append(notListedCheckBoxFormGroup)
         let notListedCheckBox = document.createElement("input");
         notListedCheckBox.type = "checkbox";
-        notListedCheckBox.id = "not_listed";
+        notListedCheckBox.id = "notListed";
         notListedCheckBox.className = "checkbox";
         let notListedLabel = document.createElement("label");
         notListedLabel.textContent = "Company Not Listed?";
         notListedCheckBoxFormGroup.append(notListedCheckBox);
         notListedCheckBoxFormGroup.append(notListedLabel);
         notListedCheckBox.onchange = () => {
-            if(document.getElementById("not_listed").checked == true){
-                newCompanySectorOptions.disabled = false;
-                newCompanyNameInput.disabled = false;
-                newCompanyContactNameInput.disabled = false;
-                newCompanyEmailInput.disabled = false;
+            if(notListedCheckBox.checked == true){
+                newAccountSectorOptions.disabled = false;
+                newAccountNameInput.disabled = false;
+                newAccountContactNameInput.disabled = false;
+                newAccountEmailInput.disabled = false;
             }
             else{
-                newCompanySectorOptions.disabled = true;
-                newCompanyNameInput.disabled = true;
-                newCompanyContactNameInput.disabled = true;
-                newCompanyEmailInput.disabled = true;
+                newAccountSectorOptions.disabled = true;
+                newAccountNameInput.disabled = true;
+                newAccountContactNameInput.disabled = true;
+                newAccountEmailInput.disabled = true;
             }
         };
 
-        let newCompanySectors = [{id: 4, name: "Cow-Calf"}, {id: 5, name: "Auction House"}, {id: 6, name: "Feedlot"}, {id: 7, name: "Packer"}];
-        let newCompanySectorOptionsFormGroup = document.createElement("div");
-        newCompanySectorOptionsFormGroup.className = "form-group col-md-6";
-        form.append(newCompanySectorOptionsFormGroup);
+        let newAccountSectorOptionsFormGroup = document.createElement("div");
+        newAccountSectorOptionsFormGroup.className = "form-group col-md-6";
+        form.append(newAccountSectorOptionsFormGroup);
 
-        let newCompanySectorOptionsLabel = document.createElement("label");
-        newCompanySectorOptionsLabel.textContent = "New Company Sector";
-        let newCompanySectorOptions = document.createElement("select");
-        newCompanySectorOptions.id = "new_company_sector";
-        newCompanySectorOptions.className = "form-control";
-        newCompanySectorOptions.disabled = true;
-        $(newCompanySectorOptions).append('<option disabled selected value="0"> -- Select an option -- </option>');
-        for (var sector of newCompanySectors) {
-            $(newCompanySectorOptions).append('<option value=' + sector.id + '>' + sector.name + '</option>');
+        let newAccountSectorOptionsLabel = document.createElement("label");
+        newAccountSectorOptionsLabel.textContent = "New Company Sector";
+        let newAccountSectorOptions = document.createElement("select");
+        newAccountSectorOptions.id = "newAccountSector";
+        newAccountSectorOptions.className = "form-control";
+        newAccountSectorOptions.disabled = true;
+        defaultOption = new Option("---Select an option---", 0);
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        newAccountSectorOptions.appendChild(defaultOption)
+        for (var sectorName in this.sectorsByName) {
+            var option = new Option(sectorName, this.sectorsByName[sectorName]);
+            newAccountSectorOptions.appendChild(option);
         }
-        newCompanySectorOptionsFormGroup.append(newCompanySectorOptionsLabel);
-        newCompanySectorOptionsFormGroup.append(newCompanySectorOptions);
+        newAccountSectorOptionsFormGroup.append(newAccountSectorOptionsLabel);
+        newAccountSectorOptionsFormGroup.append(newAccountSectorOptions);
 
-        let newCompanyNameFormGroup = document.createElement("div")
-        newCompanyNameFormGroup.className = "form-group col-md-6";
-        form.append(newCompanyNameFormGroup);
+        let newAccountNameFormGroup = document.createElement("div")
+        newAccountNameFormGroup.className = "form-group col-md-6";
+        form.append(newAccountNameFormGroup);
 
-        let newCompanyNameLabel = document.createElement("label");
-        newCompanyNameLabel.textContent = "New Company name";
-        let newCompanyNameInput = document.createElement("input");
-        newCompanyNameInput.id = "new_company_name";
-        newCompanyNameInput.className = "form-control";
-        newCompanyNameInput.placeholder = "XYZ Feedyard";
-        newCompanyNameInput.disabled = true;
-        newCompanyNameFormGroup.append(newCompanyNameLabel);
-        newCompanyNameFormGroup.append(newCompanyNameInput);
+        let newAccountNameLabel = document.createElement("label");
+        newAccountNameLabel.textContent = "New Company name";
+        let newAccountNameInput = document.createElement("input");
+        newAccountNameInput.id = "new_company_name";
+        newAccountNameInput.className = "form-control";
+        newAccountNameInput.placeholder = "XYZ Feedyard";
+        newAccountNameInput.disabled = true;
+        newAccountNameFormGroup.append(newAccountNameLabel);
+        newAccountNameFormGroup.append(newAccountNameInput);
 
-        let newCompanyContactNameFormGroup = document.createElement("div")
-        newCompanyContactNameFormGroup.className = "form-group col-md-6";
-        form.append(newCompanyContactNameFormGroup);
+        let newAccountContactNameFormGroup = document.createElement("div")
+        newAccountContactNameFormGroup.className = "form-group col-md-6";
+        form.append(newAccountContactNameFormGroup);
 
-        let newCompanyContactNameLabel = document.createElement("label");
-        newCompanyContactNameLabel.textContent = "Company Contact name";
-        let newCompanyContactNameInput = document.createElement("input");
-        newCompanyContactNameInput.id = "new_company_contact_name";
-        newCompanyContactNameInput.className = "form-control";
-        newCompanyContactNameInput.placeholder = "John Smith";
-        newCompanyContactNameInput.disabled = true;
-        newCompanyContactNameFormGroup.append(newCompanyContactNameLabel);
-        newCompanyContactNameFormGroup.append(newCompanyContactNameInput);
+        let newAccountContactNameLabel = document.createElement("label");
+        newAccountContactNameLabel.textContent = "Company Contact name";
+        let newAccountContactNameInput = document.createElement("input");
+        newAccountContactNameInput.id = "new_company_contact_name";
+        newAccountContactNameInput.className = "form-control";
+        newAccountContactNameInput.placeholder = "John Smith";
+        newAccountContactNameInput.disabled = true;
+        newAccountContactNameFormGroup.append(newAccountContactNameLabel);
+        newAccountContactNameFormGroup.append(newAccountContactNameInput);
 
-        let newCompanyEmailFormGroup = document.createElement("div")
-        newCompanyEmailFormGroup.className = "form-group col-md-6";
-        form.append(newCompanyEmailFormGroup);
+        let newAccountEmailFormGroup = document.createElement("div")
+        newAccountEmailFormGroup.className = "form-group col-md-6";
+        form.append(newAccountEmailFormGroup);
 
-        let newCompanyEmailLabel = document.createElement("label");
-        newCompanyEmailLabel.textContent = "New Company Email";
-        let newCompanyEmailInput = document.createElement("input");
-        newCompanyEmailInput.id = "new_company_email";
-        newCompanyEmailInput.className = "form-control";
-        newCompanyEmailInput.placeholder = "jsmith@xyzfeedyard.com";
-        newCompanyEmailInput.disabled = true;
-        newCompanyEmailFormGroup.append(newCompanyEmailLabel);
-        newCompanyEmailFormGroup.append(newCompanyEmailInput);
+        let newAccountEmailLabel = document.createElement("label");
+        newAccountEmailLabel.textContent = "New Company Email";
+        let newAccountEmailInput = document.createElement("input");
+        newAccountEmailInput.id = "new_company_email";
+        newAccountEmailInput.className = "form-control";
+        newAccountEmailInput.placeholder = "jsmith@xyzfeedyard.com";
+        newAccountEmailInput.disabled = true;
+        newAccountEmailFormGroup.append(newAccountEmailLabel);
+        newAccountEmailFormGroup.append(newAccountEmailInput);
 
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
@@ -240,12 +245,12 @@ export class AddConnectionsWidget extends Widget {
             asJSON: true,
             getData: () => {
                 return {
-                    companies_list: $(companyOptions).val(),
-                    new_company_sector: new_company_sector.value,
+                    invited_account_ids_list: $(companyOptionsSelect).val(),
+                    new_account_sector: newAccountSector.value,
                     unlisted_company: notListedCheckBox.checked,
-                    new_company_name: newCompanyNameInput.value,
-                    new_company_contact_name: newCompanyContactNameInput.value,
-                    new_company_email: newCompanyEmailInput.value           
+                    new_account_name: newAccountNameInput.value,
+                    new_account_contact_name: newAccountContactNameInput.value,
+                    new_account_email: newAccountEmailInput.value           
                 }
             }
         });    
