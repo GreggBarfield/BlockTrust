@@ -292,7 +292,7 @@ def serve_stripe_account():
     sig_header = request.headers.get('stripe-signature')
 
     DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Enpoint secret: {endpoint_secret}",
-     json.dumps(request.data.decode('utf-8')))
+     json.dumps(json.loads(request.data)))
 
     try:
         event = stripe.Webhook.construct_event(
