@@ -47,10 +47,19 @@ class RequireAccountOrEmployeeFailed(Exception):
 
 
 def _require_account_or_employee():
-    if 'user' in g and g.user is not None:
-        if 'account' in g and g.account is not None:
-            return
-    if 'employee' in g and g.employee is not None:
+    try:
+        _require_user()
+        _require_account()
+    except (RequireUserFailed, RequireAccountFailed):
+        pass
+    else:
+        return
+
+    try:
+        _require_employee()
+    except RequireEmployeeFailed:
+        pass
+    else:
         return
     raise RequireAccountOrEmployeeFailed()
 
