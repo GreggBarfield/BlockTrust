@@ -17,7 +17,7 @@ def handle(db: Database, insert):
         "Sex": "sex",
         "FarmID": "farmid",
         "ZipCode": "zipcode",
-        "PatronID": "patronid",
+        "PatronId": "patronid",
         "VisualID": "visualid",
         "WeanDate": "weandate",
         "CreepFeed": "creepfeed",
@@ -25,7 +25,7 @@ def handle(db: Database, insert):
         "SysEndTime": "end_time",
         "WeanWeight": "weanweight",
         "BirthWeight": "birthweigh",
-        "ElectronicID": "electronic",
+        "EID": "electronic",
         "SysStartTime": "st_time",
         "ApplicationID": "applicatio",
         "CalfBirthDate": "calfbirthd",
@@ -123,7 +123,7 @@ def handle(db: Database, insert):
     if "salelocati" in fields and fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if "numberofca" in fields and  fields['numberofca'] != '' and int(fields['numberofca']) > 0:
+    if "numberofca" in fields and fields['numberofca'] != '' and int(fields['numberofca']) > 0:
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
