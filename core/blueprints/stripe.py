@@ -300,7 +300,7 @@ def serve_stripe_account():
         )
     except ValueError as e:
         # Invalid payload
-        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e), json.dumps(request.data.decode('utf-8')))
+        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e), json.dumps(json.loads(request.data)))
         raise ExportException(str(e))
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
@@ -310,8 +310,8 @@ def serve_stripe_account():
     if event.type == 'account.updated':
         stripe_account = event.data.object
         accounts_table = Accounts(g.db)
-        account = accounts_table.get_accounts(stripe_account_id=stripe_account.id)[0]
-        accounts_table.update_account(account_id=account["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+        if len(accounts := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
+            accounts_table.update_account(account_id=accounts[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
