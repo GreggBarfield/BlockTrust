@@ -204,7 +204,7 @@ def create_sales_group_payment():
             params = {
                 'transfer_data': {
                     'destination': account[0]["stripe_account_id"]
-                },  
+                },
                 'automatic_payment_methods': {
                     'enabled': True,
                 },
@@ -281,7 +281,7 @@ def _generate_account_link(stripe_account_id, origin):
     )
     return account_link.url
 
-@bp.route('/stripe/handle-account-events', methods=['POST'])
+@bp.route('/stripe/connect/account-events', methods=['POST'])
 def serve_stripe_account():
     payload = request.data
     print("request", request.data)
