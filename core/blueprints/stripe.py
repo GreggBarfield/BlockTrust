@@ -1,4 +1,3 @@
-from msilib.schema import Error
 from flask import (
     Flask, Blueprint, request, g, session, redirect, url_for
 )
