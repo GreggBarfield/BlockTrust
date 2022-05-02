@@ -1,3 +1,4 @@
+from msilib.schema import Error
 from flask import (
     Flask, Blueprint, request, g, session, redirect, url_for
 )
@@ -5,6 +6,8 @@ from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 import stripe
 import json
 from ..database.tables.accounts import Accounts,AccountsException
+from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.error_logs import ErrorLogs
 from ..database.objects.account import AccountException
 from ..common_exceptions import ExportException
 from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
@@ -289,15 +292,20 @@ def serve_stripe_account():
     endpoint_secret = ACCOUNT_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
 
+    DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Enpoint secret: {endpoint_secret}",
+     json.dumps(request.data.decode('utf-8')))
+
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
         )
     except ValueError as e:
         # Invalid payload
+        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e), json.dumps(request.data.decode('utf-8')))
         raise ExportException(str(e))
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
+        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e))
         raise ExportException(str(e))
 
     if event.type == 'account.updated':
