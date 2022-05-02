@@ -1436,7 +1436,22 @@ values("USCT", @product_id, 20);
 /* Nisheet Thakur 03/16/2022 */
 ALTER TABLE `sales_groups` 
 ADD COLUMN `price` DECIMAL(8,2) DEFAULT 0,
-ADD COLUMN `is_sold` TINYINT DEFAULT 0;
+ADD COLUMN `is_sold` TINYINT DEFAULT 0,
+ADD COLUMN `buyer_account_id` NULL AFTER `is_sold`;
+
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_account_id_accounts`
+  FOREIGN KEY (`account`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `example_db_1`.`sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_buyer_account_id_id_accounts`
+  FOREIGN KEY (`buyer_account_id`)
+  REFERENCES `example_db_1`.`accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
 
 /* Conner Charles 03/11/2022 */
 ALTER TABLE `usda_reports` 

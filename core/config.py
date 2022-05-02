@@ -74,6 +74,7 @@ SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 SUPPORT_TAG_STORE_EMAIL = config_file["support"]["general_tag_store_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+ACCOUNT_WEBHOOK_SECRET = config_file["stripe"]["account_webhook_secret"]
 
 EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
 

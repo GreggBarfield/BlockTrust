@@ -52,7 +52,7 @@ class SalesGroups:
     """
 
     _STANDARD_SELECT = """
-        SELECT sales_groups.*, accounts.name AS account_name,
+        SELECT sales_groups.*, accounts.name AS account_name, accounts.is_stripe_charges_enabled AS is_account_charges_enabled,
                 auction_sales.name AS auction_sale_name
             FROM sales_groups
             LEFT JOIN accounts ON sales_groups.account=accounts.id
@@ -207,7 +207,7 @@ class SalesGroups:
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
-        delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE):
+        delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -268,6 +268,9 @@ class SalesGroups:
         if is_sold is not NO_VALUE:
             query_conditions.append(" is_sold = %(is_sold)s")
             query_values["is_sold"] = is_sold
+        if buyer_account_id is not NO_VALUE:
+            query_conditions.append(" buyer_account_id = %(buyer_account_id)s")
+            query_values["buyer_account_id"] = buyer_account_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
@@ -341,11 +344,8 @@ class SalesGroups:
         )
         return self._translate_json(sales_groups)
 
-    def validate_or_fail_sales_group(self, group_name=NO_VALUE, zip=NO_VALUE, account_id=NO_VALUE,
-            delivery_location_type=NO_VALUE, count=NO_VALUE, weight=NO_VALUE, weight_variance=NO_VALUE,
-            breeds=NO_VALUE, usda_frame_size=NO_VALUE, muscling=NO_VALUE, horns=NO_VALUE,
-            start=NO_VALUE, end=NO_VALUE, auction_sale=NO_VALUE, delivery_location=NO_VALUE,
-            auction_market_location=NO_VALUE, images=NO_VALUE):
+    def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
+            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price):
         """
         Validates that the values received for a sales group is valid
 
@@ -411,3 +411,5 @@ class SalesGroups:
             # it was changed to a non-None value, verify new is published
             if not AuctionSales(self._db).auction_sales.get_auction_sale_by_id(auction_sale)["published"]:
                 raise ExportException("Auction sale specified is not published yet.")
+        if price == "0":
+            raise ExportException("Sales Group price is not provided")

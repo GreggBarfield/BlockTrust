@@ -4,14 +4,13 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
-    constructor(data, attachTo = null, currentAccount) {
+    constructor(data, attachTo = null) {
         this.frame = null;
 
         this.box = document.createElement("div");
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
-        this.currentAccount = currentAccount;
         this.data = data;
         this.createDisplay();
 
@@ -133,19 +132,19 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
-            if(this.currentAccount !== this.data["account"] && this.data["is_sold"] == 0){
-                let transactionButton = document.createElement("button");
-                transactionButton.className = "btn btn-sm btn-outline-primary";
-                transactionButton.style = "float:right"
-                transactionButton.textContent = "Transaction";
-                transactionButton.addEventListener("click", () => {
-                    window.location.href = "/dashboard/sales-groups/transaction/"+this.data["id"];
+            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1){
+                let purchaseButton = document.createElement("button");
+                purchaseButton.className = "btn btn-sm btn-success";
+                purchaseButton.style = "float:right"
+                purchaseButton.textContent = "Purchase";
+                purchaseButton.addEventListener("click", () => {
+                    window.location.href = "/dashboard/sales-groups/purchase/"+this.data["id"];
                 });
-                left.append(transactionButton);
+                left.append(purchaseButton);
             }
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
-                sendMessageButton.className = "btn btn-sm btn-outline-primary";
+                sendMessageButton.className = "btn btn-sm btn-primary";
                 sendMessageButton.style = "float:right"
                 sendMessageButton.textContent = "Contact Seller";
                 sendMessageButton.addEventListener("click", () => {

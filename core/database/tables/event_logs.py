@@ -9,7 +9,7 @@ event_type_by_name = {
     "User Info Edit": 4,
     "Email Verified": 5,
     "Invited Signup": 6,
-    "Sales Group Transaction": 7
+    "Sales Group Purchase": 7
 }
 event_type_by_id = {
     value: key

@@ -1,12 +1,13 @@
 from flask import (
-    Flask, Blueprint, request, g
+    Flask, Blueprint, request, g, session, redirect, url_for
 )
+from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 import stripe
 import json
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import Accounts,AccountsException
 from ..database.objects.account import AccountException
 from ..common_exceptions import ExportException
-from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE
+from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
 
 bp = Blueprint('stripe_bp', __name__)
 
@@ -109,7 +110,11 @@ def create_customer():
     try:
         if g.account is not None:
             # Create a new customer object
-            customer = stripe.Customer.create(email=data['email'], name=data['name'], metadata={'AccountId':g.account.id()})
+            customer = stripe.Customer.create(
+                email=data['email'],
+                name=data['name'],
+                metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
+            )
             # At this point, associate the ID of the Customer object with your
             # own internal representation of a customer, if you have one.            
             g.db.accounts.update_account(
@@ -182,37 +187,125 @@ def create_payment(partner_id):
         return {'error': {'message': str(e)}}, 400
 
 
-@bp.route('/stripe/create-payment-intent/sales-group/<account_id>', methods=['POST'])
-def create_sales_group_payment(account_id):
+@bp.route('/stripe/create-payment-intent/sales-group', methods=['POST'])
+def create_sales_group_payment():
     data = json.loads(request.data)
     try:
-        account = g.db.accounts.get_account_by_id(account_id)
-        if account is not None:
-            if account.partner_stripe_secret_key() is not None:
-                stripe.api_key = account.partner_stripe_secret_key()
-                # Some example payment method types include `card`, `ideal`, and `alipay`.
-                payment_method_type = data['paymentMethodType']
-                currency = data['currency']
-                sales_group_id = data['sales_group_id']
-                amount = float(data['amount'])*100
-                amount = int(amount)
-                # Create a PaymentIntent with the amount, currency, and a payment method type.
-                params = {
-                    'payment_method_types': [payment_method_type],
-                    'amount': amount,
-                    'currency': currency,
-                    'metadata': {'sales_group_id': sales_group_id}
-                }
-                intent = stripe.PaymentIntent.create(**params)
-                # Send PaymentIntent details to the front end.
-                return {'clientSecret': intent.client_secret}
-            else:
-                # We might need to change this error message
-                raise Exception("Partner stripe account not available.")
+        if len(account := g.db.accounts.get_accounts(id=data['account_id'])) > 0 and account[0]["stripe_account_id"] is not None \
+         and account[0]["is_stripe_charges_enabled"] == 1:
+            # if STRIPE_SECRET_KEY is not None:
+            stripe.api_key = STRIPE_SECRET_KEY
+            # Some example payment method types include `card`, `ideal`, and `alipay`.
+            # payment_method_type = data['paymentMethodType']
+            currency = data['currency']
+            sales_group_id = data['sales_group_id']
+            amount = int(float(data['amount'])*100)
+            # Create a PaymentIntent with the amount, currency, and a payment method type.
+            params = {
+                'transfer_data': {
+                    'destination': account[0]["stripe_account_id"]
+                },  
+                'automatic_payment_methods': {
+                    'enabled': True,
+                },
+                'application_fee_amount': int(0.1*amount),
+                'amount': amount,
+                'currency': currency,
+                'metadata': {'sales_group_id': sales_group_id}
+            }
+            intent = stripe.PaymentIntent.create(**params)
+            # Send PaymentIntent details to the front end.
+            return {'clientSecret': intent.client_secret}
         else:
-            raise Exception("Incorrect partner id.")
+            raise Exception("There is a problem with this sales group transaction. Please try later.")
     except stripe.error.StripeError as e:
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
 
+@bp.route('/onboard-account', methods=['POST'])
+def onboard_account():
+    try:
+        stripe_account = stripe.Account.create(
+            type='express',
+            country='US',
+            capabilities={
+                'transfers': {'requested': True}
+            },
+            business_type='company',
+            company={
+                'name': g.account.company()
+            },
+            metadata={'internal_account_id': g.account.id(), 'created_by_user': g.user.id()}
+        )
+
+        session[SESSION_STRIPE_ACCOUNT_ID_VAR] = stripe_account.id
+        Accounts(g.db).update_account(account_id=g.account.id(), stripe_account_id=stripe_account.id)
+
+        origin = request.headers['origin']
+        account_link_url = _generate_account_link(stripe_account.id, origin)  
+        return {'url': account_link_url}
+    except Exception as e:
+        return {'error': str(e)}, 403
+
+@bp.route('/onboard-account/complete', methods=['GET'])
+def onboard_account_complete():
+    if SESSION_STRIPE_ACCOUNT_ID_VAR in session:
+        account_id = session[SESSION_STRIPE_ACCOUNT_ID_VAR]
+    else:
+        account_id = g.account.stripe_account_id()
+
+    origin = ('https://' if request.is_secure else 'http://') + request.headers['host']
+    account_link_url = _generate_account_link(account_id, origin)
+    #return redirect(account_link_url)
+    return {'url': account_link_url}
+
+@bp.route('/onboard-account/refresh', methods=['GET'])
+def onboard_account_refresh():
+    if SESSION_STRIPE_ACCOUNT_ID_VAR not in session:
+        return redirect(url_for('dashboard_bp.serve_edit_account'))
+
+    account_id = session[SESSION_STRIPE_ACCOUNT_ID_VAR]
+
+    origin = ('https://' if request.is_secure else 'http://') + request.headers['host']
+    account_link_url = _generate_account_link(account_id, origin)
+    return redirect(account_link_url)
+
+
+def _generate_account_link(stripe_account_id, origin):
+    account_link = stripe.AccountLink.create(
+        type='account_onboarding',
+        account=stripe_account_id,
+        refresh_url=f'{origin}/{url_for("stripe_bp.onboard_account_refresh")}',
+        return_url=f'{origin}/{url_for("dashboard_bp.serve_edit_account")}',
+    )
+    return account_link.url
+
+@bp.route('/stripe/handle-account-events', methods=['POST'])
+def serve_stripe_account():
+    payload = request.data
+    print("request", request.data)
+    #this should match the signing secret of the webhook set up in Stripe Dashboard
+    endpoint_secret = ACCOUNT_WEBHOOK_SECRET
+    sig_header = request.headers.get('stripe-signature')
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        raise ExportException(str(e))
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        raise ExportException(str(e))
+
+    if event.type == 'account.updated':
+        stripe_account = event.data.object
+        accounts_table = Accounts(g.db)
+        account = accounts_table.get_accounts(stripe_account_id=stripe_account.id)[0]
+        accounts_table.update_account(account_id=account["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+    else:
+        raise ExportException('This event type ' + event.type + ' is not supported.')
+
+    return {}

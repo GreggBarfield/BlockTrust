@@ -181,7 +181,8 @@ def serve_search_sales_groups_2():
             "auction_sale_name": sales_group_row["auction_sale_name"],
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
-            "is_sold": sales_group_row["is_sold"]
+            "is_sold": sales_group_row["is_sold"],
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
         })
 
     return {

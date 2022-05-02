@@ -120,12 +120,100 @@ Edit Account
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
+                {% if dashboard_standard_account.is_stripe_charges_enabled() == 0 %}
+                <div class="row justify-content-center mt-5" id="divStripeSetup">
+                    <script src="https://js.stripe.com/v3/"></script>
+                    <div class="col-lg-8 text-center">
+                        <span><i class="fa fa-dollar-sign text-success mb-2" style="font-size:4em"></i></span>
+                        <div class="mb-3">
+                            <h4>Setup payouts to sell sales groups on Blocktrust Network</h4>
+                            <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
+                        </div>
+                        {% if dashboard_standard_account.stripe_account_id() is none %}
+                        <button class="btn btn-success" id="btnSetupPayout"> Setup payouts on Stripe </button>
+                        {% else %}
+                        <button class="btn btn-warning" id="btnCompleteSetup"> Complete Setup </button>
+                        {% endif %}
+                        <p>You'll be redirected to Stripe to complete the onboarding process.</p>
+                    </div>
+                </div>
+                {% endif %}
             </form>
         </div>
     </div>
 </div>
 <script>
+
     $("#edit_account_state").val("{{account.state()}}");
+
+    // const {publishableKey} = await fetch('/stripe/config/'+partner_id).then((r) => r.json());
+    // if (publishableKey) {
+    //     //TODO: Might need this if the webhook doesn't update immediately
+    //     console.log(publishableKey)
+    // }
+
+    let setupButton = document.querySelector("#btnSetupPayout");
+
+    if (setupButton) {
+        setupButton.addEventListener(
+            "click",
+            e => {
+                setupButton.setAttribute("disabled", "disabled");
+                setupButton.textContent = "Opening...";
+
+                fetch("/onboard-account", {
+                    method: "POST",
+                    headers: {
+                    "Content-Type": "application/json"
+                    }
+                }).then(
+                    response => response.json()
+                ).then(data => {
+                    if (data.url) {
+                        window.location = data.url;
+                    } else {
+                        setupButton.removeAttribute("disabled");
+                        setupButton.textContent = "<Something went wrong>";
+                        console.log("data", data);
+                    }
+                });
+            },
+            false
+        );
+    }
+
+    let completeButton = document.querySelector("#btnCompleteSetup");
+
+    if (completeButton) {
+        completeButton.addEventListener(
+            "click",
+            e => {
+                completeButton.setAttribute("disabled", "disabled");
+                completeButton.textContent = "Opening...";
+
+                fetch("/onboard-account/complete", {
+                    method: "GET",
+                    headers: {
+                    "Content-Type": "application/json"
+                    }
+                }).then(
+                    response => response.json()
+                ).then(data => {
+                    if (data.url) {
+                        window.location = data.url;
+                    } else {
+                        setupButton.removeAttribute("disabled");
+                        setupButton.textContent = "<Something went wrong>";
+                        console.log("data", data);
+                    }
+                });
+            },
+            false
+        );
+    }
+    
+
 </script>   
 <script type="module" src="/static/entry_points/dashboard/accounts/edit_account.mjs" ></script> 
+
 {% endblock dashboard_content %}s
