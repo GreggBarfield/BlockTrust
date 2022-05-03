@@ -381,7 +381,7 @@ def serve_edit_account():
                     state=request.form["state"],
                     zip=request.form["zip"],
                     phone=request.form["phone"]
-                        )
+            )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
@@ -390,10 +390,12 @@ def serve_edit_account():
         stripe.api_key = STRIPE_SECRET_KEY
         is_stripe_charges_enabled = False
         if g.account.stripe_account_id() is not None:
-            if g.account.is_stripe_charges_enabled() == 0:
+            if not bool(g.account.is_stripe_charges_enabled()):
                 # Check if this has changed
                 stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
-                is_stripe_charges_enabled = stripe_account["charges_enabled"]
+                if stripe_account["charges_enabled"]:
+                    g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
+                    is_stripe_charges_enabled = True
             else:
                 is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
         return dashboard_render("/dashboard/accounts/edit_account.html", {"is_stripe_charges_enabled": is_stripe_charges_enabled })
