@@ -1,6 +1,7 @@
 from usda_data_retriever import get_usda_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
+from emails import run_email_tasks
 from threading import Thread
 import traceback
 import time
@@ -14,7 +15,8 @@ try:
     scheduled_jobs = {
         "USDAData": "usda_data_retriever.py|get_usda_data",
         "Blockchain": "blockchain.py|run_bc_routines",
-        "Reports": "reports.py|run_report_tasks"
+        "Reports": "reports.py|run_report_tasks",
+        "Emails": "emails.py|run_email_tasks"
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -58,6 +60,15 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
+
+        # this will run once between 4 and 5 AM
+        if datetime.time(0, 0, 0) <= current_time < datetime.time(24, 0, 0):
+            if not any(t.getName() == "Emails" for t in threads):
+                job_run_id = JobRuns(db).insert("Emails", scheduled_jobs["Emails"].split('|')[0], scheduled_jobs["Emails"].split('|')[1])
+                t = Thread(target=run_email_tasks, name="Emails", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)

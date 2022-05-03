@@ -13,6 +13,7 @@ services:
       - ../../core/environment_config.json:/home/ubuntu/core/environment_config.json
       - ../../core/database:/home/ubuntu/core/database
       - ../../core/reports:/home/ubuntu/core/reports
+      - ../../core/renderers:/home/ubuntu/core/renderers
       - ../../core/utilities:/home/ubuntu/core/utilities
       - ../:/home/ubuntu/scheduled_jobs
 
