@@ -225,7 +225,7 @@ def create_sales_group_payment():
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
 
-@bp.route('/onboard-account', methods=['POST'])
+@bp.route('/stripe/onboard-account', methods=['POST'])
 def onboard_account():
     try:
         stripe_account = stripe.Account.create(
@@ -250,7 +250,7 @@ def onboard_account():
     except Exception as e:
         return {'error': str(e)}, 403
 
-@bp.route('/onboard-account/complete', methods=['GET'])
+@bp.route('/stripe/onboard-account/complete', methods=['GET'])
 def onboard_account_complete():
     if SESSION_STRIPE_ACCOUNT_ID_VAR in session:
         account_id = session[SESSION_STRIPE_ACCOUNT_ID_VAR]
@@ -262,7 +262,7 @@ def onboard_account_complete():
     #return redirect(account_link_url)
     return {'url': account_link_url}
 
-@bp.route('/onboard-account/refresh', methods=['GET'])
+@bp.route('/stripe/onboard-account/refresh', methods=['GET'])
 def onboard_account_refresh():
     if SESSION_STRIPE_ACCOUNT_ID_VAR not in session:
         return redirect(url_for('dashboard_bp.serve_edit_account'))

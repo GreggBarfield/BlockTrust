@@ -3,7 +3,7 @@ from flask import (
     request, Blueprint, g, redirect, url_for
 )
 
-from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY
+from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id
@@ -28,6 +28,7 @@ from ..utilities.email import send_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 
 import json
+import stripe
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -386,7 +387,16 @@ def serve_edit_account():
         except UsersException as e:
             return {"error": str(e)}, 400
     elif request.method == 'GET':
-        return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
+        stripe.api_key = STRIPE_SECRET_KEY
+        is_stripe_charges_enabled = False
+        if g.account.stripe_account_id() is not None:
+            if g.account.is_stripe_charges_enabled() == 0:
+                # Check if this has changed
+                stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
+                is_stripe_charges_enabled = stripe_account["charges_enabled"]
+            else:
+                is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
+        return dashboard_render("/dashboard/accounts/edit_account.html", {"is_stripe_charges_enabled": is_stripe_charges_enabled })
 
 
 # edit user profile

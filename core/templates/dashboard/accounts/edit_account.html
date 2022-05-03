@@ -28,19 +28,19 @@ Edit Account
                     </div>
                     <div class="col-lg-6"> 
                         <div class="form-group">                   
-                            <input type="text" class="form-control" id="edit_account_company" value="{{account.company() if account.company() is not none}}">
+                            <input type="text" class="form-control" id="edit_account_company" value="{{dashboard_standard_account.company() if dashboard_standard_account.company() is not none}}">
                         </div>
                     </div>
                     <div class="col-lg-8"> 
                         <div class="form-group">
                             <label for="edit_account_address">Address</label>                       
-                            <input type="text" class="form-control" id="edit_account_address" value="{{account.address() if account.address() is not none}}">
+                            <input type="text" class="form-control" id="edit_account_address" value="{{dashboard_standard_account.address() if dashboard_standard_account.address() is not none}}">
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_city">City</label>                       
-                            <input type="text" class="form-control" id="edit_account_city"  value="{{account.city() if account.city() is not none}}">                        
+                            <input type="text" class="form-control" id="edit_account_city"  value="{{dashboard_standard_account.city() if dashboard_standard_account.city() is not none}}">                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
@@ -105,13 +105,13 @@ Edit Account
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_zip">Zip Code</label>                       
-                            <input type="text" class="form-control" id="edit_account_zip"  value="{{account.zip() if account.zip() is not none}}">                        
+                            <input type="text" class="form-control" id="edit_account_zip"  value="{{dashboard_standard_account.zip() if dashboard_standard_account.zip() is not none}}">                        
                         </div>
                     </div>
                     <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_phone">Company Phone</label>                       
-                            <input type="text" class="form-control" id="edit_account_phone"  value="{{account.phone() if account.phone() is not none}}" name="phone">                        
+                            <input type="text" class="form-control" id="edit_account_phone"  value="{{dashboard_standard_account.phone() if dashboard_standard_account.phone() is not none}}" name="phone">                        
                             <span class="focus-border"></span>
                         </div>
                     </div>
@@ -120,37 +120,50 @@ Edit Account
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
-                {% if dashboard_standard_account.is_stripe_charges_enabled() == 0 %}
+
                 <div class="row justify-content-center mt-5" id="divStripeSetup">
-                    <script src="https://js.stripe.com/v3/"></script>
                     <div class="col-lg-8 text-center">
                         <span><i class="fa fa-dollar-sign text-success mb-2" style="font-size:4em"></i></span>
-                        <div class="mb-3">
-                            <h4>Setup payouts to sell sales groups on Blocktrust Network</h4>
-                            <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
-                        </div>
-                        {% if dashboard_standard_account.stripe_account_id() is none %}
-                        <button class="btn btn-success" id="btnSetupPayout"> Setup payouts on Stripe </button>
+                        {% if not is_stripe_charges_enabled %}    
+                            <div class="mb-3">              
+                                <h4>Setup payouts to sell sales groups on Blocktrust Network</h4>
+                                <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
+                            </div>
+                            {% if dashboard_standard_account.stripe_account_id() is none %}
+                            <button class="btn btn-success" id="btnSetupPayout"> Setup payouts on Stripe </button>
+                            {% else %}
+                            <button class="btn btn-warning" id="btnCompleteSetup"> Complete Setup </button>
+                            {% endif %}
+                            <p>You'll be redirected to Stripe to complete the onboarding process.</p>
                         {% else %}
-                        <button class="btn btn-warning" id="btnCompleteSetup"> Complete Setup </button>
+                            <h4>You are able to sell sales groups on Blocktrust Network</h4>
+                            <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
                         {% endif %}
-                        <p>You'll be redirected to Stripe to complete the onboarding process.</p>
                     </div>
                 </div>
-                {% endif %}
+
             </form>
         </div>
     </div>
 </div>
 <script>
 
-    $("#edit_account_state").val("{{account.state()}}");
+    $("#edit_account_state").val("{{dashboard_standard_account.state()}}");
 
-    // const {publishableKey} = await fetch('/stripe/config/'+partner_id).then((r) => r.json());
-    // if (publishableKey) {
-    //     //TODO: Might need this if the webhook doesn't update immediately
-    //     console.log(publishableKey)
+    // const newFunc= async() => {
+    //     const {publishableKey} = await fetch('/stripe/config').then((r) => r.json());
+    //     if (publishableKey) {
+    //         //TODO: Might need this if the webhook doesn't update immediately
+    //         console.log(publishableKey)
+    //         const stripe = Stripe(publishableKey);
+
+    //         const account = await stripe.accounts.retrieve(
+    //         'acct_1KrIF5GdGRP70F5u'
+    //         );
+    //         console.log(account)
+    //     }
     // }
+    // newFunc();
 
     let setupButton = document.querySelector("#btnSetupPayout");
 
@@ -161,7 +174,7 @@ Edit Account
                 setupButton.setAttribute("disabled", "disabled");
                 setupButton.textContent = "Opening...";
 
-                fetch("/onboard-account", {
+                fetch("/stripe/onboard-account", {
                     method: "POST",
                     headers: {
                     "Content-Type": "application/json"
@@ -191,7 +204,7 @@ Edit Account
                 completeButton.setAttribute("disabled", "disabled");
                 completeButton.textContent = "Opening...";
 
-                fetch("/onboard-account/complete", {
+                fetch("/stripe/onboard-account/complete", {
                     method: "GET",
                     headers: {
                     "Content-Type": "application/json"
