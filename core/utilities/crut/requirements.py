@@ -42,6 +42,28 @@ def _require_employee():
     raise RequireEmployeeFailed()
 
 
+class RequireAccountOrEmployeeFailed(Exception):
+    pass
+
+
+def _require_account_or_employee():
+    try:
+        _require_user()
+        _require_account()
+    except (RequireUserFailed, RequireAccountFailed):
+        pass
+    else:
+        return
+
+    try:
+        _require_employee()
+    except RequireEmployeeFailed:
+        pass
+    else:
+        return
+    raise RequireAccountOrEmployeeFailed()
+
+
 def require_user(func):
     """Decorator to ensure a user is logged in."""
 
@@ -82,6 +104,17 @@ def require_employee(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         _require_employee()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def require_account_or_employee(func):
+    """Decorator to ensure an employee or a user with an account is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_account_or_employee()
         return func(*args, **kwargs)
 
     return wrapper
