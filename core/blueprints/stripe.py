@@ -225,6 +225,7 @@ def create_sales_group_payment():
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
 
+
 @bp.route('/stripe/onboard-account', methods=['POST'])
 def onboard_account():
     try:
@@ -250,6 +251,7 @@ def onboard_account():
     except Exception as e:
         return {'error': str(e)}, 403
 
+
 @bp.route('/stripe/onboard-account/complete', methods=['GET'])
 def onboard_account_complete():
     if SESSION_STRIPE_ACCOUNT_ID_VAR in session:
@@ -261,6 +263,7 @@ def onboard_account_complete():
     account_link_url = _generate_account_link(account_id, origin)
     #return redirect(account_link_url)
     return {'url': account_link_url}
+
 
 @bp.route('/stripe/onboard-account/refresh', methods=['GET'])
 def onboard_account_refresh():
@@ -310,8 +313,10 @@ def serve_stripe_account():
     if event.type == 'account.updated':
         stripe_account = event.data.object
         accounts_table = Accounts(g.db)
-        if len(accounts := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
-            accounts_table.update_account(account_id=accounts[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+        # if len(accounts := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
+        #     accounts_table.update_account(account_id=accounts[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+        account = accounts_table.get_accounts(stripe_account_id=stripe_account.id)[0]
+        accounts_table.update_account(account_id=account["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
