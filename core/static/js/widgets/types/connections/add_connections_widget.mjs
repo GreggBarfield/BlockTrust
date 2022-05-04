@@ -7,13 +7,21 @@ export class AddConnectionsWidget extends Widget {
     }
 
     initType() {
-    this.getData(
-        "get_accounts_except_current_and_sectors"
-    ).then((data) => {
-        this.accountRows = data.account_rows;
-        this.sectorsByName = data.sectors_by_name;
-        this.makeForm();
-    });
+        const getInvitableAccounts = this.getData(
+            "get_invitable_accounts"
+        ).then((data) => {
+            this.accountRows = data.account_rows;  
+        });
+        const getSectorsByName = this.getData(
+            "direct/sectors_by_name"
+        ).then((data) => {
+            this.sectorsByName = data.sectors_by_name;
+        }); 
+        Promise.all([
+            getInvitableAccounts, getSectorsByName
+        ]).then(()=> {
+            this.makeForm();
+        })
 
     this.onSomeDataLoaded(function () {
         this.frame.innerHTML = "";
@@ -55,17 +63,17 @@ export class AddConnectionsWidget extends Widget {
         selectAllFeedersPackersFormGroup.append(selectAllFeedersPackersLabel);
         selectAllFeedersPackersCheckBox.onchange = () => {
             if(selectAllFeedersPackersCheckBox.checked == true){
-                $(companyOptionsSelect).empty().trigger('change');
+                $(accountsOptionsSelect).empty();
                 let selectedCompanyData = [];
-                sectorOptionsSelect.value = 3;
+                sectorOptionsSelect.value = 0;
                 sectorOptionsSelect.onchange();
                 for(const accountRow of this.accountRows){
                     if(accountRow.sector == this.sectorsByName["Feedlot"]|| accountRow.sector == this.sectorsByName["Buyer"]){
                         selectedCompanyData.push(accountRow.id);
                     } 
                 }
-                $(companyOptionsSelect).val(selectedCompanyData);
-                $(companyOptionsSelect).trigger('change');
+                $(accountsOptionsSelect).val(selectedCompanyData);
+                $(accountsOptionsSelect).trigger('change');
             }
             else{
                 sectorOptionsSelect.value = 0;
@@ -83,11 +91,8 @@ export class AddConnectionsWidget extends Widget {
         sectorOptionsSelect.id = "sector";
         sectorOptionsSelect.className = "form-control";
         let defaultOption = new Option("---Select an option---", 0);
-        defaultOption.disabled = true;
         defaultOption.selected = true;
-        let allSectorsOption = new Option("All Sectors", 3);
         sectorOptionsSelect.appendChild(defaultOption);
-        sectorOptionsSelect.appendChild(allSectorsOption);
         for (var sectorName in this.sectorsByName) {
             var option = new Option(sectorName, this.sectorsByName[sectorName]);
             sectorOptionsSelect.appendChild(option);
@@ -95,9 +100,9 @@ export class AddConnectionsWidget extends Widget {
         sectorOptionsFormGroup.append(sectorOptionsLabel);
         sectorOptionsFormGroup.append(sectorOptionsSelect);
         sectorOptionsSelect.onchange = () =>{
-            $(companyOptionsSelect).empty().trigger("change");
+            $(accountsOptionsSelect).empty();
             let accountsList = [];
-            if(sectorOptionsSelect.value == 3){
+            if(sectorOptionsSelect.value == 0){
                 for(const accountRow of this.accountRows){
                         accountsList.push({id: accountRow.id, text: accountRow.name});
                 }
@@ -109,24 +114,26 @@ export class AddConnectionsWidget extends Widget {
                     } 
                 }
             }
-            $(companyOptionsSelect).select2({
+            $(accountsOptionsSelect).select2({
                 data: accountsList,
                 multiple: true,
                 placeholder: "Select companies"
             });
         }
 
-        let companiesFormGroup = document.createElement("div")
-        companiesFormGroup.className = "form-group col-md-6";
-        form.append(companiesFormGroup);
+        let accountsFormGroup = document.createElement("div")
+        accountsFormGroup.className = "form-group col-md-6";
+        form.append(accountsFormGroup);
 
-        let companiesLabel = document.createElement("label");
-        companiesLabel.textContent = "Companies";
-        let companyOptionsSelect = document.createElement("select");
-        companyOptionsSelect.id = "companies";
-        companiesFormGroup.append(companiesLabel);
-        companiesFormGroup.append(companyOptionsSelect);
-        $(companyOptionsSelect).select2({multiple: true, placeholder: "Select companies"});
+        let accountsLabel = document.createElement("label");
+        accountsLabel.textContent = "Companies";
+        let accountsOptionsSelect = document.createElement("select");
+        accountsOptionsSelect.id = "companies";
+        accountsFormGroup.append(accountsLabel);
+        accountsFormGroup.append(accountsOptionsSelect);
+        $(accountsOptionsSelect).select2({multiple: true, placeholder: "Select companies"});
+        // Trigger onchange method to populate the accountsOptionsSelect drop-down 
+        sectorOptionsSelect.onchange();
 
         let notListedCheckBoxFormGroup = document.createElement("div");
         notListedCheckBoxFormGroup.className = "form-group col-md-6";
@@ -245,7 +252,7 @@ export class AddConnectionsWidget extends Widget {
             asJSON: true,
             getData: () => {
                 return {
-                    invited_account_ids_list: $(companyOptionsSelect).val(),
+                    invited_account_ids_list: $(accountsOptionsSelect).val(),
                     new_account_sector: newAccountSector.value,
                     unlisted_company: notListedCheckBox.checked,
                     new_account_name: newAccountNameInput.value,

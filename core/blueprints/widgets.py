@@ -595,14 +595,25 @@ def serve_remove_usda_favorite():
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
 
-@bp.route('/widgets/data/get_accounts_except_current_and_sectors', methods=['POST'])
+@bp.route('/widgets/data/get_invitable_accounts', methods=['POST'])
 @crut.require_account
 def serve_get_accounts():
     account_rows = g.db.accounts.get_accounts(is_partner=0)
+    connected_accounts = Connections(g.db).get_account_connections(account_id=g.account.id(), status=connection_status["Connected"])
+    requested_accounts = Connections(g.db).get_account_connections(account_id=g.account.id(), status=connection_status["Pending"])
+    connected_accounts.extend(requested_accounts)
+    connected_or_requested_accounts = connected_accounts
+    connected_or_requested_account_ids = []
+    for connected_or_requested_account in connected_or_requested_accounts:
+        if connected_or_requested_account["from_account_id"] == g.account.id():
+            connected_or_requested_account_ids.append(connected_or_requested_account["to_account_id"])
+        else:
+            connected_or_requested_account_ids.append(connected_or_requested_account["from_account_id"])
+    invitable_account_rows = []
     for account_row in account_rows:
-        if account_row["id"] == g.account.id():
-            account_rows.remove(account_row)
-    return {"account_rows": account_rows, "sectors_by_name": sectors_by_name}
+        if account_row["id"] != g.account.id() and (account_row["id"] not in connected_or_requested_account_ids):
+            invitable_account_rows.append(account_row)
+    return {"account_rows": invitable_account_rows}
 
 @bp.route('/widgets/data/create-auction-market', methods=["POST"])
 def serve_create_auction_market():
@@ -628,12 +639,6 @@ def serve_create_auction_market():
 def serve_add_connection_request():
     try:
         invited_accounts = request.json["invited_account_ids_list"]
-        for invited_account in invited_accounts:
-            invited_account_row = Accounts(g.db).get_account_by_id(account_id=invited_account)
-            if Connections(g.db).get_connection_between(g.account.id(), invited_account, connection_status["Connected"]) is not None:
-                raise ExportException(invited_account_row.name() + " is already connected!")
-            if Connections(g.db).get_connection_between(g.account.id(), invited_account, connection_status["Pending"]) is not None:
-                raise ExportException("Connection Invite already sent to " + invited_account_row.name())
         for invited_account in invited_accounts:
             Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
         if request.json["unlisted_company"]:
