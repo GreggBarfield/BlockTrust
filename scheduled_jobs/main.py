@@ -62,7 +62,7 @@ try:
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 4 and 5 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(24, 0, 0):
+        if datetime.time(4, 0, 0) <= current_time < datetime.time(5, 0, 0):
             if not any(t.getName() == "Emails" for t in threads):
                 job_run_id = JobRuns(db).insert("Emails", scheduled_jobs["Emails"].split('|')[0], scheduled_jobs["Emails"].split('|')[1])
                 t = Thread(target=run_email_tasks, name="Emails", args=[job_run_id, Database(MYSQL_CONFIG)])

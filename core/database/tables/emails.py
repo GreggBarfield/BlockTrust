@@ -211,7 +211,7 @@ class Emails:
 
     def process_pending_emails(self):
         """
-        Checks for unsent emails in the table and sends out an email marking it as porcessed  
+        Checks for unsent emails in the table and sends out an email marking it as porcessed 
         """
         unprocessed_emails = self.get_emails(is_processed=email_processing_status_by_name["Not Processed"])
         for unprocessed_email in unprocessed_emails:
@@ -231,5 +231,4 @@ class Emails:
                             )
                         self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Processed"])
             except Exception as e:
-                print(str(e))
                 self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Failed"])
