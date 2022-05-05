@@ -597,22 +597,8 @@ def serve_remove_usda_favorite():
 
 @bp.route('/widgets/data/get_invitable_accounts', methods=['POST'])
 @crut.require_account
-def serve_get_accounts():
-    account_rows = g.db.accounts.get_accounts(is_partner=0)
-    connected_accounts = Connections(g.db).get_account_connections(account_id=g.account.id(), status=connection_status["Connected"])
-    requested_accounts = Connections(g.db).get_account_connections(account_id=g.account.id(), status=connection_status["Pending"])
-    connected_accounts.extend(requested_accounts)
-    connected_or_requested_accounts = connected_accounts
-    connected_or_requested_account_ids = []
-    for connected_or_requested_account in connected_or_requested_accounts:
-        if connected_or_requested_account["from_account_id"] == g.account.id():
-            connected_or_requested_account_ids.append(connected_or_requested_account["to_account_id"])
-        else:
-            connected_or_requested_account_ids.append(connected_or_requested_account["from_account_id"])
-    invitable_account_rows = []
-    for account_row in account_rows:
-        if account_row["id"] != g.account.id() and (account_row["id"] not in connected_or_requested_account_ids):
-            invitable_account_rows.append(account_row)
+def serve_get_invitable_accounts():
+    invitable_account_rows = Connections(g.db).get_unconnected_accounts(account_id=g.account.id())
     return {"account_rows": invitable_account_rows}
 
 @bp.route('/widgets/data/create-auction-market', methods=["POST"])

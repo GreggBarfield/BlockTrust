@@ -62,22 +62,20 @@ export class AddConnectionsWidget extends Widget {
         selectAllFeedersPackersFormGroup.append(selectAllFeedersPackersCheckBox);
         selectAllFeedersPackersFormGroup.append(selectAllFeedersPackersLabel);
         selectAllFeedersPackersCheckBox.onchange = () => {
+            $(accountsOptionsSelect).empty();
+            sectorOptionsSelect.value = 0;
+            sectorOptionsSelect.onchange();
             if(selectAllFeedersPackersCheckBox.checked == true){
-                $(accountsOptionsSelect).empty();
-                let selectedCompanyData = [];
-                sectorOptionsSelect.value = 0;
-                sectorOptionsSelect.onchange();
+                let selectedAccountsData = [];
                 for(const accountRow of this.accountRows){
                     if(accountRow.sector == this.sectorsByName["Feedlot"]|| accountRow.sector == this.sectorsByName["Buyer"]){
-                        selectedCompanyData.push(accountRow.id);
+                        selectedAccountsData.push(accountRow.id);
                     } 
                 }
-                $(accountsOptionsSelect).val(selectedCompanyData);
+                // Set the selected value of the accountsOptionsSelect as all the feeder and packer accounts in network
+                $(accountsOptionsSelect).val(selectedAccountsData);
+                // Trigger a change in accountsOptionsSelect to display the selected options in the input search box
                 $(accountsOptionsSelect).trigger('change');
-            }
-            else{
-                sectorOptionsSelect.value = 0;
-                sectorOptionsSelect.onchange();
             }
         }
 

@@ -118,7 +118,7 @@ class Connections:
         Returns:
         Connection object or None
         """
-        
+
         connection = self._db.execute_d(
             """
             SELECT * FROM connections
@@ -135,3 +135,27 @@ class Connections:
         if len(connection) == 1:
             return connection[0]
         return None
+
+    def get_unconnected_accounts(self, account_id):
+        """
+        Get accounts not connected to the specified account
+
+        Params:
+            account_id: The account ID for which unconnected accounts are required
+
+        Returns:
+            A list of accounts which are not connected to the specified account or an empty list
+        """
+        unconnected_accounts = self._db.execute_d(
+            """
+            SELECT * FROM accounts WHERE id NOT IN(
+            SELECT (CASE WHEN from_account_id=%(account_id)s THEN to_account_id ELSE from_account_id END) as account_id
+            FROM connections WHERE from_account_id=%(account_id)s OR to_account_id=%(account_id)s
+            ) AND id!=%(account_id)s AND is_partner=0
+            """, {
+                "account_id": account_id
+            }
+        )
+        if len(unconnected_accounts) > 0:
+            return unconnected_accounts
+        return []
