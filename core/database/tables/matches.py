@@ -597,7 +597,7 @@ class Matches:
             )
         ))
 
-    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id=None, account_id=None, get_results_for_employee=False):
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None):
         """Gets matches data associated with a eid or visual id if it belongs to the account.
 
         Params:
@@ -608,7 +608,7 @@ class Matches:
             All the matches table rows
         """
         matches = []
-        if get_results_for_employee is True:
+        if account_id is None:
             matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
             if len(matches) == 0:

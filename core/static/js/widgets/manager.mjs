@@ -105,13 +105,13 @@ import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summa
 
     $("#icon-search").click(() => {
         let infoModal = new InfoModal("Search By EID");
-        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id", "/dashboard/animals/");
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id_for_account");
         widget.init(); // TODO: Fix (This will break in the future when networking is optimized)
     });
 
-    $("#employee-eid-search").click(() => {
+    $("#eid-search").click(() => {
         let infoModal = new InfoModal("Search By EID");
-        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "employee_search_by_eid_and_visual_id", "/employee/dashboard/animals/");
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id");
         widget.init();
     });
 
