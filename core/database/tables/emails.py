@@ -17,6 +17,7 @@ email_processing_status_by_id = {
     for key, value in email_processing_status_by_name.items()
 }
 email_type_by_name = {
+    "Generic": 0,
     "Match Found": 1
 }
 email_type_by_id = {

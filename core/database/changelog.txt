@@ -1494,7 +1494,7 @@ CREATE TABLE `emails` (
   `body` VARCHAR(3000) NULL,
   `variables` JSON NULL,
   `template_name` VARCHAR(100) NULL,
-  `email_type` INT NOT NULL,
+  `email_type` INT DEFAULT '0',
   `is_processed` TINYINT DEFAULT '0',
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
