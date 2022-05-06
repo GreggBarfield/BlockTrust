@@ -149,8 +149,8 @@ class Connections:
         unconnected_accounts = self._db.execute_d(
             """
             SELECT * FROM accounts WHERE id NOT IN(
-            SELECT (CASE WHEN from_account_id=%(account_id)s THEN to_account_id ELSE from_account_id END) as account_id
-            FROM connections WHERE from_account_id=%(account_id)s OR to_account_id=%(account_id)s
+            SELECT from_account_id as connected_account_id FROM connections WHERE to_account_id = %(account_id)s UNION
+            SELECT to_account_id as connected_account_id FROM connections WHERE from_account_id = %(account_id)s
             ) AND id!=%(account_id)s AND is_partner=0
             """, {
                 "account_id": account_id
