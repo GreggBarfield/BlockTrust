@@ -597,7 +597,7 @@ class Matches:
             )
         ))
 
-    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id):
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None):
         """Gets matches data associated with a eid or visual id if it belongs to the account.
 
         Params:
@@ -607,13 +607,20 @@ class Matches:
         Returns:
             All the matches table rows
         """
-        matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
-            is_distinct=True, matches_cols=("eid", "visual_id"))
+        matches = []
+        if account_id is None:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
-        if len(matches) == 0:
-            matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
+        else:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
                 is_distinct=True, matches_cols=("eid", "visual_id"))
-        
+
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
+                    is_distinct=True, matches_cols=("eid", "visual_id"))
+
         return matches
 
     def get_count_distribution_for_account_across_sector(self, account_id, sector_id):

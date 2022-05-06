@@ -144,6 +144,7 @@ def serve_account_id(account_id):
         return dashboard_render("sectors/generic.html", sector_params)
 
 
+@bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 @crut.require_user
 def serve_animal_eid(animal_eid):
