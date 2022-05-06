@@ -1,6 +1,6 @@
 import json
 from flask import (
-    Flask, request, session, Blueprint, g, redirect, render_template
+    Flask, request, session, Blueprint, g, redirect, render_template, url_for
 )
 
 from ..sectors import sectors_by_name, sectors_by_id
@@ -190,17 +190,20 @@ def serve_search_sales_groups_2():
     }
 
 
-@bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
+@bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_number,g.account.id())
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number, account_id=g.account.id())
+    redirect_route = url_for('dashboard_bp.serve_animal_eid')
     if len(rows) > 0:
         return {
+            "redirect_route": redirect_route,
             "matches": rows
         }
     else:
         return {
+                "redirect_route": redirect_route,
                 "matches": []
         }
 
@@ -621,3 +624,20 @@ def serve_create_auction_market():
         email=format_field(request.form["email"])
     )
     return {"redirect": request.form['requestRedirectTo']}
+
+@bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
+@crut.require_employee
+def serve_employee_search_by_eid_and_visual_id():
+    eid_number = int(request.json["search"]["eid"])
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
+    redirect_route = url_for('employees_bp.serve_animal_eid')
+    if len(rows) > 0:
+        return {
+            "redirect_route": redirect_route,
+            "matches": rows
+        }
+    else:
+        return {
+            "redirect_route": redirect_route,
+            "matches": []
+        }
