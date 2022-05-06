@@ -65,6 +65,7 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
+        "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
         "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
@@ -80,7 +81,9 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.name(),
-        "is_archived": sales_group_row["is_archived"]
+        "is_archived": sales_group_row["is_archived"],
+        "price": sales_group_row["price"],
+        "is_sold": sales_group_row["is_sold"]
     }
 
 
@@ -176,7 +179,10 @@ def serve_search_sales_groups_2():
             },
             "auction_sale": sales_group_row["auction_sale"],
             "auction_sale_name": sales_group_row["auction_sale_name"],
-            "is_archived":sales_group_row["is_archived"]          
+            "is_archived": sales_group_row["is_archived"],
+            "price": sales_group_row["price"],
+            "is_sold": sales_group_row["is_sold"],
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
         })
 
     return {
@@ -225,7 +231,8 @@ def serve_create_sales_group():
         auction_sale=request.json["auction_sale"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
-        images=images
+        images=images,
+        price=request.json["price"]
         )
     # Alright, go ahead...
     delivery_location = ""
@@ -244,7 +251,8 @@ def serve_create_sales_group():
         auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
-        delivery_location_type=request.json["delivery_location_type"]
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -277,7 +285,8 @@ def serve_update_sales_group():
         auction_sale=request.json["auction_sale"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
-        images=images
+        images=images,
+        price=request.json["price"]
         )
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
@@ -295,7 +304,8 @@ def serve_update_sales_group():
         auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
-        delivery_location_type=request.json["delivery_location_type"]
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
     )
 
     return {

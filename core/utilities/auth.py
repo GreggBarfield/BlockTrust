@@ -21,6 +21,7 @@ SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
 SESSION_EMPLOYEE_ID_VAR = "jkl"
+SESSION_STRIPE_ACCOUNT_ID_VAR = "mno"
 
 
 class AuthException(Exception):
