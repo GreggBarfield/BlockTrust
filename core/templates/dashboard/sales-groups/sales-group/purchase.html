@@ -51,16 +51,12 @@ Transaction
 </div>
 <script src="https://js.stripe.com/v3/"></script> 
 <script type="text/javascript">
- 
 
     document.addEventListener('DOMContentLoaded', async () => {
         let account_id = '{{sales_group_row.account}}';
         let salesGroupId = '{{sales_group_row.id}}';
         const publishableKey = '{{stripe_key}}';
         const stripe = Stripe(publishableKey);
-        // , {
-        //     apiVersion: '2020-08-27',
-        //   }
         const elements = stripe.elements();
         const card = elements.create('card');
         card.mount('#card-element');
@@ -152,5 +148,4 @@ const addMessage = (message) => {
     console.log(`Debug: ${message}`);
   };
 </script>
-<!-- <script type="module" src="/static/entry_points/dashboard/sales_groups/purchase.mjs"></script> -->
 {% endblock dashboard_content %}
