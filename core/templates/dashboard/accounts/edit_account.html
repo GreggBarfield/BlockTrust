@@ -151,21 +151,6 @@ Edit Account
 
     $("#edit_account_state").val("{{dashboard_standard_account.state()}}");
 
-    // const newFunc= async() => {
-    //     const {publishableKey} = await fetch('/stripe/config').then((r) => r.json());
-    //     if (publishableKey) {
-    //         //TODO: Might need this if the webhook doesn't update immediately
-    //         console.log(publishableKey)
-    //         const stripe = Stripe(publishableKey);
-
-    //         const account = await stripe.accounts.retrieve(
-    //         'acct_1KrIF5GdGRP70F5u'
-    //         );
-    //         console.log(account)
-    //     }
-    // }
-    // newFunc();
-
     let setupButton = document.querySelector("#btnSetupPayout");
 
     if (setupButton) {
