@@ -132,7 +132,7 @@ export class SalesGroupViewer {
             salesGroupID.style = "display: inline;";
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
-            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1){
+            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1 && this.data["price"] > 0){
                 let purchaseButton = document.createElement("button");
                 purchaseButton.className = "btn btn-sm btn-success";
                 purchaseButton.style = "float:right"

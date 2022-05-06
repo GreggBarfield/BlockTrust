@@ -161,9 +161,9 @@ class SalesGroups:
         )
         return self.get_sales_group_by_id(self._db.last_row_id())
 
-    def insert_new_sales_group(self, reported=None, published=None, zip_code=None, account=None,
+    def insert_new_sales_group(self, reported, published=None, zip_code=None, account=None,
                                delivery_location=None, start=None, end=None, auction_sale=None,
-                               group_name=None, is_archived=None, delivery_location_type=None):
+                               group_name=None, is_archived=None, delivery_location_type=None, price=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -184,10 +184,10 @@ class SalesGroups:
         self._db.execute(
             """
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
-            group_name, is_archived, delivery_location_type)
+            group_name, is_archived, delivery_location_type, price)
             VALUES
             (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
-            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s)
+            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s)
             """, {
                 "account": account,
                 "reported": json.dumps(reported),
@@ -199,7 +199,8 @@ class SalesGroups:
                 "auction_sale": auction_sale,
                 "group_name": group_name,
                 "is_archived": is_archived,
-                "delivery_location_type": delivery_location_type
+                "delivery_location_type": delivery_location_type,
+                "price": price
             }
         )
         return self._db.last_row_id()

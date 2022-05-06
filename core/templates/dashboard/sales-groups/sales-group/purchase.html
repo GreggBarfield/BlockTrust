@@ -54,13 +54,6 @@ Transaction
  
 
     document.addEventListener('DOMContentLoaded', async () => {
-        // const {publishableKey} = await fetch('/stripe/config/'+account_id).then((r) => r.json());
-        // if (!publishableKey) {
-        // addMessage(
-        //     'No publishable key returned from the server. Please contact system administrator'
-        // );
-        // alert('Something is wrong. Please contact system administrator');
-        // }
         let account_id = '{{sales_group_row.account}}';
         let salesGroupId = '{{sales_group_row.id}}';
         const publishableKey = '{{stripe_key}}';
@@ -83,7 +76,7 @@ Transaction
             form.querySelector('button').textContent = "Processing...";
             // Make a call to the server to create a new payment intent and store its client_secret.
             const {error: backendError, clientSecret} = await fetch(
-                '/stripe/create-payment-intent/sales-group/',
+                '/stripe/create-payment-intent/sales-group',
                 {
                 method: 'POST',
                 headers: {

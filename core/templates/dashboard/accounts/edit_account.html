@@ -120,12 +120,12 @@ Edit Account
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
-
+                {% if dashboard_standard_account.sector_id() == sectors["Cow-Calf"] %}
                 <div class="row justify-content-center mt-5" id="divStripeSetup">
                     <div class="col-lg-8 text-center">
                         <span><i class="fa fa-dollar-sign text-success mb-2" style="font-size:4em"></i></span>
                         {% if not is_stripe_charges_enabled %}    
-                            <div class="mb-3">              
+                            <div class="mb-3">
                                 <h4>Setup payouts to sell sales groups on Blocktrust Network</h4>
                                 <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
                             </div>
@@ -141,6 +141,7 @@ Edit Account
                         {% endif %}
                     </div>
                 </div>
+                {% endif %}
 
             </form>
         </div>

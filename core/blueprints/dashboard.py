@@ -6,7 +6,7 @@ from flask import (
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from ..renderers.dashboard import dashboard_render
 
-from ..sectors import sectors_by_id
+from ..sectors import sectors_by_id, sectors_by_name
 
 from ..common_exceptions import ExportException
 
@@ -398,7 +398,7 @@ def serve_edit_account():
                     is_stripe_charges_enabled = True
             else:
                 is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
-        return dashboard_render("/dashboard/accounts/edit_account.html", {"is_stripe_charges_enabled": is_stripe_charges_enabled })
+        return dashboard_render("/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_charges_enabled": is_stripe_charges_enabled })
 
 
 # edit user profile

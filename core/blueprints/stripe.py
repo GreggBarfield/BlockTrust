@@ -56,9 +56,11 @@ def serve_stripe_price(priceLookupKey):
 @bp.route('/stripe/subscription', methods=['POST'])
 def serve_stripe_subscription():
     payload = request.data
-    #this should match the signing secret of the webhook set up in Stripe Dashboard
     endpoint_secret = SUBSCRIPTION_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
+
+    DebugLogs(g.db).insert_debug_log("Stripe", "Subscription web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
+                                     json.dumps(json.loads(request.data)))
 
     try:
         event = stripe.Webhook.construct_event(
@@ -195,14 +197,10 @@ def create_sales_group_payment():
     try:
         if len(account := g.db.accounts.get_accounts(id=data['account_id'])) > 0 and account[0]["stripe_account_id"] is not None \
          and account[0]["is_stripe_charges_enabled"] == 1:
-            # if STRIPE_SECRET_KEY is not None:
             stripe.api_key = STRIPE_SECRET_KEY
-            # Some example payment method types include `card`, `ideal`, and `alipay`.
-            # payment_method_type = data['paymentMethodType']
             currency = data['currency']
             sales_group_id = data['sales_group_id']
             amount = int(float(data['amount'])*100)
-            # Create a PaymentIntent with the amount, currency, and a payment method type.
             params = {
                 'transfer_data': {
                     'destination': account[0]["stripe_account_id"]
@@ -216,7 +214,6 @@ def create_sales_group_payment():
                 'metadata': {'sales_group_id': sales_group_id}
             }
             intent = stripe.PaymentIntent.create(**params)
-            # Send PaymentIntent details to the front end.
             return {'clientSecret': intent.client_secret}
         else:
             raise Exception("There is a problem with this sales group transaction. Please try later.")
@@ -261,7 +258,6 @@ def onboard_account_complete():
 
     origin = ('https://' if request.is_secure else 'http://') + request.headers['host']
     account_link_url = _generate_account_link(account_id, origin)
-    #return redirect(account_link_url)
     return {'url': account_link_url}
 
 
@@ -289,12 +285,10 @@ def _generate_account_link(stripe_account_id, origin):
 @bp.route('/stripe/connect/account-events', methods=['POST'])
 def serve_stripe_account():
     payload = request.data
-    print("request", request.data)
-    #this should match the signing secret of the webhook set up in Stripe Dashboard
     endpoint_secret = ACCOUNT_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
 
-    DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Enpoint secret: {endpoint_secret}",
+    DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
      json.dumps(json.loads(request.data)))
 
     try:
@@ -313,8 +307,6 @@ def serve_stripe_account():
     if event.type == 'account.updated':
         stripe_account = event.data.object
         accounts_table = Accounts(g.db)
-        # if len(accounts := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
-        #     accounts_table.update_account(account_id=accounts[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
         account = accounts_table.get_accounts(stripe_account_id=stripe_account.id)[0]
         accounts_table.update_account(account_id=account["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
     else:

@@ -248,7 +248,8 @@ def serve_create_sales_group():
         auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
-        delivery_location_type=request.json["delivery_location_type"]
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
