@@ -12,7 +12,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
             "get_eids_and_application_ids_for_account",
         ).then((data) => {
             this.data = data;
-            console.log(this.data.eids_and_application_ids.length);
+            this.eidsAndVisualIDsList = []
             this.makeForm();
         });
 
@@ -38,7 +38,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
             let groupLabel = document.createElement("label");
-            groupLabel.className = "form-label";
+            groupLabel.className = "form-label font-weight-bold";
             groupLabel.textContent = name;
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
@@ -100,25 +100,64 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
 
         let applicationIDSelectRow = createSection(form, "Application ID");
         let applicationIDSelect = createSelect(applicationIDSelectRow, "Select Application ID", this.data.application_id_list, "Select an Option", 6);
-        let eidsAndVisualIDsTableColumns = [{"data": 'eid', "title": "EID"}, {"data": 'visual_id', "title": "Visual ID"}, {"data": "grouping_id", "title": "Grouping ID"}]
+        let eidsAndVisualIDsTableColumns = [{"data": 'eid', "title": "EID"}, {"data": 'visual_id', "title": "Visual ID"}, {"data": "grouping_id", "title": "Application ID"}]
         let eidsAndVisualIDsTable = createTable(applicationIDSelectRow, "EIDs and Visual IDs", eidsAndVisualIDsTableColumns, 6);
         
         applicationIDSelect.onchange = () =>{
             $(eidsAndVisualIDsTable).DataTable().clear().draw();
-            let eidsAndVisualIDsList = [];
+            this.eidsAndVisualIDsList = [];
             for(const eid_and_application_id of this.data.eids_and_application_ids){
                 if(eid_and_application_id.grouping_id == applicationIDSelect.value){
-                    eidsAndVisualIDsList.push({
+                    this.eidsAndVisualIDsList.push({
                         "eid": eid_and_application_id.eid,
-                        "visual_id": eid_and_application_id.visual_id,
+                        "visual_id": eid_and_application_id.visual_id != null ? eid_and_application_id.visual_id : "N/A",
                         "grouping_id": eid_and_application_id.grouping_id
                     });
                 }
             }
-            $(eidsAndVisualIDsTable).DataTable().rows.add(eidsAndVisualIDsList).draw();
+            $(eidsAndVisualIDsTable).DataTable().rows.add(this.eidsAndVisualIDsList).draw();
         }
         applicationIDSelect.onchange();
+
+        let submitFormGroup = document.createElement("div");
+        submitFormGroup.className = "form-group";
+        form.append(submitFormGroup);
+        let submitButton = document.createElement("button");
+        submitButton.className = "btn btn-primary";
+        submitButton.textContent = "Save";
+        submitButton.type = "button";
+        submitFormGroup.append(submitButton);
+        this.frame.append(card);
+
+        let statusMessage = document.createElement("p");
+        statusMessage.style.display = "none";
+        statusMessage.className = "mt-2 mb-0";
+        form.append(statusMessage);
+        let errorMessage = document.createElement("p");
+        errorMessage.style.display = "none";
+        errorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(errorMessage);
         
+        this.asyncForm = new AsyncForm({
+            action: "/widgets/data/save_eids_by_application_id_for_sales_group",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            asJSON: true,
+            getData: () => {
+                return {
+                    sales_group_id: this.salesGroupID,
+                    application_id: applicationIDSelect.value,
+                    eids_and_visual_ids_list: this.eidsAndVisualIDsList
+                }
+            }
+        });
+
+        submitButton.addEventListener("click", () => {   
+            this.asyncForm.submit();
+        });
         this.frame.append(card);
     }
 }

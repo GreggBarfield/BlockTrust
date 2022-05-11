@@ -653,8 +653,31 @@ def serve_get_eids_and_application_ids_for_account():
         account_id=g.account.id(),
         partner_account_id=g.account.partner_account_id()
     )
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    assigned_eids_for_account = []
+    for sales_group_id in account_sales_groups_ids:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_eids_with_application_ids = []
+    for eid_and_application_id in eids_and_application_ids:
+        if eid_and_application_id["eid"] not in assigned_eids_for_account:
+            available_eids_with_application_ids.append({
+                "eid": eid_and_application_id["eid"],
+                "visual_id": eid_and_application_id["visual_id"],
+                "grouping_id": eid_and_application_id["grouping_id"]
+            })
+    print(len(available_eids_with_application_ids))
     application_id_list = []
     for application_id in application_ids:
         if application_id["grouping_id"] is not None:
             application_id_list.append(application_id["grouping_id"])
-    return {"eids_and_application_ids": eids_and_application_ids, "application_id_list": application_id_list}
+    return {"eids_and_application_ids": available_eids_with_application_ids, "application_id_list": application_id_list}
+
+@bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_save_eids_by_application_id():
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
+    return {"redirect": "/dashboard/sales-groups/manage"}
