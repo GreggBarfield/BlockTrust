@@ -367,6 +367,12 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
+    partner_account_rows = g.db.accounts.get_accounts(company="MFA Health Track", is_partner=1)
+    mfa_healthtrack_partner = False
+    if len(partner_account_rows) > 0:
+        mfa_partner_account_row = partner_account_rows[0]
+        if g.account.partner_account_id() == mfa_partner_account_row["id"]:
+            mfa_healthtrack_partner = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
@@ -390,7 +396,8 @@ def serve_get_eids_for_sales_group():
     return {
         "id": sales_group_row["id"],
         "assigned_animals": assigned_animals,
-        "available_eids_with_visual_ids": available_eids_with_visual_ids
+        "available_eids_with_visual_ids": available_eids_with_visual_ids,
+        "mfa_healthtrack_partner": mfa_healthtrack_partner
     }
 
 
@@ -668,12 +675,11 @@ def serve_get_eids_and_application_ids_for_account():
                 "visual_id": eid_and_application_id["visual_id"],
                 "grouping_id": eid_and_application_id["grouping_id"]
             })
-    print(len(available_eids_with_application_ids))
     application_id_list = []
     for application_id in application_ids:
         if application_id["grouping_id"] is not None:
             application_id_list.append(application_id["grouping_id"])
-    return {"eids_and_application_ids": available_eids_with_application_ids, "application_id_list": application_id_list}
+    return {"available_eids_and_application_ids": available_eids_with_application_ids, "application_id_list": application_id_list}
 
 @bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
 @crut.require_account

@@ -68,7 +68,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         function createTable(row, name, columns, groupColumnSize=6){
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id, groupColumnSize);
-            // Creating checklist table
+            // Create an empty table which can be populated dynamically
             let table = document.createElement('table');
             table.className = "table table-striped table-bordered nowrap";
             group.append(table);
@@ -106,7 +106,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         applicationIDSelect.onchange = () =>{
             $(eidsAndVisualIDsTable).DataTable().clear().draw();
             this.eidsAndVisualIDsList = [];
-            for(const eid_and_application_id of this.data.eids_and_application_ids){
+            for(const eid_and_application_id of this.data.available_eids_and_application_ids){
                 if(eid_and_application_id.grouping_id == applicationIDSelect.value){
                     this.eidsAndVisualIDsList.push({
                         "eid": eid_and_application_id.eid,

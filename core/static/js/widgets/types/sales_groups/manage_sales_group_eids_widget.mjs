@@ -159,20 +159,21 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let cardHeader = document.createElement("div");
         cardHeader.className = "card-header form-group d-flex justify-content-between";
         cardHeader.style = "padding:5px;padding-left: 15px;"
-
-        let applicationIDButtonDiv = document.createElement("div");
-        applicationIDButtonDiv.className = "d-flex align-items-end flex-row";
-    
-        let applicationIDButton = document.createElement("button");
-        applicationIDButton.className = "btn btn-outline-primary btn-sm";
-        applicationIDButton.innerHTML = "Select EIDs by Application ID";
-        applicationIDButton.onclick = function () {
-            window.location.href = '/dashboard/sales-groups/select-eids-by-application-id/'+that.salesGroupID;
-        };
-        applicationIDButtonDiv.append(applicationIDButton);
-        
         cardHeader.append(editGroupName);
-        cardHeader.append(applicationIDButtonDiv);
+
+        if(this.data.mfa_healthtrack_partner){
+            let applicationIDButtonDiv = document.createElement("div");
+            applicationIDButtonDiv.className = "d-flex align-items-end flex-row";
+    
+            let applicationIDButton = document.createElement("button");
+            applicationIDButton.className = "btn btn-outline-primary btn-sm";
+            applicationIDButton.innerHTML = "Select EIDs by Application ID";
+            applicationIDButton.onclick = function () {
+            window.location.href = '/dashboard/sales-groups/select-eids-by-application-id/'+that.salesGroupID;
+            };
+            applicationIDButtonDiv.append(applicationIDButton);
+            cardHeader.append(applicationIDButtonDiv);
+        }
         card.append(cardHeader);
 
         let cardBody = document.createElement("div");
