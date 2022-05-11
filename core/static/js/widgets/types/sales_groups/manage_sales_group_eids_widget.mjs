@@ -147,19 +147,33 @@ export class ManageSalesGroupEIDsWidget extends Widget {
     }
 
     makeForm(){
+        let that=this;
         let card = document.createElement("div");
         card.className = "card";
-        let cardHeader = document.createElement("h3");
-        cardHeader.className = "col-form-label";
-        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
-        cardHeader.textContent = "Edit Sales Group EIDs " + this.data.id + ":  ";
 
-        let editGroupName = document.createElement("div");
-        editGroupName.className = "card-header form-group row";
-        editGroupName.style = "padding:5px;padding-left: 15px;"
+        let editGroupName = document.createElement("h5");
+        editGroupName.className = "mt-2";
+        editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        editGroupName.textContent = `Edit Sales Group ${this.salesGroupID} EIDs`;
 
-        editGroupName.append(cardHeader);
-        card.append(editGroupName);
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between";
+        cardHeader.style = "padding:5px;padding-left: 15px;"
+
+        let applicationIDButtonDiv = document.createElement("div");
+        applicationIDButtonDiv.className = "d-flex align-items-end flex-row";
+    
+        let applicationIDButton = document.createElement("button");
+        applicationIDButton.className = "btn btn-outline-primary btn-sm";
+        applicationIDButton.innerHTML = "Select EIDs by Application ID";
+        applicationIDButton.onclick = function () {
+            window.location.href = '/dashboard/sales-groups/select-eids-by-application-id/'+that.salesGroupID;
+        };
+        applicationIDButtonDiv.append(applicationIDButton);
+        
+        cardHeader.append(editGroupName);
+        cardHeader.append(applicationIDButtonDiv);
+        card.append(cardHeader);
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body";
@@ -167,7 +181,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
         let form = document.createElement("form");
         cardBody.append(form);
-
 
         let eidsRow = this.createSection(form, "");
         let id = "domuid" + window.DOMUIDNext++;

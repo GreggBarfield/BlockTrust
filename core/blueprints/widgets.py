@@ -641,3 +641,20 @@ def serve_employee_search_by_eid_and_visual_id():
             "redirect_route": redirect_route,
             "matches": []
         }
+
+@bp.route('/widgets/data/get_eids_and_application_ids_for_account', methods=["POST"])
+@crut.require_account
+def serve_get_eids_and_application_ids_for_account():
+    eids_and_application_ids = g.db.matches.get_eids_with_grouping_ids(
+        account_id=g.account.id(),
+        partner_account_id=g.account.partner_account_id()
+        )
+    application_ids = g.db.matches.get_grouping_ids_for_account(
+        account_id=g.account.id(),
+        partner_account_id=g.account.partner_account_id()
+    )
+    application_id_list = []
+    for application_id in application_ids:
+        if application_id["grouping_id"] is not None:
+            application_id_list.append(application_id["grouping_id"])
+    return {"eids_and_application_ids": eids_and_application_ids, "application_id_list": application_id_list}

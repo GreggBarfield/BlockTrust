@@ -708,6 +708,57 @@ class Matches:
             }
         ))
 
+    def get_eids_with_grouping_ids(self, account_id, partner_account_id):
+        """
+        Gets the list of available EIDs and Visual IDs for an account with the grouping IDs
+
+        Params:
+            account_id: Account ID for which eids and Visual IDs are required
+            partner_account: Partner account of the account for which eids and Visual IDs are required
+
+        Returns:
+            A list of EIDS and visual IDs with Grouping IDs or an empty list
+        """
+        eids_with_grouping_ids = self._db.execute_d(
+            """
+            SELECT DISTINCT(eid), visual_id, grouping_id
+            FROM matches
+            WHERE account_link IN (
+                SELECT id FROM account_links WHERE account=%(account)s
+            ) AND partner_account = %(partner_account_id)s AND type=%(match_type_born)s
+            """, {
+                "account": account_id,
+                "partner_account_id": partner_account_id,
+                "match_type_born": match_types_by_name["Born"]
+            }
+        )
+        if len(eids_with_grouping_ids) > 0:
+            return eids_with_grouping_ids
+        return []
+
+    def get_grouping_ids_for_account(self, account_id, partner_account_id):
+        """
+        Get the grouping IDs associated with a particular account
+
+        Params:
+            account_id: Account ID for which grouping IDs are required
+            partner_account: Partner account of the account for which grouping IDs are required 
+        """
+        grouping_ids = self._db.execute_d(
+            """
+            SELECT DISTINCT(grouping_id) FROM matches
+            WHERE account_link IN (
+                SELECT id FROM account_links WHERE account=%(account)s
+            ) AND partner_account = %(partner_account_id)s
+            """, {
+                "account": account_id,
+                "partner_account_id": partner_account_id
+            }
+        )
+        if len(grouping_ids) > 0:
+            return grouping_ids
+        return []
+
     @staticmethod
     def _load_rows(rows):
         """Parses returned JSON from mysql and applies booleans."""

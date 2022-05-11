@@ -632,3 +632,16 @@ def serve_sales_group_transaction(sales_group_id):
             return {}
         except Exception as e:
             return {"error": str(e)}, 400
+
+
+@bp.route('/dashboard/sales-groups/select-eids-by-application-id/<int:sales_group_id>', methods=["GET"])
+@crut.require_account
+def serve_select_eids_by_application_id(sales_group_id):
+    partner_row = g.db.accounts.get_accounts(company='MFA Health Track', is_partner=1)
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        return dashboard_render(
+            "sales-groups/sales-group/select-eids-by-application-id.html",
+            {"sales_group": sales_group_row}
+        )
+    return dashboard_render("sales-groups/sales-group/no.html")

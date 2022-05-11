@@ -1,0 +1,18 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Select EIDs by Application ID" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view/" + (sales_group['id']|e) + "", "Manage EIDs for sales group " + (sales_group['id']|e))] %}
+
+{% block dashboard_content_header %}
+Select EIDs by Application ID for Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <p class="mb-0 widget" data-widget-type="select eids by application id" data-widget-sales-group="{{ sales_group['id'] }}"></p>
+    </div>
+</div>
+
+{% endblock dashboard_content %}
