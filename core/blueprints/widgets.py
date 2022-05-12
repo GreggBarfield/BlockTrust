@@ -83,7 +83,8 @@ def serve_sales_group():
         "company": g.account.name(),
         "is_archived": sales_group_row["is_archived"],
         "price": sales_group_row["price"],
-        "is_sold": sales_group_row["is_sold"]
+        "is_sold": sales_group_row["is_sold"],
+        "accept_offers": sales_group_row["accept_offers"]
     }
 
 
@@ -244,6 +245,7 @@ def serve_create_sales_group():
         account=g.account.id(),
         reported=request.json["reported"],
         published=request.json["published"],
+        accept_offers=request.json["accept_offers"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
         start=request.json["start"],
@@ -297,6 +299,7 @@ def serve_update_sales_group():
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
+        accept_offers=request.json["accept_offers"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
         start=request.json["start"],

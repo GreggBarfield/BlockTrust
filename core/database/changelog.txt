@@ -1509,3 +1509,18 @@ ADD COLUMN `is_stripe_charges_enabled` TINYINT NULL DEFAULT 0 AFTER `stripe_acco
 /* Nisheet Thakur 4/25/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
 UPDATE `products` SET `is_active`=0 WHERE id=@product_id;
+
+/* Nisheet Thakur 5/12/2022 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `accept_offers` TINYINT NULL DEFAULT 0;
+
+CREATE TABLE `sales_group_offers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `sales_group_id` INT NOT NULL,
+  `offering_account_id` INT NOT NULL,
+  `offer_amount` DECIMAL(8,2) DEFAULT 0,
+  `offer_status` INT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);

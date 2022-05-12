@@ -39,6 +39,7 @@ export class SalesGroupsCommonForm{
             this.fileAuths = this.data.file_auths
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
+            this.acceptOffers = this.data.accept_offers;
 
         }
         else{
@@ -69,6 +70,7 @@ export class SalesGroupsCommonForm{
             this.fileAuths = null;
             this.comments = "";
             this.published = true;
+            this.accept_offers = true;
         }
         this.auctionMarketsData = auctionMarketsData;
         this.postRoute = postRoute;
@@ -473,6 +475,7 @@ export class SalesGroupsCommonForm{
         // Publish
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.published);
+        let acceptOffersSwith = new SwitchFormGroup(form, "Accept Offers?", this.acceptOffers);
 
         // Save
 
@@ -522,6 +525,7 @@ export class SalesGroupsCommonForm{
                 return {
                     id: that.salesGroupID,
                     published: publishSwitch.isChecked(),
+                    accept_offers: acceptOffersSwith.isChecked(),
                     eids: [],
                     reported: {
                         comments: commentsTA.value,

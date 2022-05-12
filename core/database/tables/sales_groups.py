@@ -163,7 +163,8 @@ class SalesGroups:
 
     def insert_new_sales_group(self, reported, published=None, zip_code=None, account=None,
                                delivery_location=None, start=None, end=None, auction_sale=None,
-                               group_name=None, is_archived=None, delivery_location_type=None, price=None):
+                               group_name=None, is_archived=None, delivery_location_type=None, price=None,
+                               accept_offers=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -177,6 +178,7 @@ class SalesGroups:
             end: The end time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
+            accept_offers: Accept offers or not
 
         Returns:
             Sales group ID of new Sales group
@@ -184,10 +186,10 @@ class SalesGroups:
         self._db.execute(
             """
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
-            group_name, is_archived, delivery_location_type, price)
+            group_name, is_archived, delivery_location_type, price, accept_offers)
             VALUES
             (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
-            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s)
+            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(accept_offers)s)
             """, {
                 "account": account,
                 "reported": json.dumps(reported),
@@ -200,7 +202,8 @@ class SalesGroups:
                 "group_name": group_name,
                 "is_archived": is_archived,
                 "delivery_location_type": delivery_location_type,
-                "price": price
+                "price": price,
+                "accept_offers": accept_offers
             }
         )
         return self._db.last_row_id()
@@ -208,7 +211,8 @@ class SalesGroups:
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
-        delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE):
+        delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
+        accept_offers=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -272,6 +276,9 @@ class SalesGroups:
         if buyer_account_id is not NO_VALUE:
             query_conditions.append(" buyer_account_id = %(buyer_account_id)s")
             query_values["buyer_account_id"] = buyer_account_id
+        if accept_offers is not NO_VALUE:
+            query_conditions.append(" accept_offers = %(accept_offers)s")
+            query_values["accept_offers"] = accept_offers
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

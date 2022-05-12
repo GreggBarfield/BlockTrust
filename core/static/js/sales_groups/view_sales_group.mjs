@@ -2,6 +2,7 @@ import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
+import { promptNewOffer } from "../widgets/types/offer/new_offer.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo = null) {
@@ -141,6 +142,16 @@ export class SalesGroupViewer {
                     window.location.href = "/dashboard/sales-groups/purchase/"+this.data["id"];
                 });
                 left.append(purchaseButton);
+            }
+            if(this.data["accept_offers"]==1){
+                let sendMessageButton = document.createElement("button");
+                sendMessageButton.className = "btn btn-sm btn-success";
+                sendMessageButton.style = "float:right"
+                sendMessageButton.textContent = "Make an Offer";
+                sendMessageButton.addEventListener("click", () => {
+                    promptNewOffer(this.data.id, this.data.group_name);
+                });
+                left.append(sendMessageButton);
             }
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
