@@ -3,6 +3,7 @@ import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 import { promptNewOffer } from "../widgets/types/offer/new_offer.mjs";
+import { SalesGroupOfferWidget } from "../widgets/types/offer/new_offer.mjs";
 
 export class SalesGroupViewer {
     constructor(data, attachTo = null) {
@@ -144,14 +145,17 @@ export class SalesGroupViewer {
                 left.append(purchaseButton);
             }
             if(this.data["accept_offers"]==1){
-                let sendMessageButton = document.createElement("button");
-                sendMessageButton.className = "btn btn-sm btn-success";
-                sendMessageButton.style = "float:right"
-                sendMessageButton.textContent = "Make an Offer";
-                sendMessageButton.addEventListener("click", () => {
-                    promptNewOffer(this.data.id, this.data.group_name);
+                let sendMessageButton1 = document.createElement("button");
+                sendMessageButton1.className = "btn btn-sm btn-success";
+                sendMessageButton1.style = "float:right"
+                sendMessageButton1.textContent = "Make an Offer";
+                sendMessageButton1.addEventListener("click", () => {
+                    let widget = new SalesGroupOfferWidget(this.data.id, this.data.group_name);
+                    widget.init();
+                    //promptNewOffer(this.data.id, this.data.group_name);
+                    //promptNewMessage(this.data.account, this.data.account_name);
                 });
-                left.append(sendMessageButton);
+                left.append(sendMessageButton1);
             }
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");

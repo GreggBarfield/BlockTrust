@@ -13,6 +13,7 @@ from ..database.tables.accounts import AccountsException
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
+from ..database.tables.sales_group_offers import SalesGroupOffers, offer_status_by_name
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -183,7 +184,8 @@ def serve_search_sales_groups_2():
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
             "is_sold": sales_group_row["is_sold"],
-            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+            "accept_offers": sales_group_row["accept_offers"]
         })
 
     return {
@@ -644,3 +646,39 @@ def serve_employee_search_by_eid_and_visual_id():
             "redirect_route": redirect_route,
             "matches": []
         }
+
+
+@bp.route('/widgets/data/get_existing_offers_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_get_existing_offers_for_sales_group():
+    existing_offers_by_account = SalesGroupOffers(g.db).get_sales_group_offers(
+        sales_group_id=request.json["sales_group_id"],
+        offering_account_id=g.account.id(),
+        offer_status=offer_status_by_name['Pending']
+        )
+    return {"existing_offers_by_account": existing_offers_by_account}
+
+
+@bp.route('/widgets/data/add_or_update_offer_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_add_or_update_offer_for_sales_group():
+    existing_offers_by_account = SalesGroupOffers(g.db).get_sales_group_offers(
+        sales_group_id=request.form["sales_group_id"],
+        offering_account_id=g.account.id(),
+        offer_status=offer_status_by_name['Pending']
+        )
+    if len(existing_offers_by_account) > 0:
+        existing_offer_by_account = existing_offers_by_account[0]
+        SalesGroupOffers(g.db).update_sales_group_offer(
+            sales_group_offer_id=existing_offer_by_account["id"],
+            offer_amount=request.form["offer_amount"]
+        )
+        return {"redirect": request.form["requestRedirectTo"]}
+
+    SalesGroupOffers(g.db).insert_sales_group_offer(
+        sales_group_id=request.form["sales_group_id"],
+        offering_account_id=g.account.id(),
+        offer_amount=request.form["offer_amount"],
+        offer_status=offer_status_by_name['Pending']
+    )
+    return {"redirect": request.form["requestRedirectTo"]}
