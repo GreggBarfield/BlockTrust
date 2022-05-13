@@ -2,7 +2,6 @@ import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
-import { promptNewOffer } from "../widgets/types/offer/new_offer.mjs";
 import { SalesGroupOfferWidget } from "../widgets/types/offer/new_offer.mjs";
 
 export class SalesGroupViewer {
@@ -152,8 +151,6 @@ export class SalesGroupViewer {
                 sendMessageButton1.addEventListener("click", () => {
                     let widget = new SalesGroupOfferWidget(this.data.id, this.data.group_name);
                     widget.init();
-                    //promptNewOffer(this.data.id, this.data.group_name);
-                    //promptNewMessage(this.data.account, this.data.account_name);
                 });
                 left.append(sendMessageButton1);
             }
