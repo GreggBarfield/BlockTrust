@@ -23,6 +23,7 @@
         "autocommit": true
     },
     "api_mysql": "same",
+    "api_dev_mysql": "same",
     "email": {
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
     },
@@ -37,6 +38,7 @@
     },
     "stripe": {
         "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR",
+        "account_webhook_secret": "whsec_bjdiU5R65YjH8CGB9l1ugTVnzZqpZK76",
         "secret_key": "sk_test_51HRTwoGWRtomrLg3A2oqpP5mS60M5OAJyjpoUNGm4YjgGmhAWMFBaKx9ezdtk5DGfExhpSrPgd0ESgcbc9hOCpiR0023awyPeX",
         "publishable_key": "pk_test_51HRTwoGWRtomrLg3eckt8XeKxqtfdfAT1hZh5C2hnfyJFyjM0l0UGnCYVSv6CS6M8Rs8rcBu4Mm03xqf9WmWaIXr00jI2Eqsmh",
         "basic": "price_1IHjY1GWRtomrLg3OifgDsmq"

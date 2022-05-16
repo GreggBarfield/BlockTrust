@@ -1433,11 +1433,30 @@ SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
 values("USCT", @product_id, 20);
 
+/* Rohan Sureshkumar 03/16/2022 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `price` DECIMAL(8,2) DEFAULT 0,
+ADD COLUMN `is_sold` TINYINT DEFAULT 0,
+ADD COLUMN `buyer_account_id` INT DEFAULT NULL AFTER `is_sold`;
+
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_account_id_accounts`
+  FOREIGN KEY (`account`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_buyer_account_id_id_accounts`
+  FOREIGN KEY (`buyer_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
 /* Conner Charles 03/11/2022 */
 ALTER TABLE `usda_reports` 
 DROP INDEX `city_idx` ,
 ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC, `market_location_name` ASC) VISIBLE;
-;
 
 /* Rohan Sureshkumar 03/15/22 */
 ALTER TABLE `usda_reports`
@@ -1481,6 +1500,11 @@ RENAME TO `sales_group_animals`;
 /* Nisheet Thakur 4/11/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_id;
+
+/* Rohan Sureshkumar 14/4/2022 */
+ALTER TABLE `accounts` 
+ADD COLUMN `stripe_account_id` VARCHAR(127) NULL AFTER `stripe_customer_id`,
+ADD COLUMN `is_stripe_charges_enabled` TINYINT NULL DEFAULT 0 AFTER `stripe_account_id`;
 
 /* Nisheet Thakur 4/25/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');

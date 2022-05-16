@@ -31,6 +31,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
+import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
 
 
 // Immediately invoked
@@ -78,6 +79,7 @@ import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summa
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
+    attach("add connections", AddConnectionsWidget);
 
     // Find widgets
     $(".widget").each(function () {
@@ -105,8 +107,14 @@ import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summa
 
     $("#icon-search").click(() => {
         let infoModal = new InfoModal("Search By EID");
-        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter());
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id_for_account");
         widget.init(); // TODO: Fix (This will break in the future when networking is optimized)
+    });
+
+    $("#eid-search").click(() => {
+        let infoModal = new InfoModal("Search By EID");
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id");
+        widget.init();
     });
 
 })()

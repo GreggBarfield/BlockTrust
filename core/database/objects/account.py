@@ -94,6 +94,12 @@ class Account:
     def archived(self):
         return self._row['archived']
 
+    def stripe_account_id(self):
+        return self._row['stripe_account_id']
+    
+    def is_stripe_charges_enabled(self):
+        return self._row['is_stripe_charges_enabled']
+
     def is_partner_used_for_signup(self):
         return self._row['is_partner_used_for_signup']
 
