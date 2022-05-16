@@ -1,0 +1,21 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Animal "+ animal.eid()|string %}
+{% set employee_locations = [("/employee/dashboard","Animals"), ("/employee/dashboard/animals/" + animal.eid() |string, animal.eid()|string)] %}
+
+{% block employee_content_header %}
+Animal {{ animal.eid()|string }}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <div class="card-body">
+                <h5 class="card-title">Animal Found</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock employee_content %}

@@ -22,7 +22,7 @@ let address = editAccountForm.find("#edit_address");
 let city = editAccountForm.find("#edit_city");
 let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
-let action_route = "/employee/dashboard/edit-account/"+account_id+"/action"
+let action_route = "/employee/dashboard/edit-account/"+account_id;
 
 let form = new AsyncForm({
     action: action_route,

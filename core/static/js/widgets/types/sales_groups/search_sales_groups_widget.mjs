@@ -11,7 +11,6 @@ export class SearchSalesGroupsWidget extends Widget {
         this.frame.innerHTML = "";
 
         this.inputs = {};
-
         this.generate();
 
     }

@@ -3,10 +3,10 @@ from flask import (
     request, Blueprint, g, redirect, url_for
 )
 
-from core.config import FLATFILE_LICENSE
+from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from ..renderers.dashboard import dashboard_render
 
-from ..sectors import sectors_by_id
+from ..sectors import sectors_by_id, sectors_by_name
 
 from ..common_exceptions import ExportException
 
@@ -28,6 +28,7 @@ from ..utilities.email import send_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 
 import json
+import stripe
 
 bp = Blueprint('dashboard_bp', __name__)
 
@@ -144,6 +145,7 @@ def serve_account_id(account_id):
         return dashboard_render("sectors/generic.html", sector_params)
 
 
+@bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 @crut.require_user
 def serve_animal_eid(animal_eid):
@@ -380,13 +382,24 @@ def serve_edit_account():
                     state=request.form["state"],
                     zip=request.form["zip"],
                     phone=request.form["phone"]
-                        )
+            )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
             return {"error": str(e)}, 400
     elif request.method == 'GET':
-        return dashboard_render("/dashboard/accounts/edit_account.html", {"account": g.account})
+        stripe.api_key = STRIPE_SECRET_KEY
+        is_stripe_charges_enabled = False
+        if g.account.stripe_account_id() is not None:
+            if not bool(g.account.is_stripe_charges_enabled()):
+                # Check if this has changed
+                stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
+                if stripe_account["charges_enabled"]:
+                    g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
+                    is_stripe_charges_enabled = True
+            else:
+                is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
+        return dashboard_render("/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_charges_enabled": is_stripe_charges_enabled })
 
 
 # edit user profile
@@ -456,37 +469,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts(is_partner=0)
-    for account_row in account_rows:
-        if account_row["id"] == g.account.id():
-            account_rows.remove(account_row)
-    return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
-
-
-@bp.route('/dashboard/add-connection', methods=['POST'])
-@crut.require_account
-def serve_add_connection_request():
-    try:
-        if request.form["company_id"] != "0":
-            Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
-        else:
-            ConnectionInvites(g.db).add_connection_invite(
-                from_account=g.account.id(),
-                company_sector=request.form["sector"],
-                company_name=request.form["new_company_name"],
-                company_contact=request.form["new_company_contact"],
-                company_email=request.form["new_company_email"]
-            )
-            send_email(
-                "BlockTrust Network Connection Invite",
-                render_email("send_connection_invite.html", {
-                    'new_company_contact': request.form["new_company_name"],
-                    'account_company': g.account.name()
-                }), request.form["new_company_email"]
-            )
-        return {"redirect": "/dashboard/connections"}
-    except Exception as e:
-        return {"error": str(e)}, 400
+    return dashboard_render("/dashboard/connections/add-connection.html")
 
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
@@ -586,3 +569,36 @@ def serve_view_notification(notification_id):
         return dashboard_render("/dashboard/notifications/view-notification.html", {"notification": notification_row})
     # If notification is invalid return to main notifications page
     return redirect('/dashboard/notifications')
+
+
+@bp.route('/dashboard/sales-groups/purchase/<int:sales_group_id>', methods=["GET", "POST"])
+@crut.require_account
+def serve_sales_group_transaction(sales_group_id):
+    if request.method == "GET":
+        sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+        if sales_group_row["is_sold"] == 0:
+            return dashboard_render("/dashboard/sales-groups/sales-group/purchase.html", {
+                "sales_group_row": sales_group_row, "stripe_key": STRIPE_PUBLISHABLE_KEY, "name": g.user.first_name() + ' ' + g.user.last_name()
+            })
+        else:
+            return {"error": "Sales group has been sold"}, 400
+    else:
+        try:
+            request_data = json.loads(request.data)
+
+            g.db.sales_groups.update_sales_group(id=sales_group_id, is_sold=1, buyer_account_id=g.account.id())
+            EventLogs(g.db).insert_event_log(
+                account_id=g.account.id(),
+                user_id=g.user.id(),
+                event_type_id=event_type_by_name["Sales Group Purchase"],
+                details=json.dumps({
+                    'sales_group_id': sales_group_id,
+                    'transaction_amount': request_data['amount'],
+                    'buyer_account_id': g.account.id(),
+                    'seller_account_id': request_data['to_account_id'],
+                    'payment_intent': request_data['paymentIntent']
+                })
+            )
+            return {}
+        except Exception as e:
+            return {"error": str(e)}, 400

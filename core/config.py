@@ -26,6 +26,7 @@ API_MYSQL_CONFIG = (
     config_file["mysql"] if config_file["api_mysql"] == "same"
     else config_file["api_mysql"]
 )
+API_DEV_MYSQL_CONFIG = config_file["api_dev_mysql"]
 
 AWS_S3_BUCKET = config_file["aws"]["s3"]["bucket"]
 AWS_S3_REGION_NAME = config_file["aws"]["s3"]["region_name"]
@@ -74,6 +75,7 @@ SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 SUPPORT_TAG_STORE_EMAIL = config_file["support"]["general_tag_store_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+ACCOUNT_WEBHOOK_SECRET = config_file["stripe"]["account_webhook_secret"]
 
 EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
 

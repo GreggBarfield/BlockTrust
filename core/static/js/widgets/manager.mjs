@@ -32,6 +32,7 @@ import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_gr
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
 import { NotificationsWidget } from './types/notifications/notifications_widget.mjs'
+import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
 
 
 // Immediately invoked
@@ -80,6 +81,7 @@ import { NotificationsWidget } from './types/notifications/notifications_widget.
     attach("sustainability timeline", SustainabilityTimelineWidget);
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("notifications", NotificationsWidget);
+    attach("add connections", AddConnectionsWidget);
 
     // Find widgets
     $(".widget").each(function () {
@@ -107,8 +109,14 @@ import { NotificationsWidget } from './types/notifications/notifications_widget.
 
     $("#icon-search").click(() => {
         let infoModal = new InfoModal("Search By EID");
-        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter());
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id_for_account");
         widget.init(); // TODO: Fix (This will break in the future when networking is optimized)
+    });
+
+    $("#eid-search").click(() => {
+        let infoModal = new InfoModal("Search By EID");
+        let widget = new SearchEIDsWidget(infoModal.getBody(), infoModal.getFooter(), "search_by_eid_and_visual_id");
+        widget.init();
     });
 
 })()

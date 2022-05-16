@@ -201,32 +201,54 @@ def serve_edit_account():
     return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET", "POST"])
 @crut.require_employee
 def serve_edit_selected_account(account_id):
-    account_row = g.db.accounts.get_account_by_id(account_id)
-    partners = g.db.accounts.get_accounts(
-        sector=sectors_by_name["Cow-Calf"],
-        is_partner=1,
-        is_partner_used_for_signup=1
-    )
-    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
+    if request.method == "GET":
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        partners = g.db.accounts.get_accounts(
+            sector=sectors_by_name["Cow-Calf"],
+            is_partner=1,
+            is_partner_used_for_signup=1
+        )
+        return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
+    if request.method == "POST":
+        g.db.accounts.update_account(
+            account_id=account_id,
+            partner_account=format_field(request.form["partner"]),
+            affiliate_id=format_field(request.form["affiliate_id"]),
+            company=format_field(request.form["company"]),
+            phone=format_field(request.form["phone"]),
+            address=format_field(request.form["address"]),
+            city=format_field(request.form["city"]),
+            state=format_field(request.form["state"]),
+            zip=format_field(request.form["zip_code"])
+        )
+        return {"redirect": "/employee/dashboard"}
 
 
-@bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
+@bp.route("/employee/dashboard/edit-partner/<int:partner_id>", methods=["GET", "POST"])
 @crut.require_employee
-def serve_apply_changes_to_account(account_id):
-    g.db.accounts.update_account(
-        account_id=account_id,
-        partner_account=format_field(request.form["partner"]),
-        affiliate_id=format_field(request.form["affiliate_id"]),
-        company=format_field(request.form["company"]),
-        address=format_field(request.form["address"]),
-        city=format_field(request.form["city"]),
-        state=format_field(request.form["state"]),
-        zip=format_field(request.form["zip_code"])
-    )
-    return {"redirect": "/employee/dashboard"}
+def serve_edit_selected_partner(partner_id):
+    if request.method == "GET":
+        partner_rows = g.db.accounts.get_accounts(id=partner_id)
+        partner_row = partner_rows[0] if len(partner_rows) > 0 else {}
+        return employee_render("/employee/accounts/edit-selected-partner.html", {"partner_row": partner_row})
+    if request.method == "POST":
+        is_partner_used_for_signup = 0
+        if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
+            is_partner_used_for_signup = 1
+        g.db.accounts.update_partner(
+            account_id=partner_id,
+            company=format_field(request.form["company"]),
+            phone=format_field(request.form["phone"]),
+            address=format_field(request.form["address"]),
+            city=format_field(request.form["city"]),
+            state=format_field(request.form["state"]),
+            zip=format_field(request.form["zip_code"]),
+            is_partner_used_for_signup=is_partner_used_for_signup
+        )
+        return {"redirect": "/employee/dashboard"}
 
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
@@ -382,3 +404,12 @@ def serve_update_account_paid_status():
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
         g.db.accounts.update_account(account_id, manual_paid=0)
     return {}, 200
+
+
+@bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
+@bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
+def serve_animal_eid(animal_eid):
+    animal = g.db.animals.get_by_eid(animal_eid)
+    if len(animal.matches()) == 0:
+        return employee_render("animals/animal_not_found.html", {"eid": animal_eid})
+    return employee_render("animals/animal.html", {"animal": animal})
