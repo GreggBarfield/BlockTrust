@@ -85,8 +85,7 @@ export class SalesGroupOfferWidget extends Widget{
                     offer_amount: offerAmountInput.value            
                 }
             },
-            requestRedirectTo: window.location.href,
-            onFinished: () =>{}
+            requestRedirectTo: window.location.href
         });
     
         submitButton.addEventListener("click", (e)=>{

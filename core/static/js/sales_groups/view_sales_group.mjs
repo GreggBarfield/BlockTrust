@@ -144,15 +144,15 @@ export class SalesGroupViewer {
                 left.append(purchaseButton);
             }
             if(this.data["accept_offers"]==1){
-                let sendMessageButton1 = document.createElement("button");
-                sendMessageButton1.className = "btn btn-sm btn-success";
-                sendMessageButton1.style = "float:right"
-                sendMessageButton1.textContent = "Make an Offer";
-                sendMessageButton1.addEventListener("click", () => {
+                let makeAnOfferButton = document.createElement("button");
+                makeAnOfferButton.className = "btn btn-sm btn-success";
+                makeAnOfferButton.style = "float:right"
+                makeAnOfferButton.textContent = "Make an Offer";
+                makeAnOfferButton.addEventListener("click", () => {
                     let widget = new SalesGroupOfferWidget(this.data.id, this.data.group_name);
                     widget.init();
                 });
-                left.append(sendMessageButton1);
+                left.append(makeAnOfferButton);
             }
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
