@@ -229,6 +229,7 @@ export class SearchSalesGroupsWidget extends Widget {
 
     handleSearchResults(data) {
         let sales_groups = data.sales_groups;
+        let current_account_id = data.current_account_id;
 
         this.results.innerHTML = "";
 
@@ -240,7 +241,7 @@ export class SearchSalesGroupsWidget extends Widget {
             }
             isFirst = false;
             this.results.append(container);
-            new SalesGroupViewer(sales_group, container);
+            new SalesGroupViewer(sales_group, container, current_account_id);
         }
 
         if (sales_groups.length == 0) {

@@ -5,7 +5,7 @@ import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 import { SalesGroupOfferWidget } from "../widgets/types/offer/new_offer.mjs";
 
 export class SalesGroupViewer {
-    constructor(data, attachTo = null) {
+    constructor(data, attachTo = null, current_account_id=null) {
         this.frame = null;
 
         this.box = document.createElement("div");
@@ -13,6 +13,7 @@ export class SalesGroupViewer {
             throw "data incomplete";
         }
         this.data = data;
+        this.current_account_id = current_account_id;
         this.createDisplay();
 
         if (attachTo !== null)
@@ -143,10 +144,10 @@ export class SalesGroupViewer {
                 });
                 left.append(purchaseButton);
             }
-            if(this.data["accept_offers"]==1){
+            if(this.data["accept_offers"]==1 && this.data.account !=this.current_account_id){
                 let makeAnOfferButton = document.createElement("button");
                 makeAnOfferButton.className = "btn btn-sm btn-success";
-                makeAnOfferButton.style = "float:right"
+                makeAnOfferButton.style = "float:right";
                 makeAnOfferButton.textContent = "Make an Offer";
                 makeAnOfferButton.addEventListener("click", () => {
                     let widget = new SalesGroupOfferWidget(this.data.id, this.data.group_name);

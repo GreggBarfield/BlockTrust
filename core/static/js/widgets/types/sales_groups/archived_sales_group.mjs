@@ -40,7 +40,7 @@ export class ArchivedSalesGroupWidget extends Widget {
         }
         for( const sales_group in this.sales_groups){
            
-            this.salesGroupViewer = new SalesGroupViewer(this.sales_groups[sales_group], this.frame);
+            this.salesGroupViewer = new SalesGroupViewer(this.sales_groups[sales_group], this.frame, this.sales_groups[sales_group].companyId);
         }
         
     }

@@ -191,7 +191,7 @@ def serve_search_sales_groups_2():
         })
 
     return {
-        "sales_groups": results
+        "sales_groups": results, "current_account_id": g.account.id()
     }
 
 
