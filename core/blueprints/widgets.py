@@ -9,10 +9,12 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import AccountsException, Accounts
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
+from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connection_invites import ConnectionInvites
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -613,6 +615,12 @@ def serve_remove_usda_favorite():
     USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
     return {}, 200
 
+@bp.route('/widgets/data/get_invitable_accounts', methods=['POST'])
+@crut.require_account
+def serve_get_invitable_accounts():
+    invitable_account_rows = Connections(g.db).get_unconnected_accounts(account_id=g.account.id())
+    return {"account_rows": invitable_account_rows}
+
 @bp.route('/widgets/data/create-auction-market', methods=["POST"])
 def serve_create_auction_market():
     if len(request.form["name"].strip()) == 0:
@@ -631,6 +639,32 @@ def serve_create_auction_market():
         email=format_field(request.form["email"])
     )
     return {"redirect": request.form['requestRedirectTo']}
+
+@bp.route('/widgets/data/add-connection-request', methods=["POST"])
+@crut.require_account
+def serve_add_connection_request():
+    try:
+        invited_accounts = request.json["invited_account_ids_list"]
+        for invited_account in invited_accounts:
+            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+        if request.json["unlisted_company"]:
+            ConnectionInvites(g.db).add_connection_invite(
+                from_account=g.account.id(),
+                company_sector=request.json["new_account_sector"],
+                company_name=request.json["new_account_name"],
+                company_contact=request.json["new_account_contact_name"],
+                company_email=request.json["new_account_email"]
+            )
+            send_email(
+                "BlockTrust Network Connection Invite",
+                render_email("send_connection_invite.html", {
+                    'new_company_contact': request.json["new_account_contact_name"],
+                    'account_company': g.account.name()
+                }), request.json["new_account_email"]
+            )
+        return {"redirect": "/dashboard/connections"}
+    except Exception as e:
+        raise ExportException(str(e))
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
 @crut.require_employee

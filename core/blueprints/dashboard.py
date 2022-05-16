@@ -469,37 +469,7 @@ def serve_connections():
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
-    account_rows = g.db.accounts.get_accounts(is_partner=0)
-    for account_row in account_rows:
-        if account_row["id"] == g.account.id():
-            account_rows.remove(account_row)
-    return dashboard_render("/dashboard/connections/add-connection.html", {"account_rows": account_rows})
-
-
-@bp.route('/dashboard/add-connection', methods=['POST'])
-@crut.require_account
-def serve_add_connection_request():
-    try:
-        if request.form["company_id"] != "0":
-            Connections(g.db).create_connection(g.account.id(), request.form["company_id"], connection_status["Pending"])
-        else:
-            ConnectionInvites(g.db).add_connection_invite(
-                from_account=g.account.id(),
-                company_sector=request.form["sector"],
-                company_name=request.form["new_company_name"],
-                company_contact=request.form["new_company_contact"],
-                company_email=request.form["new_company_email"]
-            )
-            send_email(
-                "BlockTrust Network Connection Invite",
-                render_email("send_connection_invite.html", {
-                    'new_company_contact': request.form["new_company_name"],
-                    'account_company': g.account.name()
-                }), request.form["new_company_email"]
-            )
-        return {"redirect": "/dashboard/connections"}
-    except Exception as e:
-        return {"error": str(e)}, 400
+    return dashboard_render("/dashboard/connections/add-connection.html")
 
 
 @bp.route('/dashboard/view-invites', methods=['GET'])
