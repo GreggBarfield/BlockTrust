@@ -16,7 +16,7 @@ def handle(db: Database, insert):
     insert["fields"] = fields = remap(insert["fields"], {
         "Sex": "sex",
         "FarmID": "farmid",
-        "ZipCode": "zipcode",
+        "Zip": "zipcode",
         "PatronId": "patronid",
         "VisualID": "visualid",
         "WeanDate": "weandate",
@@ -47,7 +47,7 @@ def handle(db: Database, insert):
     })
 
     try:
-        patronid = fields["patronid"]
+        patronid = int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
