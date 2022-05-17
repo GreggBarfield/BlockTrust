@@ -187,13 +187,30 @@
                   </a>
                 </li>
             {% endif %}
+            {% if pending_connection_requests_count==1 %}
+            <li>  
+                <a href="/dashboard/connections">
+                <i 
+                    class="icon feather icon-users" 
+                    title="You have pending connection requests"
+                    style="color: red;"
+                ></i>
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a href="/dashboard/connections">
+                    <i class="feather icon-users"></i>
+                </a>
+            </li>
+            {% endif %}
             {% if unread_notifications==1 %}
                 <li>  
                     <a href="/dashboard/notifications">
                     <i 
                         class="icon feather icon-bell" 
                         title="You have unread notifications"
-                        style="color: blue;"
+                        style="color: red;"
                     ></i>
                     </a>
                 </li>
@@ -236,11 +253,6 @@
                                 </a>
                             </li>
                         {% endif %}
-                            <li>
-                                <a href="/dashboard/connections">
-                                    <i class="feather icon-users"></i> View Connections
-                                </a>
-                            </li>
                             <li>
                                 <a href="/dashboard/edit/edit-account">
                                     <i class="feather icon-briefcase"></i> Edit Account
