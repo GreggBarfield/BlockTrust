@@ -179,6 +179,7 @@ class Accounts:
         """
 
         # Validations
+        affiliate_id = int(affiliate_id) if affiliate_id.isdigit() else affiliate_id
         sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
@@ -191,7 +192,7 @@ class Accounts:
                 "company": company,
                 "sector": sector,
                 "partner": partner,
-                "affiliate_id": int(affiliate_id) if affiliate_id.isdigit() else affiliate_id,
+                "affiliate_id": affiliate_id,
                 "address": address,
                 "city": city,
                 "state": state,
@@ -284,6 +285,7 @@ class Accounts:
         """
 
         # Validations
+        affiliate_id = int(affiliate_id) if affiliate_id.isdigit() else affiliate_id
         sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
@@ -296,7 +298,7 @@ class Accounts:
                 "company": company,
                 "sector": sector,
                 "partner": partner,
-                "affiliate_id": int(affiliate_id) if affiliate_id.isdigit() else affiliate_id,
+                "affiliate_id": affiliate_id,
                 "address": address,
                 "city": city,
                 "state": state,
