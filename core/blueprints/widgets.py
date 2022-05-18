@@ -9,7 +9,7 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
@@ -369,12 +369,10 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
-    partner_account_rows = g.db.accounts.get_accounts(company="MFA Health Track", is_partner=1)
-    mfa_healthtrack_partner = False
-    if len(partner_account_rows) > 0:
-        mfa_partner_account_row = partner_account_rows[0]
-        if g.account.partner_account_id() == mfa_partner_account_row["id"]:
-            mfa_healthtrack_partner = True
+    mfa_partner_account_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    is_healthtrack_partner_account = False
+    if g.account.partner_account_id() == mfa_partner_account_row["id"]:
+        is_healthtrack_partner_account = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
@@ -399,7 +397,7 @@ def serve_get_eids_for_sales_group():
         "id": sales_group_row["id"],
         "assigned_animals": assigned_animals,
         "available_eids_with_visual_ids": available_eids_with_visual_ids,
-        "mfa_healthtrack_partner": mfa_healthtrack_partner
+        "is_healthtrack_partner_account": is_healthtrack_partner_account
     }
 
 
@@ -686,11 +684,11 @@ def serve_employee_search_by_eid_and_visual_id():
 @bp.route('/widgets/data/get_eids_and_application_ids_for_account', methods=["POST"])
 @crut.require_account
 def serve_get_eids_and_application_ids_for_account():
-    eids_and_application_ids = g.db.matches.get_eids_with_grouping_ids(
+    eids_and_application_ids = g.db.matches.get_animals_and_corresponding_grouping_ids(
         account_id=g.account.id(),
         partner_account_id=g.account.partner_account_id()
-        )
-    application_ids = g.db.matches.get_grouping_ids_for_account(
+    )
+    grouping_ids = g.db.matches.get_grouping_ids_for_account(
         account_id=g.account.id(),
         partner_account_id=g.account.partner_account_id()
     )
@@ -704,16 +702,12 @@ def serve_get_eids_and_application_ids_for_account():
     available_eids_with_application_ids = []
     for eid_and_application_id in eids_and_application_ids:
         if eid_and_application_id["eid"] not in assigned_eids_for_account:
-            available_eids_with_application_ids.append({
-                "eid": eid_and_application_id["eid"],
-                "visual_id": eid_and_application_id["visual_id"],
-                "grouping_id": eid_and_application_id["grouping_id"]
-            })
-    application_id_list = []
-    for application_id in application_ids:
+            available_eids_with_application_ids.append(eid_and_application_id)
+    grouping_id_list = []
+    for application_id in grouping_ids:
         if application_id["grouping_id"] is not None:
-            application_id_list.append(application_id["grouping_id"])
-    return {"available_eids_and_application_ids": available_eids_with_application_ids, "application_id_list": application_id_list}
+            grouping_id_list.append(application_id["grouping_id"])
+    return {"available_eids_and_application_ids": available_eids_with_application_ids, "grouping_id_list": grouping_id_list}
 
 @bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
 @crut.require_account

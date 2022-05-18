@@ -4,6 +4,7 @@ from ..no_value import NoValue
 from ..frag import frag
 
 NO_VALUE = NoValue()
+HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
 
 class AccountsException(Exception):
     """Account generic exception."""

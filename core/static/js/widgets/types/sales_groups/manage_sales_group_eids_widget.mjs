@@ -161,7 +161,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         cardHeader.style = "padding:5px;padding-left: 15px;"
         cardHeader.append(editGroupName);
 
-        if(this.data.mfa_healthtrack_partner){
+        if(this.data.is_healthtrack_partner_account){
             let applicationIDButtonDiv = document.createElement("div");
             applicationIDButtonDiv.className = "d-flex align-items-end flex-row";
     
@@ -169,7 +169,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             applicationIDButton.className = "btn btn-outline-primary btn-sm";
             applicationIDButton.innerHTML = "Select EIDs by Application ID";
             applicationIDButton.onclick = function () {
-            window.location.href = '/dashboard/sales-groups/select-eids-by-application-id/'+that.salesGroupID;
+            window.location.href = '/dashboard/sales-groups/'+ that.salesGroupID +'/select-eids-by-grouping-id';
             };
             applicationIDButtonDiv.append(applicationIDButton);
             cardHeader.append(applicationIDButtonDiv);

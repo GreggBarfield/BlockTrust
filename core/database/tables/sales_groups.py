@@ -7,6 +7,9 @@ from core.database.const.zip_codes_data import ZIP_CODES
 from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
+sales_group_cols = ("id", "reported", "account", "published", "start", "end", "zip", "market_location",
+                    "delivery_location", "auction_sale", "group_name", "is_archived", "delivery_location_type",
+                    "price", "sold", "is_sold", "buyer_account_id", "accept_offers")
 
 
 class SalesGroupsException(Exception):
@@ -100,7 +103,7 @@ class SalesGroups:
             raise SalesGroupsException("No sales group found with that ID.")
         return self._translate_json(sales_groups[0])
 
-    def get_sales_groups(self, account_id=NO_VALUE, is_archived=NO_VALUE):
+    def get_sales_groups(self, account_id=NO_VALUE, is_archived=NO_VALUE, sales_group_cols=()):
         """Gets sales group rows.
 
         Params:

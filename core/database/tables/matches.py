@@ -708,7 +708,7 @@ class Matches:
             }
         ))
 
-    def get_eids_with_grouping_ids(self, account_id, partner_account_id):
+    def get_animals_and_corresponding_grouping_ids(self, account_id, partner_account_id):
         """
         Gets the list of available EIDs and Visual IDs for an account with the grouping IDs
 
@@ -721,20 +721,15 @@ class Matches:
         """
         eids_with_grouping_ids = self._db.execute_d(
             """
-            SELECT DISTINCT(eid), visual_id, grouping_id
+            SELECT DISTINCT eid, visual_id, grouping_id
             FROM matches
             WHERE account_link IN (
                 SELECT id FROM account_links WHERE account=%(account)s
             ) AND partner_account = %(partner_account_id)s AND type=%(match_type_born)s
-            AND eid NOT IN(SELECT DISTINCT(eid) FROM matches
-            WHERE account_link IN (SELECT id FROM account_links WHERE account=%(account)s)
-            AND partner_account=%(partner_account_id)s AND (type=%(match_type_sold)s OR type=%(match_type_died)s))
             """, {
                 "account": account_id,
                 "partner_account_id": partner_account_id,
-                "match_type_born": match_types_by_name["Born"],
-                "match_type_sold": match_types_by_name["Sold"],
-                "match_type_died": match_types_by_name["Died"]
+                "match_type_born": match_types_by_name["Born"]
             }
         )
         if len(eids_with_grouping_ids) > 0:

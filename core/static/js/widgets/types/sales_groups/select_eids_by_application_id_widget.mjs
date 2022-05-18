@@ -99,7 +99,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         cardBody.append(form);
 
         let applicationIDSelectRow = createSection(form, "Application ID");
-        let applicationIDSelect = createSelect(applicationIDSelectRow, "Select Application ID", this.data.application_id_list, "Select an Option", 6);
+        let applicationIDSelect = createSelect(applicationIDSelectRow, "Select Application ID", this.data.grouping_id_list, "Select an Option", 6);
         let eidsAndVisualIDsTableColumns = [{"data": 'eid', "title": "EID"}, {"data": 'visual_id', "title": "Visual ID"}, {"data": "grouping_id", "title": "Application ID"}]
         let eidsAndVisualIDsTable = createTable(applicationIDSelectRow, "EIDs and Visual IDs", eidsAndVisualIDsTableColumns, 6);
         
