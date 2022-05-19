@@ -1509,3 +1509,11 @@ ADD COLUMN `is_stripe_charges_enabled` TINYINT NULL DEFAULT 0 AFTER `stripe_acco
 /* Nisheet Thakur 4/25/2022 */
 SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
 UPDATE `products` SET `is_active`=0 WHERE id=@product_id;
+
+/* Nisheet Thakur 5/19/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+UPDATE `products` SET `price`=20 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+UPDATE `products` SET `price`=28.5 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
+UPDATE `products` SET `price`=17.5 WHERE id=@product_id;
