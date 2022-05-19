@@ -1,6 +1,6 @@
 from core.database.tables.notification_recipients import NotificationRecipients
 from flask import (
-    request, Blueprint, g, redirect, url_for
+    request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
@@ -601,3 +601,9 @@ def serve_sales_group_transaction(sales_group_id):
             return {}
         except Exception as e:
             return {"error": str(e)}, 400
+
+
+@bp.route('/dashboard/files/<path:path>')
+@crut.require_account
+def send_document(path):
+    return send_from_directory('static/files/dashboard/', path)
