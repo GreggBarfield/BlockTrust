@@ -263,7 +263,7 @@ class Matches:
     
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
         matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
-        is_distinct=False, matches_cols=()):
+        grouping_id=NO_VALUE, partner_account=NO_VALUE, is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -303,6 +303,14 @@ class Matches:
         if matches_restrict_type is not NO_VALUE:
             query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
+
+        if grouping_id is not NO_VALUE:
+            query_conditions.append("m.grouping_id = %(grouping_id)s" if grouping_id is not None else "m.grouping_id IS %(grouping_id)s")
+            query_values["grouping_id"] = grouping_id
+
+        if partner_account is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(partner_account)s" if partner_account is not None else "m.partner_account IS %(partner_account)s")
+            query_values["partner_account"] = partner_account
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
@@ -734,29 +742,6 @@ class Matches:
         )
         if len(eids_with_grouping_ids) > 0:
             return eids_with_grouping_ids
-        return []
-
-    def get_grouping_ids_for_account(self, account_id, partner_account_id):
-        """
-        Get the grouping IDs associated with a particular account
-
-        Params:
-            account_id: Account ID for which grouping IDs are required
-            partner_account: Partner account of the account for which grouping IDs are required 
-        """
-        grouping_ids = self._db.execute_d(
-            """
-            SELECT DISTINCT(grouping_id) FROM matches
-            WHERE account_link IN (
-                SELECT id FROM account_links WHERE account=%(account)s
-            ) AND partner_account = %(partner_account_id)s
-            """, {
-                "account": account_id,
-                "partner_account_id": partner_account_id
-            }
-        )
-        if len(grouping_ids) > 0:
-            return grouping_ids
         return []
 
     @staticmethod

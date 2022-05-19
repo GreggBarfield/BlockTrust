@@ -1,4 +1,5 @@
 import json
+from xml.etree.ElementTree import TreeBuilder
 from flask import (
     Flask, request, session, Blueprint, g, redirect, render_template, url_for
 )
@@ -688,9 +689,11 @@ def serve_get_eids_and_application_ids_for_account():
         account_id=g.account.id(),
         partner_account_id=g.account.partner_account_id()
     )
-    grouping_ids = g.db.matches.get_grouping_ids_for_account(
-        account_id=g.account.id(),
-        partner_account_id=g.account.partner_account_id()
+    grouping_ids = g.db.matches.get_matches_with_account_links(
+        account_links_account_id=g.account.id(),
+        partner_account=g.account.partner_account_id(),
+        is_distinct=True,
+        matches_cols=["grouping_id"]
     )
     # Getting sales groups owned by account and corresponding eid's
     account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
@@ -704,9 +707,9 @@ def serve_get_eids_and_application_ids_for_account():
         if eid_and_application_id["eid"] not in assigned_eids_for_account:
             available_eids_with_application_ids.append(eid_and_application_id)
     grouping_id_list = []
-    for application_id in grouping_ids:
-        if application_id["grouping_id"] is not None:
-            grouping_id_list.append(application_id["grouping_id"])
+    for grouping_id in grouping_ids:
+        if grouping_id["grouping_id"] is not None:
+            grouping_id_list.append(grouping_id["grouping_id"])
     return {"available_eids_and_application_ids": available_eids_with_application_ids, "grouping_id_list": grouping_id_list}
 
 @bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
