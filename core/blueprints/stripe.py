@@ -278,7 +278,7 @@ def _generate_account_link(stripe_account_id, origin):
         type='account_onboarding',
         account=stripe_account_id,
         refresh_url=f'{origin}/{url_for("stripe_bp.onboard_account_refresh")}',
-        return_url=f'{origin}/{url_for("dashboard_bp.serve_edit_account")}',
+        return_url=f'{origin}/{url_for("dashboard_bp.serve_edit_account")}?stripe_onboarding=1',
     )
     return account_link.url
 
