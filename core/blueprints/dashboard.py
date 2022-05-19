@@ -604,7 +604,7 @@ def serve_sales_group_transaction(sales_group_id):
             return {"error": str(e)}, 400
 
 
-@bp.route('/dashboard/documents/<path:path>')
+@bp.route('/dashboard/files/<path:path>')
 @crut.require_account
 def send_document(path):
-    return send_from_directory('static/documents', path)
+    return send_from_directory('static/files/dashboard/', path)
