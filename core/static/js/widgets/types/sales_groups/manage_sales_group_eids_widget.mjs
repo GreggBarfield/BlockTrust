@@ -15,7 +15,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             }
         ).then((data) => {
             this.data = data;
-            this.eids_and_visual_ids_selected=this.data.assigned_animals;
+            this.eidsAndVisualIDsSelected=this.data.assigned_animals;
             this.makeForm();
         });
 
@@ -85,18 +85,19 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             checkbox.className = "checkbox"
             checkbox.id = eidAndVisualID.eid;
             checkbox.value = eidAndVisualID;
+            checkbox.checked = false;
             if(checkedEidAndVisualIDList.indexOf(eidAndVisualID)!=-1){
                 checkbox.checked=true;
             }
             checkbox.onchange = ()=>{
                 var selectedCheckbox = document.getElementById(eidAndVisualID.eid);
                 if(selectedCheckbox.checked==true){
-                this.eids_and_visual_ids_selected.push(eidAndVisualID);
+                this.eidsAndVisualIDsSelected.push(eidAndVisualID);
                 }
                 else{
-                    for(var i=0;i<this.eids_and_visual_ids_selected.length;i++){
-                        if(this.eids_and_visual_ids_selected[i].eid==eidAndVisualID.eid){
-                            this.eids_and_visual_ids_selected.splice(i,1);
+                    for(var i=0;i<this.eidsAndVisualIDsSelected.length;i++){
+                        if(this.eidsAndVisualIDsSelected[i].eid==eidAndVisualID.eid){
+                            this.eidsAndVisualIDsSelected.splice(i,1);
                         }
                     }
                 }
@@ -113,7 +114,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         return checkListTable;
     }
 
-    createSelectAllCheckbox(checkboxName, availableEidAndVisualIDList, assignedEidAndVisualIDList){         
+    createSelectAllCheckbox(nameOfCheckBoxesToBeSelected, availableEidAndVisualIDList, assignedEidAndVisualIDList){         
         let selectAll = document.createElement("div");
         selectAll.className = "d-inline"
         var selectAllCheckbox = document.createElement("input");
@@ -122,20 +123,28 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         selectAllCheckbox.className="checkbox float-right";
         selectAllCheckbox.id="select-all-eid-checkbox";
         selectAllCheckbox.onchange = ()=>{
-            var specifiedCheckboxes = document.getElementsByName(checkboxName);
+            var checkboxesToBeSelected = document.getElementsByName(nameOfCheckBoxesToBeSelected);
             if(selectAllCheckbox.checked==true){ 
-                this.eids_and_visual_ids_selected=[];
-                this.eids_and_visual_ids_selected=this.eids_and_visual_ids_selected.concat(assignedEidAndVisualIDList);
-                this.eids_and_visual_ids_selected=this.eids_and_visual_ids_selected.concat(availableEidAndVisualIDList);
-                for(const specifiedCheckbox of specifiedCheckboxes){
-                    specifiedCheckbox.checked=true;
+                this.eidsAndVisualIDsSelected=[];
+                this.eidsAndVisualIDsSelected=this.eidsAndVisualIDsSelected.concat(assignedEidAndVisualIDList);
+                this.eidsAndVisualIDsSelected=this.eidsAndVisualIDsSelected.concat(availableEidAndVisualIDList);
+                for(const checkboxToBeSelected of checkboxesToBeSelected){
+                    checkboxToBeSelected.checked=true;
                 }
+                /*
+                // This is how we will have to set all the checkboxes to checked
+                $(this.availableEIDsChecklist).DataTable().rows().every( function () {
+                    var data = this.data();
+                    let newCheckBoxString = data[0].substring(0, data[0].length-1) + " checked>";
+                    data[0]=newCheckBoxString;
+                    this.data(data);
+                })
+                */
             }
             else{
-                this.eids_and_visual_ids_selected=[];
-                this.eids_and_visual_ids_selected=this.eids_and_visual_ids_selected.concat(assignedEidAndVisualIDList);
-                for(const specifiedCheckbox of specifiedCheckboxes){
-                    specifiedCheckbox.checked=false;
+                this.eidsAndVisualIDsSelected=assignedEidAndVisualIDList;
+                for(const checkboxToBeSelected of checkboxesToBeSelected){
+                    checkboxToBeSelected.checked=false;
                 }
             }
         }
@@ -176,16 +185,19 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let availableEidGroup = this.createGroup(eidsRow,"Available EIDs:", id);
         let assignedEidGroup = this.createGroup(eidsRow, "Assigned EIDs:", id);
 
-        let availableEidsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, [], "availableEidCheckBox") ;
-        let assignedEidsCheckList = this.createCheckList(this.data.assigned_animals, this.data.assigned_animals, "assignedEidCheckBox");
-        let selectAll = this.createSelectAllCheckbox("availableEidCheckBox", this.data.available_eids_with_visual_ids, this.data.assigned_animals);
+        let availableEIDsCheckBoxName = "availableEIDCheckBox";
+        let assignedEIDsCheckBoxName = "assignedEIDCheckBox";
+        let availableEIDsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, [], availableEIDsCheckBoxName);
+        let assignedEIDsCheckList = this.createCheckList(this.data.assigned_animals, this.data.assigned_animals, assignedEIDsCheckBoxName);
+        let selectAll = this.createSelectAllCheckbox(availableEIDsCheckBoxName, this.data.available_eids_with_visual_ids, this.data.assigned_animals);
         
         availableEidGroup.append(selectAll);
-        availableEidGroup.append(availableEidsChecklist);
-        assignedEidGroup.append(assignedEidsCheckList);
+        availableEidGroup.append(availableEIDsChecklist);
+        assignedEidGroup.append(assignedEIDsCheckList);
 
-        $(availableEidsChecklist).DataTable();
-        $(assignedEidsCheckList).DataTable();
+        $(availableEIDsChecklist).DataTable();
+        $(assignedEIDsCheckList).DataTable();
+        
 
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
@@ -218,12 +230,12 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             getData: () => {
                 return {
                     id: this.salesGroupID,
-                    eids_and_visual_ids: this.eids_and_visual_ids_selected
+                    eids_and_visual_ids: this.eidsAndVisualIDsSelected
                 }
             }
         });
 
-        submitButton.addEventListener("click", () => {   
+        submitButton.addEventListener("click", () => {
             this.asyncForm.submit();
         });
     }
