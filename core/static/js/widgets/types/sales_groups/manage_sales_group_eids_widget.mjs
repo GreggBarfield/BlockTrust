@@ -1,6 +1,8 @@
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 
+const AVAILABLEEIDSCHECKBOXNAME = "availableEIDCheckBox";
+const ASSIGNEDEIDSCHECKBOXNAME = "assignedEIDCheckBox";
 export class ManageSalesGroupEIDsWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -185,11 +187,9 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let availableEidGroup = this.createGroup(eidsRow,"Available EIDs:", id);
         let assignedEidGroup = this.createGroup(eidsRow, "Assigned EIDs:", id);
 
-        let availableEIDsCheckBoxName = "availableEIDCheckBox";
-        let assignedEIDsCheckBoxName = "assignedEIDCheckBox";
-        let availableEIDsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, [], availableEIDsCheckBoxName);
-        let assignedEIDsCheckList = this.createCheckList(this.data.assigned_animals, this.data.assigned_animals, assignedEIDsCheckBoxName);
-        let selectAll = this.createSelectAllCheckbox(availableEIDsCheckBoxName, this.data.available_eids_with_visual_ids, this.data.assigned_animals);
+        let availableEIDsChecklist = this.createCheckList(this.data.available_eids_with_visual_ids, [], AVAILABLEEIDSCHECKBOXNAME);
+        let assignedEIDsCheckList = this.createCheckList(this.data.assigned_animals, this.data.assigned_animals, ASSIGNEDEIDSCHECKBOXNAME);
+        let selectAll = this.createSelectAllCheckbox(AVAILABLEEIDSCHECKBOXNAME, this.data.available_eids_with_visual_ids, this.data.assigned_animals);
         
         availableEidGroup.append(selectAll);
         availableEidGroup.append(availableEIDsChecklist);
