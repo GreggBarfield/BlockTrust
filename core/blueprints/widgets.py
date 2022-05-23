@@ -39,7 +39,7 @@ bp = Blueprint('widgets_bp', __name__)
 
 
 @bp.route('/widgets/data/direct/<name>', methods=['POST'])
-@crut.require_user
+@crut.require_account_or_employee
 def serve_direct(name):
     direct_export = {
         "match_types_by_id": match_types_by_id,
@@ -543,7 +543,7 @@ def serve_update_auction_sale():
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
-@crut.require_account
+@crut.require_account_or_employee
 def serve_data_request():
     return unauth_route(request.json['request']), 200
 
