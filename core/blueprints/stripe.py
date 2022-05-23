@@ -307,8 +307,10 @@ def serve_stripe_account():
     if event.type == 'account.updated':
         stripe_account = event.data.object
         accounts_table = Accounts(g.db)
-        account = accounts_table.get_accounts(stripe_account_id=stripe_account.id)[0]
-        accounts_table.update_account(account_id=account["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+        if len(account := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
+            accounts_table.update_account(account_id=account[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+        else:
+            ErrorLogs(g.db).insert_error_log("Stripe", f"An event was received for stripe account id: {stripe_account.id} which doesn't exist")
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
