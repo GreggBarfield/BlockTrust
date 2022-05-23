@@ -1,5 +1,4 @@
 import json
-from xml.etree.ElementTree import TreeBuilder
 from flask import (
     Flask, request, session, Blueprint, g, redirect, render_template, url_for
 )
@@ -107,7 +106,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=0)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -334,7 +333,7 @@ def unarchive_sales_group():
 @crut.require_account
 def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=1)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
@@ -370,9 +369,9 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
-    mfa_partner_account_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
     is_healthtrack_partner_account = False
-    if g.account.partner_account_id() == mfa_partner_account_row["id"]:
+    if g.account.partner_account_id() == healthtrack_partner_row["id"]:
         is_healthtrack_partner_account = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
@@ -380,7 +379,7 @@ def serve_get_eids_for_sales_group():
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
@@ -685,32 +684,24 @@ def serve_employee_search_by_eid_and_visual_id():
 @bp.route('/widgets/data/get_eids_and_application_ids_for_account', methods=["POST"])
 @crut.require_account
 def serve_get_eids_and_application_ids_for_account():
-    eids_and_application_ids = g.db.matches.get_animals_and_corresponding_grouping_ids(
-        account_id=g.account.id(),
-        partner_account_id=g.account.partner_account_id()
-    )
-    grouping_ids = g.db.matches.get_matches_with_account_links(
+    animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
         account_links_account_id=g.account.id(),
-        partner_account=g.account.partner_account_id(),
+        matches_partner_account_id=g.account.partner_account_id(),
         is_distinct=True,
-        matches_cols=["grouping_id"]
+        matches_cols=("eid", "visual_id", "grouping_id")
     )
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    account_sales_groups_ids = g.db.sales_groups.get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
-        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
-    available_eids_with_application_ids = []
-    for eid_and_application_id in eids_and_application_ids:
-        if eid_and_application_id["eid"] not in assigned_eids_for_account:
-            available_eids_with_application_ids.append(eid_and_application_id)
-    grouping_id_list = []
-    for grouping_id in grouping_ids:
-        if grouping_id["grouping_id"] is not None:
-            grouping_id_list.append(grouping_id["grouping_id"])
-    return {"available_eids_and_application_ids": available_eids_with_application_ids, "grouping_id_list": grouping_id_list}
+    available_animals_and_grouping_ids = []
+    for animal_and_grouping_id in animals_and_grouping_ids:
+        if animal_and_grouping_id["eid"] not in assigned_eids_for_account:
+            available_animals_and_grouping_ids.append(animal_and_grouping_id)
+    return {"available_animals_and_grouping_ids": available_animals_and_grouping_ids}
 
 @bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
 @crut.require_account

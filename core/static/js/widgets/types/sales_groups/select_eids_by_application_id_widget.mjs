@@ -12,7 +12,8 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
             "get_eids_and_application_ids_for_account",
         ).then((data) => {
             this.data = data;
-            this.eidsAndVisualIDsList = []
+            this.eidsAndVisualIDsList = [];
+            this.groupingIDsList = this.filterGroupingIDs(this.data.available_animals_and_grouping_ids);
             this.makeForm();
         });
 
@@ -21,61 +22,66 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         });
 
     }
+
+    filterGroupingIDs(animalAndGroupingIDsList){
+        let groupingIDsList = [];
+        for(const animalAndGroupingID of animalAndGroupingIDsList){
+            if(!groupingIDsList.includes(animalAndGroupingID.grouping_id) && animalAndGroupingID.grouping_id != null){
+                groupingIDsList.push(animalAndGroupingID.grouping_id)
+            }
+        }
+        return groupingIDsList;
+    }
+
+    createSection(form, name) {
+        let header = document.createElement("h6");
+        header.textContent = name;
+        form.append(header);
+        let row = document.createElement("div");
+        row.className = "form-row";
+        form.append(row);
+        form.append(document.createElement("br"));
+        return row;
+    }
+
+    createGroup(row, name, groupColumnSize=6) {
+        let group = document.createElement("div");
+        group.className = `form-group col-md-${groupColumnSize}`;
+        row.append(group);
+        let groupLabel = document.createElement("label");
+        groupLabel.className = "form-label font-weight-bold";
+        groupLabel.textContent = name;
+        group.append(groupLabel);
+        return group;
+    }
+
+    createSelect(row, name, options, placeholder, groupColumnSize=6){
+        let group = this.createGroup(row, name, groupColumnSize);
+        let select = document.createElement("select");
+        select.required = true
+        group.append(select);
+        let optionsStacked = [];
+        for (const option of options) {
+            optionsStacked.push({
+                id: option,
+                text: option
+            })
+        }
+        $(select).select2({data: optionsStacked, placeholder: placeholder});
+        return select;
+    }
+
+    createTable(row, name, columns, groupColumnSize=6){
+        let group = this.createGroup(row, name, groupColumnSize);
+        // Create an empty table which can be populated dynamically
+        let table = document.createElement('table');
+        table.className = "table table-striped table-bordered nowrap";
+        group.append(table);
+        $(table).DataTable({columns: columns});
+        return table;
+    }
+
     makeForm(){
-        function createSection(form, name) {
-            let header = document.createElement("h6");
-            header.textContent = name;
-            form.append(header);
-            let row = document.createElement("div");
-            row.className = "form-row";
-            form.append(row);
-            form.append(document.createElement("br"));
-            return row;
-        }
-
-        function createGroup(row, name, htmlFor, groupColumnSize=6) {
-            let group = document.createElement("div");
-            group.className = `form-group col-md-${groupColumnSize}`;
-            row.append(group);
-            let groupLabel = document.createElement("label");
-            groupLabel.className = "form-label font-weight-bold";
-            groupLabel.textContent = name;
-            if (htmlFor !== null) {
-                groupLabel.htmlFor = htmlFor;
-            }
-            group.append(groupLabel);
-            return group;
-        }
-
-        function createSelect(row, name, options, placeholder, groupColumnSize=6){
-            let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, groupColumnSize);
-            let select = document.createElement("select");
-            select.id = id;
-            select.required = true
-            group.append(select);
-            let optionsStacked = [];
-            for (const option of options) {
-                optionsStacked.push({
-                    id: option,
-                    text: option
-                })
-            }
-            $(select).select2({data: optionsStacked, placeholder: placeholder});
-            return select;
-        }
-
-        function createTable(row, name, columns, groupColumnSize=6){
-            let id = "domuid" + window.DOMUIDNext++;
-            let group = createGroup(row, name, id, groupColumnSize);
-            // Create an empty table which can be populated dynamically
-            let table = document.createElement('table');
-            table.className = "table table-striped table-bordered nowrap";
-            group.append(table);
-            $(table).DataTable({columns: columns});
-            return table;
-        }
-
         let card = document.createElement("div");
         card.className = "card";
 
@@ -98,24 +104,25 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         let form = document.createElement("form");
         cardBody.append(form);
 
-        let applicationIDSelectRow = createSection(form, "Application ID");
-        let applicationIDSelect = createSelect(applicationIDSelectRow, "Select Application ID", this.data.grouping_id_list, "Select an Option", 6);
+        let applicationIDSelectRow = this.createSection(form, "Application ID");
+        let applicationIDSelect = this.createSelect(applicationIDSelectRow, "Select Application ID", this.groupingIDsList, "Select an Option", 6);
         let eidsAndVisualIDsTableColumns = [{"data": 'eid', "title": "EID"}, {"data": 'visual_id', "title": "Visual ID"}, {"data": "grouping_id", "title": "Application ID"}]
-        let eidsAndVisualIDsTable = createTable(applicationIDSelectRow, "EIDs and Visual IDs", eidsAndVisualIDsTableColumns, 6);
+        let eidsAndVisualIDsTable = this.createTable(applicationIDSelectRow, "EIDs and Visual IDs", eidsAndVisualIDsTableColumns, 6);
         
         applicationIDSelect.onchange = () =>{
+            // Clearing out the EID's table and adding relevant EID's with application ID on change of Application ID select drop down
             $(eidsAndVisualIDsTable).DataTable().clear().draw();
-            this.eidsAndVisualIDsList = [];
-            for(const eid_and_application_id of this.data.available_eids_and_application_ids){
-                if(eid_and_application_id.grouping_id == applicationIDSelect.value){
-                    this.eidsAndVisualIDsList.push({
-                        "eid": eid_and_application_id.eid,
-                        "visual_id": eid_and_application_id.visual_id != null ? eid_and_application_id.visual_id : "N/A",
-                        "grouping_id": eid_and_application_id.grouping_id
+            let animalsAndGroupingIDsList = [];
+            for(const animal_and_grouping_id of this.data.available_animals_and_grouping_ids){
+                if(animal_and_grouping_id.grouping_id == applicationIDSelect.value){
+                    animalsAndGroupingIDsList.push({
+                        "eid": animal_and_grouping_id.eid,
+                        "visual_id": animal_and_grouping_id.visual_id != null ? animal_and_grouping_id.visual_id : "N/A",
+                        "grouping_id": animal_and_grouping_id.grouping_id
                     });
                 }
             }
-            $(eidsAndVisualIDsTable).DataTable().rows.add(this.eidsAndVisualIDsList).draw();
+            $(eidsAndVisualIDsTable).DataTable().rows.add(animalsAndGroupingIDsList).draw();
         }
         applicationIDSelect.onchange();
 
@@ -149,13 +156,20 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
             getData: () => {
                 return {
                     sales_group_id: this.salesGroupID,
-                    application_id: applicationIDSelect.value,
                     eids_and_visual_ids_list: this.eidsAndVisualIDsList
                 }
             }
         });
 
-        submitButton.addEventListener("click", () => {   
+        submitButton.addEventListener("click", () => {
+            for(const animal_and_grouping_id of this.data.available_animals_and_grouping_ids){
+                if(animal_and_grouping_id.grouping_id == applicationIDSelect.value){
+                    this.eidsAndVisualIDsList.push({
+                        "eid": animal_and_grouping_id.eid,
+                        "visual_id": animal_and_grouping_id.visual_id
+                    });
+                }
+            }
             this.asyncForm.submit();
         });
         this.frame.append(card);

@@ -147,7 +147,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
     }
 
     makeForm(){
-        let that=this;
         let card = document.createElement("div");
         card.className = "card";
 
@@ -162,17 +161,17 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         cardHeader.append(editGroupName);
 
         if(this.data.is_healthtrack_partner_account){
-            let applicationIDButtonDiv = document.createElement("div");
-            applicationIDButtonDiv.className = "d-flex align-items-end flex-row";
+            let groupingIDButtonDiv = document.createElement("div");
+            groupingIDButtonDiv.className = "d-flex align-items-end flex-row";
     
-            let applicationIDButton = document.createElement("button");
-            applicationIDButton.className = "btn btn-outline-primary btn-sm";
-            applicationIDButton.innerHTML = "Select EIDs by Application ID";
-            applicationIDButton.onclick = function () {
-            window.location.href = '/dashboard/sales-groups/'+ that.salesGroupID +'/select-eids-by-grouping-id';
+            let groupingIDButton = document.createElement("button");
+            groupingIDButton.className = "btn btn-outline-primary btn-sm";
+            groupingIDButton.innerHTML = "Select EIDs by Application ID";
+            groupingIDButton.onclick = () => {
+            window.location.href = `/dashboard/sales-groups/${this.salesGroupID}/select-eids-by-grouping-id`;
             };
-            applicationIDButtonDiv.append(applicationIDButton);
-            cardHeader.append(applicationIDButtonDiv);
+            groupingIDButtonDiv.append(groupingIDButton);
+            cardHeader.append(groupingIDButtonDiv);
         }
         card.append(cardHeader);
 

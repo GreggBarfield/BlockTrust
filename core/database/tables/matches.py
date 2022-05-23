@@ -263,7 +263,7 @@ class Matches:
     
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
         matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
-        grouping_id=NO_VALUE, partner_account=NO_VALUE, is_distinct=False, matches_cols=()):
+        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -297,20 +297,16 @@ class Matches:
             query_values["matches_eid"] = matches_eid
 
         if matches_visual_id is not NO_VALUE:
-            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_eid is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
             query_values["matches_visual_id"] = matches_visual_id
 
         if matches_restrict_type is not NO_VALUE:
             query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
 
-        if grouping_id is not NO_VALUE:
-            query_conditions.append("m.grouping_id = %(grouping_id)s" if grouping_id is not None else "m.grouping_id IS %(grouping_id)s")
-            query_values["grouping_id"] = grouping_id
-
-        if partner_account is not NO_VALUE:
-            query_conditions.append("m.partner_account = %(partner_account)s" if partner_account is not None else "m.partner_account IS %(partner_account)s")
-            query_values["partner_account"] = partner_account
+        if matches_partner_account_id is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
+            query_values["matches_partner_account_id"] = matches_partner_account_id
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
@@ -715,34 +711,6 @@ class Matches:
                 "account_link_2_id": account_link_2_id
             }
         ))
-
-    def get_animals_and_corresponding_grouping_ids(self, account_id, partner_account_id):
-        """
-        Gets the list of available EIDs and Visual IDs for an account with the grouping IDs
-
-        Params:
-            account_id: Account ID for which eids and Visual IDs are required
-            partner_account: Partner account of the account for which eids and Visual IDs are required
-
-        Returns:
-            A list of EIDS and visual IDs with Grouping IDs or an empty list
-        """
-        eids_with_grouping_ids = self._db.execute_d(
-            """
-            SELECT DISTINCT eid, visual_id, grouping_id
-            FROM matches
-            WHERE account_link IN (
-                SELECT id FROM account_links WHERE account=%(account)s
-            ) AND partner_account = %(partner_account_id)s AND type=%(match_type_born)s
-            """, {
-                "account": account_id,
-                "partner_account_id": partner_account_id,
-                "match_type_born": match_types_by_name["Born"]
-            }
-        )
-        if len(eids_with_grouping_ids) > 0:
-            return eids_with_grouping_ids
-        return []
 
     @staticmethod
     def _load_rows(rows):
