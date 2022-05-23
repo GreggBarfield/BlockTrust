@@ -681,9 +681,9 @@ def serve_employee_search_by_eid_and_visual_id():
             "matches": []
         }
 
-@bp.route('/widgets/data/get_eids_and_application_ids_for_account', methods=["POST"])
+@bp.route('/widgets/data/get_animals_and_grouping_ids_for_account', methods=["POST"])
 @crut.require_account
-def serve_get_eids_and_application_ids_for_account():
+def get_animals_and_grouping_ids_for_account():
     animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
         account_links_account_id=g.account.id(),
         matches_partner_account_id=g.account.partner_account_id(),

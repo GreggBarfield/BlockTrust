@@ -1,7 +1,7 @@
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 
-export class SelectEIDsByApplicationIDWidget extends Widget {
+export class SelectEIDsByGroupingIDWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
@@ -9,7 +9,7 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
     initType() {
         this.salesGroupID = parseInt(this.frame.getAttribute("data-widget-sales-group"));
         this.getData(
-            "get_eids_and_application_ids_for_account",
+            "get_animals_and_grouping_ids_for_account",
         ).then((data) => {
             this.data = data;
             this.eidsAndVisualIDsList = [];
@@ -20,7 +20,6 @@ export class SelectEIDsByApplicationIDWidget extends Widget {
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
-
     }
 
     filterGroupingIDs(animalAndGroupingIDsList){
