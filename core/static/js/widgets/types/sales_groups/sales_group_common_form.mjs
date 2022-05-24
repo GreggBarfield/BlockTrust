@@ -241,7 +241,7 @@ export class SalesGroupsCommonForm{
         let salesGroupName = createText(marketingRow,"Sales Group Nickname", this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
         let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
-        let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
+        //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
@@ -547,7 +547,7 @@ export class SalesGroupsCommonForm{
                     "start": marketingDates.getStartTime(),
                     "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
-                    "price": marketingPrice.value,
+                    "price": 0, //marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
