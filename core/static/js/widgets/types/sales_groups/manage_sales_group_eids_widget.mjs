@@ -1,8 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 
-const AVAILABLEEIDSCHECKBOXNAME = "availableEIDCheckBox";
-const ASSIGNEDEIDSCHECKBOXNAME = "assignedEIDCheckBox";
 export class ManageSalesGroupEIDsWidget extends Widget {
     constructor(frame) {
         super(frame);
@@ -56,10 +54,9 @@ export class ManageSalesGroupEIDsWidget extends Widget {
      * Returns a checklist of EIDs along with corresponding Visual ID
      * @param {Array} eidAndVisualIDList The list of EID/Visual ID objects
      * @param {Array} checkedEidAndVisualIDList The list of EID/Visual ID objects which need to be checked
-     * @param {String} checkboxName The name for the checkboxes being created
      * @returns {Node} checkListTable A table containing checkboxes and EIDs/Visual IDs
      */
-    createCheckListTable(eidAndVisualIDList, checkedEidAndVisualIDList, checkboxName){
+    createCheckListTable(eidAndVisualIDList, checkedEidAndVisualIDList){
         // Creating checklist table
         let checkListTable = document.createElement('table');
         checkListTable.className = "table table-striped table-bordered nowrap";
@@ -83,8 +80,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             let tdCheckbox = document.createElement("td");
             var checkbox = document.createElement("input");
             checkbox.type="checkbox";
-            checkbox.name = checkboxName;
-            checkbox.className = "checkbox"
+            checkbox.className = "checkbox";
             checkbox.id = eidAndVisualID.eid;
             checkbox.value = JSON.stringify(eidAndVisualID);
             checkbox.checked = false;
@@ -158,8 +154,8 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         let availableEIDGroup = this.createGroup(eidsRow,"Available EIDs:", id);
         let assignedEIDGroup = this.createGroup(eidsRow, "Assigned EIDs:", id);
 
-        let availableEIDsChecklistTable = this.createCheckListTable(this.data.available_eids_with_visual_ids, [], AVAILABLEEIDSCHECKBOXNAME);
-        let assignedEIDsCheckListTable = this.createCheckListTable(this.data.assigned_animals, this.data.assigned_animals, ASSIGNEDEIDSCHECKBOXNAME);
+        let availableEIDsChecklistTable = this.createCheckListTable(this.data.available_eids_with_visual_ids, []);
+        let assignedEIDsCheckListTable = this.createCheckListTable(this.data.assigned_animals, this.data.assigned_animals);
         let availableEIDsSelectAll = this.createSelectAllCheckbox(availableEIDsChecklistTable);
         let assignedEIDsSelectAll = this.createSelectAllCheckbox(assignedEIDsCheckListTable);
         
