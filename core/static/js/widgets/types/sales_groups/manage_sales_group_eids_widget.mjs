@@ -80,7 +80,6 @@ export class ManageSalesGroupEIDsWidget extends Widget {
             let tdCheckbox = document.createElement("td");
             var checkbox = document.createElement("input");
             checkbox.type="checkbox";
-            checkbox.className = "checkbox";
             checkbox.id = eidAndVisualID.eid;
             checkbox.value = JSON.stringify(eidAndVisualID);
             checkbox.checked = false;
@@ -99,7 +98,7 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         return checkListTable;
     }
 
-    createSelectAllCheckbox(EIDsChecklist){         
+    createSelectAllCheckbox(EIDsChecklistTable){         
         let selectAll = document.createElement("div");
         selectAll.className = "d-inline"
         var selectAllCheckbox = document.createElement("input");
@@ -109,14 +108,19 @@ export class ManageSalesGroupEIDsWidget extends Widget {
         selectAllCheckbox.id="select-all-eid-checkbox";
         selectAllCheckbox.onchange = ()=>{
             var checked=selectAllCheckbox.checked;
-            // Traversing through each checkbox of specified tables and checking/unchecking each box
-            $(EIDsChecklist).DataTable().column(0).nodes().to$().each(function(index) {  
+            // Retrieving first column nodes of the datatable which returns the checkbox cells as an array of objects
+            let checkBoxColumnNodes = $(EIDsChecklistTable).DataTable().column(0).nodes().toArray();
+            for(const checkboxCell of checkBoxColumnNodes){
+                // Retrieving the children nodes of the column cell (Only one child node which is the checkbox)
+                let checkBoxCellChildren = checkboxCell.children;
+                // Setting the checked property as true for the first child element (checkbox) of the cell
                 if(checked){
-                  $(this).find('.checkbox').prop('checked', true);
-                } else {
-                  $(this).find('.checkbox').prop('checked', false);            
+                    checkBoxCellChildren[0].checked=true;
                 }
-              });
+                else{
+                    checkBoxCellChildren[0].checked=false;
+                }
+            }
         }
         var label = document.createElement('label')
         label.htmlFor = "Select All";
@@ -205,18 +209,23 @@ export class ManageSalesGroupEIDsWidget extends Widget {
 
         submitButton.addEventListener("click", () => {
             let selectedEIDsAndVisualIDs = [];
-            $(availableEIDsChecklistTable).DataTable().column(0).nodes().to$().each(function(){ 
-                var selectedCheckbox = $(this).find('.checkbox');
-                if(selectedCheckbox[0].checked){
-                    selectedEIDsAndVisualIDs.push(JSON.parse(selectedCheckbox[0].value))
+            // Retrieving first column nodes of the datatable which returns the checkbox cells as an array of objects
+            let availableEIDsColumnNodes = $(availableEIDsChecklistTable).DataTable().column(0).nodes().toArray();
+            for(const checkboxCell of availableEIDsColumnNodes){
+                // Retrieving the children nodes of the column cell (Only one child node which is the checkbox)
+                let checkBoxCellChildren = checkboxCell.children;
+                // Storing the EID and Visual ID object if the checkbox is checked
+                if(checkBoxCellChildren[0].checked==true){
+                    selectedEIDsAndVisualIDs.push(JSON.parse(checkBoxCellChildren[0].value));
                 }
-            });
-            $(assignedEIDsCheckListTable).DataTable().column(0).nodes().to$().each(function(){ 
-                var selectedCheckbox = $(this).find('.checkbox');
-                if(selectedCheckbox[0].checked){
-                    selectedEIDsAndVisualIDs.push(JSON.parse(selectedCheckbox[0].value))
+            }
+            let assignedEIDsColumnNodes = $(assignedEIDsCheckListTable).DataTable().column(0).nodes().toArray();
+            for(const checkboxCell of assignedEIDsColumnNodes){
+                let checkBoxCellChildren = checkboxCell.children;
+                if(checkBoxCellChildren[0].checked==true){
+                    selectedEIDsAndVisualIDs.push(JSON.parse(checkBoxCellChildren[0].value));
                 }
-            });
+            }
             this.eidsAndVisualIDsSelected = selectedEIDsAndVisualIDs;
             this.asyncForm.submit();
         });
