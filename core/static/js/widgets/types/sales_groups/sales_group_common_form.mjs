@@ -290,8 +290,8 @@ export class SalesGroupsCommonForm{
                 marketingOffRanchLocation.disabled=true;
 
                 // Remove comments when marketingPrice is enabled again
-                //marketingPrice.value = 0;
                 //marketingPrice.disabled = true;
+                //marketingPrice.value = 0;
             }
         }
         marketingDeliveryLocationType.onchange();
