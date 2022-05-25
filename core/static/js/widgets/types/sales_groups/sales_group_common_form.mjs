@@ -276,15 +276,23 @@ export class SalesGroupsCommonForm{
         marketingDeliveryLocationType.onchange = () => {
             if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
+                // Remove comments when marketingPrice is added again
+                //marketingPrice.disabled = false;
+                //marketingPrice.value = this.marketingPriceValue
 
                 marketingAuctionMarketLocation.value="None";
                 marketingAuctionMarketLocation.disabled=true;
+
             }
             else{
                 marketingAuctionMarketLocation.disabled=false;
 
                 marketingOffRanchLocation.value="";
                 marketingOffRanchLocation.disabled=true;
+
+                // Remove comments when marketingPrice is added again
+                //marketingPrice.value = 0;
+                //marketingPrice.disabled = true;
             }
         }
         marketingDeliveryLocationType.onchange();
