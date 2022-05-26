@@ -1,6 +1,6 @@
 from core.database.tables.notification_recipients import NotificationRecipients
 from flask import (
-    request, Blueprint, g, redirect, url_for
+    request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
@@ -391,15 +391,14 @@ def serve_edit_account():
     elif request.method == 'GET':
         stripe.api_key = STRIPE_SECRET_KEY
         is_stripe_charges_enabled = False
-        if g.account.stripe_account_id() is not None:
-            if not bool(g.account.is_stripe_charges_enabled()):
-                # Check if this has changed
-                stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
-                if stripe_account["charges_enabled"]:
-                    g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
-                    is_stripe_charges_enabled = True
-            else:
-                is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
+        if bool(request.args.get("stripe_onboarding")) and g.account.stripe_account_id() is not None and not bool(g.account.is_stripe_charges_enabled()):
+            # Check if this has changed
+            stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
+            if stripe_account["charges_enabled"]:
+                g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
+                is_stripe_charges_enabled = True
+        else:
+            is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
         return dashboard_render("/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_charges_enabled": is_stripe_charges_enabled })
 
 
@@ -623,3 +622,9 @@ def serve_sales_group_transaction(sales_group_id):
             return {}
         except Exception as e:
             return {"error": str(e)}, 400
+
+
+@bp.route('/dashboard/files/<path:path>')
+@crut.require_account
+def send_document(path):
+    return send_from_directory('static/files/dashboard/', path)

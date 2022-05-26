@@ -48,7 +48,7 @@ def handle(db: Database, insert):
     })
 
     try:
-        patronid = fields["patronid"]
+        patronid =  int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
