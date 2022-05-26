@@ -12,7 +12,7 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
             "get_animals_and_grouping_ids_for_account",
         ).then((data) => {
             this.data = data;
-            this.eidsAndVisualIDsList = [];
+            this.displayedEIDsAndVisualIDsList = [];
             this.groupingIDsList = this.filterGroupingIDs(this.data.available_animals_and_grouping_ids);
             this.makeForm();
         });
@@ -32,7 +32,7 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
         return groupingIDsList;
     }
 
-    createSection(form, name) {
+    createContainerRow(form, name) {
         let header = document.createElement("h6");
         header.textContent = name;
         form.append(header);
@@ -54,29 +54,21 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
         return group;
     }
 
-    createSelect(row, name, options, placeholder, groupColumnSize=6){
-        let group = this.createGroup(row, name, groupColumnSize);
+    createSelect(options){
         let select = document.createElement("select");
-        select.required = true
-        group.append(select);
-        let optionsStacked = [];
+        select.required = true;
+        select.className = "form-control";
         for (const option of options) {
-            optionsStacked.push({
-                id: option,
-                text: option
-            })
+            let optionRow = new Option(option, option);
+            select.appendChild(optionRow);
         }
-        $(select).select2({data: optionsStacked, placeholder: placeholder});
-        return select;
+       return select;
     }
 
-    createTable(row, name, columns, groupColumnSize=6){
-        let group = this.createGroup(row, name, groupColumnSize);
+    createTable(){
         // Create an empty table which can be populated dynamically
         let table = document.createElement('table');
         table.className = "table table-striped table-bordered nowrap";
-        group.append(table);
-        $(table).DataTable({columns: columns});
         return table;
     }
 
@@ -103,25 +95,33 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
         let form = document.createElement("form");
         cardBody.append(form);
 
-        let applicationIDSelectRow = this.createSection(form, "Application ID");
-        let applicationIDSelect = this.createSelect(applicationIDSelectRow, "Select Application ID", this.groupingIDsList, "Select an Option", 6);
+        let applicationIDSelectRow = this.createContainerRow(form, "Application ID");
+
+        let applicationIDSelectGroup = this.createGroup(applicationIDSelectRow, "Select Application ID", 6);
+        let applicationIDSelect = this.createSelect(this.groupingIDsList);
+        applicationIDSelectGroup.append(applicationIDSelect);
+        $(applicationIDSelect).select2();
+
+        let eidsAndVisualIDsTableGroup = this.createGroup(applicationIDSelectRow, "EIDs and Visual IDs", 6);
         let eidsAndVisualIDsTableColumns = [{"data": 'eid', "title": "EID"}, {"data": 'visual_id', "title": "Visual ID"}, {"data": "grouping_id", "title": "Application ID"}]
-        let eidsAndVisualIDsTable = this.createTable(applicationIDSelectRow, "EIDs and Visual IDs", eidsAndVisualIDsTableColumns, 6);
-        
+        let eidsAndVisualIDsTable = this.createTable();
+        eidsAndVisualIDsTableGroup.append(eidsAndVisualIDsTable);
+        $(eidsAndVisualIDsTable).DataTable({columns: eidsAndVisualIDsTableColumns});
+
         applicationIDSelect.onchange = () =>{
             // Clearing out the EID's table and adding relevant EID's with application ID on change of Application ID select drop down
             $(eidsAndVisualIDsTable).DataTable().clear().draw();
-            let animalsAndGroupingIDsList = [];
+            this.displayedEIDsAndVisualIDsList = [];
             for(const animal_and_grouping_id of this.data.available_animals_and_grouping_ids){
                 if(animal_and_grouping_id.grouping_id == applicationIDSelect.value){
-                    animalsAndGroupingIDsList.push({
+                    this.displayedEIDsAndVisualIDsList.push({
                         "eid": animal_and_grouping_id.eid,
                         "visual_id": animal_and_grouping_id.visual_id != null ? animal_and_grouping_id.visual_id : "N/A",
                         "grouping_id": animal_and_grouping_id.grouping_id
                     });
                 }
             }
-            $(eidsAndVisualIDsTable).DataTable().rows.add(animalsAndGroupingIDsList).draw();
+            $(eidsAndVisualIDsTable).DataTable().rows.add(this.displayedEIDsAndVisualIDsList).draw();
         }
         applicationIDSelect.onchange();
 
@@ -155,20 +155,12 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
             getData: () => {
                 return {
                     sales_group_id: this.salesGroupID,
-                    eids_and_visual_ids_list: this.eidsAndVisualIDsList
+                    eids_and_visual_ids_list: this.displayedEIDsAndVisualIDsList
                 }
             }
         });
 
         submitButton.addEventListener("click", () => {
-            for(const animal_and_grouping_id of this.data.available_animals_and_grouping_ids){
-                if(animal_and_grouping_id.grouping_id == applicationIDSelect.value){
-                    this.eidsAndVisualIDsList.push({
-                        "eid": animal_and_grouping_id.eid,
-                        "visual_id": animal_and_grouping_id.visual_id
-                    });
-                }
-            }
             this.asyncForm.submit();
         });
         this.frame.append(card);
