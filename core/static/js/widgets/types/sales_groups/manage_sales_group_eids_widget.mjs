@@ -134,17 +134,31 @@ export class ManageSalesGroupEIDsWidget extends Widget {
     makeForm(){
         let card = document.createElement("div");
         card.className = "card";
-        let cardHeader = document.createElement("h3");
-        cardHeader.className = "col-form-label";
-        cardHeader.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
-        cardHeader.textContent = "Edit Sales Group EIDs " + this.data.id + ":  ";
 
-        let editGroupName = document.createElement("div");
-        editGroupName.className = "card-header form-group row";
-        editGroupName.style = "padding:5px;padding-left: 15px;"
+        let editGroupName = document.createElement("h5");
+        editGroupName.className = "mt-2";
+        editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        editGroupName.textContent = `Edit Sales Group ${this.salesGroupID} EIDs`;
 
-        editGroupName.append(cardHeader);
-        card.append(editGroupName);
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between";
+        cardHeader.style = "padding:5px;padding-left: 15px;"
+        cardHeader.append(editGroupName);
+
+        if(this.data.is_healthtrack_partner_account){
+            let groupingIDButtonDiv = document.createElement("div");
+            groupingIDButtonDiv.className = "d-flex align-items-end flex-row";
+    
+            let groupingIDButton = document.createElement("button");
+            groupingIDButton.className = "btn btn-outline-primary btn-sm";
+            groupingIDButton.innerHTML = "Select EIDs by Application ID";
+            groupingIDButton.onclick = () => {
+            window.location.href = `/dashboard/sales-groups/${this.salesGroupID}/select-eids-by-grouping-id`;
+            };
+            groupingIDButtonDiv.append(groupingIDButton);
+            cardHeader.append(groupingIDButtonDiv);
+        }
+        card.append(cardHeader);
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body";
