@@ -100,6 +100,8 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
         let applicationIDSelectGroup = this.createGroup(applicationIDSelectRow, "Select Application ID", 6);
         let applicationIDSelect = this.createSelect(this.groupingIDsList);
         applicationIDSelectGroup.append(applicationIDSelect);
+        //initializing select2() here (and Datatable() on line 111) because initializing them inside the function is causing errors.
+        // This is because the element needs to be appended and rendered on the DOM before initializing it with select2() (or Datatable())
         $(applicationIDSelect).select2();
 
         let eidsAndVisualIDsTableGroup = this.createGroup(applicationIDSelectRow, "EIDs and Visual IDs", 6);
@@ -155,7 +157,13 @@ export class SelectEIDsByGroupingIDWidget extends Widget {
             getData: () => {
                 return {
                     sales_group_id: this.salesGroupID,
-                    eids_and_visual_ids_list: this.displayedEIDsAndVisualIDsList
+                    eids_and_visual_ids_list: this.displayedEIDsAndVisualIDsList.map((el) => { 
+                        return {
+                            eid:el.eid, 
+                            visual_id:el.visual_id=="N/A"? null: el.visual_id, 
+                            grouping_id:el.grouping_id 
+                        }}
+                    )
                 }
             }
         });
