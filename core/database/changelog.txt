@@ -1524,3 +1524,11 @@ CREATE TABLE `sales_group_offers` (
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+
+/* Nisheet Thakur 5/19/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+UPDATE `products` SET `price`=20 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+UPDATE `products` SET `price`=28.5 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
+UPDATE `products` SET `price`=17.5 WHERE id=@product_id;

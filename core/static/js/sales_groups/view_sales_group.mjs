@@ -192,6 +192,21 @@ export class SalesGroupViewer {
                 });
                 left.append(unarchiveButton);
             }
+            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1 && this.data["price"] > 0){
+                let purchaseButton = document.createElement("button");
+                purchaseButton.className = "btn btn-sm btn-success";
+                purchaseButton.style = "float:right"
+                purchaseButton.textContent = "Purchase";
+                purchaseButton.addEventListener("click", () => {
+                    window.location.href = "/dashboard/sales-groups/purchase/"+this.data["id"];
+                });
+                left.append(purchaseButton);
+                let priceLabel = document.createElement("label");
+                priceLabel.innerHTML = `$${this.data["price"]}`;
+                priceLabel.className = "h3 text-info mr-4";
+                priceLabel.style = "float:right";
+                left.append(priceLabel);
+            }
             
             let location = document.createElement("div");
 

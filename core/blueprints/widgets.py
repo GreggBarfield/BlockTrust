@@ -9,7 +9,7 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
@@ -40,7 +40,7 @@ bp = Blueprint('widgets_bp', __name__)
 
 
 @bp.route('/widgets/data/direct/<name>', methods=['POST'])
-@crut.require_user
+@crut.require_account_or_employee
 def serve_direct(name):
     direct_export = {
         "match_types_by_id": match_types_by_id,
@@ -108,7 +108,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=0)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -338,7 +338,7 @@ def unarchive_sales_group():
 @crut.require_account
 def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=1)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
@@ -374,13 +374,17 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    is_healthtrack_partner_account = False
+    if g.account.partner_account_id() == healthtrack_partner_row["id"]:
+        is_healthtrack_partner_account = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
@@ -397,7 +401,8 @@ def serve_get_eids_for_sales_group():
     return {
         "id": sales_group_row["id"],
         "assigned_animals": assigned_animals,
-        "available_eids_with_visual_ids": available_eids_with_visual_ids
+        "available_eids_with_visual_ids": available_eids_with_visual_ids,
+        "is_healthtrack_partner_account": is_healthtrack_partner_account
     }
 
 
@@ -543,7 +548,7 @@ def serve_update_auction_sale():
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
-@crut.require_account
+@crut.require_account_or_employee
 def serve_data_request():
     return unauth_route(request.json['request']), 200
 
@@ -716,3 +721,33 @@ def serve_add_or_update_offer_for_sales_group():
         offer_status=offer_status_by_name['Pending']
     )
     return {"redirect": request.form["requestRedirectTo"]}
+
+
+@bp.route('/widgets/data/get_animals_and_grouping_ids_for_account', methods=["POST"])
+@crut.require_account
+def get_animals_and_grouping_ids_for_account():
+    animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
+        account_links_account_id=g.account.id(),
+        matches_partner_account_id=g.account.partner_account_id(),
+        is_distinct=True,
+        matches_cols=("eid", "visual_id", "grouping_id")
+    )
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups_ids = g.db.sales_groups.get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
+    assigned_eids_for_account = []
+    for sales_group_id in account_sales_groups_ids:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_animals_and_grouping_ids = []
+    for animal_and_grouping_id in animals_and_grouping_ids:
+        if animal_and_grouping_id["eid"] not in assigned_eids_for_account:
+            available_animals_and_grouping_ids.append(animal_and_grouping_id)
+    return {"available_animals_and_grouping_ids": available_animals_and_grouping_ids}
+
+@bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_save_eids_by_application_id():
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
+    return {"redirect": "/dashboard/sales-groups/manage"}

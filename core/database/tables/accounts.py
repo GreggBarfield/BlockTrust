@@ -4,6 +4,7 @@ from ..no_value import NoValue
 from ..frag import frag
 
 NO_VALUE = NoValue()
+HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
 
 class AccountsException(Exception):
     """Account generic exception."""
@@ -179,6 +180,7 @@ class Accounts:
         """
 
         # Validations
+        affiliate_id = int(affiliate_id) if affiliate_id.isdigit() else affiliate_id
         sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
@@ -284,6 +286,7 @@ class Accounts:
         """
 
         # Validations
+        affiliate_id = int(affiliate_id) if affiliate_id.isdigit() else affiliate_id
         sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
 
         self._db.execute(
