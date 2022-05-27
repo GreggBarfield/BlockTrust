@@ -223,13 +223,15 @@ class Emails:
                     if user_row["is_email_verified"] == 1:
                         email_variables = json.loads(unprocessed_email["variables"])
                         email_variables["body"] = unprocessed_email["body"]
-                        send_email(
-                            unprocessed_email["subject"],
-                            # render_email(unprocessed_email["template_name"], email_variables),
-                            "test body",
-                            # user_row["email"]
-                            "nisheet.thakur@blocktrustnetwork.com"
-                            )
+                        with current_app.app_context():
+                            send_email(
+                                unprocessed_email["subject"],
+                                render_email(unprocessed_email["template_name"], email_variables),
+                                # "test body",
+                                # user_row["email"]
+                                "nisheet.thakur@blocktrustnetwork.com"
+                                )
                         self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Processed"])
             except Exception as e:
+                print(str(e))
                 self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Failed"])
