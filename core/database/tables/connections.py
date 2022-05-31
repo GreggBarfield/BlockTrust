@@ -25,26 +25,25 @@ class Connections:
     def __init__(self, db: 'database.Database'):
         self._db = db
 
-    def get_account_connections(self, account_id, status):
+    def get_connection_requests_for_account(self, account_id):
         """
         Params:
-            account_id: Account ID whose connections are requested
-            status: Status of the connections requested
+            account_id: Account ID whose connection requests are needed
         Returns:
-            connections: List of connected accounts
+            connection_requests: List of connection requests
 
         """
-        connections = self._db.execute_d(
+        connection_requests = self._db.execute_d(
             """
             SELECT * FROM connections
-            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
+            WHERE to_account_id=%(account_id)s AND status= %(status)s
             """,
             {
                 "account_id": account_id,
-                "status": status
+                "status": connection_status["Pending"]
             }
         )
-        return connections
+        return connection_requests
 
     def update_connection(self, from_account_id, to_account_id, status):
         """
@@ -159,3 +158,25 @@ class Connections:
         if len(unconnected_accounts) > 0:
             return unconnected_accounts
         return []
+
+    def get_connected_accounts(self, account_id):
+        """
+        Get accounts connected to the specified account
+
+        Params:
+            account_id: The account ID for which connected accounts are required
+
+        Returns:
+            A list of accounts which are connected to the specified account or an empty list
+        """
+        connections = self._db.execute_d(
+            """
+            SELECT * FROM connections
+            WHERE (from_account_id=%(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
+            """,
+            {
+                "account_id": account_id,
+                "status": connection_status["Connected"]
+            }
+        )
+        return connections
