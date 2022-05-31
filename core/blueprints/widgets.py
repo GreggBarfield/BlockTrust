@@ -11,14 +11,12 @@ from ..common_exceptions import ExportException
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.accounts import AccountsException, Accounts
 from ..database.objects.account import AccountException
-from ..database.tables.account_users import AccountUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.users import Users
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -660,19 +658,6 @@ def serve_add_connection_request():
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
             Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
-            admin_account_users = AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)
-            if len(admin_account_users) > 0:
-                admin_account_user = admin_account_users[0]
-                admin_user_rows = Users(g.db).get_users(id=admin_account_user["user"])
-                if len(admin_user_rows) > 0:
-                    admin_user_row = admin_user_rows[0]
-                    send_email(
-                        "BlockTrust Network New Connection Request",
-                        render_email("new_account_connection_request.html", {
-                            'connection_receiving_user': admin_user_row,
-                            'requesting_account': g.account
-                        }), admin_user_row["email"]
-                    )
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),

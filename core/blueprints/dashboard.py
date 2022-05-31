@@ -133,16 +133,7 @@ def serve_account_id(account_id):
     if len(unread_notifications_list) > 0:
         unread_notifications = 1
 
-    pending_connection_requests_count = 0
-    pending_connection_requests_list = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
-    pending_connection_requests_count = len(pending_connection_requests_list)
-
-    sector_params = {
-        "account": account,
-        "account_links": account_links,
-        "unread_notifications": unread_notifications,
-        "pending_connection_requests_count": pending_connection_requests_count
-    }
+    sector_params = {"account": account, "account_links": account_links, "unread_notifications": unread_notifications}
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", sector_params)
@@ -471,15 +462,21 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_connected_accounts(g.account.id(), connection_status["Connected"])
-    requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
-    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
+    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
 
 
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
     return dashboard_render("/dashboard/connections/add-connection.html")
+
+
+@bp.route('/dashboard/view-invites', methods=['GET'])
+@crut.require_account
+def serve_view_invites():
+    requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
+    return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
 
 
 @bp.route('/dashboard/accept-invite', methods=['POST'])

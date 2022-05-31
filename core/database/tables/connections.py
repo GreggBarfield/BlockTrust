@@ -37,7 +37,7 @@ class Connections:
         connections = self._db.execute_d(
             """
             SELECT * FROM connections
-            WHERE to_account_id=%(account_id)s AND status= %(status)s
+            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
             """,
             {
                 "account_id": account_id,
@@ -159,25 +159,3 @@ class Connections:
         if len(unconnected_accounts) > 0:
             return unconnected_accounts
         return []
-
-    def get_connected_accounts(self, account_id, status):
-        """
-        Get accounts connected to the specified account
-
-        Params:
-            account_id: The account ID for which connected accounts are required
-
-        Returns:
-            A list of accounts which are connected to the specified account or an empty list
-        """
-        connections = self._db.execute_d(
-            """
-            SELECT * FROM connections
-            WHERE (from_account_id=%(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
-            """,
-            {
-                "account_id": account_id,
-                "status": status
-            }
-        )
-        return connections
