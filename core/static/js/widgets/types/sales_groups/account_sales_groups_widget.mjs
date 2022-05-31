@@ -53,6 +53,11 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/manage-eids/" + salesGroup.id
             );
+            controls.addA(
+                "View Offers ",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/view-offers/" + salesGroup.id
+            );
             controls.addButton(
                 "Archive",
                 "btn btn-sm btn-info",

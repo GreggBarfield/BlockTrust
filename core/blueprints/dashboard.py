@@ -619,3 +619,8 @@ def serve_select_eids_by_application_id(sales_group_id):
 @crut.require_account
 def send_document(path):
     return send_from_directory('static/files/dashboard/', path)
+
+
+@bp.route('/dashboard/sales-groups/view-offers/<int:sales_group_id>', methods=["GET"])
+def serve_view_offers(sales_group_id):
+    return {}
