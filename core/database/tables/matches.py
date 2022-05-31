@@ -263,7 +263,7 @@ class Matches:
     
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
         matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
-        is_distinct=False, matches_cols=()):
+        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -297,12 +297,16 @@ class Matches:
             query_values["matches_eid"] = matches_eid
 
         if matches_visual_id is not NO_VALUE:
-            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_eid is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
             query_values["matches_visual_id"] = matches_visual_id
 
         if matches_restrict_type is not NO_VALUE:
             query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
+
+        if matches_partner_account_id is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
+            query_values["matches_partner_account_id"] = matches_partner_account_id
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")

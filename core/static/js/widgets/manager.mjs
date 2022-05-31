@@ -32,6 +32,7 @@ import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_gr
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
 import { NotificationsWidget } from './types/notifications/notifications_widget.mjs'
+import { SelectEIDsByGroupingIDWidget } from './types/sales_groups/select_eids_by_grouping_id_widget.mjs';
 import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
 
 
@@ -80,10 +81,10 @@ import { AddConnectionsWidget } from './types/connections/add_connections_widget
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("sustainability timeline", SustainabilityTimelineWidget);
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
-    attach("notifications", NotificationsWidget);
     attach("add connections", AddConnectionsWidget);
+    attach("notifications", NotificationsWidget);
+    attach("select eids by grouping id", SelectEIDsByGroupingIDWidget);
 
-    // Find widgets
     $(".widget").each(function () {
         let widgetType = $(this).attr("data-widget-type");
         let w = null;
