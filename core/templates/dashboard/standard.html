@@ -187,7 +187,7 @@
                   </a>
                 </li>
             {% endif %}
-            {% if pending_connection_requests_count == None or pending_connection_requests_count == 0 %}
+            {% if pending_connection_requests_count is not defined or pending_connection_requests_count == 0 %}
                 <li>
                     <a href="/dashboard/connections">
                         <i class="feather icon-users"></i>
@@ -204,7 +204,7 @@
                     </a>
                 </li>
             {% endif %}
-            {% if unread_notifications == None or unread_notifications == 0 %} 
+            {% if unread_notifications is not defined or unread_notifications == 0 %} 
                 <li>  
                     <a href="/dashboard/notifications">
                     <i class="icon feather icon-bell"></i>
