@@ -123,34 +123,33 @@ def serve_account_id(account_id):
     account = account_user.account()
     account_links = account.account_links()
     # Indicator for unread notifications
-    unread_notifications = 0
+    unread_notifications_count = 0
     # Checking if user has unread notifications
     unread_notifications_list = Notifications(g.db).get_notification_and_notification_recipients(
         user_id=g.user.id(),
         is_archived=0,
         is_notification_seen=0
     )
-    unread_notifications = len(unread_notifications_list)
+    unread_notifications_count = len(unread_notifications_list)
 
     pending_connection_requests_count = 0
-    pending_connection_requests_list = Connections(g.db).get_connection_requests_for_account(g.account.id())
-    pending_connection_requests_count = len(pending_connection_requests_list)
+    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"]))
 
-    sector_params = {
+    account_params = {
         "account": account,
         "account_links": account_links,
-        "unread_notifications": unread_notifications,
+        "unread_notifications_count": unread_notifications_count,
         "pending_connection_requests_count": pending_connection_requests_count
     }
 
     if account.sector_name() == "Auction House":
-        return dashboard_render("sectors/auction.html", sector_params)
+        return dashboard_render("sectors/auction.html", account_params)
     elif account.sector_name() == "Feedlot":
-        return dashboard_render("sectors/feedlot.html", sector_params)
+        return dashboard_render("sectors/feedlot.html", account_params)
     elif account.sector_name() == "Buyer":
-        return dashboard_render("sectors/buyer.html", sector_params)
+        return dashboard_render("sectors/buyer.html", account_params)
     else:
-        return dashboard_render("sectors/generic.html", sector_params)
+        return dashboard_render("sectors/generic.html", account_params)
 
 
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
@@ -469,8 +468,8 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_connected_accounts(g.account.id())
-    requests = Connections(g.db).get_connection_requests_for_account(g.account.id())
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
+    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"])
     return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
 
 
