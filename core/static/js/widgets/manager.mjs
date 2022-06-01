@@ -33,6 +33,7 @@ import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_gr
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
 import { SelectEIDsByGroupingIDWidget } from './types/sales_groups/select_eids_by_grouping_id_widget.mjs';
 import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
+import { ViewSalesGroupOffersWidget } from './types/sales_groups/view_sales_group_offers_widget.mjs';
 
 
 // Immediately invoked
@@ -82,6 +83,7 @@ import { AddConnectionsWidget } from './types/connections/add_connections_widget
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
+    attach("view sales group offers", ViewSalesGroupOffersWidget);
 
     // Find widgets
     $(".widget").each(function () {

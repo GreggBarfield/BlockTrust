@@ -623,4 +623,4 @@ def send_document(path):
 
 @bp.route('/dashboard/sales-groups/view-offers/<int:sales_group_id>', methods=["GET"])
 def serve_view_offers(sales_group_id):
-    return {}
+    return dashboard_render("sales-groups/sales-group/view-offers.html", {"sales_group_id": sales_group_id})

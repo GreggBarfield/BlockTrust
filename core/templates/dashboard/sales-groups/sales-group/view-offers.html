@@ -1,16 +1,16 @@
 {% extends "dashboard/standard.html" %}
 
 {% set page_title = "View Offers" %}
-{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view/" + (sales_group['id']|e) + "", "View Offers for sales group " + (sales_group['id']|e))] %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view-offers/" + (sales_group_id|e) + "", "View Offers for sales group " + (sales_group_id|e))] %}
 
 {% block dashboard_content_header %}
-View Offers for  Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
+View Offers for  Sales Group {{ sales_group_id }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
 <div class="row">
     <div class="col-md">        
-        <p class="mb-0 widget" data-widget-type="view sales group offers" data-widget-sales-group="{{ sales_group['id'] }}"></p>
+        <p class="mb-0 widget" data-widget-type="view sales group offers" data-widget-sales-group="{{ sales_group_id }}"></p>
     </div>
 </div>
 

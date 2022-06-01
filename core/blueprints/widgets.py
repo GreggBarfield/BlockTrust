@@ -15,6 +15,7 @@ from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.sales_group_offers import SalesGroupOffers
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -709,3 +710,9 @@ def serve_save_eids_by_application_id():
     SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
     return {"redirect": "/dashboard/sales-groups/manage"}
+
+@bp.route('/widgets/data/get_sales_groups_offers', methods=["POST"])
+@crut.require_account
+def serve_get_sales_groups_offers():
+    sales_group_offers = SalesGroupOffers(g.db).get_sales_group_offers(sales_group_id=request.json["sales_group_id"])
+    return {"sales_group_offers": sales_group_offers}
