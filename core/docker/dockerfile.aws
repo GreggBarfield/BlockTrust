@@ -5,6 +5,7 @@ FROM python:3.9-buster
 # Environment update
 
 RUN apt update -y && apt upgrade -y
+RUN pip install uwsgi
 
 # Get python requirements
 
@@ -35,4 +36,5 @@ RUN npm run build
 ############# RUNTIME
 
 WORKDIR /home/ubuntu/blocktrust
-CMD exec python3 core/main.py
+#CMD exec python3 core/main.py
+CMD exec uwsgi core/uwsgi.ini
