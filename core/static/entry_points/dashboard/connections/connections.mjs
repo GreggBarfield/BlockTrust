@@ -3,8 +3,8 @@ for(const el of removeConnectionButtons) {
     // Need to implement remove connection function here in future
 }
 function accept(current){
-  var accountID = {"account_id": current.value};
-  var accountIDString = JSON.stringify(accountID);
+  let accountID = {"account_id": current.value};
+  let accountIDString = JSON.stringify(accountID);
   fetch(
     "/dashboard/accept-invite",{
       method: "POST",
@@ -18,8 +18,8 @@ function accept(current){
     });
 }
 function decline(current){
-  var accountID = {"account_id": current.value};
-  var accountIDString = JSON.stringify(accountID);
+  let accountID = {"account_id": current.value};
+  let accountIDString = JSON.stringify(accountID);
   fetch(
     "/dashboard/decline-invite",{
       method: "POST",
