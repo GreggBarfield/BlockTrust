@@ -1526,6 +1526,9 @@ SET @herdwhistleid := (SELECT id FROM product_vendors WHERE vendor_name="Herd Wh
 SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
 SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
 INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, partner, product_category_id, product_vendor_id, is_premise_id_required, member_price)
-VALUES ("1-piece UHF Tag","1pc-white-USDA.png","1pc-white-USDA.png",0,0,"","Bag(s) of 20","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 0),
-("2-piece UHF Tag","2pc-white-USDA.png","2pc-white-USDA.png",0,0,"","Bag(s) of 20","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 0)
+VALUES ("1-piece UHF Tag","1pc-white-USDA.png","1pc-white-USDA.png",82.50,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 82.50),
+("2-piece UHF Tag","2pc-white-USDA.png","2pc-white-USDA.png",85,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 68);
 
+SET @product_id := (SELECT id FROM products WHERE product='2-piece UHF Tag');
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,20);
