@@ -6,7 +6,6 @@ from ..common_exceptions import ExportException
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
 from ..database.tables.product_vendors import ProductVendors
-from ..database.tables.error_logs import ErrorLogs
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 
@@ -138,8 +137,7 @@ def update_order():
                         'cart': value,
                         'premise_id': premise_id
                         }),
-                    "nisheet.thakur@blocktrustnetwork.com"
-                    # vendor_email
+                    vendor_email
                     )
 
         send_multiple_tag_store_email(
@@ -160,13 +158,11 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"]),
                 'premise_id': premise_id
             }),
-            ["nisheet.thakur@blocktrustnetwork.com"]
-            # ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
 
         return {"success": True}
     except Exception as e:
-        ErrorLogs(g.db).insert_error_log("Shop", e.__class__.__name__ + ": " + str(e))
         return {"error": str(e)}, 400
 
 
