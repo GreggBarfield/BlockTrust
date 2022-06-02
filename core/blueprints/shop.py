@@ -6,6 +6,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
 from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.error_logs import ErrorLogs
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 
@@ -85,6 +86,9 @@ def update_order():
         order_details = eval(data["orderDetails"])
         shopping_cart = eval(order_details["shoppingCart"])
         # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if len(order_details["premise_id"]) > 0:
+            premise_id = order_details["premise_id"]
         send_tag_store_email(
             "Tag Store Purchase Summary",
             render_email("purchase_summary_customer.html", {
@@ -99,10 +103,11 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
             order_details["email"]
-        )
+        ) 
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
@@ -130,9 +135,11 @@ def update_order():
                         'shipping_city': order_details["city"],
                         'shipping_state': order_details["state"],
                         'shipping_zip_code': order_details["zip_code"],
-                        'cart': value
+                        'cart': value,
+                        'premise_id': premise_id
                         }),
-                    vendor_email
+                    "nisheet.thakur@blocktrustnetwork.com"
+                    # vendor_email
                     )
 
         send_multiple_tag_store_email(
@@ -150,13 +157,16 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
-            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["nisheet.thakur@blocktrustnetwork.com"]
+            # ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
 
         return {"success": True}
     except Exception as e:
+        ErrorLogs(g.db).insert_error_log("Shop", e.__class__.__name__ + ": " + str(e))
         return {"error": str(e)}, 400
 
 

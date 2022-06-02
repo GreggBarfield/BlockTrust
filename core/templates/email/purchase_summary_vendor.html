@@ -36,6 +36,7 @@
                 <th>Quantity</th>
                 <th>Price</th>
                 <th>Total</th>
+                <th>Details</th>
             </tr>
             {% for cart_item in cart %}
             <tr>   
@@ -43,6 +44,11 @@
                 <td>{{cart_item["quantity"]}}</td>
                 <td>{{"$%.2f"|format(cart_item["price"])}}</td>
                 <td>{{"$%.2f"|format(cart_item["quantity"]*cart_item["price"])}}</td>
+                {% if cart_item["is_premise_id_required"] == 1 %}
+                <td>Premise ID: {{premise_id}}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
