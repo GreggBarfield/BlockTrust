@@ -43,7 +43,7 @@ export class SalesGroupOfferWidget extends Widget{
             let existing_offer_data = this.data.existing_offers_by_account[0];
             let existingOfferLabel = document.createElement("label");
             existingOfferLabel.className = "col-md-12 mt-1 mb-1 alert alert-primary";
-            existingOfferLabel.textContent = "You have an existing offer for : $"+ existing_offer_data.offer_amount;
+            existingOfferLabel.textContent = "You have an existing bid for : $"+ existing_offer_data.offer_amount;
             formGroup.append(existingOfferLabel);
         }
 
