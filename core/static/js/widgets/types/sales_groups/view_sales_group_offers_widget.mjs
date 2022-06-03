@@ -1,5 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
+import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class ViewSalesGroupOffersWidget extends Widget{
     constructor(frame) {
@@ -22,8 +23,78 @@ export class ViewSalesGroupOffersWidget extends Widget{
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
+    
     }
-    makeOffersTable(){
+    createButton(buttonText, offerID, postRoute, className){
+        let button = document.createElement("button");
+        button.className = className;
+        button.textContent = buttonText;
+        button.onclick = () => {
+            console.log("Clicked");
+        }
+        return button;
+    }
 
+    createTable(offersList){
+        // Creating checklist table
+        let table = document.createElement('table');
+        table.className = "table table-striped table-bordered nowrap";
+        let tableHead = document.createElement("thead");
+        table.appendChild(tableHead);
+        //Table header row
+        let tableHeadRow0 = document.createElement("tr");
+        tableHead.appendChild(tableHeadRow0);
+        const tableHeaders = ["Offering Account", "Offer Amount", "Options"];
+        for (const tableHeaderText of tableHeaders) {
+            let th = document.createElement("th");
+            th.textContent = tableHeaderText;
+            tableHeadRow0.appendChild(th);
+        }
+        let tableBody = document.createElement("tbody");
+        table.appendChild(tableBody);
+        //Creating checklist table body
+        for (const offer of offersList) {
+            let rowTag = document.createElement("tr");
+            tableBody.appendChild(rowTag);
+            let tdOfferingAccount = document.createElement("td");
+            tdOfferingAccount.textContent = offer.offering_account_id;
+            rowTag.appendChild(tdOfferingAccount);
+            let tdOfferAmount = document.createElement("td")
+            tdOfferAmount.textContent = offer.offer_amount;
+            rowTag.appendChild(tdOfferAmount);
+            let tdOptions = document.createElement("td");
+            let acceptButton = this.createButton("Accept", offer.id, "", "btn btn-primary");
+            let declineButton = this.createButton("Decline", offer.id, "", "btn btn-danger");
+            tdOptions.appendChild(acceptButton);
+            tdOptions.appendChild(declineButton);
+            rowTag.appendChild(tdOptions);
+        }
+        return table;
+    }
+
+    makeOffersTable(){
+        let card = document.createElement("div");
+        card.className = "card";
+
+        let salesGroupOffersName = document.createElement("h5");
+        salesGroupOffersName.className = "mt-2";
+        salesGroupOffersName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;";
+        salesGroupOffersName.textContent = `View Offers for Sales Group ${this.salesGroupID}`;
+
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between";
+        cardHeader.style = "padding:5px;padding-left: 15px;";
+        
+        cardHeader.append(salesGroupOffersName);
+        card.append(cardHeader);
+
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+
+        let offersTable = this.createTable(this.data.sales_group_offers);
+        cardBody.append(offersTable);
+
+        this.frame.append(card);
     }
 }

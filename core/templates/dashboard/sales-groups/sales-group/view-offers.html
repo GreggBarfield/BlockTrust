@@ -4,7 +4,6 @@
 {% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view-offers/" + (sales_group_id|e) + "", "View Offers for sales group " + (sales_group_id|e))] %}
 
 {% block dashboard_content_header %}
-View Offers for  Sales Group {{ sales_group_id }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
