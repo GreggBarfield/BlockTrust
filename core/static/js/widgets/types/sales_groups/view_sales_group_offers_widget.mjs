@@ -16,11 +16,14 @@ export class ViewSalesGroupOffersWidget extends Widget{
         ).then((data) => {
             this.data = data;
             console.log(this.data);
-            //this.makeForm();
+            this.makeOffersTable();
         });
 
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
+    }
+    makeOffersTable(){
+
     }
 }
