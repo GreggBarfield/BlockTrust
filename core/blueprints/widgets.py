@@ -716,3 +716,15 @@ def serve_save_eids_by_application_id():
 def serve_get_sales_groups_offers():
     sales_group_offers = SalesGroupOffers(g.db).get_sales_group_offers(sales_group_id=request.json["sales_group_id"])
     return {"sales_group_offers": sales_group_offers}
+
+
+@bp.route('/widgets/data/sales_group/accept_offer', methods=["POST"])
+@crut.require_paid_account
+def serve_accept_sales_group_offer():
+    return 200
+
+
+@bp.route('/widgets/data/sales_group/decline_offer', methods=["POST"])
+@crut.require_paid_account
+def serve_decline_sales_group_offer():
+    return 200

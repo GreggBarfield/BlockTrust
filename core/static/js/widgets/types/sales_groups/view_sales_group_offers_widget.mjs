@@ -25,12 +25,43 @@ export class ViewSalesGroupOffersWidget extends Widget{
         });
     
     }
-    createButton(buttonText, offerID, postRoute, className){
+
+    createConfirmationAlert(buttonText, buttonClassName, postRoute, offer){
+        let alertModal = new InfoModal("Confirm Action");
+        let alertModalBody = alertModal.getBody();
+        let alertMessage = document.createElement("label");
+        alertMessage.textContent = `${buttonText} the offer from Account ${offer.offering_account_id} for ${offer.offer_amount}?`;
+        alertMessage.className = "font-weight-bold h5";
+        alertModalBody.append(alertMessage);
+
+        let postActionButton = document.createElement("button");
+        postActionButton.className = buttonClassName;
+        postActionButton.textContent = buttonText;
+        postActionButton.addEventListener("click", (e)=>{
+            let offerString = JSON.stringify(offer);
+            fetch(
+                postRoute,{
+                method: "POST",
+                body: offerString,
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+                })
+                .then(function(response){
+                if(response.status == 200){
+                    location.reload();
+                }
+                });
+        });
+        alertModal.getFooter().prepend(postActionButton);
+        return alertModal;
+    }
+
+    createButton(buttonText, offer, postRoute, buttonClassName){
         let button = document.createElement("button");
-        button.className = className;
+        button.className = buttonClassName;
         button.textContent = buttonText;
         button.onclick = () => {
             console.log("Clicked");
+            let confirmationAlert = this.createConfirmationAlert(buttonText, buttonClassName, postRoute, offer);
         }
         return button;
     }
@@ -63,8 +94,8 @@ export class ViewSalesGroupOffersWidget extends Widget{
             tdOfferAmount.textContent = offer.offer_amount;
             rowTag.appendChild(tdOfferAmount);
             let tdOptions = document.createElement("td");
-            let acceptButton = this.createButton("Accept", offer.id, "", "btn btn-primary");
-            let declineButton = this.createButton("Decline", offer.id, "", "btn btn-danger");
+            let acceptButton = this.createButton("Accept", offer, "/dashboard/sales-group/accept-offer", "btn btn-primary");
+            let declineButton = this.createButton("Decline", offer, "/dashboard/sales-group/decline-offer", "btn btn-danger");
             tdOptions.appendChild(acceptButton);
             tdOptions.appendChild(declineButton);
             rowTag.appendChild(tdOptions);
