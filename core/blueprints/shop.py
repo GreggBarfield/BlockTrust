@@ -86,7 +86,7 @@ def update_order():
         shopping_cart = eval(order_details["shoppingCart"])
         # Once payment goes through sending email to confirm order to buyer
         premise_id = "N/A"
-        if len(order_details["premise_id"]) > 0:
+        if order_details["premise_id"] != "":
             premise_id = order_details["premise_id"]
         send_tag_store_email(
             "Tag Store Purchase Summary",
