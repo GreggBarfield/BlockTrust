@@ -318,7 +318,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Select Applicable Category"
-        },true,"characteristicCategory","Please choose all the category of cattle in the group.", 4);
+        },false,"","", 4);
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
