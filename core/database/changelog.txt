@@ -1529,7 +1529,6 @@ INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details,
 VALUES ("1-piece UHF Tag","1pc-white-USDA.png","1pc-white-USDA.png",82.50,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 82.50),
 ("2-piece UHF Tag","2pc-white-USDA.png","2pc-white-USDA.png",85,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 68);
 
-SET @herdwhistleid := (SELECT id FROM product_vendors WHERE vendor_name="Herd Whistle");
 SET @product_id := (SELECT id FROM products WHERE product='2-piece UHF Tag' AND product_vendor_id=@herdwhistleid);
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
 VALUES ("USCT",@product_id,20);
