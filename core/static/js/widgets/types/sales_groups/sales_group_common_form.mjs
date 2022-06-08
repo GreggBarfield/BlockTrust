@@ -22,9 +22,12 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
+            this.characteristicsCategoryValue = this.data.reported.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
+            this.characteristicsBreedCommentsValue = this.data.reported.breed_comments;
             this.characteristicsWeightValue = this.data.reported.weight;
             this.characteristicsWeightVarianceValue = this.data.reported.weight_variance;
+            this.characteristicsWeighingConditionsValue = this.data.reported.weighing_conditions;
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
@@ -39,7 +42,6 @@ export class SalesGroupsCommonForm{
             this.fileAuths = this.data.file_auths
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
-
         }
         else{
             this.salesGroupID = null;
@@ -307,7 +309,16 @@ export class SalesGroupsCommonForm{
         // Characteristics
 
         let characteristicsRow = createSection(form, "Characteristics");
-
+        
+        let characteristicsCategory = createSelect({
+            row: characteristicsRow,
+            name: "Category",
+            options: SalesGroupFields.commonCategoryNames,
+            values: this.characteristicsCategoryValue || [],
+            multiple: false,
+            tags: false,
+            placeholder: "Select Applicable Category"
+        },true,"characteristicCategory","Please choose all the category of cattle in the group.", 4);
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
@@ -317,10 +328,12 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Select Applicable Breeds"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.characteristicsWeightValue,true,"characteristicsWeight",
+        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue || "",false,"characteristicsBreedComments","",4);
+        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue|| "",false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -536,6 +549,9 @@ export class SalesGroupsCommonForm{
                         weight: safeInt(characteristicsWeight.value),
                         weight_variance: characteristicsWeightVariance.value,
                         breeds: $(characteristicBreeds).val(),
+                        category: characteristicsCategory.value,
+                        breed_comments: characteristicsBreedComments.value,
+                        weighing_conditions: characteristicsWeighingConditions.value,
                         horns: characteristicsHorns.value,
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,

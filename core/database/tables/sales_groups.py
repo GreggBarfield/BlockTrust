@@ -349,7 +349,7 @@ class SalesGroups:
         return self._translate_json(sales_groups)
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
-            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price):
+            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
         """
         Validates that the values received for a sales group is valid
 
@@ -371,6 +371,7 @@ class SalesGroups:
             delivery_location: Off ranch delivery location
             auction_market_location: Auction market value
             images: Images for sales group
+            category: Category for the sales group
 
         Raises:
             ExportException if field is invalid
@@ -401,6 +402,8 @@ class SalesGroups:
                 raise ExportException("Please select an auction market location")
         if len(breeds) == 0:
             raise ExportException("Please select one or more breeds")
+        if len(category) == 0:
+            raise ExportException("Please select a category")
         if weight is None:
             raise ExportException("Base weight does not have a value")
         if len(weight_variance.strip()) == 0:
