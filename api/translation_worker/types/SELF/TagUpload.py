@@ -46,5 +46,6 @@ def handle(db, insert):
                     lon=lon,
                     partner_account=insert["account"],
                     account_link=account_link_id,
-                    api_insert=api_insert
+                    api_insert=api_insert,
+                    zip=zipcode
                 )
