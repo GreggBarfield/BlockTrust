@@ -38,11 +38,11 @@ export class ViewSalesGroupOffersWidget extends Widget{
         postActionButton.className = buttonClassName;
         postActionButton.textContent = buttonText;
         postActionButton.addEventListener("click", (e)=>{
-            let offerString = JSON.stringify(offer);
+            let offer_string = JSON.stringify(offer);
             fetch(
                 postRoute,{
                 method: "POST",
-                body: offerString,
+                body: offer_string,
                 headers: {"Content-type": "application/json; charset=UTF-8"}
                 })
                 .then(function(response){
@@ -60,7 +60,6 @@ export class ViewSalesGroupOffersWidget extends Widget{
         button.className = buttonClassName;
         button.textContent = buttonText;
         button.onclick = () => {
-            console.log("Clicked");
             let confirmationAlert = this.createConfirmationAlert(buttonText, buttonClassName, postRoute, offer);
         }
         return button;
@@ -94,8 +93,8 @@ export class ViewSalesGroupOffersWidget extends Widget{
             tdOfferAmount.textContent = offer.offer_amount;
             rowTag.appendChild(tdOfferAmount);
             let tdOptions = document.createElement("td");
-            let acceptButton = this.createButton("Accept", offer, "/dashboard/sales-group/accept-offer", "btn btn-primary");
-            let declineButton = this.createButton("Decline", offer, "/dashboard/sales-group/decline-offer", "btn btn-danger");
+            let acceptButton = this.createButton("Accept", offer, "/widgets/data/sales-group/accept-offer", "btn btn-primary");
+            let declineButton = this.createButton("Decline", offer, "/widgets/data/sales-group/decline-offer", "btn btn-danger");
             tdOptions.appendChild(acceptButton);
             tdOptions.appendChild(declineButton);
             rowTag.appendChild(tdOptions);

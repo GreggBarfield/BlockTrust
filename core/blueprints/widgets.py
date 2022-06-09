@@ -15,7 +15,7 @@ from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.sales_group_offers import SalesGroupOffers
+from ..database.tables.sales_group_offers import SalesGroupOffers, offer_status_by_name
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -411,6 +411,19 @@ def serve_save_eids_for_sales_group():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
+@bp.route("/widgets/data/sales-group/accept-offer", methods=["POST"])
+def serve_accept_sales_group_offer():
+    # accepted_offer = request.json["offer_string"]
+    print(request.json)
+    return {}
+
+
+@bp.route("/widgets/data/sales-group/decline-offer", methods=["POST"])
+def serve_decline_sales_group_offer():
+    SalesGroupOffers(g.db).update_sales_group_offer(sales_group_offer_id=request.json["id"], offer_status=offer_status_by_name["Declined"])
+    return {}
+
+
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
@@ -714,17 +727,8 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/get_sales_groups_offers', methods=["POST"])
 @crut.require_account
 def serve_get_sales_groups_offers():
-    sales_group_offers = SalesGroupOffers(g.db).get_sales_group_offers(sales_group_id=request.json["sales_group_id"])
+    sales_group_offers = SalesGroupOffers(g.db).get_sales_group_offers(
+        sales_group_id=request.json["sales_group_id"],
+        offer_status=offer_status_by_name["Pending"]
+    )
     return {"sales_group_offers": sales_group_offers}
-
-
-@bp.route('/widgets/data/sales_group/accept_offer', methods=["POST"])
-@crut.require_paid_account
-def serve_accept_sales_group_offer():
-    return 200
-
-
-@bp.route('/widgets/data/sales_group/decline_offer', methods=["POST"])
-@crut.require_paid_account
-def serve_decline_sales_group_offer():
-    return 200
