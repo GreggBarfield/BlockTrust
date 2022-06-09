@@ -85,6 +85,9 @@ def update_order():
         order_details = eval(data["orderDetails"])
         shopping_cart = eval(order_details["shoppingCart"])
         # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if order_details["premise_id"] != "":
+            premise_id = order_details["premise_id"]
         send_tag_store_email(
             "Tag Store Purchase Summary",
             render_email("purchase_summary_customer.html", {
@@ -99,10 +102,11 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
             order_details["email"]
-        )
+        ) 
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
@@ -130,7 +134,8 @@ def update_order():
                         'shipping_city': order_details["city"],
                         'shipping_state': order_details["state"],
                         'shipping_zip_code': order_details["zip_code"],
-                        'cart': value
+                        'cart': value,
+                        'premise_id': premise_id
                         }),
                     vendor_email
                     )
@@ -150,7 +155,8 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
             ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )

@@ -172,7 +172,7 @@ def handle(db: Database, insert):
                 partner_account=partner_account,
                 account_link=account_link,
                 grouping_id=grouping_id,
-                debug={"zip": f5},
+                zip=zipcode,
                 api_insert=api_insert,
                 data=animal_details
             )
