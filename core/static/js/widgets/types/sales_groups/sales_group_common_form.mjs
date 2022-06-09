@@ -22,12 +22,12 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
-            this.characteristicsCategoryValue = this.data.reported.category;
+            this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
-            this.characteristicsBreedCommentsValue = this.data.reported.breed_comments;
+            this.characteristicsBreedCommentsValue = this.data.breed_comments;
             this.characteristicsWeightValue = this.data.reported.weight;
             this.characteristicsWeightVarianceValue = this.data.reported.weight_variance;
-            this.characteristicsWeighingConditionsValue = this.data.reported.weighing_conditions;
+            this.characteristicsWeighingConditionsValue = this.data.weighing_conditions;
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
@@ -54,9 +54,12 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
+            this.characteristicsCategoryValue = null;
             this.characteristicBreedsValue = [];
+            this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
+            this.characteristicsWeighingConditionsValue = null;
             this.characteristicsFrameValue = "Small";
             this.characteristicsMusclingValue = "Light";
             this.characteristicsHornsValue = "Horns";
@@ -549,9 +552,6 @@ export class SalesGroupsCommonForm{
                         weight: safeInt(characteristicsWeight.value),
                         weight_variance: characteristicsWeightVariance.value,
                         breeds: $(characteristicBreeds).val(),
-                        category: characteristicsCategory.value,
-                        breed_comments: characteristicsBreedComments.value,
-                        weighing_conditions: characteristicsWeighingConditions.value,
                         horns: characteristicsHorns.value,
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,
@@ -572,6 +572,9 @@ export class SalesGroupsCommonForm{
                     "group_name": salesGroupName.value,
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,
+                    "category": characteristicsCategory.value,
+                    "breed_comments": characteristicsBreedComments.value,
+                    "weighing_conditions": characteristicsWeighingConditions.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   

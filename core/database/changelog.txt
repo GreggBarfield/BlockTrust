@@ -1532,3 +1532,9 @@ VALUES ("1-piece UHF Tag","1pc-white-USDA.png","1pc-white-USDA.png",82.50,0,"","
 SET @product_id := (SELECT id FROM products WHERE product='2-piece UHF Tag' AND product_vendor_id=@herdwhistleid);
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
 VALUES ("USCT",@product_id,20);
+
+/* Nisheet Thakur  06/09/2022*/
+ALTER TABLE `sales_groups`
+ADD COLUMN `category` VARCHAR(127) NOT NULL,
+ADD COLUMN `breed_comments` VARCHAR(1001) NULL DEFAULT NULL,
+ADD COLUMN `weighing_conditions` VARCHAR(1001) NULL DEFAULT NULL;
