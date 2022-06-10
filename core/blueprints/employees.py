@@ -12,7 +12,7 @@ from ..database.tables.employees import EmployeesException
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
-from ..database.tables.notifications import notification_type_by_name, notification_type_by_id
+from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 
 from ..common_exceptions import ExportException
 
@@ -201,25 +201,54 @@ def serve_edit_account():
     return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
 
 
-@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-account/<int:account_id>", methods=["GET", "POST"])
 @crut.require_employee
 def serve_edit_selected_account(account_id):
-    account_row = g.db.accounts.get_account_by_id(account_id)
-    return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row})
+    if request.method == "GET":
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        partners = g.db.accounts.get_accounts(
+            sector=sectors_by_name["Cow-Calf"],
+            is_partner=1,
+            is_partner_used_for_signup=1
+        )
+        return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
+    if request.method == "POST":
+        g.db.accounts.update_account(
+            account_id=account_id,
+            partner_account=format_field(request.form["partner"]),
+            affiliate_id=format_field(request.form["affiliate_id"]),
+            company=format_field(request.form["company"]),
+            phone=format_field(request.form["phone"]),
+            address=format_field(request.form["address"]),
+            city=format_field(request.form["city"]),
+            state=format_field(request.form["state"]),
+            zip=format_field(request.form["zip_code"])
+        )
+        return {"redirect": "/employee/dashboard"}
 
 
-@bp.route("/employee/dashboard/edit-account/<int:account_id>/action", methods=["POST"])
+@bp.route("/employee/dashboard/edit-partner/<int:partner_id>", methods=["GET", "POST"])
 @crut.require_employee
-def serve_apply_changes_to_account(account_id):
-    g.db.accounts.update_account(
-        account_id=account_id,
-        company=request.form["company"],
-        address=request.form["address"],
-        city=request.form["city"],
-        state=request.form["state"],
-        zip=request.form["zip_code"]
-    )
-    return {"redirect": "/employee/dashboard"}
+def serve_edit_selected_partner(partner_id):
+    if request.method == "GET":
+        partner_rows = g.db.accounts.get_accounts(id=partner_id)
+        partner_row = partner_rows[0] if len(partner_rows) > 0 else {}
+        return employee_render("/employee/accounts/edit-selected-partner.html", {"partner_row": partner_row})
+    if request.method == "POST":
+        is_partner_used_for_signup = 0
+        if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
+            is_partner_used_for_signup = 1
+        g.db.accounts.update_partner(
+            account_id=partner_id,
+            company=format_field(request.form["company"]),
+            phone=format_field(request.form["phone"]),
+            address=format_field(request.form["address"]),
+            city=format_field(request.form["city"]),
+            state=format_field(request.form["state"]),
+            zip=format_field(request.form["zip_code"]),
+            is_partner_used_for_signup=is_partner_used_for_signup
+        )
+        return {"redirect": "/employee/dashboard"}
 
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
@@ -285,12 +314,13 @@ def serve_upload_packer_data():
     elif request.method == 'GET':
         return employee_render("data/upload-packer-data.html",  {"employee": g.employee, "license": FLATFILE_LICENSE})
 
+
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
 def serve_notifications():
     notifications = Notifications(g.db).get_notifications()
     return employee_render("/employee/accounts/notifications/notifications.html", {
         "notifications": notifications,
-        "notification_type_by_id": notification_type_by_id
+        "notification_type_id_to_name": notification_type_id_to_name
         })
 
 
@@ -306,12 +336,12 @@ def serve_create_global_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
 def serve_create_global_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
-        notification_type=notification_type_by_name["Global"]
+        notification_type=notification_type_name_to_id["Global"]
     )
-    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification.id())
+    NotificationRecipients(g.db).insert_global_notification_recipients(notification_id=notification_id)
     return {"redirect": "/employee/dashboard/notifications"}
 
 
@@ -323,13 +353,13 @@ def serve_create_partner_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
 def serve_create_partner_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
-        notification_type=notification_type_by_name["Partner"]
+        notification_type=notification_type_name_to_id["Partner"]
     )
     NotificationRecipients(g.db).insert_partner_notification_recipients(
-        notification_id=notification.id(),
+        notification_id=notification_id,
         partner_id=request.form["partner"]
     )
     return {"redirect": "/employee/dashboard/notifications"}
@@ -342,13 +372,13 @@ def serve_create_sector_notification():
 
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
 def serve_create_sector_notification_action():
-    notification = Notifications(g.db).insert_notification(
+    notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
         message=request.form["message"],
-        notification_type=notification_type_by_name["Sector"]
+        notification_type=notification_type_name_to_id["Sector"]
     )
     NotificationRecipients(g.db).insert_sector_notification_recipients(
-        notification_id=notification.id(),
+        notification_id=notification_id,
         sector=request.form["sector"]
     )
     return {"redirect": "/employee/dashboard/notifications"}
@@ -358,6 +388,7 @@ def serve_create_sector_notification_action():
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
     return {}
+
 
 @bp.route("/employee/update-account-paid-status", methods=["POST"])
 @crut.require_employee
@@ -373,3 +404,12 @@ def serve_update_account_paid_status():
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
         g.db.accounts.update_account(account_id, manual_paid=0)
     return {}, 200
+
+
+@bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
+@bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
+def serve_animal_eid(animal_eid):
+    animal = g.db.animals.get_by_eid(animal_eid)
+    if len(animal.matches()) == 0:
+        return employee_render("animals/animal_not_found.html", {"eid": animal_eid})
+    return employee_render("animals/animal.html", {"animal": animal})

@@ -8,15 +8,20 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
+from ..renderers.email import render_email
 
 from ..utilities.general_utilities import validate_email, format_field
+from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
+from ..config import SUPPORT_GENERAL_EMAIL
+from ..sectors import sectors_by_id
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
 SESSION_EMPLOYEE_ID_VAR = "jkl"
+SESSION_STRIPE_ACCOUNT_ID_VAR = "mno"
 
 
 class AuthException(Exception):
@@ -247,10 +252,21 @@ def change_user_password(email, new_password, confirm_password):
 
 def confirm(email):
     """Confirms that the user email is verified"""
-    g.db.users.verify_email(email)
-    user_row = g.db.users.get_by_email(email)
-    if user_row is not None:
-        EventLogs(g.db).insert_event_log(user_id=user_row.id(), event_type_id=event_type_by_name["Email Verified"])
+    user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
+    g.db.users.update_user(username=user_account["username"], is_email_verified=1)
+    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
+    partner_account_company = ""
+    if user_account["partner_account"] is not None:
+        partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
+        partner_account_company = partner_account.company()
+    send_email(
+        "BlockTrust Network New Registration Information",
+        render_email("new_account_info.html", {
+            'user_account': user_account,
+            'partner_account_company': partner_account_company,
+            'sectors_by_id': sectors_by_id
+        }), SUPPORT_GENERAL_EMAIL
+    )
 
 
 def login(identifier, password=""):
@@ -300,7 +316,6 @@ def login(identifier, password=""):
                 user_row = id_results[0]
 
         # Try username
-
         if user_row is None:
             username_results = g.db.execute_d(
                 """
@@ -332,7 +347,6 @@ def login(identifier, password=""):
                 user_row = email_results[0]
 
         # End of tries
-        
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
 
         if user_row is None:
@@ -368,7 +382,7 @@ def login(identifier, password=""):
                     }
                 )
 
-        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):      
+        if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
             failed_attempts = user_row["failed_attempts"] + 1
             g.db.execute_d(
                     """
@@ -566,6 +580,21 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
+        user_accounts = g.db.users.get_users_and_accounts(user_email_id=email)
+        if len(user_accounts) > 1:
+            user_account = user_accounts[0]
+            partner_account_company = ""
+            if account.partner_account_id() is not None:
+                partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
+                partner_account_company = partner_account.company()
+            send_email(
+                "BlockTrust Network New Invited User Registration Information",
+                render_email("new_account_info.html", {
+                    'user_account': user_account,
+                    'partner_account_company': partner_account_company,
+                    'sectors_by_id': sectors_by_id
+                }), SUPPORT_GENERAL_EMAIL
+            )
     else:
         raise Exception(email_validation["message"])
 

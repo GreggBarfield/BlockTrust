@@ -1,5 +1,4 @@
 from ..no_value import NoValue
-from ..objects.notification import Notification
 
 NO_VALUE = NoValue()
 
@@ -9,7 +8,8 @@ event_type_by_name = {
     "Account Info Edit": 3,
     "User Info Edit": 4,
     "Email Verified": 5,
-    "Invited Signup": 6
+    "Invited Signup": 6,
+    "Sales Group Purchase": 7
 }
 event_type_by_id = {
     value: key

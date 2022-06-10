@@ -187,6 +187,23 @@
                   </a>
                 </li>
             {% endif %}
+            {% if unread_notifications==1 %}
+                <li>  
+                    <a href="/dashboard/notifications">
+                    <i 
+                        class="icon feather icon-bell" 
+                        title="You have unread notifications"
+                        style="color: blue;"
+                    ></i>
+                    </a>
+                </li>
+            {% else %}
+                <li>  
+                    <a href="/dashboard/notifications">
+                    <i class="icon feather icon-bell"></i>
+                    </a>
+                </li>
+            {% endif %}
                 <li>  
                     <a href="/dashboard/messages">
                     <i class="icon feather icon-mail"></i>
@@ -295,11 +312,7 @@
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
-                {% if dashboard_standard_account.sector_name() == "Feedlot" %}
-                    <span>MarketTrust</span>
-                {% else %}
-                    <span>Sales Groups</span>
-                {% endif %}
+                    <span>MarketTrust<sup>™</sup></span>
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
@@ -338,11 +351,15 @@
         {% endif %}
         </ul>
         <span>Support</span>
-        <ul class="float-right" style="display:inline-flex;">
+        <ul class="float-right mr-4" style="display:inline-flex;">
             <li>
                 <a href="/dashboard/support">
                     <span>Support</span>
                 </a>
+                <ul>
+                    <li><a href="/dashboard/support">Support Form</a></li> 
+                    <li><a href="/dashboard/files/BT_Onboarding_Guide.pdf" target="_blank">Onboarding Guide</a></li>
+                </ul>
             </li>
         </ul>
     </nav>

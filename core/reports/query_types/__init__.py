@@ -20,3 +20,6 @@ types[sustainability_averages.TYPE_NAME] = sustainability_averages
 
 from . import eid_list_global  # noqa
 types[eid_list_global.TYPE_NAME] = eid_list_global
+
+from . import count_distribution_account_and_sector  # noqa
+types[count_distribution_account_and_sector.TYPE_NAME] = count_distribution_account_and_sector

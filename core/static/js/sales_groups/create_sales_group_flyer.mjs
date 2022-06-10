@@ -3,7 +3,7 @@ const Y_SPACING_VAL = 8;
 
 export let CreatePrintFlyerButton = (salesData) => {
     let button = document.createElement("button");
-    button.className = "btn btn-primary btn-sm";
+    button.className = "btn btn-outline-primary btn-sm";
     button.textContent = "Create Flyer";
     button.style.display="none"
 
@@ -122,7 +122,7 @@ function createMarketData(pdf, salesData) {
     yPlacement += Y_SPACING_VAL;
     pdf.text("Delivery Location:", xLabelColumn, yPlacement);
     pdf.text(processData(salesData.delivery_location), xDataColumn, yPlacement);
-    yPlacement += Y_SPACING_VAL;
+    yPlacement += Y_SPACING_VAL+8;
     
     let daysRemaining = "--";
     if ("end" in salesData && salesData.end !== null) {

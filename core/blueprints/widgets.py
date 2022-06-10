@@ -1,5 +1,6 @@
+import json
 from flask import (
-    Flask, request, session, Blueprint, g, redirect, render_template
+    Flask, request, session, Blueprint, g, redirect, render_template, url_for
 )
 
 from ..sectors import sectors_by_name, sectors_by_id
@@ -8,15 +9,23 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
 from ..database.objects.account import AccountException
-from ..database.tables.sales_group_eids import SalesGroupEIDs
+from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.auction_markets import AuctionMarkets
+from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connection_invites import ConnectionInvites
+
+from ..database.tables import zip_codes
+from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
+from ..database.tables.sales_groups import SalesGroups
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
+from ..utilities.general_utilities import format_field
 
 from ..config import ROOT as WEBSITE_ROOT
 
@@ -24,15 +33,13 @@ from ..utilities import crut
 
 from ..data_requests.router import unauth_route
 
-from time import time
-
-from ..database.tables import zip_codes
+import time
 
 bp = Blueprint('widgets_bp', __name__)
 
 
 @bp.route('/widgets/data/direct/<name>', methods=['POST'])
-@crut.require_user
+@crut.require_account_or_employee
 def serve_direct(name):
     direct_export = {
         "match_types_by_id": match_types_by_id,
@@ -52,7 +59,6 @@ def serve_direct(name):
 @crut.require_account
 def serve_sales_group():
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
-
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -61,10 +67,12 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+        "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+        "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
         "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
-        "zip": sales_group_row["zip"], 
+        "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
+        "delivery_location_type": sales_group_row["delivery_location_type"],
         "delivery_location": sales_group_row["delivery_location"],
         "start": sales_group_row["start"],
         "end": sales_group_row["end"],
@@ -75,8 +83,21 @@ def serve_sales_group():
         "name": g.user.first_name() + ' ' + g.user.last_name(),
         "companyId": g.account.id(),
         "company": g.account.name(),
-        "is_archived":sales_group_row["is_archived"]
+        "is_archived": sales_group_row["is_archived"],
+        "price": sales_group_row["price"],
+        "is_sold": sales_group_row["is_sold"]
     }
+
+
+@bp.route('/widgets/data/auction_markets', methods=['POST'])
+@crut.require_account
+def serve_auction_markets():
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(
+        is_archived=0,
+        auction_markets_order_by="name",
+        auction_markets_sort_by="ASC"
+    )
+    return {"auction_markets": auction_markets}
 
 
 @bp.route('/widgets/data/search_sales_groups', methods=['POST'])
@@ -85,7 +106,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"])
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -97,7 +118,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+                "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
                 "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
@@ -123,7 +144,7 @@ def serve_search_sales_groups_2():
     sales_group_rows = g.db.sales_groups.search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
-        start=0,
+        start=time.time(),
         end=9999999999,
         is_archived=0,
         breed=request.json["search"]["breed"],
@@ -141,7 +162,7 @@ def serve_search_sales_groups_2():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -160,7 +181,10 @@ def serve_search_sales_groups_2():
             },
             "auction_sale": sales_group_row["auction_sale"],
             "auction_sale_name": sales_group_row["auction_sale_name"],
-            "is_archived":sales_group_row["is_archived"]          
+            "is_archived": sales_group_row["is_archived"],
+            "price": sales_group_row["price"],
+            "is_sold": sales_group_row["is_sold"],
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
         })
 
     return {
@@ -168,114 +192,140 @@ def serve_search_sales_groups_2():
     }
 
 
-@bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
+@bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    count = g.db.matches.get_count_by_eid_if_visible(eid_number)
-    if count > 0:
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number, account_id=g.account.id())
+    redirect_route = url_for('dashboard_bp.serve_animal_eid')
+    if len(rows) > 0:
         return {
-            "matches": [ {"eid": request.json["search"]["eid"]} ]
+            "redirect_route": redirect_route,
+            "matches": rows
         }
     else:
-        if g.account is not None:
-            rows = g.db.matches.get_visual_id_if_owner_and_visible(eid_number,g.account.id())
-            if len(rows) > 0:
-                return {
-                    "matches": rows
-                }
-    return {
-            "matches": []
-    }
+        return {
+                "redirect_route": redirect_route,
+                "matches": []
+        }
 
 
-@bp.route('/widgets/data/save_sales_group', methods=['POST'])
+@bp.route('/widgets/data/create_sales_group', methods=["POST"])
 @crut.require_account
-def serve_save_sales_group():
+def serve_create_sales_group():
+    images = []
+    if 'images' in request.json["reported"]:
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images,
+        price=request.json["price"]
+        )
+    # Alright, go ahead...
+    delivery_location = ""
+    if request.json["delivery_location_type"] == "Off Ranch":
+        delivery_location = request.json["delivery_location"]
+    else:
+        delivery_location = request.json["auction_market_location"]
+    sales_group_id = g.db.sales_groups.insert_new_sales_group(
+        account=g.account.id(),
+        reported=request.json["reported"],
+        published=request.json["published"],
+        zip_code=request.json["zip"],
+        delivery_location=delivery_location,
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        group_name=request.json["group_name"],
+        is_archived=0,
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
+    )
+    return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
+
+
+@bp.route('/widgets/data/update_sales_group', methods=['POST'])
+@crut.require_account
+def serve_update_sales_group():
     # Check that the account selected is the owner of the sales group
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
-    # Verify that the images provided are allowed
+    # Validate sales group fields
+    images = []
     if 'images' in request.json["reported"]:
-        for image in request.json["reported"]["images"]:
-            if not g.db.files.is_owner(None, g.account.id(), image):
-                raise ExportException("Image " + str(image) + " is not owned by the selected account.")
-    # Checking if required values are present
-    if request.json["zip"] is None:
-        raise ExportException("Zip code does not have a value")
-    if request.json["start"] is None:
-        raise ExportException("Start date is not selected")
-    if request.json["end"] is None:
-        raise ExportException("End date is not selected")
-    if len(request.json["delivery_location"].strip()) == 0:
-        raise ExportException("Delivery Location does not have a value")
-    if request.json["reported"]["count"] is None:
-        raise ExportException("Total animals cannot be 0")
-    if request.json["reported"]["weight"] is None:
-        raise ExportException("Base weight does not have a value")
-    if len(request.json["reported"]["weight_variance"].strip()) == 0:
-        raise ExportException("Weight variance does not have a value")
-    if len(request.json["reported"]["breeds"]) == 0:
-        raise ExportException("Please select one or more breeds")
-    if request.json["reported"]["usda_frame_size"] is None:
-        raise ExportException("Please select frame size")
-    if request.json["reported"]["muscling"] is None:
-        raise ExportException("Please select relevant muscling")
-    if request.json["reported"]["horns"] is None:
-        raise ExportException("Please select horns or no horns")
-
-    if request.json["zip"] not in ZIP_CODES:
-        raise ExportException("Sorry, that zip code could not be found.")
-
-    if request.json["start"] is None or request.json["end"] is None:
-        raise ExportException("Sorry, start or end date missing.")
-
-    if request.json["start"] > request.json["end"]:
-        raise ExportException("Sorry, check the market start and end dates (specifically the order).")
-
-    if (
-        request.json["auction_sale"] is not None
-        and original_row['auction_sale'] != request.json["auction_sale"]
-    ):
-        # it was changed to a non-None value, verify new is published
-        if not g.db.auction_sales.get_auction_sale_by_id(request.json["auction_sale"])["published"]:
-            raise ExportException("Auction sale specified is not published yet.")
-
-    # Alright, go ahead...
+        images = request.json["reported"]["images"]
+    g.db.sales_groups.validate_or_fail_sales_group(
+        account_id=g.account.id(),
+        group_name=request.json["group_name"],
+        zip=request.json["zip"],
+        delivery_location_type=request.json["delivery_location_type"],
+        count=request.json["reported"]["count"],
+        weight=request.json["reported"]["weight"],
+        weight_variance=request.json["reported"]["weight_variance"],
+        breeds=request.json["reported"]["breeds"],
+        usda_frame_size=request.json["reported"]["usda_frame_size"],
+        muscling=request.json["reported"]["muscling"],
+        horns=request.json["reported"]["horns"],
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        delivery_location=request.json["delivery_location"],
+        auction_market_location=request.json["auction_market_location"],
+        images=images,
+        price=request.json["price"]
+        )
+    delivery_location = ""
+    if request.json["delivery_location_type"] == "Off Ranch":
+        delivery_location = request.json["delivery_location"]
+    else:
+        delivery_location = request.json["auction_market_location"]
     g.db.sales_groups.update_sales_group(
-        request.json["id"],
-        request.json["reported"],
-        request.json["published"],
-        request.json["zip"],
-        request.json["delivery_location"],
-        request.json["start"],
-        request.json["end"],
-        request.json["auction_sale"],
-        request.json["group_name"],
-        request.json["is_archived"]
+        id=request.json["id"],
+        reported=request.json["reported"],
+        published=request.json["published"],
+        zip_code=request.json["zip"],
+        delivery_location=delivery_location,
+        start=request.json["start"],
+        end=request.json["end"],
+        auction_sale=request.json["auction_sale"],
+        group_name=request.json["group_name"],
+        is_archived=0,
+        delivery_location_type=request.json["delivery_location_type"],
+        price=request.json["price"]
     )
 
     return {
         "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
     }
 
+
+@bp.route('/widgets/data/archive_sales_group', methods=['POST'])
+@crut.require_account
+def serve_archive_sales_group():
+    SalesGroups(g.db).update_sales_group(id=request.json["sales_group_id"], is_archived=1)
+    return {}, 200
+
+
 @bp.route('/widgets/data/unarchive_sales_group', methods=['POST'])
 @crut.require_account
 def unarchive_sales_group():
-    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["params"]["id"])
-    g.db.sales_groups.update_sales_group(
-        original_row["id"],
-        original_row["reported"],
-        original_row["published"],
-        original_row["zip"],
-        original_row["delivery_location"],
-        original_row["start"],
-        original_row["end"],
-        original_row["auction_sale"],
-        original_row["group_name"],
-        0
-    )
+    SalesGroups(g.db).update_sales_group(id=request.json["params"]["id"], is_archived=0)
     return {}, 200
 
 
@@ -283,7 +333,7 @@ def unarchive_sales_group():
 @crut.require_account
 def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=1)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
@@ -294,7 +344,7 @@ def serve_archived_sales_group():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
             "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
@@ -319,26 +369,35 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    is_healthtrack_partner_account = False
+    if g.account.partner_account_id() == healthtrack_partner_row["id"]:
+        is_healthtrack_partner_account = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
-    distinct_eids = g.db.matches.get_distinct_eids_by_account(account_id=g.account.id(), number_of_years=1)
+    distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
-        assigned_eids = list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_id)))
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
-    available_eids = []
+    available_eids_with_visual_ids = []
     for distinct_eid in distinct_eids:
         if distinct_eid["eid"] not in assigned_eids_for_account:
-            available_eids.append(distinct_eid["eid"])
+            available_eids_with_visual_ids.append({
+                "eid": distinct_eid["eid"],
+                "visual_id": distinct_eid["visual_id"]
+            })
+    assigned_animals = SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"])
     return {
         "id": sales_group_row["id"],
-        "assigned_eids": list(map(lambda item: item['eid'], SalesGroupEIDs(g.db).get_sales_group_eids(sales_group_id=sales_group_row["id"]))),
-        "available_eids": available_eids
+        "assigned_animals": assigned_animals,
+        "available_eids_with_visual_ids": available_eids_with_visual_ids,
+        "is_healthtrack_partner_account": is_healthtrack_partner_account
     }
 
 
@@ -346,8 +405,8 @@ def serve_get_eids_for_sales_group():
 @crut.require_account
 def serve_save_eids_for_sales_group():
     original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
-    SalesGroupEIDs(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
-    SalesGroupEIDs(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids=request.json["eids"])
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
@@ -484,7 +543,7 @@ def serve_update_auction_sale():
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
-@crut.require_account
+@crut.require_account_or_employee
 def serve_data_request():
     return unauth_route(request.json['request']), 200
 
@@ -493,7 +552,7 @@ def serve_data_request():
 @crut.require_account
 def serve_get_market_data(slug_id):
     return {
-        'market_data': g.db.usda_reports.get_all_by_slug_id(slug_id)
+        'market_data': g.db.usda_reports.get_by_slug_id(slug_id)
     }, 200
 
 
@@ -550,3 +609,120 @@ def serve_employee_summary_graphs():
         "feedyards": feedyards,
         "tags": tags_list
     }
+
+
+@bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
+@crut.require_account
+def serve_get_usda_favorites():
+    return { 'favorites': USDAFavoritesForAccounts(g.db).get_favorites_for_account(g.account.id()) }
+
+@bp.route('/widgets/data/save_usda_favorites_for_account', methods=['POST'])
+@crut.require_account
+def serve_save_usda_favorites():
+    request_json = json.loads(request.data)
+    USDAFavoritesForAccounts(g.db).insert_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
+    return {}, 200
+
+@bp.route('/widgets/data/remove_usda_favorites_for_account', methods=['POST'])
+@crut.require_account
+def serve_remove_usda_favorite():
+    request_json = json.loads(request.data)
+    USDAFavoritesForAccounts(g.db).delete_usda_favorites_for_accounts(g.account.id(), request_json["state"], request_json["slug_id"])
+    return {}, 200
+
+@bp.route('/widgets/data/get_invitable_accounts', methods=['POST'])
+@crut.require_account
+def serve_get_invitable_accounts():
+    invitable_account_rows = Connections(g.db).get_unconnected_accounts(account_id=g.account.id())
+    return {"account_rows": invitable_account_rows}
+
+@bp.route('/widgets/data/create-auction-market', methods=["POST"])
+def serve_create_auction_market():
+    if len(request.form["name"].strip()) == 0:
+        raise ExportException("Auction market Name cannot be blank")
+    if len(request.form["city"].strip()) == 0:
+        raise ExportException("Auction market City cannot be blank")
+    if len(request.form["state"].strip()) == 0:
+        raise ExportException("Auction market State cannot be blank")
+    AuctionMarkets(g.db).insert_auction_market(
+        name=format_field(request.form["name"]),
+        address=format_field(request.form["address"]),
+        city=format_field(request.form["city"]),
+        state=format_field(request.form["state"]),
+        zip_code=format_field(request.form["zip"]),
+        phone=format_field(request.form["phone"]),
+        email=format_field(request.form["email"])
+    )
+    return {"redirect": request.form['requestRedirectTo']}
+
+@bp.route('/widgets/data/add-connection-request', methods=["POST"])
+@crut.require_account
+def serve_add_connection_request():
+    try:
+        invited_accounts = request.json["invited_account_ids_list"]
+        for invited_account in invited_accounts:
+            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+        if request.json["unlisted_company"]:
+            ConnectionInvites(g.db).add_connection_invite(
+                from_account=g.account.id(),
+                company_sector=request.json["new_account_sector"],
+                company_name=request.json["new_account_name"],
+                company_contact=request.json["new_account_contact_name"],
+                company_email=request.json["new_account_email"]
+            )
+            send_email(
+                "BlockTrust Network Connection Invite",
+                render_email("send_connection_invite.html", {
+                    'new_company_contact': request.json["new_account_contact_name"],
+                    'account_company': g.account.name()
+                }), request.json["new_account_email"]
+            )
+        return {"redirect": "/dashboard/connections"}
+    except Exception as e:
+        raise ExportException(str(e))
+
+@bp.route('/widgets/data/search_by_eid_and_visual_id', methods=['POST'])
+@crut.require_employee
+def serve_employee_search_by_eid_and_visual_id():
+    eid_number = int(request.json["search"]["eid"])
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
+    redirect_route = url_for('employees_bp.serve_animal_eid')
+    if len(rows) > 0:
+        return {
+            "redirect_route": redirect_route,
+            "matches": rows
+        }
+    else:
+        return {
+            "redirect_route": redirect_route,
+            "matches": []
+        }
+
+@bp.route('/widgets/data/get_animals_and_grouping_ids_for_account', methods=["POST"])
+@crut.require_account
+def get_animals_and_grouping_ids_for_account():
+    animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
+        account_links_account_id=g.account.id(),
+        matches_partner_account_id=g.account.partner_account_id(),
+        is_distinct=True,
+        matches_cols=("eid", "visual_id", "grouping_id")
+    )
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups_ids = g.db.sales_groups.get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
+    assigned_eids_for_account = []
+    for sales_group_id in account_sales_groups_ids:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_animals_and_grouping_ids = []
+    for animal_and_grouping_id in animals_and_grouping_ids:
+        if animal_and_grouping_id["eid"] not in assigned_eids_for_account:
+            available_animals_and_grouping_ids.append(animal_and_grouping_id)
+    return {"available_animals_and_grouping_ids": available_animals_and_grouping_ids}
+
+@bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_save_eids_by_application_id():
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
+    return {"redirect": "/dashboard/sales-groups/manage"}

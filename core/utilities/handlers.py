@@ -1,11 +1,11 @@
 from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
-from .crut.requirements import RequireAccountFailed, RequireUserFailed, RequirePaidAccountFailed
+from .crut.requirements import RequireAccountFailed, RequireAccountOrEmployeeFailed, RequireUserFailed, RequirePaidAccountFailed
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
-
+from flask_wtf.csrf import CSRFError
 
 def respond(code, short, exception=None):
     """Generate a response.
@@ -64,6 +64,10 @@ def attach_handlers(app):
             # Else send a 401
             return respond(401, 'No active subscription', e)
 
+    @app.errorhandler(RequireAccountOrEmployeeFailed)
+    def handle_require_account_or_employee_failed(e):
+        return respond(401, "Not authorized", e)
+
     @app.errorhandler(ExportException)
     def handle_export_exception(e):
         return respond(400, str(e), e)
@@ -79,3 +83,7 @@ def attach_handlers(app):
     @app.errorhandler(404)
     def handle_error_404(error):
         return respond(404, 'Page not found')
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        return respond(400, e.description, e)

@@ -54,7 +54,7 @@ def handle(db: Database, insert):
             # See if account is present but not linked to account_links and if so link the account.
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
             if feeder is not None:
-                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.name(), feeder.id())
+                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.name(), feeder.id())
 
     # Born
     # EIDDate is not a birthday!
@@ -87,7 +87,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
@@ -105,7 +106,7 @@ def handle(db: Database, insert):
         else:
             packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
             if packer is not None:
-                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.name(), packer.id())
+                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.name(), packer.id())
 
         if packer is not None:
             zipcode = str(packer.zip())
@@ -123,7 +124,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=packer_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         # USDAYieldGrade
@@ -154,7 +156,7 @@ def handle(db: Database, insert):
                 api_insert=api_insert
             )
 
-        # Ribeye Area
+        # Ribeye Area. These are commented out because we don't know the keys that packer will send us
         # packer_data = {}
         # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
         #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
@@ -194,5 +196,6 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )

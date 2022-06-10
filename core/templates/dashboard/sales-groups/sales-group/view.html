@@ -4,7 +4,7 @@
 {% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view/" + (sales_group['id']|e) + "", "View Sales Group " + (sales_group['id']|e))] %}
 
 {% block dashboard_content_header %}
-View Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
+View Sales Group {{ sales_group['id'] }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -17,14 +17,15 @@ View Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
     <div class="col">
         <div class="card">
             <h5 class="card-header">
-                Sales Group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
-                <button class="btn btn-primary" onClick="navigator.clipboard.writeText('{{external_shareable_link}}')">
-                    Copy Link
-                </button>
-            <img class="float-right" id="sales_group_qrcode" src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}">
+                Sales Group {{ sales_group['id'] }}
             </h5>
             <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="view sales group" data-widget-sales-group="{{ sales_group['id'] }}"></p>
+                <p class="mb-0 widget" 
+                    data-widget-type="view sales group" 
+                    data-widget-sales-group="{{ sales_group['id'] }}"
+                    data-widget-qr-src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}" 
+                    data-widget-shareable-link="{{external_shareable_link}}"
+                ></p>
             </div>
         </div>
     </div>

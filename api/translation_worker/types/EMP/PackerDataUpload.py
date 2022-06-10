@@ -38,7 +38,7 @@ def handle(db: Database, insert):
                 # See if account is present but not linked to account_links and if so link the account.
                 feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
                 if feeder is not None:
-                    db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.name(), feeder.id())
+                    db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.name(), feeder.id())
                     feeder_zip = feeder.zip()
         
         # Retained in case needed for future use
@@ -47,9 +47,10 @@ def handle(db: Database, insert):
         #     if len(feeders) > 0:
         #         feeder = feeders[0]
         #         feeder_zip = feeder["zip"]
-        #         feeder_account_links = db.account_links.get_account_links(account=feeder["id"])
+        #         feeder_account_links = db.account_links.get_account_links(account_id=feeder["id"])
         #         if len(feeder_account_links) == 0:
-        #             feeder_account_link_id = db.account_links.insert(account=feeder["id"], affiliate_id=feeder["affiliate_id"], company=feeder["company"], sector=feeder["sector"],
+        #             feeder_account_link_id = db.account_links.insert(account=feeder["id"], affiliate_id=feeder["affiliate_id"], company=feeder["company"], 
+        #               name=feeder["name"], sector=feeder["sector"],
         #                 partner_account=feeder["partner_account"], api_insert=api_insert)
         #         else:
         #             feeder_account_link_id = feeder_account_links[0]["id"]
@@ -83,7 +84,7 @@ def handle(db: Database, insert):
     else:
         packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
         if packer is not None:
-            db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.name(), packer.id())
+            db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.name(), packer.id())
 
     if packer is not None:
         zipcode = str(packer.zip())

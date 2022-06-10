@@ -23,7 +23,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "affiliate_id", "company", "sector", "partner_account")
+    _account_links_cols = ("id", "account", "affiliate_id", "company", "name", "sector", "partner_account")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -87,7 +87,7 @@ class Matches:
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
-            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.name AS 'account_links.name',"
                                 + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
                                 + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
             args = [account_link_id]
@@ -118,12 +118,12 @@ class Matches:
 
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector
-            FROM matches AS m
+            SELECT al.account, min(m.created_timestamp) as date, al.sector FROM matches AS m
             INNER JOIN account_links AS al ON m.account_link=al.id
             WHERE eid IN(
-                SELECT eid FROM matches 
-                WHERE account_link=%(account_link_id)s AND type=%(type)s)
+                SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
+            )
+            AND al.account IS NOT NULL
             GROUP BY al.account, al.sector
             ORDER BY al.sector, date
             """,
@@ -261,8 +261,9 @@ class Matches:
         else:
             return []
     
-    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_restrict_type=NO_VALUE, account_links_sector=NO_VALUE, matches_order_by=NO_VALUE, 
-        matches_sort_by=NO_VALUE):
+    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
+        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
+        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -270,22 +271,50 @@ class Matches:
             A list of account(s) record if found else []
         """
 
-        base_query = "SELECT * FROM matches m INNER JOIN account_links al ON m.account_link=al.id"
+        if is_distinct:
+            base_query = "SELECT distinct"
+        else:
+            base_query = "SELECT"
+
+        if len(matches_cols) > 0:
+            incorrect_cols = [col for col in matches_cols if col not in self._match_cols]
+            
+            if len(incorrect_cols) > 0:
+                raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in matches table")
+
+            base_query += " " + ",".join("m."+ c for c in matches_cols)
+        else:
+            base_query += " *"
+
+        base_query += " FROM matches m INNER JOIN account_links al ON m.account_link=al.id "
 
         query_conditions = []
         query_values = {}
+        order_by_clause = ""
 
         if matches_eid is not NO_VALUE:
             query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")
             query_values["matches_eid"] = matches_eid
 
+        if matches_visual_id is not NO_VALUE:
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_values["matches_visual_id"] = matches_visual_id
+
         if matches_restrict_type is not NO_VALUE:
-            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "type IS %(matches_restrict_type)s")
+            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
 
+        if matches_partner_account_id is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
+            query_values["matches_partner_account_id"] = matches_partner_account_id
+
         if account_links_sector is not NO_VALUE:
-            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "eid IS %(account_links_sector)s")
+            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
             query_values["account_links_sector"] = account_links_sector
+
+        if account_links_account_id is not NO_VALUE:
+            query_conditions.append("al.account = %(account_links_account_id)s" if account_links_account_id is not None else "al.account IS %(account_links_account_id)s")
+            query_values["account_links_account_id"] = account_links_account_id
 
         if matches_order_by is not NO_VALUE:
             if matches_order_by not in self._match_cols:
@@ -310,7 +339,7 @@ class Matches:
 
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
-        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None, zip=None
     ):
         """Insert a new row into matches.
 
@@ -330,10 +359,10 @@ class Matches:
 
         self._db.execute(
             """INSERT INTO matches
-                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash, zip)
                 VALUES
                     (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
-                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s, %(zip)s
                     )
             """,
             {
@@ -351,7 +380,8 @@ class Matches:
                 "debug": None if debug is None else json.dumps(debug),
                 "api_insert": api_insert,
                 "bc_transaction_id": bc_transaction_id,
-                "bc_hash": bc_hash
+                "bc_hash": bc_hash,
+                "zip": zip
             }
         )
 
@@ -411,8 +441,8 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_distinct_eids_by_account(self, account_id, number_of_years):
-        """Returns the distinct EIDs in the database for an account.
+    def get_distinct_eids_and_visual_ids_by_account(self, account_id, number_of_years):
+        """Return the distinct EIDs in the database for an account.
 
         Params:
             account_id: The account to generate data on
@@ -423,7 +453,7 @@ class Matches:
         """
         return self._db.execute_d(
                 """
-                SELECT DISTINCT eid
+                SELECT DISTINCT eid, visual_id
                 FROM matches
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=%(account)s
@@ -595,49 +625,116 @@ class Matches:
             )
         ))
 
-    def get_count_by_eid_if_visible(self, eid_number):
-        """Gets count of matches associated with an eid if visible.
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None):
+        """Gets matches data associated with a eid or visual id if it belongs to the account.
 
         Params:
-            eid_number: eid number
-
-        Returns:
-            One row indicating the count
-        """
-        return self._db.exec_frag_d(
-            frag(
-                """
-                SELECT count(eid) as 'count'
-                FROM matches
-                """,
-                frag(
-                    "WHERE eid=:eid_number",
-                    eid_number=eid_number
-                )
-            ),
-        )[0]['count']
-
-    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
-        """Gets matches data associated with an visual id if visible.
-
-        Params:
-            visual_id: The visual id to look up
+            eid_or_visual_id: The eid or visual id to look up
             account_id: current active account
 
         Returns:
-            All the matches table rows containing the visual id matches
+            All the matches table rows
         """
-        return self._db.execute_d(
-            """
-                SELECT distinct matches.eid, matches.visual_id
-                FROM matches
+        matches = []
+        if account_id is None:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
-                WHERE matches.visual_id=%(visual_id)s
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
+        else:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
+                is_distinct=True, matches_cols=("eid", "visual_id"))
+
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
+                    is_distinct=True, matches_cols=("eid", "visual_id"))
+
+        return matches
+
+    def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
+        """
+        Returns:
+            A dictionary of dictionaries
+                Keys
+                    both: result for both accounts (can be empty)
+                    self: result for single account (can be empty)
+        """
+        result = {}
+        matched_result = {}
+        all_result = {}
+        if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
+            related_account_details = self._db.execute_d("""
+                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
+                                        INNER JOIN matches m2 on m2.eid = m1.eid
+                                        INNER JOIN account_links al on m2.account_link = al.id
+                                        INNER JOIN accounts a on al.account = a.id
+                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
+                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
+                                        GROUP BY a.name, al.id
+                                    """,
+                                    {
+                                        "account_link_id": account_links[0]['id'],
+                                        "sector_id": sector_id,
+                                        "match_type_id": match_types_by_name["Sighting"]
+                                    }
+                                )
+
+            for account_detail in related_account_details:
+                account_result = {}
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in
+                                                          self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Quality Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in
+                                                        self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Yield Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                matched_result[account_detail["name"]] = account_result
+
+                account_result = {}
+                account = self._db.accounts.get_account_by_id(account_detail["account_id"])
+                account_link = account.account_links()
+                quality_distribution = self.get_count_distribution(match_types_by_name["USDA Quality Grade"], account_links=account_link)
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
+                yield_distribution = self.get_count_distribution(match_types_by_name["USDA Yield Grade"], account_links=account_link)
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                all_result[account_detail["name"]] = account_result
+
+        result['matched_data'] = matched_result
+        result['all_data'] = all_result
+        return result
+
+    def get_count_distribution_two_accounts(self, match_type_id, account_link_1_id, account_link_2_id):
+        """Gets the count of each data type for eids sighted at two accounts
+
+        Params:
+            match_type_id: The type as an int
+            account_link_1_id: account link of 1st account
+            account_link_2_id: account link of 2nd account
+
+        Returns:
+            A list of dictionaries
+                Keys
+                    data: value of data
+                    count: The number of times data existed
+        """
+
+        return Matches._load_rows(self._db.execute_d(
+            """
+                SELECT m1.data, count(distinct m1.eid) as 'count' from matches m1
+                INNER JOIN matches m2 on m1.eid = m2.eid
+                INNER JOIN matches m3 on m1.eid = m3.eid
+                WHERE m1.type=%(match_type_id)s and m2.account_link = %(account_link_1_id)s and m3.account_link = %(account_link_2_id)s
+                GROUP BY m1.data
             """,
             {
-                "visual_id": visual_id
+                "match_type_id": match_type_id,
+                "account_link_1_id": account_link_1_id,
+                "account_link_2_id": account_link_2_id
             }
-        )
+        ))
 
     @staticmethod
     def _load_rows(rows):

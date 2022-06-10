@@ -6,20 +6,40 @@ export class MarketDataFilterWidget extends Widget {
     }
 
     initType() {
-        this.getData(
-            "data_request",
-            {
-                request: {
-                    type: 'market_data_cache',
-                    params: {}
+        Promise.all([
+            this.getData(
+                "get_usda_favorites_for_account",
+                {}
+            ).then((data) => {
+                this.favorites = data.favorites;
+            }),
+
+            this.getData(
+                "data_request",
+                {
+                    request: {
+                        type: 'market_data_cache',
+                        params: {}
+                    }
                 }
-            }
-        ).then((data) => {
-            this.state_rows = data.result.states;
-            this.city_rows = data.result.cities_per_state;
+            ).then((data) => {
+                this.state_rows = data.result.states;
+                this.city_rows = data.result.cities_per_state;
+            })
+
+        ]).then(() => {
             this.frame.innerHTML = "";
-            this.makeStateDropDown();
+            let favRow = document.createElement("div");
+            this.frame.append(favRow);
+            let filterRow = document.createElement("div");
+            this.frame.append(filterRow);
+
+            if(this.favorites != null && this.favorites.length > 0)
+                this.makeFavorites(favRow);
+            this.makeStateDropDown(filterRow);
         });
+
+
     }
 
     createSection(form, name) {
@@ -34,7 +54,17 @@ export class MarketDataFilterWidget extends Widget {
         return row;
     }
 
-    createSelect(group, name, values, val_ids="") {
+    /**
+     * Creates a select element with title and puts it into group.
+     * 
+     * @param {Element} group The div that this select group will be added to
+     * @param {String} name The title of this new select that will display
+     * @param {Array} values Values for the select
+     * @param {Dictionary} val_ids Associated ids to the values if needed
+     * @param {String} placeholder Placeholder text for when the select has no selected items
+     * @returns {Element} The new select element
+     */
+    createSelect(group, name, values, val_ids="", placeholder="") {
         if (!Array.isArray(values)) {
             values = [values];
         }
@@ -67,7 +97,7 @@ export class MarketDataFilterWidget extends Widget {
             data: optionsStacked,
             multiple: false,
             tags: false,
-            placeholder: "Select a State"
+            placeholder: placeholder !="" ? placeholder : "Select a state"
         });
 
         // Add event handler - on change
@@ -81,41 +111,9 @@ export class MarketDataFilterWidget extends Widget {
         return select;
     }
 
-    getCityData() {
-        this.divCityDropDown.innerHTML = "";
-
-        let cities = [];
-        let city_ids = {};
-        for (const row in this.city_rows[this.state]) {
-            let item = this.city_rows[this.state][row]['market_location_city'] 
-                + " (" + this.city_rows[this.state][row]['slug_id'] + ")";
-            cities.push(item);
-            city_ids[item] = this.city_rows[this.state][row]['slug_id'];
-        }
-        cities.sort();
-        let select = this.createSelect(this.divCityDropDown, "City", cities, city_ids);
-        
-        let self = this;
-
-        $(select).on("change", function() {
-            //since createBtn is invoked on change of city dropdown, 'this' argument will be the city dropdown itself.
-            createBtn(self, this);
-        });
-
-        // Put HTML in frame
-        this.row.append(this.divCityDropDown);
-    }
-
-    makeStateDropDown() {
-        this.form = document.createElement("form");
-        this.frame.append(this.form);
-
-        this.divStateDropDown = document.createElement("div");
-        this.divStateDropDown.className = "col-5";
-        this.divCityDropDown = document.createElement("div");
-        this.divCityDropDown.className = "col-5";
-        this.divBtn = document.createElement("div");
-        this.divBtn.className = "col-2 text-left align-self-end";
+    makeStateDropDown(row) {
+        let divStateDropdown = document.createElement("div");
+        divStateDropdown.className = "col-4";
 
         let values = [];
         for (const row in this.state_rows) {
@@ -123,56 +121,208 @@ export class MarketDataFilterWidget extends Widget {
         }
         values.sort();
 
-        this.row = this.createSection(this.form, "Filter")
-        let select = this.createSelect(this.divStateDropDown, "State", values)
+        let filterSection = this.createSection(row, "New Selection")
+        let selectStateDropdown = this.createSelect(divStateDropdown, "State", values)
 
-        let self = this;
+        let divFilterBtn = document.createElement("div");
+        divFilterBtn.className = "col-4 text-left align-self-end";
+        let divCityDropdown = document.createElement("div");
+        divCityDropdown.className = "col-4";
 
-        $(select).on("change", function() {
-            //since makeCityDropDown() is invoked on change of state dropdown, 'this' argument will be the state dropdown itself.
-            makeCityDropDown(self, this);
-        });
+        selectStateDropdown.oninput = () => {
+            this.state = selectStateDropdown.value;
+            this.resetFilterRowBtns();
+            this.makeCityDropDown(filterSection, divFilterBtn, divCityDropdown);
+        };
 
-        // Put HTML in frame
-        this.row.append(this.divStateDropDown);
-    }
-}
-
-//Note that both below routines are outside the class
-function makeCityDropDown(self, selectSelf) {
-    if(selectSelf.value == "") {
-        return;
+        filterSection.append(divStateDropdown);
+        filterSection.append(divCityDropdown);
     }
 
-    self.state = selectSelf.value;
+    makeCityDropDown(section, btnDiv, divCityDropdown) {
+        let cities = [];
+        let cityIds = {};
 
-    self.divCityDropDown.innerHTML = '\
-    <div class="d-flex justify-content-center">\
-        <div class="spinner-border" role="status">\
-            <span class="sr-only">Loading...</span>\
-        </div>\
-    </div>';
+        for (const [citySlug, cityData] of Object.entries(this.city_rows[this.state])) {
+            let cityName = cityData['market_location_city'];
+            let locationName = cityData['market_location_name'];
+            // getting rid of the "- <cityName>" and/or ", <state>" that some locations have
+            locationName = locationName.replace("- " + cityName, "");
+            locationName = locationName.replace(", " + this.state, "");
+            let item = cityName + " - " + locationName;
 
-    //class object passed in is used to invoke getCityData() method of the same class
-    self.getCityData();
+            cities.push(item);
+            cityIds[item] = cityData['slug_id'];
+        }
+        cities.sort();
 
-    // Put HTML in frame
-    self.row.append(self.divCityDropDown);
-}
+        let cityDropdown = document.getElementById("city-dropdown");
+        if (cityDropdown == null) {
+            cityDropdown = document.createElement("div");
+            cityDropdown.id = "city-dropdown";
+            divCityDropdown.append(cityDropdown);
+        }
 
-function createBtn(self, selectSelf) {
-    if(selectSelf.value == "") {
-        return;
+        let selectCityDropdown = this.createSelect(cityDropdown, "City", 
+            cities, cityIds, "Select a city");
+        
+        selectCityDropdown.oninput = () => {
+            this.createApplyFilterBtn(selectCityDropdown, btnDiv);
+            section.append(btnDiv);
+        };
     }
-    let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
 
-    let button = document.createElement("a");
-    button.className = "btn btn-outline-secondary btn-sm mb-0";
-    button.setAttribute("href", "/dashboard/data/market/" + 
-        self.state + "/" + selectedItem.value);
-    button.textContent = "View";
+    makeFavorites(row) {
+        let divFavDropdown = document.createElement("div");
+        divFavDropdown.className = "col-4";
 
-    // Put HTML in frame
-    self.divBtn.append(button);
-    self.row.append(self.divBtn);
+        let cities = [];
+        let cityIds = {};
+        for (const row of this.favorites) {
+            let cityName = row['market_location_city'];
+            // getting rid of the "- <cityName>" and/or ", <state>" that some locations have
+            let locationName = row['market_location_name'].replace("- " + cityName, "");
+            locationName = locationName.replace(", " + row['state'], "");
+            let item = cityName + " - " + locationName + ", " + row['state'];
+
+            cities.push(item);
+            cityIds[item] = row['slug_id'];
+        }
+        cities.sort();
+
+        let favSection = this.createSection(row, "Favorites");
+        favSection.append(divFavDropdown);
+        let selectFavDropdown = this.createSelect(divFavDropdown, "", 
+            cities, cityIds, "Select a favorite location");
+
+        let divFavBtn = document.createElement("div");
+        divFavBtn.className = "col-4 text-left align-self-end";
+        favSection.append(divFavBtn);
+
+        selectFavDropdown.oninput = () => {
+            this.createFavRowBtns(favSection, divFavBtn);
+            this.createFavViewBtn(selectFavDropdown, divFavBtn);
+            this.createRemoveFavBtn(selectFavDropdown, divFavBtn);
+        };
+    }
+
+    resetFilterRowBtns() {
+        let viewBtn = document.getElementById("filter-view-btn");
+        if(viewBtn != null)
+            viewBtn.remove();
+        
+        let cityDropdown = document.getElementById("city-dropdown");
+        if(cityDropdown != null)
+            cityDropdown.remove();
+    }
+
+    resetFavRowBtns(btnDiv) {
+        let viewBtn = document.getElementById("fav-view-btn");
+        if(viewBtn != null)
+            viewBtn.remove();
+        
+        let removeBtn = document.getElementById("remove-fav-btn");
+        if(removeBtn != null)
+            removeBtn.remove();
+
+        if(btnDiv != null)
+            btnDiv.remove();
+    }
+
+    createFavRowBtns(section, btnDiv) {
+        if(btnDiv.childNodes.length > 0 || section.lastChild != btnDiv) {
+            section.append(btnDiv);
+        }
+    }
+
+    createApplyFilterBtn(selectSelf, btnDiv) {
+        if(selectSelf.value == "") {
+            return;
+        }
+        let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
+        let button = document.getElementById("filter-view-btn");
+    
+        if (button == null) {
+            button = document.createElement("a");
+            button.id = "filter-view-btn";
+            button.className = "btn btn-outline-secondary btn-sm mb-0";
+            button.setAttribute("href", "/dashboard/data/market/" + 
+                this.state + "/" + selectedItem.value);
+                button.textContent = "View";
+        } else {
+            button.setAttribute("href", "/dashboard/data/market/" + 
+                this.state + "/" + selectedItem.value);        
+        }
+    
+        btnDiv.append(button);
+    }
+
+    createFavViewBtn(selectSelf, btnDiv) {    
+        if(selectSelf.value == "") {
+            return;
+        }
+        let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
+        let button = document.getElementById("fav-view-btn");
+
+        // Parse state from text
+        let state = selectedItem.text.split(", ")[1];
+        state = state.substring(0, 3);
+    
+        if (button == null) {
+            button = document.createElement("a");
+            button.id = "fav-view-btn";
+            button.className = "btn btn-outline-secondary btn-sm mb-0";
+            button.setAttribute("href", "/dashboard/data/market/" + 
+                state + "/" + selectedItem.value);
+                button.textContent = "View";
+        } else {
+            button.setAttribute("href", "/dashboard/data/market/" + 
+                state + "/" + selectedItem.value);        
+        }
+    
+        btnDiv.append(button);
+    }
+
+    createRemoveFavBtn(selectSelf, btnDiv) {
+        if(selectSelf.value == "") {
+            return;
+        }
+        let selectedItem = selectSelf.options[selectSelf.options.selectedIndex];
+        let button = document.getElementById("remove-fav-btn");
+    
+        if (button == null) {
+            button = document.createElement("a");
+            button.id = "remove-fav-btn";
+            button.className = "btn btn-outline-secondary btn-sm mb-0";
+            button.textContent = "Remove from favorites";
+            button.style = "cursor: pointer"; 
+        }
+
+        // Parse state from text
+        let state = selectedItem.text.split(", ")[1];
+        state = state.split(" (")[0];
+
+        button.onclick = () => {
+            let options = {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    "state": state,
+                    "slug_id": selectedItem.value
+                })
+            };
+
+            let url = "/widgets/data/remove_usda_favorites_for_account";
+            fetch(url, options).then(() => {
+                selectSelf.remove(selectSelf.options.selectedIndex);
+                // resetting the select so the placeholder text appears and there is no selected value
+                $(selectSelf).select2('val', 0);
+                this.resetFavRowBtns(btnDiv);
+            });
+        };
+    
+        btnDiv.append(button);
+    }
 }

@@ -48,7 +48,7 @@ def handle(db: Database, insert):
     })
 
     try:
-        patronid = fields["patronid"]
+        patronid =  int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
@@ -59,11 +59,11 @@ def handle(db: Database, insert):
     if account_link.account_id() is None:
         account = db.accounts.get_by_partner_affiliate_id(account_link.partner_account_id(), account_link.affiliate_id())
         if account is not None:
-            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.name(), account.id())
+            db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), account.company(), account.name(), account.id())
 
     account_link = account_link.id()
     eid = int(fields["electronic"])
-    visual_id = fields["visualid"] if fields["visualid"] != "" else None
+    visual_id = fields["visualid"] if "visualid" in fields and fields["visualid"] != "" else None
 
     grouping_id = None
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
@@ -81,19 +81,19 @@ def handle(db: Database, insert):
     ]
 
     for tag in weaned_object_tags:
-        if fields[tag[1]].strip() != "":
+        if tag[1] in fields and fields[tag[1]].strip() != "":
             weaned_object[tag[0]] = fields[tag[1]].strip()
 
-    if fields["weaningstr"].strip() != "":
+    if "weaningstr" in fields and fields["weaningstr"].strip() != "":
         weaned_object["at"] = fields["weaningstr"].strip()
 
-    if fields["weanweight"].strip() != "" and int(fields["weanweight"]) > 0:
+    if "weanweight" in fields and fields["weanweight"].strip() != "" and int(fields["weanweight"]) > 0:
         weaned_object["wean_weight"] = int(fields["weanweight"])
 
     if weaned_object == {}:
         weaned_object = None
 
-    wean_date = all_to_unix(fields["weandate"])
+    wean_date = all_to_unix(fields["weandate"]) if "weandate" in fields else None
     if wean_date is not None:
         db.matches.types.insert_weaned(
             time=wean_date,
@@ -106,7 +106,7 @@ def handle(db: Database, insert):
             api_insert=api_insert
         )
 
-    birth_date = all_to_unix(fields["firstbirth"])
+    birth_date = all_to_unix(fields["firstbirth"]) if "firstbirth" in fields else None
     if birth_date is not None:
         db.matches.types.insert_born(
             time=birth_date,
@@ -119,12 +119,12 @@ def handle(db: Database, insert):
         )
 
     sold_object = {}
-    if fields['marketingm'].strip().lower() not in ('', "unknown"):
+    if "marketingm" in fields and fields['marketingm'].strip().lower() not in ('', "unknown"):
         sold_object["method"] = fields['marketingm'].strip()
-    if fields['salelocati'].strip() != '':
+    if "salelocati" in fields and fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if fields['numberofca'] != '' and int(fields['numberofca']) > 0:
+    if "numberofca" in fields and  fields['numberofca'] != '' and int(fields['numberofca']) > 0:
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
@@ -147,10 +147,10 @@ def handle(db: Database, insert):
     ]
 
     for tag in animal_object_tags:
-        if fields[tag[1]].strip() != "":
+        if tag[1] in fields and fields[tag[1]].strip() != "":
             animal_details[tag[0]] = fields[tag[1]].strip()
 
-    if fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
+    if "birthweigh" in fields and fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
         animal_details["birth_weight"] = int(fields["birthweigh"])
 
     if animal_details == {}:
@@ -173,7 +173,7 @@ def handle(db: Database, insert):
                 partner_account=partner_account,
                 account_link=account_link,
                 grouping_id=grouping_id,
-                debug={"zip": f5},
+                zip=zipcode,
                 api_insert=api_insert,
                 data=animal_details
             )

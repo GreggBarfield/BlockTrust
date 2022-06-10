@@ -4,6 +4,7 @@ from .exceptions import (
 )
 
 from .types.aggregated import (
+    count_distribution_account_and_sector,
     count_eid_distinct,
     count_distribution_global,
     market_data_cache,
@@ -26,7 +27,8 @@ routing_table = {
     'count_eid_distinct_by_account': count_eid_distinct_by_account,
     'market_data_cache': market_data_cache,
     'sustainability_averages': sustainability_averages,
-    'eid_list_global': eid_list_global
+    'eid_list_global': eid_list_global,
+    'count_distribution_account_and_sector': count_distribution_account_and_sector
 }
 
 

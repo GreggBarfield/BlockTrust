@@ -139,7 +139,7 @@ export class MapWidget extends Widget {
 
             let pCompany = document.createElement("p");
             pCompany.style = "font-family: verdana; font-size:14px;font-weight:bold;color:#404040";
-            pCompany.textContent = marker.company;
+            pCompany.textContent = marker.name;
             right.append(pCompany);
 
             // Description
@@ -167,7 +167,7 @@ export class MapWidget extends Widget {
         for (const match_row of this.match_rows) {
             let im = null;
             let marker = {
-                'name': '',
+                'name': 'Unknown',
                 'latLng': [match_row["lat"], match_row["lon"]],
                 'company': 'Unknown',
                 'desc': '',
@@ -177,12 +177,12 @@ export class MapWidget extends Widget {
                 marker.sighted = this.formatDate(match_row["time"])
             }
 
-            let company = match_row["account_links.company"];
+            let name = match_row["account_links.name"];
 
-            if (company != null) {
-                marker['company'] = company;
-                if (company in imageMap)
-                    im = imageMap[company];
+            if (name != null) {
+                marker['name'] = name;
+                if (name in imageMap)
+                    im = imageMap[name];
             }
 
         

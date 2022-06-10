@@ -168,7 +168,7 @@ class MatchTypes:
 
     def _generic_insert(
         self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
-        lon=None, time=None, debug=None, api_insert=None
+        lon=None, time=None, debug=None, api_insert=None, zip=None
     ):
         """Passes data to Matches.insert
 
@@ -192,6 +192,7 @@ class MatchTypes:
                 lat=lat,
                 lon=lon,
                 time=time,
+                zip=zip,
                 debug=debug,
                 api_insert=api_insert
             )
