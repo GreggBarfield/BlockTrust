@@ -526,10 +526,10 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
-                     partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
-                     state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE,
-                     stripe_account_id=NO_VALUE, order_by=NO_VALUE):
+    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
+                     partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
+                     zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_account_id=NO_VALUE,
+                     order_by=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -589,7 +589,7 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append("is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
-        
+
         if token is not NO_VALUE:
             query_conditions.append("token = %(token)s")
             query_values["token"] = token
@@ -607,7 +607,8 @@ class Accounts:
 
         if order_by is not NO_VALUE:
             query = query + " ORDER BY " + order_by
-
+        print(query)
+        print(query_values)
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
             return account_rows
