@@ -317,7 +317,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Category",
             options: SalesGroupFields.commonCategoryNames,
-            values: this.characteristicsCategoryValue || [],
+            values: this.characteristicsCategoryValue,// || [],
             multiple: false,
             tags: false,
             placeholder: "Select Applicable Category"
@@ -331,12 +331,12 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Select Applicable Breeds"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue || "",false,"characteristicsBreedComments","",4);
+        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
         let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
-        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue|| "",false,"characteristicsWeighingConditions","",4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",

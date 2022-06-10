@@ -415,16 +415,16 @@ class SalesGroups:
             raise ExportException("Sorry, check the market start and end dates (specifically the order).")
         if delivery_location_type is None:
             raise ExportException("Sale location type is not selected.")
-        if delivery_location_type == "Off Ranch":
+        elif delivery_location_type == "Off Ranch":
             if len(delivery_location.strip()) == 0:
                 raise ExportException("Delivery Location cannot be blank")
-        if delivery_location_type == "Auction":
+        elif delivery_location_type == "Auction":
             if auction_market_location == "None":
                 raise ExportException("Please select an auction market location")
+        if category == "":
+            raise ExportException("Please select a category")
         if len(breeds) == 0:
             raise ExportException("Please select one or more breeds")
-        if len(category) == 0:
-            raise ExportException("Please select a category")
         if weight is None:
             raise ExportException("Base weight does not have a value")
         if len(weight_variance.strip()) == 0:

@@ -1536,8 +1536,8 @@ VALUES ("USCT",@product_id,20);
 /* Nisheet Thakur  06/09/2022*/
 ALTER TABLE `sales_groups`
 ADD COLUMN `category` VARCHAR(127) NOT NULL,
-ADD COLUMN `breed_comments` VARCHAR(1001) NULL DEFAULT NULL,
-ADD COLUMN `weighing_conditions` VARCHAR(1001) NULL DEFAULT NULL;
+ADD COLUMN `breed_comments` VARCHAR(200) NULL DEFAULT NULL,
+ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 
 /* Rohan Sureshkumar 8/6/2022 */
 ALTER TABLE `matches` 
