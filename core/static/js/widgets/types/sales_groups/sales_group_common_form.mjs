@@ -317,7 +317,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Category",
             options: SalesGroupFields.commonCategoryNames,
-            values: this.characteristicsCategoryValue,// || [],
+            values: this.characteristicsCategoryValue,
             multiple: false,
             tags: false,
             placeholder: "Select Applicable Category"
