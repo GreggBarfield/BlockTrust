@@ -413,8 +413,7 @@ def serve_save_eids_for_sales_group():
 
 @bp.route("/widgets/data/sales-group/accept-offer", methods=["POST"])
 def serve_accept_sales_group_offer():
-    # accepted_offer = request.json["offer_string"]
-    print(request.json)
+    SalesGroupOffers(g.db).update_sales_group_offer(sales_group_offer_id=request.json["id"], offer_status=offer_status_by_name["Accepted"])
     return {}
 
 
