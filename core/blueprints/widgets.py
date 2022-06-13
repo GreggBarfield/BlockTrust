@@ -23,6 +23,8 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
 
+from ..reports.query_types import count_eid_distinct
+
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
@@ -597,17 +599,14 @@ def serve_get_sustainability_timeline_data():
 
 @bp.route('/widgets/data/employee_summary_graphs_data', methods=['POST'])
 @crut.require_employee
-def serve_employee_summary_graphs():
-    ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], order_by="created_timestamp")
-    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], order_by="created_timestamp")
-    tags = unauth_route({"type": 'eid_list_global', "params": {}})
-    tags_list = []
-    if tags["result"] is not None:
-        tags_list = tags["result"]["eid_list_global"]
+def get_employee_summary_graphs_data():
+    ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
+    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
+    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "create_timestamp"])
     return {
         "ranches": ranches,
         "feedyards": feedyards,
-        "tags": tags_list
+        "tags_count_list": tags_count_list
     }
 
 

@@ -21,7 +21,7 @@ export class SummaryGraphWidget extends Widget {
         let cardBody = document.getElementById("card");
         this.makeLineGraphContainer(cardBody, "Ranches", this.data.ranches, false);
         this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards, false);
-        this.makeLineGraphContainer(cardBody, "Tags", this.data.tags, true);
+        this.makeLineGraphContainer(cardBody, "Tags", this.data.tags_count_list, true);
     }
 
     makeLineGraphContainer(section, title, values, compressData){
@@ -50,20 +50,21 @@ export class SummaryGraphWidget extends Widget {
         return graphableData;
     }
 
-    getCompressedGraphableLineData(values){
+    getGraphableLineDataForTagsCount(values){
         let graphableData = [];
-        let valueCounter = 0;
-        for(let i=0;i<values.length;i=i+10) {
-            valueCounter += 10;
-            graphableData.push({
-                "date": new Date(values[i].time*1000),
-                "value": valueCounter
-            });
+        for(const value of values) {
+            if(value.result !== null){
+                let count_eid_distinct_object = JSON.parse(value.result)
+                graphableData.push({
+                    "date": new Date(value.create_timestamp),
+                    "value": count_eid_distinct_object.count_eid_distinct
+                });
+            }     
         }
         return graphableData;
     }
 
-    makeLineGraph(container, values, compressData) {
+    makeLineGraph(container, values, tagsCountData) {
         if (this.data == null) {
             container.textContent = "Data is not available yet.";
         }
@@ -75,8 +76,8 @@ export class SummaryGraphWidget extends Widget {
             am4core.ready(function() {
                 am4core.useTheme(am4themes_animated);
                 var chart = am4core.create(container, am4charts.XYChart);
-                if(compressData){
-                    chart.data = self.getCompressedGraphableLineData(values);
+                if(tagsCountData){
+                    chart.data = self.getGraphableLineDataForTagsCount(values);
                 }
                 else{
                     chart.data = self.getGraphableLineData(values);
