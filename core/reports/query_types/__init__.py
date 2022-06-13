@@ -18,5 +18,5 @@ types[market_data_cache.TYPE_NAME] = market_data_cache
 from . import sustainability_averages  # noqa
 types[sustainability_averages.TYPE_NAME] = sustainability_averages
 
-from . import count_distribution_account_and_sector  # noqa
+from . import count_distribution_account_and_sector # noqa
 types[count_distribution_account_and_sector.TYPE_NAME] = count_distribution_account_and_sector

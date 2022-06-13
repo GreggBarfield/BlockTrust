@@ -464,28 +464,6 @@ class Matches:
                 }
         )
 
-    def get_distinct_eids(self, number_of_years):
-        """Returns the distinct EIDs in the database for number of years specified.
-
-        Params:
-            number_of_years: Age of records
-
-        Returns:
-            The array of distinct eids
-        """
-        return self._db.execute_d(
-                """
-                SELECT eid, min(time) as time
-                FROM matches
-                WHERE YEAR(current_timestamp) > YEAR(current_date())-%(number_of_years)s AND type=%(type)s
-                GROUP BY eid
-                ORDER BY time
-                """, {
-                    "number_of_years": number_of_years,
-                    "type": match_types_by_name["Sighting"]
-                }
-        )
-
     def get_count_eid_distinct_by_account(self, account_id):
         """Count the number of distinct EIDs in the database for an account.
 
