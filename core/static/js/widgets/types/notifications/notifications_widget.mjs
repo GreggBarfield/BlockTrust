@@ -45,7 +45,7 @@ export class NotificationsWidget extends Widget {
             let unreadNotificationslink = createLink("/dashboard/notifications", this.data.unread_notifications_count.toString() + " unread notification(s)");
             message.append(unreadNotificationslink);
             message.append(" and ");
-            let pendingRequestsLink = createLink("/dashboard/view-invites", this.data.pending_connection_requests_count.toString() + " pending connection request(s)");
+            let pendingRequestsLink = createLink("/dashboard/connections", this.data.pending_connection_requests_count.toString() + " pending connection request(s)");
             message.append(pendingRequestsLink);
         }
         else if(this.data.unread_notifications_count>0){
@@ -55,7 +55,7 @@ export class NotificationsWidget extends Widget {
         }
         else if(this.data.pending_connection_requests_count>0){
             message.textContent = "You have ";
-            let pendingRequestsLink = createLink("/dashboard/view-invites", this.data.pending_connection_requests_count.toString() + " pending connection request(s)");
+            let pendingRequestsLink = createLink("/dashboard/connections", this.data.pending_connection_requests_count.toString() + " pending connection request(s)");
             message.append(pendingRequestsLink);
         }
         this.alert.append(message);

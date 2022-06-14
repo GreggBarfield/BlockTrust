@@ -642,7 +642,7 @@ def serve_get_notifications_for_user():
     pending_connection_requests_count = 0
     pending_connection_requests_list = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
     pending_connection_requests_count = len(pending_connection_requests_list)
-    return {"unread_notifications_count": unread_notifications_count, "pending_connection_requests_count": pending_connection_requests_count}, 200
+    return {"unread_notifications_count": unread_notifications_count, "pending_connection_requests_count": pending_connection_requests_count}
 
 @bp.route('/widgets/data/get_invitable_accounts', methods=['POST'])
 @crut.require_account
