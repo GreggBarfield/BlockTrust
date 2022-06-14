@@ -306,7 +306,7 @@ class SalesGroups:
 
     def search_within(
         self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
-        breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
+        category=None, breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
     ):
         """Searches for sales groups.
 
@@ -332,6 +332,10 @@ class SalesGroups:
 
         additionals = []
         sql_additionals_total = ""
+
+        if category is not None:
+            sql_additionals_total += "AND category = %s"
+            additionals.append(category)
 
         if breed is not None:
             sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.breeds')"
