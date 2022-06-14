@@ -22,9 +22,12 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
+            this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
+            this.characteristicsBreedCommentsValue = this.data.breed_comments;
             this.characteristicsWeightValue = this.data.reported.weight;
             this.characteristicsWeightVarianceValue = this.data.reported.weight_variance;
+            this.characteristicsWeighingConditionsValue = this.data.weighing_conditions;
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
@@ -40,7 +43,6 @@ export class SalesGroupsCommonForm{
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
             this.acceptOffers = this.data.accept_offers;
-
         }
         else{
             this.salesGroupID = null;
@@ -53,9 +55,12 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
+            this.characteristicsCategoryValue = null;
             this.characteristicBreedsValue = [];
+            this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
+            this.characteristicsWeighingConditionsValue = null;
             this.characteristicsFrameValue = "Small";
             this.characteristicsMusclingValue = "Light";
             this.characteristicsHornsValue = "Horns";
@@ -309,7 +314,16 @@ export class SalesGroupsCommonForm{
         // Characteristics
 
         let characteristicsRow = createSection(form, "Characteristics");
-
+        
+        let characteristicsCategory = createSelect({
+            row: characteristicsRow,
+            name: "Category",
+            options: SalesGroupFields.commonCategoryNames,
+            values: this.characteristicsCategoryValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Select Applicable Category"
+        },false,"","", 4);
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
@@ -319,10 +333,12 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Select Applicable Breeds"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.characteristicsWeightValue,true,"characteristicsWeight",
+        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
+        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -560,6 +576,9 @@ export class SalesGroupsCommonForm{
                     "group_name": salesGroupName.value,
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,
+                    "category": characteristicsCategory.value,
+                    "breed_comments": characteristicsBreedComments.value,
+                    "weighing_conditions": characteristicsWeighingConditions.value,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   

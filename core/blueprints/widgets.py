@@ -16,6 +16,8 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.sales_group_offers import SalesGroupOffers, offer_status_by_name
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.account_users import AccountUsers
+from ..database.tables.users import Users
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -87,7 +89,10 @@ def serve_sales_group():
         "is_archived": sales_group_row["is_archived"],
         "price": sales_group_row["price"],
         "is_sold": sales_group_row["is_sold"],
-        "accept_offers": sales_group_row["accept_offers"]
+        "accept_offers": sales_group_row["accept_offers"],
+        "category": sales_group_row["category"],
+        "breed_comments": sales_group_row["breed_comments"],
+        "weighing_conditions": sales_group_row["weighing_conditions"]
     }
 
 
@@ -227,6 +232,7 @@ def serve_create_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         usda_frame_size=request.json["reported"]["usda_frame_size"],
         muscling=request.json["reported"]["muscling"],
@@ -258,7 +264,10 @@ def serve_create_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -282,6 +291,7 @@ def serve_update_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         usda_frame_size=request.json["reported"]["usda_frame_size"],
         muscling=request.json["reported"]["muscling"],
@@ -312,7 +322,10 @@ def serve_update_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
 
     return {
@@ -650,6 +663,15 @@ def serve_add_connection_request():
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
             Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
+                if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
+                    send_email(
+                        "BlockTrust Network New Connection Request",
+                        render_email("new_account_connection_request.html", {
+                            'connection_receiving_user': email_verified_admin_user[0],
+                            'requesting_account': g.account
+                        }), email_verified_admin_user[0]["email"]
+                    )
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),

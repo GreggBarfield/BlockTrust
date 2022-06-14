@@ -167,7 +167,7 @@ class SalesGroups:
     def insert_new_sales_group(self, reported, published=None, zip_code=None, account=None,
                                delivery_location=None, start=None, end=None, auction_sale=None,
                                group_name=None, is_archived=None, delivery_location_type=None, price=None,
-                               accept_offers=None):
+                               category=None, breed_comments=None, weighing_conditions=None, accept_offers=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -182,6 +182,9 @@ class SalesGroups:
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
             accept_offers: Accept offers or not
+            category: Category of the sales group
+            breed_comments: Breed comments for sales group
+            weighing_conditions: Weighing conditions comment for sales group
 
         Returns:
             Sales group ID of new Sales group
@@ -189,10 +192,11 @@ class SalesGroups:
         self._db.execute(
             """
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
-            group_name, is_archived, delivery_location_type, price, accept_offers)
+            group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions, accept_offers)
             VALUES
             (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
-            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(accept_offers)s)
+            %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
+            %(breed_comments)s, %(weighing_conditions)s, %(accept_offers)s)
             """, {
                 "account": account,
                 "reported": json.dumps(reported),
@@ -206,7 +210,10 @@ class SalesGroups:
                 "is_archived": is_archived,
                 "delivery_location_type": delivery_location_type,
                 "price": price,
-                "accept_offers": accept_offers
+                "accept_offers": accept_offers,
+                "category": category,
+                "breed_comments": breed_comments,
+                "weighing_conditions": weighing_conditions
             }
         )
         return self._db.last_row_id()
@@ -215,7 +222,7 @@ class SalesGroups:
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
         delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
-        accept_offers=NO_VALUE):
+        category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, accept_offers=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -229,6 +236,9 @@ class SalesGroups:
             end: The end time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
+            category: Category of the sales group
+            breed_comments: Breed comments for sales group
+            weighing_conditions: Weighing conditions comment for sales group
         """
 
         # base query
@@ -282,6 +292,15 @@ class SalesGroups:
         if accept_offers is not NO_VALUE:
             query_conditions.append(" accept_offers = %(accept_offers)s")
             query_values["accept_offers"] = accept_offers
+        if category is not NO_VALUE:
+            query_conditions.append(" category = %(category)s")
+            query_values["category"] = category
+        if breed_comments is not NO_VALUE:
+            query_conditions.append(" breed_comments = %(breed_comments)s")
+            query_values["breed_comments"] = breed_comments
+        if weighing_conditions is not NO_VALUE:
+            query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
+            query_values["weighing_conditions"] = weighing_conditions
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
@@ -356,7 +375,7 @@ class SalesGroups:
         return self._translate_json(sales_groups)
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
-            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price):
+            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
         """
         Validates that the values received for a sales group is valid
 
@@ -378,6 +397,7 @@ class SalesGroups:
             delivery_location: Off ranch delivery location
             auction_market_location: Auction market value
             images: Images for sales group
+            category: Category for the sales group
 
         Raises:
             ExportException if field is invalid
@@ -400,12 +420,14 @@ class SalesGroups:
             raise ExportException("Sorry, check the market start and end dates (specifically the order).")
         if delivery_location_type is None:
             raise ExportException("Sale location type is not selected.")
-        if delivery_location_type == "Off Ranch":
+        elif delivery_location_type == "Off Ranch":
             if len(delivery_location.strip()) == 0:
                 raise ExportException("Delivery Location cannot be blank")
-        if delivery_location_type == "Auction":
+        elif delivery_location_type == "Auction":
             if auction_market_location == "None":
                 raise ExportException("Please select an auction market location")
+        if category == "":
+            raise ExportException("Please select a category")
         if len(breeds) == 0:
             raise ExportException("Please select one or more breeds")
         if weight is None:
@@ -426,9 +448,10 @@ class SalesGroups:
             raise ExportException("Sales Group price is not provided")
 
     def get_sales_groups(self, id=NO_VALUE, reported=NO_VALUE, published=NO_VALUE, zip_code=NO_VALUE,
-                          delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE, auction_sale=NO_VALUE,
-                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
-                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, sales_group_cols=[]):
+                         delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE, auction_sale=NO_VALUE,
+                         group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
+                         is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
+                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[]):
         """
         Gets the sales groups based on attributes provided
         
@@ -443,6 +466,9 @@ class SalesGroups:
             end: The end time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
+            category: Category of the sales group
+            breed_comments: Breed comments for sales group
+            weighing_conditions: Weighing conditions comment for sales group
 
         Returns:
             A list of sales group dictionaries or an empty list
@@ -507,6 +533,15 @@ class SalesGroups:
         if buyer_account_id is not NO_VALUE:
             query_conditions.append(" buyer_account_id = %(buyer_account_id)s")
             query_values["buyer_account_id"] = buyer_account_id
+        if category is not NO_VALUE:
+            query_conditions.append(" category = %(category)s")
+            query_values["category"] = category
+        if breed_comments is not NO_VALUE:
+            query_conditions.append(" breed_comments = %(breed_comments)s")
+            query_values["breed_comments"] = breed_comments
+        if weighing_conditions is not NO_VALUE:
+            query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
+            query_values["weighing_conditions"] = weighing_conditions
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
