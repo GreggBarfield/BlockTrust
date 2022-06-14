@@ -233,4 +233,3 @@ class Reports:
             if row[col] is not None:
                 row[col] = loads(row[col])
         return row
-
