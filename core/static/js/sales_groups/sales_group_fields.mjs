@@ -181,6 +181,19 @@ let commonImplants = [
 	"Raigro"
 ];
 
+let commonCategoryNames = [
+	"Feeder Steers",
+	"Feeder Heifers",
+	"Beef Dairy Cross Steers",
+	"Beef Dairy Cross Heifers",
+	"Weaned Heifer Calves",
+	"Weaned Steer Calves",
+	"Steer Calves",
+	"Heifer Calves",
+	"Replacement Heifers",
+	"Bred Cows"
+]
+
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
     commonPVPProgramNames: commonPVPProgramNames,
@@ -192,5 +205,6 @@ export let SalesGroupFields = {
 	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
 	commonCastrated: commonCastrated,
 	commonFeedingPrograms: commonFeedingPrograms,
-	commonImplants: commonImplants
+	commonImplants: commonImplants,
+	commonCategoryNames: commonCategoryNames
 };

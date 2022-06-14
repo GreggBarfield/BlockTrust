@@ -87,7 +87,10 @@ def serve_sales_group():
         "company": g.account.name(),
         "is_archived": sales_group_row["is_archived"],
         "price": sales_group_row["price"],
-        "is_sold": sales_group_row["is_sold"]
+        "is_sold": sales_group_row["is_sold"],
+        "category": sales_group_row["category"],
+        "breed_comments": sales_group_row["breed_comments"],
+        "weighing_conditions": sales_group_row["weighing_conditions"]
     }
 
 
@@ -226,6 +229,7 @@ def serve_create_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         usda_frame_size=request.json["reported"]["usda_frame_size"],
         muscling=request.json["reported"]["muscling"],
@@ -256,7 +260,10 @@ def serve_create_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -280,6 +287,7 @@ def serve_update_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         usda_frame_size=request.json["reported"]["usda_frame_size"],
         muscling=request.json["reported"]["muscling"],
@@ -309,7 +317,10 @@ def serve_update_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
 
     return {
