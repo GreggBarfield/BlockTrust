@@ -136,7 +136,7 @@ class Reports:
                     "result=:result,",
                     "status=:status,",
                     "fulfilled=:fulfilled",
-                    result=dumps(result, default=str),
+                    result=dumps(result),
                     status=status,
                     fulfilled=time()
                 ),
