@@ -18,15 +18,17 @@
         <table class="table" id="accountsTable">
             <thead>
                 <tr>
-                    <th>Account Number</th>
-                    <th>Account Name</th>
+                    <th>Acct Number</th>
+                    <th>Acct Name</th>
                     <th>Sector</th>
-                    <th>Account city, state</th>
-                    <th>Admin Email</th>
+                    <th>Partner</th>
+                    <th>Acct city, state</th>
+                    <th>Admin Name</th>
+                    <th></th>
                     <th>Paid</th>
                     <th>Created</th>
-                    <th>Login as Admin</th>
-                    <th>Invite Admin</th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -39,12 +41,12 @@
                         </a>
                     </td>
                     <td>{{sectors_by_id[account.sector]}}</td>
+                    <td>{{account.account_partner_name}}</td>
                     <td>{{account.city}}, {{account.state}}</td>
+                    <td>{{account.account_admin_name}}</td>
                     <td>
-                        {% if account.account_admin_email == "" %}
-                        Employee generated Admin User
-                        {% else %}
-                        <a href="mailto:{{account.account_admin_email}}">{{account.account_admin_email}}</a>
+                        {% if account.account_admin_email != "" %}
+                        <a href="mailto:{{account.account_admin_email}}"><i class="feather icon-mail" title="Send an email to Admin"></i></a>
                         {% endif %}
                     </td>
                     <td >
@@ -56,10 +58,10 @@
                     </td>
                     <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                     <td>
-                        <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
+                        <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}"><i class="feather icon-log-in" title="Login as Admin"></i></a>
                     </td>
                     <td>
-                        <a href="/employee/dashboard/invite-admin/{{account.id}}">Invite Admin</a>
+                        <a href="/employee/dashboard/invite-admin/{{account.id}}"><i class="feather icon-user-plus" title="Invite Admin"></i></a>
                     </td>
                 </tr>
                 {%endfor%}
@@ -114,7 +116,7 @@
         });
     }
     document.addEventListener('DOMContentLoaded', function () {
-        $('#accountsTable').DataTable();
+        $('#accountsTable').DataTable({pageLength:50});
     });
 </script>
 {% endblock employee_content %}
