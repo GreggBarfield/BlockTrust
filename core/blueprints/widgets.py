@@ -154,6 +154,7 @@ def serve_search_sales_groups_2():
         start=time.time(),
         end=9999999999,
         is_archived=0,
+        category=request.json["search"]["category"],
         breed=request.json["search"]["breed"],
         minimum_weight=request.json["search"]["minimum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
@@ -191,7 +192,10 @@ def serve_search_sales_groups_2():
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
             "is_sold": sales_group_row["is_sold"],
-            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+            "category": sales_group_row["category"],
+            "breed_comments": sales_group_row["breed_comments"],
+            "weighing_conditions": sales_group_row["weighing_conditions"]
         })
 
     return {
@@ -233,9 +237,6 @@ def serve_create_sales_group():
         weight_variance=request.json["reported"]["weight_variance"],
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
@@ -291,9 +292,6 @@ def serve_update_sales_group():
         weight_variance=request.json["reported"]["weight_variance"],
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
