@@ -6,7 +6,7 @@ export class SummaryGraphWidget extends Widget {
     
     initType() {
         this.getData(
-            "employee_summary_graphs_data",
+            "get_employee_summary_graphs_data",
             {}
         ).then((data) => {
             this.data = data;
@@ -19,12 +19,15 @@ export class SummaryGraphWidget extends Widget {
     
     makeSummaryGraphs(){
         let cardBody = document.getElementById("card");
-        this.makeLineGraphContainer(cardBody, "Ranches", this.data.ranches, false);
-        this.makeLineGraphContainer(cardBody, "Feedyards", this.data.feedyards, false);
-        this.makeLineGraphContainer(cardBody, "Tags", this.data.tags_count_list, true);
+        let ranchesGraph = this.makeLineGraphContainer("Ranches", this.data.ranches, false);
+        let feedyardsGraph = this.makeLineGraphContainer("Feedyards", this.data.feedyards, false);
+        let tagsCountGraph = this.makeLineGraphContainer("Tags", this.data.tags_count_list, true);
+        cardBody.append(ranchesGraph);
+        cardBody.append(feedyardsGraph);
+        cardBody.append(tagsCountGraph);
     }
 
-    makeLineGraphContainer(section, title, values, compressData){
+    makeLineGraphContainer(title, values, tagsCountData){
         let lineGraphOutline = document.createElement("div");
         let lineGraphContainer = document.createElement("div");
         lineGraphContainer.style = "height: 18em;";
@@ -33,8 +36,8 @@ export class SummaryGraphWidget extends Widget {
         graphLabel.textContent = title;
         lineGraphOutline.append(graphLabel);
         lineGraphOutline.append(lineGraphContainer);
-        section.append(lineGraphOutline)
-        this.makeLineGraph(lineGraphContainer, values, compressData);
+        this.makeLineGraph(lineGraphContainer, values, tagsCountData);
+        return lineGraphOutline;
     }
 
     getGraphableLineData(values){

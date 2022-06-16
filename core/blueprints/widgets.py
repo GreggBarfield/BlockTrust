@@ -610,7 +610,7 @@ def serve_get_sustainability_timeline_data():
         }, 200
 
 
-@bp.route('/widgets/data/employee_summary_graphs_data', methods=['POST'])
+@bp.route('/widgets/data/get_employee_summary_graphs_data', methods=['POST'])
 @crut.require_employee
 def get_employee_summary_graphs_data():
     ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
