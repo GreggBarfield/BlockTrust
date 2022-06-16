@@ -131,6 +131,7 @@ export class SearchSalesGroupsWidget extends Widget {
                 return select;
             }
 
+            this.inputs.category = createSearchControl("Category", SalesGroupFields.commonCategoryNames);
             this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames);
             this.inputs.minimumWeight = createSearchControl("Minimum Weight", SalesGroupFields.commonWeights);
             this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
@@ -212,6 +213,7 @@ export class SearchSalesGroupsWidget extends Widget {
                 search: {
                     zip: parseInt(this.inputs.zipCode.value),
                     radius: parseInt(this.inputs.milesSelect.value),
+                    category: processDropdown(this.inputs.category.value),
                     breed: processDropdown(this.inputs.breed.value),
                     minimum_weight: processDropdown(this.inputs.minimumWeight.value, true),
                     preconditioning_program: processDropdown(this.inputs.preconditioningProgram.value),
