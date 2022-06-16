@@ -370,7 +370,7 @@ class SalesGroups:
         return self._translate_json(sales_groups)
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
-            breeds, usda_frame_size, muscling, horns, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
+            breeds, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
         """
         Validates that the values received for a sales group is valid
 
@@ -429,12 +429,6 @@ class SalesGroups:
             raise ExportException("Base weight does not have a value")
         if len(weight_variance.strip()) == 0:
             raise ExportException("Weight variance does not have a value")
-        if usda_frame_size is None:
-            raise ExportException("Please select frame size")
-        if muscling is None:
-            raise ExportException("Please select relevant muscling")
-        if horns is None:
-            raise ExportException("Please select horns or no horns")
         if auction_sale is not None:
             # it was changed to a non-None value, verify new is published
             if not AuctionSales(self._db).auction_sales.get_auction_sale_by_id(auction_sale)["published"]:
