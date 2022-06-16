@@ -131,6 +131,10 @@ def serve_view_account():
         account_admin_email = ""
         account_partner_name = ""
         admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
+        if account["partner_account"] is not None:
+            if len(account_partner := g.db.accounts.get_accounts(id=account["partner_account"])) > 0:
+                account_partner_name = account_partner[0]["company"]
+        account["account_partner_name"] = account_partner_name
         if(len(admin_user) > 0):
             user = g.db.users.get_user_by_id(admin_user[0]['user'])
             if user is not None and (user.is_email_verified() == 1 or user.is_system_generated() == 1):
@@ -140,11 +144,7 @@ def serve_view_account():
                 account["account_admin_name"] = account_admin_name
                 account["account_admin_user_id"] = account_admin_user_id
                 account["account_admin_email"] = account_admin_email
-                accounts_and_account_admins.append(account)
-        if account["partner_account"] is not None:
-            if len(account_partner := g.db.accounts.get_accounts(id=account["partner_account"])) > 0:
-                account_partner_name = account_partner[0]["company"]
-        account["account_partner_name"] = account_partner_name   
+                accounts_and_account_admins.append(account)   
     accounts_and_account_admins = sorted(accounts_and_account_admins, key=lambda i: i['company'])
     return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_by_id": sectors_by_id})
 
