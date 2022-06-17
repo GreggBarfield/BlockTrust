@@ -195,6 +195,7 @@ let commonImplants = [
 ];
 
 let commonCategoryNames = [
+	"Mixed Steers and Heifers",
 	"Feeder Steers",
 	"Feeder Heifers",
 	"Beef Dairy Cross Steers",
@@ -203,7 +204,6 @@ let commonCategoryNames = [
 	"Weaned Steer Calves",
 	"Steer Calves",
 	"Heifer Calves",
-	"Mixed Steers and Heifers",
 	"Replacement Heifers",
 	"Bred Cows"
 ]
