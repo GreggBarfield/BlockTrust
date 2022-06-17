@@ -54,15 +54,15 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
-            this.characteristicsCategoryValue = null;
+            this.characteristicsCategoryValue = "Feeder Steers";
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
             this.characteristicsWeighingConditionsValue = null;
-            this.characteristicsFrameValue = "Small";
-            this.characteristicsMusclingValue = "Light";
-            this.characteristicsHornsValue = "Horns";
+            this.characteristicsFrameValue = "N/A";
+            this.characteristicsMusclingValue = "N/A";
+            this.characteristicsHornsValue = "N/A";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
             this.maintenanceFeedingProgramValue = [];
@@ -349,7 +349,7 @@ export class SalesGroupsCommonForm{
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
-            options: ["Light", "Heavy"],
+            options: SalesGroupFields.commonMusclings,
             values: this.characteristicsMusclingValue,
             multiple: false,
             tags: false,
@@ -358,7 +358,7 @@ export class SalesGroupsCommonForm{
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
-            options: ["Horns", "No Horns"],
+            options: SalesGroupFields.commonHorns,
             values: this.characteristicsHornsValue,
             multiple: false,
             tags: false,

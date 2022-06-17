@@ -144,10 +144,23 @@ let commonPreconditioningProgramNames = [
 ];
 
 let commonFrames = [
+	"N/A",
 	"Small",
 	"Medium",
 	"Large"
 ];
+
+let commonMusclings = [
+	"N/A",
+	"Light",
+	"Heavy"
+];
+
+let commonHorns = [
+	"N/A",
+	"Horns",
+	"No Horns"
+]
 
 let commonVaccinations = [
 	"Not Applicable",
@@ -178,7 +191,7 @@ let commonFeedingPrograms = [
 
 let commonImplants = [
 	"Not Applicable",
-	"Raigro"
+	"Ralgro"
 ];
 
 let commonCategoryNames = [
@@ -190,6 +203,7 @@ let commonCategoryNames = [
 	"Weaned Steer Calves",
 	"Steer Calves",
 	"Heifer Calves",
+	"Mixed Steers and Heifers",
 	"Replacement Heifers",
 	"Bred Cows"
 ]
@@ -206,5 +220,7 @@ export let SalesGroupFields = {
 	commonCastrated: commonCastrated,
 	commonFeedingPrograms: commonFeedingPrograms,
 	commonImplants: commonImplants,
-	commonCategoryNames: commonCategoryNames
+	commonCategoryNames: commonCategoryNames,
+	commonMusclings: commonMusclings,
+	commonHorns: commonHorns
 };
