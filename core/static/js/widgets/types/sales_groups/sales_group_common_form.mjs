@@ -54,7 +54,7 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
-            this.characteristicsCategoryValue = "Feeder Steers";
+            this.characteristicsCategoryValue = "Mixed Steers and Heifers";
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
