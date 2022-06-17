@@ -411,18 +411,6 @@ def serve_save_eids_for_sales_group():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
-@bp.route("/widgets/data/sales-group/accept-offer", methods=["POST"])
-def serve_accept_sales_group_offer():
-    SalesGroupOffers(g.db).update_sales_group_offer(sales_group_offer_id=request.json["id"], offer_status=offer_status_by_name["Accepted"])
-    return {}
-
-
-@bp.route("/widgets/data/sales-group/decline-offer", methods=["POST"])
-def serve_decline_sales_group_offer():
-    SalesGroupOffers(g.db).update_sales_group_offer(sales_group_offer_id=request.json["id"], offer_status=offer_status_by_name["Declined"])
-    return {}
-
-
 @bp.route('/widgets/data/save_sustainability', methods=['POST'])
 @crut.require_account
 def serve_save_sustainability():
@@ -731,3 +719,18 @@ def serve_get_sales_groups_offers():
         offer_status=offer_status_by_name["Pending"]
     )
     return {"sales_group_offers": sales_group_offers}
+
+
+@bp.route("/widgets/data/sales-group/accept-offer", methods=["POST"])
+def serve_accept_sales_group_offer():
+    SalesGroupOffers(g.db).accept_sales_group_offer(
+        sales_group_id=request.json["sales_group_id"],
+        accepted_sales_group_offer_id=request.json["id"]
+    )
+    return {}
+
+
+@bp.route("/widgets/data/sales-group/decline-offer", methods=["POST"])
+def serve_decline_sales_group_offer():
+    SalesGroupOffers(g.db).update_sales_group_offer(sales_group_offer_id=request.json["id"], offer_status=offer_status_by_name["Declined"])
+    return {}

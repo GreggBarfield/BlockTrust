@@ -34,6 +34,11 @@ export class ViewSalesGroupOffersWidget extends Widget{
         alertMessage.className = "font-weight-bold h5";
         alertModalBody.append(alertMessage);
 
+        let warningMessage = document.createElement("label");
+        warningMessage.textContent = "*Accepting an offer will automatically decline all existing offers"
+        warningMessage.className = "font-weight-light font-italic";
+        alertModalBody.append(warningMessage);
+
         let postActionButton = document.createElement("button");
         postActionButton.className = buttonClassName;
         postActionButton.textContent = buttonText;

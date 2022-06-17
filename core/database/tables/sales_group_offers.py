@@ -129,3 +129,33 @@ class SalesGroupOffers:
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sales group offers")
+
+    def accept_sales_group_offer(self, sales_group_id, accepted_sales_group_offer_id):
+        """
+        Accept a sales group offer and decline existing offers automatically
+
+        Params:
+            sales_group_id: ID of sales group offer
+            offering_account_id: Account ID of accepted sales group offer
+        """
+        self._db.execute(
+            """
+            UPDATE sales_group_offers
+            SET offer_status = %(offer_status)s
+            WHERE sales_group_id = %(sales_group_id)s AND id != %(id)s
+            """, {
+                "offer_status": offer_status_by_name["Declined"],
+                "sales_group_id": sales_group_id,
+                "id": accepted_sales_group_offer_id
+            }
+        )
+        self._db.execute(
+            """
+            UPDATE sales_group_offers
+            SET offer_status = %(offer_status)s
+            WHERE id = %(id)s
+            """, {
+                "offer_status": offer_status_by_name["Accepted"],
+                "id": accepted_sales_group_offer_id
+            }
+        )
