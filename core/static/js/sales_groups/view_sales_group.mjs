@@ -223,6 +223,11 @@ export class SalesGroupViewer {
             location.style = "color:black";
             location.textContent = "  Location: " + this.formatData(this.data.market_location) + " ( " + milesAwayInt + " Miles)";
             left.append(location);
+
+            let category = document.createElement("div");
+            category.style = "color:black";
+            category.textContent =`Category: ${this.data.category}`;
+            left.append(category);
         }
 
         // Configure Animal data
@@ -245,8 +250,10 @@ export class SalesGroupViewer {
             animalDataCol.append(animalBody);
 
             addInfo("Breed", this.formatData(this.data.reported.breeds), animalBody);
+            addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
             addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
             addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
+            addInfo("Weighing Conditions", this.formatData(this.data.weighing_conditions), animalBody);
             addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
             addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
             addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), animalBody);
