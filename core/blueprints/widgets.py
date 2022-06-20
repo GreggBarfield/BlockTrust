@@ -727,6 +727,7 @@ def serve_accept_sales_group_offer():
         sales_group_id=request.json["sales_group_id"],
         accepted_sales_group_offer_id=request.json["id"]
     )
+    SalesGroups(g.db).update_sales_group(id=request.json["sales_group_id"], published=0)
     return {}
 
 
