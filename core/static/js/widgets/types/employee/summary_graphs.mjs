@@ -4,7 +4,7 @@ export class SummaryGraphWidget extends Widget {
         super(frame);
     }
     
-    initType() {
+    initType = () => {
         this.getData(
             "get_employee_summary_graphs_data",
             {}
@@ -17,7 +17,7 @@ export class SummaryGraphWidget extends Widget {
         });
     }
     
-    makeSummaryGraphs(){
+    makeSummaryGraphs = () => {
         let cardBody = document.getElementById("card");
         let ranchesGraph = this.makeLineGraphContainer("Ranches", this.data.ranches, false);
         let feedyardsGraph = this.makeLineGraphContainer("Feedyards", this.data.feedyards, false);
@@ -27,7 +27,7 @@ export class SummaryGraphWidget extends Widget {
         cardBody.append(tagsCountGraph);
     }
 
-    makeLineGraphContainer(title, values, tagsCountData){
+    makeLineGraphContainer = (title, values, tagsCountData) => {
         let lineGraphOutline = document.createElement("div");
         let lineGraphContainer = document.createElement("div");
         lineGraphContainer.style = "height: 18em;";
@@ -40,7 +40,7 @@ export class SummaryGraphWidget extends Widget {
         return lineGraphOutline;
     }
 
-    getGraphableLineData(values){
+    getGraphableLineData = (values) => {
         let graphableData = [];
         let valueCounter = 0;
         for(const value of values) {
@@ -53,7 +53,7 @@ export class SummaryGraphWidget extends Widget {
         return graphableData;
     }
 
-    getGraphableLineDataForTagsCount(values){
+    getGraphableLineDataForTagsCount = (values) => {
         let graphableData = [];
         for(const value of values) {
             if(value.result !== null){
@@ -67,7 +67,7 @@ export class SummaryGraphWidget extends Widget {
         return graphableData;
     }
 
-    makeLineGraph(container, values, tagsCountData) {
+    makeLineGraph = (container, values, tagsCountData) => {
         if (this.data == null) {
             container.textContent = "Data is not available yet.";
         }
