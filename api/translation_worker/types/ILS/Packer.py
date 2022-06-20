@@ -87,7 +87,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
@@ -123,7 +124,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=packer_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         # USDAYieldGrade
@@ -194,5 +196,6 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )

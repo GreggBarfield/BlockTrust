@@ -9,12 +9,14 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.account_users import AccountUsers
+from ..database.tables.users import Users
 
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -85,7 +87,10 @@ def serve_sales_group():
         "company": g.account.name(),
         "is_archived": sales_group_row["is_archived"],
         "price": sales_group_row["price"],
-        "is_sold": sales_group_row["is_sold"]
+        "is_sold": sales_group_row["is_sold"],
+        "category": sales_group_row["category"],
+        "breed_comments": sales_group_row["breed_comments"],
+        "weighing_conditions": sales_group_row["weighing_conditions"]
     }
 
 
@@ -106,7 +111,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=0)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -147,6 +152,7 @@ def serve_search_sales_groups_2():
         start=time.time(),
         end=9999999999,
         is_archived=0,
+        category=request.json["search"]["category"],
         breed=request.json["search"]["breed"],
         minimum_weight=request.json["search"]["minimum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
@@ -184,7 +190,10 @@ def serve_search_sales_groups_2():
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
             "is_sold": sales_group_row["is_sold"],
-            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+            "category": sales_group_row["category"],
+            "breed_comments": sales_group_row["breed_comments"],
+            "weighing_conditions": sales_group_row["weighing_conditions"]
         })
 
     return {
@@ -224,10 +233,8 @@ def serve_create_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
@@ -254,7 +261,10 @@ def serve_create_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -278,10 +288,8 @@ def serve_update_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
@@ -307,7 +315,10 @@ def serve_update_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"]
     )
 
     return {
@@ -333,7 +344,7 @@ def unarchive_sales_group():
 @crut.require_account
 def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.get_sales_groups(account_id=request.json["search"]["params"]["ID"], is_archived=1)
+    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
@@ -369,13 +380,17 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    is_healthtrack_partner_account = False
+    if g.account.partner_account_id() == healthtrack_partner_row["id"]:
+        is_healthtrack_partner_account = True
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups(account_id=g.account.id())))
+    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
@@ -392,7 +407,8 @@ def serve_get_eids_for_sales_group():
     return {
         "id": sales_group_row["id"],
         "assigned_animals": assigned_animals,
-        "available_eids_with_visual_ids": available_eids_with_visual_ids
+        "available_eids_with_visual_ids": available_eids_with_visual_ids,
+        "is_healthtrack_partner_account": is_healthtrack_partner_account
     }
 
 
@@ -640,6 +656,15 @@ def serve_add_connection_request():
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
             Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
+                if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
+                    send_email(
+                        "BlockTrust Network New Connection Request",
+                        render_email("new_account_connection_request.html", {
+                            'connection_receiving_user': email_verified_admin_user[0],
+                            'requesting_account': g.account
+                        }), email_verified_admin_user[0]["email"]
+                    )
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
@@ -675,3 +700,32 @@ def serve_employee_search_by_eid_and_visual_id():
             "redirect_route": redirect_route,
             "matches": []
         }
+
+@bp.route('/widgets/data/get_animals_and_grouping_ids_for_account', methods=["POST"])
+@crut.require_account
+def get_animals_and_grouping_ids_for_account():
+    animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
+        account_links_account_id=g.account.id(),
+        matches_partner_account_id=g.account.partner_account_id(),
+        is_distinct=True,
+        matches_cols=("eid", "visual_id", "grouping_id")
+    )
+    # Getting sales groups owned by account and corresponding eid's
+    account_sales_groups_ids = g.db.sales_groups.get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
+    assigned_eids_for_account = []
+    for sales_group_id in account_sales_groups_ids:
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))
+        if len(assigned_eids) > 0:
+            assigned_eids_for_account.extend(assigned_eids)
+    available_animals_and_grouping_ids = []
+    for animal_and_grouping_id in animals_and_grouping_ids:
+        if animal_and_grouping_id["eid"] not in assigned_eids_for_account:
+            available_animals_and_grouping_ids.append(animal_and_grouping_id)
+    return {"available_animals_and_grouping_ids": available_animals_and_grouping_ids}
+
+@bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
+@crut.require_account
+def serve_save_eids_by_application_id():
+    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
+    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
+    return {"redirect": "/dashboard/sales-groups/manage"}

@@ -76,6 +76,15 @@ try:
                     threads.append(t)
                     print('Main: appended thread Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
+        # this will run once between 7 and 8 AM
+        # if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
+        # if not any(t.getName() == "TransferDataILS" for t in threads):
+        #     job_run_id = JobRuns(db).insert("TransferDataILS", scheduled_jobs["TransferDataILS"].split('|')[0], scheduled_jobs["TransferDataILS"].split('|')[1])
+        #     t = Thread(target=transfer_data_ils, name="TransferDataILS", args=[job_run_id, Database(MYSQL_CONFIG)])
+        #     t.start()
+        #     threads.append(t)
+        #     print('Main: appended thread TransferDataILS', 'Total number of threads:', len(threads), 'Current time:', current_time)
+
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
 except Exception as e:

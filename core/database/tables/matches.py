@@ -263,7 +263,7 @@ class Matches:
     
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
         matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
-        is_distinct=False, matches_cols=()):
+        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -297,12 +297,16 @@ class Matches:
             query_values["matches_eid"] = matches_eid
 
         if matches_visual_id is not NO_VALUE:
-            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_eid is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
             query_values["matches_visual_id"] = matches_visual_id
 
         if matches_restrict_type is not NO_VALUE:
             query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
             query_values["matches_restrict_type"] = matches_restrict_type
+
+        if matches_partner_account_id is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
+            query_values["matches_partner_account_id"] = matches_partner_account_id
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
@@ -335,7 +339,7 @@ class Matches:
 
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
-        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None, zip=None
     ):
         """Insert a new row into matches.
 
@@ -355,10 +359,10 @@ class Matches:
 
         self._db.execute(
             """INSERT INTO matches
-                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash, zip)
                 VALUES
                     (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
-                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s, %(zip)s
                     )
             """,
             {
@@ -376,7 +380,8 @@ class Matches:
                 "debug": None if debug is None else json.dumps(debug),
                 "api_insert": api_insert,
                 "bc_transaction_id": bc_transaction_id,
-                "bc_hash": bc_hash
+                "bc_hash": bc_hash,
+                "zip": zip
             }
         )
 

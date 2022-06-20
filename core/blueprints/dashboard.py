@@ -124,26 +124,33 @@ def serve_account_id(account_id):
     account = account_user.account()
     account_links = account.account_links()
     # Indicator for unread notifications
-    unread_notifications = 0
+    unread_notifications_count = 0
     # Checking if user has unread notifications
     unread_notifications_list = Notifications(g.db).get_notification_and_notification_recipients(
         user_id=g.user.id(),
         is_archived=0,
         is_notification_seen=0
     )
-    if len(unread_notifications_list) > 0:
-        unread_notifications = 1
+    unread_notifications_count = len(unread_notifications_list)
 
-    sector_params = {"account": account, "account_links": account_links, "unread_notifications": unread_notifications}
+    pending_connection_requests_count = 0
+    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"]))
+
+    account_params = {
+        "account": account,
+        "account_links": account_links,
+        "unread_notifications_count": unread_notifications_count,
+        "pending_connection_requests_count": pending_connection_requests_count
+    }
 
     if account.sector_name() == "Auction House":
-        return dashboard_render("sectors/auction.html", sector_params)
+        return dashboard_render("sectors/auction.html", account_params)
     elif account.sector_name() == "Feedlot":
-        return dashboard_render("sectors/feedlot.html", sector_params)
+        return dashboard_render("sectors/feedlot.html", account_params)
     elif account.sector_name() == "Buyer":
-        return dashboard_render("sectors/buyer.html", sector_params)
+        return dashboard_render("sectors/buyer.html", account_params)
     else:
-        return dashboard_render("sectors/generic.html", sector_params)
+        return dashboard_render("sectors/generic.html", account_params)
 
 
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
@@ -463,20 +470,14 @@ def serve_invite_user():
 @crut.require_account
 def serve_connections():
     account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
-    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections})
+    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"])
+    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
 
 
 @bp.route('/dashboard/add-connection', methods=['GET'])
 @crut.require_account
 def serve_add_connection():
     return dashboard_render("/dashboard/connections/add-connection.html")
-
-
-@bp.route('/dashboard/view-invites', methods=['GET'])
-@crut.require_account
-def serve_view_invites():
-    requests = Connections(g.db).get_account_connections(g.account.id(), connection_status["Pending"])
-    return dashboard_render("/dashboard/connections/view-invites.html", {"requests": requests})
 
 
 @bp.route('/dashboard/accept-invite', methods=['POST'])
@@ -622,6 +623,18 @@ def serve_sales_group_transaction(sales_group_id):
             return {}
         except Exception as e:
             return {"error": str(e)}, 400
+
+
+@bp.route('/dashboard/sales-groups/<int:sales_group_id>/select-eids-by-grouping-id', methods=["GET"])
+@crut.require_account
+def serve_select_eids_by_application_id(sales_group_id):
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
+        return dashboard_render(
+            "sales-groups/sales-group/select-eids-by-grouping-id.html",
+            {"sales_group_id": sales_group_id}
+        )
+    return dashboard_render("sales-groups/sales-group/no.html")
 
 
 @bp.route('/dashboard/files/<path:path>')
