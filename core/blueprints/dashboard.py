@@ -13,7 +13,7 @@ from ..common_exceptions import ExportException
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.connections import connection_status
-from ..database.tables.emails import Emails, email_type_by_name, email_processing_status_by_name
+from ..database.tables.emails import Emails, email_processing_status_by_name
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -580,7 +580,6 @@ def serve_insertmatchemail():
         body="Congratulations, one or more of your cattle has been matched in the beef supply chain. Go to your account to see details.",
         variables={"account_name": "test"},
         template_name="match_found.html",
-        email_type=email_type_by_name["Match Found"],
         is_processed=email_processing_status_by_name["Not Processed"]
     )
     return {}

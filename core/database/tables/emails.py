@@ -6,7 +6,7 @@ from ...renderers.email import render_email
 
 
 NO_VALUE = NoValue()
-email_cols = ("id", "user_id", "subject", "body", "variables", "template_name", "email_type", "is_processed")
+email_cols = ("id", "user_id", "subject", "body", "variables", "template_name", "is_processed")
 email_processing_status_by_name = {
     "Not Processed": 0,
     "Processed": 1,
@@ -16,14 +16,6 @@ email_processing_status_by_id = {
     value: key
     for key, value in email_processing_status_by_name.items()
 }
-email_type_by_name = {
-    "Generic": 0,
-    "Match Found": 1
-}
-email_type_by_id = {
-    value: key
-    for key, value in email_type_by_name.items()
-}
 
 
 class Emails:
@@ -32,7 +24,7 @@ class Emails:
         self._db = db
 
     def get_emails(self, id=NO_VALUE, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, template_name=NO_VALUE,
-                   email_type=NO_VALUE, is_processed=NO_VALUE, emails_order_by=NO_VALUE, emails_sort_by=NO_VALUE):
+                   is_processed=NO_VALUE, emails_order_by=NO_VALUE, emails_sort_by=NO_VALUE):
         """
         Gets the emails based on attributes provided
 
@@ -42,7 +34,6 @@ class Emails:
             subject: Email subject line
             body: Body of the email
             template_name: Email template name
-            email_type: Type of email being sent out
             is_processed: Indicates whether is email is sent or not(0-Not sent, 1-Sent)
 
         Returns:
@@ -69,9 +60,6 @@ class Emails:
         if template_name is not NO_VALUE:
             query_conditions.append(" template_name = %(template_name)s")
             query_values["template_name"] = template_name
-        if email_type is not NO_VALUE:
-            query_conditions.append(" email_type = %(email_type)s")
-            query_values["email_type"] = email_type
         if is_processed is not NO_VALUE:
             query_conditions.append(" is_processed = %(is_processed)s")
             query_values["is_processed"] = is_processed
@@ -99,7 +87,7 @@ class Emails:
             return []
 
     def insert_email(self, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, variables=NO_VALUE,
-                     template_name=NO_VALUE, email_type=NO_VALUE, is_processed=NO_VALUE):
+                     template_name=NO_VALUE, is_processed=NO_VALUE):
         """
         Inserts a new email to be sent out
 
@@ -109,22 +97,21 @@ class Emails:
             body: Body of the email
             variables: Variables required for the email template
             template_name: Email template name
-            email_type: Type of email being sent out
             is_processed: Indicates whether is email is sent or not(0-Not sent, 1-Sent)
         """
-        if email_type == email_type_by_name["Match Found"]:
-            unprocessed_match_emails_in_past_day = self.check_for_scheduled_emails_in_past_day(
+        if subject == "Congratulations, match found!":
+            unprocessed_match_emails_in_past_day = self.check_for_scheduled_emails_in_past(
                 user_id=user_id,
                 number_of_days=1,
-                email_type=email_type_by_name["Match Found"],
+                subject="Congratulations, match found!",
                 is_processed=email_processing_status_by_name["Not Processed"]
             )
             if unprocessed_match_emails_in_past_day is not None:
                 return
         self._db.execute(
             """
-            INSERT INTO emails (user_id, subject, body, variables, template_name, email_type, is_processed)
-            VALUES (%(user_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(email_type)s, %(is_processed)s)
+            INSERT INTO emails (user_id, subject, body, variables, template_name, is_processed)
+            VALUES (%(user_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(is_processed)s)
             """,
             {
                 "user_id": user_id,
@@ -132,13 +119,12 @@ class Emails:
                 "body": body,
                 "variables": json.dumps(variables),
                 "template_name": template_name,
-                "email_type": email_type,
                 "is_processed": is_processed
             }
         )
 
     def update_emails(self, id, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, template_name=NO_VALUE,
-                      email_type=NO_VALUE, variables=NO_VALUE, is_processed=NO_VALUE):
+                      variables=NO_VALUE, is_processed=NO_VALUE):
         """
         Updates an email row
 
@@ -148,7 +134,6 @@ class Emails:
             subject: Email subject line
             body: Body of the email
             template_name: Email template name
-            email_type: Type of email being sent out
             is_processed: Indicates whether is email is sent or not(0-Not sent, 1-Sent)
         """
         base_query = "UPDATE emails "
@@ -168,9 +153,6 @@ class Emails:
         if template_name is not NO_VALUE:
             query_conditions.append(" template_name = %(template_name)s")
             query_values["template_name"] = template_name
-        if email_type is not NO_VALUE:
-            query_conditions.append(" email_type = %(email_type)s")
-            query_values["email_type"] = email_type
         if variables is not NO_VALUE:
             query_conditions.append(" variables = %(variables)s")
             query_values["variables"] = json.dumps(variables)
@@ -185,7 +167,7 @@ class Emails:
         else:
             raise Exception("Must give values for fields to update on Emails")
 
-    def check_for_scheduled_emails_in_past_day(self, user_id=NO_VALUE, number_of_days=NO_VALUE, email_type=NO_VALUE, is_processed=NO_VALUE):
+    def check_for_scheduled_emails_in_past(self, user_id=NO_VALUE, number_of_days=NO_VALUE, subject=NO_VALUE, is_processed=NO_VALUE):
         """
         Checks if the user has emails scheduled in the past 24 hours
 
@@ -198,13 +180,13 @@ class Emails:
         email_row = self._db.execute_d(
             """
             SELECT * FROM emails
-            WHERE user_id = %(user_id)s AND is_processed = %(is_processed)s
-            AND DAY(created_timestamp) > DAY(current_date())-%(number_of_days)s AND email_type = %(email_type)s
+            WHERE user_id = %(user_id)s AND is_processed = %(is_processed)s AND subject = %(subject)s
+            AND DAY(created_timestamp) > DAY(current_date())-%(number_of_days)s
             """, {
                 "user_id": user_id,
                 "is_processed": is_processed,
-                "number_of_days": number_of_days,
-                "email_type": email_type
+                "subject": subject,
+                "number_of_days": number_of_days
             })
         if len(email_row) > 0:
             return email_row[0]
@@ -223,14 +205,12 @@ class Emails:
                     if user_row["is_email_verified"] == 1:
                         email_variables = json.loads(unprocessed_email["variables"])
                         email_variables["body"] = unprocessed_email["body"]
-                        with current_app.app_context():
-                            send_email(
-                                unprocessed_email["subject"],
-                                render_email(unprocessed_email["template_name"], email_variables),
-                                # "test body",
-                                # user_row["email"]
-                                "nisheet.thakur@blocktrustnetwork.com"
-                                )
+                        send_email(
+                            unprocessed_email["subject"],
+                            "test body",
+                            # user_row["email"]
+                            "nisheet.thakur@blocktrustnetwork.com"
+                            )
                         self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Processed"])
             except Exception as e:
                 print(str(e))
