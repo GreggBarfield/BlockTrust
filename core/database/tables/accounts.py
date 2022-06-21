@@ -6,6 +6,13 @@ from ..frag import frag
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
 
+account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
+                "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
+                "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_charges_enabled",
+                "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
+                "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup")
+
+
 class AccountsException(Exception):
     """Account generic exception."""
 
@@ -526,9 +533,10 @@ class Accounts:
                 )
             )
 
-    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE, partner_account=NO_VALUE,
-                     affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                     token=NO_VALUE, stripe_account_id=NO_VALUE):
+    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
+                     partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
+                     zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_account_id=NO_VALUE,
+                     accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -588,7 +596,7 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append("is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
-        
+
         if token is not NO_VALUE:
             query_conditions.append("token = %(token)s")
             query_values["token"] = token
@@ -603,6 +611,16 @@ class Accounts:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
+
+        if accounts_order_by is not NO_VALUE:
+            if accounts_order_by not in account_cols:
+                raise Exception("accounts_order_by column doesn't exist")
+            order_by_clause = " ORDER BY " + accounts_order_by
+            if accounts_sort_by is not NO_VALUE:
+                if accounts_sort_by not in ("ASC", "DESC"):
+                    raise Exception("Incorrect value for auction_markets_sort_by")
+                order_by_clause += " " + accounts_sort_by
+            query = query + order_by_clause
 
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
