@@ -4,6 +4,7 @@ import { getSustainabilitySections } from "../../../core/sustainability_sections
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
+        this.dataCounter = {};
         this.getResponseData();
         this.getSectorData();
     }
@@ -19,7 +20,6 @@ export class AbstractBaseSummaryWidget extends Widget {
     getResponseData() {
         this.getData("get_sustainability",{}).then((data) => {
             this.responses = data.results;
-            this.dataCounter = {};
             
             if (data.results.length > 0) {
                 this.responseData = data.results[0];
@@ -39,7 +39,7 @@ export class AbstractBaseSummaryWidget extends Widget {
 
     getSectorData() {
         //This grabs the sector number for the current user pass in from dashboard.py.
-        let currentSectorName = this.frame.getAttribute('data-widget-sector');
+        let accountSectorId = this.frame.getAttribute('data-widget-sector');
 
         this.getData(
             "data_request",
@@ -48,9 +48,7 @@ export class AbstractBaseSummaryWidget extends Widget {
             }
         ).then((data) => {
             let sectorData = data.result;
-            console.log("this.dataCounter", this.dataCounter, currentSectorName);
-            console.log("sectordata", sectorData)
-            this.dataCounter['thisSector'] = sectorData[currentSectorName]; 
+            this.dataCounter['thisSector'] = sectorData[accountSectorId]; 
             this.dataCounter['allSectors'] = sectorData['allSectors'];
 
             this.createCharts();
