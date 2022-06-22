@@ -17,24 +17,17 @@ export class AbstractBaseSummaryWidget extends Widget {
     createCharts() {}
 
     getResponseData() {
-        this.getData(
-            "get_sustainability",
-            {}
-            ).then((data) => {
+        this.getData("get_sustainability",{}).then((data) => {
             this.responses = data.results;
             this.dataCounter = {};
             
             if (data.results.length > 0) {
                 this.responseData = data.results[0];
-                let sections = getSustainabilitySections();
-                sections["total"] = "Total";
+                let sustainabilitySections = getSustainabilitySections();
+                sustainabilitySections["total"] = "Total";
 
-                for(const section in sections) {
-                    this.dataCounter[section] = {
-                        "excellent": 0,
-                        "acceptable": 0,
-                        "needsWork": 0
-                    }
+                for(const section in sustainabilitySections) {
+                    this.dataCounter[section] = { "excellent": 0, "acceptable": 0, "needsWork": 0}
                     
                     this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score_points"]);
                     this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score_points"]);
@@ -46,19 +39,18 @@ export class AbstractBaseSummaryWidget extends Widget {
 
     getSectorData() {
         //This grabs the sector number for the current user pass in from dashboard.py.
-        let sector = this.frame.getAttribute('data-widget-sector');
+        let currentSectorName = this.frame.getAttribute('data-widget-sector');
 
         this.getData(
             "data_request",
             {
-                request: {
-                    type: 'sustainability_averages',
-                    params: {}
-                }
+                request: {type: 'sustainability_averages', params: {} }
             }
         ).then((data) => {
             let sectorData = data.result;
-            this.dataCounter['thisSector'] = sectorData[sector]; 
+            console.log("this.dataCounter", this.dataCounter, currentSectorName);
+            console.log("sectordata", sectorData)
+            this.dataCounter['thisSector'] = sectorData[currentSectorName]; 
             this.dataCounter['allSectors'] = sectorData['allSectors'];
 
             this.createCharts();
