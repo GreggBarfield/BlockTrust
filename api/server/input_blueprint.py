@@ -50,7 +50,6 @@ def serve_api():
     else:
         data = json.loads(request.data)
 
-    print("received json:", data)
     # Check target
     assert data["target"] == "BlockTrust Network Ingestion API"
 
@@ -110,12 +109,21 @@ def serve_api():
             print(sql)
 
             # TODO: remove once we have a separate dev and prod server for API
-            if not bool(data.get("development", False)):
+            server = data.get("server", "production")
+
+            if server == "development":
+                g.api_dev_db.execute(
+                    sql, ss
+                )
+            elif server == "both":
+                g.api_dev_db.execute(
+                    sql, ss
+                )
                 g.db.execute(
                     sql, ss
                 )
             else:
-                g.api_dev_db.execute(
+                g.db.execute(
                     sql, ss
                 )
 
