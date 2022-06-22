@@ -33,6 +33,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsHornsValue = this.data.reported.horns;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
+            this.maintenanceCattleAnnualHerdVaccinationsValue = this.data.maintenanceCattleAnnualHerdVaccinations;
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -65,6 +66,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsHornsValue = "N/A";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
+            this.maintenanceCattleAnnualHerdVaccinationsValue = "Yes"
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
@@ -386,7 +388,16 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
+        let maintenanceAnnualCattleHerdVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Annual Cattle Herd Vaccinations",
+            options: ["Yes", "No"],
+            values: this.maintenanceCattleAnnualHerdVaccinationsValue || "Yes",
+            multiple: false,
+            tags: false,
+            placeholder: ""
+        }, false, "", "", 2);
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -557,6 +568,7 @@ export class SalesGroupsCommonForm{
                         usda_frame_size: characteristicsFrame.value,
                         preconditioning_program: maintenancePreconditioningProgram.value,
                         vaccinations: $(maintenanceVaccinations).val(),
+                        annual_cattle_herd_vaccinations: maintenanceAnnualCattleHerdVaccinations.value,
                         feeding_programs: $(maintenanceFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
