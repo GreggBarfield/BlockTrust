@@ -33,7 +33,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsHornsValue = this.data.reported.horns;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
-            this.maintenanceCattleAnnualHerdVaccinationsValue = this.data.maintenanceCattleAnnualHerdVaccinations;
+            this.maintenanceAnnualCattleHerdVaccinationsValue = this.data.reported.annual_cattle_herd_vaccinations;
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -393,7 +393,7 @@ export class SalesGroupsCommonForm{
             row: maintenanceRow,
             name: "Annual Cattle Herd Vaccinations",
             options: ["Yes", "No"],
-            values: this.maintenanceCattleAnnualHerdVaccinationsValue || "Yes",
+            values: this.maintenanceAnnualCattleHerdVaccinationsValue || "Yes",
             multiple: false,
             tags: false,
             placeholder: ""
