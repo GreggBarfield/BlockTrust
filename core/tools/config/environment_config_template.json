@@ -23,7 +23,7 @@
         "autocommit": true
     },
     "api_mysql": "same",
-    "api_dev_mysql": "same",
+    "dev_mysql": "same",
     "email": {
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
     },
