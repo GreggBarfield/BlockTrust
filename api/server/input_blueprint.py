@@ -22,8 +22,7 @@ bp = Blueprint('input_blueprint', __name__)
 def before_request():
     """Per-request setup."""
     g.db = Database(MYSQL_CONFIG)
-    if API_DEV_MYSQL_CONFIG != "same":
-        g.api_dev_db = Database(API_DEV_MYSQL_CONFIG)
+    g.api_dev_db = Database(API_DEV_MYSQL_CONFIG)
 
 
 @bp.route('/', methods=["GET", "POST"])
@@ -51,6 +50,7 @@ def serve_api():
     else:
         data = json.loads(request.data)
 
+    print("received json:", data)
     # Check target
     assert data["target"] == "BlockTrust Network Ingestion API"
 
@@ -108,11 +108,13 @@ def serve_api():
                 ",".join(["(%s, %s, %s, %s)" for i in range(right - left)])
             )
             print(sql)
-            g.db.execute(
-                sql, ss
-            )
 
-            if API_DEV_MYSQL_CONFIG != "same":
+            # TODO: remove once we have a separate dev and prod server for API
+            if not bool(data.get("development", False)):
+                g.db.execute(
+                    sql, ss
+                )
+            else:
                 g.api_dev_db.execute(
                     sql, ss
                 )
