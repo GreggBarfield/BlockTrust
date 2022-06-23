@@ -1543,3 +1543,6 @@ ADD COLUMN `category` VARCHAR(100) NOT NULL,
 ADD COLUMN `breed_comments` VARCHAR(200) NULL DEFAULT NULL,
 ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 
+/* Nisheet Thakur 06/23/2022 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;

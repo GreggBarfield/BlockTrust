@@ -33,7 +33,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsHornsValue = this.data.reported.horns;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
-            this.maintenanceAnnualCattleHerdVaccinationsValue = this.data.reported.annual_cattle_herd_vaccinations;
+            this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -389,11 +389,12 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Select Vaccinations"
         }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
+
         let maintenanceAnnualCattleHerdVaccinations = createSelect({
             row: maintenanceRow,
             name: "Annual Cattle Herd Vaccinations",
             options: ["Yes", "No"],
-            values: this.maintenanceAnnualCattleHerdVaccinationsValue || "Yes",
+            values: this.maintenanceAnnualCattleHerdVaccinationsValue,
             multiple: false,
             tags: false,
             placeholder: ""
@@ -568,7 +569,6 @@ export class SalesGroupsCommonForm{
                         usda_frame_size: characteristicsFrame.value,
                         preconditioning_program: maintenancePreconditioningProgram.value,
                         vaccinations: $(maintenanceVaccinations).val(),
-                        annual_cattle_herd_vaccinations: maintenanceAnnualCattleHerdVaccinations.value,
                         feeding_programs: $(maintenanceFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
@@ -587,6 +587,7 @@ export class SalesGroupsCommonForm{
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsBreedComments.value,
                     "weighing_conditions": characteristicsWeighingConditions.value,
+                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   

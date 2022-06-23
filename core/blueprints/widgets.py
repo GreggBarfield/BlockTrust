@@ -92,7 +92,8 @@ def serve_sales_group():
         "is_sold": sales_group_row["is_sold"],
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
-        "weighing_conditions": sales_group_row["weighing_conditions"]
+        "weighing_conditions": sales_group_row["weighing_conditions"],
+        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
     }
 
 
@@ -168,6 +169,7 @@ def serve_search_sales_groups_2():
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
             "published": sales_group_row["published"],
+            "group_name": sales_group_row["group_name"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
@@ -195,7 +197,8 @@ def serve_search_sales_groups_2():
             "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
-            "weighing_conditions": sales_group_row["weighing_conditions"]
+            "weighing_conditions": sales_group_row["weighing_conditions"],
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
         })
 
     return {
@@ -266,7 +269,8 @@ def serve_create_sales_group():
         price=request.json["price"],
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
-        weighing_conditions=request.json["weighing_conditions"]
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -320,7 +324,8 @@ def serve_update_sales_group():
         price=request.json["price"],
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
-        weighing_conditions=request.json["weighing_conditions"]
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
 
     return {

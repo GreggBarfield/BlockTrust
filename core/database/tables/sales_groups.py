@@ -167,7 +167,8 @@ class SalesGroups:
     def insert_new_sales_group(self, reported, published=None, zip_code=None, account=None,
                                delivery_location=None, start=None, end=None, auction_sale=None,
                                group_name=None, is_archived=None, delivery_location_type=None, price=None,
-                               category=None, breed_comments=None, weighing_conditions=None):
+                               category=None, breed_comments=None, weighing_conditions=None,
+                               are_annual_cattle_herd_vaccinations_given=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -191,11 +192,12 @@ class SalesGroups:
         self._db.execute(
             """
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
-            group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions)
+            group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
+            are_annual_cattle_herd_vaccinations_given)
             VALUES
             (%(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
             %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
-            %(breed_comments)s, %(weighing_conditions)s)
+            %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s)
             """, {
                 "account": account,
                 "reported": json.dumps(reported),
@@ -211,7 +213,8 @@ class SalesGroups:
                 "price": price,
                 "category": category,
                 "breed_comments": breed_comments,
-                "weighing_conditions": weighing_conditions
+                "weighing_conditions": weighing_conditions,
+                "are_annual_cattle_herd_vaccinations_given": are_annual_cattle_herd_vaccinations_given
             }
         )
         return self._db.last_row_id()
@@ -220,7 +223,8 @@ class SalesGroups:
         zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
         auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
         delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
-        category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE):
+        category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
+        are_annual_cattle_herd_vaccinations_given=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -296,6 +300,9 @@ class SalesGroups:
         if weighing_conditions is not NO_VALUE:
             query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
+        if are_annual_cattle_herd_vaccinations_given is not NO_VALUE:
+            query_conditions.append(" are_annual_cattle_herd_vaccinations_given = %(are_annual_cattle_herd_vaccinations_given)s")
+            query_values["are_annual_cattle_herd_vaccinations_given"] = are_annual_cattle_herd_vaccinations_given
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
