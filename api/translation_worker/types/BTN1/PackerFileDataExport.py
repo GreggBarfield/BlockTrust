@@ -56,7 +56,7 @@ def handle(db, insert):
                 )
 
     # add sighting at packer using plant id
-    if str(fields["PlantID"]).isdigit():
+    if isinstance(fields["PlantID"], str) and fields["PlantID"]).isdigit():
         fields["PlantID"] = fields["PlantID"].lstrip("0")
 
     packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
