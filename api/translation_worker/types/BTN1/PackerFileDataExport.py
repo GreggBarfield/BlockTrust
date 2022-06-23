@@ -131,7 +131,7 @@ def handle(db, insert):
         
     if packer_data:
         db.matches.types.insert_packer(
-            data=packer_data,
+            packer_str=packer_data,
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
