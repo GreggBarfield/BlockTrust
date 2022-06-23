@@ -133,7 +133,7 @@ class MatchTypes:
         """Insert a packer record.
 
         Params:
-            packer_str: Temporary string format, see FeederResultsCSV
+            packer_str: contains packer data
             kwargs: See _generic_insert
         """
         self._generic_insert(
