@@ -107,7 +107,7 @@ def handle(db, insert):
     )
 
     # Hot Weight
-    if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
+    if fields["CarcassWeight"] and float(fields["CarcassWeight"]) != 0:
         db.matches.types.insert_hot_weight(
             weight=float(fields["CarcassWeight"]),
             eid=eid,
@@ -118,15 +118,15 @@ def handle(db, insert):
 
     # Ribeye Area.
     packer_data = {}
-    if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
+    if "RibEyeArea" in fields and fields["RibEyeArea"] and float(fields["RibEyeArea"]) != 0:
         packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
 
     # Marbling Score
-    if fields["MarblingScore"] != "" and int(fields["MarblingScore"]) != 0:
+    if "MarblingScore" in fields and fields["MarblingScore"] and int(fields["MarblingScore"]) != 0:
         packer_data["MarblingScore"] = int(fields["MarblingScore"])
 
     # Fat Thickness
-    if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
+    if "FatThickness" in fields and fields["FatThickness"] and float(fields["FatThickness"]) != 0:
         packer_data["FatThickness"] = float(fields["FatThickness"])
         
     if packer_data:
