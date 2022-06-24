@@ -33,6 +33,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsHornsValue = this.data.reported.horns;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
+            this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -54,17 +55,18 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
-            this.characteristicsCategoryValue = null;
+            this.characteristicsCategoryValue = "Mixed Steers and Heifers";
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
             this.characteristicsWeighingConditionsValue = null;
-            this.characteristicsFrameValue = "Small";
-            this.characteristicsMusclingValue = "Light";
-            this.characteristicsHornsValue = "Horns";
+            this.characteristicsFrameValue = "N/A";
+            this.characteristicsMusclingValue = "N/A";
+            this.characteristicsHornsValue = "N/A";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
+            this.maintenanceCattleAnnualHerdVaccinationsValue = "Yes"
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
@@ -349,7 +351,7 @@ export class SalesGroupsCommonForm{
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
-            options: ["Light", "Heavy"],
+            options: SalesGroupFields.commonMusclings,
             values: this.characteristicsMusclingValue,
             multiple: false,
             tags: false,
@@ -358,7 +360,7 @@ export class SalesGroupsCommonForm{
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
-            options: ["Horns", "No Horns"],
+            options: SalesGroupFields.commonHorns,
             values: this.characteristicsHornsValue,
             multiple: false,
             tags: false,
@@ -386,7 +388,17 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
+
+        let maintenanceAnnualCattleHerdVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Annual Cattle Herd Vaccinations",
+            options: ["Yes", "No"],
+            values: this.maintenanceAnnualCattleHerdVaccinationsValue,
+            multiple: false,
+            tags: false,
+            placeholder: ""
+        }, false, "", "", 2);
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -575,6 +587,7 @@ export class SalesGroupsCommonForm{
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsBreedComments.value,
                     "weighing_conditions": characteristicsWeighingConditions.value,
+                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   

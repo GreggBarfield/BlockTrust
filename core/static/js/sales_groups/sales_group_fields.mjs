@@ -144,16 +144,35 @@ let commonPreconditioningProgramNames = [
 ];
 
 let commonFrames = [
+	"N/A",
 	"Small",
 	"Medium",
 	"Large"
 ];
 
+let commonMusclings = [
+	"N/A",
+	"Light",
+	"Heavy"
+];
+
+let commonHorns = [
+	"N/A",
+	"Horns",
+	"No Horns"
+]
+
 let commonVaccinations = [
 	"Not Applicable",
-	"Covexin 8",
-	"One Shot BVD",
-	"Infor"
+	"Blackleg",
+	"H. Somnus",
+	"Pasturella",
+	"4-way virus (MLV)",
+	"4-way virus (Killed)",
+	"5-way virus (MLV)",
+	"5-way virus (Killed)",
+	"Internal Parasites",
+	"External Parasites"
 ];
 
 let commonDeliveryLocationTypes = [
@@ -178,10 +197,11 @@ let commonFeedingPrograms = [
 
 let commonImplants = [
 	"Not Applicable",
-	"Raigro"
+	"Ralgro"
 ];
 
 let commonCategoryNames = [
+	"Mixed Steers and Heifers",
 	"Feeder Steers",
 	"Feeder Heifers",
 	"Beef Dairy Cross Steers",
@@ -206,5 +226,7 @@ export let SalesGroupFields = {
 	commonCastrated: commonCastrated,
 	commonFeedingPrograms: commonFeedingPrograms,
 	commonImplants: commonImplants,
-	commonCategoryNames: commonCategoryNames
+	commonCategoryNames: commonCategoryNames,
+	commonMusclings: commonMusclings,
+	commonHorns: commonHorns
 };

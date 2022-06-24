@@ -1533,12 +1533,16 @@ SET @product_id := (SELECT id FROM products WHERE product='2-piece UHF Tag' AND 
 INSERT INTO product_discounts(coupon_code,product,discount_percentage)
 VALUES ("USCT",@product_id,20);
 
+/* Rohan Sureshkumar 6/8/2022 */
+ALTER TABLE `matches` 
+ADD COLUMN `zip` VARCHAR(12) NULL DEFAULT NULL AFTER `data`;
+
 /* Nisheet Thakur  06/09/2022*/
 ALTER TABLE `sales_groups`
-ADD COLUMN `category` VARCHAR(127) NOT NULL,
+ADD COLUMN `category` VARCHAR(100) NOT NULL,
 ADD COLUMN `breed_comments` VARCHAR(200) NULL DEFAULT NULL,
 ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 
-/* Rohan Sureshkumar 8/6/2022 */
-ALTER TABLE `matches` 
-ADD COLUMN `zip` VARCHAR(12) NULL DEFAULT NULL AFTER `data`;
+/* Nisheet Thakur 06/23/2022 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;
