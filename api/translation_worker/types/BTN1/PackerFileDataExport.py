@@ -118,8 +118,8 @@ def handle(db, insert):
 
     # Ribeye Area.
     packer_data = {}
-    if "RibEyeArea" in fields and fields["RibEyeArea"] and float(fields["RibEyeArea"]) != 0:
-        packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
+    if "RibeyeArea" in fields and fields["RibeyeArea"] and float(fields["RibeyeArea"]) != 0:
+        packer_data["RibeyeArea"] = float(fields["RibEyeArea"])
 
     # Marbling Score
     if "MarblingScore" in fields and fields["MarblingScore"] and int(fields["MarblingScore"]) != 0:
