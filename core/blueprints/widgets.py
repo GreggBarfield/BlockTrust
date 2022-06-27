@@ -26,6 +26,8 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
 
+from ..reports.query_types import count_eid_distinct
+
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
@@ -92,7 +94,8 @@ def serve_sales_group():
         "accept_offers": sales_group_row["accept_offers"],
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
-        "weighing_conditions": sales_group_row["weighing_conditions"]
+        "weighing_conditions": sales_group_row["weighing_conditions"],
+        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
     }
 
 
@@ -168,6 +171,7 @@ def serve_search_sales_groups_2():
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
             "published": sales_group_row["published"],
+            "group_name": sales_group_row["group_name"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
@@ -196,7 +200,8 @@ def serve_search_sales_groups_2():
             "accept_offers": sales_group_row["accept_offers"],
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
-            "weighing_conditions": sales_group_row["weighing_conditions"]
+            "weighing_conditions": sales_group_row["weighing_conditions"],
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
         })
 
     return {
@@ -268,7 +273,8 @@ def serve_create_sales_group():
         price=request.json["price"],
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
-        weighing_conditions=request.json["weighing_conditions"]
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -323,7 +329,8 @@ def serve_update_sales_group():
         price=request.json["price"],
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
-        weighing_conditions=request.json["weighing_conditions"]
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
 
     return {
@@ -609,6 +616,20 @@ def serve_get_sustainability_timeline_data():
             'timeline_data': data,
             'order': ordering
         }, 200
+
+
+@bp.route('/widgets/data/get_employee_summary_graphs_data', methods=['POST'])
+@crut.require_employee
+def get_employee_summary_graphs_data():
+    ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
+    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
+    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "create_timestamp"])
+    return {
+        "ranches": ranches,
+        "feedyards": feedyards,
+        "tags_count_list": tags_count_list
+    }
+
 
 @bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
 @crut.require_account

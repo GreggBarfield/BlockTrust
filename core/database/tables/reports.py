@@ -20,6 +20,8 @@ REPORT_STATUS = {
     "Error": 4,  # Note that errors may also be uncaught, leading to infinite running
 }
 
+report_cols = ("id", "account_id", "priority", "query", "result", "status", "fulfilled", "create_timestamp", "last_updated_timestamp")
+
 class Reports:
     """Model for reports.
 
@@ -182,6 +184,9 @@ class Reports:
         """Generic get report routine
 
         """
+        for selectColumn in selectColumns:
+            if selectColumn not in report_cols:
+                raise Exception("selectColumn " + selectColumn + " does not exist")
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)
         else:
