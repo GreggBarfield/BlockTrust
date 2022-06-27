@@ -237,6 +237,7 @@ export class SalesGroupViewer {
             addInfo("Implants", this.formatData(this.data.reported.implants), animalBody);
             addInfo("Castrated", this.formatData(this.data.reported.castrated), animalBody);
             addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
+            addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
             addInfo("PVP Program", this.formatData(this.data.reported.process_verified_program), animalBody);
         }
