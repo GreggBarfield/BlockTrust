@@ -10,11 +10,6 @@ from core.database.database import Database
 from core.config import (MYSQL_CONFIG)
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
-from flask import Flask
-import os
-
-__name__ = "scheduled_jobs.main"
-app = Flask(__name__)
 
 try:
     scheduled_jobs = {
@@ -67,14 +62,13 @@ try:
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 4 and 5 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
+        if datetime.time(4, 0, 0) <= current_time < datetime.time(5, 0, 0):
             if not any(t.getName() == "Emails" for t in threads):
-                with app.app_context():
-                    job_run_id = JobRuns(db).insert("Emails", scheduled_jobs["Emails"].split('|')[0], scheduled_jobs["Emails"].split('|')[1])
-                    t = Thread(target=run_email_tasks, name="Emails", args=[job_run_id, Database(MYSQL_CONFIG)])
-                    t.start()
-                    threads.append(t)
-                    print('Main: appended thread Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
+                job_run_id = JobRuns(db).insert("Emails", scheduled_jobs["Emails"].split('|')[0], scheduled_jobs["Emails"].split('|')[1])
+                t = Thread(target=run_email_tasks, name="Emails", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 7 and 8 AM
         # if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):

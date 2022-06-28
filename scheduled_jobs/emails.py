@@ -1,8 +1,6 @@
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.emails import Emails
-from core.utilities.email import send_email
-from core.renderers.email import render_email
 import traceback
 import datetime
 import time
