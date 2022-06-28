@@ -171,7 +171,7 @@ class Files:
             ClientMethod="get_object",
             Params={
                 "Bucket": config.AWS_S3_BUCKET,
-                "Key": "files/images/" + image_folder_name + "/" + str(image_name)
+                "Key": "files/images/" + image_folder_name + "/" + image_name
             },
             ExpiresIn=expires_in,
         )
