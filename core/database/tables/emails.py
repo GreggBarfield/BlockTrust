@@ -2,7 +2,6 @@ import json
 from ..no_value import NoValue
 from .users import Users
 from ...utilities.email import send_email
-from ...renderers.email import render_email
 
 
 NO_VALUE = NoValue()
