@@ -446,6 +446,7 @@ class Matches:
 
         Params:
             account_id: The account to generate data on
+            number_of_years: Age of records
 
         Returns:
             The array of distinct eids

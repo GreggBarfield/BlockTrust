@@ -26,7 +26,7 @@ API_MYSQL_CONFIG = (
     config_file["mysql"] if config_file["api_mysql"] == "same"
     else config_file["api_mysql"]
 )
-API_DEV_MYSQL_CONFIG = config_file["api_dev_mysql"]
+DEV_MYSQL_CONFIG = config_file["dev_mysql"]
 
 AWS_S3_BUCKET = config_file["aws"]["s3"]["bucket"]
 AWS_S3_REGION_NAME = config_file["aws"]["s3"]["region_name"]
