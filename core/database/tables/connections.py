@@ -1,5 +1,9 @@
 from .accounts import Accounts
 from .. import database
+from ..no_value import NoValue
+
+NO_VALUE = NoValue()
+auction_market_cols = ("id", "name", "address", "city", "state", "zip_code", "email", "phone", "is_archived")
 
 connection_status = {
     "Pending": 0,
@@ -159,3 +163,56 @@ class Connections:
         if len(unconnected_accounts) > 0:
             return unconnected_accounts
         return []
+
+    def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
+                        to_account_name=NO_VALUE, status=NO_VALUE):
+        """
+        Gets the connections based on the provided parameters
+
+        Params:
+            id: Connection table ID
+            from_account_id: Account ID of first account
+            to_account_id: Account ID of second account
+            from_account_name: Account name of first account
+            to_account_name: Account name of second account
+            status: Connection status between accounts
+
+        Returns:
+            A list of connections or and empty list
+        """
+        base_query = "SELECT * FROM connections"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append(" id = %(id)s")
+            query_values["id"] = id
+        if from_account_id is not NO_VALUE:
+            query_conditions.append(" from_account_id = %(from_account_id)s")
+            query_values["from_account_id"] = from_account_id
+        if to_account_id is not NO_VALUE:
+            query_conditions.append(" to_account_id = %(to_account_id)s")
+            query_values["to_account_id"] = to_account_id
+        if from_account_name is not NO_VALUE:
+            query_conditions.append(" from_account_name = %(from_account_name)s")
+            query_values["from_account_name"] = from_account_name
+        if to_account_name is not NO_VALUE:
+            query_conditions.append(" to_account_name = %(to_account_name)s")
+            query_values["to_account_name"] = to_account_name
+        if status is not NO_VALUE:
+            query_conditions.append(" status = %(status)s")
+            query_values["status"] = status
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        connection_rows = self._db.execute_d(query, query_values)
+        if len(connection_rows) > 0:
+            return connection_rows
+        else:
+            return []

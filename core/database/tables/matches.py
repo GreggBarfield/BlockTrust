@@ -339,7 +339,7 @@ class Matches:
 
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
-        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None, zip=None
     ):
         """Insert a new row into matches.
 
@@ -359,10 +359,10 @@ class Matches:
 
         self._db.execute(
             """INSERT INTO matches
-                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash, zip)
                 VALUES
                     (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
-                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s, %(zip)s
                     )
             """,
             {
@@ -380,7 +380,8 @@ class Matches:
                 "debug": None if debug is None else json.dumps(debug),
                 "api_insert": api_insert,
                 "bc_transaction_id": bc_transaction_id,
-                "bc_hash": bc_hash
+                "bc_hash": bc_hash,
+                "zip": zip
             }
         )
 
@@ -445,6 +446,7 @@ class Matches:
 
         Params:
             account_id: The account to generate data on
+            number_of_years: Age of records
 
         Returns:
             The array of distinct eids

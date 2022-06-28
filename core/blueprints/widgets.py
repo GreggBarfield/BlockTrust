@@ -16,13 +16,16 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.sales_group_offers import SalesGroupOffers, offer_status_by_name
-
+from ..database.tables.account_users import AccountUsers
+from ..database.tables.users import Users
 from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
 
 from ..database.const.spatial_math import meters_to_miles, distance
 from ..database.const.zip_codes_data import ZIP_CODES
+
+from ..reports.query_types import count_eid_distinct
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
@@ -86,7 +89,11 @@ def serve_sales_group():
         "company": g.account.name(),
         "is_archived": sales_group_row["is_archived"],
         "price": sales_group_row["price"],
-        "is_sold": sales_group_row["is_sold"]
+        "is_sold": sales_group_row["is_sold"],
+        "category": sales_group_row["category"],
+        "breed_comments": sales_group_row["breed_comments"],
+        "weighing_conditions": sales_group_row["weighing_conditions"],
+        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
     }
 
 
@@ -148,6 +155,7 @@ def serve_search_sales_groups_2():
         start=time.time(),
         end=9999999999,
         is_archived=0,
+        category=request.json["search"]["category"],
         breed=request.json["search"]["breed"],
         minimum_weight=request.json["search"]["minimum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
@@ -161,6 +169,7 @@ def serve_search_sales_groups_2():
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
             "published": sales_group_row["published"],
+            "group_name": sales_group_row["group_name"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
@@ -185,7 +194,11 @@ def serve_search_sales_groups_2():
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
             "is_sold": sales_group_row["is_sold"],
-            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"]
+            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+            "category": sales_group_row["category"],
+            "breed_comments": sales_group_row["breed_comments"],
+            "weighing_conditions": sales_group_row["weighing_conditions"],
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
         })
 
     return {
@@ -225,10 +238,8 @@ def serve_create_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
@@ -255,7 +266,11 @@ def serve_create_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -279,10 +294,8 @@ def serve_update_sales_group():
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
         weight_variance=request.json["reported"]["weight_variance"],
+        category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        usda_frame_size=request.json["reported"]["usda_frame_size"],
-        muscling=request.json["reported"]["muscling"],
-        horns=request.json["reported"]["horns"],
         start=request.json["start"],
         end=request.json["end"],
         auction_sale=request.json["auction_sale"],
@@ -308,7 +321,11 @@ def serve_update_sales_group():
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
-        price=request.json["price"]
+        price=request.json["price"],
+        category=request.json["category"],
+        breed_comments=request.json["breed_comments"],
+        weighing_conditions=request.json["weighing_conditions"],
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
     )
 
     return {
@@ -595,6 +612,20 @@ def serve_get_sustainability_timeline_data():
             'order': ordering
         }, 200
 
+
+@bp.route('/widgets/data/get_employee_summary_graphs_data', methods=['POST'])
+@crut.require_employee
+def get_employee_summary_graphs_data():
+    ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
+    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
+    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "create_timestamp"])
+    return {
+        "ranches": ranches,
+        "feedyards": feedyards,
+        "tags_count_list": tags_count_list
+    }
+
+
 @bp.route('/widgets/data/get_usda_favorites_for_account', methods=['POST'])
 @crut.require_account
 def serve_get_usda_favorites():
@@ -646,6 +677,15 @@ def serve_add_connection_request():
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
             Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
+                if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
+                    send_email(
+                        "BlockTrust Network New Connection Request",
+                        render_email("new_account_connection_request.html", {
+                            'connection_receiving_user': email_verified_admin_user[0],
+                            'requesting_account': g.account
+                        }), email_verified_admin_user[0]["email"]
+                    )
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
@@ -710,6 +750,7 @@ def serve_save_eids_by_application_id():
     SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
     return {"redirect": "/dashboard/sales-groups/manage"}
+
 
 @bp.route('/widgets/data/get_sales_groups_offers', methods=["POST"])
 @crut.require_account
