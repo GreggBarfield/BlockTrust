@@ -156,7 +156,7 @@ class Files:
         return auths
 
     def get_image_url(self, image_folder_name, image_name, expires_in=3600):
-        """Gets a signed URL to a file by the ID.
+        """Gets a signed URL to an image by the folder name and file name.
 
         Params:
             image_folder_name: Name of Image folder
