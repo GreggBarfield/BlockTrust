@@ -203,15 +203,15 @@ class Emails:
                 if len(user_rows) == 1:
                     user_row = user_rows[0]
                     if user_row["is_email_verified"] == 1:
-                        email_variables = json.loads(unprocessed_email["variables"])
-                        email_variables["body"] = unprocessed_email["body"]
+                        # We are unable to user render_email as of now. Hence email_variables will not be required
+                        # TO-DO: Work on solution to use render_template outside Flask application context
+                        # email_variables = json.loads(unprocessed_email["variables"])
                         send_email(
                             unprocessed_email["subject"],
-                            "test body",
+                            unprocessed_email["body"],
                             # user_row["email"]
                             "nisheet.thakur@blocktrustnetwork.com"
                             )
                         self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Processed"])
             except Exception as e:
-                print(str(e))
                 self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Failed"])

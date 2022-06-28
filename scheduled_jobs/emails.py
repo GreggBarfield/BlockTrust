@@ -10,13 +10,7 @@ import time
 
 def run_email_tasks(job_run_id, db):
     try:
-        # Emails(db).process_pending_emails()
-        send_email(
-                    "BlockTrust Network Email Confirmation",
-                    render_email("verification_email.html", {
-                        'confirm_url': "This is a test"
-                    }), "nisheet.thakur@blocktrustnetwork.com"
-        )
+        Emails(db).process_pending_emails()
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Emails Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:

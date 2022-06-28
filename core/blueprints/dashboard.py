@@ -576,7 +576,7 @@ def serve_view_notification(notification_id):
 def serve_insertmatchemail():
     Emails(g.db).insert_email(
         user_id=g.user.id(),
-        subject="test subject",
+        subject="Congratulations, match found!",
         body="Congratulations, one or more of your cattle has been matched in the beef supply chain. Go to your account to see details.",
         variables={"account_name": "test"},
         template_name="match_found.html",
