@@ -154,3 +154,24 @@ class Files:
                 "name": file_row["name"]
             }
         return auths
+
+    def get_image_url(self, image_folder_name, image_name, expires_in=3600):
+        """Gets a signed URL to a file by the ID.
+
+        Params:
+            image_folder_name: Name of Image folder
+            image_name: Name of Image file
+            expires_in: The number of seconds before the link is no longer available
+                (default 1 hour (3600))
+
+        Returns:
+            Presigned URL of required image
+        """
+        return aws.get_s3_client().generate_presigned_url(
+            ClientMethod="get_object",
+            Params={
+                "Bucket": config.AWS_S3_BUCKET,
+                "Key": "files/images/" + image_folder_name + "/" + str(image_name)
+            },
+            ExpiresIn=expires_in,
+        )

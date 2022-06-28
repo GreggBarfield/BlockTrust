@@ -3,6 +3,7 @@ from flask import (
 )
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
+from ..database.tables.files import Files
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException
 from ..database.tables.product_vendors import ProductVendors
@@ -19,6 +20,9 @@ bp = Blueprint('shop_bp', __name__)
 @bp.route('/external/shop/<int:partner_id>', methods=['GET'])
 def serve_partner_shop(partner_id):
     allProductData = g.db.products.get_products(partner=partner_id)
+    for product in allProductData:
+        product["pic_1_url"] = Files(g.db).get_image_url("shop", product["pic_1"])
+        product["pic_2_url"] = Files(g.db).get_image_url("shop", product["pic_2"])
     productCategories = ProductCategories(g.db).get_product_categories()
     return outside_render('shop-iframe/shop-homepage.html', {
         "allProductData": allProductData,
