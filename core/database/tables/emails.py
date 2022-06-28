@@ -209,8 +209,7 @@ class Emails:
                         send_email(
                             unprocessed_email["subject"],
                             unprocessed_email["body"],
-                            # user_row["email"]
-                            "nisheet.thakur@blocktrustnetwork.com"
+                            user_row["email"]
                             )
                         self.update_emails(id=unprocessed_email["id"], is_processed=email_processing_status_by_name["Processed"])
             except Exception as e:
