@@ -202,9 +202,7 @@ class Emails:
                 if len(user_rows) == 1:
                     user_row = user_rows[0]
                     if user_row["is_email_verified"] == 1:
-                        # We are unable to user render_email as of now. Hence email_variables will not be required
                         # TO-DO: Work on solution to use render_template outside Flask application context
-                        # email_variables = json.loads(unprocessed_email["variables"])
                         send_email(
                             unprocessed_email["subject"],
                             unprocessed_email["body"],
