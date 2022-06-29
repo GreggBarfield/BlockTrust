@@ -1,5 +1,7 @@
 from ..objects.product import Product
 from ..no_value import NoValue
+from ... import config
+from ...utilities.aws import aws
 
 NO_VALUE = NoValue()
 
@@ -27,7 +29,7 @@ class ProductTable:
 
     def get_products(self, id=NO_VALUE, product=NO_VALUE, pic_1=NO_VALUE, pic_2=NO_VALUE, price=NO_VALUE, post=NO_VALUE,
                      subheader=NO_VALUE, details=NO_VALUE, unit=NO_VALUE, partner=NO_VALUE,
-                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE):
+                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE, include_images=False):
         """
         Gets the product based on the attributes provided
 
@@ -100,6 +102,24 @@ class ProductTable:
 
         product_rows = self._db.execute_d(query, query_values)
         if len(product_rows) > 0:
+            if include_images is True:
+                for product_row in product_rows:
+                    product_row["pic_1_url"] = aws.get_s3_client().generate_presigned_url(
+                        ClientMethod="get_object",
+                        Params={
+                            "Bucket": config.AWS_S3_BUCKET,
+                            "Key": "products/images/" + product_row["pic_1"]
+                        },
+                        ExpiresIn=3600,
+                    )
+                    product_row["pic_2_url"] = aws.get_s3_client().generate_presigned_url(
+                        ClientMethod="get_object",
+                        Params={
+                            "Bucket": config.AWS_S3_BUCKET,
+                            "Key": "products/images/" + product_row["pic_2"]
+                        },
+                        ExpiresIn=3600,
+                    )
             return product_rows
         else:
             return []
