@@ -18,7 +18,6 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.users import UsersException
-from ..database.tables.scheduled_emails import ScheduledEmails, scheduled_email_status_name_to_id, scheduled_email_name_to_subject
 
 from ..renderers.email import render_email
 
