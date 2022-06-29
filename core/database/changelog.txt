@@ -1511,14 +1511,16 @@ SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag')
 UPDATE `products` SET `is_active`=0 WHERE id=@product_id;
 
 /* Nisheet Thakur 5/2/2022 */
-CREATE TABLE `emails` (
+CREATE TABLE `scheduled_emails` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `subject` VARCHAR(100) NULL,
   `body` VARCHAR(3000) NULL,
   `variables` JSON NULL,
   `template_name` VARCHAR(100) NULL,
-  `is_processed` TINYINT DEFAULT '0',
+  `status_id` TINYINT DEFAULT '0',
+  `error_details` VARCHAR(3000) DEFAULT NULL,
+  `sent_date_time` DATETIME DEFAULT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)

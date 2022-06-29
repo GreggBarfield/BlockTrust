@@ -1,6 +1,6 @@
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
-from core.database.tables.emails import Emails
+from core.database.tables.scheduled_emails import ScheduledEmails
 import traceback
 import datetime
 import time
@@ -8,7 +8,7 @@ import time
 
 def run_email_tasks(job_run_id, db):
     try:
-        Emails(db).process_pending_emails()
+        ScheduledEmails(db).process_pending_emails()
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Emails Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
