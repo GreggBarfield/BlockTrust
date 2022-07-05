@@ -17,6 +17,7 @@ scheduled_email_status_id_to_name = {
     for key, value in scheduled_email_status_name_to_id.items()
 }
 scheduled_email_name_to_subject = {"MATCH FOUND": "Congratulations, match found!"}
+scheduled_email_name_to_body = {"MATCH FOUND": "Congratulations, one or more of your cattle has been matched in the beef supply chain. Go to your account to see details"}
 
 
 class ScheduledEmails:
