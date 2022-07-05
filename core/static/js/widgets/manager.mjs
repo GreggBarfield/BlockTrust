@@ -34,6 +34,7 @@ import { SummaryGraphWidget } from './types/employee/summary_graphs.mjs';
 import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
 import { SelectEIDsByGroupingIDWidget } from './types/sales_groups/select_eids_by_grouping_id_widget.mjs';
 import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
+import { RevisedCowCalfQuestionnaireWidget } from "./types/sustainability/revised/revised_cow_calf_questionnaire_widget.mjs"
 
 
 // Immediately invoked
@@ -84,6 +85,7 @@ import { AddConnectionsWidget } from './types/connections/add_connections_widget
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
+    attach("revised cow calf questionnaire", RevisedCowCalfQuestionnaireWidget)
 
     // Find widgets
     $(".widget").each(function () {

@@ -569,3 +569,9 @@ def serve_select_eids_by_application_id(sales_group_id):
 @crut.require_account
 def send_document(path):
     return send_from_directory('static/files/dashboard/', path)
+
+
+@bp.route("/dashboard/sustainability/questionnaire", methods=["GET"])
+@crut.require_account
+def serve_sustainability_questionnaire():
+    return dashboard_render("sustainability/revised-questionnaire.html")
