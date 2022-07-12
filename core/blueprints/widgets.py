@@ -750,3 +750,8 @@ def serve_save_eids_by_application_id():
     SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
     return {"redirect": "/dashboard/sales-groups/manage"}
+
+@bp.route('/widgets/data/save_new_cow_calf_sustainability', methods=["POST"])
+def serve_save_new_cow_calf_sustainability():
+    # print(request.json)
+    return {"redirect": "/dashboard/sustainability"}
