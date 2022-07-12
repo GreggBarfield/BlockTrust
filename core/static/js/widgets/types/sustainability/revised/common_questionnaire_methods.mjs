@@ -118,9 +118,6 @@ export class CommonQuestionnaireMethods{
         sectionHeaderText.textContent = questionsSectionHeaderText;
         sectionHeader.append(sectionHeaderText);
         
-        let sectionBody = document.createElement("div");
-        sectionBody.className = "card-body";
-        //section.append(sectionBody);
         return section;
     }
 }
