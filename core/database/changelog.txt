@@ -1562,3 +1562,25 @@ ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 /* Nisheet Thakur 06/23/2022 */
 ALTER TABLE `sales_groups`
 ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;
+
+/* Rohan Sureshkkumar 07/04/2022 */
+ALTER TABLE `scheduled_emails` 
+ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `user_id`;
+
+ALTER TABLE `scheduled_emails`
+ADD INDEX `fk_scheduled_emails_user_id_id_users_idx` (`user_id` ASC) VISIBLE;
+ALTER TABLE `scheduled_emails` 
+ADD CONSTRAINT `fk_scheduled_emails_user_id_id_users`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `scheduled_emails`
+ADD INDEX `fk_scheduled_emails_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `scheduled_emails` 
+ADD CONSTRAINT `fk_scheduled_emails_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+

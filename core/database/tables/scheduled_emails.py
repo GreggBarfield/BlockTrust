@@ -6,17 +6,26 @@ from datetime import datetime
 
 
 NO_VALUE = NoValue()
-email_cols = ("id", "user_id", "subject", "body", "variables", "template_name", "status_id", "error_details", "sent_date_time")
-scheduled_email_status_name_to_id = {
+
+SCHEDULED_EMAIL_COLUMNS = ("id", "user_id", "account_id" "subject", "body", "variables", "template_name", "status_id", "error_details", "sent_date_time")
+
+SCHEDULED_EMAIL_STATUS_NAME_TO_ID = {
     "Not Sent": 0,
     "Sent": 1,
     "Error": 2
 }
-scheduled_email_status_id_to_name = {
+
+SCHEDULED_EMAIL_STATUS_ID_TO_NAME = {
     value: key
-    for key, value in scheduled_email_status_name_to_id.items()
+    for key, value in SCHEDULED_EMAIL_STATUS_NAME_TO_ID.items()
 }
-scheduled_email_name_to_subject = {"MATCH FOUND": "Congratulations, match found!"}
+
+EMAILS = {
+    "MATCH FOUND": {
+        "SUBJECT": "Congratulations, match found!",
+        "BODY": "Congratulations, one or more of your cattle has been matched in the beef supply chain. Go to your account to see details"
+    }
+}
 
 
 class ScheduledEmails:
@@ -24,10 +33,10 @@ class ScheduledEmails:
     def __init__(self, db):
         self._db = db
 
-    def get_scheduled_emails(self, id=NO_VALUE, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE,
+    def get_scheduled_emails(self, id=NO_VALUE, user_id=NO_VALUE, account_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, 
                              template_name=NO_VALUE, status_id=NO_VALUE, error_details=NO_VALUE,
                              sent_date_time=NO_VALUE, scheduled_emails_order_by=NO_VALUE,
-                             scheduled_emails_sort_by=NO_VALUE, email_scheduled_in_the_past_x_days=0):
+                             scheduled_emails_sort_by=NO_VALUE, sent_date=NO_VALUE):
         """
         Gets the scheduled emails based on attributes provided
 
@@ -56,6 +65,9 @@ class ScheduledEmails:
         if user_id is not NO_VALUE:
             query_conditions.append(" user_id = %(user_id)s")
             query_values["user_id"] = user_id
+        if account_id is not NO_VALUE:
+            query_conditions.append(" account_id = %(account_id)s")
+            query_values["account_id"] = account_id
         if subject is not NO_VALUE:
             query_conditions.append(" subject = %(subject)s")
             query_values["subject"] = subject
@@ -74,12 +86,12 @@ class ScheduledEmails:
         if sent_date_time is not NO_VALUE:
             query_conditions.append(" sent_date_time = %(sent_date_time)s")
             query_values["sent_date_time"] = sent_date_time
-        if email_scheduled_in_the_past_x_days > 0:
-            query_conditions.append(" DAY(created_timestamp) > DAY(current_date())-%(email_scheduled_in_the_past_x_days)s")
-            query_values["email_scheduled_in_the_past_x_days"] = email_scheduled_in_the_past_x_days
+        if sent_date is not NO_VALUE:
+            query_conditions.append(" DATE(sent_date_time) = %(sent_date)s")
+            query_values["sent_date"] = sent_date
 
         if scheduled_emails_order_by is not NO_VALUE:
-            if scheduled_emails_order_by not in email_cols:
+            if scheduled_emails_order_by not in SCHEDULED_EMAIL_COLUMNS:
                 raise Exception("scheduled_emails_order_by column doesn't exist")
             order_by_clause = "ORDER BY " + scheduled_emails_order_by
             if scheduled_emails_sort_by is not NO_VALUE:
@@ -100,8 +112,8 @@ class ScheduledEmails:
         else:
             return []
 
-    def insert_scheduled_email(self, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, variables=NO_VALUE,
-                               template_name=NO_VALUE, status_id=NO_VALUE):
+    def insert_scheduled_email(self, user_id=None, account_id=None, subject=None, body=None, variables=None,
+                               template_name=None, status_id=None):
         """
         Inserts a new scheduled email to be sent out
 
@@ -115,20 +127,21 @@ class ScheduledEmails:
         """
         self._db.execute(
             """
-            INSERT INTO scheduled_emails (user_id, subject, body, variables, template_name, status_id)
-            VALUES (%(user_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(status_id)s)
+            INSERT INTO scheduled_emails (user_id, account_id, subject, body, variables, template_name, status_id)
+            VALUES (%(user_id)s, %(account_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(status_id)s)
             """,
             {
                 "user_id": user_id,
+                "account_id": account_id,
                 "subject": subject,
                 "body": body,
-                "variables": json.dumps(variables),
+                "variables": json.dumps(variables) if variables is not None else None,
                 "template_name": template_name,
                 "status_id": status_id
             }
         )
 
-    def update_scheduled_emails(self, id, user_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, template_name=NO_VALUE,
+    def update_scheduled_emails(self, id, user_id=NO_VALUE, account_id=NO_VALUE, subject=NO_VALUE, body=NO_VALUE, template_name=NO_VALUE,
                                 variables=NO_VALUE, status_id=NO_VALUE, error_details=NO_VALUE, sent_date_time=NO_VALUE):
         """
         Updates a scheduled email row
@@ -151,6 +164,9 @@ class ScheduledEmails:
         if user_id is not NO_VALUE:
             query_conditions.append(" user_id = %(user_id)s")
             query_values["user_id"] = user_id
+        if account_id is not NO_VALUE:
+            query_conditions.append(" account_id = %(account_id)s")
+            query_values["account_id"] = account_id
         if subject is not NO_VALUE:
             query_conditions.append(" subject = %(subject)s")
             query_values["subject"] = subject
@@ -184,20 +200,19 @@ class ScheduledEmails:
         """
         Checks for unsent emails in the table and sends out an email marking it as sent 
         """
-        unprocessed_emails = self.get_scheduled_emails(status_id=scheduled_email_status_name_to_id["Not Sent"])
+        unprocessed_emails = self.get_scheduled_emails(status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"])
         for unprocessed_email in unprocessed_emails:
             try:
                 user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
                 if len(user_rows) == 1:
                     user_row = user_rows[0]
-                    # TO-DO: Work on solution to use render_template outside Flask application context
                     send_email(
                         unprocessed_email["subject"],
                         unprocessed_email["body"],
                         user_row["email"]
                     )
-                    self.update_scheduled_emails(id=unprocessed_email["id"], status_id=scheduled_email_status_name_to_id["Sent"], sent_date_time=datetime.now())
+                    self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Sent"], sent_date_time=datetime.now())
                 else:
                     raise Exception("User not found or has an unverified email")
             except Exception as e:
-                self.update_scheduled_emails(id=unprocessed_email["id"], status_id=scheduled_email_status_name_to_id["Error"], error_details=str(e))
+                self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Error"], error_details=str(e))
