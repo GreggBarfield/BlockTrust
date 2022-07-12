@@ -2,12 +2,14 @@ import time as time_module
 import json
 from core.database.no_value import NoValue
 from ..frag import frag
-from .match_types import MatchTypes
 from core.match_types import match_types_by_name
+from core.sectors import sectors_by_name
+from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
 NO_VALUE = NoValue()
+
 
 class MatchesException(Exception):
     """Matches generic exception."""
@@ -32,10 +34,10 @@ class Matches:
     )
 
     def __init__(self, db):
-        self.types = MatchTypes(self)
         self._db = db
+        self.types = MatchTypes(self)
         self._match_cols = ("id", "partner_account", "account_link", "eid", "visual_id", "grouping_id", "lat", "lon", "time", "created", "type"
-        "data", "bc_transaction_id", "bc_hash", "bc_upload")
+         "data", "bc_transaction_id", "bc_hash", "bc_upload")
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -446,6 +448,7 @@ class Matches:
 
         Params:
             account_id: The account to generate data on
+            number_of_years: Age of records
 
         Returns:
             The array of distinct eids
@@ -720,3 +723,222 @@ class Matches:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
         return rows
+
+
+class MatchTypes:
+    """Helpers for handling matches, specifically relating to various types.
+
+    In general, **kwargs indicates:
+        account, eid, lat, lon, 
+
+    """
+
+    def __init__(self, matches: 'Matches'):
+        self._matches = matches
+        self._db = matches._db
+
+    def insert_sighting(self, **kwargs):
+        """Insert a sighting match.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        match = self._matches.get_matches(eid=kwargs["eid"], restrict_type=match_types_by_name["Sighting"],
+                                        account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
+        if len(match) > 0:
+            print("Sighting match exists. Match ID: ", match[0]["id"])
+        else:
+            self._generic_insert(
+                type_int=match_types_by_name["Sighting"],
+                **kwargs
+            )
+
+    def insert_weaned(self, **kwargs):
+        """Insert a 'weaned' match.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Weaned"],
+            **kwargs
+        )
+
+    def insert_hot_weight(self, weight, **kwargs):
+        """Insert a hot weight record (from the packer).
+
+        Params:
+            weight: The weight in pounds (number)
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Hot Weight"],
+            data=float(weight),
+            **kwargs
+        )
+
+    def insert_born(self, **kwargs):
+        """Insert a born record.
+
+        Params:
+            kwargs: See _generic_insert
+                Recommended: time
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Born"],
+            **kwargs
+        )
+
+    def insert_usda_yield_grade(self, grade, **kwargs):
+        """Insert a yield grade record.
+
+        Params:
+            grade: The yield grade (number)
+            kwargs: See _generic_insert
+        """
+        assert isinstance(grade, (float, int))
+
+        self.schedule_match_found_email(kwargs["eid"])
+
+        self._generic_insert(
+            type_int=match_types_by_name["USDA Yield Grade"],
+            data=grade,
+            **kwargs
+        )
+
+    def insert_usda_quality_grade(self, grade, **kwargs):
+        """Insert a quality grade record.
+
+        Params:
+            grade: The quality grade (string)
+            kwargs: See _generic_insert
+        """
+        assert isinstance(grade, str)
+        self._generic_insert(
+            type_int=match_types_by_name["USDA Quality Grade"],
+            data=grade,
+            **kwargs
+        )
+
+    def insert_medical(self, time, data, **kwargs):
+        """Insert a medical record.
+
+        Params:
+            time: The time the medical event occurred (unix)
+            data: A dictionary of medical data.
+                product
+                location
+                symptom
+                method
+                fatal
+                category
+            kwargs: See _generic_insert
+        """
+        if not isinstance(data, dict):
+            raise ValueError("data should be a dictionary")
+        if time is None:
+            raise ValueError("time should not be None")
+        self._generic_insert(
+            type_int=match_types_by_name["Medical"],
+            time=time,
+            data=data,
+            **kwargs
+        )
+
+    def insert_railed(self, **kwargs):
+        """Insert a railed record.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Railed"],
+            **kwargs
+        )
+
+    def insert_packer(self, packer_str, **kwargs):
+        """Insert a packer record.
+
+        Params:
+            packer_str: Temporary string format, see FeederResultsCSV
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Packer"],
+            data=packer_str,
+            **kwargs
+        )
+
+    def insert_died(self, reason, **kwargs):
+        """Insert a died record.
+
+        Params:
+            reason: String or None
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Died"],
+            data=reason,
+            **kwargs
+        )
+
+    def insert_sold(self, **kwargs):
+        """Insert a sold record.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Sold"],
+            **kwargs
+        )
+
+    def _generic_insert(
+        self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
+        lon=None, time=None, debug=None, api_insert=None, zip=None
+    ):
+        """Passes data to Matches.insert
+
+        Params:
+            data: json-serializable data
+        """
+        match = self._matches.get_matches(eid=eid, visual_id=visual_id, restrict_type=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
+                                          account_link=account_link, lat=lat, lon=lon, time=time, selectColumns=["id"])
+        if len(match) > 0:
+            print("Match exists. Match ID: ", match[0]["id"])
+        else:
+            # Insert a match only if match doesn't already exist
+            self._matches.insert(
+                eid=eid,
+                visual_id=visual_id,
+                type_int=type_int,
+                grouping_id=grouping_id,
+                data=data,
+                partner_account=partner_account,
+                account_link=account_link,
+                lat=lat,
+                lon=lon,
+                time=time,
+                zip=zip,
+                debug=debug,
+                api_insert=api_insert
+            )
+
+    def schedule_match_found_email(self, eid):
+        if len(sightings := self._matches.get_matches_with_account_links(
+            matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
+            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created"
+        )) > 0:
+            owner_match_account_link = sightings[0]
+            scheduled_emails_data_access = ScheduledEmails(self._db)
+            # if same email is not yet to be sent, add the scheduled email. Scheduled emails are processed once a day.
+            if len(scheduled_emails_data_access.get_scheduled_emails(
+                subject=EMAILS["MATCH FOUND"]["SUBJECT"],
+                status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+            )) == 0:
+                if len(match_account_admin_users := self._db.account_users.get_account_users(account=owner_match_account_link["account"], is_admin=1)) > 0:
+                    if len(user := self._db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
+                        scheduled_emails_data_access.insert_scheduled_email(
+                            user_id=user[0]["id"], account_id=owner_match_account_link["account"], subject=EMAILS["MATCH FOUND"]["SUBJECT"],
+                            body=EMAILS["MATCH FOUND"]["BODY"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+                        )

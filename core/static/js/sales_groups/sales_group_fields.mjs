@@ -164,9 +164,15 @@ let commonHorns = [
 
 let commonVaccinations = [
 	"Not Applicable",
-	"Covexin 8",
-	"One Shot BVD",
-	"Infor"
+	"Blackleg",
+	"H. Somnus",
+	"Pasturella",
+	"4-way virus (MLV)",
+	"4-way virus (Killed)",
+	"5-way virus (MLV)",
+	"5-way virus (Killed)",
+	"Internal Parasites",
+	"External Parasites"
 ];
 
 let commonDeliveryLocationTypes = [

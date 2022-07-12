@@ -18,7 +18,7 @@ bp = Blueprint('shop_bp', __name__)
 
 @bp.route('/external/shop/<int:partner_id>', methods=['GET'])
 def serve_partner_shop(partner_id):
-    allProductData = g.db.products.get_products(partner=partner_id)
+    allProductData = g.db.products.get_products(partner=partner_id, include_images=True)
     productCategories = ProductCategories(g.db).get_product_categories()
     return outside_render('shop-iframe/shop-homepage.html', {
         "allProductData": allProductData,
