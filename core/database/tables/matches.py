@@ -5,6 +5,7 @@ from ..frag import frag
 from core.match_types import match_types_by_name
 from core.sectors import sectors_by_name
 from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
+from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
@@ -798,8 +799,6 @@ class MatchTypes:
         """
         assert isinstance(grade, (float, int))
 
-        self.schedule_match_found_email(kwargs["eid"])
-
         self._generic_insert(
             type_int=match_types_by_name["USDA Yield Grade"],
             data=grade,
@@ -907,6 +906,8 @@ class MatchTypes:
         if len(match) > 0:
             print("Match exists. Match ID: ", match[0]["id"])
         else:
+            if type_int == match_types_by_name["USDA Yield Grade"]:
+                self.schedule_match_found_email(eid)
             # Insert a match only if match doesn't already exist
             self._matches.insert(
                 eid=eid,
@@ -937,8 +938,14 @@ class MatchTypes:
                 status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
             )) == 0:
                 if len(match_account_admin_users := self._db.account_users.get_account_users(account=owner_match_account_link["account"], is_admin=1)) > 0:
-                    if len(user := self._db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
+                    if len(users := self._db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
                         scheduled_emails_data_access.insert_scheduled_email(
-                            user_id=user[0]["id"], account_id=owner_match_account_link["account"], subject=EMAILS["MATCH FOUND"]["SUBJECT"],
+                            user_id=users[0]["id"], account_id=owner_match_account_link["account"], subject=EMAILS["MATCH FOUND"]["SUBJECT"],
                             body=EMAILS["MATCH FOUND"]["BODY"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
                         )
+                        if SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND:
+                            notification_email = f"A match has been found for account: <strong>{owner_match_account_link['company']}</strong>"
+                            scheduled_emails_data_access.insert_scheduled_email(
+                                email_address=SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND, account_id=owner_match_account_link["account"], subject="Match found",
+                                body=notification_email, status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+                            )

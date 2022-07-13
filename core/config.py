@@ -67,6 +67,7 @@ if AWS_S3_BUCKET:
     CSP['default-src'].append(AWS_S3_BUCKET + ".s3.amazonaws.com")
 
 EMAIL_SENDER = config_file["email"]["sender"]
+SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND = config_file["email"]["secondary_recipient_for_match_found"]
 
 INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 
