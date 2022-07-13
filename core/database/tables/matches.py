@@ -799,8 +799,6 @@ class MatchTypes:
         """
         assert isinstance(grade, (float, int))
 
-        self.schedule_match_found_email(kwargs["eid"])
-
         self._generic_insert(
             type_int=match_types_by_name["USDA Yield Grade"],
             data=grade,
@@ -908,6 +906,8 @@ class MatchTypes:
         if len(match) > 0:
             print("Match exists. Match ID: ", match[0]["id"])
         else:
+            if type_int == match_types_by_name["USDA Yield Grade"]:
+                self.schedule_match_found_email(eid)
             # Insert a match only if match doesn't already exist
             self._matches.insert(
                 eid=eid,
