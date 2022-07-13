@@ -112,13 +112,14 @@ class ScheduledEmails:
         else:
             return []
 
-    def insert_scheduled_email(self, user_id=None, account_id=None, subject=None, body=None, variables=None,
+    def insert_scheduled_email(self, user_id=None, email_address=None, account_id=None, subject=None, body=None, variables=None,
                                template_name=None, status_id=None):
         """
         Inserts a new scheduled email to be sent out
 
         Params:
             user_id: User ID of the recipient user for the email
+            email: email address  of the recipient
             subject: Email subject line
             body: Body of the email
             variables: Variables required for the email template
@@ -127,11 +128,12 @@ class ScheduledEmails:
         """
         self._db.execute(
             """
-            INSERT INTO scheduled_emails (user_id, account_id, subject, body, variables, template_name, status_id)
-            VALUES (%(user_id)s, %(account_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(status_id)s)
+            INSERT INTO scheduled_emails (user_id, email_address, account_id, subject, body, variables, template_name, status_id)
+            VALUES (%(user_id)s, %(email_address)s, %(account_id)s, %(subject)s, %(body)s, %(variables)s, %(template_name)s, %(status_id)s)
             """,
             {
                 "user_id": user_id,
+                "email_address": email_address,
                 "account_id": account_id,
                 "subject": subject,
                 "body": body,
@@ -203,16 +205,16 @@ class ScheduledEmails:
         unprocessed_emails = self.get_scheduled_emails(status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"])
         for unprocessed_email in unprocessed_emails:
             try:
-                user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
-                if len(user_rows) == 1:
-                    user_row = user_rows[0]
-                    send_email(
-                        unprocessed_email["subject"],
-                        unprocessed_email["body"],
-                        user_row["email"]
-                    )
+                if unprocessed_email["user_id"]:
+                    user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
+                    if len(user_rows) == 1:
+                        user_row = user_rows[0]
+                        send_email(unprocessed_email["subject"], unprocessed_email["body"], user_row["email"])
+                        self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Sent"], sent_date_time=datetime.now())
+                    else:
+                        raise Exception("User not found or has an unverified email")
+                elif unprocessed_email["email_address"]:
+                    send_email(unprocessed_email["subject"], unprocessed_email["body"], unprocessed_email["email_address"])
                     self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Sent"], sent_date_time=datetime.now())
-                else:
-                    raise Exception("User not found or has an unverified email")
             except Exception as e:
                 self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Error"], error_details=str(e))
