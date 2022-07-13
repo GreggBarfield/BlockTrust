@@ -1,8 +1,8 @@
-import { Widget } from '../../../widget.mjs';
+import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
-import { AsyncForm } from '../../../../../global/async_form.mjs';
+import { AsyncForm } from '../../../../global/async_form.mjs';
 
-export class RevisedCowCalfQuestionnaireWidget extends Widget{
+export class CowCalfQuestionnaireV2Widget extends Widget{
     constructor(frame) {
     super(frame);
     }

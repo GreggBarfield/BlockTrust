@@ -284,14 +284,14 @@ def serve_sustainability():
         "accountName": g.account.name()
     })
 
-
-@bp.route('/dashboard/sustainability/survey', methods=['GET'])
-@crut.require_paid_account
-def serve_sustainability_survey():
-    return dashboard_render("sustainability/questionaire.html", 
-    { 
-        "sector": sectors_by_id[g.account.sector_id()]
-    })
+# Deprecated
+# @bp.route('/dashboard/sustainability/survey', methods=['GET'])
+# @crut.require_paid_account
+# def serve_sustainability_survey():
+#     return dashboard_render("sustainability/questionaire.html", 
+#     {
+#         "sector": sectors_by_id[g.account.sector_id()]
+#     })
 
 
 @bp.route('/dashboard/data/market', methods=['GET'])
@@ -572,6 +572,6 @@ def send_document(path):
 
 
 @bp.route("/dashboard/sustainability/questionnaire", methods=["GET"])
-@crut.require_account
+@crut.require_paid_account
 def serve_sustainability_questionnaire():
-    return dashboard_render("sustainability/revised-questionnaire.html")
+    return dashboard_render("sustainability/questionnaire_v2.html")
