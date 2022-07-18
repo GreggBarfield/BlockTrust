@@ -1,5 +1,5 @@
 export class CommonQuestionnaireMethods{
-    createSelectQuestion = (questionSection, questionText, inputName, inputID) => {
+    createSelectQuestion = (questionText, inputName, inputID) => {
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -30,9 +30,9 @@ export class CommonQuestionnaireMethods{
 
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
-        questionSection.append(questionContainer);
+        return questionContainer;
     }
-    createInputQuestion = (questionSection, questionText, inputType, inputName, inputID, setMaxNumber=100) =>{
+    createInputQuestion = (questionText, inputType, inputName, inputID, setMaxNumber=100) =>{
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -57,9 +57,9 @@ export class CommonQuestionnaireMethods{
 
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
-        questionSection.append(questionContainer);
+        return questionContainer;
     }
-    createUploadQuestion = (questionSection, questionText, inputName, inputID) => {
+    createUploadQuestion = (questionText, inputName, inputID) => {
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -106,8 +106,7 @@ export class CommonQuestionnaireMethods{
                 questionUploadContainer.style.display = 'none';
             }
         }
-        
-        questionSection.append(questionContainer);
+        return questionContainer;
     }
     createQuestionsSection = (questionsSectionHeaderText) => {
         let section = document.createElement("div");

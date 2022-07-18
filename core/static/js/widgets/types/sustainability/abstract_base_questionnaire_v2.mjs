@@ -38,15 +38,17 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
             let questions = sectionalFormData[sectionData];
             // Generating question based on question type
             for (let question of questions){
+                let questionContainer = "";
                 if(question.responseType == "select"){
-                    this.commonMethods.createSelectQuestion(section, question.questionText, sectionData, question.id);
+                    questionContainer = this.commonMethods.createSelectQuestion(question.questionText, sectionData, question.id);
                 }
                 else if(question.responseType == "input"){
-                    this.commonMethods.createInputQuestion(section, question.questionText, question.inputType, sectionData, question.id);
+                    questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, sectionData, question.id);
                 }
                 else if(question.responseType == "upload"){
-                    this.commonMethods.createUploadQuestion(section, question.questionText, sectionData, question.id);
+                    questionContainer = this.commonMethods.createUploadQuestion(question.questionText, sectionData, question.id);
                 }
+                section.append(questionContainer);
             }
             form.append(section)
         }
