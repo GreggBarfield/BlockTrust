@@ -34,6 +34,7 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
         let form = document.createElement("form");
         for(let sectionData in sectionalFormData){
             let section = this.commonMethods.createQuestionsSection(sections[sectionData]);
+            // Getting the questions array based on section
             let questions = sectionalFormData[sectionData];
             // Generating question based on question type
             for (let question of questions){
@@ -76,7 +77,7 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
         form.append(this.internalErrorMessage);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data/save_new_cow_calf_sustainability",
+            action: "/widgets/data/save_sustainability_questionnaire",
             form: form,
             status: statusMessage,
             error: errorMessage,
@@ -92,6 +93,7 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
         });
 
         submitButton.addEventListener("click", () => {
+            // Getting all response inputs in the form
             let sustainabilityResponses = document.getElementsByClassName("form-control");
             let allQuestionsAnswered = true;
             for(let sustainabilityResponse of sustainabilityResponses){
@@ -99,12 +101,10 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
                     allQuestionsAnswered = false;
                 }
             }
-            this.calculateScores(sections);
-            this.asyncForm.submit();
             if(allQuestionsAnswered){
                 this.internalErrorMessage.style.display = "none";
-                //this.calculateScores(sections);
-                //this.asyncForm.submit();
+                this.calculateScores(sections);
+                this.asyncForm.submit();
             }
             else{
                 this.internalErrorMessage.style.display = "block";
@@ -140,22 +140,25 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
             let questions = sectionalFormData[section];
             for(let response of responses){
                 for(let question of questions){
+                    // Matching input to questions based on ID
                     if(question.id == response.id){
+                        // Generating score based on scoring criteria
                         if(question.scoringCriteria == "confirmation"){
                             if(response.value == "Yes"){
                                 this.scores[section]+=question.score;
                             }
                         }
-                        else if(question.scoringCriteria == "response_present"){
+                        else if(question.scoringCriteria == "responsePresent"){
                             if(response.value !== ""){
                                 this.scores[section]+=question.score;
                             }
                         }
-                        else if(question.scoringCriteria == "round_off"){
+                        else if(question.scoringCriteria == "roundOff"){
                             if(response.value > 0 && response.value < 100){
                                 this.scores[section]+=response.value/100;
                             }
                         }
+                        // Storing the response for each question based on section
                         this.responses[section].push(response.value);
                     }
                 }

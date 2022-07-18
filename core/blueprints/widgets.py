@@ -427,17 +427,16 @@ def serve_save_eids_for_sales_group():
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
-
-@bp.route('/widgets/data/save_sustainability', methods=['POST'])
-@crut.require_account
-def serve_save_sustainability():
-    g.db.sustainability.insert(
-        g.account.id(),
-        request.json["response"],
-        request.json["sectorScoreCounter"]
-    )
-    return { "redirect": "/dashboard/sustainability"}
-
+# Deprecated
+# @bp.route('/widgets/data/save_sustainability', methods=['POST'])
+# @crut.require_account
+# def serve_save_sustainability():
+#     g.db.sustainability.insert(
+#         g.account.id(),
+#         request.json["response"],
+#         request.json["sectorScoreCounter"]
+#     )
+#     return { "redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_sustainability', methods=['POST'])
 @crut.require_account
@@ -751,7 +750,6 @@ def serve_save_eids_by_application_id():
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
-@bp.route('/widgets/data/save_new_cow_calf_sustainability', methods=["POST"])
-def serve_save_new_cow_calf_sustainability():
-    print(request.json)
+@bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
+def serve_save_sustainability_questionnaire():
     return {"redirect": "/dashboard/sustainability"}

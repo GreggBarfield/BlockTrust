@@ -50,7 +50,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "How many acres are under your grazing management plan?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5   
                 },
                 {
@@ -58,7 +58,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What percent of your grazing land does this cover?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5  
                 }
             ],
@@ -103,7 +103,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "How many acres are under your grazing management plan?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5   
                 },
                 {
@@ -111,7 +111,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What percent of your grazing land does this cover?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5  
                 }
             ],
@@ -156,7 +156,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "How many acres are under your grazing management plan?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5   
                 },
                 {
@@ -164,7 +164,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What percent of your grazing land does this cover?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5  
                 }
             ],
@@ -202,7 +202,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What percentage of your employees have undergone stockmanship &/or safety training?",
                     inputType: "number",
-                    scoringCriteria: "round_off"
+                    scoringCriteria: "roundOff"
                 }
             ],
             "animal": [
@@ -225,7 +225,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "If yes, what is your BQA certification number? Please upload",
                     inputType: "text",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5
                 },
                 {
@@ -240,7 +240,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "If yes, what was your score? Please enter",
                     inputType: "text",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 1
                 },
                 {
@@ -248,7 +248,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What percentage of your employees are BQA Certified?",
                     inputType: "number",
-                    scoringCriteria: "round_off"
+                    scoringCriteria: "roundOff"
                 }
             ],
             "efficiency": [
@@ -271,7 +271,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "What is your calf weaning percentage per cow exposed?",
                     inputType: "number",
-                    scoringCriteria: "round_off"
+                    scoringCriteria: "roundOff"
                 },
                 {
                     id: "efficiency4",
@@ -308,7 +308,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "If already completed, what was your footprint?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5
                 },
                 {
@@ -323,7 +323,7 @@ export class CowCalfQuestionnaireV2Widget extends AbstractBaseQuestionnaireV2Wid
                     responseType: "input",
                     questionText: "If already completed, what was your footprint?",
                     inputType: "number",
-                    scoringCriteria: "response_present",
+                    scoringCriteria: "responsePresent",
                     score: 0.5
                 },
                 {
