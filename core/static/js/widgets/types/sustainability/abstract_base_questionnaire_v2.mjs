@@ -154,7 +154,7 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
                             }
                         }
                         else if(question.scoringCriteria == "roundOff"){
-                            if(response.value > 0 && response.value < 100){
+                            if(response.value > 0 && response.value <= 100){
                                 this.scores[section]+=response.value/100;
                             }
                         }
