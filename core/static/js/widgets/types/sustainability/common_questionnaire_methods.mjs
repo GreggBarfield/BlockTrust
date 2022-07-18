@@ -1,5 +1,5 @@
 export class CommonQuestionnaireMethods{
-    createSelectQuestion = (questionSection, questionText, inputName) => {
+    createSelectQuestion = (questionSection, questionText, inputName, inputID) => {
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -14,6 +14,7 @@ export class CommonQuestionnaireMethods{
         let input = document.createElement("select");
         input.className = "form-control";
         input.name = inputName;
+        input.id = inputID
 
         let defaultOption = new Option("Please Select", "Please Select");
         defaultOption.selected = true;
@@ -31,7 +32,7 @@ export class CommonQuestionnaireMethods{
         questionContainer.append(questionInputContainer);
         questionSection.append(questionContainer);
     }
-    createInputQuestion = (questionSection, questionText, inputType, inputName, setMaxNumber=100) =>{
+    createInputQuestion = (questionSection, questionText, inputType, inputName, inputID, setMaxNumber=100) =>{
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -47,6 +48,8 @@ export class CommonQuestionnaireMethods{
         input.type = inputType;
         input.className = "form-control";
         input.name = inputName;
+        input.id = inputID;
+        input.min=0;
         if(inputType == "number"){
             input.max = setMaxNumber;
         }
@@ -56,7 +59,7 @@ export class CommonQuestionnaireMethods{
         questionContainer.append(questionInputContainer);
         questionSection.append(questionContainer);
     }
-    createUploadQuestion = (questionSection, questionText, inputName) => {
+    createUploadQuestion = (questionSection, questionText, inputName, inputID) => {
         let questionContainer = document.createElement("div");
         questionContainer.className = "row p-1 border-bottom"
 
@@ -71,6 +74,7 @@ export class CommonQuestionnaireMethods{
         let input = document.createElement("select");
         input.className = "form-control";
         input.name = inputName;
+        input.id = inputID;
         let options = ["Yes", "No"];
 
         let defaultOption = new Option("Please Select", "Please Select");

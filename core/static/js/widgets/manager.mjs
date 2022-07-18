@@ -85,7 +85,7 @@ import { CowCalfQuestionnaireV2Widget } from "./types/sustainability/cow_calf_qu
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
-    attach("cow calf questionnaire v2", CowCalfQuestionnaireV2Widget)
+    attach("cow calf questionnaire v2", CowCalfQuestionnaireV2Widget);
 
     // Find widgets
     $(".widget").each(function () {

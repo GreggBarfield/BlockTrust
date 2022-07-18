@@ -753,4 +753,5 @@ def serve_save_eids_by_application_id():
 
 @bp.route('/widgets/data/save_new_cow_calf_sustainability', methods=["POST"])
 def serve_save_new_cow_calf_sustainability():
+    print(request.json)
     return {"redirect": "/dashboard/sustainability"}
