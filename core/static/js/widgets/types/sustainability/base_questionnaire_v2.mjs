@@ -2,15 +2,31 @@ import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 
-export class AbstractBaseQuestionnaireV2Widget extends Widget{
+export class BaseQuestionnaireV2Widget extends Widget{
     constructor(frame) {
     super(frame);
+    this.scores = {};
+    this.scores.air = 0;
+    this.scores.land = 0;
+    this.scores.water = 0;
+    this.scores.safety = 0;
+    this.scores.animal = 0;
+    this.scores.efficiency = 0;
+    this.scores.improvement = 0;
+
+    this.responses = {};
+    this.responses.air = [];
+    this.responses.land = [];
+    this.responses.water = [];
+    this.responses.safety = [];
+    this.responses.animal = [];
+    this.responses.efficiency = [];
+    this.responses.improvement = [];
     }
     
-    createQuestionnaire = (sectionalFormData, sections) =>{
+    createQuestionnaire = (questionnaireData, sections) =>{
         this.commonMethods = new CommonQuestionnaireMethods();
         this.frame.innerHTML = "";
-        this.sectionalFormData = sectionalFormData;
         let card = document.createElement("div");
         card.className = "card";
     
@@ -32,10 +48,10 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
         card.append(cardBody);
 
         let form = document.createElement("form");
-        for(let sectionData in sectionalFormData){
+        for(let sectionData in questionnaireData){
             let section = this.commonMethods.createQuestionsSection(sections[sectionData]);
             // Getting the questions array based on section
-            let questions = sectionalFormData[sectionData];
+            let questions = questionnaireData[sectionData];
             // Generating question based on question type
             for (let question of questions){
                 let questionContainer = "";
@@ -95,51 +111,34 @@ export class AbstractBaseQuestionnaireV2Widget extends Widget{
         });
 
         submitButton.addEventListener("click", () => {
-            // Getting all response inputs in the form
-            let sustainabilityResponses = document.getElementsByClassName("form-control");
+            // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
-            for(let sustainabilityResponse of sustainabilityResponses){
-                if(sustainabilityResponse.value == "Please Select" || sustainabilityResponse.value == ""){
-                    allQuestionsAnswered = false;
+            for(let section in sections){
+                let responses = document.getElementsByName(section);
+                for(let response of responses){
+                    if(response.value == "Please Select" || response.value == ""){
+                        allQuestionsAnswered = false;
+                    }
                 }
             }
             if(allQuestionsAnswered){
-                this.internalErrorMessage.style.display = "none";
-                this.calculateScores(sections);
+                errorMessage.style.display = "none";
+                this.calculateScores(sections, questionnaireData);
                 this.asyncForm.submit();
             }
             else{
-                this.internalErrorMessage.style.display = "block";
-                this.internalErrorMessage.textContent = "Please complete the questionnaire";
+                errorMessage.style.display = "block";
+                errorMessage.textContent = "Please complete the questionnaire";
             }
         });
         cardBody.append(form);
         this.frame.append(card);
     }
 
-    calculateScores = (sections) => {
-        this.scores = {};
-        this.scores.air = 0;
-        this.scores.land = 0;
-        this.scores.water = 0;
-        this.scores.safety = 0;
-        this.scores.animal = 0;
-        this.scores.efficiency = 0;
-        this.scores.improvement = 0;
-
-        this.responses = {};
-        this.responses.air = [];
-        this.responses.land = [];
-        this.responses.water = [];
-        this.responses.safety = [];
-        this.responses.animal = [];
-        this.responses.efficiency = [];
-        this.responses.improvement = [];
-
-        let sectionalFormData = this.sectionalFormData;
+    calculateScores = (sections, questionnaireData) => {
         for(let section in sections){
             let responses = document.getElementsByName(section);
-            let questions = sectionalFormData[section];
+            let questions = questionnaireData[section];
             for(let response of responses){
                 for(let question of questions){
                     // Matching input to questions based on ID
