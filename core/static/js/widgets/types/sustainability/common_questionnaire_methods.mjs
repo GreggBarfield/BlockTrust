@@ -20,12 +20,8 @@ export class CommonQuestionnaireMethods{
         defaultOption.selected = true;
         defaultOption.disabled = true;
         input.appendChild(defaultOption);
-        let options = ["Yes", "No"];
-
-        for(const option of options){
-            var inputOption = new Option(option, option);
-            input.appendChild(inputOption);
-        }
+        input.appendChild(new Option("Yes", "Yes"));
+        input.appendChild(new Option("No", "No"));
         questionInputContainer.append(input);
 
         questionContainer.append(questionTextContainer);
@@ -75,17 +71,13 @@ export class CommonQuestionnaireMethods{
         input.className = "form-control";
         input.name = inputName;
         input.id = inputID;
-        let options = ["Yes", "No"];
 
         let defaultOption = new Option("Please Select", "Please Select");
         defaultOption.selected = true;
         defaultOption.disabled = true;
         input.appendChild(defaultOption);
-        
-        for(const option of options){
-            var inputOption = new Option(option, option);
-            input.appendChild(inputOption);
-        }
+        input.appendChild(new Option("Yes", "Yes"));
+        input.appendChild(new Option("No", "No"));
         questionInputContainer.append(input);
         
         let questionUploadContainer = document.createElement("div");

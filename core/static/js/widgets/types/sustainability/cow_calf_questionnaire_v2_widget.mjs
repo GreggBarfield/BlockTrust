@@ -1,5 +1,4 @@
 import { BaseQuestionnaireV2Widget } from "./base_questionnaire_v2.mjs";
-import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 import { sections, scoringCriteria, questionType } from "../../../core/sustainability_constants.mjs";
 
 export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
@@ -9,7 +8,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
     initType() {
         this.frame.innerHTML = "";
         let questionnaireData = {
-            "air" : [
+            [sections.air.name] : [
                 {
                     id: "air1",
                     responseType: questionType.select,
@@ -62,7 +61,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     score: 0.5  
                 }
             ],
-            "land": [
+            [sections.land.name]: [
                 {
                     id: "land1",
                     responseType: questionType.select,
@@ -115,7 +114,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     score: 0.5  
                 }
             ],
-            "water": [
+            [sections.water.name]: [
                 {
                     id: "water1",
                     responseType: questionType.select,
@@ -168,7 +167,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     score: 0.5  
                 }
             ],
-            "safety": [
+            [sections.safety.name]: [
                 {
                     id: "safety1",
                     responseType: questionType.select,
@@ -205,7 +204,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     scoringCriteria: scoringCriteria.roundOff
                 }
             ],
-            "animal": [
+            [sections.animal.name]: [
                 {
                     id: "animal1",
                     responseType: questionType.select,
@@ -251,7 +250,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     scoringCriteria: scoringCriteria.roundOff
                 }
             ],
-            "efficiency": [
+            [sections.efficiency.name]: [
                 {
                     id: "efficiency1",
                     responseType: questionType.select,
@@ -295,7 +294,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     score: 0.5
                 },
             ],
-            "improvement": [
+            [sections.improvement.name]: [
                 {
                     id: "improvement1",
                     responseType: questionType.select,
@@ -356,6 +355,6 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 }
             ]
         }
-        this.createQuestionnaire(questionnaireData, getSustainabilitySections());
+        this.createQuestionnaire(questionnaireData);
     }
 }
