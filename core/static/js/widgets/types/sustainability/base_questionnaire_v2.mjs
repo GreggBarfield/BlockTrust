@@ -14,15 +14,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
-
-        this.responses = {};
-        this.responses.air = [];
-        this.responses.land = [];
-        this.responses.water = [];
-        this.responses.safety = [];
-        this.responses.animal = [];
-        this.responses.efficiency = [];
-        this.responses.improvement = [];
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -49,25 +40,23 @@ export class BaseQuestionnaireV2Widget extends Widget{
         card.append(cardBody);
 
         let form = document.createElement("form");
-        for(let sectionData in questionnaireData){
-            let section = this.commonMethods.createQuestionsSection(sections[sectionData].header);
-            // Getting the questions array based on section
-            let questions = questionnaireData[sectionData];
-            // Generating question based on question type
+        for(let section of Object.values(sections)) {
+            let questionsSection = this.commonMethods.createQuestionsSection(section.header);
+            let questions = questionnaireData[section.name];
             for (let question of questions){
                 let questionContainer = "";
                 if(question.responseType == questionType.select){
-                    questionContainer = this.commonMethods.createSelectQuestion(question.questionText, sectionData, question.id);
+                    questionContainer = this.commonMethods.createSelectQuestion(question.questionText, section.name, question.id);
                 }
                 else if(question.responseType == questionType.input){
-                    questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, sectionData, question.id);
+                    questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, section.name, question.id);
                 }
                 else if(question.responseType == questionType.upload){
-                    questionContainer = this.commonMethods.createUploadQuestion(question.questionText, sectionData, question.id);
+                    questionContainer = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
                 }
-                section.append(questionContainer);
+                questionsSection.append(questionContainer);
             }
-            form.append(section)
+            form.append(questionsSection)
         }
 
         let submitFormGroup = document.createElement("div");
@@ -114,8 +103,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.addEventListener("click", () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
-            for(let section in sections){
-                let responses = document.getElementsByName(section);
+            for(let section of Object.values(sections)){
+                let responses = document.getElementsByName(section.name);
                 for(let response of responses){
                     if(response.value == "Please Select" || response.value == ""){
                         allQuestionsAnswered = false;
@@ -139,23 +128,23 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     calculateScores = (questionnaireData) => {
-        for(let sectionData in questionnaireData){
-            let questions = questionnaireData[sectionData];
+        for(let section of Object.values(sections)){
+            let questions = questionnaireData[section.name];
             for (let question of questions){
                 let response = document.getElementById(question.id);
                 if(question.scoringCriteria == scoringCriteria.confirmation){
                     if(response.value == "Yes"){
-                        this.scores[sectionData]+=question.score;
+                        this.scores[section.name]+=question.score;
                     }
                 }
                 else if(question.scoringCriteria == scoringCriteria.responsePresent){
                     if(response.value !== ""){
-                        this.scores[sectionData]+=question.score;
+                        this.scores[section.name]+=question.score;
                     }
                 }
                 else if(question.scoringCriteria == scoringCriteria.roundOff){
                     if(response.value > 0 && response.value <= 100){
-                        this.scores[sectionData]+=response.value/100;
+                        this.scores[section.name]+=response.value/100;
                     }
                 }
             }
