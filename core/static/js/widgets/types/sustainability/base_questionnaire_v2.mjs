@@ -79,11 +79,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
 
-        this.internalErrorMessage = document.createElement("p");
-        this.internalErrorMessage.style.display = "none";
-        this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
-        form.append(this.internalErrorMessage);
-
         this.asyncForm = new AsyncForm({
             action: "/widgets/data/save_sustainability_questionnaire",
             form: form,
