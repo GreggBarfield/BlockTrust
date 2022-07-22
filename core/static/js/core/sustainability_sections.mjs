@@ -4,7 +4,8 @@ const sections = {
     "water": "Water Resources",
     "animal": "Animal Health & Well-Being",
     "safety": "Employee Safety & Well-Being",
-    "efficiency": "Efficiency & Yield"
+    "efficiency": "Efficiency & Yield",
+    "improvement": "Improvement"
 };
 
 export function getSustainabilitySections(neededSections=null) {
