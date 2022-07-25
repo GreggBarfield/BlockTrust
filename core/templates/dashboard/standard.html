@@ -181,52 +181,35 @@
             <ul>
             {% if dashboard_standard_account is not none %}
             {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
-                <li> 
+                <li title="Search"> 
                   <a href="#" id="icon-search">
-                    <i class="icon feather icon-search"></i>
+                    <i class="icon feather icon-search h2"></i>
                   </a>
                 </li>
             {% endif %}
-                <li>  
-                    <a href="/dashboard/connections">
-                    <i 
-                        class="icon feather icon-users"
-                        {% if pending_connection_requests_count is defined and pending_connection_requests_count > 0 %}
-                        title="You have pending connection requests"
-                        style='color: red;'
-                        {% endif %}
-                    ></i>
+                <!-- below the whole code in title attribute is in quotes because we use strings with spaces-->
+                <li title="{{'Pending requests' if pending_connection_requests_count>0 else 'Connections'}}">  
+                    <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count>0 else ""}}>
+                        <i class="icon feather icon-users h2"></i>
                     </a>
                 </li>
-                <li>  
-                    <a href="/dashboard/notifications">
-                    <i 
-                        class="icon feather icon-bell"
-                        {% if unread_notifications_count is defined and unread_notifications_count > 0 %}
-                        title="You have unread notifications"
-                        style='color: red;'
-                        {% endif %}
-                    ></i>
+                <li title="{{'Unread notifications' if unread_notifications_count>0 else 'Notifications'}}">  
+                    <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count>0 else ""}}>
+                        <i class="icon feather icon-bell h2"></i>
                     </a>
                 </li>
-                <li>  
+                <li title="Messages">  
                     <a href="/dashboard/messages">
-                    <i class="icon feather icon-mail"></i>
+                        <i class="icon feather icon-mail h2"></i>
                     </a>
                 </li>
-                <li class="b-account-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-account-settings-li b-account-settings"
-                    >
-                        <i class="icon feather icon-settings"></i>
+                <li class="b-account-settings-li" title="Settings">
+                    <a href="#" class="toggler" data-toggles="b-account-settings-li b-account-settings">
+                        <i class="icon feather icon-settings h2"></i>
                     </a>
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
-                            <div>
-                              {{ dashboard_standard_account.company()}}
-                            </div>
+                            <div> {{ dashboard_standard_account.company()}} </div>
                         </div>
                         <ul class="pro-body">
                             <li>
@@ -250,13 +233,9 @@
                     </div>
                 </li>
             {% endif %}
-                <li class="b-user-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-user-settings-li b-user-settings"
-                    >
-                        <i class="icon feather icon-user"></i>
+                <li class="b-user-settings-li" title="Me">
+                    <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
+                        <i class="icon feather icon-user h2"></i>
                     </a>
                     <div class="b-expandable-icon b-user-settings">
                         <div class="pro-head">

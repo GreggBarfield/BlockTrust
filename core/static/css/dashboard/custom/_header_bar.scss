@@ -436,7 +436,12 @@ $nav-small-gap: 10px;
                 display: inline-flex;
                 align-items: center;
                 position: relative;
-
+                &:hover {
+                    background-color: #8b4513;
+                }
+                &:hover a {
+                    color: white;
+                }
                 &.b-account-settings-li {
                     padding-right: 0px;
                 }
