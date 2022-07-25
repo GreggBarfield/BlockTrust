@@ -188,13 +188,13 @@
                 </li>
             {% endif %}
                 <!-- below the whole code in title attribute is in quotes because we use strings with spaces-->
-                <li title="{{'Pending requests' if pending_connection_requests_count>0 else 'Connections'}}">  
-                    <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count>0 else ""}}>
+                <li title="{{'Pending requests' if pending_connection_requests_count else 'Connections'}}">  
+                    <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count else ""}}>
                         <i class="icon feather icon-users h2"></i>
                     </a>
                 </li>
-                <li title="{{'Unread notifications' if unread_notifications_count>0 else 'Notifications'}}">  
-                    <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count>0 else ""}}>
+                <li title="{{'Unread notifications' if unread_notifications_count else 'Notifications'}}">  
+                    <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count else ""}}>
                         <i class="icon feather icon-bell h2"></i>
                     </a>
                 </li>
