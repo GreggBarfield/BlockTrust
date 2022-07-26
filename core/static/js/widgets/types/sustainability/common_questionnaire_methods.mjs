@@ -1,3 +1,5 @@
+import { CompactFileEditor } from "../../../files/compact_file_editor.mjs";
+
 export class CommonQuestionnaireMethods{
     createSelectQuestion = (questionText, inputName, inputID) => {
         let questionContainer = document.createElement("div");
@@ -60,7 +62,7 @@ export class CommonQuestionnaireMethods{
         questionContainer.className = "row p-1 border-bottom"
 
         let questionTextContainer = document.createElement("div");
-        questionTextContainer.className = "col-md-8";
+        questionTextContainer.className = "col-md-6";
         let label = document.createElement("label");
         label.textContent = questionText;
         questionTextContainer.append(label);
@@ -81,11 +83,8 @@ export class CommonQuestionnaireMethods{
         questionInputContainer.append(input);
         
         let questionUploadContainer = document.createElement("div");
-        questionUploadContainer.className = "col-md-2 p-1";
-        let uploadButton = document.createElement("button");
-        uploadButton.className = "btn btn-primary";
-        uploadButton.textContent = "Upload";
-        questionUploadContainer.append(uploadButton);
+        questionUploadContainer.className = "col-md-4 p-1";
+        let uploadInput = new CompactFileEditor(questionUploadContainer);
 
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
@@ -98,7 +97,7 @@ export class CommonQuestionnaireMethods{
                 questionUploadContainer.style.display = 'none';
             }
         }
-        return questionContainer;
+        return {questionContainer, uploadInput};
     }
     createQuestionsSection = (questionsSectionHeaderText) => {
         let section = document.createElement("div");
