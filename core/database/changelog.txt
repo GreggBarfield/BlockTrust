@@ -1585,3 +1585,6 @@ ADD CONSTRAINT `fk_scheduled_emails_account_id_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Rohan Sureshkumar 7/26/2022 */
+UPDATE matches SET zip=JSON_UNQUOTE(JSON_EXTRACT(debug,'$.zip')) WHERE debug IS NOT NULL and type=1 AND zip is NULL
+
