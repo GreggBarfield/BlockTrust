@@ -44,7 +44,7 @@ export class PlansWidget extends Widget {
 
          let cowCalfFeaturesPremium = document.createElement("td");
          let {price} = await fetch("/stripe/price/basic").then(r => r.json());
-         cowCalfFeaturesPremium.innerHTML = "a. Carcass Data<br/>b. Access to In-Network Feeders and Auction Markets<br/>c. Secure Messaging in Network<br/>d. Access to MarketTrust Cattle Sales System<br/>e. Access to Real-time Market Prices and Futures Prices<br/>f. Retained Ownership Dashboard<br/><br/> <h6>Price: $9.95 per month (billed annually)</h6>";
+         cowCalfFeaturesPremium.innerHTML = "a. Carcass Data<br/>b. Access to In-Network Feeders and Auction Markets<br/>c. Secure Messaging in Network<br/>d. Access to MarketTrust Cattle Sales System<br/>e. Access to Real-time Market Prices and Futures Prices<br/><br/> <h6>Price: $9.95 per month (billed annually)</h6>";
          rowTag.appendChild(cowCalfFeaturesPremium);
 
          let enterpriseFeaturesTD = document.createElement("td");

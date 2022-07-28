@@ -16,8 +16,7 @@
                 </button>
             </div>
             <div class="card-body">
-                
-                <table class="table">
+                <table class="table" id="partnersTable">
                     <thead>
                         <tr>
                             <th>Partner Number</th>
@@ -31,7 +30,7 @@
                         <tr>
                             <td>{{partner.id}}</td>
                             <td>
-                                <a href="/employee/dashboard/edit-account/{{partner.id}}">
+                                <a href="/employee/dashboard/edit-partner/{{partner.id}}">
                                     {{partner.company}}
                                 </a>
                             </td>
@@ -43,4 +42,9 @@
                 </table>
             </div>
         </div>
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#partnersTable').DataTable();
+    });
+</script>
 {% endblock employee_content %}

@@ -11,6 +11,13 @@ Upload Tag Data
 
 <div class="row">
     <div class="col">
+      <div id="popup" class="alert alert-success d-none justify-content-between">
+        <p id="popupText" class="m-0"></p>
+        <button type="button" class="close ml-3" onclick="{
+            $('#popup').removeClass('d-flex');
+            $('#popup').addClass('d-none');
+          }">x</button>
+      </div>
         <div class="card" style="width:100%;">
             <h5 class="card-header">Tag Data Smart Upload</h5>
             <div class="card-body">
@@ -68,23 +75,7 @@ Upload Tag Data
                     You will receive a confirmation email once the data is 
                     loaded (should be immediately).
                 </p>
-                <button class="btn btn-primary" onclick="importer.requestDataFromUser().then(function(results) { 
-                    // do something with the results
-                    // console.log(results);
-            
-                    importer.displaySuccess('Thanks for uploading your data!')
-                    console.log(results.$data);
-                    fetch('/dashboard/upload-tags', {
-                        method: 'POST',
-                        headers: {
-                        'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                                eids: results.data
-                            }),
-                    });
-                })">Start Upload</button>
-            
+                <button class="btn btn-primary" onclick="postData()">Start Upload</button>
             </div>
         </div>
     </div>
@@ -93,9 +84,29 @@ Upload Tag Data
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
     
 <script>
-function DoPost()
+function postData()
 {
+  importer.requestDataFromUser().then(function(results) { 
+    console.log(results)
+      $('#popup').removeClass('d-none');
+      $('#popup').addClass('d-flex');
+      $('#popupText').html('You successfully uploaded ' + results.data.length + ' tag(s) on ' + 
+                            new Date().toLocaleString() + '. ' + 
+                            'Some supply chain data may be processed overnight. Once processed, it will be reflected ' + 
+                            '<a href="/dashboard"><u>on your dashboard. </u></a>' +
+                            'If you have any questions, please contact us.');
 
+      importer.displaySuccess('Thanks for uploading your data!');
+      fetch('/dashboard/upload-tags', {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+                  eids: results.data
+              }),
+      });
+  })
 }
 const importer = new FlatfileImporter('{{license}}', {
   type: "EID import",
@@ -103,7 +114,7 @@ const importer = new FlatfileImporter('{{license}}', {
   managed: true,
   fields: [
       { 
-        key: "EID", label: "Tag",
+        key: "EID", label: "Electronic ID (EID)",
         validators: [
         { validate: "required" },
         { validate: "unique" },
@@ -177,7 +188,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -193,13 +204,14 @@ const importer = new FlatfileImporter('{{license}}', {
       ]},
       { 
         key: "Sex", label: "Sex",
-        validators: [
-        {
-          validate: 'regex_matches',
-          regex: '^(?:m|M|male|Male|f|F|female|Female)$',
-          error: 'Only can be male or female (m/f).'
-        }
-      ]},
+        type: "select",
+        options: [
+          { value: "Male", label: "Male",
+            alternates: ["m", "male", "M"] },
+          { value: "Female", label: "Female",
+            alternates: ["f", "female", "F"] },
+        ]
+      },
       { 
         key: "CalfBirthDate", label: "Calf Birth Date",
         validators: [
@@ -210,7 +222,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -258,7 +270,7 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
         {
           validate: 'regex_matches',
-          regex: '([0-9]*[.])?[0-9]+',
+          regex: '^([0-9]*[.])?[0-9]+$',
           error: 'Only can be a number and/or decimal.'
         }
       ]},
@@ -268,6 +280,20 @@ const importer = new FlatfileImporter('{{license}}', {
 
       ]}
     ],
+  i18nOverrides: {
+    en: {
+      otherLocales: ["en-US", "en-CA", "en-GB"],
+      overrides: {
+        fileTypes:
+          "<p style=\"padding-bottom: 1em;\">Here you can upload your tag numbers (both electronic or visual) and any other data associated with them, " +
+          "like birthdates or weight. On the left there is a list of all the acceptable data types. Please remember " +
+          "that there can only be one record per row.</p>" +
+          "<p style=\"padding-bottom: 1em;\">The next step will allow you to match your spreadsheet columns to the right data points within our system. " +
+          "You'll be able to clean up or remove any corrupted data before it is uploaded.</p>" +
+          "<p><a href=\"#\">CLICK HERE</a> for more information about how to upload data.</p>", // TODO: Need to fill out href on a tag when link is ready.
+      }
+    }
+  },
   theme: {
       buttons: {
           primary: {
@@ -282,7 +308,7 @@ const importer = new FlatfileImporter('{{license}}', {
     }
 });
 
-importer.setCustomer({userId: '{{user.id()}}' });
+importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email:'{{user.email()}}'});
 </script>
 
 {% endblock dashboard_content %}

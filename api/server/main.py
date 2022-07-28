@@ -21,8 +21,7 @@ from flask import (
     Response
 )
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.abspath('core/templates'))
 
 
 from . import input_blueprint
@@ -39,7 +38,7 @@ app.register_blueprint(external_blueprint.bp)
 @app.errorhandler(ExportException)
 def handle_export_exception(e):
     return {
-        "error": "An error occurred: " + str(e)
+        "error": str(e)
     }, 400
 
 

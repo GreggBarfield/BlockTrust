@@ -7,56 +7,118 @@
 {% endblock employee_content_header %}
 
 {% block employee_content %}
+<div class="card d-inline-block">
+    <div class="card-header">
+        <h5>Customers</h5>
+        <a class="btn btn-sm btn-primary float-right" href="/employee/dashboard/create-new-account">
+            Create New Account
+        </a>
+    </div>
+    <div class="card-body">
+        <table class="table" id="accountsTable">
+            <thead>
+                <tr>
+                    <th>Acct Number</th>
+                    <th>Acct Name</th>
+                    <th>Sector</th>
+                    <th>Partner</th>
+                    <th>Acct city, state</th>
+                    <th>Admin Name</th>
+                    <th></th>
+                    <th>Paid</th>
+                    <th>Created</th>
+                    <th></th>
+                    <th></th>
+                    <th style="display:none;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for account in accounts_and_account_admins%}
+                <tr>
+                    <td>{{account.id}}</td>
+                    <td>
+                        <a href={{"/employee/dashboard/edit-account/"+(account.id|string) if sectors_by_id[account.sector]=="Cow-Calf" else ""}}>
+                            {{account.company}}
+                        </a>
+                    </td>
+                    <td>{{sectors_by_id[account.sector]}}</td>
+                    <td>{{account.account_partner_name}}</td>
+                    <td>{{account.city}}, {{account.state}}</td>
+                    <td>{{account.account_admin_name}}</td>
+                    <td>
+                        {% if account.account_admin_email != "" %}
+                        <a href="mailto:{{account.account_admin_email}}"><i class="feather icon-mail" title="Send an email to Admin"></i></a>
+                        {% endif %}
+                    </td>
+                    <td >
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" value={{account.id}} 
+                                id={{"paidSwitch" + account.id|string}} {{'checked' if account.generated_paid else ''}}>
+                            <label class="custom-control-label" for={{"paidSwitch"  + account.id|string}}></label>
+                        </div>
+                    </td>
+                    <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
+                    <td>
+                        <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}"><i class="feather icon-log-in" title="Login as Admin"></i></a>
+                    </td>
+                    <td>
+                        <a href="/employee/dashboard/invite-admin/{{account.id}}"><i class="feather icon-user-plus" title="Invite Admin"></i></a>
+                    </td>
+                    <td style="display:none;">{{account.zip}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    var switches = document.getElementsByClassName("custom-control-input");
 
-        <div class="card d-inline-block">
-            <div class="card-header">
-                <h5>Customers</h5>
-                <a class="btn btn-sm btn-primary float-right" href="/employee/dashboard/create-new-account">
-                    Create New Account
-                </a>
-            </div>
-            <div class="card-body">
-                
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Account Number</th>
-                            <th>Account Name</th>
-                            <th>Sector</th>
-                            <th>Account city, state</th>
-                            <th>Admin Email</th>
-                            <th>Login as Admin</th>
-                            <th>Invite Admin</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {%for account in accounts_and_account_admins%}
-                        <tr>
-                            <td>{{account.id}}</td>
-                            <td>
-                                <a href="/employee/dashboard/edit-account/{{account.id}}">
-                                    {{account.company}}
-                                </a>
-                            </td>
-                            <td>{{sectors_by_id[account.sector]}}</td>
-                            <td>{{account.city}}, {{account.state}}</td>
-                            <td>
-                                {% if account.account_admin_email == "" %}
-                                Employee generated Admin User
-                                {% else %}
-                                <a href="mailto:{{account.account_admin_email}}">{{account.account_admin_email}}</a>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}">Login as Admin</a>
-                            </td>
-                            <td>
-                                <a href="/employee/dashboard/invite-admin/{{account.id}}">Invite Admin</a>
-                            </td>
-                        </tr>
-                        {%endfor%}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    for (let s of switches) {
+        s.addEventListener('change', async() => {
+            let requestConfig = {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }
+            try {
+                if (s.checked) {
+                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": true})
+
+                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
+                    if (response.ok) {
+                        alert("Success! Account marked as paid")
+                    }
+                    else {
+                        const responseJSON = await response.json();
+                        s.checked = false;
+                        alert(responseJSON.error)
+                    }
+                    
+                } else {
+                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": false})
+
+                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
+                    if (response.ok) {
+                        alert("Success! Account marked as unpaid")
+                    }
+                    else {
+                        const responseJSON = await response.json();
+                        s.checked = true;
+                        alert("Error: " + responseJSON.error)
+                    }                 
+                }
+            }
+            catch(error) {
+                alert(error)
+                s.checked? s.checked = false : s.checked = true;
+            }
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#accountsTable').DataTable({pageLength:50});
+    });
+</script>
 {% endblock employee_content %}

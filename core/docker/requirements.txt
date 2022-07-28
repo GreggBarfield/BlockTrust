@@ -8,3 +8,5 @@ stripe
 pyzipcode
 Flask-Excel
 pyexcel-xlsx
+Flask-QRcode
+Flask-WTF

@@ -150,7 +150,6 @@ def serve_signup_action():
                         'confirm_url': confirm_url
                     }), required['email']
                 )
-
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
@@ -537,7 +536,9 @@ def serve_add_admin_user(invite_token):
         invite_object = eval(invite_string)
         account_id = invite_object["account_id"]
         admin_email = invite_object["admin_email"]
-        account_row = g.db.accounts.get_by_id(account_id)
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        if account_row is None:
+            raise Exception("Account not found.")
         return outside_render("/outside/add-user-signup.html", {
             "user_email": admin_email,
             "account_name": account_row.name(),
@@ -546,3 +547,9 @@ def serve_add_admin_user(invite_token):
             })
     except Exception as e:
         return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
+
+
+@bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
+def serve_external_sales_group_viewer(sales_group_id):
+    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})

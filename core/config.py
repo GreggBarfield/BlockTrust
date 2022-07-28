@@ -26,6 +26,7 @@ API_MYSQL_CONFIG = (
     config_file["mysql"] if config_file["api_mysql"] == "same"
     else config_file["api_mysql"]
 )
+DEV_MYSQL_CONFIG = config_file["dev_mysql"]
 
 AWS_S3_BUCKET = config_file["aws"]["s3"]["bucket"]
 AWS_S3_REGION_NAME = config_file["aws"]["s3"]["region_name"]
@@ -41,6 +42,8 @@ CSP = {
         'https://www.youtube.com/',
         'https://www.google.com/',
         'https://www.gstatic.com/',
+        'https://www.googletagmanager.com/',
+        'https://www.google-analytics.com/',
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
         'https://ipinfo.io/',
@@ -64,6 +67,7 @@ if AWS_S3_BUCKET:
     CSP['default-src'].append(AWS_S3_BUCKET + ".s3.amazonaws.com")
 
 EMAIL_SENDER = config_file["email"]["sender"]
+SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND = config_file["email"]["secondary_recipient_for_match_found"]
 
 INTERNAL_API_SECRET = config_file["internal_api"]["secret"]
 
@@ -72,6 +76,7 @@ SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 SUPPORT_TAG_STORE_EMAIL = config_file["support"]["general_tag_store_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
+ACCOUNT_WEBHOOK_SECRET = config_file["stripe"]["account_webhook_secret"]
 
 EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
 

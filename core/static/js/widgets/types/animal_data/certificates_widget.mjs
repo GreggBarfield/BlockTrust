@@ -8,7 +8,7 @@ export class CertificatesWidget extends Widget {
 
     initType() {
         this.eid = parseInt(this.frame.getAttribute("data-widget-animal"));
-        this.company = this.frame.getAttribute("data-widget-company");
+        this.company = this.frame.getAttribute("data-widget-account_name");
         this.frame.innerHTML = "";
         this.getData(
             "direct/match_types_by_name",
@@ -65,7 +65,7 @@ export class CertificatesWidget extends Widget {
 
         let appNo =document.createElement("div");
         appNo.className = "col-md-4";
-        appNo.textContent="App No:"
+        appNo.textContent="App No:"+ ((this.wean_data["grouping_id"]!==null)? this.wean_data["grouping_id"]: "N/A");
         row.append(appNo)
 
         let prodName =document.createElement("div");

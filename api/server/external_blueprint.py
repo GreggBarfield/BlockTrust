@@ -3,11 +3,15 @@ from flask import (
 )
 from core.database.database import Database
 from core.database.tables.accounts import AccountsException
+from core.database.tables.connections import Connections, ConnectionException, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
+from core.renderers.email import render_email
+from core.sectors import sectors_by_name
+from core.utilities.email import send_email
 from json import loads
 from datetime import datetime
 from traceback import format_exc
@@ -25,29 +29,197 @@ def before_request():
 def serve_get_animal_data():
     try:
         request_data = loads(request.data)
+        if "eid" not in request_data or "token" not in request_data:
+            raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
-        account_id = request_data["account"]
-        APIDataRequests(g.db).insert_api_data_request(account_id=account_id, api_route=request.path, request_data=request_data)
-
-        try:
-            account = g.db.accounts.get_by_id(account_id)
-            if account.token() != token:
-                raise ExportException("Bad token")
-        except AccountsException:
-            raise ExportException("Bad account ID")
-        match_birth_date_row = g.db.matches.get_match(eid=eid, type_int=match_types_by_name["Born"])
-        match_visual_id_row = g.db.matches.get_match(eid=eid, visual_id_has_value=True)
+        requesting_account = g.db.accounts.get_accounts(token=token)
+        if len(requesting_account) == 0:
+            APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
+            raise ExportException("Bad token. You are not authorized")
+        APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account[0]["id"], api_route=request.path, request_data=request_data)
         birth_date = None
         visual_id = None
-        if match_birth_date_row is not None:
-            birth_date = datetime.utcfromtimestamp(match_birth_date_row['time']).strftime('%Y-%m-%d %H:%M:%S')
-        if match_visual_id_row is not None:
-            visual_id = match_visual_id_row['visual_id']
+        birth_weight = None
+        description = None
+        hot_weight = None
+        yield_grade = None
+        quality_grade = None
+        sex = None
+        creep_feed = None
+        first_14_day_feed_method = None
+        marketing_date = None
+        marketing_method_name = None
+        number_of_calves = None
+        sale_location = None
+        second_31_day_feed_method = None
+        wean_date = None
+        weaning_strategy = None
+        wean_weight = None
+        zip_code = None
+        sustainability = {}
+
+        match_ranch_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
+            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
+        unauthorized_message = "Access to this EID is not allowed at this time"
+        if len(match_ranch_sightings) == 0:
+            return {"error": unauthorized_message}, 401
+        else:
+            match = match_ranch_sightings[0]
+
+            # check if connection is established
+            if Connections(g.db).get_connection_between(match["account"], requesting_account[0]["id"], connection_status["Connected"]) is None:
+                # create a new pending connection
+                try:
+                    Connections(g.db).create_connection(
+                        from_account_id=requesting_account[0]["id"],
+                        to_account_id=match["account"],
+                        status=connection_status["Pending"]
+                    )
+                except ConnectionException as e:
+                    pass
+                else:
+                    # send an email to admin of match account
+                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=match["account"], is_admin=1)) > 0:
+                        if len(email_verified_admin_user := g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
+                            send_email(
+                                "BlockTrust Network New Connection Request",
+                                render_email("new_connection_request.html", {
+                                    "connection_receiving_user": email_verified_admin_user[0],
+                                    "requesting_account": requesting_account[0]
+                                }), email_verified_admin_user[0]["email"]
+                            )
+                finally:
+                    return {"error": unauthorized_message}, 401
+
+            match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
+            if len(match_birth_date_row) > 0:
+                birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
+
+            if match["data"] is not None:
+                data = loads(match["data"])
+                birth_weight = data.get("birth_weight", None)
+                description = data.get("description", None)
+                sex = data.get("sex", None)
+            visual_id = match["visual_id"]
+            if match["debug"] is not None:
+                zip_code = loads(match["debug"]).get("zip", None)
+
+            results = g.db.sustainability.get_sustainability(account=match["account"])
+            if len(results) > 0 :
+                result = results[0]
+
+                air_total_questions = result.get("air_first_score_points", 0) + result.get("air_second_score_points", 0) + result.get("air_third_score_points", 0)
+                if air_total_questions > 0:
+                    sustainability["air"] = {}
+                    sustainability["air"]["excellent"] = "{:.2%}".format(result.get("air_first_score_points", 0) / air_total_questions)
+                    sustainability["air"]["acceptable"] = "{:.2%}".format(result.get("air_second_score_points", 0) / air_total_questions)
+                    sustainability["air"]["needs_work"] = "{:.2%}".format(result.get("air_third_score_points", 0) / air_total_questions)
+
+                land_total_questions = result.get("land_first_score_points", 0) + result.get("land_second_score_points", 0) + result.get("land_third_score_points", 0)
+                if land_total_questions > 0:
+                    sustainability["land"] = {}
+                    sustainability["land"]["excellent"] = "{:.2%}".format(result.get("land_first_score_points", 0) / land_total_questions)
+                    sustainability["land"]["acceptable"] = "{:.2%}".format(result.get("land_second_score_points", 0) / land_total_questions)
+                    sustainability["land"]["needs_work"] = "{:.2%}".format(result.get("land_third_score_points", 0) / land_total_questions)
+
+                water_total_questions = result.get("water_first_score_points", 0) + result.get("water_second_score_points", 0) + result.get("water_third_score_points", 0)
+                if water_total_questions > 0:
+                    sustainability["water"] = {}
+                    sustainability["water"]["excellent"] = "{:.2%}".format(result.get("water_first_score_points", 0) / water_total_questions)
+                    sustainability["water"]["acceptable"] = "{:.2%}".format(result.get("water_second_score_points", 0) / water_total_questions)
+                    sustainability["water"]["needs_work"] = "{:.2%}".format(result.get("water_third_score_points", 0) / water_total_questions)
+
+                animal_total_questions = result.get("animal_first_score_points", 0) + result.get("animal_second_score_points", 0) + result.get("animal_third_score_points", 0)
+                if animal_total_questions > 0:
+                    sustainability["animal"] = {}
+                    sustainability["animal"]["excellent"] = "{:.2%}".format(result.get("animal_first_score_points", 0) / animal_total_questions)
+                    sustainability["animal"]["acceptable"] = "{:.2%}".format(result.get("animal_second_score_points", 0) / animal_total_questions)
+                    sustainability["animal"]["needs_work"] = "{:.2%}".format(result.get("animal_third_score_points", 0) / animal_total_questions)
+
+                safety_total_questions = result.get("safety_first_score_points", 0) + result.get("safety_second_score_points", 0) + result.get("safety_third_score_points", 0)
+                if safety_total_questions > 0:
+                    sustainability["safety"] = {}
+                    sustainability["safety"]["excellent"] = "{:.2%}".format(result.get("safety_first_score_points", 0) / safety_total_questions)
+                    sustainability["safety"]["acceptable"] = "{:.2%}".format(result.get("safety_second_score_points", 0) / safety_total_questions)
+                    sustainability["safety"]["needs_work"] = "{:.2%}".format(result.get("safety_third_score_points", 0) / safety_total_questions)
+
+                efficiency_total_questions = result.get("efficiency_first_score_points", 0) + result.get("efficiency_second_score_points", 0) + result.get("efficiency_third_score_points", 0)
+                if efficiency_total_questions > 0:
+                    sustainability["efficiency"] = {}
+                    sustainability["efficiency"]["excellent"] = "{:.2%}".format(result.get("efficiency_first_score_points", 0) / efficiency_total_questions)
+                    sustainability["efficiency"]["acceptable"] = "{:.2%}".format(result.get("efficiency_second_score_points", 0) / efficiency_total_questions)
+                    sustainability["efficiency"]["needs_work"] = "{:.2%}".format(result.get("efficiency_third_score_points", 0) / efficiency_total_questions)
+
+                total_questions = air_total_questions + land_total_questions + water_total_questions + animal_total_questions + safety_total_questions + efficiency_total_questions
+                total_first_score_points = (result.get("air_first_score_points", 0) + result.get("land_first_score_points", 0) + result.get("water_first_score_points", 0) 
+                    + result.get("animal_first_score_points", 0) + result.get("safety_first_score_points", 0) + result.get("efficiency_first_score_points", 0))
+                total_second_score_points = (result.get("air_second_score_points", 0) + result.get("land_second_score_points", 0) + result.get("water_second_score_points", 0) 
+                    + result.get("animal_second_score_points", 0) + result.get("safety_second_score_points", 0) + result.get("efficiency_second_score_points", 0))
+                total_third_score_points = (result.get("air_third_score_points", 0) + result.get("land_third_score_points", 0) + result.get("water_third_score_points", 0) 
+                    + result.get("animal_third_score_points", 0) + result.get("safety_third_score_points", 0) + result.get("efficiency_third_score_points", 0))
+                if total_questions > 0:
+                    sustainability["totalExcellent"] = "{:.2%}".format(total_first_score_points / total_questions)
+                    sustainability["totalAcceptable"] = "{:.2%}".format(total_second_score_points / total_questions)
+                    sustainability["totalNeedsWork"] = "{:.2%}".format(total_third_score_points / total_questions)
+
+        match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
+        if len(match_wean_row) > 0:
+            match = match_wean_row[0]
+            wean_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
+            if match["data"] is not None:
+                data = loads(match["data"])
+                creep_feed = data.get("creep_feed", None)
+                first_14_day_feed_method = data.get("first_14_method", None)
+                second_31_day_feed_method = data.get("second_31_method", None)
+                weaning_strategy = data.get("at", None)
+                wean_weight = data.get("wean_weight", None)
+
+        match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
+        if len(match_sold_row) > 0:        
+            match = match_sold_row[0]
+            if match['time'] is not None:
+                marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
+            if match["data"] is not None:
+                data = loads(match["data"])
+                marketing_method_name = data.get("method", None)
+                sale_location = data.get("location", None)
+                number_of_calves = data.get("group_size", None)
+
+        match_weight_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Hot Weight"])
+        if len(match_weight_row) > 0:
+            hot_weight = match_weight_row[0]['data']
+
+        match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Quality Grade"])
+        if len(match_quality_row) > 0:
+            quality_grade = match_quality_row[0]['data']
+
+        match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Yield Grade"])
+        if len(match_yield_row) > 0:
+            yield_grade = match_yield_row[0]['data']
+
         animal_data = {
-            "eid": eid,
             "birthDate": birth_date,
-            "visualID": visual_id
+            "birthWeight": birth_weight,
+            "calfDescription": description,
+            "creepFeed": creep_feed,
+            "electronicID": eid,
+            "first14DayFeedMethod": first_14_day_feed_method,
+            "hotWeight": hot_weight,
+            "usdaQualityGrade": quality_grade,
+            "marketingDate": marketing_date,
+            "marketingMethodName": marketing_method_name,
+            "numberOfCalves": number_of_calves,
+            "sale_location": sale_location,
+            "second31DayFeedMethod": second_31_day_feed_method,
+            "sex": sex,
+            "visualID": visual_id,
+            "weanDate": wean_date,
+            "weanWeight": wean_weight,
+            "weaningStrategy": weaning_strategy,
+            "usdaYieldGrade": yield_grade,
+            "zipCode": zip_code,
+            "sustainabilityScores": sustainability if sustainability != {} else None
         }
         return animal_data
     except ExportException as e:

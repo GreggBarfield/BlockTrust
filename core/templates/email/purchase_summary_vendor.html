@@ -1,0 +1,57 @@
+{% extends "email/standard_USCT.html" %}
+
+{% block email_standard_center %}
+<head>
+    <style>
+        table {
+        border-spacing: 0 !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin: 0 auto !important;
+        padding: 15 px;
+        }
+        th {
+        display: table-cell;
+        vertical-align: middle;
+        font-weight: bold;
+        padding: 8px;
+        background-color: #88888829;
+        }
+        td {
+        display: table-cell;
+        padding: 15px;
+        }ss
+    </style>
+</head>
+<div>
+    <div class="col-sm-4 col-grid" style="background-color:#fff">
+        <h4>Shipping Information: </h4>
+        Order ID: {{order_id}}<br>
+        Customer name: {{first}} {{last}}<br>
+        Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
+        <h4>Order Information: </h4>
+        <table>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+                <th>Details</th>
+            </tr>
+            {% for cart_item in cart %}
+            <tr>   
+                <td>{{cart_item["product_name"]}}</td>
+                <td>{{cart_item["quantity"]}}</td>
+                <td>{{"$%.2f"|format(cart_item["price"])}}</td>
+                <td>{{"$%.2f"|format(cart_item["quantity"]*cart_item["price"])}}</td>
+                {% if cart_item["is_premise_id_required"] == 1 %}
+                <td>Premise ID: {{premise_id}}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock email_standard_center %}

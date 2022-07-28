@@ -9,9 +9,70 @@ Sustainability Summary
 
 {% block dashboard_content %}
 
+<!-- jsPDF library -->
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+
+<script>
+    async function generatePDF(accountName) {
+        document.body.style.cursor='wait';
+
+        let element = document.querySelector("#sustainability");
+        let logo = document.querySelector(".b-header-logo-desktop");
+
+        let pdf = new jsPDF("p", "mm");
+
+        let pageWidth = pdf.internal.pageSize.getWidth();
+        let pageHeight = pdf.internal.pageSize.getHeight();
+        
+        let logoCanvas = await html2canvas(logo, { 
+            scale: 1.5 
+        });
+        let logoData = logoCanvas.toDataURL('image/png', 1);
+        pdf.addImage(logoData, 'PNG', (pageWidth / 2) - 40, 10);
+        
+        pdf.setFontSize(12);
+        pdf.text("Sustainability Metrics Report", (pageWidth / 2) - 30, 40);
+        pdf.setFontSize(10);
+        let dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+        pdf.text(accountName, 15, 55);
+        pdf.text(new Date().toLocaleDateString('en-US', dateOptions), 15, 60);
+        
+        pdf.setDrawColor('gray');
+        pdf.line(10, 63, pageWidth - 10, 63);
+        
+        let elementCanvas = await html2canvas(element, {
+            scale: .8
+        });
+        let elementData = elementCanvas.toDataURL('image/png', 1);
+        pdf.addImage(elementData, 'PNG', 10, 65);
+
+        // hide tabs on score card
+        pdf.setFillColor('white');
+        pdf.rect(10, 80, 60, 10, 'F');
+        
+        pdf.setFontSize(8);
+        pdf.line(10, pageHeight - 15, pageWidth - 10, pageHeight - 15);
+        pdf.text("BlockTrust Network", 15, pageHeight - 10);
+        pdf.text("3511 Longmire, College Station, TX 77845", (pageWidth / 2) - 30, pageHeight - 10);
+        pdf.text("info@Blocktrustnetwork.com", pageWidth - 50, pageHeight - 10);
+        
+        pdf.save('sustainability.pdf');
+        document.body.style.cursor='default';
+    }
+</script>
+
+
+
+<div class="row mb-2 mx-2 flex-row-reverse">
+    {% if sector == "Cow-Calf" %}
+    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New Cow-Calf Survey</a>
+    {% endif %}
+    <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
+</div>
 <div class="row">
-    <div class="col-md">
-        <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="{{sector}} summary" data-widget-sector="{{sectorID}}"></div>
+    <div class="col">
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="{{sector}} summary" data-widget-sector="{{sectorID}}"></div>
     </div>
 </div>
 <div class="row">

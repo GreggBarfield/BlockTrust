@@ -1,5 +1,9 @@
 from .accounts import Accounts
 from .. import database
+from ..no_value import NoValue
+
+NO_VALUE = NoValue()
+auction_market_cols = ("id", "name", "address", "city", "state", "zip_code", "email", "phone", "is_archived")
 
 connection_status = {
     "Pending": 0,
@@ -83,14 +87,14 @@ class Connections:
         Raises:
             ConnectionException on connection being present or connection request being present
         """
-        if self.get_connection_between(from_account_id, to_account_id) == 1:
-            raise ConnectionException("Account is already connected!")
-        if self.get_connection_between(from_account_id, to_account_id) == 0:
-            raise ConnectionException("Request already sent!")
-        first_account = Accounts(self._db).get_by_id(account_id=from_account_id)
-        second_account = Accounts(self._db).get_by_id(account_id=to_account_id)
+        first_account = Accounts(self._db).get_account_by_id(account_id=from_account_id)
+        second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
         from_account_name = first_account.name()
         to_account_name = second_account.name()
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
+            raise ConnectionException(to_account_name + " is already connected!")
+        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
+            raise ConnectionException("Connection Invite already sent to " + to_account_name)
         self._db.execute(
             """
                 INSERT INTO  connections
@@ -107,7 +111,7 @@ class Connections:
             }
         )
 
-    def get_connection_between(self, from_account_id, to_account_id):
+    def get_connection_between(self, from_account_id, to_account_id, status):
         """
         Checks the connection status between two accounts
 
@@ -116,20 +120,99 @@ class Connections:
         to_account_id: Account ID being sent the invite
 
         Returns:
-        Status of connection. 0-Pending. 1-Connected, 2-Declined
+        Connection object or None
         """
 
-        status = self._db.execute_d(
+        connection = self._db.execute_d(
             """
-            SELECT status FROM connections
+            SELECT * FROM connections
             WHERE ((from_account_id= %(from_account_id)s AND to_account_id=%(to_account_id)s) OR
             (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
+            AND status = %(status)s
             """,
             {
                 "from_account_id": from_account_id,
-                "to_account_id": to_account_id
+                "to_account_id": to_account_id,
+                "status": status
             }
         )
-        if len(status) >= 1:
-            return status[0]["status"]
+        if len(connection) == 1:
+            return connection[0]
         return None
+
+    def get_unconnected_accounts(self, account_id):
+        """
+        Get accounts not connected to the specified account
+
+        Params:
+            account_id: The account ID for which unconnected accounts are required
+
+        Returns:
+            A list of accounts which are not connected to the specified account or an empty list
+        """
+        unconnected_accounts = self._db.execute_d(
+            """
+            SELECT * FROM accounts WHERE id NOT IN(
+            SELECT from_account_id as connected_account_id FROM connections WHERE to_account_id = %(account_id)s UNION
+            SELECT to_account_id as connected_account_id FROM connections WHERE from_account_id = %(account_id)s
+            ) AND id!=%(account_id)s AND is_partner=0
+            """, {
+                "account_id": account_id
+            }
+        )
+        if len(unconnected_accounts) > 0:
+            return unconnected_accounts
+        return []
+
+    def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
+                        to_account_name=NO_VALUE, status=NO_VALUE):
+        """
+        Gets the connections based on the provided parameters
+
+        Params:
+            id: Connection table ID
+            from_account_id: Account ID of first account
+            to_account_id: Account ID of second account
+            from_account_name: Account name of first account
+            to_account_name: Account name of second account
+            status: Connection status between accounts
+
+        Returns:
+            A list of connections or and empty list
+        """
+        base_query = "SELECT * FROM connections"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append(" id = %(id)s")
+            query_values["id"] = id
+        if from_account_id is not NO_VALUE:
+            query_conditions.append(" from_account_id = %(from_account_id)s")
+            query_values["from_account_id"] = from_account_id
+        if to_account_id is not NO_VALUE:
+            query_conditions.append(" to_account_id = %(to_account_id)s")
+            query_values["to_account_id"] = to_account_id
+        if from_account_name is not NO_VALUE:
+            query_conditions.append(" from_account_name = %(from_account_name)s")
+            query_values["from_account_name"] = from_account_name
+        if to_account_name is not NO_VALUE:
+            query_conditions.append(" to_account_name = %(to_account_name)s")
+            query_values["to_account_name"] = to_account_name
+        if status is not NO_VALUE:
+            query_conditions.append(" status = %(status)s")
+            query_values["status"] = status
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        connection_rows = self._db.execute_d(query, query_values)
+        if len(connection_rows) > 0:
+            return connection_rows
+        else:
+            return []

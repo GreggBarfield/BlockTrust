@@ -918,8 +918,673 @@ CREATE TABLE `api_data_requests` (
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
-/* Nisheet Thakur 01/04/2021 */
+/* Nisheet Thakur 01/04/2022 */
 ALTER TABLE `accounts` 
 ADD COLUMN `is_partner_used_for_signup` TINYINT NULL DEFAULT '0';
 SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND is_partner=1);
 UPDATE `accounts` SET `is_partner_used_for_signup`=1 WHERE `id`=@partner_id;
+
+/* Nisheet Thakur 01/10/2021 */
+CREATE TABLE `notifications` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `message_subject` VARCHAR(127) NOT NULL,
+  `message` VARCHAR(500) NOT NULL,
+  `is_archived` TINYINT DEFAULT 0,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+CREATE TABLE `notification_recipients` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `notification_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `is_notification_seen` TINYINT NULL DEFAULT '0',
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  );
+ALTER TABLE `notification_recipients` 
+ADD INDEX `notification_recipients_user_id_id_users_idx` (`user_id` ASC) VISIBLE;
+ALTER TABLE `notification_recipients` 
+ADD CONSTRAINT `notification_recipients_user_id_id_users`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `notification_recipients` 
+ADD INDEX `notification_recipients_notification_id_id_notifications_idx` (`notification_id` ASC) VISIBLE;
+ALTER TABLE `notification_recipients` 
+ADD CONSTRAINT `notification_recipients_notification_id_id_notifications`
+  FOREIGN KEY (`notification_id`)
+  REFERENCES `notifications` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 01/13/2022 */
+
+CREATE TABLE `product_categories`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `category_name` VARCHAR(127) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT INTO `product_categories` (category_name)
+VALUES ("Dual Frequency"),
+("High Frequency"),
+("Low Frequency"),
+("USDA 840");
+
+ALTER TABLE `products`
+ADD COLUMN `product_category_id` INT,
+ADD COLUMN `member_price` FLOAT DEFAULT NULL;
+SET @dual_frequency_id := (SELECT id FROM product_categories WHERE category_name="Dual Frequency");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @low_frequency_id := (SELECT id FROM product_categories WHERE category_name="Low Frequency");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,post,subheader,unit,details, partner, product_category_id, member_price)
+VALUES ("Dual Tech Tag", "dual_tech_thumbnail.png", "dual_tech_large.png", 26, 0, "Y", "", "Bag(s) of 10", "Ultra High Frequency Male Flag paired with an HDX Low Frequency Button; Exceptional male to female coupling and retention; Superb flexibility; High clarity Indelible laser printing; Full embedded wire (far-field antenna); Compatible with existing reader hardware be it LF or UHF; Full electronic compatibility at LF and UHF frequencies; Exceptional, high speed real-world read range", @partner_id, @dual_frequency_id, 20.80)
+,("UHF Tag", "uhf_thumbnail.png", "uhf_large.png", 17.50, 0, "Y", "", "Bag(s) of 10", "Ultra High Frequency Male Flag; 60 mm x 80 mm popular size & shape; Superb flexibility; Superior UV stability; High clarity Indelible laser printing; Fully embedded wire (far-field) antenna; Inductively coupled Internal (Stand-Alone) Impinj MONZA R6-P chip (BS ISO/IEC IS018000-6); Exceptional, high speed real-world read range", @partner_id, @high_frequency_id, 14)
+,("LF Tag", "lf_thumbnail.png", "lf_large.png", 15, 0, "Y", "", "Bag(s) of 10", "Low Frequency Button with Visual Male Flag; 60 mm x 80 mm popular size & shape; High clarity Indelible laser printing; Superb flexibility; Superior UV stability; Full electronic compatibility at Animal LF frequencies", @partner_id, @low_frequency_id, 15);
+
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @product_id := (SELECT id FROM products WHERE product='Strip Tag');
+UPDATE `products` SET `product_category_id`=@high_frequency_id, unit="Bag(s) of 20", member_price=35.20 WHERE `id`=@product_id;
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Tag');
+UPDATE `products` SET `product_category_id`=@usda_840_id, unit="Bag(s) of 20", member_price=35.40 WHERE `id`=@product_id;
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET `product_category_id`=@high_frequency_id, unit="Bag(s) of 20", member_price=44 WHERE `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET `post`='N' where `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
+values("USCT", @product_id, 20);
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
+values("USCT", @product_id, 20);
+
+CREATE TABLE `product_categories_partners`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `product_category_id` INT NOT NULL,
+  `partner_id` INT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+SET @dual_frequency_id := (SELECT id FROM product_categories WHERE category_name="Dual Frequency");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @low_frequency_id := (SELECT id FROM product_categories WHERE category_name="Low Frequency");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `product_categories_partners` (product_category_id, partner_id)
+VALUES (@dual_frequency_id, @partner_id),
+(@high_frequency_id, @partner_id),
+(@low_frequency_id, @partner_id),
+(@usda_840_id, @partner_id);
+
+/* Nisheet Thakur 01/19/2022 */
+ALTER TABLE `products` ADD COLUMN `is_active` TINYINT NULL DEFAULT 1;
+UPDATE `products` SET `is_active`=1 WHERE `post`="Y";
+UPDATE `products` SET `is_active`=0 WHERE `post`="N";
+ALTER TABLE `products` DROP COLUMN `post`;
+
+/* Conner Charles 1/21/2022 */
+ALTER TABLE `sustainability`
+ADD COLUMN `air_first_score` INT NULL DEFAULT 0 AFTER `account`,
+ADD COLUMN `air_second_score` INT NULL DEFAULT 0 AFTER `air_first_score`,
+ADD COLUMN `air_third_score` INT NULL DEFAULT 0 AFTER `air_second_score`,
+ADD COLUMN `land_first_score` INT NULL DEFAULT 0 AFTER `air_third_score`,
+ADD COLUMN `land_second_score` INT NULL DEFAULT 0 AFTER `land_first_score`,
+ADD COLUMN `land_third_score` INT NULL DEFAULT 0 AFTER `land_second_score`,
+ADD COLUMN `water_first_score` INT NULL DEFAULT 0 AFTER `land_third_score`,
+ADD COLUMN `water_second_score` INT NULL DEFAULT 0 AFTER `water_first_score`,
+ADD COLUMN `water_third_score` INT NULL DEFAULT 0 AFTER `water_second_score`,
+ADD COLUMN `animal_first_score` INT NULL DEFAULT 0 AFTER `water_third_score`,
+ADD COLUMN `animal_second_score` INT NULL DEFAULT 0 AFTER `animal_first_score`,
+ADD COLUMN `animal_third_score` INT NULL DEFAULT 0 AFTER `animal_second_score`,
+ADD COLUMN `safety_first_score` INT NULL DEFAULT 0 AFTER `animal_third_score`,
+ADD COLUMN `safety_second_score` INT NULL DEFAULT 0 AFTER `safety_first_score`,
+ADD COLUMN `safety_third_score` INT NULL DEFAULT 0 AFTER `safety_second_score`,
+ADD COLUMN `efficiency_first_score` INT NULL DEFAULT 0 AFTER `safety_third_score`,
+ADD COLUMN `efficiency_second_score` INT NULL DEFAULT 0 AFTER `efficiency_first_score`,
+ADD COLUMN `efficiency_third_score` INT NULL DEFAULT 0 AFTER `efficiency_second_score`;
+
+/* Nisheet Thakur 01/26/2022 */
+CREATE TABLE `product_vendors`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `vendor_name` VARCHAR(127) NOT NULL,
+  `vendor_email` VARCHAR(127) NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("Fort Supply", "cattletrace@fort-supply.com"),
+("APK-ID Tags", "emilylynndavis1@gmail.com");
+
+ALTER TABLE `products` ADD COLUMN `product_vendor_id` INT DEFAULT NULL;
+
+SET @apkid := (SELECT id FROM product_vendors WHERE vendor_name="APK-ID Tags");
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
+UPDATE `products` SET `is_premise_id_required`=0, product_vendor_id=@apkid WHERE `id`=@product_id;
+
+SET @product_id := (SELECT id FROM products WHERE product='Strip Tag');
+UPDATE `products` SET `product`='UHF Strip Tag' WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Tag');
+UPDATE `products` SET `product`='UHF Large Panel Tag' WHERE `id`=@product_id;
+
+SET @fortsupply := (SELECT id FROM product_vendors WHERE vendor_name="Fort Supply");
+SET @product_id := (SELECT id FROM products WHERE product='UHF Strip Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Large Panel Feedlot Tag');
+UPDATE `products` SET product_vendor_id=@fortsupply WHERE `id`=@product_id;
+
+
+/* Nisheet Thakur 01/31/2022 */ 
+ALTER TABLE `notifications` 
+ADD COLUMN `notification_type` INT NOT NULL AFTER `id`;
+ALTER TABLE `notifications`
+RENAME COLUMN `message_subject` TO `subject`;
+
+/* Nisheet Thakur 02/02/2022 */
+CREATE TABLE `event_logs`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `event_type_id` INT NULL,
+  `details` JSON NULL DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+ALTER TABLE `event_logs` 
+ADD INDEX `event_type_id_idx` (`event_type_id`) VISIBLE;
+
+/* Rohan Sureshkumar 1/31/2021 */
+UPDATE accounts SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7
+UPDATE account_links SET affiliate_id = TRIM(LEADING '0' FROM affiliate_id)
+WHERE sector = 7
+
+/* Conner Charles 02/04/2022 */
+CREATE TABLE `usda_favorites_for_accounts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL DEFAULT NULL,
+  `state` VARCHAR(2) NULL DEFAULT NULL,
+  `slug_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id`)
+);
+
+/* Conner Charles 2/11/2022 */
+ALTER TABLE `sustainability`
+CHANGE COLUMN `air_first_score` `air_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `air_third_score` `air_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `air_second_score` `air_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `land_first_score` `land_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `land_third_score` `land_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `land_second_score` `land_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `water_first_score` `water_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `water_third_score` `water_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `water_second_score` `water_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `animal_first_score` `animal_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `animal_third_score` `animal_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `animal_second_score` `animal_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `safety_first_score` `safety_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `safety_third_score` `safety_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `safety_second_score` `safety_second_score_points` INT NULL DEFAULT '0',
+CHANGE COLUMN `efficiency_first_score` `efficiency_first_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `efficiency_third_score` `efficiency_third_score_points` INT NULL DEFAULT '0' ,
+CHANGE COLUMN `efficiency_second_score` `efficiency_second_score_points` INT NULL DEFAULT '0';
+
+/* Nisheet Thakur 02/16/2022 */
+ALTER TABLE `notifications`
+RENAME COLUMN `notification_type` TO `notification_type_id`;
+
+/* Nisheet Thakur  02/28/2022*/
+CREATE TABLE `auction_markets` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(127) NOT NULL,
+    `address` VARCHAR(127) DEFAULT NULL,
+    `city` VARCHAR(50) DEFAULT NULL,
+    `state` VARCHAR(2) DEFAULT NULL,
+    `email` VARCHAR(127) DEFAULT NULL,
+    `phone` BIGINT DEFAULT NULL,
+    `zip_code` VARCHAR(10) DEFAULT NULL,
+    `is_archived` TINYINT NULL DEFAULT '0',
+    `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+);
+
+INSERT INTO `auction_markets`(name,city,state)
+VALUES ("Alabama Livestock Auction","Uniontown","AL"),
+("Arab Livestock Market","Arab","AL"),
+("Ashville Stockyard","Ashville","AL"),
+("Clay County Livestock Auction","Lineville","AL"),
+("Coffee County Stockyards","New Brockton","AL"),
+("Cullman Stockyard","Cullman","AL"),
+("Dothan Livestock Co.","Dothan","AL"),
+("Fort Payne Livestock","Fort Payne","AL"),
+("Frisco City Stockyard","Frisco City","AL"),
+("Livingston Stockyard","Livingston","AL"),
+("Mid State Stockyards Inc.","Letohatchee","AL"),
+("Montgomery Stockyards","Montgomery","AL"),
+("Northwest Alabama Livestock","Russellville","AL"),
+("Opp Livestock","Opp","AL"),
+("Roanoke Stockyards","Roanoke","AL"),
+("Sand Mountain Stockyards Inc.","Kilpatrick","AL"),
+("South Alabama Stockyards","Brundidge","AL"),
+("Tennessee Valley Livestock","Florence","AL"),
+("Valley Livestock","Moulton","AL"),
+("Arkansas Cattle Auction LLC","Searcy","AR"),
+("Ash Flat Livestock","Ash Flat","AR"),
+("Benton County Sale Barn","Siloam Springs","AR"),
+("Cattleman’s Livestock Market","Glenwood","AR"),
+("Cattlemen’s Livestock Exchange","Cord","AR"),
+("Cleburne County Livestock","Heber Springs","AR"),
+("County Line Sale","Ratcliff","AR"),
+("Hope Livestock","Hope","AR"),
+("North Arkansas Livestock","Green Forest","AR"),
+("Ouachita Livestock","Ola","AR"),
+("Centennial Livestock Auction","Fort Collins","CO"),
+("Livestock Exchange LLC","Brush","CO"),
+("La Junta Livestock Commission Co. Inc.","La Junta","CO"),
+("Sterling Livestock Commission Company Inc.","Sterling","CO"),
+("Winter Livestock Inc.","La Junta","CO"),
+("Arcadia Livestock Auction","Arcadia","FL"),
+("Cattlemen’s Livestock Auction","Lakeland","FL"),
+("Columbia Livestock Auction","Lake City","FL"),
+("Ocala Livestock Auction","Ocala","FL"),
+("Okeechobee Livestock Auction","Okeechobee","FL"),
+("Sumter County Livestock Auction","Webster","FL"),
+("Townsend Livestock Auction","Madison","FL"),
+("Calhoun Stockyard","Calhoun","GA"),
+("Carroll County Livestock","Carrollton","GA"),
+("Duvall Livestock","Greensboro","GA"),
+("Eastanollee Livestock","Eastanollee","GA"),
+("Franklin County Livestock","Carnesville","GA"),
+("Jackson Regional Stockyards","Jackson","GA"),
+("Lanier Farmers Livestock","Gainesville","GA"),
+("Mosely Livestock","Blakely","GA"),
+("Moultrie Livestock","Moultrie","GA"),
+("Northeast Georgia Livestock","Athens","GA"),
+("Pulaski County Stockyard","Hawkinsville","GA"),
+("Seminole Livestock Exchange","Donalsonville","GA"),
+("South Central Livestock","Fitzgerald","GA"),
+("Southern Livestock","Oak Park","GA"),
+("Sumter Co Stockyard","Americus","GA"),
+("Thomasville Stockyard","Thomasville","GA"),
+("Turner County Stockyard","Ashburn","GA"),
+("Upson County Livestock","Thomaston","GA"),
+("Wilkes County Stockyard","Washington","GA"),
+("Appanoose County Livestock Inc.","Centerville","IA"),
+("Bloomfield Livestock Market","Bloomfield","IA"),
+("Clarinda Livestock Auction","Clarinda","IA"),
+("Creston Livestock Auction","Creston","IA"),
+("Denison Livestock Auction","Denison","IA"),
+("Dunlap Livestock Auction","Dunlap","IA"),
+("Humeston Livestock Auction","Humeston","IA"),
+("Keoco Auction Company LLC","Sigourney","IA"),
+("Knoxville Regional Livestock Market","Knoxville","IA"),
+("Lamoni Livestock Auction Market","Lamoni","IA"),
+("Russell Livestock Market","Russell","IA"),
+("Sheldon Livestock","Sheldon","IA"),
+("Tama Livestock Auction","Tama","IA"),
+("Tama Livestock Auction","Tama","IA"),
+("Fairview Livestock","Fairview","IL"),
+("Greenville Livestock Auction","Greenville","IL"),
+("Reel Livestock","Congerville","IL"),
+("Walnut Livestock Auction","Walnut","IL"),
+("Indianapolis Stockyards","Rockville","IN"),
+("Shipshewana Livestock","Shipshewana","IN"),
+("Springville Feeder Auction","Springville","IN"),
+("Stoney Pike Livestock","Logansport","IN"),
+("Topeka Livestock Auction","Topeka","IN"),
+("United Producers Inc.","Vincennes","IN"),
+("White River Valley Feeder Auction Association","Worthington","IN"),
+("Farmers and Ranchers Livestock Commission Company","Salina","KS"),
+("Winter Livestock Inc.","Dodge City","KS"),
+("Winter Livestock Inc.","Pratt","KS"),
+("Blue Grass South Stockyards","Stanford","KY"),
+("Blue Grass Stockyards","Lexington","KY"),
+("Cattleman’s Livestock","Bowling Green","KY"),
+("Farmers Regional Livestock Market","Glasgow","KY"),
+("Farmers Stockyards","Flemingsburg","KY"),
+("Kentuckiana Livestock Market","Owensboro","KY"),
+("United Producers Inc.","Irvington","KY"),
+("Washington Co. Livestock","Springfield","KY"),
+("Blue Grass Stockyards","Maysville","KY"),
+("Farmers Regional Livestock Auction of Glasgow Dairy Auction","Smiths Grove","KY"),
+("Livingston Co. Livestock Market","Ledbetter","KY"),
+("United Producers Inc.","Bowling Green","KY"),
+("Wilson Livestock Market","London","KY"),
+("Blue Grass Stockyards","Albany","KY"),
+("Blue Grass Stockyards","Campbellsville","KY"),
+("Blue Grass Stockyards","Mt. Sterling","KY"),
+("Christian Co Livestock","Hopkinsville","KY"),
+("Russell Co. Stockyard","Russell Springs","KY"),
+("United Producers Inc.","Owenton","KY"),
+("Paris Stockyards","Paris","KY"),
+("Blue Grass Stockyards","Richmond","KY"),
+("Lake Cumberland Livestock","Somerset","KY"),
+("Blue Grass Stockyards","Stanford","KY"),
+("Four States Livestock Sales","Hagerstown","MD"),
+("Friends Livestock Auction","Accident","MD"),
+("Callaway Livestock Center","Kingdom City","MO"),
+("Douglas County Livestock Auction","Ava","MO"),
+("Eastern Missouri Commission Company","Bowling Green","MO"),
+("Farmington Livestock Auction","Farmington","MO"),
+("F&T Livestock Market","Palmyra","MO"),
+("Green City Livestock Auction","Green City","MO"),
+("Interstate Regional Stockyards Inc.","Cuba","MO"),
+("Joplin Regional Stockyards","Carthage","MO"),
+("Kingsville Livestock Auction","Kingsville","MO"),
+("Lolli Brothers Livestock Market","Macon","MO"),
+("New Cambria Livestock Auction","New Cambria","MO"),
+("Ozarks Regional Stockyards","West Plains","MO"),
+("SEMO Livestock Sales","Jackson","MO"),
+("South Central Regional Stockyards","Vienna","MO"),
+("Springfield Livestock Market","Springfield","MO"),
+("Unionville Livestock Market","Unionville","MO"),
+("Unionville Livestock Market","Unionville","MO"),
+("Windsor Livestock Auction","Windsor","MO"),
+("Cattlemens Stockyard LLC","West Point","MS"),
+("East Mississippi Livestock Company","Philadelphia","MS"),
+("Glenwild Stockyard Inc.","Grenada","MS"),
+("Lincoln County Livestock","Brookhaven","MS"),
+("Lipscomb Brothers Livestock","Como","MS"),
+("Livestock Producers Sale Barn","Tylertown","MS"),
+("Lucedale Livestock Producers","Lucedale","MS"),
+("Macon Stockyard","Macon","MS"),
+("Meridian Stock Yards Inc.","Meridian","MS"),
+("Peoples Livestock Auction","Houston","MS"),
+("Southeast Mississippi Livestock","Hattiesburg","MS"),
+("Tadlock Stockyard","Forest","MS"),
+("Winona Stockyard","Winona","MS"),
+("Billings Livestock Commission","Billings","MT"),
+("Miles City Livestock Commission","Miles City","MT"),
+("Public Auction Yards","Billings","MT"),
+("Carolina Stockyards","Siler City","NC"),
+("Cleveland County Agriculture & Livestock Exchange","Shelby","NC"),
+("Harward Brothers Livestock Market","Turnersburg","NC"),
+("Powell Livestock Company","Smithfield","NC"),
+("Stanly County Livestock Market","Norwood","NC"),
+("Wilkes Livestock Exchange","North Wilkesboro","NC"),
+("WNC Regional Livestock Center","Canton","NC"),
+("Kist Livestock","Mandan","ND"),
+("Napoleon Livestock","Napoleon","ND"),
+("Stockmen's Livestock Exchange","Dickinson","ND"),
+("Bassett Livestock Auction","Bassett","NE"),
+("Burwell Livestock Market","Burwell","NE"),
+("Crawford Livestock Market","Crawford","NE"),
+("Ericson Livestock Market","Ericson","NE"),
+("Gordon Livestock Market","Gordon","NE"),
+("Huss Livestock Market","Kearney","NE"),
+("Imperial Livestock Market","Imperial","NE"),
+("Lexington Livestock Market","Lexington","NE"),
+("Ogallala Livestock Auction","Ogallala","NE"),
+("Sheridan Livestock Auction Co.","Rushville","NE"),
+("Valentine Livestock Auction","Valentine","NE"),
+("West Point Livestock Auction","West Point","NE"),
+("Cattlemen's Livestock","Belen","NM"),
+("Clovis Livestock","Clovis","NM"),
+("Roswell Livestock","Roswell","NM"),
+("Santa Teresa Livestock Auction","Santa Teresa","NM"),
+("Santa Teresa Livestock (Spanish)","Santa Teresa","NM"),
+("Apache Livestock Auction","Apache","OK"),
+("McAlester Union Stockyards","McAlester","OK"),
+("OKC West Livestock Market","El Reno","OK"),
+("Oklahoma National Stockyards","Oklahoma City","OK"),
+("Southern Oklahoma Livestock","Ada","OK"),
+("Tulsa Stockyards Inc.","Tulsa","OK"),
+("Woodward Livestock Inc.","Woodward","OK"),
+("84 Livestock Auction","Eighty Four","PA"),
+("Dewart Livestock Auction","Dewart","PA"),
+("Greencastle Livestock Market","Greencastle","PA"),
+("Indiana Livestock Auction","Homer City","PA"),
+("Middleburg Livestock Auction","Middleburg","PA"),
+("New Holland Sale Stable Inc.","New Holland","PA"),
+("New Wilmington Livestock Auction","New Wilmington","PA"),
+("Pennsylvania Livestock Auction","Waynesburg","PA"),
+("Vintage Sale Stables Inc.","Paradise","PA"),
+("Chester Livestock Exchange","Chester","SC"),
+("Laurens Livestock Exchange","Laurens","SC"),
+("Low Country Livestock Exchange","Darlington","SC"),
+("Orangeburg Stockyards","Orangeburg","SC"),
+("Saluda County Stockyards","Saluda","SC"),
+("Upstate Livestock Exchange","Williamston","SC"),
+("Ft. Pierre Livestock Auction","Ft. Pierre","SD"),
+("Herried Livestock Market","Herreid","SD"),
+("Hub City Livestock Auction","Aberdeen","SD"),
+("Mitchell Livestock","Mitchell","SD"),
+("Mobridge Livestock Exchange","Mobridge","SD"),
+("Philip Livestock Auction","Philip","SD"),
+("Sioux Falls Regional Livestock Inc.","Worthing","SD"),
+("Athens Regional Stockyard","Athens","TN"),
+("Browning Livestock Market","Lafayette","TN"),
+("Crossville Stockyard","Crossville","TN"),
+("Dickson Regional Livestock Center Inc.","Dickson","TN"),
+("East Tennessee Cattle Alliance","Greeneville","TN"),
+("East Tennessee Livestock Center Inc.","Sweetwater","TN"),
+("Farmers Livestock Market","Greeneville","TN"),
+("Hardin County Stockyard","Savannah","TN"),
+("Knoxville Livestock Auction Center Inc.","Knoxville","TN"),
+("Pulaski Stockyard","Pulaski","TN"),
+("Smith County Commission Co.","Carthage","TN"),
+("Southwestern Sales Co.","Huntingdon","TN"),
+("United Producers Inc. Beef Alliance Sale","Columbia","TN"),
+("United Producers Inc.","Columbia","TN"),
+("Warren County Livestock","McMinnville","TN"),
+("Amarillo Livestock","Amarillo","TX"),
+("Cattlemen’s Livestock","Dalhart","TX"),
+("Lonestar Stockyards","Wildorado","TX"),
+("Producers Livestock Auction Co.","San Angelo","TX"),
+("Tulia Livestock","Tulia","TX"),
+("Cedar Livestock","Cedar City","UT"),
+("Producers Livestock","Salina","UT"),
+("‘R’ Livestock Connection","Monroe","UT"),
+("Culpeper","Culpeper","VA"),
+("Farmers Livestock Exchange","Winchester","VA"),
+("Fauquier Livestock Exchange","Marshall","VA"),
+("Lynchburg Livestock","Rustburg","VA"),
+("Monterey Stockyard LLC","Monterey","VA"),
+("Pulaski Livestock","Dublin","VA"),
+("Radiant Livestock","Radiant","VA"),
+("Rockingham Livestock","Harrisonburg","VA"),
+("Shenandoah Valley Livestock","Harrisonburg","VA"),
+("Southside Livestock","Blackstone","VA"),
+("Springlake Stockyard","Moneta","VA"),
+("Staunton Livestock","Staunton","VA"),
+("Virginia Livestock LLC","Fort Royal","VA"),
+("Wythe County Livestock","Wytheville","VA"),
+("Addison County Commission Sales","East Middlebury","VT"),
+("Toppenish Livestock Commission","Toppenish","WA"),
+("Buckhannon Stockyards","Buckhannon","WV"),
+("Cattlemen’s Livestock Exchange","Caldwell","WV"),
+("Jackson County Regional","Ripley","WV"),
+("Parkersburg Livestock Market","Mineral Wells","WV"),
+("Preston Farmers Market","Terra Alta","WV"),
+("South Branch Valley Livestock Exchange","Moorefield","WV"),
+("Weston Livestock Marketing","Weston","WV"),
+("Torrington Livestock Commission Co.","Torrington","WY"),
+("Winter Livestock Auction","Riverton","WY");
+
+ALTER TABLE `sales_groups` ADD COLUMN `delivery_location_type` VARCHAR(15) NULL DEFAULT 'Off Ranch';
+ALTER TABLE `sales_groups` ADD INDEX `delivery_location_type_idx` (`delivery_location_type`) VISIBLE;
+
+/* Nisheet Thakur 03/04/2022 */
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("All Data Tags", "support@alldatatags.com");
+
+SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, partner, product_category_id, product_vendor_id, is_premise_id_required, member_price)
+VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 30, 0, "", "Bag(s) of 20", "Discount while supplies last;USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency .;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.", @partner_id, @usda_840_id, @alldatatagsid, 0, 24);
+
+SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
+INSERT INTO `product_discounts`(coupon_code, product, discount_percentage)
+values("USCT", @product_id, 20);
+
+/* Rohan Sureshkumar 03/16/2022 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `price` DECIMAL(8,2) DEFAULT 0,
+ADD COLUMN `is_sold` TINYINT DEFAULT 0,
+ADD COLUMN `buyer_account_id` INT DEFAULT NULL AFTER `is_sold`;
+
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_account_id_accounts`
+  FOREIGN KEY (`account`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_buyer_account_id_id_accounts`
+  FOREIGN KEY (`buyer_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Conner Charles 03/11/2022 */
+ALTER TABLE `usda_reports` 
+DROP INDEX `city_idx` ,
+ADD INDEX `city_idx` (`market_location_city` ASC, `slug_id` ASC, `market_location_name` ASC) VISIBLE;
+
+/* Rohan Sureshkumar 03/15/22 */
+ALTER TABLE `usda_reports`
+ADD COLUMN `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+/* Rohan Sureshkumar 3/21/2022 */
+CREATE TABLE `debug_logs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `component` VARCHAR(100) NULL,
+  `short_info` VARCHAR(100) NULL,
+  `long_info` VARCHAR(3000) NULL,
+  `details` JSON NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+  );
+  
+/* Rohan Sureshkumar 3/23/22 */
+ALTER TABLE `usda_reports` RENAME INDEX `city_idx` TO `favorites_idx`;
+ALTER TABLE `usda_reports` ALTER INDEX `favorites_idx` VISIBLE;
+
+/* Rohan Sureshkumar 3/24/22 */
+ALTER TABLE `account_links` 
+ADD COLUMN `name` VARCHAR(127) NULL DEFAULT NULL AFTER `company`;
+UPDATE `account_links` SET name = company;
+UPDATE account_links AL INNER JOIN accounts A 
+ON AL.account = A.id SET AL.company = A.company WHERE AL.account IS NOT NULL;
+
+/* Nisheet Thakur 04/08/2022 */
+ALTER TABLE `sales_group_eids`
+ADD COLUMN `visual_id` VARCHAR(16) NULL DEFAULT NULL;
+ALTER TABLE `sales_group_eids`
+RENAME TO `sales_group_animals`;
+
+/* Rohan Sureshkumar 4/8/22 */
+ INSERT INTO reports(account_id, query, status)
+ SELECT id, CONCAT('{"type": "count_distribution_account_and_sector", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+ FROM accounts WHERE sector = 6
+
+/* Nisheet Thakur 4/11/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
+UPDATE `products` SET `is_premise_id_required`=1, `price`=35 WHERE id=@product_id;
+
+/* Rohan Sureshkumar 14/4/2022 */
+ALTER TABLE `accounts` 
+ADD COLUMN `stripe_account_id` VARCHAR(127) NULL AFTER `stripe_customer_id`,
+ADD COLUMN `is_stripe_charges_enabled` TINYINT NULL DEFAULT 0 AFTER `stripe_account_id`;
+
+/* Nisheet Thakur 4/25/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Large Panel Tag');
+UPDATE `products` SET `is_active`=0 WHERE id=@product_id;
+
+/* Nisheet Thakur 5/2/2022 */
+CREATE TABLE `scheduled_emails` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NULL,
+  `email_address` VARCHAR(100) NULL,
+  `subject` VARCHAR(100) NULL,
+  `body` VARCHAR(3000) NULL,
+  `variables` JSON NULL,
+  `template_name` VARCHAR(100) NULL,
+  `status_id` TINYINT DEFAULT '0',
+  `error_details` VARCHAR(3000) DEFAULT NULL,
+  `sent_date_time` DATETIME DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+
+/* Nisheet Thakur 5/19/2022 */
+SET @product_id := (SELECT id FROM products WHERE product='UHF Tag');
+UPDATE `products` SET `price`=20 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='Dual Tech Tag');
+UPDATE `products` SET `price`=28.5 WHERE id=@product_id;
+SET @product_id := (SELECT id FROM products WHERE product='LF Tag');
+UPDATE `products` SET `price`=17.5 WHERE id=@product_id;
+
+/* Nisheet Thakur 06/01/2022 */
+INSERT INTO `product_vendors` (vendor_name, vendor_email)
+VALUES ("Herd Whistle", "sales@herdwhistle.com");
+
+SET @herdwhistleid := (SELECT id FROM product_vendors WHERE vendor_name="Herd Whistle");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, partner, product_category_id, product_vendor_id, is_premise_id_required, member_price)
+VALUES ("1-piece UHF Tag","1pc-white-USDA.png","1pc-white-USDA.png",82.50,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 82.50),
+("2-piece UHF Tag","2pc-white-USDA.png","2pc-white-USDA.png",85,0,"","Bag(s) of 50","Colors available in- White, Gray, Red, Light Blue, Green, Orange, Purple, Pink, Yellow.;Customized Visible Numbers available upon request, email info@uscattletrace.org with details.", @partner_id, @high_frequency_id, @herdwhistleid, 0, 68);
+
+SET @product_id := (SELECT id FROM products WHERE product='2-piece UHF Tag' AND product_vendor_id=@herdwhistleid);
+INSERT INTO product_discounts(coupon_code,product,discount_percentage)
+VALUES ("USCT",@product_id,20);
+
+/* Rohan Sureshkumar 6/8/2022 */
+ALTER TABLE `matches` 
+ADD COLUMN `zip` VARCHAR(12) NULL DEFAULT NULL AFTER `data`;
+
+/* Nisheet Thakur  06/09/2022*/
+ALTER TABLE `sales_groups`
+ADD COLUMN `category` VARCHAR(100) NOT NULL,
+ADD COLUMN `breed_comments` VARCHAR(200) NULL DEFAULT NULL,
+ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
+
+/* Nisheet Thakur 06/23/2022 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;
+
+/* Rohan Sureshkkumar 07/04/2022 */
+ALTER TABLE `scheduled_emails` 
+ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `user_id`;
+
+ALTER TABLE `scheduled_emails`
+ADD INDEX `fk_scheduled_emails_user_id_id_users_idx` (`user_id` ASC) VISIBLE;
+ALTER TABLE `scheduled_emails` 
+ADD CONSTRAINT `fk_scheduled_emails_user_id_id_users`
+  FOREIGN KEY (`user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `scheduled_emails`
+ADD INDEX `fk_scheduled_emails_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `scheduled_emails` 
+ADD CONSTRAINT `fk_scheduled_emails_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 7/26/2022 */
+UPDATE matches SET zip=JSON_UNQUOTE(JSON_EXTRACT(debug,'$.zip')) WHERE debug IS NOT NULL and type=1 AND zip is NULL
+

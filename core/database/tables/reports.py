@@ -1,12 +1,12 @@
 from json import dumps, loads
 from time import time
 from core.database.no_value import NoValue
+from core.sectors import sectors_by_name
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
 from core.reports.query_types import (
-    count_distribution, count_distribution_global, count_eid_distinct,
-    count_eid_distinct_by_account
+    count_distribution, count_distribution_account_and_sector, count_eid_distinct_by_account
 )
 import json
 
@@ -19,6 +19,8 @@ REPORT_STATUS = {
     "Running": 3,
     "Error": 4,  # Note that errors may also be uncaught, leading to infinite running
 }
+
+report_cols = ("id", "account_id", "priority", "query", "result", "status", "fulfilled", "create_timestamp", "last_updated_timestamp")
 
 class Reports:
     """Model for reports.
@@ -148,15 +150,19 @@ class Reports:
             )
         )
 
-    def make_reports_for_account(self, account_id):
-        queries = [
-            count_distribution.create(account_id, "USDA Yield Grade"),
-            count_distribution.create(account_id, "USDA Quality Grade"),
-            count_eid_distinct_by_account.create(account_id)
-        ]
+    def make_reports_for_account(self, account_id, sector_id):
+        if sector_id != sectors_by_name["Buyer"]:
+            queries = [
+                count_distribution.create(account_id, "USDA Yield Grade"),
+                count_distribution.create(account_id, "USDA Quality Grade"),
+                count_eid_distinct_by_account.create(account_id)
+            ]
 
-        for query in queries:
-            self.insert_query(account_id, query)
+            if sector_id == sectors_by_name["Feedlot"]:
+                queries.append(count_distribution_account_and_sector.create(account_id, sectors_by_name["Cow-Calf"]))
+
+            for query in queries:
+                self.insert_query(account_id, query)
 
     def mark_account_reports_for_reprocessing(self):
         """Marking reports linked to accounts for reprocessing. Reports need to be in ready state to be marked.
@@ -178,6 +184,9 @@ class Reports:
         """Generic get report routine
 
         """
+        for selectColumn in selectColumns:
+            if selectColumn not in report_cols:
+                raise Exception("selectColumn " + selectColumn + " does not exist")
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)
         else:

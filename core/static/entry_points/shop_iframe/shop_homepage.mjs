@@ -6,7 +6,7 @@ $( ".form-inline" ).submit(function( event ) {
     }
     // Adding total price, shipping, tax and grand total to local storage if not present
     if(!localStorage.shipping){
-    localStorage.setItem('shipping', 15.00)
+    localStorage.setItem('shipping', 20.00)
     }
     if(!localStorage.totalPrice){
     localStorage.setItem('totalPrice', 0);
@@ -33,10 +33,17 @@ $( ".form-inline" ).submit(function( event ) {
     var shopCartString=localStorage.getItem('shoppingCart');
     var shopCart= JSON.parse(shopCartString)
     // Get input values to add products to cart
-    var values = $(this).serializeArray();
-    // Create tuple to add to shoppingCart object in localStorage
-    var product={prod_no: values[0].value, price: parseFloat(values[1].value), product_name: values[2].value, quantity: parseInt(values[3].value), is_premise_id_required: parseInt(values[4].value)};
-    var product_no=values[0].value;
+    var selectedProductValues = $(this).serializeArray();
+    // Create object to add to shoppingCart object in localStorage
+    var product={
+        prod_no: selectedProductValues[0].value,
+        price: parseFloat(selectedProductValues[1].value),
+        product_name: selectedProductValues[2].value,
+        quantity: parseInt(selectedProductValues[3].value),
+        is_premise_id_required: parseInt(selectedProductValues[4].value),
+        units: selectedProductValues[5].value
+        };
+    var product_no=selectedProductValues[0].value;
     // Checking if product is already present in the localStorage and performing necessary actions
     if(!(product_no in shopCart)){
     shopCart[product_no]=product;
@@ -74,7 +81,7 @@ $( ".form-inline" ).submit(function( event ) {
     total_discount=Math.round(total_discount*100)/100;
     var total_tax=Math.round((total_price-total_discount)*0.065*100)/100;
     // Grand total after adding total price, total tax and shipping
-    var grand_total=Math.round((total_price+total_tax-total_discount+15)*100)/100;
+    var grand_total=Math.round((total_price+total_tax-total_discount+20)*100)/100;
     localStorage.setItem('totalPrice', total_price);
     localStorage.setItem('totalTax', total_tax);
     localStorage.setItem('grandTotal', grand_total);

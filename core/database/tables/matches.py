@@ -2,12 +2,15 @@ import time as time_module
 import json
 from core.database.no_value import NoValue
 from ..frag import frag
-from .match_types import MatchTypes
 from core.match_types import match_types_by_name
+from core.sectors import sectors_by_name
+from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
+from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
 NO_VALUE = NoValue()
+
 
 class MatchesException(Exception):
     """Matches generic exception."""
@@ -23,7 +26,7 @@ class MatchesException(Exception):
 
 class Matches:
 
-    _account_links_cols = ("id", "account", "affiliate_id", "company", "sector", "partner_account")
+    _account_links_cols = ("id", "account", "affiliate_id", "company", "name", "sector", "partner_account")
     _account_links_clause = (
         ', ' + ', '.join(
             'account_links.' + a + ' AS "account_links.' + a + '"'
@@ -32,8 +35,10 @@ class Matches:
     )
 
     def __init__(self, db):
-        self.types = MatchTypes(self)
         self._db = db
+        self.types = MatchTypes(self)
+        self._match_cols = ("id", "partner_account", "account_link", "eid", "visual_id", "grouping_id", "lat", "lon", "time", "created", "type"
+         "data", "bc_transaction_id", "bc_hash", "bc_upload")
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -85,49 +90,11 @@ class Matches:
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
-            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.company AS 'account_links.company',"
+            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.name AS 'account_links.name',"
                                 + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
                                 + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
             args = [account_link_id]
             
-            if len(restrict_types) > 0:
-                type_clause = "AND matches.type IN (%s)"
-                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
-                type_clause = type_clause % in_clause
-                query_statements.append(type_clause)
-                args += restrict_types
-
-            query = " ".join(query_statements)
-            matches = self._db.execute_d(query, args)
-            return matches
-        else:
-            return []
-
-    def get_all_matches_for_an_account(self, account_link_id=0, restrict_types=(), ljoin_account_links=False, match_cols=()):
-        """Gets all matches by an account.
-
-        Params:
-            account_links: all the account links of an account (should be 1)
-            restrict_types: match types
-            ljoin_account_links: Whether to left join account links
-            match_cols: optional specify the columns needed from the matches table
-
-        Returns:
-            A list of dictionaries containing matches and account_links data if joined (possibly empty)
-            No duplicates
-        """
-        if account_link_id > 0:
-            match_columns_query = ",".join(list(map(lambda c: "matches." + c, match_cols)))
-
-            query_statements = []
-            query_statements.append("SELECT " + ("matches.*" if match_columns_query == "" else match_columns_query))
-            query_statements.append(Matches._account_links_clause if ljoin_account_links else "")
-            query_statements.append("FROM matches" + (" LEFT JOIN account_links ON matches.account_link = account_links.id" if ljoin_account_links else ""))
-
-            al_clause = "WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link IN (%s))"
-            query_statements.append(al_clause)
-            args = [account_link_id]
-
             if len(restrict_types) > 0:
                 type_clause = "AND matches.type IN (%s)"
                 in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
@@ -154,12 +121,12 @@ class Matches:
 
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector
-            FROM matches AS m
+            SELECT al.account, min(m.created_timestamp) as date, al.sector FROM matches AS m
             INNER JOIN account_links AS al ON m.account_link=al.id
             WHERE eid IN(
-                SELECT eid FROM matches 
-                WHERE account_link=%(account_link_id)s AND type=%(type)s)
+                SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
+            )
+            AND al.account IS NOT NULL
             GROUP BY al.account, al.sector
             ORDER BY al.sector, date
             """,
@@ -213,74 +180,169 @@ class Matches:
             )
         ))
 
-    def get_match(self, eid, visual_id=None, type_int=None, grouping_id=None, data=None, partner_account=None, account_link=None, lat=None, lon=None,
-                  time=None, visual_id_has_value=NO_VALUE, selectColumns=[]):
-        """Gets a match by the values specified. Columns api_insert, debug are not needed because those fields are for debugging purposes.
+    def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
+        account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
+        selectColumns=[]):
+        """
+        Get an account by the values specified.
 
         Returns:
-            The match record if found else None
+            A list of account(s) record if found else []
         """
+        
         if len(selectColumns) > 0:
-            selectColumns = ", ".join(selectColumns)
+            incorrect_cols = [col for col in selectColumns if col not in self._match_cols]
+            
+            if len(incorrect_cols) > 0:
+                raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in match table")
+            
+            base_query = "SELECT "
+            if use_distinct:
+                base_query += "DISTINCT "
+            base_query += ",".join(selectColumns) + " FROM matches"
         else:
-            selectColumns = "*"
+            base_query = "SELECT * FROM matches"
 
-        query_string_list = ["SELECT " + selectColumns + " FROM matches WHERE eid= %(eid)s"]
-        query_values = {"eid": eid}
+        query_conditions = []
+        query_values = {}
 
-        if(visual_id is not None):
-            query_string_list.append("AND visual_id = %(visual_id)s")
+        if eid is not NO_VALUE:
+            query_conditions.append("eid = %(eid)s" if eid is not None else "eid IS %(eid)s")
+            query_values["eid"] = eid
+
+        if visual_id is not NO_VALUE:
+            query_conditions.append("visual_id = %(visual_id)s" if visual_id is not None else "visual_id IS %(visual_id)s")
             query_values["visual_id"] = visual_id
-
+        
         if visual_id_has_value != NO_VALUE:
             if visual_id_has_value is True:
-                query_string_list.append("AND visual_id IS NOT NULL")
+                query_conditions.append("visual_id IS NOT NULL")
             elif visual_id_has_value is False:
-                query_string_list.append("AND visual_id IS NULL")
+                query_conditions.append("visual_id IS NULL")
 
-        if(type_int is not None):
-            query_string_list.append("AND type = %(type)s")
-            query_values["type"] = type_int
+        if restrict_type is not NO_VALUE:
+            query_conditions.append("type = %(restrict_type)s" if restrict_type is not None else "type IS %(restrict_type)s")
+            query_values["restrict_type"] = restrict_type
 
-        if(grouping_id is not None):
-            query_string_list.append("AND grouping_id = %(grouping_id)s")
+        if grouping_id is not NO_VALUE:
+            query_conditions.append("grouping_id = %(grouping_id)s" if grouping_id is not None else "grouping_id IS %(grouping_id)s")
             query_values["grouping_id"] = grouping_id
 
-        if(data is not None):
-            query_string_list.append("AND data = CAST(%(data)s AS JSON)")
-            query_values["data"] = json.dumps(data)
-
-        if(partner_account is not None):
-            query_string_list.append("AND partner_account = %(partner_account)s")
+        if partner_account is not NO_VALUE:
+            query_conditions.append("partner_account = %(partner_account)s" if partner_account is not None else "partner_account IS %(partner_account)s")
             query_values["partner_account"] = partner_account
 
-        if(account_link is not None):
-            query_string_list.append("AND account_link = %(account_link)s")
+        if account_link is not NO_VALUE:
+            query_conditions.append("account_link = %(account_link)s" if account_link is not None else "account_link IS %(account_link)s")
             query_values["account_link"] = account_link
 
-        if(lat is not None):
-            query_string_list.append("AND lat = %(lat)s")
+        if lat is not NO_VALUE:
+            query_conditions.append("lat = %(lat)s" if lat is not None else "lat IS %(lat)s")
             query_values["lat"] = lat
 
-        if(lon is not None):
-            query_string_list.append("AND lon = %(lon)s")
-            query_values["lon"] = lon
+        if lon is not NO_VALUE:
+            query_conditions.append("lon = %(lon)s" if lon is not None else "lon IS %(lon)s")
+            query_values["lon"] = lon 
+        
+        if data is not NO_VALUE:
+            query_conditions.append("data = CAST(%(data)s AS JSON)" if data is not None else "data IS %(data)s")
+            query_values["data"] = json.dumps(data) if data is not None else None
 
-        if(time is not None):
-            query_string_list.append("AND time = %(time)s")
+        if time is not NO_VALUE:
+            query_conditions.append("time = %(time)s" if time is not None else "time IS %(time)s")
             query_values["time"] = time
 
-        query = ' '.join(query_string_list)
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
 
+        query = base_query + combined_query_condition
         match_rows = self._db.execute_d(query, query_values)
         if len(match_rows) > 0:
-            return match_rows[0]
+            return match_rows
         else:
-            return None
+            return []
+    
+    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
+        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
+        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
+        """
+        Get an account by the values specified.
+
+        Returns:
+            A list of account(s) record if found else []
+        """
+
+        if is_distinct:
+            base_query = "SELECT distinct"
+        else:
+            base_query = "SELECT"
+
+        if len(matches_cols) > 0:
+            incorrect_cols = [col for col in matches_cols if col not in self._match_cols]
+            
+            if len(incorrect_cols) > 0:
+                raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in matches table")
+
+            base_query += " " + ",".join("m."+ c for c in matches_cols)
+        else:
+            base_query += " *"
+
+        base_query += " FROM matches m INNER JOIN account_links al ON m.account_link=al.id "
+
+        query_conditions = []
+        query_values = {}
+        order_by_clause = ""
+
+        if matches_eid is not NO_VALUE:
+            query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")
+            query_values["matches_eid"] = matches_eid
+
+        if matches_visual_id is not NO_VALUE:
+            query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
+            query_values["matches_visual_id"] = matches_visual_id
+
+        if matches_restrict_type is not NO_VALUE:
+            query_conditions.append("m.type = %(matches_restrict_type)s" if matches_restrict_type is not None else "m.type IS %(matches_restrict_type)s")
+            query_values["matches_restrict_type"] = matches_restrict_type
+
+        if matches_partner_account_id is not NO_VALUE:
+            query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
+            query_values["matches_partner_account_id"] = matches_partner_account_id
+
+        if account_links_sector is not NO_VALUE:
+            query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
+            query_values["account_links_sector"] = account_links_sector
+
+        if account_links_account_id is not NO_VALUE:
+            query_conditions.append("al.account = %(account_links_account_id)s" if account_links_account_id is not None else "al.account IS %(account_links_account_id)s")
+            query_values["account_links_account_id"] = account_links_account_id
+
+        if matches_order_by is not NO_VALUE:
+            if matches_order_by not in self._match_cols:
+                raise MatchesException("order_by column doesn't exist")
+            order_by_clause = "ORDER BY m." + matches_order_by
+            if matches_sort_by is not NO_VALUE:
+                if matches_sort_by not in ("ASC", "DESC"):
+                    raise MatchesException("Incorrect value for sort_by")
+                order_by_clause += " " + matches_sort_by
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions) + " " + order_by_clause
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
+        else:
+            return []
 
     def insert(
         self, eid, type_int, visual_id=None, grouping_id=None, data=None, partner_account=None, account_link=None,
-        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None
+        lat=None, lon=None, time=None, debug=None, api_insert=None, bc_transaction_id=None, bc_hash=None, zip=None
     ):
         """Insert a new row into matches.
 
@@ -300,10 +362,10 @@ class Matches:
 
         self._db.execute(
             """INSERT INTO matches
-                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash)
+                (eid, type, visual_id, grouping_id, data, partner_account, account_link, lat, lon, time, created, debug, api_insert, bc_transaction_id, bc_hash, zip)
                 VALUES
                     (%(eid)s, %(type)s, %(visual_id)s, %(grouping_id)s, %(data)s, %(partner_account)s, %(account_link)s, %(lat)s, %(lon)s, %(time)s,
-                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s
+                     %(created)s, %(debug)s, %(api_insert)s, %(bc_transaction_id)s, %(bc_hash)s, %(zip)s
                     )
             """,
             {
@@ -321,7 +383,8 @@ class Matches:
                 "debug": None if debug is None else json.dumps(debug),
                 "api_insert": api_insert,
                 "bc_transaction_id": bc_transaction_id,
-                "bc_hash": bc_hash
+                "bc_hash": bc_hash,
+                "zip": zip
             }
         )
 
@@ -381,18 +444,19 @@ class Matches:
             self._db.fetch_all()
         )
 
-    def get_distinct_eids_by_account(self, account_id, number_of_years):
+    def get_distinct_eids_and_visual_ids_by_account(self, account_id, number_of_years):
         """Return the distinct EIDs in the database for an account.
 
         Params:
             account_id: The account to generate data on
+            number_of_years: Age of records
 
         Returns:
             The array of distinct eids
         """
         return self._db.execute_d(
                 """
-                SELECT DISTINCT eid
+                SELECT DISTINCT eid, visual_id
                 FROM matches
                 WHERE account_link IN (
                     SELECT id FROM account_links WHERE account=%(account)s
@@ -542,49 +606,116 @@ class Matches:
             )
         ))
 
-    def get_count_by_eid_if_visible(self, eid_number):
-        """Gets count of matches associated with an eid if visible.
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None):
+        """Gets matches data associated with a eid or visual id if it belongs to the account.
 
         Params:
-            eid_number: eid number
-
-        Returns:
-            One row indicating the count
-        """
-        return self._db.exec_frag_d(
-            frag(
-                """
-                SELECT count(eid) as 'count'
-                FROM matches
-                """,
-                frag(
-                    "WHERE eid=:eid_number",
-                    eid_number=eid_number
-                )
-            ),
-        )[0]['count']
-
-    def get_visual_id_if_owner_and_visible(self, visual_id, account_id):
-        """Gets matches data associated with an visual id if visible.
-
-        Params:
-            visual_id: The visual id to look up
+            eid_or_visual_id: The eid or visual id to look up
             account_id: current active account
 
         Returns:
-            All the matches table rows containing the visual id matches
+            All the matches table rows
         """
-        return self._db.execute_d(
-            """
-                SELECT distinct matches.eid, matches.visual_id
-                FROM matches
+        matches = []
+        if account_id is None:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
-                WHERE matches.visual_id=%(visual_id)s
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
+        else:
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
+                is_distinct=True, matches_cols=("eid", "visual_id"))
+
+            if len(matches) == 0:
+                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
+                    is_distinct=True, matches_cols=("eid", "visual_id"))
+
+        return matches
+
+    def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
+        """
+        Returns:
+            A dictionary of dictionaries
+                Keys
+                    both: result for both accounts (can be empty)
+                    self: result for single account (can be empty)
+        """
+        result = {}
+        matched_result = {}
+        all_result = {}
+        if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
+            related_account_details = self._db.execute_d("""
+                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
+                                        INNER JOIN matches m2 on m2.eid = m1.eid
+                                        INNER JOIN account_links al on m2.account_link = al.id
+                                        INNER JOIN accounts a on al.account = a.id
+                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
+                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
+                                        GROUP BY a.name, al.id
+                                    """,
+                                    {
+                                        "account_link_id": account_links[0]['id'],
+                                        "sector_id": sector_id,
+                                        "match_type_id": match_types_by_name["Sighting"]
+                                    }
+                                )
+
+            for account_detail in related_account_details:
+                account_result = {}
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in
+                                                          self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Quality Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in
+                                                        self.get_count_distribution_two_accounts(
+                                                            match_types_by_name["USDA Yield Grade"],
+                                                            account_links[0]['id'],
+                                                            account_detail["account_link_id"])}
+                matched_result[account_detail["name"]] = account_result
+
+                account_result = {}
+                account = self._db.accounts.get_account_by_id(account_detail["account_id"])
+                account_link = account.account_links()
+                quality_distribution = self.get_count_distribution(match_types_by_name["USDA Quality Grade"], account_links=account_link)
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
+                yield_distribution = self.get_count_distribution(match_types_by_name["USDA Yield Grade"], account_links=account_link)
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                all_result[account_detail["name"]] = account_result
+
+        result['matched_data'] = matched_result
+        result['all_data'] = all_result
+        return result
+
+    def get_count_distribution_two_accounts(self, match_type_id, account_link_1_id, account_link_2_id):
+        """Gets the count of each data type for eids sighted at two accounts
+
+        Params:
+            match_type_id: The type as an int
+            account_link_1_id: account link of 1st account
+            account_link_2_id: account link of 2nd account
+
+        Returns:
+            A list of dictionaries
+                Keys
+                    data: value of data
+                    count: The number of times data existed
+        """
+
+        return Matches._load_rows(self._db.execute_d(
+            """
+                SELECT m1.data, count(distinct m1.eid) as 'count' from matches m1
+                INNER JOIN matches m2 on m1.eid = m2.eid
+                INNER JOIN matches m3 on m1.eid = m3.eid
+                WHERE m1.type=%(match_type_id)s and m2.account_link = %(account_link_1_id)s and m3.account_link = %(account_link_2_id)s
+                GROUP BY m1.data
             """,
             {
-                "visual_id": visual_id
+                "match_type_id": match_type_id,
+                "account_link_1_id": account_link_1_id,
+                "account_link_2_id": account_link_2_id
             }
-        )
+        ))
 
     @staticmethod
     def _load_rows(rows):
@@ -593,3 +724,228 @@ class Matches:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
         return rows
+
+
+class MatchTypes:
+    """Helpers for handling matches, specifically relating to various types.
+
+    In general, **kwargs indicates:
+        account, eid, lat, lon, 
+
+    """
+
+    def __init__(self, matches: 'Matches'):
+        self._matches = matches
+        self._db = matches._db
+
+    def insert_sighting(self, **kwargs):
+        """Insert a sighting match.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        match = self._matches.get_matches(eid=kwargs["eid"], restrict_type=match_types_by_name["Sighting"],
+                                        account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
+        if len(match) > 0:
+            print("Sighting match exists. Match ID: ", match[0]["id"])
+        else:
+            self._generic_insert(
+                type_int=match_types_by_name["Sighting"],
+                **kwargs
+            )
+
+    def insert_weaned(self, **kwargs):
+        """Insert a 'weaned' match.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Weaned"],
+            **kwargs
+        )
+
+    def insert_hot_weight(self, weight, **kwargs):
+        """Insert a hot weight record (from the packer).
+
+        Params:
+            weight: The weight in pounds (number)
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Hot Weight"],
+            data=float(weight),
+            **kwargs
+        )
+
+    def insert_born(self, **kwargs):
+        """Insert a born record.
+
+        Params:
+            kwargs: See _generic_insert
+                Recommended: time
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Born"],
+            **kwargs
+        )
+
+    def insert_usda_yield_grade(self, grade, **kwargs):
+        """Insert a yield grade record.
+
+        Params:
+            grade: The yield grade (number)
+            kwargs: See _generic_insert
+        """
+        assert isinstance(grade, (float, int))
+
+        self._generic_insert(
+            type_int=match_types_by_name["USDA Yield Grade"],
+            data=grade,
+            **kwargs
+        )
+
+    def insert_usda_quality_grade(self, grade, **kwargs):
+        """Insert a quality grade record.
+
+        Params:
+            grade: The quality grade (string)
+            kwargs: See _generic_insert
+        """
+        assert isinstance(grade, str)
+        self._generic_insert(
+            type_int=match_types_by_name["USDA Quality Grade"],
+            data=grade,
+            **kwargs
+        )
+
+    def insert_medical(self, time, data, **kwargs):
+        """Insert a medical record.
+
+        Params:
+            time: The time the medical event occurred (unix)
+            data: A dictionary of medical data.
+                product
+                location
+                symptom
+                method
+                fatal
+                category
+            kwargs: See _generic_insert
+        """
+        if not isinstance(data, dict):
+            raise ValueError("data should be a dictionary")
+        if time is None:
+            raise ValueError("time should not be None")
+        self._generic_insert(
+            type_int=match_types_by_name["Medical"],
+            time=time,
+            data=data,
+            **kwargs
+        )
+
+    def insert_railed(self, **kwargs):
+        """Insert a railed record.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Railed"],
+            **kwargs
+        )
+
+    def insert_packer(self, packer_str, **kwargs):
+        """Insert a packer record.
+
+        Params:
+            packer_str: Temporary string format, see FeederResultsCSV
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Packer"],
+            data=packer_str,
+            **kwargs
+        )
+
+    def insert_died(self, reason, **kwargs):
+        """Insert a died record.
+
+        Params:
+            reason: String or None
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Died"],
+            data=reason,
+            **kwargs
+        )
+
+    def insert_sold(self, **kwargs):
+        """Insert a sold record.
+
+        Params:
+            kwargs: See _generic_insert
+        """
+        self._generic_insert(
+            type_int=match_types_by_name["Sold"],
+            **kwargs
+        )
+
+    def _generic_insert(
+        self, eid, type_int, partner_account, visual_id=None, grouping_id=None, data=None, account_link=None, lat=None,
+        lon=None, time=None, debug=None, api_insert=None, zip=None
+    ):
+        """Passes data to Matches.insert
+
+        Params:
+            data: json-serializable data
+        """
+        match = self._matches.get_matches(eid=eid, visual_id=visual_id, restrict_type=type_int, grouping_id=grouping_id, data=data, partner_account=partner_account,
+                                          account_link=account_link, lat=lat, lon=lon, time=time, selectColumns=["id"])
+        if len(match) > 0:
+            print("Match exists. Match ID: ", match[0]["id"])
+        else:
+            if type_int == match_types_by_name["USDA Yield Grade"]:
+                self.schedule_match_found_email(eid)
+            # Insert a match only if match doesn't already exist
+            self._matches.insert(
+                eid=eid,
+                visual_id=visual_id,
+                type_int=type_int,
+                grouping_id=grouping_id,
+                data=data,
+                partner_account=partner_account,
+                account_link=account_link,
+                lat=lat,
+                lon=lon,
+                time=time,
+                zip=zip,
+                debug=debug,
+                api_insert=api_insert
+            )
+
+    def schedule_match_found_email(self, eid):
+        if len(sightings := self._matches.get_matches_with_account_links(
+            matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
+            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created"
+        )) > 0:
+            owner_match_account_link = sightings[0]
+            scheduled_emails_data_access = ScheduledEmails(self._db)
+            # if same email is not yet to be sent, add the scheduled email. Scheduled emails are processed once a day.
+            if len(scheduled_emails_data_access.get_scheduled_emails(
+                subject=EMAILS["MATCH FOUND"]["SUBJECT"],
+                status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+            )) == 0:
+                if len(match_account_admin_users := self._db.account_users.get_account_users(account=owner_match_account_link["account"], is_admin=1)) > 0:
+                    if len(users := self._db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
+                        scheduled_emails_data_access.insert_scheduled_email(
+                            user_id=users[0]["id"], account_id=owner_match_account_link["account"], subject=EMAILS["MATCH FOUND"]["SUBJECT"],
+                            body=EMAILS["MATCH FOUND"]["BODY"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+                        )
+                        if SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND:
+                            notification_email = f"A match has been found for account: <strong>{owner_match_account_link['company']}</strong>"
+                            scheduled_emails_data_access.insert_scheduled_email(
+                                email_address=SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND, account_id=owner_match_account_link["account"], subject="Match found",
+                                body=notification_email, status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+                            )

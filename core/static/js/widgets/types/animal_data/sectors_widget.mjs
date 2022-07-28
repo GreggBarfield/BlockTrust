@@ -113,9 +113,9 @@ export class SectorsWidget extends Widget {
             return formatDate(v);
         }
 
-        function useAccountLinkCompany(converter=convAsIs) {
+        function useAccountLinkName(converter=convAsIs) {
             return function (row) {
-                return converter(row["account_links.company"]);
+                return converter(row["account_links.name"]);
             }
         }
         
@@ -202,7 +202,7 @@ export class SectorsWidget extends Widget {
         // Shared
         for (const displaySector of displaySectors) {
             addSector(displaySector);
-            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkCompany());
+            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkName());
             addField(displaySector, "Demographics", "Sighted", filterMatchTypeAccountLinkSector("Sighting", displaySector), useTime());
         }
 
@@ -229,9 +229,9 @@ export class SectorsWidget extends Widget {
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
-        addData("Packer", "Quality", "Ribeye Area", "");
-        addData("Packer", "Quality", "Marbling Score", "");
-        addData("Packer", "Quality", "Fat Thickness", "");
+        addField("Packer", "Quality", "Ribeye Area", filterMatchType("Packer"), useDataJson("RibeyeArea"));
+        addField("Packer", "Quality", "Marbling Score", filterMatchType("Packer"), useDataJson("MarblingScore"));
+        addField("Packer", "Quality", "Fat Thickness", filterMatchType("Packer"), useDataJson("FatThickness"));
     }
 
     selectTab(tab, sector) {
