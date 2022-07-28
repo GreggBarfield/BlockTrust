@@ -2,6 +2,7 @@ import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { sections, scoringCriteria, questionType } from '../../../core/sustainability_constants.mjs'
+import { ProgressBar } from '../../../core/progress_bar.mjs';
 
 export class BaseQuestionnaireV2Widget extends Widget{
     constructor(frame) {
@@ -19,6 +20,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
     
     createQuestionnaire = (questionnaireData) =>{
+        let that =this;
         this.commonMethods = new CommonQuestionnaireMethods();
         this.frame.innerHTML = "";
         let card = document.createElement("div");
@@ -63,7 +65,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
             }
             form.append(questionsSection)
         }
-        console.log(this.documentUploadInputs);
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
         form.append(submitFormGroup);
@@ -73,6 +74,10 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.textContent = "Submit";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
+
+        this.progressBar = new ProgressBar();
+        this.progressBar.attach(form);
+        this.progressBar.hide();
         
         let statusMessage = document.createElement("p");
         statusMessage.style.display = "none";
@@ -95,7 +100,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    responses: this.responses
+                    uploaded_document_ids: this.uploadedDocumentIDs
                 };
             },
         });
@@ -115,15 +120,26 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 if(allQuestionsAnswered == false){break;}
             }
             for(let uploadInput of this.documentUploadInputs){
-                if(!uploadInput.checkForUploadedFile()){
-                    allDocumentsUploaded=false;
-                    break;
+                if(!(uploadInput.checkForUploadDeclined())){
+                    if(!uploadInput.checkForUploadedFile()){
+                        allDocumentsUploaded=false;
+                        break;
+                    }
                 }
             }
+
+            function progress(perc) {
+                that.progressBar.setProgress(perc);
+            }
+            that.progressBar.show();
+            
             if(allQuestionsAnswered && allDocumentsUploaded){
                 errorMessage.style.display = "none";
-                this.calculateScores(questionnaireData);
-                this.asyncForm.submit();
+                this.uploadDocuments(progress)
+                .then(() =>{
+                    this.calculateScores(questionnaireData);
+                    this.asyncForm.submit();
+                });
             }
             else{
                 errorMessage.style.display = "block";
@@ -156,5 +172,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
             }
         }
+    }
+
+    uploadDocuments = (progress) =>{
+        return new Promise((resolve, reject) =>{
+            for(let uploadInput of this.documentUploadInputs){
+                this.progressBar.setProgress(0);
+                uploadInput.upload(progress)
+                .then((id) =>{
+                    this.uploadedDocumentIDs.push(id);
+                    if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
+                        resolve(true);
+                    }
+                });
+            }
+        });
     }
 }

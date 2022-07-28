@@ -4,6 +4,7 @@ import {InfoModal} from "../core/info_modal.mjs";
 export class CompactFileEditor {
     constructor(attach_node=null){
         this.file = {};
+        this.uploadDeclined = false;
 
         this.uploadContainer = document.createElement("div");
         this.uploadContainer.className = "row ml-2"
@@ -91,14 +92,24 @@ export class CompactFileEditor {
         }
     }
 
-    upload = () =>{
-        if(this.file == {}){return;}
-        return uploadFile(false, true, this.file["file"], function(perc){})
-        .then((id)=>{
-            this.file["uploaded"]= true;
-            this.file["id"] = id;
-            this.updateUploadContainer();
-        });
+    upload = (progress) =>{
+            if(!this.uploadDeclined){
+                if(!"file" in this.file){return;}
+
+                return uploadFile(false, true, this.file["file"], function(perc){
+                    progress(perc);
+                })
+                .then((id)=>{
+                    this.file["uploaded"]= true;
+                    this.file["id"] = id;
+                    this.updateUploadContainer();
+                    return Promise.resolve(id);
+                }); 
+            }
+            else{
+                return Promise.resolve(0);
+            }
+            
     }
 
     checkForUploadedFile = () =>{
@@ -106,5 +117,13 @@ export class CompactFileEditor {
             return true;
         }
         return false;
+    }
+
+    setUploadDeclined = (value) => {
+        this.uploadDeclined = value;
+    }
+
+    checkForUploadDeclined = () =>{
+        return this.uploadDeclined;
     }
 }

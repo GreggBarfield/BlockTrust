@@ -92,9 +92,11 @@ export class CommonQuestionnaireMethods{
         input.onchange = () => {
             if(input.value == "Yes"){
                 questionUploadContainer.style.display = 'block';
+                uploadInput.setUploadDeclined(false);
             }
             else{
                 questionUploadContainer.style.display = 'none';
+                uploadInput.setUploadDeclined(true);
             }
         }
         return {questionContainer, uploadInput};
