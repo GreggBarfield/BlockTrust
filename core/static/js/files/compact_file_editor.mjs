@@ -36,7 +36,7 @@ export class CompactFileEditor {
         uploadedFileRemoveButton.className = "btn btn-sm btn-outline-danger";
         uploadedFileRemoveButton.type = "button";
         uploadedFileRemoveButton.onclick = () =>{
-            if(this.file !== {}){
+            if("file" in this.file){
                 this.file = {};
                 uploadInput.value = "";
                 this.uploadedFileNameContainer.textContent = "No File Uploaded";
