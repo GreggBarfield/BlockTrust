@@ -35,4 +35,4 @@ RUN npm run build
 ############# RUNTIME
 
 WORKDIR /home/ubuntu/blocktrust
-CMD exec python3 core/main.py
+CMD ["gunicorn", "-b", ":5000", "-w", "2","--log-level","debug", "core.main:app"]
