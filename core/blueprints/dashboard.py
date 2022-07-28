@@ -459,14 +459,14 @@ def serve_summary_download():
     else:
         global_quality = None
     if account_total_distinct["result"] is not None:
-        account_calves = account_total_distinct["result"]
+        account_calves = account_total_distinct["result"]["count_eid_distinct"]
     else:
         account_calves = None
     if account_usda_yield_grade_distribution["result"] is not None:
-        account_yield = account_usda_yield_grade_distribution["result"]
+        account_yield = account_usda_yield_grade_distribution["result"]["count_distribution"]
     else:
         account_yield = None
-    account_quality = account_usda_quality_grade_distribution["result"]
+    account_quality = account_usda_quality_grade_distribution["result"]["count_distribution"]
 
     # Global Yield grade calculatiuon
     yg_global = [0, 0, 0, 0, 0]
@@ -480,7 +480,7 @@ def serve_summary_download():
                 yg_global[5] += gy["count"]
         for i in range(len(yg_global)):
             if(global_total_available > 0):
-                yg_global[i] = round(100 * yg_global[i] / global_total_available)
+                yg_global[i] = round(100 * yg_global[i] / global_total_available, 2)
             else:
                 yg_global[i] = "N/A"
 
@@ -500,7 +500,7 @@ def serve_summary_download():
                 qg_global[3] += gq["count"]
         for i in range(len(qg_global)):
             if(global_total_available > 0):
-                qg_global[i] = round(100 * qg_global[i] / global_total_available)
+                qg_global[i] = round(100 * qg_global[i] / global_total_available, 2)
             else:
                 qg_global[i] = "N/A"
 
@@ -516,7 +516,7 @@ def serve_summary_download():
                 yg_account[5] += ay["count"]
         for i in range(len(yg_account)):
             if(account_total_available > 0):
-                yg_account[i] = round(100 * yg_account[i] / account_total_available)
+                yg_account[i] = round(100 * yg_account[i] / account_total_available, 2)
             else:
                 yg_account[i] = "N/A"
 
@@ -536,16 +536,16 @@ def serve_summary_download():
                 qg_account[3] += aq["count"]
         for i in range(len(qg_account)):
             if(account_total_available > 0):
-                qg_account[i] = round(100 * qg_account[i] / account_total_available)
+                qg_account[i] = round(100 * qg_account[i] / account_total_available, 2)
             else:
                 qg_account[i] = "N/A"
 
     global_percentage_available = 0
     account_percentage_available = 0
     if global_calves is not None and global_total_available != 0:
-        global_percentage_available = round(100 * global_total_available / global_calves)
+        global_percentage_available = round(100 * global_total_available / global_calves, 2)
     if account_calves is not None and account_total_available != 0:
-        account_percentage_available = round(100 * account_total_available / account_calves)
+        account_percentage_available = round(100 * account_total_available / account_calves, 2)
     if global_calves is None:
         global_calves = "N/A"
     if account_calves is None:
@@ -572,43 +572,6 @@ def serve_summary_download():
     summary.append(["Other", 0, 0])
 
     return excel.make_response_from_array(summary, "xlsx", file_name="Calf-Crop-Summary")
-
-
-@bp.route('/dashboard/animal-data/<string:eid>/download', methods=['GET'])
-@crut.require_account
-def serve_animal_data_download(eid):
-    match_rows = unauth_route({"type": 'matches_by_eids', "params": {"eids": eid, "ljoin_account_links": True}})
-    results = match_rows["result"]["matches"]
-    # for result in results:
-    #    print(result)
-    # print(len(results))
-
-    health_data_match_rows = unauth_route({"type": 'matches_by_eids', "params": {"eids": eid, "ljoin_account_links": True, "types": ["Medical"]}})
-    health_data_results = health_data_match_rows["result"]["matches"]
-    animal_data = []
-    animal_data.append(["Date", "Symptom", "Diagnosis", "Product", "Location"])
-    for health_data_result in health_data_results:
-        symptom = ""
-        product = ""
-        diagnosis = ""
-        location = ""
-        if "symptom" in health_data_result["data"]:
-            symptom = health_data_result["data"]["symptom"]
-        if "product" in health_data_result["data"]:
-            product = health_data_result["data"]["product"]
-        if "diagnosis" in health_data_result["data"]:
-            diagnosis = health_data_result["data"]["diagnosis"]
-        if "location" in health_data_result["data"]:
-            location = health_data_result["data"]["location"]
-        animal_data.append([
-            health_data_result["created_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M"),
-            symptom,
-            product,
-            diagnosis,
-            location
-            ])
-    print(animal_data)
-    return {}
 
 
 @bp.route('/dashboard/accept-invite', methods=['POST'])
