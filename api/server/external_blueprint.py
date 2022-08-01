@@ -105,30 +105,15 @@ def serve_get_animal_data():
             if match["debug"] is not None:
                 zip_code = loads(match["debug"]).get("zip", None)
 
+            #BELOW get will change
             results = g.db.sustainability.get_sustainability(account=match["account"])
             if len(results) > 0 :
                 result = results[0]
 
-                air_total_questions = result.get("air_first_score_points", 0) + result.get("air_second_score_points", 0) + result.get("air_third_score_points", 0)
-                if air_total_questions > 0:
-                    sustainability["air"] = {}
-                    sustainability["air"]["excellent"] = "{:.2%}".format(result.get("air_first_score_points", 0) / air_total_questions)
-                    sustainability["air"]["acceptable"] = "{:.2%}".format(result.get("air_second_score_points", 0) / air_total_questions)
-                    sustainability["air"]["needs_work"] = "{:.2%}".format(result.get("air_third_score_points", 0) / air_total_questions)
+                sustainability["airAndGHGemissions"] = result.get("air_points", 0)
+                sustainability["landResources"] = result.get("land_points", 0)
+                sustainability["waterResources"] = result.get("water_points", 0)
 
-                land_total_questions = result.get("land_first_score_points", 0) + result.get("land_second_score_points", 0) + result.get("land_third_score_points", 0)
-                if land_total_questions > 0:
-                    sustainability["land"] = {}
-                    sustainability["land"]["excellent"] = "{:.2%}".format(result.get("land_first_score_points", 0) / land_total_questions)
-                    sustainability["land"]["acceptable"] = "{:.2%}".format(result.get("land_second_score_points", 0) / land_total_questions)
-                    sustainability["land"]["needs_work"] = "{:.2%}".format(result.get("land_third_score_points", 0) / land_total_questions)
-
-                water_total_questions = result.get("water_first_score_points", 0) + result.get("water_second_score_points", 0) + result.get("water_third_score_points", 0)
-                if water_total_questions > 0:
-                    sustainability["water"] = {}
-                    sustainability["water"]["excellent"] = "{:.2%}".format(result.get("water_first_score_points", 0) / water_total_questions)
-                    sustainability["water"]["acceptable"] = "{:.2%}".format(result.get("water_second_score_points", 0) / water_total_questions)
-                    sustainability["water"]["needs_work"] = "{:.2%}".format(result.get("water_third_score_points", 0) / water_total_questions)
 
                 animal_total_questions = result.get("animal_first_score_points", 0) + result.get("animal_second_score_points", 0) + result.get("animal_third_score_points", 0)
                 if animal_total_questions > 0:
@@ -210,7 +195,7 @@ def serve_get_animal_data():
             "marketingDate": marketing_date,
             "marketingMethodName": marketing_method_name,
             "numberOfCalves": number_of_calves,
-            "sale_location": sale_location,
+            "saleLocation": sale_location,
             "second31DayFeedMethod": second_31_day_feed_method,
             "sex": sex,
             "visualID": visual_id,
