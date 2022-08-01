@@ -94,12 +94,6 @@ export class InlineFileEditor {
         this.updateUploadContainer();
     }
 
-    getFileID = () =>{
-        if ("id" in this.file || this.file["id"] !== undefined || this.file["id"] !== null){
-            return this.file["id"];
-        }
-    }
-
     upload = () =>{
             if(!this.uploadDeclined){
                 if(!this.checkForUploadedFile()){return;}
