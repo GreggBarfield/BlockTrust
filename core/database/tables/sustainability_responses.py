@@ -1,7 +1,6 @@
 import json
 from ..no_value import NoValue
 
-
 NO_VALUE = NoValue()
 
 
