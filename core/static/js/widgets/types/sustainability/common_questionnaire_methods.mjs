@@ -1,4 +1,4 @@
-import { InlineFileEditor } from "../../../files/inline_file_editor.mjs";
+import { FileUploader } from "../../../files/file_uploader.mjs";
 
 export class CommonQuestionnaireMethods{
     /**
@@ -92,37 +92,37 @@ export class CommonQuestionnaireMethods{
 
         let questionInputContainer = document.createElement("div");
         questionInputContainer.className = "col-md-2 p-1"
-        let input = document.createElement("select");
-        input.className = "form-control";
-        input.name = inputName;
-        input.id = inputID;
+        let uploadOptionsDropDown = document.createElement("select");
+        uploadOptionsDropDown.className = "form-control";
+        uploadOptionsDropDown.name = inputName;
+        uploadOptionsDropDown.id = inputID;
 
         let defaultOption = new Option("Please Select", "Please Select");
         defaultOption.selected = true;
         defaultOption.disabled = true;
-        input.appendChild(defaultOption);
-        input.appendChild(new Option("Yes", "Yes"));
-        input.appendChild(new Option("No", "No"));
-        questionInputContainer.append(input);
+        uploadOptionsDropDown.appendChild(defaultOption);
+        uploadOptionsDropDown.appendChild(new Option("Yes", "Yes"));
+        uploadOptionsDropDown.appendChild(new Option("No", "No"));
+        questionInputContainer.append(uploadOptionsDropDown);
         
         let questionUploadContainer = document.createElement("div");
         questionUploadContainer.className = "col-md-4 p-1";
-        let uploadInput = new InlineFileEditor(questionUploadContainer, "application/pdf");
+        let uploadInput = new FileUploader(questionUploadContainer, ["application/pdf"]);
 
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
         questionContainer.append(questionUploadContainer);
-        input.onchange = () => {
-            if(input.value == "Yes"){
+        uploadOptionsDropDown.onchange = () => {
+            if(uploadOptionsDropDown.value == "Yes"){
                 questionUploadContainer.style.display = 'block';
-                uploadInput.setUploadDeclined(false);
+                uploadInput.uploadDeclined=false;
             }
             else{
                 questionUploadContainer.style.display = 'none';
-                uploadInput.setUploadDeclined(true);
+                uploadInput.uploadDeclined=true;
             }
         }
-        input.onchange();
+        uploadOptionsDropDown.onchange();
         return {questionContainer, uploadInput};
     }
     /**

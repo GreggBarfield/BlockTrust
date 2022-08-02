@@ -1,14 +1,16 @@
 import {uploadFile} from "./files.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
-export class InlineFileEditor {
+export class FileUploader {
     /**
      *  Creates an inline file editor which uploads a single file to the S3 bucket
-     * @param {Element} attach_node The node to which the inline file editor needs to be attached
-     * @param {String} fileType  A string which specifies the type of file to be uploaded
+     * @param {Element} parentNode The node to which the inline file editor needs to be attached
+     * @param {String} acceptFileTypes  A string which specifies the type of file to be uploaded
      */
-    constructor(attach_node=null, fileType = ""){
-        this.file = {};
-        this.fileType = fileType;
+    constructor(parentNode=null, acceptFileTypes = []){
+        this.file = null;
+        this.fileName = "";
+        this.uploaded = false;
+        this.acceptFileTypes = acceptFileTypes;
         this.uploadDeclined = false;
 
         this.uploadContainer = document.createElement("div");
@@ -42,10 +44,8 @@ export class InlineFileEditor {
         inputFileRemoveButton.className = "btn btn-sm btn-outline-danger";
         inputFileRemoveButton.type = "button";
         inputFileRemoveButton.onclick = () =>{
-            if("input_file" in this.file){
-                this.file = {};
-                uploadInput.value = "";
-                this.inputFileNameContainer.textContent = "No File Uploaded";
+            if(this.file !== null){
+                this.removeAttachedFile();
             }
         }
 
@@ -54,16 +54,7 @@ export class InlineFileEditor {
 
         this.uploadContainer.append(uploadButton);
         this.uploadContainer.append(inputFileNameAndRemoveButtonContainer);
-        attach_node.append(this.uploadContainer);
-    }
-
-    updateUploadContainer = () =>{
-        let file = this.file;
-        let fileName = "";
-        if ("name" in file) {
-            fileName = file.name;
-        }
-        this.inputFileNameContainer.textContent = fileName;
+        parentNode.append(this.uploadContainer);
     }
 
     checkInput = (uploadInput) =>{
@@ -74,34 +65,29 @@ export class InlineFileEditor {
             acceptableFile = false;
             errorMessage = "Sorry, " + inputFile.name + " is too big (" + Math.floor(file.size/(1000*1000)) + "MB, the limit is 10MB).";
         }
-        if(this.fileType !== "" && inputFile.type !== this.fileType){
+        if(this.acceptFileTypes !== [] && !this.acceptFileTypes.includes(inputFile.type)){
             acceptableFile = false;
             errorMessage = "Sorry, "+ inputFile.name + " is not of the right format.";
         }
         if(acceptableFile === true){
-            this.file = {
-                "name": inputFile.name,
-                "input_file": inputFile,
-                "uploaded": false
-            }
+            this.file = inputFile;
+            this.fileName = inputFile.name;
+            this.uploaded = false;
+            this.inputFileNameContainer.textContent = this.fileName;
         }
         else{
-            this.file = {};
-            uploadInput.value = "";
-            this.inputFileNameContainer.textContent = "No File Uploaded";
+            this.removeAttachedFile()
             new InfoModal("File Upload", errorMessage);
         }
-        this.updateUploadContainer();
     }
 
     upload = () =>{
             if(!this.uploadDeclined){
-                if(!this.checkForUploadedFile()){return;}
+                if(!this.isFileAttached()){return;}
 
-                return uploadFile(false, true, this.file["input_file"], function(perc){})
+                return uploadFile(false, true, this.file)
                 .then((id)=>{
-                    this.file["uploaded"]= true;
-                    this.file["id"] = id;
+                    this.uploaded= true;
                     return Promise.resolve(id);
                 }); 
             }
@@ -111,18 +97,17 @@ export class InlineFileEditor {
             
     }
 
-    checkForUploadedFile = () =>{
-        if("input_file" in this.file){
+    isFileAttached = () =>{
+        if(this.file !== null){
             return true;
         }
         return false;
     }
 
-    setUploadDeclined = (value) => {
-        this.uploadDeclined = value;
-    }
-
-    checkForUploadDeclined = () =>{
-        return this.uploadDeclined;
+    removeAttachedFile = () =>{
+        this.file = null;
+        this.fileName = "";
+        uploadInput.value = "";
+        this.inputFileNameContainer.textContent = "No File Uploaded";
     }
 }
