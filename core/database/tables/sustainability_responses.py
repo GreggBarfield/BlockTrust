@@ -9,15 +9,17 @@ class SustainabilityResponses:
     def __init__(self, db):
         self._db = db
 
-    def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, air_points=NO_VALUE, land_points=NO_VALUE,
-                                     water_points=NO_VALUE, animal_points=NO_VALUE, safety_points=NO_VALUE,
-                                     efficiency_points=NO_VALUE, improvement_points=NO_VALUE, score=NO_VALUE):
+    def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
+                                     land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
+                                     safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
+                                     score=NO_VALUE):
         """
         Gets the sustainability responses based on the attributes provided
 
         Params:
             id: ID of the sustainability response
-            account_id: Account Id of account submitting the response
+            account_id: Account ID of account submitting the response
+            user_id: User ID of user submitting the response
             air_points: Air & Greenhouse Gas Emissions points
             land_points: Land points
             water_points: Water points
@@ -41,6 +43,9 @@ class SustainabilityResponses:
         if account_id is not NO_VALUE:
             query_conditions.append(" account_id = %(account_id)s")
             query_values["account_id"] = account_id
+        if user_id is not NO_VALUE:
+            query_conditions.append(" user_id = %(user_id)s")
+            query_values["user_id"] = user_id
         if air_points is not NO_VALUE:
             query_conditions.append(" air_points = %(air_points)s")
             query_values["air_points"] = air_points
@@ -79,15 +84,15 @@ class SustainabilityResponses:
         else:
             return []
 
-    def insert_sustainabilty_response(self, account_id=None, air_points=None, land_points=None,
-                                      water_points=None, animal_points=None, safety_points=None,
-                                      efficiency_points=None, improvement_points=None, score=None,
-                                      uploaded_file_ids=None):
+    def insert_sustainabilty_response(self, account_id=None, user_id=None, air_points=None, land_points=None,
+                                      water_points=None, animal_points=None, safety_points=None, efficiency_points=None,
+                                      improvement_points=None, score=None, uploaded_file_ids=None, response=None):
         """
         Insert a sustainability response
 
         Params: 
-            account_id: Account Id of account submitting the response
+            account_id: Account ID of account submitting the response
+            user_id: User ID of user submitting the response
             air_points: Air & Greenhouse Gas Emissions points
             land_points: Land points
             water_points: Water points
@@ -97,16 +102,18 @@ class SustainabilityResponses:
             improvement_points: Improvement points
             score: Total Score
             uploaded_file_ids: List of uploaded file IDs
+            response: Response provided by the user
         """
         self._db.execute(
             """
-            INSERT INTO sustainability_responses (account_id, air_points, land_points, water_points, animal_points
-            safety_points, efficiency_points, improvement_points, score, uploaded_file_ids)
-            VALUES (%(account_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
-            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s)
+            INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points
+            safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response)
+            VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
+            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s)
             """,
             {
                 "account_id": account_id,
+                "user_id": user_id,
                 "air_points": air_points,
                 "land_points": land_points,
                 "water_points": water_points,
@@ -115,20 +122,22 @@ class SustainabilityResponses:
                 "efficiency_points": efficiency_points,
                 "improvement_points": improvement_points,
                 "score": score,
-                "uploaded_file_ids": json.dumps(uploaded_file_ids) if uploaded_file_ids is not None else None
+                "uploaded_file_ids": json.dumps(uploaded_file_ids) if uploaded_file_ids is not None else None,
+                "response": json.dumps(response) if response is not None else None
             }
         )
 
-    def update_sustainability_response(self, id, account_id=NO_VALUE, air_points=NO_VALUE, land_points=NO_VALUE,
-                                     water_points=NO_VALUE, animal_points=NO_VALUE, safety_points=NO_VALUE,
-                                     efficiency_points=NO_VALUE, improvement_points=NO_VALUE, score=NO_VALUE,
-                                     uploaded_file_ids=NO_VALUE):
+    def update_sustainability_response(self, id, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
+                                       land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
+                                       safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
+                                       score=NO_VALUE, uploaded_file_ids=NO_VALUE, response=NO_VALUE):
         """
         Updates a sustainability response
 
         Params:
             id: ID of the sustainability response
             account_id: Account Id of account submitting the response
+            user_id: User ID of user submitting the response
             air_points: Air & Greenhouse Gas Emissions points
             land_points: Land points
             water_points: Water points
@@ -138,6 +147,7 @@ class SustainabilityResponses:
             improvement_points: Improvement points
             score: Total Score
             uploaded_file_ids: List of uploaded file IDs
+            response: Response provided by the user
         """
         base_query = "UPDATE sustainability_responses "
 
@@ -148,6 +158,9 @@ class SustainabilityResponses:
         if account_id is not NO_VALUE:
             query_conditions.append(" account_id = %(account_id)s")
             query_values["account_id"] = account_id
+        if user_id is not NO_VALUE:
+            query_conditions.append(" user_id = %(user_id)s")
+            query_values["user_id"] = user_id
         if air_points is not NO_VALUE:
             query_conditions.append(" air_points = %(air_points)s")
             query_values["air_points"] = air_points
@@ -175,6 +188,9 @@ class SustainabilityResponses:
         if uploaded_file_ids is not NO_VALUE:
             query_conditions.append(" uploaded_file_ids = %(uploaded_file_ids)s")
             query_values["uploaded_file_ids"] = json.dumps(uploaded_file_ids)
+        if response is not NO_VALUE:
+            query_conditions.append(" response = %(response)s")
+            query_values["response"] = json.dumps(response)
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

@@ -1591,7 +1591,8 @@ UPDATE matches SET zip=JSON_UNQUOTE(JSON_EXTRACT(debug,'$.zip')) WHERE debug IS 
 /* Nisheet Thakur 08/01/2022 */
 CREATE TABLE sustainability_responses(
   `id` INT NOT NULL AUTO_INCREMENT,
-  `account_id` INT NULL,
+  `account_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
   `air_points` DECIMAL(1,1) DEFAULT 0,
   `land_points` DECIMAL(1,1) DEFAULT 0,
   `water_points` DECIMAL(1,1) DEFAULT 0,
@@ -1601,6 +1602,7 @@ CREATE TABLE sustainability_responses(
   `improvement_points` DECIMAL(1,1) DEFAULT 0,
   `score` INT DEFAULT 0,
   `uploaded_file_ids` JSON DEFAULT NULL,
+  `response` JSON DEFAULT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
