@@ -23,7 +23,9 @@ function uploadFileToS3(config, file, progress=null) {
                     if (perc > 0.98) {
                         perc = 0.98;
                     }
-                    progress(perc);
+                    if (progress != null) {
+                        progress(perc);
+                    }
                 }
             }, false);
             return x;
