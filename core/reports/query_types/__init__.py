@@ -20,3 +20,6 @@ types[sustainability_averages.TYPE_NAME] = sustainability_averages
 
 from . import count_distribution_account_and_sector # noqa
 types[count_distribution_account_and_sector.TYPE_NAME] = count_distribution_account_and_sector
+
+from . import sustainability_response_averages
+types[sustainability_response_averages.TYPE_NAME] = sustainability_response_averages

@@ -106,7 +106,7 @@ class SustainabilityResponses:
         """
         self._db.execute(
             """
-            INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points
+            INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points,
             safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response)
             VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
             %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s)
@@ -198,3 +198,37 @@ class SustainabilityResponses:
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sustainability responses")
+
+    def get_sustainability_response_averages(self, get_by_account=False, account_id=NO_VALUE):
+        """
+        Returns the sustainability average points for each sectiona and also by account if account_id is specififed
+
+        Params:
+            get_by_account: Should be True if account averages are required
+            account_id: Account ID for which averages are required
+
+        Returns:
+            Sustainability point averages by section
+        """
+        base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
+                   AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
+                   AVG(improvement_points) as improvement_average FROM sustainability_responses"""
+        query_conditions = []
+        query_values = {}
+        if get_by_account is True:
+            if account_id is not NO_VALUE:
+                query_conditions.append(" account_id = %(account_id)s")
+                query_values["account_id"] = account_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        sustainability_averages = self._db.execute_d(query, query_values)
+        if len(sustainability_averages) > 0:
+            return sustainability_averages[0]
+        else:
+            return []

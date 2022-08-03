@@ -7,7 +7,8 @@ import datetime
 
 from core.reports.query_types import (
     count_distribution, count_distribution_global, count_eid_distinct,
-    count_eid_distinct_by_account, market_data_cache, sustainability_averages
+    count_eid_distinct_by_account, market_data_cache, sustainability_averages,
+    sustainability_response_averages
 )
 
 
@@ -15,7 +16,7 @@ def make_global_reports(db):
     queries = [
         count_distribution_global.create("USDA Yield Grade"),
         count_distribution_global.create("USDA Quality Grade"),
-        count_eid_distinct.create()
+        count_eid_distinct.create(), sustainability_response_averages.create()
     ]
     for query in queries:
         Reports(db).insert_query(None, query)
