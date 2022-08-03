@@ -14,6 +14,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
+        this.documentUploadInputs = [];
+        this.uploadedDocumentIDs = [];
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -47,18 +49,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 let questionContainer = "";
                 if(question.responseType == questionType.select){
                     questionContainer = this.commonMethods.createSelectQuestion(question.questionText, section.name, question.id);
+                    questionsSection.append(questionContainer);
                 }
                 else if(question.responseType == questionType.input){
                     questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, section.name, question.id);
+                    questionsSection.append(questionContainer);
                 }
                 else if(question.responseType == questionType.upload){
-                    questionContainer = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                    const {questionContainer, uploadInput} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                    questionsSection.append(questionContainer);
+                    this.documentUploadInputs.push(uploadInput);
                 }
-                questionsSection.append(questionContainer);
             }
             form.append(questionsSection)
         }
-
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
         form.append(submitFormGroup);
@@ -90,7 +94,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    responses: this.responses
+                    uploaded_document_ids: this.uploadedDocumentIDs
                 };
             },
         });
@@ -98,6 +102,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.addEventListener("click", () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
+            let allDocumentsUploaded = true;
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
                 for(let response of responses){
@@ -108,14 +113,26 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            if(allQuestionsAnswered){
+            for(let uploadInput of this.documentUploadInputs){
+                if(!(uploadInput.uploadDeclined)){
+                    if(!uploadInput.isFileAttached()){
+                        allDocumentsUploaded=false;
+                        break;
+                    }
+                }
+            }
+            
+            if(allQuestionsAnswered && allDocumentsUploaded){
                 errorMessage.style.display = "none";
-                this.calculateScores(questionnaireData);
-                this.asyncForm.submit();
+                this.uploadDocuments()
+                .then(() =>{
+                    this.calculateScores(questionnaireData);
+                    this.asyncForm.submit();
+                });
             }
             else{
                 errorMessage.style.display = "block";
-                errorMessage.textContent = "Please complete the questionnaire";
+                errorMessage.textContent = "Please complete the questionnaire/ Upload all required documents";
             }
         });
         cardBody.append(form);
@@ -144,5 +161,19 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
             }
         }
+    }
+
+    uploadDocuments = () =>{
+        return new Promise((resolve, reject) =>{
+            for(let uploadInput of this.documentUploadInputs){
+                uploadInput.upload()
+                .then((id) =>{
+                    this.uploadedDocumentIDs.push(id);
+                    if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
+                        resolve(true);
+                    }
+                });
+            }
+        });
     }
 }
