@@ -11,7 +11,7 @@ export class FileUploader {
         this.fileName = "";
         this.uploaded = false;
         this.acceptFileTypes = acceptFileTypes;
-        this.uploadDeclined = false;
+        this.uploadDeclinedByUser = false;
 
         this.uploadContainer = document.createElement("div");
         this.uploadContainer.className = "row ml-2"
@@ -82,18 +82,19 @@ export class FileUploader {
     }
 
     upload = () =>{
-            if(!this.uploadDeclined){
-                if(!this.isFileAttached()){return;}
+        //Returns a promise
+        if(!this.uploadDeclinedByUser){
+            if(!this.isFileAttached()){return;}
 
-                return uploadFile(false, true, this.file)
-                .then((id)=>{
-                    this.uploaded= true;
-                    return Promise.resolve(id);
-                }); 
-            }
-            else{
-                return Promise.resolve(0);
-            }
+            return uploadFile(false, true, this.file)
+            .then((id)=>{
+                this.uploaded= true;
+                return Promise.resolve(id);
+            }); 
+        }
+        else{
+            return Promise.resolve(0);
+        }
             
     }
 

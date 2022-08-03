@@ -114,7 +114,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 if(allQuestionsAnswered == false){break;}
             }
             for(let uploadInput of this.documentUploadInputs){
-                if(!(uploadInput.uploadDeclined)){
+                if(!(uploadInput.uploadDeclinedByUser)){
                     if(!uploadInput.isFileAttached()){
                         allDocumentsUploaded=false;
                         break;

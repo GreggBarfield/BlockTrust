@@ -115,11 +115,11 @@ export class CommonQuestionnaireMethods{
         uploadOptionsDropDown.onchange = () => {
             if(uploadOptionsDropDown.value == "Yes"){
                 questionUploadContainer.style.display = 'block';
-                uploadInput.uploadDeclined=false;
+                uploadInput.uploadDeclinedByUser=false;
             }
             else{
                 questionUploadContainer.style.display = 'none';
-                uploadInput.uploadDeclined=true;
+                uploadInput.uploadDeclinedByUser=true;
             }
         }
         uploadOptionsDropDown.onchange();
