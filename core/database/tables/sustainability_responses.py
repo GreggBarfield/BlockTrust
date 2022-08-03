@@ -213,21 +213,21 @@ class SustainabilityResponses:
         base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
                    AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
                    AVG(improvement_points) as improvement_average FROM sustainability_responses"""
-        query_conditions = []
-        query_values = {}
+        account_query_condition = ""
+        account_query_value = {}
         if get_by_account is True:
             if account_id is not NO_VALUE:
-                query_conditions.append(" account_id = %(account_id)s")
-                query_values["account_id"] = account_id
+                account_query_condition.append(" account_id = %(account_id)s")
+                account_query_value["account_id"] = account_id
 
-        if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+        if len(account_query_condition) >= 1:
+            query_condition = " WHERE" + account_query_condition
         else:
-            combined_query_condition = ""
+            query_condition = ""
 
-        query = base_query + combined_query_condition
+        query = base_query + query_condition
 
-        sustainability_averages = self._db.execute_d(query, query_values)
+        sustainability_averages = self._db.execute_d(query, account_query_value)
         if len(sustainability_averages) > 0:
             return sustainability_averages[0]
         else:
