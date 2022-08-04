@@ -198,3 +198,30 @@ class SustainabilityResponses:
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Sustainability responses")
+
+    def get_sustainability_response_averages(self, account_id=NO_VALUE):
+        """
+        Returns the sustainability average points for each sectiona and also by account if account_id is specififed
+        Params:
+            account_id: Account ID for which averages are required
+        Returns:
+            Sustainability point averages by section
+        """
+        base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
+                   AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
+                   AVG(improvement_points) as improvement_average FROM sustainability_responses"""
+        query_condition = ""
+        query_value = {}
+        if account_id is not NO_VALUE:
+            query_condition = " account_id = %(account_id)s"
+            query_value["account_id"] = account_id
+        if len(query_condition) >= 1:
+            query_condition = " WHERE" + query_condition
+        else:
+            query_condition = ""
+        query = base_query + query_condition
+        sustainability_averages = self._db.execute_d(query, query_value)
+        if len(sustainability_averages) > 0:
+            return sustainability_averages[0]
+        else:
+            return []

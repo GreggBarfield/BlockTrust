@@ -21,11 +21,13 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
             "water": "Water Resources",
             "animal": "Animal Health & Well-Being",
             "safety": "Employee Safety & Well-Being",
-            "efficiency": "Efficiency & Yield"
+            "efficiency": "Efficiency & Yield",
+            "improvement": "Improvement"
         };
 
-        this.makeAverageScoreGraph(row);
-        this.makeGraphOverTime(row);
-        this.makeOtherPieGraphs(sections);
+        //this.makeAverageScoreGraph(row);
+        //this.makeGraphOverTime(row);
+        //this.makeOtherPieGraphs(sections);
+        this.makeSectionalBarGraphs();
     }
 }

@@ -1,5 +1,6 @@
 import { Widget } from "../../widget.mjs";
 import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
+import { sections } from "../../../core/sustainability_constants.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
@@ -18,39 +19,48 @@ export class AbstractBaseSummaryWidget extends Widget {
     createCharts() {}
 
     getResponseData() {
-        this.getData("get_sustainability",{}).then((data) => {
-            this.responses = data.results;
-            
-            if (data.results.length > 0) {
-                this.responseData = data.results[0];
-                let sustainabilitySections = getSustainabilitySections();
-                sustainabilitySections["total"] = "Total";
-
-                for(const section in sustainabilitySections) {
-                    this.dataCounter[section] = { "excellent": 0, "acceptable": 0, "needsWork": 0}
-                    
-                    this.dataCounter[section].excellent = JSON.parse(this.responseData[section + "_first_score_points"]);
-                    this.dataCounter[section].acceptable = JSON.parse(this.responseData[section + "_second_score_points"]);
-                    this.dataCounter[section].needsWork = JSON.parse(this.responseData[section + "_third_score_points"]);
-                }
+        this.getData("get_sustainability_response_averages",{}).then((data) => {
+            this.accountAverages = data;
+            if (this.accountAverages > 0) {
+                console.log(this.accountAverages);
             }
         });
     }
 
     getSectorData() {
         //This grabs the sector number for the current user pass in from dashboard.py.
-        let accountSectorId = this.frame.getAttribute('data-widget-sector');
-
         this.getData(
             "data_request",
             {
-                request: {type: 'sustainability_averages', params: {} }
+                request: {type: 'sustainability_response_averages', params: {} }
             }
         ).then((data) => {
-            let sectorData = data.result;
-            this.dataCounter['thisSector'] = sectorData[accountSectorId]; 
-            this.dataCounter['allSectors'] = sectorData['allSectors'];
-
+            this.globalAverages = data.result;
+            // console.log(this.accountAverages);
+            // console.log(this.globalAverages);
+            this.barGraphData = {
+                "air": [],
+                "land": [],
+                "water": [],
+                "animal": [],
+                "safety": [],
+                "efficiency": [],
+                "improvement": []
+            };
+            for(let section of Object.values(sections)){
+                // console.log(section);
+                this.barGraphData[section.name].push({
+                    "name": "Your Score",
+                    "score": this.accountAverages[section.name+"_average"],
+                    "color": am4core.color("#008000")
+                });
+                this.barGraphData[section.name].push({
+                    "name": "Average Global Score",
+                    "score": this.globalAverages[section.name+"_average"],
+                    "color": am4core.color("#0000FF")
+                });
+            }
+            // console.log(this.barGraphData);
             this.createCharts();
         });
     }
@@ -303,6 +313,54 @@ export class AbstractBaseSummaryWidget extends Widget {
                 chart.legend.markers.template.height = 10;
                 chart.legend.markers.template.children.getIndex(0).cornerRadius(20, 20, 20, 20);
             });
+        }
+    }
+
+    makeBarGraph = (container, data) =>{
+            am4core.ready(function() {
+                am4core.useTheme(am4themes_animated);
+                var chart = am4core.create(container, am4charts.XYChart);
+
+                chart.data = data;
+                var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+                categoryAxis.dataFields.category = "name";
+                categoryAxis.renderer.grid.template.location = 0;
+                categoryAxis.renderer.minGridDistance = 30;
+                  
+                var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                // Create series
+                let series = chart.series.push(new am4charts.ColumnSeries());
+                series.dataFields.valueY = "score";
+                series.dataFields.categoryX = "name";
+                series.name = "Name";
+                series.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+                series.columns.template.fillOpacity = .8;
+            });
+    }
+
+    makeSectionalBarGraphs = () =>{
+        let row = document.createElement("div");
+        row.className = "row";
+        this.frame.appendChild(row);
+
+        // loop through all sections and create a graph for each section
+        for(let section of Object.values(sections)) {
+            let graphWrapper = document.createElement("div");
+            graphWrapper.className = "col-md-4";
+            let graphCard = document.createElement("div");
+            graphCard.className = "card";
+            graphWrapper.append(graphCard);
+            row.append(graphWrapper);
+
+            let graphHeader = document.createElement("h5");
+            graphHeader.className = "card-header";
+            graphHeader.textContent = section.header;
+            graphCard.append(graphHeader);
+            
+            let graph = document.createElement("div");
+            graph.className = "card-body px-3";
+            graphCard.append(graph);
+            this.makeBarGraph(graph, this.barGraphData[section.name]);
         }
     }
 

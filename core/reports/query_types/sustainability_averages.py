@@ -1,6 +1,6 @@
 from ...sectors import sectors_by_id
 
-TYPE_NAME = "sustainability_averages"
+TYPE_NAME = "sustainability_response_averages"
 
 
 def execute(db, query):

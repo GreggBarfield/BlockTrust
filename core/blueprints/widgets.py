@@ -16,6 +16,7 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import AccountUsers
+from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.users import Users
 
 from ..database.tables import zip_codes
@@ -753,3 +754,9 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 def serve_save_sustainability_questionnaire():
     return {"redirect": "/dashboard/sustainability"}
+
+@bp.route('/widgets/data/get_sustainability_response_averages', methods=["POST"])
+@crut.require_account
+def serve_get_sustainability_response_averages():
+    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
+    return account_sustainability_averages
