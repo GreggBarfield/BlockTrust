@@ -199,12 +199,11 @@ class SustainabilityResponses:
         else:
             raise Exception("Must give values for fields to update on Sustainability responses")
 
-    def get_sustainability_response_averages(self, get_by_account=False, account_id=NO_VALUE):
+    def get_sustainability_response_averages(self, account_id=NO_VALUE):
         """
         Returns the sustainability average points for each sectiona and also by account if account_id is specififed
 
         Params:
-            get_by_account: Should be True if account averages are required
             account_id: Account ID for which averages are required
 
         Returns:
@@ -213,21 +212,20 @@ class SustainabilityResponses:
         base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
                    AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
                    AVG(improvement_points) as improvement_average FROM sustainability_responses"""
-        account_query_condition = ""
-        account_query_value = {}
-        if get_by_account is True:
-            if account_id is not NO_VALUE:
-                account_query_condition.append(" account_id = %(account_id)s")
-                account_query_value["account_id"] = account_id
+        query_condition = ""
+        query_value = {}
+        if account_id is not NO_VALUE:
+            query_condition.append(" account_id = %(account_id)s")
+            query_value["account_id"] = account_id
 
-        if len(account_query_condition) >= 1:
-            query_condition = " WHERE" + account_query_condition
+        if len(query_condition) >= 1:
+            query_condition = " WHERE" + query_condition
         else:
             query_condition = ""
 
         query = base_query + query_condition
 
-        sustainability_averages = self._db.execute_d(query, account_query_value)
+        sustainability_averages = self._db.execute_d(query, query_value)
         if len(sustainability_averages) > 0:
             return sustainability_averages[0]
         else:
