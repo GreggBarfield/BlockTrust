@@ -215,7 +215,7 @@ class SustainabilityResponses:
         query_condition = ""
         query_value = {}
         if account_id is not NO_VALUE:
-            query_condition.append(" account_id = %(account_id)s")
+            query_condition = " account_id = %(account_id)s"
             query_value["account_id"] = account_id
 
         if len(query_condition) >= 1:
