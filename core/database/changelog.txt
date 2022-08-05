@@ -1607,3 +1607,13 @@ CREATE TABLE sustainability_responses(
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+
+/* Nisheet Thakur 08/03/2022 */
+ALTER TABLE `sustainability_responses`
+MODIFY COLUMN `air_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `land_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `water_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `animal_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `safety_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `efficiency_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `improvement_points` DECIMAL(2,1) DEFAULT 0;
