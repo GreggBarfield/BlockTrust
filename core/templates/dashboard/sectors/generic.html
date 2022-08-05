@@ -19,12 +19,13 @@
                 Calf-Crop Summary
                 <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
                 title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
-            </a>
+                </a>
+                <a class="btn btn-success float-right text-white d-none" id="downloadSummaryButton"><i class="fa fa-download"></i> Download</a>
             </h5>
 
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
-                    data-widget-company-name="{{ account.name() }}"></p>
+                    data-widget-company-name="{{ account.name() }}" data-widget-button-id="downloadSummaryButton"></p>
             </div>
         </div>
     </div>
