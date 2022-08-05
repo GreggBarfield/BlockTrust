@@ -6,8 +6,7 @@ export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
         this.dataCounter = {};
-        this.getResponseData();
-        this.getSectorData();
+        this.getSustainabilityData();
     }
 
     /* Note: this will be called at the end of getSectorData()'s Promise
@@ -18,51 +17,25 @@ export class AbstractBaseSummaryWidget extends Widget {
     */ 
     createCharts() {}
 
-    getResponseData() {
-        this.getData("get_sustainability_response_averages",{}).then((data) => {
-            this.accountAverages = data;
-            if (this.accountAverages > 0) {
-                console.log(this.accountAverages);
-            }
+    getSustainabilityData = () =>{
+        const getAccountSustainabilityData = this.getData(
+            "get_sustainability_response_averages"
+        ).then((data) => {
+            this.accountAverages = data;  
         });
-    }
-
-    getSectorData() {
-        //This grabs the sector number for the current user pass in from dashboard.py.
-        this.getData(
+        const getGlobalSustainabilityData = this.getData(
             "data_request",
             {
                 request: {type: 'sustainability_response_averages', params: {} }
             }
         ).then((data) => {
             this.globalAverages = data.result;
-            // console.log(this.accountAverages);
-            // console.log(this.globalAverages);
-            this.barGraphData = {
-                "air": [],
-                "land": [],
-                "water": [],
-                "animal": [],
-                "safety": [],
-                "efficiency": [],
-                "improvement": []
-            };
-            for(let section of Object.values(sections)){
-                // console.log(section);
-                this.barGraphData[section.name].push({
-                    "name": "Your Score",
-                    "score": this.accountAverages[section.name+"_average"],
-                    "color": am4core.color("#008000")
-                });
-                this.barGraphData[section.name].push({
-                    "name": "Average Global Score",
-                    "score": this.globalAverages[section.name+"_average"],
-                    "color": am4core.color("#0000FF")
-                });
-            }
-            // console.log(this.barGraphData);
+        }); 
+        Promise.all([
+            getAccountSustainabilityData, getGlobalSustainabilityData
+        ]).then(()=> {
             this.createCharts();
-        });
+        })
     }
 
     makeGraphOverTime(row) {
@@ -338,30 +311,77 @@ export class AbstractBaseSummaryWidget extends Widget {
             });
     }
 
-    makeSectionalBarGraphs = () =>{
+    makeSectionalGaugeCharts = () =>{
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
 
         // loop through all sections and create a graph for each section
         for(let section of Object.values(sections)) {
-            let graphWrapper = document.createElement("div");
-            graphWrapper.className = "col-md-4";
-            let graphCard = document.createElement("div");
-            graphCard.className = "card";
-            graphWrapper.append(graphCard);
-            row.append(graphWrapper);
+            let chartWrapper = document.createElement("div");
+            chartWrapper.className = "col-md-4";
+            let chartCard = document.createElement("div");
+            chartCard.className = "card";
+            chartWrapper.append(chartCard);
+            row.append(chartWrapper);
 
-            let graphHeader = document.createElement("h5");
-            graphHeader.className = "card-header";
-            graphHeader.textContent = section.header;
-            graphCard.append(graphHeader);
+            let chartHeader = document.createElement("h5");
+            chartHeader.className = "card-header";
+            chartHeader.textContent = section.header;
+            chartCard.append(chartHeader);
             
-            let graph = document.createElement("div");
-            graph.className = "card-body px-3";
-            graphCard.append(graph);
-            this.makeBarGraph(graph, this.barGraphData[section.name]);
+            let accountChart = document.createElement("div");
+            accountChart.className = "card-body";
+            chartCard.append(accountChart);
+
+            let globalChart = document.createElement("div");
+            globalChart.className = "card-body";
+            chartCard.append(globalChart);
+
+            this.makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score");
+            this.makeGaugeChart(globalChart, this.globalAverages[section.name+"_average"], "Global Average Score");
         }
+    }
+
+    makeGaugeChart = (container, data, title) =>{
+        am4core.ready(function() {
+            am4core.useTheme(am4themes_animated);
+            //am4core.useTheme(am4themes_dark);
+
+            // create chart
+            var chart = am4core.create(container, am4charts.GaugeChart);
+            chart.innerRadius = -15;
+            let label = chart.chartContainer.createChild(am4core.Label);
+            label.text = title;
+            label.align = "center";
+
+            var axis = chart.xAxes.push(new am4charts.ValueAxis());
+            axis.min =   0;
+            axis.max = 5;
+            axis.strictMinMax = true;
+            axis.numberFormatter.numberFormat = "#a";
+
+            var colorSet = new am4core.ColorSet();
+
+            var gradient = new am4core.LinearGradient();
+            gradient.stops.push({color:am4core.color("red")});
+            gradient.stops.push({color:am4core.color("green")});
+
+            axis.renderer.line.stroke = gradient;
+            axis.renderer.line.strokeWidth = 15;
+            axis.renderer.line.strokeLinecap = "round";
+            axis.renderer.line.strokeOpacity = 0.90;
+
+            var hand = chart.hands.push(new am4charts.ClockHand());
+            hand.radius = am4core.percent(100);
+            hand.startWidth = 16;
+            hand.pin.radius = 8;
+            hand.parent.zIndex = 100;
+
+            setInterval(function() {
+                hand.showValue(data, 1000, am4core.ease.cubicOut);
+            }, 2000);
+        });
     }
 
 }

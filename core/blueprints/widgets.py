@@ -759,4 +759,5 @@ def serve_save_sustainability_questionnaire():
 @crut.require_account
 def serve_get_sustainability_response_averages():
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
+    formatted_averages = {}
     return account_sustainability_averages

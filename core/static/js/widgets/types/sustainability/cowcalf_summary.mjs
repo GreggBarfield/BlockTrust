@@ -28,6 +28,6 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
         //this.makeAverageScoreGraph(row);
         //this.makeGraphOverTime(row);
         //this.makeOtherPieGraphs(sections);
-        this.makeSectionalBarGraphs();
+        this.makeSectionalGaugeCharts();
     }
 }
