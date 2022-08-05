@@ -1802,7 +1802,7 @@ body {
             border-radius: 10px 0 0 0;
             box-shadow: 0 1px 0 0 $theme-border,-1px -1px 0 0 darken($theme-border,15%);
         }
-        @media only screen and(max-width: 992px) {
+        @media only screen and (max-width: 992px) {
             .pcoded-navbar {
                 margin-left: 0;
                 margin-right: -$Menu-width - 30px;
