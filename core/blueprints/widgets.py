@@ -752,7 +752,26 @@ def serve_save_eids_by_application_id():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
+@crut.require_account
 def serve_save_sustainability_questionnaire():
+    file_ids_json = {"file_ids": []}
+    for file_id in request.json["uploaded_document_ids"]:
+        if file_id != 0:
+            file_ids_json["file_ids"].append(file_id)
+    SustainabilityResponses(g.db).insert_sustainabilty_response(
+        account_id=g.account.id(),
+        user_id=g.user.id(),
+        air_points=round(request.json["scores"]["air"], 1),
+        land_points=round(request.json["scores"]["land"], 1),
+        water_points=round(request.json["scores"]["water"], 1),
+        animal_points=round(request.json["scores"]["animal"], 1),
+        safety_points=round(request.json["scores"]["safety"], 1),
+        efficiency_points=round(request.json["scores"]["efficiency"], 1),
+        improvement_points=round(request.json["scores"]["improvement"], 1),
+        score=request.json["total_score"],
+        uploaded_file_ids=file_ids_json,
+        response=request.json["responses"]
+    )
     return {"redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_sustainability_response_averages', methods=["POST"])

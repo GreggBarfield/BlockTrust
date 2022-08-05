@@ -106,7 +106,7 @@ class SustainabilityResponses:
         """
         self._db.execute(
             """
-            INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points
+            INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points,
             safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response)
             VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
             %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s)
@@ -220,6 +220,7 @@ class SustainabilityResponses:
         else:
             query_condition = ""
         query = base_query + query_condition
+
         sustainability_averages = self._db.execute_d(query, query_value)
         if len(sustainability_averages) > 0:
             return sustainability_averages[0]
