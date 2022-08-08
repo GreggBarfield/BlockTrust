@@ -16,6 +16,16 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.improvement = 0;
         this.documentUploadInputs = [];
         this.uploadedDocumentIDs = [];
+        this.totalScore = 0;
+        
+        this.responses = {};
+        this.responses.air = [];
+        this.responses.land = [];
+        this.responses.water = [];
+        this.responses.safety = [];
+        this.responses.animal =[];
+        this.responses.efficiency = [];
+        this.responses.improvement = [];
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -94,7 +104,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    uploaded_document_ids: this.uploadedDocumentIDs
+                    uploaded_document_ids: this.uploadedDocumentIDs,
+                    total_score: this.totalScore,
+                    responses: this.responses
                 };
             },
         });
@@ -158,8 +170,10 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     if(response.value > 0 && response.value <= 100){
                         this.scores[section.name]+=response.value/100;
                     }
-                }
+                } 
+                this.responses[section.name].push(response.value);
             }
+            this.totalScore+= this.scores[section.name];
         }
     }
 
