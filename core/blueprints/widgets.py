@@ -774,9 +774,18 @@ def serve_save_sustainability_questionnaire():
     )
     return {"redirect": "/dashboard/sustainability"}
 
-@bp.route('/widgets/data/get_sustainability_response_averages', methods=["POST"])
+@bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account
 def serve_get_sustainability_response_averages():
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
-    formatted_averages = {}
-    return account_sustainability_averages
+    formatted_account_averages = {
+        "air_average": float(account_sustainability_averages["air_average"]),
+        "land_average": float(account_sustainability_averages["land_average"]),
+        "water_average": float(account_sustainability_averages["water_average"]),
+        "animal_average": float(account_sustainability_averages["animal_average"]),
+        "safety_average": float(account_sustainability_averages["safety_average"]),
+        "efficiency_average": float(account_sustainability_averages["efficiency_average"]),
+        "improvement_average": float(account_sustainability_averages["improvement_average"])
+    }
+    account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id()) 
+    return {"formatted_account_averages": formatted_account_averages, "account_sustainability_responses": account_sustainability_responses}

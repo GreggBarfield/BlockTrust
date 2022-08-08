@@ -15,19 +15,8 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
         row.className = "row";
         this.frame.appendChild(row);
 
-        let sections = {
-            "air": "Air & Greenhouse Gas Emissions",
-            "land": "Land Resources",
-            "water": "Water Resources",
-            "animal": "Animal Health & Well-Being",
-            "safety": "Employee Safety & Well-Being",
-            "efficiency": "Efficiency & Yield",
-            "improvement": "Improvement"
-        };
-
-        //this.makeAverageScoreGraph(row);
-        //this.makeGraphOverTime(row);
-        //this.makeOtherPieGraphs(sections);
+        this.makeAverageScoreGaugeCharts(row);
+        // this.makeGraphOverTime(row);
         this.makeSectionalGaugeCharts();
     }
 }
