@@ -202,8 +202,10 @@ class SustainabilityResponses:
     def get_sustainability_response_averages(self, account_id=NO_VALUE):
         """
         Returns the sustainability average points for each sectiona and also by account if account_id is specififed
+
         Params:
             account_id: Account ID for which averages are required
+
         Returns:
             Sustainability point averages by section
         """
@@ -215,10 +217,12 @@ class SustainabilityResponses:
         if account_id is not NO_VALUE:
             query_condition = " account_id = %(account_id)s"
             query_value["account_id"] = account_id
+
         if len(query_condition) >= 1:
             query_condition = " WHERE" + query_condition
         else:
             query_condition = ""
+
         query = base_query + query_condition
 
         sustainability_averages = self._db.execute_d(query, query_value)
