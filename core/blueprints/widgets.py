@@ -618,7 +618,7 @@ def serve_get_sustainability_timeline_data():
 def get_employee_summary_graphs_data():
     ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
     feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
-    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "create_timestamp"])
+    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "created_timestamp"])
     return {
         "ranches": ranches,
         "feedyards": feedyards,

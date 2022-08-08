@@ -59,7 +59,7 @@ export class SummaryGraphWidget extends Widget {
             if(value.result !== null){
                 let count_eid_distinct_object = JSON.parse(value.result)
                 graphableData.push({
-                    "date": new Date(value.create_timestamp),
+                    "date": new Date(value.created_timestamp),
                     "value": count_eid_distinct_object.count_eid_distinct
                 });
             }     
