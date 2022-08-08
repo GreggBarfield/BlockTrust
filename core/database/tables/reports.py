@@ -20,7 +20,7 @@ REPORT_STATUS = {
     "Error": 4,  # Note that errors may also be uncaught, leading to infinite running
 }
 
-report_cols = ("id", "account_id", "priority", "query", "result", "status", "fulfilled", "create_timestamp", "last_updated_timestamp")
+report_cols = ("id", "account_id", "priority", "query", "result", "status", "fulfilled", "created_timestamp", "last_updated_timestamp")
 
 class Reports:
     """Model for reports.
@@ -109,7 +109,7 @@ class Reports:
                 LOCK TABLES reports WRITE;
                 SET @work_report_id = (
                     SELECT id FROM reports WHERE status=:pending_status
-                    ORDER BY priority DESC, create_timestamp ASC
+                    ORDER BY priority DESC, created_timestamp ASC
                     LIMIT 1
                 );
                 UPDATE reports SET status=:running_status WHERE id=@work_report_id;

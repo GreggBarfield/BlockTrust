@@ -1588,3 +1588,7 @@ ADD CONSTRAINT `fk_scheduled_emails_account_id_id_accounts`
 /* Rohan Sureshkumar 7/26/2022 */
 UPDATE matches SET zip=JSON_UNQUOTE(JSON_EXTRACT(debug,'$.zip')) WHERE debug IS NOT NULL and type=1 AND zip is NULL
 
+/* Rohan Sureshkumar 8/8/2022 */
+ALTER TABLE `reports` 
+CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
