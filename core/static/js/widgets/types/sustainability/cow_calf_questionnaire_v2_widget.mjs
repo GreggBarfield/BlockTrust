@@ -26,7 +26,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "air3",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share the plan? If so, please upload",
+                    questionText: "Are you willing to share the plan? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -40,7 +40,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "air5",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share data or information related to that active management? If so, please upload",
+                    questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -79,7 +79,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "land3",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share the plan? If so, please upload",
+                    questionText: "Are you willing to share the plan? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -93,7 +93,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "land5",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share data or information related to that active management? If so, please upload",
+                    questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -132,7 +132,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "water3",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share the plan? If so, please upload",
+                    questionText: "Are you willing to share the plan? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -146,7 +146,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "water5",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share data or information related to that active management? If so, please upload",
+                    questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5   
                 },
@@ -178,7 +178,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "safety2",
                     responseType: questionType.upload,
-                    questionText: "If yes, what training? Please upload training",
+                    questionText: "If yes, what training? Please upload training (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5
                 },
@@ -289,7 +289,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                 {
                     id: "efficiency6",
                     responseType: questionType.upload,
-                    questionText: "Are you willing to share your breeding plan? If so, please upload",
+                    questionText: "Are you willing to share your breeding plan? If so, please upload (PDF only)",
                     scoringCriteria: scoringCriteria.confirmation,
                     score: 0.5
                 },

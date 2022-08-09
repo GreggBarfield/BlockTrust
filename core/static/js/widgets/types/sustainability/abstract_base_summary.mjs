@@ -143,7 +143,7 @@ export class AbstractBaseSummaryWidget extends Widget {
 
         let cardHeaderIconText = document.createElement("h4");
         cardHeaderIconText.className = "d-inline text-c-green";
-        cardHeaderIconText.textContent = parseFloat(globalTotalAverage).toFixed(2);
+        cardHeaderIconText.textContent = parseFloat(accountTotalAverage).toFixed(2);
         let cardHeaderIcon = document.createElement("i");
         cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
         cardHeaderIcon.style = "padding-right:10px";

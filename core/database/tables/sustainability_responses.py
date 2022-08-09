@@ -228,5 +228,3 @@ class SustainabilityResponses:
         sustainability_averages = self._db.execute_d(query, query_value)
         if len(sustainability_averages) > 0:
             return sustainability_averages[0]
-        else:
-            return []
