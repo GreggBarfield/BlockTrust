@@ -439,13 +439,6 @@ def serve_save_eids_for_sales_group():
 #     )
 #     return { "redirect": "/dashboard/sustainability"}
 
-@bp.route('/widgets/data/get_sustainability', methods=['POST'])
-@crut.require_account
-def serve_get_sustainability():
-    return { 
-        "results": g.db.sustainability.get_sustainability_by_account(g.account.id())
-    }, 200
-
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
