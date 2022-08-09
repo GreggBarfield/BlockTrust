@@ -112,11 +112,4 @@ export class FileUploader {
         }
         return false;
     }
-
-    removeAttachedFile = () =>{
-        this.file = null;
-        this.fileName = "";
-        uploadInput.value = "";
-        this.inputFileNameContainer.textContent = "No File Uploaded";
-    }
 }
