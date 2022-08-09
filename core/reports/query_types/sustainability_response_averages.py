@@ -13,7 +13,7 @@ def execute(db, query):
         "animal_average": float(sustainability_response_averages["animal_average"]),
         "safety_average": float(sustainability_response_averages["safety_average"]),
         "efficiency_average": float(sustainability_response_averages["efficiency_average"]),
-        "improvement_average": float(sustainability_response_averages["improvement_average"]),
+        "improvement_average": float(sustainability_response_averages["improvement_average"])
     }
     return result
 
