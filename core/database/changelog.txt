@@ -1564,7 +1564,7 @@ ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 ALTER TABLE `sales_groups`
 ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;
 
-/* Rohan Sureshkkumar 07/04/2022 */
+/* Rohan Sureshkumar 07/04/2022 */
 ALTER TABLE `scheduled_emails` 
 ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `user_id`;
 

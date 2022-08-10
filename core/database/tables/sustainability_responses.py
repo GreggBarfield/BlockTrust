@@ -207,7 +207,7 @@ class SustainabilityResponses:
             account_id: Account ID for which averages are required
 
         Returns:
-            Sustainability point averages by section
+            Sustainability point averages by section (A dictionary). Will return a dictionary with None for the AVG(column) if no data exists.
         """
         base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
                    AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
@@ -226,7 +226,4 @@ class SustainabilityResponses:
         query = base_query + query_condition
 
         sustainability_averages = self._db.execute_d(query, query_value)
-        if len(sustainability_averages) > 0:
-            return sustainability_averages[0]
-        else:
-            return []
+        return sustainability_averages[0]

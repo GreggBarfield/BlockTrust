@@ -114,12 +114,14 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.addEventListener("click", () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
+            let incompleteSection = "";
             let allDocumentsUploaded = true;
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
                 for(let response of responses){
                     if(response.value == "Please Select" || response.value == ""){
                         allQuestionsAnswered = false;
+                        incompleteSection = section.header;
                         break;
                     }
                 }
@@ -143,8 +145,14 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 });
             }
             else{
-                errorMessage.style.display = "block";
-                errorMessage.textContent = "Please complete the questionnaire/ Upload all required documents";
+                if(allQuestionsAnswered == false){
+                    errorMessage.style.display = "block";
+                    errorMessage.textContent = "Please complete the following section: " + incompleteSection;
+                }
+                else{
+                    errorMessage.style.display = "block";
+                    errorMessage.textContent = "Please upload all required documents";
+                }
             }
         });
         cardBody.append(form);
