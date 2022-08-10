@@ -44,8 +44,11 @@ export class FileUploader {
         inputFileRemoveButton.className = "btn btn-sm btn-outline-danger";
         inputFileRemoveButton.type = "button";
         inputFileRemoveButton.onclick = () =>{
-            if(this.file !== null){
-                this.removeAttachedFile();
+            if(this.file !== null){  
+                this.file = null;
+                this.fileName = "";
+                uploadInput.value = "";
+                this.inputFileNameContainer.textContent = "No File Uploaded";
             }
         }
 
@@ -67,7 +70,7 @@ export class FileUploader {
         }
         if(this.acceptFileTypes !== [] && !this.acceptFileTypes.includes(inputFile.type)){
             acceptableFile = false;
-            errorMessage = "Sorry, "+ inputFile.name + " is not of the right format.";
+            errorMessage = "Sorry, "+ inputFile.name + " must be PDF";
         }
         if(acceptableFile === true){
             this.file = inputFile;
@@ -76,7 +79,10 @@ export class FileUploader {
             this.inputFileNameContainer.textContent = this.fileName;
         }
         else{
-            this.removeAttachedFile()
+            this.file = null;
+            this.fileName = "";
+            uploadInput.value = "";
+            this.inputFileNameContainer.textContent = "No File Uploaded";
             new InfoModal("File Upload", errorMessage);
         }
     }
@@ -89,6 +95,8 @@ export class FileUploader {
             return uploadFile(false, true, this.file)
             .then((id)=>{
                 this.uploaded= true;
+                this.inputFileNameContainer.className = "m-1 font-italic text-success";
+                this.inputFileNameContainer.textContent = this.fileName + " (Uploaded)"
                 return Promise.resolve(id);
             }); 
         }
@@ -103,12 +111,5 @@ export class FileUploader {
             return true;
         }
         return false;
-    }
-
-    removeAttachedFile = () =>{
-        this.file = null;
-        this.fileName = "";
-        uploadInput.value = "";
-        this.inputFileNameContainer.textContent = "No File Uploaded";
     }
 }
