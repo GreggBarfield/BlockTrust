@@ -16,6 +16,7 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, connection_status
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import AccountUsers
+from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.users import Users
 
 from ..database.tables import zip_codes
@@ -438,13 +439,6 @@ def serve_save_eids_for_sales_group():
 #     )
 #     return { "redirect": "/dashboard/sustainability"}
 
-@bp.route('/widgets/data/get_sustainability', methods=['POST'])
-@crut.require_account
-def serve_get_sustainability():
-    return { 
-        "results": g.db.sustainability.get_sustainability_by_account(g.account.id())
-    }, 200
-
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
@@ -617,7 +611,7 @@ def serve_get_sustainability_timeline_data():
 def get_employee_summary_graphs_data():
     ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
     feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
-    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "create_timestamp"])
+    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "created_timestamp"])
     return {
         "ranches": ranches,
         "feedyards": feedyards,
@@ -751,5 +745,40 @@ def serve_save_eids_by_application_id():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
+@crut.require_account
 def serve_save_sustainability_questionnaire():
+    file_ids_json = {"file_ids": []}
+    for file_id in request.json["uploaded_document_ids"]:
+        if file_id != 0:
+            file_ids_json["file_ids"].append(file_id)
+    SustainabilityResponses(g.db).insert_sustainabilty_response(
+        account_id=g.account.id(),
+        user_id=g.user.id(),
+        air_points=round(request.json["scores"]["air"], 1),
+        land_points=round(request.json["scores"]["land"], 1),
+        water_points=round(request.json["scores"]["water"], 1),
+        animal_points=round(request.json["scores"]["animal"], 1),
+        safety_points=round(request.json["scores"]["safety"], 1),
+        efficiency_points=round(request.json["scores"]["efficiency"], 1),
+        improvement_points=round(request.json["scores"]["improvement"], 1),
+        score=request.json["total_score"],
+        uploaded_file_ids=file_ids_json,
+        response=request.json["responses"]
+    )
     return {"redirect": "/dashboard/sustainability"}
+
+@bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
+@crut.require_account
+def serve_get_sustainability_response_averages():
+    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
+    formatted_account_averages = {
+        "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
+        "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
+        "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
+        "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
+        "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
+        "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
+        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0
+    }
+    account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
+    return {"formatted_account_averages": formatted_account_averages, "account_sustainability_responses": account_sustainability_responses}

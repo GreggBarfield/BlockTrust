@@ -14,6 +14,18 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
+        this.documentUploadInputs = [];
+        this.uploadedDocumentIDs = [];
+        this.totalScore = 0;
+        
+        this.responses = {};
+        this.responses.air = [];
+        this.responses.land = [];
+        this.responses.water = [];
+        this.responses.safety = [];
+        this.responses.animal =[];
+        this.responses.efficiency = [];
+        this.responses.improvement = [];
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -47,18 +59,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 let questionContainer = "";
                 if(question.responseType == questionType.select){
                     questionContainer = this.commonMethods.createSelectQuestion(question.questionText, section.name, question.id);
+                    questionsSection.append(questionContainer);
                 }
                 else if(question.responseType == questionType.input){
                     questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, section.name, question.id);
+                    questionsSection.append(questionContainer);
                 }
                 else if(question.responseType == questionType.upload){
-                    questionContainer = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                    const {questionContainer, uploadInput} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                    questionsSection.append(questionContainer);
+                    this.documentUploadInputs.push(uploadInput);
                 }
-                questionsSection.append(questionContainer);
             }
             form.append(questionsSection)
         }
-
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
         form.append(submitFormGroup);
@@ -90,6 +104,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
+                    uploaded_document_ids: this.uploadedDocumentIDs,
+                    total_score: this.totalScore,
                     responses: this.responses
                 };
             },
@@ -98,24 +114,45 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.addEventListener("click", () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
+            let incompleteSection = "";
+            let allDocumentsUploaded = true;
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
                 for(let response of responses){
                     if(response.value == "Please Select" || response.value == ""){
                         allQuestionsAnswered = false;
+                        incompleteSection = section.header;
                         break;
                     }
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            if(allQuestionsAnswered){
+            for(let uploadInput of this.documentUploadInputs){
+                if(!(uploadInput.uploadDeclinedByUser)){
+                    if(!uploadInput.isFileAttached()){
+                        allDocumentsUploaded=false;
+                        break;
+                    }
+                }
+            }
+            
+            if(allQuestionsAnswered && allDocumentsUploaded){
                 errorMessage.style.display = "none";
-                this.calculateScores(questionnaireData);
-                this.asyncForm.submit();
+                this.uploadDocuments()
+                .then(() =>{
+                    this.calculateScores(questionnaireData);
+                    this.asyncForm.submit();
+                });
             }
             else{
-                errorMessage.style.display = "block";
-                errorMessage.textContent = "Please complete the questionnaire";
+                if(allQuestionsAnswered == false){
+                    errorMessage.style.display = "block";
+                    errorMessage.textContent = "Please complete the following section: " + incompleteSection;
+                }
+                else{
+                    errorMessage.style.display = "block";
+                    errorMessage.textContent = "Please upload all required documents";
+                }
             }
         });
         cardBody.append(form);
@@ -141,8 +178,24 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     if(response.value > 0 && response.value <= 100){
                         this.scores[section.name]+=response.value/100;
                     }
-                }
+                } 
+                this.responses[section.name].push(response.value);
             }
+            this.totalScore+= this.scores[section.name];
         }
+    }
+
+    uploadDocuments = () =>{
+        return new Promise((resolve, reject) =>{
+            for(let uploadInput of this.documentUploadInputs){
+                uploadInput.upload()
+                .then((id) =>{
+                    this.uploadedDocumentIDs.push(id);
+                    if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
+                        resolve(true);
+                    }
+                });
+            }
+        });
     }
 }

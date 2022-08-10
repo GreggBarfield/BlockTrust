@@ -4648,7 +4648,7 @@ body {
             border-radius: 0 10px 0 0;
             box-shadow: 0 1px 0 0 $theme-border,1px -1px 0 0 darken($theme-border,15%);
         }
-        @media only screen and(max-width: 992px) {
+        @media only screen and (max-width: 992px) {
             .pcoded-header {
                 border-radius: 10px 10px 0 0;
             }
@@ -4665,7 +4665,7 @@ body {
                 box-shadow: 1px 1px 0 0 $theme-border,-1px 0 0 0 $theme-border;
             }
         }
-        @media only screen and(max-width: 575px) {
+        @media only screen and (max-width: 575px) {
             margin: 0;
 
             .navbar-brand,

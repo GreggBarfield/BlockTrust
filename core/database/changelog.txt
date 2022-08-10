@@ -1564,7 +1564,7 @@ ADD COLUMN `weighing_conditions` VARCHAR(200) NULL DEFAULT NULL;
 ALTER TABLE `sales_groups`
 ADD COLUMN `are_annual_cattle_herd_vaccinations_given` TINYINT NULL DEFAULT 0;
 
-/* Rohan Sureshkkumar 07/04/2022 */
+/* Rohan Sureshkumar 07/04/2022 */
 ALTER TABLE `scheduled_emails` 
 ADD COLUMN `account_id` INT NULL DEFAULT NULL AFTER `user_id`;
 
@@ -1588,3 +1588,37 @@ ADD CONSTRAINT `fk_scheduled_emails_account_id_id_accounts`
 /* Rohan Sureshkumar 7/26/2022 */
 UPDATE matches SET zip=JSON_UNQUOTE(JSON_EXTRACT(debug,'$.zip')) WHERE debug IS NOT NULL and type=1 AND zip is NULL
 
+/* Nisheet Thakur 08/01/2022 */
+CREATE TABLE sustainability_responses(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `user_id` INT NOT NULL,
+  `air_points` DECIMAL(1,1) DEFAULT 0,
+  `land_points` DECIMAL(1,1) DEFAULT 0,
+  `water_points` DECIMAL(1,1) DEFAULT 0,
+  `animal_points` DECIMAL(1,1) DEFAULT 0,
+  `safety_points` DECIMAL(1,1) DEFAULT 0,
+  `efficiency_points` DECIMAL(1,1) DEFAULT 0,
+  `improvement_points` DECIMAL(1,1) DEFAULT 0,
+  `score` INT DEFAULT 0,
+  `uploaded_file_ids` JSON DEFAULT NULL,
+  `response` JSON DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+
+/* Nisheet Thakur 08/03/2022 */
+ALTER TABLE `sustainability_responses`
+MODIFY COLUMN `air_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `land_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `water_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `animal_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `safety_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `efficiency_points` DECIMAL(2,1) DEFAULT 0,
+MODIFY COLUMN `improvement_points` DECIMAL(2,1) DEFAULT 0;
+
+/* Rohan Sureshkumar 8/8/2022 */
+ALTER TABLE `reports` 
+CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
