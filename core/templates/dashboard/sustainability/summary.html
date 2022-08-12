@@ -68,6 +68,9 @@ Sustainability Summary
     {% if sector == "Cow-Calf" %}
     <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New Cow-Calf Survey</a>
     {% endif %}
+    {% if sector == "Feedlot" %}
+    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New Feedlot Survey</a>
+    {% endif %}
     <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
 </div>
 <div class="row">

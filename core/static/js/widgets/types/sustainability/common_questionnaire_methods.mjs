@@ -91,11 +91,14 @@ export class CommonQuestionnaireMethods{
         questionTextContainer.append(label);
 
         let questionInputContainer = document.createElement("div");
-        questionInputContainer.className = "col-md-2 p-1"
+        questionInputContainer.className = "col-md-2 p-1";
+        questionInputContainer.style = "float:right"
+        
         let uploadOptionsDropDown = document.createElement("select");
         uploadOptionsDropDown.className = "form-control";
         uploadOptionsDropDown.name = inputName;
         uploadOptionsDropDown.id = inputID;
+        questionInputContainer.append(uploadOptionsDropDown);
 
         let defaultOption = new Option("Please Select", "Please Select");
         defaultOption.selected = true;
@@ -103,12 +106,10 @@ export class CommonQuestionnaireMethods{
         uploadOptionsDropDown.appendChild(defaultOption);
         uploadOptionsDropDown.appendChild(new Option("Yes", "Yes"));
         uploadOptionsDropDown.appendChild(new Option("No", "No"));
-        questionInputContainer.append(uploadOptionsDropDown);
         
         let questionUploadContainer = document.createElement("div");
-        questionUploadContainer.className = "col-md-4 p-1";
+        questionUploadContainer.className = "col-md-4";
         let uploadInput = new FileUploader(questionUploadContainer, ["application/pdf"]);
-
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
         questionContainer.append(questionUploadContainer);
