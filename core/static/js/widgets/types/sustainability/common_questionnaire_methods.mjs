@@ -85,15 +85,13 @@ export class CommonQuestionnaireMethods{
         questionContainer.className = "row p-1 border-bottom"
 
         let questionTextContainer = document.createElement("div");
-        questionTextContainer.className = "col-md-6";
+        questionTextContainer.className = "col-md-8";
         let label = document.createElement("label");
         label.textContent = questionText;
         questionTextContainer.append(label);
 
         let questionInputContainer = document.createElement("div");
-        questionInputContainer.className = "col-md-2 p-1";
-        questionInputContainer.style = "float:right"
-        
+        questionInputContainer.className = "col-md-4 p-1"
         let uploadOptionsDropDown = document.createElement("select");
         uploadOptionsDropDown.className = "form-control";
         uploadOptionsDropDown.name = inputName;
@@ -108,14 +106,14 @@ export class CommonQuestionnaireMethods{
         uploadOptionsDropDown.appendChild(new Option("No", "No"));
         
         let questionUploadContainer = document.createElement("div");
-        questionUploadContainer.className = "col-md-4";
+        questionUploadContainer.className = "col-md-12 p-1 justify-content-center";
         let uploadInput = new FileUploader(questionUploadContainer, ["application/pdf"]);
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
         questionContainer.append(questionUploadContainer);
         uploadOptionsDropDown.onchange = () => {
             if(uploadOptionsDropDown.value == "Yes"){
-                questionUploadContainer.style.display = 'block';
+                questionUploadContainer.style.display = 'flex';
                 uploadInput.uploadDeclinedByUser=false;
             }
             else{
