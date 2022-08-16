@@ -120,7 +120,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
             let allDocumentsUploaded = true;
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
-                console.log(responses);
                 for(let response of responses){
                     if(response.value == "Please Select" || response.value == ""){
                         allQuestionsAnswered = false;
