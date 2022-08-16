@@ -41,7 +41,7 @@ export class FileUploader {
 
         let inputFileRemoveButton = document.createElement("button");
         inputFileRemoveButton.textContent = "Remove";
-        inputFileRemoveButton.className = "btn btn-sm btn-outline-danger";
+        inputFileRemoveButton.className = "btn btn-sm btn-outline-danger ml-2";
         inputFileRemoveButton.type = "button";
         inputFileRemoveButton.onclick = () =>{
             if(this.file !== null){  
@@ -76,7 +76,7 @@ export class FileUploader {
             this.file = inputFile;
             this.fileName = inputFile.name;
             this.uploaded = false;
-            this.inputFileNameContainer.textContent = this.fileName;
+            this.inputFileNameContainer.innerHTML = `<strong>${this.fileName}</strong> (queued for upload)`;
         }
         else{
             this.file = null;

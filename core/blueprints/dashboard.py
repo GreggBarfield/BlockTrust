@@ -574,4 +574,4 @@ def send_document(path):
 @bp.route("/dashboard/sustainability/questionnaire", methods=["GET"])
 @crut.require_paid_account
 def serve_sustainability_questionnaire():
-    return dashboard_render("sustainability/questionnaire_v2.html")
+    return dashboard_render("sustainability/questionnaire_v2.html", {"sector": sectors_by_id[g.account.sector_id()]})
