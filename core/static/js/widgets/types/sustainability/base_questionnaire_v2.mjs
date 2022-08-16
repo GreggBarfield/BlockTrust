@@ -38,7 +38,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         sustainabilityHeaderText.className = "mt-2";
         sustainabilityHeaderText.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
     
-        sustainabilityHeaderText.textContent = "Cow-Calf Sustainability Questionnaire";
+        sustainabilityHeaderText.textContent = "Sustainability Questionnaire";
     
         let cardHeader = document.createElement("div");
         cardHeader.className = "card-header form-group d-flex justify-content-between";
