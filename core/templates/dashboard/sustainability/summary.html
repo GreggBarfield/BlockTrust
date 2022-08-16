@@ -65,11 +65,8 @@ Sustainability Summary
 
 
 <div class="row mb-2 mx-2 flex-row-reverse">
-    {% if sector == "Cow-Calf" %}
-    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New Cow-Calf Survey</a>
-    {% endif %}
-    {% if sector == "Auction House" %}
-    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New Auction House Survey</a>
+    {% if sector == "Cow-Calf" or sector == "Auction House"%}
+    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New {{sector}} Survey</a>
     {% endif %}
     <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
 </div>
