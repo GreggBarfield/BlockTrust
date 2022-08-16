@@ -1624,3 +1624,6 @@ MODIFY COLUMN `improvement_points` DECIMAL(2,1) DEFAULT 0;
 ALTER TABLE `reports` 
 CHANGE COLUMN `create_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ,
 CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ;
+
+/* Nisheet Thakur 8/16/2022 */
+ALTER TABLE `sustainability_responses` ADD COLUMN `account_sector_id` INT DEFAULT NULL;
