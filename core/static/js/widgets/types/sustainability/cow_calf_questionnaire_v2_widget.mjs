@@ -306,7 +306,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     id: "improvement2",
                     responseType: questionType.input,
                     questionText: "If already completed, what was your footprint?",
-                    inputType: "number",
+                    inputType: "text",
                     scoringCriteria: scoringCriteria.responsePresent,
                     score: 0.5
                 },
@@ -321,7 +321,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     id: "improvement4",
                     responseType: questionType.input,
                     questionText: "If already completed, what was your footprint?",
-                    inputType: "number",
+                    inputType: "text",
                     scoringCriteria: scoringCriteria.responsePresent,
                     score: 0.5
                 },
