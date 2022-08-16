@@ -12,16 +12,9 @@ Sustainability Questionaire
 {% block dashboard_content %}
 
 <div class="row">
-    {% if sector == "Cow-Calf" %}
     <div class="col">
-            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="cow calf questionnaire v2"></div>
+       <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="{{sector.lower()}} questionnaire v2"></div>
     </div>
-    {% endif %}
-    {% if sector == "Auction House" %}
-    <div class="col">
-            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="auction house questionnaire v2"></div>
-    </div>
-    {% endif %}
 </div>
 
 {% endblock dashboard_content %}

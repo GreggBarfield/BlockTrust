@@ -181,29 +181,29 @@
             <ul>
             {% if dashboard_standard_account is not none %}
             {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
-                <li title="Search"> 
+                <li title="Search for EID Numbers"> 
                   <a href="#" id="icon-search">
                     <i class="icon feather icon-search h2"></i>
                   </a>
                 </li>
             {% endif %}
                 <!-- below the whole code in title attribute is in quotes because we use strings with spaces-->
-                <li title="{{'Pending requests' if pending_connection_requests_count else 'Connections'}}">  
+                <li title="{{'You have pending connection requests' if pending_connection_requests_count else 'Manage Connections in the Beef Supply Chain'}}">  
                     <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count else ""}}>
                         <i class="icon feather icon-users h2"></i>
                     </a>
                 </li>
-                <li title="{{'Unread notifications' if unread_notifications_count else 'Notifications'}}">  
+                <li title="{{'You have unread notifications' if unread_notifications_count else 'Notifications'}}">  
                     <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count else ""}}>
                         <i class="icon feather icon-bell h2"></i>
                     </a>
                 </li>
-                <li title="Messages">  
+                <li title="Internal Secure Messaging">  
                     <a href="/dashboard/messages">
                         <i class="icon feather icon-mail h2"></i>
                     </a>
                 </li>
-                <li class="b-account-settings-li" title="Settings">
+                <li class="b-account-settings-li" title="Account Settings">
                     <a href="#" class="toggler" data-toggles="b-account-settings-li b-account-settings">
                         <i class="icon feather icon-settings h2"></i>
                     </a>
@@ -233,7 +233,7 @@
                     </div>
                 </li>
             {% endif %}
-                <li class="b-user-settings-li" title="Me">
+                <li class="b-user-settings-li" title="User Settings">
                     <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
                         <i class="icon feather icon-user h2"></i>
                     </a>
