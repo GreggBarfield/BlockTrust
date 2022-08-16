@@ -86,8 +86,8 @@ import { FeedlotQuestionnaireV2Widget } from "./types/sustainability/feedlot_que
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
-    attach("Cow-Calf questionnaire v2", CowCalfQuestionnaireV2Widget);
-    attach("Feedlot questionnaire v2", FeedlotQuestionnaireV2Widget);
+    attach("cow-calf questionnaire v2", CowCalfQuestionnaireV2Widget);
+    attach("feedlot questionnaire v2", FeedlotQuestionnaireV2Widget);
 
     // Find widgets
     $(".widget").each(function () {
