@@ -1607,6 +1607,8 @@ CREATE TABLE sustainability_responses(
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
+UPDATE reports SET query = "{\"type\": \"sustainability_response_averages\", \"params\": {}}", status=0, result=NULL
+WHERE query LIKE '%sustainability_averages%';
 
 /* Nisheet Thakur 08/03/2022 */
 ALTER TABLE `sustainability_responses`
