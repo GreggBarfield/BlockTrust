@@ -209,7 +209,7 @@ class SustainabilityResponses:
         else:
             raise Exception("Must give values for fields to update on Sustainability responses")
 
-    def get_sustainability_response_averages(self, account_id=NO_VALUE, sector_id=NO_VALUE):
+    def get_sustainability_response_averages(self, account_id=NO_VALUE):
         """
         Returns the sustainability average points for each sectiona and also by account if account_id is specififed
 
