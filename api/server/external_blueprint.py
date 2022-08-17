@@ -6,6 +6,7 @@ from core.database.tables.accounts import AccountsException
 from core.database.tables.connections import Connections, ConnectionException, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.sustainability_responses import SustainabilityResponses
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
@@ -38,6 +39,7 @@ def serve_get_animal_data():
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
         APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account[0]["id"], api_route=request.path, request_data=request_data)
+
         birth_date = None
         visual_id = None
         birth_weight = None
@@ -105,48 +107,17 @@ def serve_get_animal_data():
             if match["debug"] is not None:
                 zip_code = loads(match["debug"]).get("zip", None)
 
-            #BELOW get will change
-            results = g.db.sustainability.get_sustainability(account=match["account"])
-            if len(results) > 0 :
-                result = results[0]
-
-                sustainability["airAndGHGemissions"] = result.get("air_points", 0)
-                sustainability["landResources"] = result.get("land_points", 0)
-                sustainability["waterResources"] = result.get("water_points", 0)
-
-
-                animal_total_questions = result.get("animal_first_score_points", 0) + result.get("animal_second_score_points", 0) + result.get("animal_third_score_points", 0)
-                if animal_total_questions > 0:
-                    sustainability["animal"] = {}
-                    sustainability["animal"]["excellent"] = "{:.2%}".format(result.get("animal_first_score_points", 0) / animal_total_questions)
-                    sustainability["animal"]["acceptable"] = "{:.2%}".format(result.get("animal_second_score_points", 0) / animal_total_questions)
-                    sustainability["animal"]["needs_work"] = "{:.2%}".format(result.get("animal_third_score_points", 0) / animal_total_questions)
-
-                safety_total_questions = result.get("safety_first_score_points", 0) + result.get("safety_second_score_points", 0) + result.get("safety_third_score_points", 0)
-                if safety_total_questions > 0:
-                    sustainability["safety"] = {}
-                    sustainability["safety"]["excellent"] = "{:.2%}".format(result.get("safety_first_score_points", 0) / safety_total_questions)
-                    sustainability["safety"]["acceptable"] = "{:.2%}".format(result.get("safety_second_score_points", 0) / safety_total_questions)
-                    sustainability["safety"]["needs_work"] = "{:.2%}".format(result.get("safety_third_score_points", 0) / safety_total_questions)
-
-                efficiency_total_questions = result.get("efficiency_first_score_points", 0) + result.get("efficiency_second_score_points", 0) + result.get("efficiency_third_score_points", 0)
-                if efficiency_total_questions > 0:
-                    sustainability["efficiency"] = {}
-                    sustainability["efficiency"]["excellent"] = "{:.2%}".format(result.get("efficiency_first_score_points", 0) / efficiency_total_questions)
-                    sustainability["efficiency"]["acceptable"] = "{:.2%}".format(result.get("efficiency_second_score_points", 0) / efficiency_total_questions)
-                    sustainability["efficiency"]["needs_work"] = "{:.2%}".format(result.get("efficiency_third_score_points", 0) / efficiency_total_questions)
-
-                total_questions = air_total_questions + land_total_questions + water_total_questions + animal_total_questions + safety_total_questions + efficiency_total_questions
-                total_first_score_points = (result.get("air_first_score_points", 0) + result.get("land_first_score_points", 0) + result.get("water_first_score_points", 0) 
-                    + result.get("animal_first_score_points", 0) + result.get("safety_first_score_points", 0) + result.get("efficiency_first_score_points", 0))
-                total_second_score_points = (result.get("air_second_score_points", 0) + result.get("land_second_score_points", 0) + result.get("water_second_score_points", 0) 
-                    + result.get("animal_second_score_points", 0) + result.get("safety_second_score_points", 0) + result.get("efficiency_second_score_points", 0))
-                total_third_score_points = (result.get("air_third_score_points", 0) + result.get("land_third_score_points", 0) + result.get("water_third_score_points", 0) 
-                    + result.get("animal_third_score_points", 0) + result.get("safety_third_score_points", 0) + result.get("efficiency_third_score_points", 0))
-                if total_questions > 0:
-                    sustainability["totalExcellent"] = "{:.2%}".format(total_first_score_points / total_questions)
-                    sustainability["totalAcceptable"] = "{:.2%}".format(total_second_score_points / total_questions)
-                    sustainability["totalNeedsWork"] = "{:.2%}".format(total_third_score_points / total_questions)
+            responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=match["account"])
+            if len(responses) > 0:
+                latest_response = responses[0]
+                sustainability["airAndGHGemissions"] = latest_response.get("air_points", 0)
+                sustainability["landResources"] = latest_response.get("land_points", 0)
+                sustainability["waterResources"] = latest_response.get("water_points", 0)
+                sustainability["employeeSafetyAndWellBeing"] = latest_response.get("safety_points", 0)
+                sustainability["animalHealthAndWellBeing"] = latest_response.get("animal_points", 0)
+                sustainability["efficiencyAndYield"] = latest_response.get("efficiency_points", 0)
+                sustainability["improvement"] = latest_response.get("improvement_points", 0)
+                sustainability["totalScore"] = latest_response["score"]
 
         match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
         if len(match_wean_row) > 0:
