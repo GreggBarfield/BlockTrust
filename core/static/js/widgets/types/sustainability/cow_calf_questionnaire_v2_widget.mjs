@@ -5,6 +5,8 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
     constructor(frame) {
         super(frame);
     }
+
+    //all ids below help to associate the question with the response of the user (in base_questionnaire_v2.mjs)
     initType() {
         this.frame.innerHTML = "";
         let questionnaireData = {
@@ -306,7 +308,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     id: "improvement2",
                     responseType: questionType.input,
                     questionText: "If already completed, what was your footprint?",
-                    inputType: "number",
+                    inputType: "text",
                     scoringCriteria: scoringCriteria.responsePresent,
                     score: 0.5
                 },
@@ -321,7 +323,7 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
                     id: "improvement4",
                     responseType: questionType.input,
                     questionText: "If already completed, what was your footprint?",
-                    inputType: "number",
+                    inputType: "text",
                     scoringCriteria: scoringCriteria.responsePresent,
                     score: 0.5
                 },
