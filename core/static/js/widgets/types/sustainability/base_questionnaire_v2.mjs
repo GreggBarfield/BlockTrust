@@ -53,25 +53,27 @@ export class BaseQuestionnaireV2Widget extends Widget{
 
         let form = document.createElement("form");
         for(let section of Object.values(sections)) {
-            let questionsSection = this.commonMethods.createQuestionsSection(section.header);
             let questions = questionnaireData[section.name];
-            for (let question of questions){
-                let questionContainer = "";
-                if(question.responseType == questionType.select){
-                    questionContainer = this.commonMethods.createSelectQuestion(question.questionText, section.name, question.id);
-                    questionsSection.append(questionContainer);
+            if(questions != null){
+                let questionsSection = this.commonMethods.createQuestionsSection(section.header);
+                for (let question of questions){
+                    let questionContainer = "";
+                    if(question.responseType == questionType.select){
+                        questionContainer = this.commonMethods.createSelectQuestion(question.questionText, section.name, question.id);
+                        questionsSection.append(questionContainer);
+                    }
+                    else if(question.responseType == questionType.input){
+                        questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, section.name, question.id);
+                        questionsSection.append(questionContainer);
+                    }
+                    else if(question.responseType == questionType.upload){
+                        const {questionContainer, uploadInput} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                        questionsSection.append(questionContainer);
+                        this.documentUploadInputs.push(uploadInput);
+                    }
                 }
-                else if(question.responseType == questionType.input){
-                    questionContainer = this.commonMethods.createInputQuestion(question.questionText, question.inputType, section.name, question.id);
-                    questionsSection.append(questionContainer);
-                }
-                else if(question.responseType == questionType.upload){
-                    const {questionContainer, uploadInput} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
-                    questionsSection.append(questionContainer);
-                    this.documentUploadInputs.push(uploadInput);
-                }
-            }
-            form.append(questionsSection)
+                form.append(questionsSection)
+            }         
         }
         let submitFormGroup = document.createElement("div");
         submitFormGroup.className = "form-group";
@@ -162,24 +164,26 @@ export class BaseQuestionnaireV2Widget extends Widget{
     calculateScores = (questionnaireData) => {
         for(let section of Object.values(sections)){
             let questions = questionnaireData[section.name];
-            for (let question of questions){
-                let response = document.getElementById(question.id);
-                if(question.scoringCriteria == scoringCriteria.confirmation){
-                    if(response.value == "Yes"){
-                        this.scores[section.name]+=question.score;
+            if(questions != null){
+                for (let question of questions){
+                    let response = document.getElementById(question.id);
+                    if(question.scoringCriteria == scoringCriteria.confirmation){
+                        if(response.value == "Yes"){
+                            this.scores[section.name]+=question.score;
+                        }
                     }
+                    else if(question.scoringCriteria == scoringCriteria.responsePresent){
+                        if(response.value !== ""){
+                            this.scores[section.name]+=question.score;
+                        }
+                    }
+                    else if(question.scoringCriteria == scoringCriteria.roundOff){
+                        if(response.value > 0 && response.value <= 100){
+                            this.scores[section.name]+=response.value/100;
+                        }
+                    } 
+                    this.responses[section.name].push(response.value);
                 }
-                else if(question.scoringCriteria == scoringCriteria.responsePresent){
-                    if(response.value !== ""){
-                        this.scores[section.name]+=question.score;
-                    }
-                }
-                else if(question.scoringCriteria == scoringCriteria.roundOff){
-                    if(response.value > 0 && response.value <= 100){
-                        this.scores[section.name]+=response.value/100;
-                    }
-                } 
-                this.responses[section.name].push(response.value);
             }
             this.totalScore+= this.scores[section.name];
         }
