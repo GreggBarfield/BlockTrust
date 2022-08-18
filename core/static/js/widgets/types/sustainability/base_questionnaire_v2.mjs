@@ -54,6 +54,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         let form = document.createElement("form");
         for(let section of Object.values(sections)) {
             let questions = questionnaireData[section.name];
+            //Below check is needed since not all sections might have questions for a particular questionnaire
             if(questions != null){
                 let questionsSection = this.commonMethods.createQuestionsSection(section.header);
                 for (let question of questions){
@@ -164,6 +165,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
     calculateScores = (questionnaireData) => {
         for(let section of Object.values(sections)){
             let questions = questionnaireData[section.name];
+            //Below check is needed since not all sections might have questions for a particular questionnaire
             if(questions != null){
                 for (let question of questions){
                     let response = document.getElementById(question.id);
