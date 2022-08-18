@@ -53,9 +53,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
 
         let form = document.createElement("form");
         for(let section of Object.values(sections)) {
-            let questionsSection = this.commonMethods.createQuestionsSection(section.header);
             let questions = questionnaireData[section.name];
             if(questions != null){
+                let questionsSection = this.commonMethods.createQuestionsSection(section.header);
                 for (let question of questions){
                     let questionContainer = "";
                     if(question.responseType == questionType.select){
