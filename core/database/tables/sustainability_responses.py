@@ -199,7 +199,7 @@ class SustainabilityResponses:
         else:
             raise Exception("Must give values for fields to update on Sustainability responses")
 
-    def get_sustainability_response_averages(self, account_id=NO_VALUE):
+    def get_sustainability_response_averages(self, account_id=NO_VALUE, sector_id=NO_VALUE):
         """
         Returns the sustainability average points for each sectiona and also by account if account_id is specififed
 
@@ -212,14 +212,17 @@ class SustainabilityResponses:
         base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
                    AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
                    AVG(improvement_points) as improvement_average FROM sustainability_responses"""
-        query_condition = ""
+        query_conditions = []
         query_value = {}
         if account_id is not NO_VALUE:
-            query_condition = " account_id = %(account_id)s"
+            query_conditions.append(" account_id = %(account_id)s")
             query_value["account_id"] = account_id
+        if sector_id is not NO_VALUE:
+            query_conditions.append(" sector_id = %(sector_id)s")
+            query_value["sector_id"] = sector_id
 
-        if len(query_condition) >= 1:
-            query_condition = " WHERE" + query_condition
+        if len(query_conditions) >= 1:
+            query_condition = " WHERE" + " AND ".join(query_conditions)
         else:
             query_condition = ""
 
