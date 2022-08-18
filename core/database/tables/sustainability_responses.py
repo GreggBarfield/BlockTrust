@@ -80,7 +80,7 @@ class SustainabilityResponses:
         else:
             combined_query_condition = ""
 
-        query = base_query + combined_query_condition
+        query = base_query + combined_query_condition + " ORDER BY ID DESC"
 
         sustainability_response_rows = self._db.execute_d(query, query_values)
         if len(sustainability_response_rows) > 0:
