@@ -763,7 +763,8 @@ def serve_save_sustainability_questionnaire():
         improvement_points=round(request.json["scores"]["improvement"], 1),
         score=request.json["total_score"],
         uploaded_file_ids=file_ids_json,
-        response=request.json["responses"]
+        response=request.json["responses"],
+        account_sector_id=g.account.sector_id()
     )
     return {"redirect": "/dashboard/sustainability"}
 
