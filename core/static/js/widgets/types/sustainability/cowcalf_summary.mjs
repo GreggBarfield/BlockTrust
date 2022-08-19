@@ -11,12 +11,13 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
 
     // This is overriding the Base Class method
     createCharts() {
+        let currentSector = "Cow-Calf";
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
 
-        this.makeAverageScoreGaugeCharts(row, "Cow-Calf");
+        this.makeAverageScoreGaugeCharts(row, currentSector);
         // this.makeGraphOverTime(row);
-        this.makeSectionalGaugeCharts("Cow-Calf");
+        this.makeSectionalGaugeCharts(currentSector);
     }
 }
