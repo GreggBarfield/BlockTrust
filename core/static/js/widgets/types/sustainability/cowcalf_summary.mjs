@@ -15,8 +15,8 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
         row.className = "row";
         this.frame.appendChild(row);
 
-        this.makeAverageScoreGaugeCharts(row);
+        this.makeAverageScoreGaugeCharts(row, "Cow-Calf");
         // this.makeGraphOverTime(row);
-        this.makeSectionalGaugeCharts();
+        this.makeSectionalGaugeCharts("Cow-Calf");
     }
 }
