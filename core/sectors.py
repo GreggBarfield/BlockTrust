@@ -7,7 +7,8 @@ sectors_by_id = {
     6: "Feedlot",
     7: "Packer",
     8: "Buyer",
-    9: "Financial"
+    9: "Financial",
+    10: "Stocker/Backgrounder"
 }
 
 sectors_by_name = {
