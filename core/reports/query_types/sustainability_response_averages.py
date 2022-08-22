@@ -6,7 +6,7 @@ TYPE_NAME = "sustainability_response_averages"
 
 def execute(db, query):
     """Execute the query."""
-    
+
     cow_calf_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Cow-Calf"])
     feedlot_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Feedlot"])
     auction_house_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Auction House"])

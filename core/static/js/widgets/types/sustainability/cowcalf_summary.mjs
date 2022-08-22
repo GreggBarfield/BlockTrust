@@ -7,17 +7,17 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
 
     initType() {
         this.frame.innerHTML = "";
+        this.currentSector = this.frame.getAttribute("data-widget-sector-name");
     }
 
     // This is overriding the Base Class method
     createCharts() {
-        let currentSector = "Cow-Calf";
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
 
-        this.makeAverageScoreGaugeCharts(row, currentSector);
+        this.makeAverageScoreGaugeCharts(row, this.currentSector);
         // this.makeGraphOverTime(row);
-        this.makeSectionalGaugeCharts(currentSector);
+        this.makeSectionalGaugeCharts(this.currentSector);
     }
 }
