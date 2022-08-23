@@ -225,14 +225,14 @@ class SustainabilityResponses:
         query_conditions = []
         query_value = {}
         if account_id is not NO_VALUE:
-            query_conditions.append(" account_id = %(account_id)s")
+            query_conditions.append("account_id = %(account_id)s")
             query_value["account_id"] = account_id
         if sector_id is not NO_VALUE:
-            query_conditions.append(" sector_id = %(sector_id)s")
+            query_conditions.append("sector_id = %(sector_id)s")
             query_value["sector_id"] = sector_id
 
         if len(query_conditions) >= 1:
-            query_condition = " WHERE" + " AND ".join(query_conditions)
+            query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             query_condition = ""
 

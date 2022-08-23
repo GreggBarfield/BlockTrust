@@ -13,7 +13,7 @@ def execute(db, query):
     packer_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Packer"])
 
     result = {
-        "Cow-Calf": {
+        sectors_by_name["Cow-Calf"]: {
             "air_average": float(cow_calf_sustainability_response_averages["air_average"])  if cow_calf_sustainability_response_averages["air_average"] else 0,
             "land_average": float(cow_calf_sustainability_response_averages["land_average"])  if cow_calf_sustainability_response_averages["land_average"] else 0,
             "water_average": float(cow_calf_sustainability_response_averages["water_average"])  if cow_calf_sustainability_response_averages["water_average"] else 0,
@@ -22,7 +22,7 @@ def execute(db, query):
             "efficiency_average": float(cow_calf_sustainability_response_averages["efficiency_average"])  if cow_calf_sustainability_response_averages["efficiency_average"] else 0,
             "improvement_average": float(cow_calf_sustainability_response_averages["improvement_average"])  if cow_calf_sustainability_response_averages["improvement_average"] else 0
         },
-        "Feedlot": {
+        sectors_by_name["Feedlot"]: {
             "air_average": float(feedlot_sustainability_response_averages["air_average"]) if feedlot_sustainability_response_averages["air_average"] else 0,
             "land_average": float(feedlot_sustainability_response_averages["land_average"]) if feedlot_sustainability_response_averages["land_average"] else 0,
             "water_average": float(feedlot_sustainability_response_averages["water_average"]) if feedlot_sustainability_response_averages["water_average"] else 0,
@@ -31,13 +31,13 @@ def execute(db, query):
             "efficiency_average": float(feedlot_sustainability_response_averages["efficiency_average"]) if feedlot_sustainability_response_averages["efficiency_average"] else 0,
             "improvement_average": float(feedlot_sustainability_response_averages["improvement_average"]) if feedlot_sustainability_response_averages["improvement_average"] else 0
         },
-        "Auction House": {
+        sectors_by_name["Auction House"]: {
             "water_average": float(auction_house_sustainability_response_averages["water_average"]) if auction_house_sustainability_response_averages["water_average"] else 0,
             "animal_average": float(auction_house_sustainability_response_averages["animal_average"]) if auction_house_sustainability_response_averages["animal_average"] else 0,
             "safety_average": float(auction_house_sustainability_response_averages["safety_average"]) if auction_house_sustainability_response_averages["safety_average"] else 0,
             "improvement_average": float(auction_house_sustainability_response_averages["improvement_average"]) if auction_house_sustainability_response_averages["improvement_average"] else 0
         },
-        "Packer": {
+        sectors_by_name["Packer"]: {
             "air_average": float(packer_sustainability_response_averages["air_average"]) if packer_sustainability_response_averages["air_average"] else 0,
             "land_average": float(packer_sustainability_response_averages["land_average"]) if packer_sustainability_response_averages["land_average"] else 0,
             "water_average": float(packer_sustainability_response_averages["water_average"]) if packer_sustainability_response_averages["water_average"] else 0,

@@ -106,12 +106,12 @@ export class AbstractBaseSummaryWidget extends Widget {
         }
     }
 
-    makeAverageScoreGaugeCharts = (row, sectorName) =>{
+    makeAverageScoreGaugeCharts = (row, sectorID) =>{
         let accountTotalAverage = 0;
         let globalTotalAverage = 0; 
         for(let section of Object.values(sections)) {
             accountTotalAverage+= this.accountAverages[section.name+"_average"];
-            globalTotalAverage+= this.globalAverages[sectorName][section.name+"_average"];
+            globalTotalAverage+= this.globalAverages[sectorID][section.name+"_average"];
         }
 
         let chartWrapper = document.createElement("div");
@@ -165,7 +165,7 @@ export class AbstractBaseSummaryWidget extends Widget {
         this.makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, 35);
     }
 
-    makeSectionalGaugeCharts = (sectorName) =>{
+    makeSectionalGaugeCharts = (sectorID) =>{
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
@@ -196,7 +196,7 @@ export class AbstractBaseSummaryWidget extends Widget {
             chartCardBody.append(globalChart);
 
             this.makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , 5);
-            this.makeGaugeChart(globalChart, this.globalAverages[sectorName][section.name+"_average"], "Global Average Score", 0, 5);
+            this.makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, 5);
         }
     }
 

@@ -7,7 +7,7 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
 
     initType() {
         this.frame.innerHTML = "";
-        this.currentSector = this.frame.getAttribute("data-widget-sector-name");
+        this.currentSectorID = this.frame.getAttribute("data-widget-sector-id");
     }
 
     // This is overriding the Base Class method
@@ -16,8 +16,8 @@ export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
         row.className = "row";
         this.frame.appendChild(row);
 
-        this.makeAverageScoreGaugeCharts(row, this.currentSector);
+        this.makeAverageScoreGaugeCharts(row, this.currentSectorID);
         // this.makeGraphOverTime(row);
-        this.makeSectionalGaugeCharts(this.currentSector);
+        this.makeSectionalGaugeCharts(this.currentSectorID);
     }
 }
