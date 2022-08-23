@@ -608,27 +608,3 @@ export class PackerQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
         this.createQuestionnaire(questionnaireData);
     }
 }
-
-
-/*
-
-SELECT
-{
-    id: "",
-    responseType: questionType.select,
-    questionText: "",
-    scoringCriteria: scoringCriteria.confirmation,
-    score: 
-},
-
-
-INPUT
-{
-    id: "",
-    responseType: questionType.input,
-    questionText: "",
-    scoringCriteria: scoringCriteria.responsePresent,
-    inputType: "",
-    score: 
-},
-*/

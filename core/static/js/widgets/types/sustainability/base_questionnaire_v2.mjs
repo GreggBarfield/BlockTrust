@@ -119,6 +119,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             let allQuestionsAnswered = true;
             let incompleteSection = "";
             let allDocumentsUploaded = true;
+            this.uploadedDocumentIDs = [];
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
                 for(let response of responses){
