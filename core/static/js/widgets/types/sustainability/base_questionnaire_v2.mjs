@@ -119,7 +119,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
             let allQuestionsAnswered = true;
             let incompleteSection = "";
             let allDocumentsUploaded = true;
-            this.uploadedDocumentIDs = [];
             for(let section of Object.values(sections)){
                 let responses = document.getElementsByName(section.name);
                 for(let response of responses){
@@ -193,7 +192,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     uploadDocuments = () =>{
-        return new Promise((resolve, reject) =>{
+        return new Promise((resolve, reject) =>{     
+            this.uploadedDocumentIDs = [];
             for(let uploadInput of this.documentUploadInputs){
                 uploadInput.upload()
                 .then((id) =>{
