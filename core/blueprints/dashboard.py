@@ -277,10 +277,9 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_paid_account
 def serve_sustainability():
-    return dashboard_render("sustainability/summary.html", 
-    { 
-        "sector": sectors_by_id[g.account.sector_id()],
+    return dashboard_render("sustainability/summary.html", {
         "sectorID": g.account.sector_id(),
+        "sector": sectors_by_id[g.account.sector_id()],
         "accountName": g.account.name()
     })
 
