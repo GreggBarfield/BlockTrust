@@ -11,6 +11,7 @@ def execute(db, query):
     feedlot_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Feedlot"])
     auction_house_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Auction House"])
     packer_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Packer"])
+    stocker_backgrounder_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=sectors_by_name["Packer"])
 
     result = {
         sectors_by_name["Cow-Calf"]: {
@@ -45,6 +46,15 @@ def execute(db, query):
             "safety_average": float(packer_sustainability_response_averages["safety_average"]) if packer_sustainability_response_averages["safety_average"] else 0,
             "efficiency_average": float(packer_sustainability_response_averages["efficiency_average"]) if packer_sustainability_response_averages["efficiency_average"] else 0,
             "improvement_average": float(packer_sustainability_response_averages["improvement_average"]) if packer_sustainability_response_averages["improvement_average"] else 0
+        },
+        sectors_by_name["Stocker/Backgrounder"]: {
+            "air_average": float(stocker_backgrounder_sustainability_response_averages["air_average"]) if stocker_backgrounder_sustainability_response_averages["air_average"] else 0,
+            "land_average": float(stocker_backgrounder_sustainability_response_averages["land_average"]) if stocker_backgrounder_sustainability_response_averages["land_average"] else 0,
+            "water_average": float(stocker_backgrounder_sustainability_response_averages["water_average"]) if stocker_backgrounder_sustainability_response_averages["water_average"] else 0,
+            "animal_average": float(stocker_backgrounder_sustainability_response_averages["animal_average"]) if stocker_backgrounder_sustainability_response_averages["animal_average"] else 0,
+            "safety_average": float(stocker_backgrounder_sustainability_response_averages["safety_average"]) if stocker_backgrounder_sustainability_response_averages["safety_average"] else 0,
+            "efficiency_average": float(stocker_backgrounder_sustainability_response_averages["efficiency_average"]) if stocker_backgrounder_sustainability_response_averages["efficiency_average"] else 0,
+            "improvement_average": float(stocker_backgrounder_sustainability_response_averages["improvement_average"]) if stocker_backgrounder_sustainability_response_averages["improvement_average"] else 0
         }
     }
     return result
