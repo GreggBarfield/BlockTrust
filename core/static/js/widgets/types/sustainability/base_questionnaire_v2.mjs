@@ -192,7 +192,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     uploadDocuments = () =>{
-        return new Promise((resolve, reject) =>{
+        return new Promise((resolve, reject) =>{     
+            this.uploadedDocumentIDs = [];
             for(let uploadInput of this.documentUploadInputs){
                 uploadInput.upload()
                 .then((id) =>{
