@@ -38,6 +38,7 @@ import { CowCalfQuestionnaireV2Widget } from "./types/sustainability/cow_calf_qu
 import { AuctionHouseQuestionnaireV2Widget } from "./types/sustainability/auction_house_questionnaire_v2_widget.mjs"
 import { FeedlotQuestionnaireV2Widget } from "./types/sustainability/feedlot_questionnaire_v2_widget.mjs"
 import { StockerBackgrounderQuestionnaireV2Widget } from "./types/sustainability/stocker_backgrounder_questionnaire_v2_widget.mjs"
+import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_questionnaire_v2_widget.mjs"
 
 
 // Immediately invoked
@@ -92,6 +93,7 @@ import { StockerBackgrounderQuestionnaireV2Widget } from "./types/sustainability
     attach("auction house questionnaire v2", AuctionHouseQuestionnaireV2Widget);
     attach("feedlot questionnaire v2", FeedlotQuestionnaireV2Widget);
     attach("stocker/backgrounder questionnaire v2", StockerBackgrounderQuestionnaireV2Widget);
+    attach("packer questionnaire v2", PackerQuestionnaireV2Widget);
 
     // Find widgets
     $(".widget").each(function () {
