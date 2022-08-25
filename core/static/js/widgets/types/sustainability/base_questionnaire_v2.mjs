@@ -198,6 +198,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 uploadInput.upload()
                 .then((id) =>{
                     this.uploadedDocumentIDs.push(id);
+                    //below check is necessary in case any document upload failed
                     if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
                         resolve(true);
                     }
