@@ -1633,13 +1633,13 @@ ON sustainability_responses.account_id = accounts.id
 SET sustainability_responses.sector_id=accounts.sector;
 
 /* Rohan Sureshkumar 8/29/2022 */
-CREATE TABLE `data_view_logs` (
+CREATE TABLE `view_logs` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `owner_account_id` INT NOT NULL,
   `viewer_account_id` INT NOT NULL,
   `viewer_account_name` VARCHAR(100) NULL,
   `viewer_user_id` INT NULL,
-  `viewed_data_type_id` INT NOT NULL,
+  `data_type_id` INT NOT NULL,
   `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
