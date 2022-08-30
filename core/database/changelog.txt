@@ -1637,7 +1637,7 @@ CREATE TABLE `view_logs` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `owner_account_id` INT NOT NULL,
   `viewer_account_id` INT NOT NULL,
-  `viewer_account_name` VARCHAR(100) NULL,
+  `viewer_account_display_name` VARCHAR(100) NULL,
   `viewer_user_id` INT NULL,
   `data_type_id` INT NOT NULL,
   `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
