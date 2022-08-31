@@ -814,7 +814,4 @@ def serve_get_sustainability_response_timeline_data():
             data[str(account_data['account'])] = account_data
             ordering.append(str(account_data['account']))
 
-        return {
-            'timeline_data': data,
-            'order': ordering
-        }, 200
+        return {'timeline_data': data,'order': ordering}, 200
