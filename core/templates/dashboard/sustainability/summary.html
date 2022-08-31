@@ -65,7 +65,7 @@ Sustainability Summary
 
 
 <div class="row mb-2 mx-2 flex-row-reverse">
-    {% if sector == "Cow-Calf" or sector == "Auction House" or sector == "Feedlot" or sector == "Stocker/Backgrounder or sector == "Packer""%}
+    {% if sector == "Cow-Calf" or sector == "Auction House" or sector == "Feedlot" or sector == "Stocker/Backgrounder" or sector == "Packer"%}
     <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/questionnaire">New {{sector}} Survey</a>
     {% endif %}
     <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
@@ -79,7 +79,6 @@ Sustainability Summary
 </div>   
 {% if sector == "Cow-Calf" %}
 <div class="row">
-    
     <div class="col-md">
         <div class="card">
           <h5 class="card-header">Sustainability Timeline</h5>

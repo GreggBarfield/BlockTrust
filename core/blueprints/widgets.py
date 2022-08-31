@@ -790,20 +790,15 @@ def serve_get_sustainability_response_averages():
 def serve_get_sustainability_response_timeline_data():
     account_link = g.db.account_links.get_by_account_id(g.account.id())
     if account_link is None:
-        return {
-            "Account link not available"
-        }, 400
+        return {"Account link not available"}, 400
     else:
-        matched_accounts = g.db.matches.get_matched_accounts_for_account_and_type(
-                account_link[0].id()
-            )
+        matched_accounts = g.db.matches.get_matched_accounts_for_account_and_type(account_link[0].id())
         data = {}
         ordering = []
         for account_data in matched_accounts:
             sustainability_response_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_data["account"])
             account = g.db.accounts.get_account_by_id(account_data['account'])
             if sustainability_response_averages["score_average"] is not None:
-                account_average_score = sustainability_response_averages["score_average"]
                 response = {
                     "account_sector_id": account.sector_id(),
                     "account_name": account.name(),
