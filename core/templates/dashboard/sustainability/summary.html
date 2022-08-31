@@ -76,6 +76,19 @@ Sustainability Summary
         <div id="sustainability" class="col-sm-12 widget" data-widget-type="{{sector}} summary" data-widget-sector-id="{{sectorID}}"></div>
     </div>
     {% endif  %}
+</div>   
+{% if sector == "Cow-Calf" %}
+<div class="row">
+    
+    <div class="col-md">
+        <div class="card">
+          <h5 class="card-header">Sustainability Timeline</h5>
+          <div class="card-body">
+            <div id="sustainability" class="col-sm-12 widget" data-widget-type="sustainability timeline v2"></div>
+          </div>
+        </div>
+      </div>
 </div>
+{% endif  %}
 
 {% endblock dashboard_content %}

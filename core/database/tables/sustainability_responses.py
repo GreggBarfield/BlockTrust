@@ -221,7 +221,7 @@ class SustainabilityResponses:
         """
         base_query = """SELECT AVG(air_points) as air_average, AVG(land_points) as land_average, AVG(water_points) as water_average,
                    AVG(animal_points) as animal_average, AVG(safety_points) as safety_average, AVG(efficiency_points) as efficiency_average,
-                   AVG(improvement_points) as improvement_average FROM sustainability_responses"""
+                   AVG(improvement_points) as improvement_average, AVG(score) as score_average FROM sustainability_responses"""
         query_conditions = []
         query_value = {}
         if account_id is not NO_VALUE:
