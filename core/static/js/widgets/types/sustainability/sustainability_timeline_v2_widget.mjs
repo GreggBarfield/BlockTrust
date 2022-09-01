@@ -1,4 +1,5 @@
 import { Widget } from "../../widget.mjs";
+import { icons } from "../../../core/icons.mjs";
 
 export class SustainabilityTimelineV2Widget extends Widget {
     constructor(frame) {
@@ -16,7 +17,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
             "get_sustainability_response_timeline_data",
             {}
             ).then((data) => {
-                this.data = data;
                 this.timelineData = data.timeline_data;
                 this.timelineDataOrder = data.order;
                 this.frame.innerHTML = "";
@@ -25,7 +25,8 @@ export class SustainabilityTimelineV2Widget extends Widget {
         Promise.all([
             getSectorsByID, getSustainabilityResponseTimelineData
         ]).then(()=> {
-            this.makeTimeline(); 
+            this.makeTimeline();
+            // Auto disposing chart related object and event handlers in case chart container is destroyed/replaced
             am4core.options.autoDispose = true;
         })
     }
@@ -44,14 +45,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
         cdTimeline.className = "v-timeline v-timeline--icons js-v-timeline";
         cdTimeline.setAttribute("data-animation", "on");
         cdContainer.appendChild(cdTimeline);
-
-        let fasStyle = "font-size: 24px;text-align: center;position: absolute;left: 0px;top: 0px;height: 100%;width: 100%;line-height: 40px;vertical-align: middle;";
-        var icons = {
-            plus: '<div class="v-timeline__marker bg-accent border border-3 border-bg shadow-xs" aria-hidden="true">\
-                <i class="icon icon--sm color-white fas fa-plus" icon="" style="' + fasStyle + '"></i>\
-                </div>'
-            
-        };
 
         for(const order of this.timelineDataOrder){
             let matchAccount = this.timelineData[order];
