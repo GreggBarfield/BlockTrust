@@ -26,7 +26,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             getSectorsByID, getSustainabilityResponseTimelineData
         ]).then(()=> {
             this.makeTimeline();
-            // Auto disposing chart related object and event handlers in case chart container is destroyed/replaced
+            // Auto disposing chart related objects and event handlers in case chart container is destroyed/replaced
             am4core.options.autoDispose = true;
         })
     }
@@ -150,7 +150,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
                 }, 2000);
             });
         }
-        
+
     }
 
 }
