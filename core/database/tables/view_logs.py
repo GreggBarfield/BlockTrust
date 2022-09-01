@@ -2,8 +2,8 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-VIEW_LOGS_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_account_name", "viewer_user_id", "data_type_id",
-                     "created_timestamp", "last_updated_timestamp")
+TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_account_name", "viewer_user_id", "data_type_id",
+                 "created_timestamp", "last_updated_timestamp")
 
 DATA_TYPE_NAME_TO_ID = {
     "EID": 1,
