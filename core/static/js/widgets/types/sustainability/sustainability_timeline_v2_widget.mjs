@@ -1,5 +1,6 @@
 import { Widget } from "../../widget.mjs";
 import { icons } from "../../../core/icons.mjs";
+import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
 
 export class SustainabilityTimelineV2Widget extends Widget {
     constructor(frame) {
@@ -18,7 +19,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
             {}
             ).then((data) => {
                 this.timelineData = data.timeline_data;
-                this.timelineDataOrder = data.order;
                 this.frame.innerHTML = "";
         });
 
@@ -46,8 +46,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
         cdTimeline.setAttribute("data-animation", "on");
         cdContainer.appendChild(cdTimeline);
 
-        for(const order of this.timelineDataOrder){
-            let matchAccount = this.timelineData[order];
+        for(const matchAccount of this.timelineData){
 
             let section = document.createElement("section");
             section.className = "v-timeline__section js-v-timeline__section";
@@ -99,7 +98,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             let cardGraph = document.createElement("div");
             cardGraph.className = "card-body";
             itemDiv.append(cardGraph);
-            this.makeGaugeChart(cardGraph, matchAccount.account_score_average, "Average Score", 0 , 35);
+            makeGaugeChart(cardGraph, matchAccount.account_score_average, "Average Score", 0 , 35);
 
             itemsGroup.append(itemDiv);
             section.append(itemsGroup);
@@ -108,49 +107,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
 
         this.frame.appendChild(codyhouseContainer);
         window.VTimeline(cdTimeline);
-    }
-
-    makeGaugeChart = (container, data, title, gaugeMin, gaugeMax) =>{
-        if(data == 0){
-            container.textContent = "( No data )"
-        }
-        else{
-            am4core.ready(function() {
-                am4core.useTheme(am4themes_animated);
-    
-                // create chart
-                var chart = am4core.create(container, am4charts.GaugeChart);
-                chart.innerRadius = -15;
-                let label = chart.chartContainer.createChild(am4core.Label);
-                label.text = title;
-                label.align = "center";
-    
-                var axis = chart.xAxes.push(new am4charts.ValueAxis());
-                axis.min = gaugeMin;
-                axis.max = gaugeMax;
-                axis.strictMinMax = true;
-    
-                var gradient = new am4core.LinearGradient();
-                gradient.stops.push({color:am4core.color("red")});
-                gradient.stops.push({color:am4core.color("#42f572")});
-    
-                axis.renderer.line.stroke = gradient;
-                axis.renderer.line.strokeWidth = 15;
-                axis.renderer.line.strokeLinecap = "round";
-                axis.renderer.line.strokeOpacity = 0.90;
-    
-                var hand = chart.hands.push(new am4charts.ClockHand());
-                hand.radius = am4core.percent(100);
-                hand.startWidth = 16;
-                hand.pin.radius = 8;
-                hand.parent.zIndex = 100;
-    
-                setInterval(function() {
-                    hand.showValue(data, 1000, am4core.ease.cubicOut);
-                }, 2000);
-            });
-        }
-
     }
 
 }
