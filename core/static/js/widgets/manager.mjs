@@ -26,7 +26,6 @@ import { FeedyardQuestionaireWidget } from "./types/sustainability/feedyard_ques
 import { FeedyardSummaryWidget } from "./types/sustainability/feedyard_summary.mjs";
 import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questionaire.mjs";
 import { AuctionSummaryWidget } from "./types/sustainability/auction_summary.mjs";
-import { SustainabilityTimelineWidget } from "./types/sustainability/sustainability_timeline.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
@@ -39,6 +38,7 @@ import { AuctionHouseQuestionnaireV2Widget } from "./types/sustainability/auctio
 import { FeedlotQuestionnaireV2Widget } from "./types/sustainability/feedlot_questionnaire_v2_widget.mjs"
 import { StockerBackgrounderQuestionnaireV2Widget } from "./types/sustainability/stocker_backgrounder_questionnaire_v2_widget.mjs"
 import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_questionnaire_v2_widget.mjs"
+import { SustainabilityTimelineV2Widget } from "./types/sustainability/sustainability_timeline_v2_widget.mjs"
 
 
 // Immediately invoked
@@ -84,7 +84,6 @@ import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_quest
     attach("market data filter table", MarketDataFilterWidget);
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
-    attach("sustainability timeline", SustainabilityTimelineWidget);
     attach("summary graphs", SummaryGraphWidget);
     attach("feedyard tag summary", FeedyardTagSummaryWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
@@ -94,6 +93,7 @@ import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_quest
     attach("feedlot questionnaire v2", FeedlotQuestionnaireV2Widget);
     attach("stocker/backgrounder questionnaire v2", StockerBackgrounderQuestionnaireV2Widget);
     attach("packer questionnaire v2", PackerQuestionnaireV2Widget);
+    attach("sustainability timeline v2", SustainabilityTimelineV2Widget);
 
     // Find widgets
     $(".widget").each(function () {
