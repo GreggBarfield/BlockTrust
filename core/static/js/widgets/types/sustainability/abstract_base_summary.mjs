@@ -1,6 +1,6 @@
 import { Widget } from "../../widget.mjs";
-import { getSustainabilitySections } from "../../../core/sustainability_sections.mjs";
 import { sections } from "../../../core/sustainability_constants.mjs";
+import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
     constructor(frame) {
@@ -161,8 +161,8 @@ export class AbstractBaseSummaryWidget extends Widget {
         globalChart.className = "col-md-6";
         chartCardBody.append(globalChart);
 
-        this.makeGaugeChart(accountChart, accountTotalAverage, "Your Average Total Score", 0 , 35);
-        this.makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, 35);
+        makeGaugeChart(accountChart, accountTotalAverage, "Your Average Total Score", 0 , 35);
+        makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, 35);
     }
 
     makeSectionalGaugeCharts = (sectorID) =>{
@@ -195,46 +195,9 @@ export class AbstractBaseSummaryWidget extends Widget {
             globalChart.className = "col-md-6";
             chartCardBody.append(globalChart);
 
-            this.makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , 5);
-            this.makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, 5);
+            makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , 5);
+            makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, 5);
         }
-    }
-
-    makeGaugeChart = (container, data, title, gaugeMin, gaugeMax) =>{
-        am4core.ready(function() {
-            am4core.useTheme(am4themes_animated);
-
-            // create chart
-            var chart = am4core.create(container, am4charts.GaugeChart);
-            chart.innerRadius = -15;
-            let label = chart.chartContainer.createChild(am4core.Label);
-            label.text = title;
-            label.align = "center";
-
-            var axis = chart.xAxes.push(new am4charts.ValueAxis());
-            axis.min = gaugeMin;
-            axis.max = gaugeMax;
-            axis.strictMinMax = true;
-
-            var gradient = new am4core.LinearGradient();
-            gradient.stops.push({color:am4core.color("red")});
-            gradient.stops.push({color:am4core.color("#42f572")});
-
-            axis.renderer.line.stroke = gradient;
-            axis.renderer.line.strokeWidth = 15;
-            axis.renderer.line.strokeLinecap = "round";
-            axis.renderer.line.strokeOpacity = 0.90;
-
-            var hand = chart.hands.push(new am4charts.ClockHand());
-            hand.radius = am4core.percent(100);
-            hand.startWidth = 16;
-            hand.pin.radius = 8;
-            hand.parent.zIndex = 100;
-
-            setInterval(function() {
-                hand.showValue(data, 1000, am4core.ease.cubicOut);
-            }, 2000);
-        });
     }
 
 }

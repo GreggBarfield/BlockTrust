@@ -145,7 +145,7 @@ class Matches:
         else:
             return []
 
-    def get_matched_accounts_for_account_and_type(self, account_link_id, type=match_types_by_name['Sighting']):
+    def get_matched_accounts_for_account(self, account_link_id):
         """Gets all the accounts that were matched to account_link_id based on given type
         
         Params:
@@ -158,21 +158,21 @@ class Matches:
 
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector FROM matches AS m
+            SELECT al.account, min(m.created_timestamp) as date, al.sector as account_sector_id,
+            al.name as account_name FROM matches AS m
             INNER JOIN account_links AS al ON m.account_link=al.id
             WHERE eid IN(
                 SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
             )
             AND al.account IS NOT NULL
-            GROUP BY al.account, al.sector
+            GROUP BY al.account, al.sector, al.name
             ORDER BY al.sector, date
             """,
             {
-                "type": type,
+                "type": match_types_by_name['Sighting'],
                 "account_link_id": account_link_id
             }
         )
-
         return data
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,

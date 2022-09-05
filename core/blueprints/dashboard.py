@@ -277,10 +277,14 @@ def serve_upload_tags():
 @bp.route('/dashboard/sustainability', methods=['GET'])
 @crut.require_paid_account
 def serve_sustainability():
+    sustainability_enabled_for_sector = True
+    if sectors_by_id[g.account.sector_id()] == "Buyer" or sectors_by_id[g.account.sector_id()] == "Financial":
+        sustainability_enabled_for_sector = False
     return dashboard_render("sustainability/summary.html", {
-        "sectorID": g.account.sector_id(),
+        "sector_id": g.account.sector_id(),
         "sector": sectors_by_id[g.account.sector_id()],
-        "accountName": g.account.name()
+        "accountName": g.account.name(),
+        "sustainability_enabled_for_sector": sustainability_enabled_for_sector
     })
 
 # Deprecated
