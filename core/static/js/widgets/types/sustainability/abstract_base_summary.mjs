@@ -1,5 +1,5 @@
 import { Widget } from "../../widget.mjs";
-import { sections } from "../../../core/sustainability_constants.mjs";
+import { sections, sectorBasedSectionalTotals } from "../../../core/sustainability_constants.mjs";
 import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
@@ -108,11 +108,17 @@ export class AbstractBaseSummaryWidget extends Widget {
 
     makeAverageScoreGaugeCharts = (row, sectorID) =>{
         let accountTotalAverage = 0;
-        let globalTotalAverage = 0; 
-        for(let section of Object.values(sections)) {
-            accountTotalAverage+= this.accountAverages[section.name+"_average"];
-            globalTotalAverage+= this.globalAverages[sectorID][section.name+"_average"];
+        let globalTotalAverage = 0;
+        let sectionalTotals = sectorBasedSectionalTotals[sectorID];
+
+        for(let section of Object.values(sections)){
+            // Ensuring that the sustainability section exists for the particular sector
+            if(section.name in sectionalTotals){
+                accountTotalAverage+= this.accountAverages[section.name+"_average"];
+                globalTotalAverage+= this.globalAverages[sectorID][section.name+"_average"];
+            }
         }
+        let currentSectorTotalScore = sectorBasedSectionalTotals[sectorID]["total"];
 
         let chartWrapper = document.createElement("div");
         chartWrapper.className = "col-md-12";
@@ -161,42 +167,47 @@ export class AbstractBaseSummaryWidget extends Widget {
         globalChart.className = "col-md-6";
         chartCardBody.append(globalChart);
 
-        makeGaugeChart(accountChart, accountTotalAverage, "Your Average Total Score", 0 , 35);
-        makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, 35);
+        makeGaugeChart(accountChart, accountTotalAverage, "Your Average Total Score", 0 , currentSectorTotalScore);
+        makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, currentSectorTotalScore);
     }
 
     makeSectionalGaugeCharts = (sectorID) =>{
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
-    
+        let sectionalTotals = sectorBasedSectionalTotals[sectorID]
+
         // loop through all sections and create a graph for each section
         for(let section of Object.values(sections)) {
-            let chartWrapper = document.createElement("div");
-            chartWrapper.className = "col-md-6";
-            let chartCard = document.createElement("div");
-            chartCard.className = "card";
-            let chartCardBody = document.createElement("div");
-            chartCardBody.className = "card-body d-flex";
-            chartWrapper.append(chartCard);
-            row.append(chartWrapper);
+            // Ensuring that the sustainability section exists for the particular sector
+            if(section.name in sectionalTotals){
+                let chartWrapper = document.createElement("div");
+                chartWrapper.className = "col-md-6";
+                let chartCard = document.createElement("div");
+                chartCard.className = "card";
+                let chartCardBody = document.createElement("div");
+                    chartCardBody.className = "card-body d-flex";
+                chartWrapper.append(chartCard);
+                row.append(chartWrapper);
 
-            let chartHeader = document.createElement("h5");
-            chartHeader.className = "card-header";
-            chartHeader.textContent = section.header;
-            chartCard.append(chartHeader);
-            chartCard.append(chartCardBody);
+                let chartHeader = document.createElement("h5");
+                chartHeader.className = "card-header";
+                chartHeader.textContent = section.header;
+                chartCard.append(chartHeader);
+                chartCard.append(chartCardBody);
             
-            let accountChart = document.createElement("div");
-            accountChart.className = "col-md-6";
-            chartCardBody.append(accountChart);
+                let accountChart = document.createElement("div");
+                accountChart.className = "col-md-6";
+                chartCardBody.append(accountChart);
 
-            let globalChart = document.createElement("div");
-            globalChart.className = "col-md-6";
-            chartCardBody.append(globalChart);
+                let globalChart = document.createElement("div");
+                globalChart.className = "col-md-6";
+                chartCardBody.append(globalChart);
 
-            makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , 5);
-            makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, 5);
+                makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , sectionalTotals[section.name]);
+                makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, sectionalTotals[section.name]);
+            }
+            
         }
     }
 
