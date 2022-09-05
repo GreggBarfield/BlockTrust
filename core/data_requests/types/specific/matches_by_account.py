@@ -23,9 +23,9 @@ def auth(params):
     account_link_id = 0
     if len(account.account_links()) > 0:
         account_link_id = account.account_links()[0].id()
-    if 'animals_with_data' in params:
+    if 'sighted_animals' in params:
         return {
-            "matches": g.db.matches.get_animals_with_data_for_account(account_link_id)
+            "matches": g.db.matches.get_sighted_matches_for_account(account_link_id)
         }
     elif 'all_matches' in params:
         restrict_types = ()
