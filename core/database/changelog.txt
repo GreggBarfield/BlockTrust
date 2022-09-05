@@ -1642,5 +1642,22 @@ CREATE TABLE `view_logs` (
   `data_type_id` INT NOT NULL,
   `created_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  INDEX `IDX_owner_account_id` (`owner_account_id` ASC) VISIBLE);
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `view_logs` 
+ADD INDEX `fk_view_logs_owner_account_id_id_accounts_idx` (`owner_account_id` ASC) VISIBLE;
+ALTER TABLE `view_logs` 
+ADD CONSTRAINT `fk_view_logs_owner_account_id_id_accounts`
+  FOREIGN KEY (`owner_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `view_logs` 
+ADD INDEX `fk_view_logs_viewer_account_id_id_accounts_idx` (`viewer_account_id` ASC) VISIBLE;
+ALTER TABLE `view_logs` 
+ADD CONSTRAINT `fk_view_logs_viewer_account_id_id_accounts`
+  FOREIGN KEY (`viewer_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
