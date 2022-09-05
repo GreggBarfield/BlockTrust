@@ -1661,3 +1661,12 @@ ADD CONSTRAINT `fk_view_logs_viewer_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+ALTER TABLE `view_logs` 
+ADD INDEX `fk_view_logs_viewer_user_id_id_users_idx` (`viewer_user_id` ASC) VISIBLE;
+ALTER TABLE `view_logs` 
+ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
+  FOREIGN KEY (`viewer_user_id`)
+  REFERENCES `users` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
