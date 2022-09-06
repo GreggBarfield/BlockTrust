@@ -1,10 +1,10 @@
 {% extends "employee/standard.html" %}
 
-{% set page_title = "Animal "+ animal.eid()|string %}
-{% set employee_locations = [("/employee/dashboard","Animals"), ("/employee/dashboard/animals/" + animal.eid() |string, animal.eid()|string)] %}
+{% set page_title = "Animal "+ animal.eid|string %}
+{% set employee_locations = [("/employee/dashboard","Animals"), ("/employee/dashboard/animals/" + animal.eid |string, animal.eid|string)] %}
 
 {% block employee_content_header %}
-Animal {{ animal.eid()|string }}
+Animal {{ animal.eid|string }}
 {% endblock employee_content_header %}
 
 {% block employee_content %}
@@ -13,7 +13,7 @@ Animal {{ animal.eid()|string }}
         <div class="card">
             <h5 class="card-header">Sightings</h5>
             <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting" data-widget-map-animal="{{ animal.eid() }}" style="height: 400px"></p>
+                <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting" data-widget-map-animal="{{ animal.eid }}" style="height: 400px"></p>
               </div>
         </div>
     </div>
@@ -27,20 +27,20 @@ Animal {{ animal.eid()|string }}
             </button>
           </div>
           <div class="card-body">
-            <p id="cert" class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid() }}" data-widget-account_name="{{ account_name }}"></p>
+            <p id="cert" class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid }}" data-widget-account_name="{{ account_name }}"></p>
           </div>
         </div>
     </div>
 </div>
 
-<div class="row widget" data-widget-type="sectors" data-widget-animal="{{ animal.eid() }}"></div>
+<div class="row widget" data-widget-type="sectors" data-widget-animal="{{ animal.eid }}"></div>
 
 <div class="row">
     <div class="col-md">
       <div class="card">
         <h5 class="card-header">Health Events</h5>
         <div class="card-body">
-          <p class="mb-0 widget" data-widget-type="health table" data-widget-animal="{{ animal.eid() }}"></p>
+          <p class="mb-0 widget" data-widget-type="health table" data-widget-animal="{{ animal.eid }}"></p>
         </div>
       </div>
     </div>
@@ -51,7 +51,7 @@ Animal {{ animal.eid()|string }}
       <div class="card">
         <h5 class="card-header">Timeline</h5>
         <div class="card-body">
-          <p class="mb-0 widget" data-widget-type="timeline" data-widget-animal="{{ animal.eid() }}"></p>
+          <p class="mb-0 widget" data-widget-type="timeline" data-widget-animal="{{ animal.eid }}"></p>
         </div>
       </div>
     </div>
@@ -65,12 +65,12 @@ Animal {{ animal.eid()|string }}
                 <div class="card-body">
                     <h5 class="card-title">Debug Info</h5>
                     <p class="card-text">
-                        Animal EID: {{ animal.eid() }}<br>
+                        Animal EID: {{ animal.eid }}<br>
                         <br>
                         Matches: <br>
                     </p>
                     <div class="row">
-                      {% for match in animal.matches() %}
+                      {% for match in animal.matches %}
                         <div class="col-md-4">
                             <div class="card">
                                 <h5 class="card-header">Match {{match['id']}}</h5>
