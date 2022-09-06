@@ -7,9 +7,7 @@ from .tables.account_users import AccountUsers
 from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
-from .tables.animals import Animals
 from .tables.sales_groups import SalesGroups
-from .tables.sales_group_intervals import SalesGroupIntervals
 from .tables.files import Files
 from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
@@ -50,7 +48,6 @@ class Database:
         self.account_users = AccountUsers(self)
         self.users = Users(self)
         self.matches = Matches(self)
-        self.animals = Animals(self)
         self.account_links = AccountLinks(self)
         self.sales_groups = SalesGroups(self)
         self.files = Files(self)
