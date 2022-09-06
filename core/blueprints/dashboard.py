@@ -4,6 +4,7 @@ from flask import (
 )
 
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+from core.database.tables.view_logs import DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id, sectors_by_name
@@ -105,17 +106,28 @@ def serve_account_id(account_id):
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 @crut.require_user
 def serve_animal_eid(animal_eid):
-    animal = g.db.animals.get_by_eid(animal_eid)
+    animal = g.db.matches.get_animal_by_eid(animal_eid)
 
-    if len(animal.matches()) == 0:
+    if len(animal.matches) > 0 and any((row["account_links.account"] == g.account.id() for row in animal.matches)):
+
+        # first ranch is owner
+        owner_account_id = sorted(
+            list(filter(lambda row: row["account_links.sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
+            key=lambda row: row["id"]
+        )[0]["account_links.account"]
+        if owner_account_id != g.account.id():
+            ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
+                                            viewer_account_display_name=g.account.company(), viewer_user_id=g.user.id(),
+                                            data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
+
+        return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
+    else:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
-
-    return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
 
 @bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
 @crut.require_user
 def serve_animal_cert(animal_eid):
-    animal = g.db.animals.get_by_eid(animal_eid)
+    animal = g.db.matches.get_animal_by_eid(animal_eid)
     return dashboard_render("animals/animal-certificate.html", {"animal": animal})
 
 @bp.route('/dashboard/accounts', methods=['GET'])
