@@ -2,7 +2,7 @@ import { Widget } from "../../widget.mjs";
 import { sections, calculateSustainabilityQuestionnaireMaxScores } from "../../../core/sustainability_constants.mjs";
 import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
 
-export class AbstractBaseSummaryWidget extends Widget {
+export class BaseSummaryV2Widget extends Widget {
     constructor(frame) {
         super(frame);
         this.dataCounter = {};
