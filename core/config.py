@@ -103,3 +103,5 @@ RECAPTCHA_MIN_SCORE = config_file["recaptcha"]["min_score"]
 
 IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
+
+ADMIN_EMAIL = config_file["email"]["admin_email"]
