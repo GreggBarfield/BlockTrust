@@ -1,5 +1,5 @@
 import { Widget } from "../../widget.mjs";
-import { sections, sectorBasedSectionalTotals } from "../../../core/sustainability_constants.mjs";
+import { sections, calculateSustainabilityQuestionnaireMaxScores } from "../../../core/sustainability_constants.mjs";
 import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
 
 export class AbstractBaseSummaryWidget extends Widget {
@@ -25,8 +25,13 @@ export class AbstractBaseSummaryWidget extends Widget {
         ).then((data) => {
             this.globalAverages = data.result;
         }); 
+        const getSectorsByName = this.getData(
+            "direct/sectors_by_name"
+        ).then((data) => {
+            this.sectorsNameToId = data.sectors_by_name
+        })
         Promise.all([
-            getAccountSustainabilityData, getGlobalSustainabilityData
+            getAccountSustainabilityData, getGlobalSustainabilityData, getSectorsByName
         ]).then(()=> {
             this.createCharts();
         })
@@ -109,7 +114,9 @@ export class AbstractBaseSummaryWidget extends Widget {
     makeAverageScoreGaugeCharts = (row, sectorID) =>{
         let accountTotalAverage = 0;
         let globalTotalAverage = 0;
+        let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(this.sectorsNameToId);
         let sectionalTotals = sectorBasedSectionalTotals[sectorID];
+        
 
         for(let section of Object.values(sections)){
             // Ensuring that the sustainability section exists for the particular sector
@@ -175,6 +182,7 @@ export class AbstractBaseSummaryWidget extends Widget {
         let row = document.createElement("div");
         row.className = "row";
         this.frame.appendChild(row);
+        let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(this.sectorsNameToId);
         let sectionalTotals = sectorBasedSectionalTotals[sectorID]
 
         // loop through all sections and create a graph for each section
