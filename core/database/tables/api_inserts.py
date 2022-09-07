@@ -1,5 +1,7 @@
 import json
 import datetime
+from ...utilities.email import send_email
+from ...config import ADMIN_EMAIL
 
 class ApiInserts:
 
@@ -45,6 +47,12 @@ class ApiInserts:
             if len(latest_api_insert) > 0:
                 api_insert = latest_api_insert[0]
                 f = '%Y-%m-%d %H:%M:%S'
-                api_insert_timestamp = api_insert["created"]
-                api_insert_datetime = datetime.datetime.strptime(api_insert_timestamp, f)
-                print(api_insert_datetime)
+                api_insert_datetime = api_insert["created"]
+                earliest_date = datetime.datetime.now() - datetime.timedelta(days=7)
+                if api_insert_datetime < earliest_date:
+                    print("More than a week old insert")
+                    print(ADMIN_EMAIL)
+                    email_subject = "No API Insert in past 7+ days"
+                    email_body = "No API insert in the last 7+ days for account: " + partner
+                    send_email(email_subject, email_body, ADMIN_EMAIL)
+

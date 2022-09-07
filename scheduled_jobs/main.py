@@ -82,7 +82,7 @@ try:
         #     print('Main: appended thread TransferDataILS', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 7 and 8 AM
-        if datetime.time(20, 0, 0) <= current_time < datetime.time(21, 0, 0):
+        if datetime.time(20, 0, 0) <= current_time < datetime.time(23, 0, 0):
             if not any(t.getName() == "API Inserts" for t in threads):
                 job_run_id = JobRuns(db).insert("API Inserts", scheduled_jobs["API Inserts"].split('|')[0], scheduled_jobs["API Inserts"].split('|')[1])
                 t = Thread(target=run_api_inserts_tasks, name="API Inserts", args=[job_run_id, Database(MYSQL_CONFIG)])
