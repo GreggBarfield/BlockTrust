@@ -71,9 +71,9 @@ Sustainability Summary
     <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
 </div>
 <div class="row">
-    {% if sector == "Cow-Calf" %}
+    {% if sustainability_enabled_for_sector == True %}
     <div class="col">
-        <div id="sustainability" class="col-sm-12 widget" data-widget-type="{{sector}} summary" data-widget-sector-id="{{sector_id}}"></div>
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="sustainability summary" data-widget-sector-id="{{sector_id}}"></div>
     </div>
     {% endif  %}
 </div>   

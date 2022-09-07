@@ -40,6 +40,7 @@ class Animal:
 
             self._matches_by_type[match['type']] = match
 
+    @property
     def eid(self):
         """Gets animal EID
 
@@ -48,6 +49,7 @@ class Animal:
         """
         return self._eid
 
+    @property
     def matches(self):
         """Gets animal Match(s)
 
@@ -55,3 +57,7 @@ class Animal:
             A (possibly empty) list of Match(s)
         """
         return self._matches
+
+    @matches.setter
+    def matches(self, value):
+        self._matches = value

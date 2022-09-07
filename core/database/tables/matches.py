@@ -7,6 +7,7 @@ from core.match_types import match_types_by_name
 from core.sectors import sectors_by_name
 from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
+from ..objects.animal import Animal
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
@@ -39,7 +40,22 @@ class Matches:
         self._db = db
         self.types = MatchTypes(self)
         self._match_cols = ("id", "partner_account", "account_link", "eid", "visual_id", "grouping_id", "lat", "lon", "time", "created", "type"
-         "data", "bc_transaction_id", "bc_hash", "bc_upload")
+                            "data", "bc_transaction_id", "bc_hash", "bc_upload")
+
+    def get_animal_by_eid(self, eid):
+        """Gets an animal object by their EID.
+
+        Params:
+            eid: the eid
+
+        Returns:
+            An Animal object
+                Keep in mind that this object could be empty
+
+        Raises:
+            AnimalsException
+        """
+        return Animal(self._db, eid, self.get_by_eids((eid,),(),True))
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.

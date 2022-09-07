@@ -1,6 +1,6 @@
-import { AbstractBaseSummaryWidget } from "./abstract_base_summary.mjs";
+import { BaseSummaryV2Widget } from "./base_summary_v2.mjs";
 
-export class CowcalfSummaryWidget extends AbstractBaseSummaryWidget {
+export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
     constructor(frame) {
         super(frame);
     }
