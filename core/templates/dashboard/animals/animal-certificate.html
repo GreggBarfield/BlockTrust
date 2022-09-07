@@ -1,10 +1,10 @@
 {% extends "dashboard/standard.html" %}
 
 {% set page_title = "Animal Certificates" %}
-{% set dashboard_locations = [("/dashboard/animals/" + animal.eid() | string +"/certificates", "Animal " + animal.eid() | string +" Certificates")] %}
+{% set dashboard_locations = [("/dashboard/animals/" + animal.eid | string +"/certificates", "Animal " + animal.eid | string +" Certificates")] %}
 
 {% block dashboard_content_header %}
-Certificate for {{animal.eid() | string }}
+Certificate for {{animal.eid | string }}
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
@@ -12,7 +12,7 @@ Certificate for {{animal.eid() | string }}
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <p class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid() }}"style='height:400px;'></p>
+            <p class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid }}"style='height:400px;'></p>
         </div>
     </div>
 </div>

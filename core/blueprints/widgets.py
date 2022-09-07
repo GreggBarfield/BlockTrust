@@ -567,45 +567,6 @@ def serve_get_market_data(slug_id):
     }, 200
 
 
-@bp.route('/widgets/data/get_sustainability_timeline_data', methods=['POST'])
-@crut.require_account
-def serve_get_sustainability_timeline_data():
-    account_link = g.db.account_links.get_by_account_id(g.account.id())
-
-    if account_link is None:
-        return {
-            "Account link not available"
-        }, 400
-    else:
-        matched_accounts = g.db.matches.get_matched_accounts_for_account_and_type(
-                account_link[0].id()
-            )
-
-        data = {}
-        #ordering list is used to display the timeline data in the correct order
-        ordering = []
-        for account_data in matched_accounts:
-            response = g.db.sustainability.get_sustainability_by_account(account_data['account'], True)
-            if response == []:
-                account = g.db.accounts.get_account_by_id(account_data['account'])
-                response = {
-                    'sector': account.sector_id(),
-                    'name': account.name(),
-                    'response': None
-                }
-            else:
-                response = response[0]
-            #below line appends/updates elements of response dictionary into account_data dictionary
-            account_data.update(response)
-            data[str(account_data['account'])] = account_data
-            ordering.append(str(account_data['account']))
-
-        return {
-            'timeline_data': data,
-            'order': ordering
-        }, 200
-
-
 @bp.route('/widgets/data/get_employee_summary_graphs_data', methods=['POST'])
 @crut.require_employee
 def get_employee_summary_graphs_data():
@@ -783,3 +744,18 @@ def serve_get_sustainability_response_averages():
     }
     account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
     return {"formatted_account_averages": formatted_account_averages, "account_sustainability_responses": account_sustainability_responses}
+
+
+@bp.route('/widgets/data/get_sustainability_response_timeline_data', methods=['POST'])
+@crut.require_account
+def serve_get_sustainability_response_timeline_data():
+    account_link = g.db.account_links.get_by_account_id(g.account.id())
+    if account_link is None:
+        return {"Account link not available"}, 400
+    else:
+        matched_accounts = g.db.matches.get_matched_accounts_for_account(account_link[0].id())
+        for account_data in matched_accounts:
+            sustainability_response_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_data["account"])
+            account_data["account_score_average"] = float(sustainability_response_averages["score_average"]) if sustainability_response_averages["score_average"] is not None else 0
+
+        return {'timeline_data': matched_accounts}, 200

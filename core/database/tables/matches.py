@@ -1,11 +1,13 @@
 import time as time_module
 import json
+from datetime import  datetime
 from core.database.no_value import NoValue
 from ..frag import frag
 from core.match_types import match_types_by_name
 from core.sectors import sectors_by_name
 from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
+from ..objects.animal import Animal
 
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
@@ -38,7 +40,22 @@ class Matches:
         self._db = db
         self.types = MatchTypes(self)
         self._match_cols = ("id", "partner_account", "account_link", "eid", "visual_id", "grouping_id", "lat", "lon", "time", "created", "type"
-         "data", "bc_transaction_id", "bc_hash", "bc_upload")
+                            "data", "bc_transaction_id", "bc_hash", "bc_upload")
+
+    def get_animal_by_eid(self, eid):
+        """Gets an animal object by their EID.
+
+        Params:
+            eid: the eid
+
+        Returns:
+            An Animal object
+                Keep in mind that this object could be empty
+
+        Raises:
+            AnimalsException
+        """
+        return Animal(self._db, eid, self.get_by_eids((eid,),(),True))
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -70,23 +87,59 @@ class Matches:
             )
         ))
 
-    def get_animals_with_data_for_account(self, account_link_id=0): 
-        if account_link_id > 0:
-            matches = self._db.execute_d(
-                """
-                SELECT DISTINCT m1.eid, m3.visual_id FROM matches m1 
-                INNER JOIN matches m2 ON m1.eid = m2.eid 
-                LEFT JOIN matches m3 ON m1.eid = m3.eid AND m3.visual_id IS NOT NULL
-                WHERE m1.account_link = %(account_link_id)s AND m2.type = %(type)s
-                """,
-                {
-                    "account_link_id": account_link_id,
-                    "type": match_types_by_name["USDA Quality Grade"]
-                }
-            )
-            return matches
-        else:
-            return []
+    def get_sighted_matches_for_account(self, account_link_id):
+        match_rows = self._db.execute_d(
+            """
+            SELECT m1.* FROM matches m1
+            INNER JOIN matches m2 ON m1.eid = m2.eid
+            INNER JOIN matches m3 on m1.eid = m3.eid
+            WHERE m2.account_link = %(account_link_id)s AND m2.type = %(sighting_type)s AND m3.type = %(grade_type)s
+            ORDER BY m1.eid
+            """,
+            {
+                "account_link_id": account_link_id,
+                "sighting_type": match_types_by_name["Sighting"],
+                "grade_type": match_types_by_name["USDA Quality Grade"]
+            }
+        )
+        all_eid_data = {}
+        for row in match_rows:
+            if row["eid"] not in all_eid_data.keys():
+                current_eid_data = {"eid": row["eid"]}
+            else:
+                current_eid_data = all_eid_data[row["eid"]]
+
+            if row["type"] == match_types_by_name["Sighting"] and row["account_link"] == account_link_id:
+                current_eid_data["visual_id"] = row["visual_id"]
+
+            if row["type"] == match_types_by_name["Weaned"]:
+                current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["creep_feed"] = data.get("creep_feed", None)
+                current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
+                current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
+                current_eid_data["weaning_strategy"] = data.get("at", None)
+                current_eid_data["wean_weight"] = data.get("wean_weight", None)
+
+            if row["type"] == match_types_by_name["Sold"]:
+                current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["marketing_method_name"] = data.get("method", None)
+                current_eid_data["sale_location"] = data.get("location", None)
+                current_eid_data["number_of_calves"] = data.get("group_size", None)
+
+            if row["type"] == match_types_by_name["Hot Weight"]:
+                current_eid_data["hot_weight"] = row['data']
+
+            if row["type"] == match_types_by_name["USDA Quality Grade"]:
+                current_eid_data["quality_grade"] = row['data']
+
+            if row["type"] == match_types_by_name["USDA Yield Grade"]:
+                current_eid_data["yield_grade"] = row['data']
+
+            all_eid_data[row["eid"]] = current_eid_data
+
+        return [x for x in all_eid_data.values()]
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
@@ -108,7 +161,7 @@ class Matches:
         else:
             return []
 
-    def get_matched_accounts_for_account_and_type(self, account_link_id, type=match_types_by_name['Sighting']):
+    def get_matched_accounts_for_account(self, account_link_id):
         """Gets all the accounts that were matched to account_link_id based on given type
         
         Params:
@@ -121,64 +174,22 @@ class Matches:
 
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector FROM matches AS m
+            SELECT al.account, min(m.created_timestamp) as date, al.sector as account_sector_id,
+            al.name as account_name FROM matches AS m
             INNER JOIN account_links AS al ON m.account_link=al.id
             WHERE eid IN(
                 SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
             )
             AND al.account IS NOT NULL
-            GROUP BY al.account, al.sector
+            GROUP BY al.account, al.sector, al.name
             ORDER BY al.sector, date
             """,
             {
-                "type": type,
+                "type": match_types_by_name['Sighting'],
                 "account_link_id": account_link_id
             }
         )
-
         return data
-
-    def get_by_account_links_spread(self, account_links, restrict_types=(), ljoin_account_links=False):
-        """Get matches by account links in spread form.
-
-        'spread' means that any matches that have EIDs that match
-            the original matches matched will be returned too.
-
-        Params:
-            account_links: A list of AccountLink objects
-            restrict_types: List of ids of types
-            ljoin_account_links: Whether to left join account links
-
-        Returns:
-            A list of unsorted, ungrouped Match objects (possibly empty)
-
-            No duplicates.
-        """
-        # TODO: optimize (perhaps through watch table)
-        if len(account_links) == 0:
-            return []
-
-        return Matches._load_rows(self._db.exec_frag_d(
-            frag(
-                "SELECT matches.*",
-                Matches._account_links_clause if ljoin_account_links else "",
-                "FROM matches",
-                frag(
-                    "LEFT JOIN account_links ON matches.account_link = account_links.id"
-                ) if ljoin_account_links else "",
-                "WHERE eid IN (",
-                frag(
-                    "SELECT DISTINCT eid FROM matches",  # Need to look for other issues like this
-                    "WHERE account_link IN :account_links",
-                    account_links=[account_link.id() for account_link in account_links]
-                ),
-                ")",
-                frag(
-                    "AND matches.type IN :types",
-                    types=restrict_types
-                ) if restrict_types else ""
-            )
-        ))
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
         account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
