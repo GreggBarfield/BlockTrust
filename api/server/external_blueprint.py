@@ -2,11 +2,11 @@ from flask import (
     request, Blueprint, g
 )
 from core.database.database import Database
-from core.database.tables.accounts import AccountsException
 from core.database.tables.connections import Connections, ConnectionException, connection_status
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sustainability_responses import SustainabilityResponses
+from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
@@ -34,11 +34,13 @@ def serve_get_animal_data():
             raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
-        requesting_account = g.db.accounts.get_accounts(token=token)
-        if len(requesting_account) == 0:
+        requesting_account_list = g.db.accounts.get_accounts(token=token)
+        if len(requesting_account_list) == 0:
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
-        APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account[0]["id"], api_route=request.path, request_data=request_data)
+        else:
+            requesting_account = requesting_account_list[0]
+        APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account["id"], api_route=request.path, request_data=request_data)
 
         birth_date = None
         visual_id = None
@@ -68,27 +70,28 @@ def serve_get_animal_data():
             return {"error": unauthorized_message}, 401
         else:
             match = match_ranch_sightings[0]
+            account_id = match["account"]
 
             # check if connection is established
-            if Connections(g.db).get_connection_between(match["account"], requesting_account[0]["id"], connection_status["Connected"]) is None:
+            if Connections(g.db).get_connection_between(account_id, requesting_account["id"], connection_status["Connected"]) is None:
                 # create a new pending connection
                 try:
                     Connections(g.db).create_connection(
-                        from_account_id=requesting_account[0]["id"],
-                        to_account_id=match["account"],
+                        from_account_id=requesting_account["id"],
+                        to_account_id=account_id,
                         status=connection_status["Pending"]
                     )
                 except ConnectionException as e:
                     pass
                 else:
                     # send an email to admin of match account
-                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=match["account"], is_admin=1)) > 0:
+                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=account_id, is_admin=1)) > 0:
                         if len(email_verified_admin_user := g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
                             send_email(
                                 "BlockTrust Network New Connection Request",
                                 render_email("new_connection_request.html", {
                                     "connection_receiving_user": email_verified_admin_user[0],
-                                    "requesting_account": requesting_account[0]
+                                    "requesting_account": requesting_account
                                 }), email_verified_admin_user[0]["email"]
                             )
                 finally:
@@ -107,9 +110,9 @@ def serve_get_animal_data():
             if match["debug"] is not None:
                 zip_code = loads(match["debug"]).get("zip", None)
 
-            responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=match["account"])
-            if len(responses) > 0:
-                latest_response = responses[0]
+            sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id)
+            if len(sustainability_responses) > 0:
+                latest_response = sustainability_responses[0]
                 sustainability["airAndGHGemissions"] = latest_response.get("air_points", 0)
                 sustainability["landResources"] = latest_response.get("land_points", 0)
                 sustainability["waterResources"] = latest_response.get("water_points", 0)
@@ -119,65 +122,76 @@ def serve_get_animal_data():
                 sustainability["improvement"] = latest_response.get("improvement_points", 0)
                 sustainability["totalScore"] = latest_response["score"]
 
-        match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
-        if len(match_wean_row) > 0:
-            match = match_wean_row[0]
-            wean_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
-            if match["data"] is not None:
-                data = loads(match["data"])
-                creep_feed = data.get("creep_feed", None)
-                first_14_day_feed_method = data.get("first_14_method", None)
-                second_31_day_feed_method = data.get("second_31_method", None)
-                weaning_strategy = data.get("at", None)
-                wean_weight = data.get("wean_weight", None)
+            match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
+            if len(match_wean_row) > 0:
+                match = match_wean_row[0]
+                wean_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
+                if match["data"] is not None:
+                    data = loads(match["data"])
+                    creep_feed = data.get("creep_feed", None)
+                    first_14_day_feed_method = data.get("first_14_method", None)
+                    second_31_day_feed_method = data.get("second_31_method", None)
+                    weaning_strategy = data.get("at", None)
+                    wean_weight = data.get("wean_weight", None)
 
-        match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
-        if len(match_sold_row) > 0:        
-            match = match_sold_row[0]
-            if match['time'] is not None:
-                marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
-            if match["data"] is not None:
-                data = loads(match["data"])
-                marketing_method_name = data.get("method", None)
-                sale_location = data.get("location", None)
-                number_of_calves = data.get("group_size", None)
+            match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
+            if len(match_sold_row) > 0:        
+                match = match_sold_row[0]
+                if match['time'] is not None:
+                    marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
+                if match["data"] is not None:
+                    data = loads(match["data"])
+                    marketing_method_name = data.get("method", None)
+                    sale_location = data.get("location", None)
+                    number_of_calves = data.get("group_size", None)
 
-        match_weight_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Hot Weight"])
-        if len(match_weight_row) > 0:
-            hot_weight = match_weight_row[0]['data']
+            match_weight_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Hot Weight"])
+            if len(match_weight_row) > 0:
+                hot_weight = match_weight_row[0]['data']
 
-        match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Quality Grade"])
-        if len(match_quality_row) > 0:
-            quality_grade = match_quality_row[0]['data']
+            match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Quality Grade"])
+            if len(match_quality_row) > 0:
+                quality_grade = match_quality_row[0]['data']
 
-        match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Yield Grade"])
-        if len(match_yield_row) > 0:
-            yield_grade = match_yield_row[0]['data']
+            match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Yield Grade"])
+            if len(match_yield_row) > 0:
+                yield_grade = match_yield_row[0]['data']
 
-        animal_data = {
-            "birthDate": birth_date,
-            "birthWeight": birth_weight,
-            "calfDescription": description,
-            "creepFeed": creep_feed,
-            "electronicID": eid,
-            "first14DayFeedMethod": first_14_day_feed_method,
-            "hotWeight": hot_weight,
-            "usdaQualityGrade": quality_grade,
-            "marketingDate": marketing_date,
-            "marketingMethodName": marketing_method_name,
-            "numberOfCalves": number_of_calves,
-            "saleLocation": sale_location,
-            "second31DayFeedMethod": second_31_day_feed_method,
-            "sex": sex,
-            "visualID": visual_id,
-            "weanDate": wean_date,
-            "weanWeight": wean_weight,
-            "weaningStrategy": weaning_strategy,
-            "usdaYieldGrade": yield_grade,
-            "zipCode": zip_code,
-            "sustainabilityScores": sustainability if sustainability != {} else None
-        }
-        return animal_data
+            animal_data = {
+                "birthDate": birth_date,
+                "birthWeight": birth_weight,
+                "calfDescription": description,
+                "creepFeed": creep_feed,
+                "electronicID": eid,
+                "first14DayFeedMethod": first_14_day_feed_method,
+                "hotWeight": hot_weight,
+                "usdaQualityGrade": quality_grade,
+                "marketingDate": marketing_date,
+                "marketingMethodName": marketing_method_name,
+                "numberOfCalves": number_of_calves,
+                "saleLocation": sale_location,
+                "second31DayFeedMethod": second_31_day_feed_method,
+                "sex": sex,
+                "visualID": visual_id,
+                "weanDate": wean_date,
+                "weanWeight": wean_weight,
+                "weaningStrategy": weaning_strategy,
+                "usdaYieldGrade": yield_grade,
+                "zipCode": zip_code,
+                "sustainabilityScores": sustainability if sustainability != {} else None
+            }
+
+            ViewLogs(g.db).insert_view_logs(owner_account_id=account_id, viewer_account_id=requesting_account["id"],
+                                            viewer_account_display_name=requesting_account["name"], data_type_id=DATA_TYPE_NAME_TO_ID["EID"],
+                                            eid=eid)
+
+            if len(sustainability_responses) > 0:
+                ViewLogs(g.db).insert_view_logs(owner_account_id=account_id, viewer_account_id=requesting_account["id"],
+                                                viewer_account_display_name=requesting_account["name"],
+                                                data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability"],
+                                                sustainability_response_id=latest_response["id"])
+
+            return animal_data
     except ExportException as e:
         raise e
     except Exception as e:
