@@ -121,11 +121,11 @@ export class BaseSummaryV2Widget extends Widget {
         for(let section of Object.values(sections)){
             // Ensuring that the sustainability section exists for the particular sector
             if(section.name in sectionalTotals){
-                accountTotalAverage+= this.accountAverages[section.name+"_average"];
                 globalTotalAverage+= this.globalAverages[sectorID][section.name+"_average"];
             }
         }
         let currentSectorTotalScore = sectorBasedSectionalTotals[sectorID]["total"];
+        accountTotalAverage+= this.accountAverages["score_average"];
 
         let chartWrapper = document.createElement("div");
         chartWrapper.className = "col-md-12";
