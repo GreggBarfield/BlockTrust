@@ -7,8 +7,10 @@ TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_account_
 
 DATA_TYPE_NAME_TO_ID = {
     "EID": 1,
-    "Sustainability": 2
+    "Sustainability Score": 2
 }
+
+DATA_TYPE_ID_TO_NAME = {value: key for key, value in DATA_TYPE_NAME_TO_ID.items()}
 
 
 class ViewLogs:
@@ -69,10 +71,10 @@ class ViewLogs:
             query_values["data_type_id"] = data_type_id
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
-        query = base_query + combined_query_condition
+        query = base_query + combined_query_condition + " ORDER BY ID DESC"
         view_log_rows = self._db.execute_d(query, query_values)
 
         if len(view_log_rows) > 0:
