@@ -597,5 +597,4 @@ def serve_views():
     view_logs = ViewLogs(g.db).get_view_logs(owner_account_id=g.account.id())
 
     return dashboard_render("privacy/data-views.html",
-                            {"view_logs": view_logs, "view_logs_count": len(view_logs),
-                             "data_type_id_to_name": DATA_TYPE_ID_TO_NAME})
+                            {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME})
