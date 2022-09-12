@@ -188,7 +188,7 @@ def serve_get_animal_data():
             if len(sustainability_responses) > 0:
                 ViewLogs(g.db).insert_view_logs(owner_account_id=account_id, viewer_account_id=requesting_account["id"],
                                                 viewer_account_display_name=requesting_account["name"],
-                                                data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability"],
+                                                data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability Score"],
                                                 sustainability_response_id=latest_response["id"])
 
             return animal_data
