@@ -24,13 +24,13 @@ Who's viewed your data
                     </thead>
                     <tbody>
                         {% if view_logs %}
-                        {%for view in view_logs%}
+                        {% for view in view_logs %}
                         <tr>
                             <td>{{view.created_timestamp.strftime("%d %B, %Y at %H:%M")}}</td>
                             <td>{{data_type_id_to_name[view.data_type_id]}}</td>
                             <td><strong>{{view.viewer_account_display_name}}</strong></td>                     
                         </tr>
-                        {%endfor%}
+                        {% endfor %}
                         {% else %}
                         <tr class="text-center">
                             <td colspan="3">No views to show currently</td>
