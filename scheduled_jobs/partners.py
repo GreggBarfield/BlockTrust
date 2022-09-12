@@ -15,7 +15,7 @@ def notify_admin_if_no_data_received_from_partner(job_run_id, db):
     try:
         partners = [HEALTH_TRACK_PARTNER_COMPANY, RED_ANGUS_PARTNER_COMPANY]
         for partner in partners:
-            api_insert_count = ApiInserts(db).get_partner_api_inserts_count(partner_comapny_name=partner, interval=7)
+            api_insert_count = ApiInserts(db).get_partner_api_inserts_count(partner_company_name=partner, interval=7)
             if api_insert_count == 0:
                 email_subject = "API Update"
                 email_body = "No API insert in the last 1 week for account: " + partner
