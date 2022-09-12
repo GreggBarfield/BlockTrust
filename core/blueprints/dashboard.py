@@ -4,7 +4,7 @@ from flask import (
 )
 
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-from core.database.tables.view_logs import DATA_TYPE_NAME_TO_ID, ViewLogs
+from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id, sectors_by_name
@@ -590,3 +590,12 @@ def send_document(path):
 @crut.require_paid_account
 def serve_sustainability_questionnaire():
     return dashboard_render("sustainability/questionnaire_v2.html", {"sector": sectors_by_id[g.account.sector_id()]})
+
+@bp.route("/dashboard/data-views", methods=["GET"])
+@crut.require_account
+def serve_views():
+    view_logs = ViewLogs(g.db).get_view_logs(owner_account_id=g.account.id())
+
+    return dashboard_render("privacy/data-views.html",
+                            {"view_logs": view_logs, "view_logs_count": len(view_logs),
+                             "data_type_id_to_name": DATA_TYPE_ID_TO_NAME})
