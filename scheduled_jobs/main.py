@@ -1,4 +1,3 @@
-from scheduled_jobs.partners import notify_admin_if_no_data_received_from_partner
 from usda_data_retriever import get_usda_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
