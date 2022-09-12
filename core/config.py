@@ -75,6 +75,8 @@ SUPPORT_GENERAL_EMAIL = config_file["support"]["general_email"]
 
 SUPPORT_TAG_STORE_EMAIL = config_file["support"]["general_tag_store_email"]
 
+ADMIN_EMAIL = config_file["email"]["admin_email"]
+
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
 ACCOUNT_WEBHOOK_SECRET = config_file["stripe"]["account_webhook_secret"]
 
@@ -103,5 +105,3 @@ RECAPTCHA_MIN_SCORE = config_file["recaptcha"]["min_score"]
 
 IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
-
-ADMIN_EMAIL = config_file["email"]["admin_email"]

@@ -1,12 +1,7 @@
 import json
-import datetime
-from ...utilities.email import send_email
-from ...config import ADMIN_EMAIL
+from ..no_value import NoValue
 
-
-HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
-RED_ANGUS_PARTNER_NAME = "Red Angus Assoc"
-
+NO_VALUE = NoValue()
 
 class ApiInserts:
 
@@ -33,29 +28,25 @@ class ApiInserts:
             }
         )
 
-    def check_for_partner_api_inserts(self):
+    def get_partner_api_inserts_count(self, partner_comapny_name=NO_VALUE, interval=NO_VALUE):
         """
-        Checks for API inserts
+        Returns the count of API inserts by a particular partner in a specified interval of time
+
+        Params:
+            partner_company_name: Name of the partner company
+            interval: Number of days over which count of API inserts is required
+
+        Returns:
+            Count of API inserts withtin the specified period by the partner
         """
-        partners = [HEALTH_TRACK_PARTNER_NAME, RED_ANGUS_PARTNER_NAME]
-        for partner in partners:
-            latest_api_insert = self._db.execute_d(
-                """
-                SELECT * FROM api_inserts
-                WHERE account in (SELECT id FROM accounts WHERE company = %(company)s)
-                ORDER BY created DESC LIMIT 1
-                """, {
-                    "company": partner
-                }
-            )
-            if len(latest_api_insert) > 0:
-                api_insert = latest_api_insert[0]
-                api_insert_datetime = api_insert["created"]
-                days_since_last_api_insert_datetime = datetime.datetime.now() - api_insert_datetime
-                days_since_last_api_insert = days_since_last_api_insert_datetime.days
-                weeks_since_last_api_insert = days_since_last_api_insert / 7
-                if weeks_since_last_api_insert >= 1 and days_since_last_api_insert % 7 == 0:
-                    email_subject = "API Update"
-                    email_body = "No API insert in the last " + str(int(weeks_since_last_api_insert)) + " week(s) for account: " + partner
-                    send_email(email_subject, email_body, ADMIN_EMAIL)
+        latest_api_inserts_count = self._db.execute_d(
+            """
+            SELECT count(ai.id) as api_inserts_count FROM api_inserts ai INNER JOIN accounts a ON ai.account = a.id AND a.company = %(company)s
+            WHERE created BETWEEN date_sub(now(),INTERVAL %(interval)s DAY) AND now()
+            """, {
+                "company": partner_comapny_name,
+                "interval": interval
+            }
+        )
+        return latest_api_inserts_count[0]["api_inserts_count"]
 
