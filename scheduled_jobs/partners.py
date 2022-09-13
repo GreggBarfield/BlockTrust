@@ -1,14 +1,12 @@
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.api_inserts import ApiInserts
+from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY, RED_ANGUS_PARTNER_COMPANY
 from core.utilities.email import send_email
 from core.config import ADMIN_EMAIL
 import traceback
 import datetime
 import time
-
-HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
-RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 
 
 def notify_admin_if_no_data_received_from_partner(job_run_id, db):
