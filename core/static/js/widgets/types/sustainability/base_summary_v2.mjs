@@ -14,7 +14,7 @@ export class BaseSummaryV2Widget extends Widget {
         const getAccountSustainabilityData = this.getData(
             "get_account_sustainability_data"
         ).then((data) => {
-            this.accountAverages = data.formatted_account_averages;
+            this.accountAverages = data.account_sustainability_section_and_score_averages;
             this.accountSustainabilityResponses = data.account_sustainability_responses 
         });
         const getGlobalSustainabilityData = this.getData(
@@ -112,8 +112,7 @@ export class BaseSummaryV2Widget extends Widget {
     }
 
     makeAverageScoreGaugeCharts = (row, sectorID) =>{
-        let accountTotalAverage = 0;
-        let globalTotalAverage = 0;
+        let globalSustainabilityScoreAverageForSector = 0;
         let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(this.sectorsNameToId);
         let sectionalTotals = sectorBasedSectionalTotals[sectorID];
         
@@ -121,11 +120,11 @@ export class BaseSummaryV2Widget extends Widget {
         for(let section of Object.values(sections)){
             // Ensuring that the sustainability section exists for the particular sector
             if(section.name in sectionalTotals){
-                globalTotalAverage+= this.globalAverages[sectorID][section.name+"_average"];
+                globalSustainabilityScoreAverageForSector+= this.globalAverages[sectorID][section.name+"_average"];
             }
         }
         let currentSectorTotalScore = sectorBasedSectionalTotals[sectorID]["total"];
-        accountTotalAverage+= this.accountAverages["score_average"];
+        let accountSustainabilityScoreAverage = this.accountAverages["score_average"];
 
         let chartWrapper = document.createElement("div");
         chartWrapper.className = "col-md-12";
@@ -156,7 +155,7 @@ export class BaseSummaryV2Widget extends Widget {
 
         let cardHeaderIconText = document.createElement("h4");
         cardHeaderIconText.className = "d-inline text-c-green";
-        cardHeaderIconText.textContent = parseFloat(accountTotalAverage).toFixed(2);
+        cardHeaderIconText.textContent = parseFloat(accountSustainabilityScoreAverage).toFixed(2);
         let cardHeaderIcon = document.createElement("i");
         cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
         cardHeaderIcon.style = "padding-right:10px";
@@ -174,8 +173,8 @@ export class BaseSummaryV2Widget extends Widget {
         globalChart.className = "col-md-6";
         chartCardBody.append(globalChart);
 
-        makeGaugeChart(accountChart, accountTotalAverage, "Your Average Total Score", 0 , currentSectorTotalScore);
-        makeGaugeChart(globalChart, globalTotalAverage, "Global Average Total Score", 0, currentSectorTotalScore);
+        makeGaugeChart(accountChart, accountSustainabilityScoreAverage, "Your Average Total Score", 0 , currentSectorTotalScore);
+        makeGaugeChart(globalChart, globalSustainabilityScoreAverageForSector, "Global Average Total Score", 0, currentSectorTotalScore);
     }
 
     makeSectionalGaugeCharts = (sectorID) =>{
