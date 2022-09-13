@@ -733,17 +733,18 @@ def serve_save_sustainability_questionnaire():
 @crut.require_account
 def serve_get_sustainability_response_averages():
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
-    formatted_account_averages = {
+    account_sustainability_section_and_score_averages = {
         "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
         "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
         "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
         "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
         "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
         "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
-        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0
+        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
+        "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
     }
     account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
-    return {"formatted_account_averages": formatted_account_averages, "account_sustainability_responses": account_sustainability_responses}
+    return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sustainability_responses": account_sustainability_responses}
 
 
 @bp.route('/widgets/data/get_sustainability_response_timeline_data', methods=['POST'])
