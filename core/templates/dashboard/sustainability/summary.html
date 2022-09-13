@@ -42,10 +42,10 @@ Sustainability Summary
         pdf.line(10, 63, pageWidth - 10, 63);
         
         let elementCanvas = await html2canvas(element, {
-            scale: .8
+            scale: 0.3
         });
         let elementData = elementCanvas.toDataURL('image/png', 1);
-        pdf.addImage(elementData, 'PNG', 10, 65);
+        pdf.addImage(elementData, 'PNG', 10, 65, pageWidth, pageHeight-20);
 
         // hide tabs on score card
         pdf.setFillColor('white');
