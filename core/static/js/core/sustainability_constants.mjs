@@ -27,14 +27,14 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Do you have a Grazing Management Plan (GMP)?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "air2",
             responseType: questionType.select,
             questionText: "Is your grazing management plan written?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5  
         },
         {
             id: "air3",
@@ -48,17 +48,38 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Are you actively monitoring and adapting your GMP to ensure continuous progress towards management goals?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5 
         },
         {
             id: "air5",
             responseType: questionType.upload,
             questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5   
+            score: 0.25  
         },
         {
             id: "air6",
+            responseType: questionType.select,
+            questionText: "Does your GMP include operational success including transition or succession planning? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "air7",
+            responseType: questionType.select,
+            questionText: "Are you actively monitoring your GMP to maintain or improve water quality and cycling? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "air8",
+            responseType: questionType.upload,
+            questionText: "Are you willing to share data or information related to the active management of water resources? If so, please upload (PDF only)",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.25  
+        },
+        {
+            id: "air9",
             responseType: questionType.input,
             questionText: "How many acres are under your grazing management plan?",
             inputType: "number",
@@ -66,12 +87,11 @@ const cowCalfQuestionnaireData = {
             score: 0.5   
         },
         {
-            id: "air7",
+            id: "air10",
             responseType: questionType.input,
             questionText: "What percent of your grazing land does this cover?",
             inputType: "number",
-            scoringCriteria: scoringCriteria.responsePresent,
-            score: 0.5  
+            scoringCriteria: scoringCriteria.roundOff
         }
     ],
     [sections.land.name]: [
@@ -80,14 +100,14 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Do you have a Grazing Management Plan (GMP)?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "land2",
             responseType: questionType.select,
             questionText: "Is your grazing management plan written?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5  
         },
         {
             id: "land3",
@@ -101,17 +121,38 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Are you actively monitoring and adapting your GMP to ensure continuous progress towards management goals?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5 
         },
         {
             id: "land5",
             responseType: questionType.upload,
             questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5   
+            score: 0.25  
         },
         {
             id: "land6",
+            responseType: questionType.select,
+            questionText: "Does your GMP include operational success including transition or succession planning? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "land7",
+            responseType: questionType.select,
+            questionText: "Are you actively monitoring your GMP to maintain or improve water quality and cycling? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "land8",
+            responseType: questionType.upload,
+            questionText: "Are you willing to share data or information related to the active management of water resources? If so, please upload (PDF only)",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.25  
+        },
+        {
+            id: "land9",
             responseType: questionType.input,
             questionText: "How many acres are under your grazing management plan?",
             inputType: "number",
@@ -119,12 +160,11 @@ const cowCalfQuestionnaireData = {
             score: 0.5   
         },
         {
-            id: "land7",
+            id: "land10",
             responseType: questionType.input,
             questionText: "What percent of your grazing land does this cover?",
             inputType: "number",
-            scoringCriteria: scoringCriteria.responsePresent,
-            score: 0.5  
+            scoringCriteria: scoringCriteria.roundOff
         }
     ],
     [sections.water.name]: [
@@ -133,14 +173,14 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Do you have a Grazing Management Plan (GMP)?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "water2",
             responseType: questionType.select,
             questionText: "Is your grazing management plan written?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5  
         },
         {
             id: "water3",
@@ -154,17 +194,38 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.select,
             questionText: "Are you actively monitoring and adapting your GMP to ensure continuous progress towards management goals?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1   
+            score: 0.5 
         },
         {
             id: "water5",
             responseType: questionType.upload,
             questionText: "Are you willing to share data or information related to that active management? If so, please upload (PDF only)",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5   
+            score: 0.25  
         },
         {
             id: "water6",
+            responseType: questionType.select,
+            questionText: "Does your GMP include operational success including transition or succession planning? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "water7",
+            responseType: questionType.select,
+            questionText: "Are you actively monitoring your GMP to maintain or improve water quality and cycling? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5 
+        },
+        {
+            id: "water8",
+            responseType: questionType.upload,
+            questionText: "Are you willing to share data or information related to the active management of water resources? If so, please upload (PDF only)",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.25  
+        },
+        {
+            id: "water9",
             responseType: questionType.input,
             questionText: "How many acres are under your grazing management plan?",
             inputType: "number",
@@ -172,12 +233,11 @@ const cowCalfQuestionnaireData = {
             score: 0.5   
         },
         {
-            id: "water7",
+            id: "water10",
             responseType: questionType.input,
             questionText: "What percent of your grazing land does this cover?",
             inputType: "number",
-            scoringCriteria: scoringCriteria.responsePresent,
-            score: 0.5  
+            scoringCriteria: scoringCriteria.roundOff
         }
     ],
     [sections.safety.name]: [
@@ -193,7 +253,7 @@ const cowCalfQuestionnaireData = {
             responseType: questionType.upload,
             questionText: "If yes, what training? Please upload training (PDF only)",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5
+            score: 1
         },
         {
             id: "safety3",
@@ -253,7 +313,7 @@ const cowCalfQuestionnaireData = {
             questionText: "If yes, what was your score? Please enter",
             inputType: "text",
             scoringCriteria: scoringCriteria.responsePresent,
-            score: 1
+            score: 0.5
         },
         {
             id: "animal6",
@@ -267,102 +327,146 @@ const cowCalfQuestionnaireData = {
         {
             id: "efficiency1",
             responseType: questionType.select,
-            questionText: "Do you measure weaning weight either by individual cow or by unit of land? Neither?",
+            questionText: "Have you implemented management strategies to optimize animal productivity through improved nutrition, reproduction, genetics, technologies and practices?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "efficiency2",
             responseType: questionType.select,
-            questionText: "Do you track calf weaning percentage per cow exposed?",
+            questionText: "Do you individually identify cows and calves? ",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "efficiency3",
+            responseType: questionType.select,
+            questionText: "Do you measure weaning weight either by individual cow or by unit of land? Neither?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "efficiency4",
+            responseType: questionType.select,
+            questionText: "Do you track calf weaning percentage per cow exposed?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "efficiency5",
             responseType: questionType.input,
             questionText: "What is your calf weaning percentage per cow exposed?",
             inputType: "number",
             scoringCriteria: scoringCriteria.roundOff
         },
         {
-            id: "efficiency4",
+            id: "efficiency6",
             responseType: questionType.select,
             questionText: "Are you/will you making culling decisions based on calf weaning weight or cow reproductive success?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
-            id: "efficiency5",
+            id: "efficiency7",
+            responseType: questionType.select,
+            questionText: "Do you consider feed efficiency or calf weaning weight when making breeding or culling decisions?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "efficiency8",
             responseType: questionType.select,
             questionText: "When determing mating decisions are you selecting bulls in considerations of your own cowherds strengths and weaknesses?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
-            id: "efficiency6",
+            id: "efficiency9",
             responseType: questionType.upload,
             questionText: "Are you willing to share your breeding plan? If so, please upload (PDF only)",
             scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
-        },
+        }
     ],
     [sections.improvement.name]: [
         {
             id: "improvement1",
             responseType: questionType.select,
-            questionText: "Have you or are you planning to examine the environmental impact of your operation? (Water footprint)",
+            questionText: "Have you examined the greenhouse gas footprint of your operation? If yes, what are the units? ",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "improvement2",
             responseType: questionType.input,
-            questionText: "If already completed, what was your footprint?",
+            questionText: "What is the most recent year you evaluated your greenhouse gas footprint? ",
             inputType: "text",
             scoringCriteria: scoringCriteria.responsePresent,
             score: 0.5
         },
         {
             id: "improvement3",
-            responseType: questionType.select,
-            questionText: "Have you or are you planning to examine the environmental impact of your operation? (Greenhouse Gas footprint)",
-            scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            responseType: questionType.input,
+            questionText: "What is your most current greenhouse gas footprint? ",
+            inputType: "text",
+            scoringCriteria: scoringCriteria.responsePresent,
+            score: 0.25
         },
         {
             id: "improvement4",
+            responseType: questionType.select,
+            questionText: "Have you examined the water footprint of your operation? If yes, what are the units? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "improvement5",
             responseType: questionType.input,
-            questionText: "If already completed, what was your footprint?",
+            questionText: "What is the most recent year you evaluated your water footprint? ",
             inputType: "text",
             scoringCriteria: scoringCriteria.responsePresent,
             score: 0.5
         },
         {
-            id: "improvement5",
-            responseType: questionType.select,
-            questionText: "Is your operation actively participating in ecosystem service markets or convservation programs?",
-            scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5
-        },
-        {
             id: "improvement6",
-            responseType: questionType.select,
-            questionText: "Do you have a herd health plan developed through a Veterinary-Client Patient Relationship (VCPR)?",
-            scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5
+            responseType: questionType.input,
+            questionText: "What is your most current water footprint? ",
+            inputType: "text",
+            scoringCriteria: scoringCriteria.responsePresent,
+            score: 0.25
         },
         {
             id: "improvement7",
             responseType: questionType.select,
-            questionText: "Does your operation actively try to mitigate or remove safety hazards in facilities and equipment?",
+            questionText: "Is your operation actively participating in ecosystem service markets or convservation programs (i.e. NRCS, EQUIP, etc.)?",
             scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
         },
         {
             id: "improvement8",
             responseType: questionType.select,
+            questionText: "Do you have a herd health plan developed through a Veterinary-Client Patient Relationship (VCPR)?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "improvement9",
+            responseType: questionType.select,
+            questionText: "Does your operation actively try to mitigate or remove safety hazards in facilities and equipment?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "improvement10",
+            responseType: questionType.select,
             questionText: "Do you utilize RFID or alternative traceability technology?",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "improvement11",
+            responseType: questionType.select,
+            questionText: "Do you track and record your antibiotic use? ",
             scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
         }
