@@ -4,6 +4,7 @@ from ..no_value import NoValue
 from ..frag import frag
 
 NO_VALUE = NoValue()
+# Values need to be kept in sync with DB
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 

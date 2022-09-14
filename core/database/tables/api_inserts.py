@@ -1,7 +1,4 @@
 import json
-from ..no_value import NoValue
-
-NO_VALUE = NoValue()
 
 class ApiInserts:
 
@@ -28,7 +25,7 @@ class ApiInserts:
             }
         )
 
-    def get_partner_api_inserts_count(self, partner_company_name=NO_VALUE, interval=NO_VALUE):
+    def get_partner_api_inserts_count(self, partner_company_name, interval):
         """
         Returns the count of API inserts by a particular partner in a specified interval of time
 
