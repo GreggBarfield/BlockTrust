@@ -841,7 +841,7 @@ const auctionHouseQuestionnaireData = {
             questionText: "Are employees with environmental responsibilities regularly trained?",
             scoringCriteria: scoringCriteria.confirmation,
             score: 1
-        },
+        }
     ],
     [sections.safety.name] : [
         {
@@ -921,7 +921,7 @@ const auctionHouseQuestionnaireData = {
         {
             id: "animal6",
             responseType: questionType.input,
-            questionText: "What percentage of your animal hanlding employees are BQA or Livestock marketing association trained?",
+            questionText: "What percentage of your animal handling employees are BQA or Livestock Marketing Association trained?",
             inputType: "number",
             scoringCriteria: scoringCriteria.roundOff
         }
