@@ -26,9 +26,9 @@ Who's viewed your data
                         {% if view_logs %}
                         {% for view in view_logs %}
                         <tr>
-                            <td>{{view.created_timestamp.strftime("%d %B, %Y at %H:%M")}}</td>
+                            <td name="view-date">{{view.created_timestamp}}</td>
                             <td>{{data_type_id_to_name[view.data_type_id]+ ": " + view.eid|string 
-                                if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
+                                  if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
                             <td><strong>{{view.viewer_account_display_name}}</strong></td>                     
                         </tr>
                         {% endfor %}
@@ -43,4 +43,17 @@ Who's viewed your data
         </div>
     </div>
 </div>
+<script>
+    let viewDates = document.getElementsByName("view-date");
+    for(date of viewDates){
+        let UTCDate = new Date(date.innerText + " UTC");
+        date.innerText = UTCDate.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric'
+        });
+    }
+</script>
 {% endblock dashboard_content %}
