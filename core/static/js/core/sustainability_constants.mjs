@@ -517,7 +517,7 @@ const feedlotQuestionnaireData = {
             questionText: "What opportunities have you identified?",
             scoringCriteria: scoringCriteria.responsePresent,
             inputType: "text",
-            score: 1
+            score: 0.5
         }
     ],
     [sections.land.name] : [
@@ -593,7 +593,7 @@ const feedlotQuestionnaireData = {
             questionText: "If so, what practices have you identified?",
             scoringCriteria: scoringCriteria.responsePresent,
             inputType: "text",
-            score: 0.5
+            score: 0.25
         },
         {
             id: "water5",
@@ -614,7 +614,7 @@ const feedlotQuestionnaireData = {
             responseType: questionType.upload,
             questionText: "If yes, are you willing to share it?",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 0.5
+            score: 0.25
         }
     ],
     [sections.animal.name] : [
@@ -740,37 +740,53 @@ const feedlotQuestionnaireData = {
         {
             id: "improvement1",
             responseType: questionType.select,
-            questionText: "Have you or are you planning to examine the environmental impact of your operation? (Water footprint)",
+            questionText: "Have you examined the greenhouse gas footprint of your operation? If yes, what are the units? ",
             scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            score: 0.5
         },
         {
             id: "improvement2",
             responseType: questionType.input,
-            questionText: "If already completed, what was your footprint?",
-            inputType: "number",
+            questionText: "What is the most recent year you evaluated your greenhouse gas footprint?  ",
+            inputType: "text",
             scoringCriteria: scoringCriteria.responsePresent,
             score: 0.5
         },
         {
             id: "improvement3",
-            responseType: questionType.select,
-            questionText: "Have you or are you planning to examine the environmental impact of your operation? (Greenhouse Gas footprint)",
-            scoringCriteria: scoringCriteria.confirmation,
-            score: 1
+            responseType: questionType.input,
+            questionText: "What is your most current greenhouse gas footprint? ",
+            inputType: "text",
+            scoringCriteria: scoringCriteria.responsePresent,
+            score: 0.5
         },
         {
             id: "improvement4",
+            responseType: questionType.select,
+            questionText: "Have you examined the water footprint of your operation? If yes, what are the units? ",
+            scoringCriteria: scoringCriteria.confirmation,
+            score: 0.5
+        },
+        {
+            id: "improvement5",
             responseType: questionType.input,
-            questionText: "If already completed, what was your footprint?",
+            questionText: "What is the most recent year you evaluated your water footprint? ",
+            inputType: "text",
+            scoringCriteria: scoringCriteria.responsePresent,
+            score: 0.5
+        },
+        {
+            id: "improvement6",
+            responseType: questionType.input,
+            questionText: "What is your most current water footprint? ",
             inputType: "number",
             scoringCriteria: scoringCriteria.responsePresent,
             score: 0.5
         },
         {
-            id: "improvement5",
+            id: "improvement7",
             responseType: questionType.select,
-            questionText: "Have you or are you planning to install green infrastructure?",
+            questionText: "Is your operation actively participating in ecosystem service markets or conservation programs?",
             scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
         },
@@ -782,14 +798,14 @@ const feedlotQuestionnaireData = {
             score: 0.5
         },
         {
-            id: "improvement7",
+            id: "improvement8",
             responseType: questionType.select,
             questionText: "Does your operation actively try to mitigate or remove safety hazards in facilities and equipment?",
             scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
         },
         {
-            id: "improvement8",
+            id: "improvement9",
             responseType: questionType.select,
             questionText: "Do you utilize RFID or alternative traceability technology?",
             scoringCriteria: scoringCriteria.confirmation,
