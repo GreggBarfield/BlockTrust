@@ -10,35 +10,37 @@ Who's viewed your data
 {% block dashboard_content %}
 
 <div class="row">
-    <div class="col">
-        <div class="card d-inline-block" style="min-width:80%">
+    <div class="col-xl-10">
+        <div class="card">
             <h5 class="card-header">{{view_logs_count}} views</h5>
             <div class="card-body">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Data Viewed</th>
-                            <th>Account Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if view_logs %}
-                        {% for view in view_logs %}
-                        <tr>
-                            <td name="view-date">{{view.created_timestamp}}</td>
-                            <td>{{data_type_id_to_name[view.data_type_id]+ ": " + view.eid|string 
-                                  if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
-                            <td><strong>{{view.viewer_account_display_name}}</strong></td>                     
-                        </tr>
-                        {% endfor %}
-                        {% else %}
-                        <tr class="text-center">
-                            <td colspan="3">No views to show currently</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Data Viewed</th>
+                                <th>Account Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if view_logs %}
+                            {% for view in view_logs %}
+                            <tr>
+                                <td name="view-date">{{view.created_timestamp}}</td>
+                                <td>{{data_type_id_to_name[view.data_type_id]+ ": " + view.eid|string 
+                                    if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
+                                <td><strong>{{view.viewer_account_display_name}}</strong></td>                     
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr class="text-center">
+                                <td colspan="3">No views to show currently</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
