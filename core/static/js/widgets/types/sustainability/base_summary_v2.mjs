@@ -210,7 +210,7 @@ export class BaseSummaryV2Widget extends Widget {
                 let globalChart = document.createElement("div");
                 globalChart.className = "col-md-6";
                 chartCardBody.append(globalChart);
-
+                
                 makeGaugeChart(accountChart, this.accountAverages[section.name+"_average"], "Your Average Score", 0 , sectionalTotals[section.name]);
                 makeGaugeChart(globalChart, this.globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, sectionalTotals[section.name]);
             }
