@@ -1036,7 +1036,7 @@ const packerQuestionnaireData = {
             id: "air5",
             responseType: questionType.upload,
             questionText: "What is the company's carbon dioxide equivalents per head or per mass of finished product (please specify unit)?",
-            scoringCriteria: scoringCriteria.responsePresent,
+            scoringCriteria: scoringCriteria.confirmation,
             score: 0.5
         },
         {
