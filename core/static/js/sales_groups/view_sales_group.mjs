@@ -139,8 +139,8 @@ export class SalesGroupViewer {
             let scoreIcon = document.createElement("i");
             scoreIcon.className = "fas fa-leaf text-c-green f-15";
             scoreIcon.style = "padding-right:10px";
-            
-            if(this.data.owner_account_sustainability_score_average != 0 && this.data.owner_account_sustainability_score_average != null){
+
+            if( this.data.owner_account_sustainability_score_average != null && this.data.owner_account_sustainability_score_average != 0){
                 left.append(scoreIcon);
                 left.append(scoreText);
             }
