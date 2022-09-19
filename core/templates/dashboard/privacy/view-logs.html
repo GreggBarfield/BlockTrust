@@ -10,7 +10,7 @@ Who's viewed your data
 {% block dashboard_content %}
 
 <div class="row">
-    <div class="col-xl-10">
+    <div class="col">
         <div class="card">
             <h5 class="card-header">{{view_logs_count}} views</h5>
             <div class="card-body">
@@ -21,6 +21,7 @@ Who's viewed your data
                                 <th>Date</th>
                                 <th>Data Viewed</th>
                                 <th>Account Name</th>
+                                <th>User Name</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -30,7 +31,8 @@ Who's viewed your data
                                 <td name="view-date">{{view.created_timestamp}}</td>
                                 <td>{{data_type_id_to_name[view.data_type_id]+ ": " + view.eid|string 
                                     if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
-                                <td><strong>{{view.viewer_account_display_name}}</strong></td>                     
+                                <td><strong>{{view.company}}</strong></td>
+                                <td>{{view.user_name if view.user_name else ""}}</td>                     
                             </tr>
                             {% endfor %}
                             {% else %}

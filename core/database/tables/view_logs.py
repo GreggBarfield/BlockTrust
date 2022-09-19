@@ -2,7 +2,7 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_account_name", "viewer_user_id", "data_type_id",
+TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_user_id", "data_type_id",
                  "created_timestamp", "last_updated_timestamp")
 
 DATA_TYPE_NAME_TO_ID = {
@@ -46,19 +46,27 @@ class ViewLogs:
         )
         return self._db.last_row_id()
 
-    def get_view_logs(self, id=NO_VALUE, owner_account_id=NO_VALUE, viewer_account_id=NO_VALUE, data_type_id=NO_VALUE):
+    def get_view_logs(self, id=NO_VALUE, owner_account_id=NO_VALUE, viewer_account_id=NO_VALUE, data_type_id=NO_VALUE, 
+                      get_related=False):
         """
         Gets the view logs based on the provided parameters
 
         Returns:
             A list of view logs or an empty array
         """
-        base_query = "SELECT * FROM view_logs"
+        if not get_related:
+            base_query = "SELECT * FROM view_logs vl"
+        else:
+            base_query = """
+                SELECT vl.*, a.company, CONCAT(u.first_name,' ',u.last_name) as 'user_name' FROM view_logs vl
+                INNER JOIN accounts a on a.id = vl.viewer_account_id
+                LEFT JOIN users u ON u.id = vl.viewer_user_id
+            """
 
         query_conditions = []
         query_values = {}
         if id is not NO_VALUE:
-            query_conditions.append("id = %(id)s")
+            query_conditions.append("vl.id = %(id)s")
             query_values["id"] = id
         if owner_account_id is not NO_VALUE:
             query_conditions.append("owner_account_id = %(owner_account_id)s")

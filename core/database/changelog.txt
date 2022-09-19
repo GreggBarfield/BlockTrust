@@ -1675,3 +1675,7 @@ ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
 ALTER TABLE `view_logs` 
 ADD COLUMN `eid` BIGINT NULL AFTER `data_type_id`,
 ADD COLUMN `sustainability_response_id` INT NULL AFTER `eid`;
+
+/* Rohan Sureshkumar 15/9/2022 */
+ALTER TABLE `view_logs` 
+DROP COLUMN `viewer_account_display_name`;
