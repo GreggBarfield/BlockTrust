@@ -5,7 +5,7 @@ const sections = {
     animal: {name: "animal", header:"Animal Health & Well-Being"},
     safety: {name: "safety", header:"Employee Safety & Well-Being"},
     efficiency: {name: "efficiency", header:"Efficiency & Yield"},
-    improvement: {name: "improvement", header:"Improvement"}
+    improvement: {name: "improvement", header:"Extra Credit"}
 };
 
 const scoringCriteria = {
