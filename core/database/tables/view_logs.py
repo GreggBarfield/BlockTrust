@@ -47,21 +47,21 @@ class ViewLogs:
         return self._db.last_row_id()
 
     def get_view_logs(self, id=NO_VALUE, owner_account_id=NO_VALUE, viewer_account_id=NO_VALUE, data_type_id=NO_VALUE, 
-                      get_related=False):
+                      get_related_details=False):
         """
         Gets the view logs based on the provided parameters
 
         Returns:
             A list of view logs or an empty array
         """
-        if not get_related:
-            base_query = "SELECT * FROM view_logs vl"
-        else:
+        if get_related_details:
             base_query = """
                 SELECT vl.*, a.company, CONCAT(u.first_name,' ',u.last_name) as 'user_name' FROM view_logs vl
                 INNER JOIN accounts a on a.id = vl.viewer_account_id
                 LEFT JOIN users u ON u.id = vl.viewer_user_id
             """
+        else:
+            base_query = "SELECT * FROM view_logs vl"
 
         query_conditions = []
         query_values = {}
