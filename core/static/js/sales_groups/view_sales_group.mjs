@@ -129,9 +129,22 @@ export class SalesGroupViewer {
 
             let salesGroupID = document.createElement("h5");
             salesGroupID.className = "mb-0";
-            salesGroupID.style = "display: inline;";
+            salesGroupID.style = "display: inline;padding-right:10px";
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
+
+            let scoreText = document.createElement("h4");
+            scoreText.className = "d-inline text-c-green";
+            scoreText.textContent = parseFloat(this.data.owner_account_sustainability_score_average).toFixed(2);
+            let scoreIcon = document.createElement("i");
+            scoreIcon.className = "fas fa-leaf text-c-green f-15";
+            scoreIcon.style = "padding-right:10px";
+            
+            if(this.data.owner_account_sustainability_score_average != 0 && this.data.owner_account_sustainability_score_average != null){
+                left.append(scoreIcon);
+                left.append(scoreText);
+            }
+
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
                 sendMessageButton.className = "btn btn-sm btn-primary";

@@ -166,6 +166,8 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
+        owner_account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=sales_group_row["account"])
+        owner_account_sustainability_score_average = float(owner_account_sustainability_averages["score_average"]) if owner_account_sustainability_averages["score_average"] else 0
         results.append({
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
@@ -199,7 +201,8 @@ def serve_search_sales_groups_2():
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
-            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
+            "owner_account_sustainability_score_average": owner_account_sustainability_score_average
         })
 
     return {

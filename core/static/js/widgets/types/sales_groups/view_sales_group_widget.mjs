@@ -12,6 +12,13 @@ export class ViewSalesGroupWidget extends Widget {
         this.qrSource = this.frame.getAttribute("data-widget-qr-src");
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
 
+        const getAccountSustainabilityData = this.getData(
+            "get_account_sustainability_data",
+            {}
+            ).then((data) => {
+                this.data = data.account_sustainability_section_and_score_averages;
+        });
+
         this.getData(
             "sales_group",
             {
