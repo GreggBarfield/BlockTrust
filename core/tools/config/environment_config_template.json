@@ -26,7 +26,8 @@
     "dev_mysql": "same",
     "email": {
         "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>",
-        "secondary_recipient_for_match_found": ""
+        "secondary_recipient_for_match_found": "",
+        "admin_email": "gregg.barfield@ledgerspace.net"
     },
     "internal_api": {
         "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8",

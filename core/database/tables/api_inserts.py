@@ -24,3 +24,26 @@ class ApiInserts:
                 "fields": json.dumps(data)
             }
         )
+
+    def get_partner_api_inserts_count(self, partner_company_name, interval):
+        """
+        Returns the count of API inserts by a particular partner in a specified interval of time
+
+        Params:
+            partner_company_name: Name of the partner company
+            interval: Number of days over which count of API inserts is required
+
+        Returns:
+            Count of API inserts withtin the specified period by the partner
+        """
+        latest_api_inserts_count = self._db.execute_d(
+            """
+            SELECT count(ai.id) as api_inserts_count FROM api_inserts ai INNER JOIN accounts a ON ai.account = a.id AND a.company = %(company)s
+            WHERE created BETWEEN date_sub(now(),INTERVAL %(interval)s DAY) AND now()
+            """, {
+                "company": partner_company_name,
+                "interval": interval
+            }
+        )
+        return latest_api_inserts_count[0]["api_inserts_count"]
+
