@@ -128,8 +128,7 @@ export class SalesGroupViewer {
             row.append(left);
 
             let salesGroupID = document.createElement("h5");
-            salesGroupID.className = "mb-0";
-            salesGroupID.style = "display: inline;padding-right:10px";
+            salesGroupID.className = "mb-0 d-inline pr-2"
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
 
@@ -137,10 +136,9 @@ export class SalesGroupViewer {
             scoreText.className = "d-inline text-c-green";
             scoreText.textContent = parseFloat(this.data.owner_account_sustainability_score_average).toFixed(2);
             let scoreIcon = document.createElement("i");
-            scoreIcon.className = "fas fa-leaf text-c-green f-15";
-            scoreIcon.style = "padding-right:10px";
+            scoreIcon.className = "fas fa-leaf text-c-green f-15 pr-2";
 
-            if( this.data.owner_account_sustainability_score_average != null && this.data.owner_account_sustainability_score_average != 0){
+            if( this.data.owner_account_sustainability_score_average){
                 left.append(scoreIcon);
                 left.append(scoreText);
             }
