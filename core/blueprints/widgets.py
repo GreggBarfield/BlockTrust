@@ -9,7 +9,7 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
@@ -391,7 +391,7 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
-    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_COMPANY, is_partner=1)[0]
     is_healthtrack_partner_account = False
     if g.account.partner_account_id() == healthtrack_partner_row["id"]:
         is_healthtrack_partner_account = True

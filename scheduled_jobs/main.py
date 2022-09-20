@@ -2,6 +2,7 @@ from usda_data_retriever import get_usda_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
 from emails import run_email_tasks
+from partners import notify_admin_if_no_data_received_from_partner
 from threading import Thread
 import traceback
 import time
@@ -16,7 +17,8 @@ try:
         "USDAData": "usda_data_retriever.py|get_usda_data",
         "Blockchain": "blockchain.py|run_bc_routines",
         "Reports": "reports.py|run_report_tasks",
-        "Emails": "emails.py|run_email_tasks"
+        "Emails": "emails.py|run_email_tasks",
+        "Partners": "partners.py|notify_admin_if_no_data_received_from_partner"
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -78,6 +80,15 @@ try:
         #     t.start()
         #     threads.append(t)
         #     print('Main: appended thread TransferDataILS', 'Total number of threads:', len(threads), 'Current time:', current_time)
+
+        # this will run once between 9 and 10 AM
+        if datetime.time(9, 0, 0) <= current_time < datetime.time(10, 0, 0):
+            if not any(t.getName() == "Partners" for t in threads):
+                job_run_id = JobRuns(db).insert("Partners", scheduled_jobs["Partners"].split('|')[0], scheduled_jobs["Partners"].split('|')[1])
+                t = Thread(target=notify_admin_if_no_data_received_from_partner, name="Partners", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Partners', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
