@@ -4,7 +4,9 @@ from ..no_value import NoValue
 from ..frag import frag
 
 NO_VALUE = NoValue()
-HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
+# Values need to be kept in sync with DB
+HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
+RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
