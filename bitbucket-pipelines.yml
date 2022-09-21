@@ -1,0 +1,15 @@
+image: python:3.9
+
+pipelines:
+  custom:
+    sonar:
+      - step:
+          script:
+            - echo "Manual triggers for Sonar are awesome!"
+  pull-requests:
+    '**':
+      - step:
+          name: Lint code
+          script:
+            - pip install flake8
+            - flake8 . --extend-exclude=dist,build --show-source --statistics --exit-zero --max-line-length 120
