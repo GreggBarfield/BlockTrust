@@ -1,3 +1,4 @@
+import traceback
 import bcrypt
 from flask import g, session
 from ..database.tables.users import Users
@@ -440,7 +441,8 @@ def login(identifier, password=""):
     except UsersException as e:
         raise e
     except Exception as e:
-        raise LoginException("other exception")
+        print(traceback.format_exc())
+        raise e  # LoginException("other exception")
 
 
 def employee_login(identifier, password=""):
