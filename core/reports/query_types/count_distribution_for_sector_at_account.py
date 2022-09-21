@@ -1,4 +1,4 @@
-TYPE_NAME = "count_distribution_account_and_sector"
+TYPE_NAME = "count_distribution_for_sector_at_account"
 
 
 def execute(db, query):

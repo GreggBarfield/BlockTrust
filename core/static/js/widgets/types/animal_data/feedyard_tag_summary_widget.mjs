@@ -7,12 +7,14 @@ export class FeedyardTagSummaryWidget extends Widget {
 
     initType() {
 
+        let companyName = this.frame.getAttribute("data-widget-account-company");
+
         this.getData(
             "direct/sectors_by_name",
             {}
         ).then((data) => {
             this.request = {
-                type: "count_distribution_account_and_sector",
+                type: "count_distribution_for_sector_at_account",
                 params: {
                     sector_id: data.sectors_by_name["Cow-Calf"]      
                 }
@@ -28,7 +30,7 @@ export class FeedyardTagSummaryWidget extends Widget {
                 this.accountData = data.result !== null ? data.result.all_data: {};
             }).then(() => {
                 this.frame.innerHTML = "";
-                this.frame.appendChild(this.createTabs());
+                this.frame.appendChild(this.createTabs(companyName));
                 let tabDataContainer = this.createContainer();
                 tabDataContainer.appendChild(this.makeMatchedTabContents(this.feedyardData));
                 tabDataContainer.appendChild(this.makeAllDataTabContents(this.accountData));
@@ -38,12 +40,12 @@ export class FeedyardTagSummaryWidget extends Widget {
 
     }
 
-    createTabs = () => {
+    createTabs = (companyName) => {
         let ulTabs = document.createElement("ul");
         ulTabs.className = "nav nav-tabs";
         ulTabs.setAttribute("role", "tablist")    
 
-        let liTab = this.createTab("matched-data", "Matched", true)
+        let liTab = this.createTab("matched-data", companyName, true)
         ulTabs.appendChild(liTab);
 
         liTab = this.createTab("all-data", "All", false);
