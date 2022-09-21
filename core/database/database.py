@@ -1,4 +1,3 @@
-from core.database.tables.sustainability import Sustainability
 import mysql.connector as mysql
 from mysql.connector.errors import Error
 
@@ -16,7 +15,6 @@ from .tables.reports import Reports
 from .tables.products import ProductTable
 from .tables.orders import Orders
 from .tables.order_products import OrderProducts
-from .tables.sustainability import Sustainability
 from .tables.usda_reports import USDAReports
 from .tables.product_discounts import ProductDiscounts
 from .tables.api_inserts import ApiInserts
@@ -59,7 +57,6 @@ class Database:
         self.products = ProductTable(self)
         self.orders = Orders(self)
         self.order_products = OrderProducts(self)
-        self.sustainability = Sustainability(self)
         self.product_discounts = ProductDiscounts(self)
         self.api_inserts = ApiInserts(self)
 

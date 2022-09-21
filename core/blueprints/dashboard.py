@@ -299,15 +299,6 @@ def serve_sustainability():
         "sustainability_enabled_for_sector": sustainability_enabled_for_sector
     })
 
-# Deprecated
-# @bp.route('/dashboard/sustainability/survey', methods=['GET'])
-# @crut.require_paid_account
-# def serve_sustainability_survey():
-#     return dashboard_render("sustainability/questionaire.html", 
-#     {
-#         "sector": sectors_by_id[g.account.sector_id()]
-#     })
-
 
 @bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_paid_account
