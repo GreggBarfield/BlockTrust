@@ -89,16 +89,30 @@ export class SubscribeWidget extends Widget {
         let btnPrivacyLink = this.generateLinkElement("BlockTrust Network Privacy", "/dashboard/files/BTN_PRIVACY.pdf");
         let btnTermsOfServiceLink = this.generateLinkElement("BlockTrust Network Terms of Service", "/dashboard/files/BTN_TERMS_OF_SERVICE.pdf");
 
+        let documentsList = document.createElement("ul");
+        let firstDocument = document.createElement("li");
+        let secondDocument = document.createElement("li");
+        let thirdDocument = document.createElement("li");
+        documentsList.append(firstDocument);
+        documentsList.append(secondDocument);
+        documentsList.append(thirdDocument);
+        firstDocument.appendChild(btnEULALink);
+        secondDocument.appendChild(btnPrivacyLink);
+        thirdDocument.appendChild(btnTermsOfServiceLink);
         termsAndConditionsFormGroup.append(termsAndConditionsLabel);
-        termsAndConditionsFormGroup.append(btnEULALink);
-        termsAndConditionsFormGroup.append(btnPrivacyLink);
-        termsAndConditionsFormGroup.append(btnTermsOfServiceLink);
+        termsAndConditionsFormGroup.append(documentsList);
 
         let termsAndConditionsCheckboxGroup = document.createElement("div");
         termsAndConditionsCheckboxGroup.className = "row m-1";
         this.inputs.termsAndConditionsCheckbox = document.createElement("input");
         this.inputs.termsAndConditionsCheckbox.type = "checkbox";
+
+        let termsAndConditionsCheckboxLabel = document.createElement("label");
+        termsAndConditionsCheckboxLabel.className = "m-1";
+        termsAndConditionsCheckboxLabel.textContent = "I have read these documents and agree.";
+
         termsAndConditionsCheckboxGroup.append(this.inputs.termsAndConditionsCheckbox);
+        termsAndConditionsCheckboxGroup.append(termsAndConditionsCheckboxLabel);
         termsAndConditionsFormGroup.append(termsAndConditionsCheckboxGroup);
 
       
@@ -130,7 +144,7 @@ export class SubscribeWidget extends Widget {
 
     generateLinkElement(linkText, linkURL){
       let link = document.createElement("a");
-      link.className = "row m-1";
+      link.className = "m-1";
       link.href = linkURL;
       link.textContent  = linkText;
       link.target = "_blank";
