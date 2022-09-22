@@ -17,7 +17,7 @@ export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
         this.frame.appendChild(row);
 
         this.makeAverageScoreGaugeCharts(row, this.currentSectorID);
-        // this.makeGraphOverTime(row);
+        this.makeGraphOverTime(row);
         this.makeSectionalGaugeCharts(this.currentSectorID);
     }
 }
