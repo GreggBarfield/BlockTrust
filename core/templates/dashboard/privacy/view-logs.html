@@ -29,8 +29,13 @@ Who's viewed your data
                             {% for view in view_logs %}
                             <tr>
                                 <td name="view-date">{{view.created_timestamp}}</td>
-                                <td>{{data_type_id_to_name[view.data_type_id]+ ": " + view.eid|string 
-                                    if data_type_id_to_name[view.data_type_id]=="EID" else data_type_id_to_name[view.data_type_id]}}</td>
+                                <td>
+                                    {% if data_type_id_to_name[view.data_type_id] == "EID"%}
+                                    {{data_type_id_to_name[view.data_type_id]+ ": "}} <a href={{animal_url + view.eid|string}}>{{view.eid}}</a>
+                                    {% else %}
+                                    {{data_type_id_to_name[view.data_type_id]}}
+                                    {% endif %}
+                                </td>
                                 <td><strong>{{view.company}}</strong></td>
                                 <td>{{view.user_name if view.user_name else ""}}</td>                     
                             </tr>
