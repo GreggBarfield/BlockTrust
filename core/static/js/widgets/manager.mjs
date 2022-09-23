@@ -27,7 +27,7 @@ import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_w
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { SummaryGraphWidget } from './types/employee/summary_graphs.mjs';
-import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
+import { TagDistributionSectorAtAccountWidget } from './types/animal_data/tag_distribution_sector_at_account_widget.mjs';
 import { SelectEIDsByGroupingIDWidget } from './types/sales_groups/select_eids_by_grouping_id_widget.mjs';
 import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
 import { CowCalfQuestionnaireV2Widget } from "./types/sustainability/cow_calf_questionnaire_v2_widget.mjs"
@@ -80,7 +80,7 @@ import { SustainabilitySummaryWidget } from './types/sustainability/sustainabili
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("summary graphs", SummaryGraphWidget);
-    attach("feedyard tag summary", FeedyardTagSummaryWidget);
+    attach("tag distribution sector at account", TagDistributionSectorAtAccountWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
     attach("cow-calf questionnaire v2", CowCalfQuestionnaireV2Widget);
