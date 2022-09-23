@@ -84,6 +84,7 @@ export class SubscribeWidget extends Widget {
         let termsAndConditionsLabel = document.createElement("label");
         termsAndConditionsLabel.className = "row m-1";
         termsAndConditionsLabel.textContent = "Please read these documents and check the box saying you understand and agree with the terms and conditions within: ";
+        termsAndConditionsFormGroup.append(termsAndConditionsLabel);
         
         let btnEULALink = this.generateLinkElement("BlockTrust Network EULA", "/dashboard/files/BTN_EULA.pdf");
         let btnPrivacyLink = this.generateLinkElement("BlockTrust Network Privacy", "/dashboard/files/BTN_PRIVACY.pdf");
@@ -99,20 +100,19 @@ export class SubscribeWidget extends Widget {
         firstDocument.appendChild(btnEULALink);
         secondDocument.appendChild(btnPrivacyLink);
         thirdDocument.appendChild(btnTermsOfServiceLink);
-        termsAndConditionsFormGroup.append(termsAndConditionsLabel);
         termsAndConditionsFormGroup.append(documentsList);
 
         let termsAndConditionsCheckboxGroup = document.createElement("div");
         termsAndConditionsCheckboxGroup.className = "row m-1";
         this.inputs.termsAndConditionsCheckbox = document.createElement("input");
         this.inputs.termsAndConditionsCheckbox.type = "checkbox";
+        termsAndConditionsCheckboxGroup.append(this.inputs.termsAndConditionsCheckbox);
 
         let termsAndConditionsCheckboxLabel = document.createElement("label");
         termsAndConditionsCheckboxLabel.className = "m-1";
         termsAndConditionsCheckboxLabel.textContent = "I have read these documents and agree.";
-
-        termsAndConditionsCheckboxGroup.append(this.inputs.termsAndConditionsCheckbox);
         termsAndConditionsCheckboxGroup.append(termsAndConditionsCheckboxLabel);
+
         termsAndConditionsFormGroup.append(termsAndConditionsCheckboxGroup);
 
       
@@ -170,8 +170,8 @@ export class SubscribeWidget extends Widget {
             return;
         }
         if(this.inputs.termsAndConditionsCheckbox.checked == false){
-          this.showError("Please check the Terms and Conditions");
-          return;
+            this.showError("Please check the Terms and Conditions");
+            return;
         }
         //display appropriate alerts
         this.loadingAction.style.display = "inline-block";
