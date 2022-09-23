@@ -39,7 +39,7 @@ export class BaseSummaryV2Widget extends Widget {
 
     makeGraphOverTime = (row) =>{
         let cardWrapper = document.createElement("div");
-        cardWrapper.className = "col-md-6 p-0";
+        cardWrapper.className = "col-md-6";
         row.appendChild(cardWrapper);
 
         let card = document.createElement("div");
@@ -127,7 +127,7 @@ export class BaseSummaryV2Widget extends Widget {
         let accountSustainabilityScoreAverage = this.accountAverages["score_average"];
 
         let chartWrapper = document.createElement("div");
-        chartWrapper.className = "col-md-12";
+        chartWrapper.className = "col-md-6";
         row.append(chartWrapper);
 
         let chartCard = document.createElement("div");
