@@ -18,7 +18,7 @@ class ViewLogs:
     def __init__(self, db):
         self._db = db
 
-    def insert_view_logs(self, owner_account_id, viewer_account_id, viewer_account_display_name, data_type_id, viewer_user_id=None, 
+    def insert_view_logs(self, owner_account_id, viewer_account_id, data_type_id, viewer_user_id=None, 
                          eid=None, sustainability_response_id=None):
         """
         Inserts a new view_log record
@@ -29,15 +29,14 @@ class ViewLogs:
         
         self._db.execute(
             """
-                INSERT INTO view_logs (owner_account_id, viewer_account_id, viewer_account_display_name, viewer_user_id, data_type_id, 
+                INSERT INTO view_logs (owner_account_id, viewer_account_id, viewer_user_id, data_type_id, 
                 eid, sustainability_response_id)
-                VALUES (%(owner_account_id)s, %(viewer_account_id)s, %(viewer_account_display_name)s, %(viewer_user_id)s, %(data_type_id)s, 
+                VALUES (%(owner_account_id)s, %(viewer_account_id)s, %(viewer_user_id)s, %(data_type_id)s, 
                 %(eid)s, %(sustainability_response_id)s)
             """,
             {
                 "owner_account_id": owner_account_id,
                 "viewer_account_id": viewer_account_id,
-                "viewer_account_display_name": viewer_account_display_name,
                 "viewer_user_id": viewer_user_id,
                 "data_type_id": data_type_id,
                 "eid": eid,

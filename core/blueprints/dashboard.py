@@ -117,7 +117,7 @@ def serve_animal_eid(animal_eid):
         )[0]["account_links.account"]
         if owner_account_id != g.account.id():
             ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
-                                            viewer_account_display_name=g.account.company(), viewer_user_id=g.user.id(),
+                                            viewer_user_id=g.user.id(),
                                             data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
 
         return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
@@ -588,4 +588,5 @@ def serve_views():
     view_logs = ViewLogs(g.db).get_view_logs(owner_account_id=g.account.id(), get_related_details=True)
 
     return dashboard_render("privacy/view-logs.html",
-                            {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME})
+                            {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
+                             "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})

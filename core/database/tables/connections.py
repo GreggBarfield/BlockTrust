@@ -74,8 +74,8 @@ class Connections:
                 "to_account_id": to_account_id
             }
         )
-
-    def create_connection(self, from_account_id, to_account_id, status):
+    
+    def create_connection_or_fail(self, from_account_id, to_account_id, status):
         """
         Params:
             from_account_id: Account ID of user
@@ -95,6 +95,14 @@ class Connections:
             raise ConnectionException(to_account_name + " is already connected!")
         if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
             raise ConnectionException("Connection Invite already sent to " + to_account_name)
+        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name)
+
+    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name):
+        """
+        Returns:
+            None
+        """
+
         self._db.execute(
             """
                 INSERT INTO  connections
