@@ -85,21 +85,17 @@ export class SubscribeWidget extends Widget {
         termsAndConditionsLabel.className = "row m-1";
         termsAndConditionsLabel.textContent = "Please read these documents and check the box saying you understand and agree with the terms and conditions within: ";
         termsAndConditionsFormGroup.append(termsAndConditionsLabel);
-        
-        let btnEULALink = this.generateLinkElement("BlockTrust Network EULA", "/dashboard/files/BTN_EULA.pdf");
-        let btnPrivacyLink = this.generateLinkElement("BlockTrust Network Privacy", "/dashboard/files/BTN_PRIVACY.pdf");
-        let btnTermsOfServiceLink = this.generateLinkElement("BlockTrust Network Terms of Service", "/dashboard/files/BTN_TERMS_OF_SERVICE.pdf");
 
         let documentsList = document.createElement("ul");
         let firstDocument = document.createElement("li");
-        let secondDocument = document.createElement("li");
-        let thirdDocument = document.createElement("li");
+        firstDocument.appendChild(this.generateLinkElement("BlockTrust Network EULA", "/dashboard/files/BTN_EULA.pdf"));
         documentsList.append(firstDocument);
+        let secondDocument = document.createElement("li");
+        secondDocument.appendChild(this.generateLinkElement("BlockTrust Network Privacy", "/dashboard/files/BTN_PRIVACY.pdf"));
         documentsList.append(secondDocument);
+        let thirdDocument = document.createElement("li");
+        thirdDocument.appendChild(this.generateLinkElement("BlockTrust Network Terms of Service", "/dashboard/files/BTN_TERMS_OF_SERVICE.pdf"));
         documentsList.append(thirdDocument);
-        firstDocument.appendChild(btnEULALink);
-        secondDocument.appendChild(btnPrivacyLink);
-        thirdDocument.appendChild(btnTermsOfServiceLink);
         termsAndConditionsFormGroup.append(documentsList);
 
         let termsAndConditionsCheckboxGroup = document.createElement("div");
