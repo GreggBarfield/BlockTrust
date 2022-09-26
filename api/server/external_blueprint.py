@@ -76,7 +76,7 @@ def serve_get_animal_data():
             if Connections(g.db).get_connection_between(account_id, requesting_account["id"], connection_status["Connected"]) is None:
                 # create a new pending connection
                 try:
-                    Connections(g.db).create_connection(
+                    Connections(g.db).create_connection_or_fail(
                         from_account_id=requesting_account["id"],
                         to_account_id=account_id,
                         status=connection_status["Pending"]

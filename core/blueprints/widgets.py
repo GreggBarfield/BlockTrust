@@ -622,7 +622,7 @@ def serve_add_connection_request():
     try:
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
-            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            Connections(g.db).create_connection_or_fail(g.account.id(), invited_account, connection_status["Pending"])
             if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
                 if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
                     send_email(
