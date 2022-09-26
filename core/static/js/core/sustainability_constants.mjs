@@ -2013,6 +2013,8 @@ const getSectionalScores = (questionnaireData) => {
     return result;
 }
 
+const resourcesLink = "https://learning.usrsb.org/";
+
 export {
     sections,
     scoringCriteria,
@@ -2022,5 +2024,6 @@ export {
     feedlotQuestionnaireData,
     packerQuestionnaireData,
     stockerBackGrounderQuestionnaireData,
-    calculateSustainabilityQuestionnaireMaxScores
+    calculateSustainabilityQuestionnaireMaxScores,
+    resourcesLink
 };

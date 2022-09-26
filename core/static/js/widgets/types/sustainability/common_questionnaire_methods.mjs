@@ -1,4 +1,5 @@
 import { FileUploader } from "../../../files/file_uploader.mjs";
+import { resourcesLink } from "../../../core/sustainability_constants.mjs";
 
 export class CommonQuestionnaireMethods{
     /**
@@ -135,13 +136,25 @@ export class CommonQuestionnaireMethods{
         section.className = "card col-xl-10 border border-dark";
 
         let sectionHeader = document.createElement("div");
-        sectionHeader.className = "card-header border-bottom border-dark";
+        sectionHeader.className = "card-header border-bottom border-dark d-flex";
         section.append(sectionHeader);
 
         let sectionHeaderText = document.createElement("div");
-        sectionHeaderText.className = "h6 text-bold";
+        sectionHeaderText.className = "h6 text-bold col-xl-6";
         sectionHeaderText.textContent = questionsSectionHeaderText;
+
+        let resourcesLinkContainer = document.createElement("div");
+        resourcesLinkContainer.className = "col-xl-6";
+        
+        let link = document.createElement("a");
+        link.className = "float-right";
+        link.textContent = "Resources";
+        link.href = resourcesLink;
+        link.target = "_blank";
+        resourcesLinkContainer.append(link);
+
         sectionHeader.append(sectionHeaderText);
+        sectionHeader.append(resourcesLinkContainer);
         
         return section;
     }
