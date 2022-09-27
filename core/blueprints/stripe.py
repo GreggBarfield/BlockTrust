@@ -1,13 +1,13 @@
 from flask import (
-    Flask, Blueprint, request, g, session, redirect, url_for
+    Blueprint, request, g, session, redirect, url_for
 )
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 import stripe
 import json
-from ..database.tables.accounts import Accounts,AccountsException
+import traceback
+from ..database.tables.accounts import Accounts
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
-from ..database.objects.account import AccountException
 from ..common_exceptions import ExportException
 from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
 
@@ -52,19 +52,21 @@ def serve_stripe_price(priceLookupKey):
         return {'error':{'message': str(e)}}, 400
 
 
-#events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
+# events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
 @bp.route('/stripe/subscription', methods=['POST'])
 def serve_stripe_subscription():
-    payload = request.data
     endpoint_secret = SUBSCRIPTION_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
-
-    DebugLogs(g.db).insert_debug_log("Stripe", "Subscription web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
-                                     json.dumps(json.loads(request.data)))
+    payload = json.loads(request.data)
+    DebugLogs(g.db).insert_debug_log(
+        component="Stripe Webhooks", short_info=f"Event: {payload['type']}",
+        long_info=f"Function: {serve_stripe_subscription.__name__}, Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
+        details=payload
+    )
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
+            request.data, sig_header, endpoint_secret
         )
     except ValueError as e:
         # Invalid payload
@@ -99,7 +101,7 @@ def serve_stripe_subscription():
             raise ExportException('This event type ' + event.type + ' is not supported.')
     except Exception as e:
         print("Event:", event)
-        ErrorLogs(g.db).insert_error_log("Stripe.bp", f"No account with stripe customer id: {customer_id}. Event: {event.type}")
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"No account for customer id: {customer_id}. Event: {event.type}", traceback.format_exc())
         return {'status': 'No customer found with the stripe customer id: ' + customer_id}
 
     return {'status': 'Success'}
