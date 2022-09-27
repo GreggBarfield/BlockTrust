@@ -100,7 +100,6 @@ def serve_stripe_subscription():
         else:
             raise ExportException('This event type ' + event.type + ' is not supported.')
     except Exception as e:
-        print("Event:", event)
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"No account for customer id: {customer_id}. Event: {event.type}", traceback.format_exc())
         return {'status': 'No customer found with the stripe customer id: ' + customer_id}
 
