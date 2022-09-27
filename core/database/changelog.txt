@@ -1680,5 +1680,14 @@ ADD COLUMN `sustainability_response_id` INT NULL AFTER `eid`;
 ALTER TABLE `view_logs` 
 DROP COLUMN `viewer_account_display_name`;
 
+/* Rohan Sureshkumar 9/20/22 */
+DELETE FROM REPORTS WHERE query LIKE "%count_distribution_account_and_sector%";
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution_for_sector_at_account", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+FROM accounts WHERE sector = 6;
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution_for_sector_at_account", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+FROM accounts WHERE sector = 7;
+
 /* Rohan Sureshkuar 9/26/2022 */
 DROP TABLE sustainability
