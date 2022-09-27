@@ -166,6 +166,8 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
+        owner_account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=sales_group_row["account"])
+        owner_account_sustainability_score_average = float(owner_account_sustainability_averages["score_average"]) if owner_account_sustainability_averages["score_average"] else 0
         results.append({
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
@@ -199,7 +201,8 @@ def serve_search_sales_groups_2():
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
-            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
+            "owner_account_sustainability_score_average": owner_account_sustainability_score_average
         })
 
     return {
@@ -428,17 +431,6 @@ def serve_save_eids_for_sales_group():
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
-# Deprecated
-# @bp.route('/widgets/data/save_sustainability', methods=['POST'])
-# @crut.require_account
-# def serve_save_sustainability():
-#     g.db.sustainability.insert(
-#         g.account.id(),
-#         request.json["response"],
-#         request.json["sectorScoreCounter"]
-#     )
-#     return { "redirect": "/dashboard/sustainability"}
-
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
 @crut.require_account
@@ -630,7 +622,7 @@ def serve_add_connection_request():
     try:
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
-            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            Connections(g.db).create_connection_or_fail(g.account.id(), invited_account, connection_status["Pending"])
             if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
                 if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
                     send_email(
