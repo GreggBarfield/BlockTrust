@@ -94,8 +94,8 @@ def serve_account_id(account_id):
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", account_params)
-    elif account.sector_name() == "Feedlot":
-        return dashboard_render("sectors/feedlot.html", account_params)
+    elif account.sector_name() == "Feedlot" or account.sector_name() == "Packer":
+        return dashboard_render("sectors/feedlot-packer.html", account_params)
     elif account.sector_name() == "Buyer":
         return dashboard_render("sectors/buyer.html", account_params)
     else:
