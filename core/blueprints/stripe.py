@@ -73,41 +73,36 @@ def serve_stripe_subscription():
         # Invalid signature
         raise ExportException(str(e))
 
-    if event.type == 'customer.subscription.created':
-        if event.data.object.status == 'active':
-            account = get_account_of_stripe_customer(event)
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=1
-            )
-    elif event.type == 'customer.subscription.deleted':
-        account = get_account_of_stripe_customer(event)
-        g.db.accounts.update_account(
-            account.id(),
-            stripe_paid=0
-        )
-    elif event.type == 'customer.subscription.updated':
-        account = get_account_of_stripe_customer(event)
-        if event.data.object.status == 'past_due':
+    try:
+        customer_id = event.data.object.customer
+        if event.type == 'customer.subscription.created':
+            if event.data.object.status == 'active':
+                account = g.db.accounts.get_by_stripe_customer_id(customer_id)
+                g.db.accounts.update_account(
+                    account.id(),
+                    stripe_paid=1
+                )
+        elif event.type == 'customer.subscription.deleted':
+            account = g.db.accounts.get_by_stripe_customer_id(customer_id)
             g.db.accounts.update_account(
                 account.id(),
                 stripe_paid=0
             )
-    else:
-        raise ExportException('This event type ' + event.type + ' is not supported.')
-
-    return {'status': 'Success'}
-
-
-def get_account_of_stripe_customer(event):
-    # read the stripe customer id and get the account
-    customer_id = event.data.object.customer
-    try:
-        return g.db.accounts.get_by_stripe_customer_id(customer_id)
-    except AccountsException:
+        elif event.type == 'customer.subscription.updated':
+            account = g.db.accounts.get_by_stripe_customer_id(customer_id)
+            if event.data.object.status == 'past_due':
+                g.db.accounts.update_account(
+                    account.id(),
+                    stripe_paid=0
+                )
+        else:
+            raise ExportException('This event type ' + event.type + ' is not supported.')
+    except Exception as e:
         print("Event:", event)
         ErrorLogs(g.db).insert_error_log("Stripe.bp", f"No account with stripe customer id: {customer_id}. Event: {event.type}")
-        return 'No customer found with the stripe customer id: ' + customer_id
+        return {'status': 'No customer found with the stripe customer id: ' + customer_id}
+
+    return {'status': 'Success'}
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])
