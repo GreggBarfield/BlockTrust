@@ -1,5 +1,5 @@
 from core.database.tables.accounts import NO_VALUE
-from .connections import Connections, connection_status
+from .connections import Connections, connection_status, connection_type
 
 
 class ConnectionInvites:
@@ -59,7 +59,8 @@ class ConnectionInvites:
                 Connections(self._db).create_connection_or_fail(
                     from_account_id=invite["from_account"],
                     to_account_id=account.id(),
-                    status=connection_status["Connected"]
+                    status=connection_status["Connected"],
+                    connection_type=connection_type["Created"]
                 )
 
     def get_connection_invites(self, from_account=NO_VALUE, to_account=NO_VALUE, company_sector=NO_VALUE,

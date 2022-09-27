@@ -1682,3 +1682,7 @@ DROP COLUMN `viewer_account_display_name`;
 
 /* Rohan Sureshkuar 9/26/2022 */
 DROP TABLE sustainability
+
+/* Nisheet Thakur 09/26/2022 */
+ALTER TABLE `connections`
+ADD COLUMN `connection_type` INT DEFAULT 1;

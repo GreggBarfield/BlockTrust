@@ -3,12 +3,16 @@ from .. import database
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
-auction_market_cols = ("id", "name", "address", "city", "state", "zip_code", "email", "phone", "is_archived")
 
 connection_status = {
     "Pending": 0,
     "Connected": 1,
-    "Declined": 2
+    "Blocked": 2
+}
+
+connection_type = {
+    "Created": 1,
+    "Acquired": 2
 }
 
 
@@ -75,7 +79,7 @@ class Connections:
             }
         )
     
-    def create_connection_or_fail(self, from_account_id, to_account_id, status):
+    def create_connection_or_fail(self, from_account_id, to_account_id, status, connection_type):
         """
         Params:
             from_account_id: Account ID of user
@@ -95,9 +99,9 @@ class Connections:
             raise ConnectionException(to_account_name + " is already connected!")
         if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
             raise ConnectionException("Connection Invite already sent to " + to_account_name)
-        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name)
+        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type)
 
-    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name):
+    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type):
         """
         Returns:
             None
@@ -106,16 +110,17 @@ class Connections:
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, from_account_name, to_account_id, to_account_name, status)
+                    (from_account_id, from_account_name, to_account_id, to_account_name, status, connection_type)
                     VALUES
-                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s)
+                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type)s)
             """,
             {
                 "from_account_id": from_account_id,
                 "from_account_name": from_account_name,
                 "to_account_id": to_account_id,
                 "to_account_name": to_account_name,
-                "status": status
+                "status": status,
+                "connection_type": connection_type
             }
         )
 
@@ -173,7 +178,7 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
-                        to_account_name=NO_VALUE, status=NO_VALUE):
+                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -211,6 +216,9 @@ class Connections:
         if status is not NO_VALUE:
             query_conditions.append(" status = %(status)s")
             query_values["status"] = status
+        if connection_type is not NO_VALUE:
+            query_conditions.append(" connection_type = %(connection_type)s")
+            query_values["connection_type"] = connection_type
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
