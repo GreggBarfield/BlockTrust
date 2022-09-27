@@ -100,12 +100,14 @@ def serve_stripe_subscription():
 
 
 def get_account_of_stripe_customer(event):
-    #read the stripe customer id and get the account
-    customer_id = event.data.object.customer      
+    # read the stripe customer id and get the account
+    customer_id = event.data.object.customer
     try:
         return g.db.accounts.get_by_stripe_customer_id(customer_id)
     except AccountsException:
-        raise ExportException('No customer found with the stripe customer id: ' + customer_id)
+        print("Event:", event)
+        ErrorLogs(g.db).insert_error_log("Stripe.bp", f"No account with stripe customer id: {customer_id}. Event: {event.type}")
+        return 'No customer found with the stripe customer id: ' + customer_id
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])
