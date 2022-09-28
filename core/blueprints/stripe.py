@@ -59,7 +59,7 @@ def serve_stripe_subscription():
     sig_header = request.headers.get('stripe-signature')
     payload = json.loads(request.data)
     DebugLogs(g.db).insert_debug_log(
-        component="Stripe Webhooks", short_info=f"Event: {payload['type']}",
+        component="Stripe Webhooks", short_info=f"Event: {payload['type']}, stripe customer id: {payload['data']['object']['customer']}",
         long_info=f"Function: {serve_stripe_subscription.__name__}, Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
         details=payload
     )
@@ -68,14 +68,7 @@ def serve_stripe_subscription():
         event = stripe.Webhook.construct_event(
             request.data, sig_header, endpoint_secret
         )
-    except ValueError as e:
-        # Invalid payload
-        raise ExportException(str(e))
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
-        raise ExportException(str(e))
 
-    try:
         customer_id = event.data.object.customer
         if event.type == 'customer.subscription.created':
             if event.data.object.status == 'active':
@@ -99,6 +92,14 @@ def serve_stripe_subscription():
                 )
         else:
             raise ExportException('This event type ' + event.type + ' is not supported.')
+    except ValueError as e:
+        # Invalid payload
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", "Invalid payload", traceback.format_exc())
+        raise ExportException(str(e))
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", "Invalid signature", traceback.format_exc())
+        raise ExportException(str(e))
     except Exception as e:
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"No account for customer id: {customer_id}. Event: {event.type}", traceback.format_exc())
         return {'status': 'No customer found with the stripe customer id: ' + customer_id}
