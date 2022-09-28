@@ -89,7 +89,7 @@ def serve_stripe_subscription():
     elif event.type == 'customer.subscription.updated':
         if event.data.object.status == 'past_due':
             if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1)
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
             else:
                 error = f"No account for customer id: {customer_id}. Event: {event.type}"
     else:
