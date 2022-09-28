@@ -96,7 +96,7 @@ def serve_stripe_subscription():
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
     if error:
-        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error, long_error=traceback.format_exc())
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error)
         return {'status': error}
 
     return {'status': 'Success'}
