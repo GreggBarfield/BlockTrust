@@ -2,7 +2,7 @@ from flask import (
     request, Blueprint, g
 )
 from core.database.database import Database
-from core.database.tables.connections import Connections, ConnectionException, connection_status, connection_type
+from core.database.tables.connections import Connections, ConnectionException, connection_status, connection_type_name_to_id
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sustainability_responses import SustainabilityResponses
@@ -80,7 +80,7 @@ def serve_get_animal_data():
                         from_account_id=requesting_account["id"],
                         to_account_id=account_id,
                         status=connection_status["Pending"],
-                        connection_type=connection_type["Acquired"]
+                        connection_type_id=connection_type_name_to_id["Created"]
                     )
                 except ConnectionException as e:
                     pass

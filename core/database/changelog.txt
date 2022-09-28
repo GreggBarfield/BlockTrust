@@ -1694,4 +1694,4 @@ DROP TABLE sustainability
 
 /* Nisheet Thakur 09/26/2022 */
 ALTER TABLE `connections`
-ADD COLUMN `connection_type` INT DEFAULT 1;
+ADD COLUMN `connection_type_id` INT DEFAULT 1;

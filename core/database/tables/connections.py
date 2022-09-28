@@ -10,7 +10,7 @@ connection_status = {
     "Blocked": 2
 }
 
-connection_type = {
+connection_type_name_to_id = {
     "Created": 1,
     "Acquired": 2
 }
@@ -79,7 +79,7 @@ class Connections:
             }
         )
     
-    def create_connection_or_fail(self, from_account_id, to_account_id, status, connection_type):
+    def create_connection_or_fail(self, from_account_id, to_account_id, status, connection_type_id):
         """
         Params:
             from_account_id: Account ID of user
@@ -95,13 +95,17 @@ class Connections:
         second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
         from_account_name = first_account.name()
         to_account_name = second_account.name()
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
-            raise ConnectionException(to_account_name + " is already connected!")
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
-            raise ConnectionException("Connection Invite already sent to " + to_account_name)
-        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type)
+        existing_connection = self.get_connection_between(from_account_id, to_account_id)
+        if existing_connection is not None:
+            if existing_connection["status"] == connection_status["Connected"]:
+                raise ConnectionException(to_account_name + " is already connected!")
+            if existing_connection["status"] == connection_status["Pending"]:
+                raise ConnectionException("Connection Invite already sent to " + to_account_name)
+            if existing_connection["status"] == connection_status["Blocked"]:
+                raise ConnectionException("Cannot send Connection Invite")
+        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id)
 
-    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type):
+    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id):
         """
         Returns:
             None
@@ -110,9 +114,9 @@ class Connections:
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, from_account_name, to_account_id, to_account_name, status, connection_type)
+                    (from_account_id, from_account_name, to_account_id, to_account_name, status, connection_type_id)
                     VALUES
-                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type)s)
+                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type_id)s)
             """,
             {
                 "from_account_id": from_account_id,
@@ -120,11 +124,11 @@ class Connections:
                 "to_account_id": to_account_id,
                 "to_account_name": to_account_name,
                 "status": status,
-                "connection_type": connection_type
+                "connection_type_id": connection_type_id
             }
         )
 
-    def get_connection_between(self, from_account_id, to_account_id, status):
+    def get_connection_between(self, from_account_id, to_account_id, status=NO_VALUE):
         """
         Checks the connection status between two accounts
 
@@ -135,20 +139,19 @@ class Connections:
         Returns:
         Connection object or None
         """
-
-        connection = self._db.execute_d(
-            """
+        query = """
             SELECT * FROM connections
             WHERE ((from_account_id= %(from_account_id)s AND to_account_id=%(to_account_id)s) OR
             (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
-            AND status = %(status)s
-            """,
-            {
-                "from_account_id": from_account_id,
-                "to_account_id": to_account_id,
-                "status": status
-            }
-        )
+            """
+        query_values = {
+            "from_account_id": from_account_id,
+            "to_account_id": to_account_id
+        }
+        if status is not NO_VALUE:
+            query += " AND status = %(status)s"
+            query_values["status"] = status
+        connection = self._db.execute_d(query, query_values)
         if len(connection) == 1:
             return connection[0]
         return None
@@ -178,7 +181,7 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
-                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type=NO_VALUE):
+                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -189,6 +192,7 @@ class Connections:
             from_account_name: Account name of first account
             to_account_name: Account name of second account
             status: Connection status between accounts
+            connection_type_id: Type of connection established
 
         Returns:
             A list of connections or and empty list
@@ -216,9 +220,9 @@ class Connections:
         if status is not NO_VALUE:
             query_conditions.append(" status = %(status)s")
             query_values["status"] = status
-        if connection_type is not NO_VALUE:
-            query_conditions.append(" connection_type = %(connection_type)s")
-            query_values["connection_type"] = connection_type
+        if connection_type_id is not NO_VALUE:
+            query_conditions.append(" connection_type_id = %(connection_type_id)s")
+            query_values["connection_type_id"] = connection_type_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
