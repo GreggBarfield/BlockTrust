@@ -1685,6 +1685,6 @@ DROP TABLE sustainability
 
 /* Rohan Sureshkumar 9/28/2022 */
 ALTER TABLE `error_logs` 
-CHANGE COLUMN `short_error` `short_error` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+CHANGE COLUMN `short_error` `short_error` VARCHAR(150) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
 ALTER TABLE `debug_logs` 
-CHANGE COLUMN `short_info` `short_info` VARCHAR(125) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+CHANGE COLUMN `short_info` `short_info` VARCHAR(150) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
