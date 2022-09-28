@@ -5,7 +5,7 @@ from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 import stripe
 import json
 import traceback
-from ..database.tables.accounts import Accounts
+from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
 from ..common_exceptions import ExportException
@@ -72,31 +72,22 @@ def serve_stripe_subscription():
         customer_id = event.data.object.customer
         if event.type == 'customer.subscription.created':
             if event.data.object.status == 'active':
-                account = g.db.accounts.get_by_stripe_customer_id(customer_id)
-                g.db.accounts.update_account(
-                    account.id(),
-                    stripe_paid=1
-                )
+                account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
+                g.db.accounts.update_account(account.id(), stripe_paid=1)
         elif event.type == 'customer.subscription.deleted':
-            account = g.db.accounts.get_by_stripe_customer_id(customer_id)
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=0
-            )
+            account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
+            g.db.accounts.update_account(account.id(), stripe_paid=0)
         elif event.type == 'customer.subscription.updated':
-            account = g.db.accounts.get_by_stripe_customer_id(customer_id)
+            account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
             if event.data.object.status == 'past_due':
-                g.db.accounts.update_account(
-                    account.id(),
-                    stripe_paid=0
-                )
+                g.db.accounts.update_account(account.id(), stripe_paid=0)
         else:
             raise ExportException('This event type ' + event.type + ' is not supported.')
     except (ValueError, stripe.error.SignatureVerificationError)  as e:
         # Invalid payload or invalid signature
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
-    except Exception as e:
+    except AccountsException as e:
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"No account for customer id: {customer_id}. Event: {event.type}", traceback.format_exc())
         return {'status': 'No customer found with the stripe customer id: ' + customer_id}
 

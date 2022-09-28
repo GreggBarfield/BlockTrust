@@ -119,7 +119,7 @@ class Accounts:
         ]
     
     
-    def get_by_stripe_customer_id(self, stripe_customer_id):
+    def get_by_stripe_customer_id_or_fail(self, stripe_customer_id):
         """Gets an account by an ID.
 
         Params:
@@ -140,7 +140,7 @@ class Accounts:
             }
         )
         if len(account_rows) != 1:
-            raise AccountsException("No account found with that Stripe Customer ID.")
+            raise AccountsException("Unique account not found for Stripe Customer ID.")
         return Account(self._db, account_rows[0])
    
     def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
