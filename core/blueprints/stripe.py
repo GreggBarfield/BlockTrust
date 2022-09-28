@@ -68,28 +68,36 @@ def serve_stripe_subscription():
         event = stripe.Webhook.construct_event(
             request.data, sig_header, endpoint_secret
         )
-
-        customer_id = event.data.object.customer
-        if event.type == 'customer.subscription.created':
-            if event.data.object.status == 'active':
-                account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
-                g.db.accounts.update_account(account.id(), stripe_paid=1)
-        elif event.type == 'customer.subscription.deleted':
-            account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
-            g.db.accounts.update_account(account.id(), stripe_paid=0)
-        elif event.type == 'customer.subscription.updated':
-            account = g.db.accounts.get_by_stripe_customer_id_or_fail(customer_id)
-            if event.data.object.status == 'past_due':
-                g.db.accounts.update_account(account.id(), stripe_paid=0)
-        else:
-            raise ExportException('This event type ' + event.type + ' is not supported.')
     except (ValueError, stripe.error.SignatureVerificationError)  as e:
         # Invalid payload or invalid signature
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
-    except AccountsException as e:
-        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"No account for customer id: {customer_id}. Event: {event.type}", traceback.format_exc())
-        return {'status': 'No customer found with the stripe customer id: ' + customer_id}
+
+    customer_id = event.data.object.customer
+    error = ""
+    if event.type == 'customer.subscription.created':
+        if event.data.object.status == 'active':
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1)
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
+    elif event.type == 'customer.subscription.deleted':
+        if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
+        else:
+            error = f"No account for customer id: {customer_id}. Event: {event.type}"
+    elif event.type == 'customer.subscription.updated':
+        if event.data.object.status == 'past_due':
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1)
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
+    else:
+        raise ExportException('This event type ' + event.type + ' is not supported.')
+
+    if error:
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error, long_error=traceback.format_exc())
+        return {'status': error}
 
     return {'status': 'Success'}
 
