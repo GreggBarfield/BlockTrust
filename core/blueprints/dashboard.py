@@ -451,7 +451,7 @@ def serve_decline_invite():
     Connections(g.db).update_connection(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status["Declined"]
+        status=connection_status["Blocked"]
     )
     return {}
 
