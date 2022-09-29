@@ -45,7 +45,7 @@ class Connections:
         connections = self._db.execute_d(
             """
             SELECT * FROM connections
-            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
+            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND connection_status_id= %(status)s
             """,
             {
                 "account_id": account_id,
@@ -68,7 +68,7 @@ class Connections:
         self._db.execute(
             """
             UPDATE connections
-            SET status=%(status)s
+            SET connection_status_id=%(status)s
             WHERE ((from_account_id=%(from_account_id)s AND to_account_id=%(to_account_id)s) OR
                 (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
             """,
@@ -97,11 +97,11 @@ class Connections:
         to_account_name = second_account.name()
         existing_connection = self.get_connection_between(from_account_id, to_account_id)
         if existing_connection is not None:
-            if existing_connection["status"] == connection_status_name_to_id["Connected"]:
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Connected"]:
                 raise ConnectionException(to_account_name + " is already connected!")
-            if existing_connection["status"] == connection_status_name_to_id["Pending"]:
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Pending"]:
                 raise ConnectionException("Connection Invite already sent to " + to_account_name)
-            if existing_connection["status"] == connection_status_name_to_id["Blocked"]:
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Blocked"]:
                 raise ConnectionException("Cannot send Connection Invite")
         self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id)
 
@@ -114,7 +114,7 @@ class Connections:
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, from_account_name, to_account_id, to_account_name, status, connection_type_id)
+                    (from_account_id, from_account_name, to_account_id, to_account_name, connection_status_id, connection_type_id)
                     VALUES
                         (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type_id)s)
             """,
@@ -149,7 +149,7 @@ class Connections:
             "to_account_id": to_account_id
         }
         if status is not NO_VALUE:
-            query += " AND status = %(status)s"
+            query += " AND connection_status_id = %(status)s"
             query_values["status"] = status
         connection = self._db.execute_d(query, query_values)
         if len(connection) == 1:
@@ -218,7 +218,7 @@ class Connections:
             query_conditions.append(" to_account_name = %(to_account_name)s")
             query_values["to_account_name"] = to_account_name
         if status is not NO_VALUE:
-            query_conditions.append(" status = %(status)s")
+            query_conditions.append(" connection_status_id = %(status)s")
             query_values["status"] = status
         if connection_type_id is not NO_VALUE:
             query_conditions.append(" connection_type_id = %(connection_type_id)s")
