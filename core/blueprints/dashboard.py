@@ -13,7 +13,7 @@ from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.connections import connection_status
+from ..database.tables.connections import connection_status_name_to_id
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -83,7 +83,7 @@ def serve_account_id(account_id):
     unread_notifications_count = len(unread_notifications_list)
 
     pending_connection_requests_count = 0
-    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"]))
+    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"]))
 
     account_params = {
         "account": account,
@@ -423,8 +423,8 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
-    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"])
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status_name_to_id["Connected"])
+    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"])
     return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
 
 
@@ -440,7 +440,7 @@ def serve_accept_invite():
     Connections(g.db).update_connection(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status["Connected"]
+        status=connection_status_name_to_id["Connected"]
     )
     return {}
 
@@ -451,7 +451,7 @@ def serve_decline_invite():
     Connections(g.db).update_connection(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status["Declined"]
+        status=connection_status_name_to_id["Blocked"]
     )
     return {}
 
@@ -460,7 +460,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(account_id):
     account_details = g.db.accounts.get_account_by_id(account_id)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status["Connected"]) is not None:
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status_name_to_id["Connected"]) is not None:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")
