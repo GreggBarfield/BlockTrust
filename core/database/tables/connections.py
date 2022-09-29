@@ -4,7 +4,7 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-connection_status = {
+connection_status_name_to_id = {
     "Pending": 0,
     "Connected": 1,
     "Blocked": 2
@@ -97,11 +97,11 @@ class Connections:
         to_account_name = second_account.name()
         existing_connection = self.get_connection_between(from_account_id, to_account_id)
         if existing_connection is not None:
-            if existing_connection["status"] == connection_status["Connected"]:
+            if existing_connection["status"] == connection_status_name_to_id["Connected"]:
                 raise ConnectionException(to_account_name + " is already connected!")
-            if existing_connection["status"] == connection_status["Pending"]:
+            if existing_connection["status"] == connection_status_name_to_id["Pending"]:
                 raise ConnectionException("Connection Invite already sent to " + to_account_name)
-            if existing_connection["status"] == connection_status["Blocked"]:
+            if existing_connection["status"] == connection_status_name_to_id["Blocked"]:
                 raise ConnectionException("Cannot send Connection Invite")
         self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id)
 
