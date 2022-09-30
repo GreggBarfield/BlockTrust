@@ -56,7 +56,7 @@ class ConnectionInvites:
         invites = self.get_connection_invites(company_email=email)
         if len(invites) >= 1:
             for invite in invites:
-                Connections(self._db).create_connection_or_fail(
+                Connections(self._db).create_or_fail_connection(
                     from_account_id=invite["from_account"],
                     to_account_id=account.id(),
                     status=connection_status_name_to_id["Connected"],
