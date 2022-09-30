@@ -34,6 +34,7 @@ import { StockerBackgrounderQuestionnaireV2Widget } from "./types/sustainability
 import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_questionnaire_v2_widget.mjs"
 import { SustainabilityTimelineV2Widget } from "./types/sustainability/sustainability_timeline_v2_widget.mjs"
 import { SustainabilitySummaryWidget } from './types/sustainability/sustainability_summary.mjs';
+import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs'
 
 
 // Immediately invoked
@@ -84,6 +85,7 @@ import { SustainabilitySummaryWidget } from './types/sustainability/sustainabili
     attach("packer questionnaire v2", PackerQuestionnaireV2Widget);
     attach("sustainability timeline v2", SustainabilityTimelineV2Widget);
     attach("sustainability summary", SustainabilitySummaryWidget)
+    attach("epd table", EPDTableWidget)
 
     // Find widgets
     $(".widget").each(function () {

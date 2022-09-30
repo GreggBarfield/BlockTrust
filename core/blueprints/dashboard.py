@@ -107,7 +107,8 @@ def serve_account_id(account_id):
 @crut.require_user
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
-
+    return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
+    """
     if len(animal.matches) > 0 and any((row["account_links.account"] == g.account.id() for row in animal.matches)):
 
         # first ranch is owner
@@ -123,7 +124,7 @@ def serve_animal_eid(animal_eid):
         return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
     else:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
-
+"""
 @bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
 @crut.require_user
 def serve_animal_cert(animal_eid):
