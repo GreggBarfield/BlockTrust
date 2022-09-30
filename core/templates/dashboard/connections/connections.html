@@ -84,14 +84,22 @@
                         <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
                         <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
-                        <td><button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" value="{{connection.to_account_id}}">Remove Connection</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="block(this)" value="{{connection.id}}">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
                     </tr>
                     {% else %}
                     <tr>
                         <td>{{connection.from_account_id}}</td>
                         <td>{{connection.from_account_name}}</td>
                         <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}><i class="feather icon-user"></i>View Profile</button></td>
-                        <td><button class="btn btn-sm btn-danger float-right" style="width:150px" value="{{connection.from_account_id}}">Remove Connection</button></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="block(this)" value="{{connection.id}}">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
                     </tr>
                     {% endif %}
             {% endfor %}
@@ -111,6 +119,29 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for blocked_connection in blocked_connections %}
+                        {% if blocked_connection.from_account_id == dashboard_standard_account.id() %}
+                        <tr>
+                            <td>{{blocked_connection.to_account_id}}</td>
+                            <td>{{blocked_connection.to_account_name}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock(this)" value="{{blocked_connection.id}}">
+                                    <i class="feather icon-x"></i>Unblock
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td>{{blocked_connection.from_account_id}}</td>
+                            <td>{{blocked_connection.from_account_name}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock(this)" value="{{blocked_connection.id}}">
+                                    <i class="feather icon-x"></i>Unblock
+                                </button>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -139,6 +170,32 @@
         "/dashboard/decline-invite",{
         method: "POST",
         body: JSON.stringify({"account_id": current.value}),
+        headers: {"Content-type": "application/json; charset=UTF-8"}
+        })
+        .then(function(response){
+        if(response.status == 200){
+            location.reload();
+        }
+        });
+    }
+    function block(current){
+        fetch(
+        "/dashboard/block-connection",{
+        method: "POST",
+        body: JSON.stringify({"connection_id": current.value}),
+        headers: {"Content-type": "application/json; charset=UTF-8"}
+        })
+        .then(function(response){
+        if(response.status == 200){
+            location.reload();
+        }
+        });
+    }
+    function unblock(current){
+        fetch(
+        "/dashboard/unblock-connection",{
+        method: "POST",
+        body: JSON.stringify({"connection_id": current.value}),
         headers: {"Content-type": "application/json; charset=UTF-8"}
         })
         .then(function(response){
