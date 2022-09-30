@@ -54,7 +54,7 @@ class Connections:
         )
         return connections
 
-    def update_connection(self, from_account_id, to_account_id, status):
+    def update_connection_between(self, from_account_id, to_account_id, status):
         """
         Params:
             from_account_id: Account ID of user
