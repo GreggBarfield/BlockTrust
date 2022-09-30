@@ -56,6 +56,7 @@ class Connections:
 
     def update_connection_between(self, from_account_id, to_account_id, status):
         """
+        Updates the connection between two accounts
         Params:
             from_account_id: Account ID of user
             to_account_id:  Second account ID
@@ -236,3 +237,28 @@ class Connections:
             return connection_rows
         else:
             return []
+
+    def update_connection(self, id, connection_status_id=NO_VALUE):
+        """
+        Updates the connection based on the id specified
+
+        Params:
+            id: The ID of the connection to be updated
+            connection_status_id: The status id of the connection
+
+        Returns:
+            Number of rows affected.
+        """
+        base_query = "UPDATE connections "
+
+        query_updated_columns = []
+        query_updated_values = {}
+        query_updated_values["id"] = id
+        if connection_status_id is not NO_VALUE:
+            query_updated_columns.append("connection_status_id = %(connection_status_id)s")
+            query_updated_values["connection_status_id"] = connection_status_id
+        if len(query_updated_columns) >= 1:
+            combined_query_updated_values = " SET " + ", ".join(query_updated_columns) + " WHERE id=%(id)s"
+            query = base_query + combined_query_updated_values
+            self._db.execute(query, query_updated_values)
+        return self._db.row_count()
