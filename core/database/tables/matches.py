@@ -161,7 +161,7 @@ class Matches:
         else:
             return []
 
-    def get_matched_accounts_for_account(self, account_link_id):
+    def get_matched_accounts_for_account_link(self, account_link_id):
         """Gets all the accounts that were matched to account_link_id based on given type
         
         Params:

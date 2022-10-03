@@ -1675,3 +1675,37 @@ ADD CONSTRAINT `fk_view_logs_viewer_user_id_id_users`
 ALTER TABLE `view_logs` 
 ADD COLUMN `eid` BIGINT NULL AFTER `data_type_id`,
 ADD COLUMN `sustainability_response_id` INT NULL AFTER `eid`;
+
+/* Rohan Sureshkumar 9/15/2022 */
+ALTER TABLE `view_logs` 
+DROP COLUMN `viewer_account_display_name`;
+
+/* Rohan Sureshkumar 9/20/22 */
+DELETE FROM REPORTS WHERE query LIKE "%count_distribution_account_and_sector%";
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution_for_sector_at_account", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+FROM accounts WHERE sector = 6;
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution_for_sector_at_account", "params": {"account_id": ',id,', "sector_id": 4}}'),0
+FROM accounts WHERE sector = 7;
+
+/* Rohan Sureshkuar 9/26/2022 */
+DROP TABLE sustainability
+
+/* Nisheet Thakur 09/26/2022 */
+ALTER TABLE `connections`
+ADD COLUMN `connection_type_id` INT DEFAULT 1;
+
+/* Rohan Sureshkumar 9/28/2022 */
+ALTER TABLE `error_logs` 
+CHANGE COLUMN `short_error` `short_error` VARCHAR(150) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+ALTER TABLE `debug_logs` 
+CHANGE COLUMN `short_info` `short_info` VARCHAR(150) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 9/29/2022 */
+ALTER TABLE `connections` 
+CHANGE COLUMN `status` `connection_status_id` INT NULL DEFAULT 0 ;
+
+/* Rohan Sureshkumar 10/3/2022 */
+ALTER TABLE `connections` 
+CHANGE COLUMN `status` `connection_status_id` INT NULL DEFAULT NULL ;

@@ -4,7 +4,9 @@ from ..no_value import NoValue
 from ..frag import frag
 
 NO_VALUE = NoValue()
-HEALTH_TRACK_PARTNER_NAME = "MFA Health Track"
+# Values need to be kept in sync with DB
+HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
+RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
@@ -115,38 +117,13 @@ class Accounts:
             Account(self._db, account_row)
             for account_row in account_rows
         ]
-    
-    
-    def get_by_stripe_customer_id(self, stripe_customer_id):
-        """Gets an account by an ID.
 
-        Params:
-            stripe_customer_id: the stripe_customer_id of the account
-        
-        Returns:
-            An Account() object
-
-        Raises:
-            AccountsException on ID not found
-        """
-        account_rows = self._db.execute_d(
-            """SELECT * FROM accounts
-                WHERE stripe_customer_id=%(stripe_customer_id)s
-            """,
-            {
-                "stripe_customer_id": stripe_customer_id
-            }
-        )
-        if len(account_rows) != 1:
-            raise AccountsException("No account found with that Stripe Customer ID.")
-        return Account(self._db, account_rows[0])
-   
     def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
         """Gets an account using the partner and affiliate id.
 
         Params:
             stripe_customer_id: the stripe_customer_id of the account
-        
+
         Returns:
             An Account() object
         """
@@ -535,8 +512,8 @@ class Accounts:
 
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
                      partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
-                     zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_account_id=NO_VALUE,
-                     accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE):
+                     zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_customer_id=NO_VALUE,
+                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -600,6 +577,10 @@ class Accounts:
         if token is not NO_VALUE:
             query_conditions.append("token = %(token)s")
             query_values["token"] = token
+        
+        if stripe_customer_id is not NO_VALUE:
+            query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
+            query_values["stripe_customer_id"] = stripe_customer_id
 
         if stripe_account_id is not NO_VALUE:
             query_conditions.append("stripe_account_id = %(stripe_account_id)s")

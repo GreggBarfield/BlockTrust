@@ -4,7 +4,7 @@ from flask import (
 )
 
 from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-from core.database.tables.view_logs import DATA_TYPE_NAME_TO_ID, ViewLogs
+from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import sectors_by_id, sectors_by_name
@@ -13,7 +13,7 @@ from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.connections import connection_status
+from ..database.tables.connections import connection_status_name_to_id
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -83,7 +83,7 @@ def serve_account_id(account_id):
     unread_notifications_count = len(unread_notifications_list)
 
     pending_connection_requests_count = 0
-    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"]))
+    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"]))
 
     account_params = {
         "account": account,
@@ -94,8 +94,8 @@ def serve_account_id(account_id):
 
     if account.sector_name() == "Auction House":
         return dashboard_render("sectors/auction.html", account_params)
-    elif account.sector_name() == "Feedlot":
-        return dashboard_render("sectors/feedlot.html", account_params)
+    elif account.sector_name() == "Feedlot" or account.sector_name() == "Packer":
+        return dashboard_render("sectors/feedlot-packer.html", account_params)
     elif account.sector_name() == "Buyer":
         return dashboard_render("sectors/buyer.html", account_params)
     else:
@@ -117,7 +117,7 @@ def serve_animal_eid(animal_eid):
         )[0]["account_links.account"]
         if owner_account_id != g.account.id():
             ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
-                                            viewer_account_display_name=g.account.company(), viewer_user_id=g.user.id(),
+                                            viewer_user_id=g.user.id(),
                                             data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
 
         return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
@@ -299,15 +299,6 @@ def serve_sustainability():
         "sustainability_enabled_for_sector": sustainability_enabled_for_sector
     })
 
-# Deprecated
-# @bp.route('/dashboard/sustainability/survey', methods=['GET'])
-# @crut.require_paid_account
-# def serve_sustainability_survey():
-#     return dashboard_render("sustainability/questionaire.html", 
-#     {
-#         "sector": sectors_by_id[g.account.sector_id()]
-#     })
-
 
 @bp.route('/dashboard/data/market', methods=['GET'])
 @crut.require_paid_account
@@ -432,8 +423,8 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status["Connected"])
-    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status["Pending"])
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status_name_to_id["Connected"])
+    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"])
     return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
 
 
@@ -446,10 +437,10 @@ def serve_add_connection():
 @bp.route('/dashboard/accept-invite', methods=['POST'])
 @crut.require_account
 def serve_accept_invite():
-    Connections(g.db).update_connection(
+    Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status["Connected"]
+        status=connection_status_name_to_id["Connected"]
     )
     return {}
 
@@ -457,10 +448,10 @@ def serve_accept_invite():
 @bp.route('/dashboard/decline-invite', methods=['POST'])
 @crut.require_account
 def serve_decline_invite():
-    Connections(g.db).update_connection(
+    Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status["Declined"]
+        status=connection_status_name_to_id["Blocked"]
     )
     return {}
 
@@ -469,7 +460,7 @@ def serve_decline_invite():
 @crut.require_account
 def serve_view_profile(account_id):
     account_details = g.db.accounts.get_account_by_id(account_id)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status["Connected"]) is not None:
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status_name_to_id["Connected"]) is not None:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")
@@ -590,3 +581,12 @@ def send_document(path):
 @crut.require_paid_account
 def serve_sustainability_questionnaire():
     return dashboard_render("sustainability/questionnaire_v2.html", {"sector": sectors_by_id[g.account.sector_id()]})
+
+@bp.route("/dashboard/data-views", methods=["GET"])
+@crut.require_account
+def serve_views():
+    view_logs = ViewLogs(g.db).get_view_logs(owner_account_id=g.account.id(), get_related_details=True)
+
+    return dashboard_render("privacy/view-logs.html",
+                            {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
+                             "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})

@@ -3,12 +3,16 @@ from .. import database
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
-auction_market_cols = ("id", "name", "address", "city", "state", "zip_code", "email", "phone", "is_archived")
 
-connection_status = {
+connection_status_name_to_id = {
     "Pending": 0,
     "Connected": 1,
-    "Declined": 2
+    "Blocked": 2
+}
+
+connection_type_name_to_id = {
+    "Created": 1,
+    "Acquired": 2
 }
 
 
@@ -41,7 +45,7 @@ class Connections:
         connections = self._db.execute_d(
             """
             SELECT * FROM connections
-            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND status= %(status)s
+            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND connection_status_id= %(status)s
             """,
             {
                 "account_id": account_id,
@@ -50,8 +54,9 @@ class Connections:
         )
         return connections
 
-    def update_connection(self, from_account_id, to_account_id, status):
+    def update_connection_between(self, from_account_id, to_account_id, status):
         """
+        Updates the connection between two accounts
         Params:
             from_account_id: Account ID of user
             to_account_id:  Second account ID
@@ -64,7 +69,7 @@ class Connections:
         self._db.execute(
             """
             UPDATE connections
-            SET status=%(status)s
+            SET connection_status_id=%(status)s
             WHERE ((from_account_id=%(from_account_id)s AND to_account_id=%(to_account_id)s) OR
                 (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
             """,
@@ -74,8 +79,8 @@ class Connections:
                 "to_account_id": to_account_id
             }
         )
-
-    def create_connection(self, from_account_id, to_account_id, status):
+    
+    def create_or_fail_connection(self, from_account_id, to_account_id, status, connection_type_id):
         """
         Params:
             from_account_id: Account ID of user
@@ -91,27 +96,40 @@ class Connections:
         second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
         from_account_name = first_account.name()
         to_account_name = second_account.name()
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Connected"]) is not None:
-            raise ConnectionException(to_account_name + " is already connected!")
-        if self.get_connection_between(from_account_id, to_account_id, connection_status["Pending"]) is not None:
-            raise ConnectionException("Connection Invite already sent to " + to_account_name)
+        existing_connection = self.get_connection_between(from_account_id, to_account_id)
+        if existing_connection is not None:
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Connected"]:
+                raise ConnectionException(to_account_name + " is already connected!")
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Pending"]:
+                raise ConnectionException("Connection Invite already sent to " + to_account_name)
+            if existing_connection["connection_status_id"] == connection_status_name_to_id["Blocked"]:
+                raise ConnectionException("Cannot send Connection Invite")
+        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id)
+
+    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id):
+        """
+        Returns:
+            None
+        """
+
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, from_account_name, to_account_id, to_account_name, status)
+                    (from_account_id, from_account_name, to_account_id, to_account_name, connection_status_id, connection_type_id)
                     VALUES
-                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s)
+                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type_id)s)
             """,
             {
                 "from_account_id": from_account_id,
                 "from_account_name": from_account_name,
                 "to_account_id": to_account_id,
                 "to_account_name": to_account_name,
-                "status": status
+                "status": status,
+                "connection_type_id": connection_type_id
             }
         )
 
-    def get_connection_between(self, from_account_id, to_account_id, status):
+    def get_connection_between(self, from_account_id, to_account_id, status=NO_VALUE):
         """
         Checks the connection status between two accounts
 
@@ -122,20 +140,19 @@ class Connections:
         Returns:
         Connection object or None
         """
-
-        connection = self._db.execute_d(
-            """
+        query = """
             SELECT * FROM connections
             WHERE ((from_account_id= %(from_account_id)s AND to_account_id=%(to_account_id)s) OR
             (from_account_id= %(to_account_id)s AND to_account_id=%(from_account_id)s))
-            AND status = %(status)s
-            """,
-            {
-                "from_account_id": from_account_id,
-                "to_account_id": to_account_id,
-                "status": status
-            }
-        )
+            """
+        query_values = {
+            "from_account_id": from_account_id,
+            "to_account_id": to_account_id
+        }
+        if status is not NO_VALUE:
+            query += " AND connection_status_id = %(status)s"
+            query_values["status"] = status
+        connection = self._db.execute_d(query, query_values)
         if len(connection) == 1:
             return connection[0]
         return None
@@ -165,7 +182,7 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
-                        to_account_name=NO_VALUE, status=NO_VALUE):
+                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -176,6 +193,7 @@ class Connections:
             from_account_name: Account name of first account
             to_account_name: Account name of second account
             status: Connection status between accounts
+            connection_type_id: Type of connection established
 
         Returns:
             A list of connections or and empty list
@@ -201,8 +219,11 @@ class Connections:
             query_conditions.append(" to_account_name = %(to_account_name)s")
             query_values["to_account_name"] = to_account_name
         if status is not NO_VALUE:
-            query_conditions.append(" status = %(status)s")
+            query_conditions.append(" connection_status_id = %(status)s")
             query_values["status"] = status
+        if connection_type_id is not NO_VALUE:
+            query_conditions.append(" connection_type_id = %(connection_type_id)s")
+            query_values["connection_type_id"] = connection_type_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -216,3 +237,31 @@ class Connections:
             return connection_rows
         else:
             return []
+
+    def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE):
+        """
+        Updates the connection based on the id specified
+
+        Params:
+            id: The ID of the connection to be updated
+            connection_status_id: The status id of the connection
+
+        Returns:
+            Number of rows affected.
+        """
+        base_query = "UPDATE connections "
+
+        query_updated_columns = []
+        query_updated_values = {}
+        query_updated_values["id"] = id
+        if connection_status_id is not NO_VALUE:
+            query_updated_columns.append("connection_status_id = %(connection_status_id)s")
+            query_updated_values["connection_status_id"] = connection_status_id
+        if connection_type_id is not NO_VALUE:
+            query_updated_columns.append("connection_type_id = %(connection_type_id)s")
+            query_updated_values["connection_type_id"] = connection_type_id
+        if len(query_updated_columns) >= 1:
+            combined_query_updated_values = " SET " + ", ".join(query_updated_columns) + " WHERE id=%(id)s"
+            query = base_query + combined_query_updated_values
+            self._db.execute(query, query_updated_values)
+        return self._db.row_count()

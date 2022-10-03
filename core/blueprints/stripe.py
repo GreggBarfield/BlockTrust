@@ -1,13 +1,13 @@
 from flask import (
-    Flask, Blueprint, request, g, session, redirect, url_for
+    Blueprint, request, g, session, redirect, url_for
 )
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 import stripe
 import json
-from ..database.tables.accounts import Accounts,AccountsException
+import traceback
+from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
-from ..database.objects.account import AccountException
 from ..common_exceptions import ExportException
 from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
 
@@ -52,60 +52,54 @@ def serve_stripe_price(priceLookupKey):
         return {'error':{'message': str(e)}}, 400
 
 
-#events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
+# events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
 @bp.route('/stripe/subscription', methods=['POST'])
 def serve_stripe_subscription():
-    payload = request.data
     endpoint_secret = SUBSCRIPTION_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
-
-    DebugLogs(g.db).insert_debug_log("Stripe", "Subscription web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
-                                     json.dumps(json.loads(request.data)))
+    payload = json.loads(request.data)
+    DebugLogs(g.db).insert_debug_log(
+        component="Stripe Webhooks", short_info=f"Event: {payload.get('type', '')}, customer id: {payload.get('data',{}).get('object',{}).get('customer','')}",
+        long_info=f"Function: {serve_stripe_subscription.__name__}, Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
+        details=payload
+    )
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
+            request.data, sig_header, endpoint_secret
         )
-    except ValueError as e:
-        # Invalid payload
-        raise ExportException(str(e))
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
+    except (ValueError, stripe.error.SignatureVerificationError)  as e:
+        # Invalid payload or invalid signature
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
 
+    customer_id = event.data.object.customer
+    error = ""
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
-            account = get_account_of_stripe_customer(event)
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=1
-            )
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1)
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.deleted':
-        account = get_account_of_stripe_customer(event)
-        g.db.accounts.update_account(
-            account.id(),
-            stripe_paid=0
-        )
+        if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
+        else:
+            error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.updated':
-        account = get_account_of_stripe_customer(event)
         if event.data.object.status == 'past_due':
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=0
-            )
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
+    if error:
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error)
+        return {'status': error}
+
     return {'status': 'Success'}
-
-
-def get_account_of_stripe_customer(event):
-    #read the stripe customer id and get the account
-    customer_id = event.data.object.customer      
-    try:
-        return g.db.accounts.get_by_stripe_customer_id(customer_id)
-    except AccountsException:
-        raise ExportException('No customer found with the stripe customer id: ' + customer_id)
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])

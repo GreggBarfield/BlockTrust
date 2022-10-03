@@ -20,14 +20,11 @@ import { PlansWidget } from './types/stripe/plans.mjs';
 import { SubscribeWidget } from './types/stripe/subscribe.mjs';
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
-import { CowcalfQuestionaireWidget } from "./types/sustainability/cowcalf_questionaire.mjs";
-import { FeedyardQuestionaireWidget } from "./types/sustainability/feedyard_questionaire.mjs";
-import { AuctionQuestionaireWidget } from "./types/sustainability/auction_questionaire.mjs";
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
 import { ManageSalesGroupEIDsWidget } from './types/sales_groups/manage_sales_group_eids_widget.mjs';
 import { ArchivedSalesGroupWidget } from './types/sales_groups/archived_sales_group.mjs';
 import { SummaryGraphWidget } from './types/employee/summary_graphs.mjs';
-import { FeedyardTagSummaryWidget } from './types/animal_data/feedyard_tag_summary_widget.mjs';
+import { TagDistributionSectorAtAccountWidget } from './types/animal_data/tag_distribution_sector_at_account_widget.mjs';
 import { SelectEIDsByGroupingIDWidget } from './types/sales_groups/select_eids_by_grouping_id_widget.mjs';
 import { AddConnectionsWidget } from './types/connections/add_connections_widget.mjs'
 import { CowCalfQuestionnaireV2Widget } from "./types/sustainability/cow_calf_questionnaire_v2_widget.mjs"
@@ -73,14 +70,11 @@ import { SustainabilitySummaryWidget } from './types/sustainability/sustainabili
     attach("subscribe", SubscribeWidget);
     attach("certificates", CertificatesWidget);
     attach("market data table", MarketDataTableWidget);
-    attach("Cow-Calf questionaire", CowcalfQuestionaireWidget);
-    attach("Feedlot questionaire", FeedyardQuestionaireWidget);
-    attach("Auction House questionaire", AuctionQuestionaireWidget);
     attach("market data filter table", MarketDataFilterWidget);
     attach("manage sales group eids", ManageSalesGroupEIDsWidget)
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("summary graphs", SummaryGraphWidget);
-    attach("feedyard tag summary", FeedyardTagSummaryWidget);
+    attach("tag distribution sector at account", TagDistributionSectorAtAccountWidget);
     attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
     attach("cow-calf questionnaire v2", CowCalfQuestionnaireV2Widget);

@@ -2,13 +2,15 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_account_name", "viewer_user_id", "data_type_id",
+TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_user_id", "data_type_id",
                  "created_timestamp", "last_updated_timestamp")
 
 DATA_TYPE_NAME_TO_ID = {
     "EID": 1,
-    "Sustainability": 2
+    "Sustainability Score": 2
 }
+
+DATA_TYPE_ID_TO_NAME = {value: key for key, value in DATA_TYPE_NAME_TO_ID.items()}
 
 
 class ViewLogs:
@@ -16,7 +18,7 @@ class ViewLogs:
     def __init__(self, db):
         self._db = db
 
-    def insert_view_logs(self, owner_account_id, viewer_account_id, viewer_account_display_name, data_type_id, viewer_user_id=None, 
+    def insert_view_logs(self, owner_account_id, viewer_account_id, data_type_id, viewer_user_id=None, 
                          eid=None, sustainability_response_id=None):
         """
         Inserts a new view_log record
@@ -27,15 +29,14 @@ class ViewLogs:
         
         self._db.execute(
             """
-                INSERT INTO view_logs (owner_account_id, viewer_account_id, viewer_account_display_name, viewer_user_id, data_type_id, 
+                INSERT INTO view_logs (owner_account_id, viewer_account_id, viewer_user_id, data_type_id, 
                 eid, sustainability_response_id)
-                VALUES (%(owner_account_id)s, %(viewer_account_id)s, %(viewer_account_display_name)s, %(viewer_user_id)s, %(data_type_id)s, 
+                VALUES (%(owner_account_id)s, %(viewer_account_id)s, %(viewer_user_id)s, %(data_type_id)s, 
                 %(eid)s, %(sustainability_response_id)s)
             """,
             {
                 "owner_account_id": owner_account_id,
                 "viewer_account_id": viewer_account_id,
-                "viewer_account_display_name": viewer_account_display_name,
                 "viewer_user_id": viewer_user_id,
                 "data_type_id": data_type_id,
                 "eid": eid,
@@ -44,19 +45,27 @@ class ViewLogs:
         )
         return self._db.last_row_id()
 
-    def get_view_logs(self, id=NO_VALUE, owner_account_id=NO_VALUE, viewer_account_id=NO_VALUE, data_type_id=NO_VALUE):
+    def get_view_logs(self, id=NO_VALUE, owner_account_id=NO_VALUE, viewer_account_id=NO_VALUE, data_type_id=NO_VALUE, 
+                      get_related_details=False):
         """
         Gets the view logs based on the provided parameters
 
         Returns:
             A list of view logs or an empty array
         """
-        base_query = "SELECT * FROM view_logs"
+        if get_related_details:
+            base_query = """
+                SELECT vl.*, a.company, CONCAT(u.first_name,' ',u.last_name) as 'user_name' FROM view_logs vl
+                INNER JOIN accounts a on a.id = vl.viewer_account_id
+                LEFT JOIN users u ON u.id = vl.viewer_user_id
+            """
+        else:
+            base_query = "SELECT * FROM view_logs vl"
 
         query_conditions = []
         query_values = {}
         if id is not NO_VALUE:
-            query_conditions.append("id = %(id)s")
+            query_conditions.append("vl.id = %(id)s")
             query_values["id"] = id
         if owner_account_id is not NO_VALUE:
             query_conditions.append("owner_account_id = %(owner_account_id)s")
@@ -69,10 +78,10 @@ class ViewLogs:
             query_values["data_type_id"] = data_type_id
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
-        query = base_query + combined_query_condition
+        query = base_query + combined_query_condition + " ORDER BY ID DESC"
         view_log_rows = self._db.execute_d(query, query_values)
 
         if len(view_log_rows) > 0:

@@ -6,7 +6,7 @@ from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
 from core.reports.query_types import (
-    count_distribution, count_distribution_account_and_sector, count_eid_distinct_by_account
+    count_distribution, count_distribution_for_sector_at_account, count_eid_distinct_by_account
 )
 import json
 
@@ -159,7 +159,7 @@ class Reports:
             ]
 
             if sector_id == sectors_by_name["Feedlot"]:
-                queries.append(count_distribution_account_and_sector.create(account_id, sectors_by_name["Cow-Calf"]))
+                queries.append(count_distribution_for_sector_at_account.create(account_id, sectors_by_name["Cow-Calf"]))
 
             for query in queries:
                 self.insert_query(account_id, query)

@@ -9,11 +9,11 @@ from ..match_types import match_types_by_name, match_types_by_id
 from ..common_exceptions import ExportException
 
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_NAME
+from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
-from ..database.tables.connections import Connections, connection_status
+from ..database.tables.connections import Connections, connection_status_name_to_id, connection_type_name_to_id
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import AccountUsers
 from ..database.tables.sustainability_responses import SustainabilityResponses
@@ -166,6 +166,8 @@ def serve_search_sales_groups_2():
     results = []
 
     for sales_group_row in sales_group_rows:
+        owner_account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=sales_group_row["account"])
+        owner_account_sustainability_score_average = float(owner_account_sustainability_averages["score_average"]) if owner_account_sustainability_averages["score_average"] else 0
         results.append({
             "id": sales_group_row["id"],
             "reported": sales_group_row["reported"],
@@ -199,7 +201,8 @@ def serve_search_sales_groups_2():
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
-            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
+            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
+            "owner_account_sustainability_score_average": owner_account_sustainability_score_average
         })
 
     return {
@@ -388,7 +391,7 @@ def serve_archived_sales_group():
 @bp.route('/widgets/data/get_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_get_eids_for_sales_group():
-    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_NAME, is_partner=1)[0]
+    healthtrack_partner_row = g.db.accounts.get_accounts(company=HEALTH_TRACK_PARTNER_COMPANY, is_partner=1)[0]
     is_healthtrack_partner_account = False
     if g.account.partner_account_id() == healthtrack_partner_row["id"]:
         is_healthtrack_partner_account = True
@@ -427,17 +430,6 @@ def serve_save_eids_for_sales_group():
     SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
-
-# Deprecated
-# @bp.route('/widgets/data/save_sustainability', methods=['POST'])
-# @crut.require_account
-# def serve_save_sustainability():
-#     g.db.sustainability.insert(
-#         g.account.id(),
-#         request.json["response"],
-#         request.json["sectorScoreCounter"]
-#     )
-#     return { "redirect": "/dashboard/sustainability"}
 
 
 @bp.route('/widgets/data/get_upload_config', methods=['POST'])
@@ -630,7 +622,8 @@ def serve_add_connection_request():
     try:
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
-            Connections(g.db).create_connection(g.account.id(), invited_account, connection_status["Pending"])
+            Connections(g.db).create_or_fail_connection(g.account.id(), invited_account, connection_status_name_to_id["Pending"],
+                                                        connection_type_id=connection_type_name_to_id["Created"])
             if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
                 if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
                     send_email(
@@ -733,17 +726,18 @@ def serve_save_sustainability_questionnaire():
 @crut.require_account
 def serve_get_sustainability_response_averages():
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
-    formatted_account_averages = {
+    account_sustainability_section_and_score_averages = {
         "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
         "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
         "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
         "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
         "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
         "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
-        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0
+        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
+        "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
     }
     account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
-    return {"formatted_account_averages": formatted_account_averages, "account_sustainability_responses": account_sustainability_responses}
+    return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sustainability_responses": account_sustainability_responses}
 
 
 @bp.route('/widgets/data/get_sustainability_response_timeline_data', methods=['POST'])
@@ -753,7 +747,7 @@ def serve_get_sustainability_response_timeline_data():
     if account_link is None:
         return {"Account link not available"}, 400
     else:
-        matched_accounts = g.db.matches.get_matched_accounts_for_account(account_link[0].id())
+        matched_accounts = g.db.matches.get_matched_accounts_for_account_link(account_link[0].id())
         for account_data in matched_accounts:
             sustainability_response_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_data["account"])
             account_data["account_score_average"] = float(sustainability_response_averages["score_average"]) if sustainability_response_averages["score_average"] is not None else 0
