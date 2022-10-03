@@ -438,7 +438,7 @@ def serve_add_connection():
 @bp.route('/dashboard/accept-invite', methods=['POST'])
 @crut.require_account
 def serve_accept_invite():
-    Connections(g.db).update_connection(
+    Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
         status=connection_status_name_to_id["Connected"]
@@ -449,7 +449,7 @@ def serve_accept_invite():
 @bp.route('/dashboard/decline-invite', methods=['POST'])
 @crut.require_account
 def serve_decline_invite():
-    Connections(g.db).update_connection(
+    Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
         status=connection_status_name_to_id["Blocked"]
