@@ -107,6 +107,7 @@ def serve_account_id(account_id):
 @crut.require_user
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
+
     if len(animal.matches) > 0 and any((row["account_links.account"] == g.account.id() for row in animal.matches)):
 
         # first ranch is owner
