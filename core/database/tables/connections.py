@@ -255,6 +255,9 @@ class Connections:
         Params:
             id: The ID of the connection to be updated
             connection_status_id: The status id of the connection
+            connection_type_id: Type of connection established
+            blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
+            blocked_date_time: UTC time of blocking
 
         Returns:
             Number of rows affected.
@@ -271,11 +274,16 @@ class Connections:
             query_updated_columns.append("connection_type_id = %(connection_type_id)s")
             query_updated_values["connection_type_id"] = connection_type_id
         if blocked_by_account_id is not NO_VALUE:
-            query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
-            query_updated_values["blocked_by_account_id"] = blocked_by_account_id
-        if blocked_date_time is not NO_VALUE:
-            query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
-            query_updated_values["blocked_date_time"] = blocked_date_time
+            if blocked_by_account_id is not None:
+                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
+                query_updated_values["blocked_by_account_id"] = blocked_by_account_id
+                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
+                query_updated_values["blocked_date_time"] = blocked_date_time
+            else:
+                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
+                query_updated_values["blocked_by_account_id"] = None
+                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
+                query_updated_values["blocked_date_time"] = None
         if len(query_updated_columns) >= 1:
             combined_query_updated_values = " SET " + ", ".join(query_updated_columns) + " WHERE id=%(id)s"
             query = base_query + combined_query_updated_values

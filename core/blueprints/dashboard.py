@@ -617,7 +617,6 @@ def serve_unblock_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=connection_status_name_to_id["Connected"],
-        blocked_by_account_id=None,
-        blocked_date_time=None
+        blocked_by_account_id=None
     )
     return {}
