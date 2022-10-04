@@ -22,7 +22,7 @@ export class EPDTableWidget extends Widget {
 
         for (const header of epdTableHeaderContent) {
             let th = document.createElement("th");
-            let link = this.createLinkWithTitle(header.text, header.title);
+            let link = this.createLinkWithTitle(header.text, "");
             th.append(link);
             theadRow0.appendChild(th);
         }
