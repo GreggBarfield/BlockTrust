@@ -1708,7 +1708,8 @@ CHANGE COLUMN `status` `connection_status_id` INT NULL DEFAULT 0 ;
 
 /* Nisheet Thakur 09/30/2022 */
 ALTER TABLE `connections`
-ADD COLUMN `blocked_by_account_id` INT DEFAULT NULL;
+ADD COLUMN `blocked_by_account_id` INT DEFAULT NULL,
+ADD COLUMN `blocked_date_time` DATETIME DEFAULT NULL;
 
 /* Rohan Sureshkumar 10/3/2022 */
 ALTER TABLE `connections` 

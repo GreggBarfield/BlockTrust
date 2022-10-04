@@ -28,6 +28,8 @@ from ..utilities.email import send_email
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 
+from datetime import datetime
+
 import json
 import stripe
 
@@ -449,16 +451,16 @@ def serve_accept_invite():
     )
     return {}
 
-
-@bp.route('/dashboard/decline-invite', methods=['POST'])
-@crut.require_account
-def serve_decline_invite():
-    Connections(g.db).update_connection_between(
-        from_account_id=request.json["account_id"],
-        to_account_id=g.account.id(),
-        status=connection_status_name_to_id["Blocked"]
-    )
-    return {}
+# Deprecated 10/04/2022
+# @bp.route('/dashboard/decline-invite', methods=['POST'])
+# @crut.require_account
+# def serve_decline_invite():
+#     Connections(g.db).update_connection_between(
+#         from_account_id=request.json["account_id"],
+#         to_account_id=g.account.id(),
+#         status=connection_status_name_to_id["Blocked"]
+#     )
+#     return {}
 
 
 @bp.route('/dashboard/view-profile/<int:account_id>', methods=['GET'])
@@ -603,8 +605,9 @@ def serve_block_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=connection_status_name_to_id["Blocked"],
-        blocked_by_account_id=g.account.id()
-        )
+        blocked_by_account_id=g.account.id(),
+        blocked_date_time=datetime.utcnow()
+    )
     return {}
 
 
@@ -614,6 +617,7 @@ def serve_unblock_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=connection_status_name_to_id["Connected"],
-        blocked_by_account_id=None
-        )
+        blocked_by_account_id=None,
+        blocked_date_time=None
+    )
     return {}
