@@ -1,3 +1,4 @@
+from datetime import datetime
 from .accounts import Accounts
 from .. import database
 from ..no_value import NoValue
@@ -248,7 +249,7 @@ class Connections:
             return []
 
     def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE,
-                          blocked_by_account_id=NO_VALUE, blocked_date_time=NO_VALUE):
+                          blocked_by_account_id=NO_VALUE):
         """
         Updates the connection based on the id specified
 
@@ -257,7 +258,6 @@ class Connections:
             connection_status_id: The status id of the connection
             connection_type_id: Type of connection established
             blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
-            blocked_date_time: UTC time of blocking
 
         Returns:
             Number of rows affected.
@@ -278,7 +278,7 @@ class Connections:
                 query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
                 query_updated_values["blocked_by_account_id"] = blocked_by_account_id
                 query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
-                query_updated_values["blocked_date_time"] = blocked_date_time
+                query_updated_values["blocked_date_time"] = datetime.utcnow()
             else:
                 query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
                 query_updated_values["blocked_by_account_id"] = None

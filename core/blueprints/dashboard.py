@@ -605,8 +605,7 @@ def serve_block_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=connection_status_name_to_id["Blocked"],
-        blocked_by_account_id=g.account.id(),
-        blocked_date_time=datetime.utcnow()
+        blocked_by_account_id=g.account.id()
     )
     return {}
 
