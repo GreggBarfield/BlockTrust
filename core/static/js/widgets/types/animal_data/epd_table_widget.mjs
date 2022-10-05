@@ -17,6 +17,7 @@ const epdTableHeaderContent = [
     {text: "ADJ. WW", title: "The Adjusted weight is on the left and the ratio is on the right"},
     {text: "BW/BWR", title: "The Adjusted weight is on the left and the ratio is on the right"}
 ];
+
 export class EPDTableWidget extends Widget {
     constructor(frame) {
         super(frame);
