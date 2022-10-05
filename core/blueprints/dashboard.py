@@ -28,8 +28,6 @@ from ..utilities.email import send_email
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 
-from datetime import datetime
-
 import json
 import stripe
 
