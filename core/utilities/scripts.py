@@ -1,10 +1,11 @@
-"""Routines which perform changes to the BlockTrustNetwork database to be run manually."""
+"""Routines which perform changes to the BlockTrustNetwork database."""
 from ..database.tables.accounts import Accounts
 from ..database.tables.account_links import AccountLinks
 from ..database.tables.matches import Matches
 from ..database.tables.connections import ConnectionException, Connections, connection_status_name_to_id, connection_type_name_to_id
 from ..sectors import sectors_by_name
-import inspect, sys
+import inspect
+import sys
 
 
 def add_connections_for_supply_chain(db):
@@ -15,7 +16,6 @@ def add_connections_for_supply_chain(db):
         account_link = AccountLinks(db).get_account_links(account_id=ranch["id"])
         if len(account_link) > 0:
             supply_chain_links = Matches(db).get_matched_accounts_for_account_link(account_link[0]["id"])
-            # go through each account in supply chain and add connection if not exists.
             for account_link in supply_chain_links:
                 if ranch["id"] != account_link["account"]:
                     new_connections.append((ranch["id"], account_link["account"]))
