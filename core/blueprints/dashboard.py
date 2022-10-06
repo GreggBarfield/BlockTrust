@@ -461,6 +461,28 @@ def serve_accept_invite():
 #     return {}
 
 
+@bp.route('/dashboard/block-connection', methods=['POST'])
+@crut.require_account
+def serve_block_connection():
+    Connections(g.db).update_connection(
+        id=request.json["connection_id"],
+        connection_status_id=connection_status_name_to_id["Blocked"],
+        blocked_by_account_id=g.account.id()
+    )
+    return {}
+
+
+@bp.route('/dashboard/unblock-connection', methods=['POST'])
+@crut.require_account
+def serve_unblock_connection():
+    Connections(g.db).update_connection(
+        id=request.json["connection_id"],
+        connection_status_id=connection_status_name_to_id["Connected"],
+        blocked_by_account_id=None
+    )
+    return {}
+
+
 @bp.route('/dashboard/view-profile/<int:account_id>', methods=['GET'])
 @crut.require_account
 def serve_view_profile(account_id):
@@ -595,25 +617,3 @@ def serve_views():
     return dashboard_render("privacy/view-logs.html",
                             {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
                              "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})
-
-
-@bp.route('/dashboard/block-connection', methods=['POST'])
-@crut.require_account
-def serve_block_connection():
-    Connections(g.db).update_connection(
-        id=request.json["connection_id"],
-        connection_status_id=connection_status_name_to_id["Blocked"],
-        blocked_by_account_id=g.account.id()
-    )
-    return {}
-
-
-@bp.route('/dashboard/unblock-connection', methods=['POST'])
-@crut.require_account
-def serve_unblock_connection():
-    Connections(g.db).update_connection(
-        id=request.json["connection_id"],
-        connection_status_id=connection_status_name_to_id["Connected"],
-        blocked_by_account_id=None
-    )
-    return {}
