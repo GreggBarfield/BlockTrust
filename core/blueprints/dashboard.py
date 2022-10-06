@@ -425,7 +425,12 @@ def serve_invite_user():
 def serve_connections():
     account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status_name_to_id["Connected"])
     requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"])
-    return dashboard_render("/dashboard/connections/connections.html", {"account_connections": account_connections, "requests": requests})
+    blocked_connections = Connections(g.db).get_connections(blocked_by_account_id=g.account.id())
+    return dashboard_render("/dashboard/connections/connections.html", {
+        "account_connections": account_connections,
+        "requests": requests,
+        "blocked_connections": blocked_connections
+        })
 
 
 @bp.route('/dashboard/add-connection', methods=['GET'])
@@ -444,14 +449,36 @@ def serve_accept_invite():
     )
     return {}
 
+# Deprecated 10/04/2022
+# @bp.route('/dashboard/decline-invite', methods=['POST'])
+# @crut.require_account
+# def serve_decline_invite():
+#     Connections(g.db).update_connection_between(
+#         from_account_id=request.json["account_id"],
+#         to_account_id=g.account.id(),
+#         status=connection_status_name_to_id["Blocked"]
+#     )
+#     return {}
 
-@bp.route('/dashboard/decline-invite', methods=['POST'])
+
+@bp.route('/dashboard/block-connection', methods=['POST'])
 @crut.require_account
-def serve_decline_invite():
-    Connections(g.db).update_connection_between(
-        from_account_id=request.json["account_id"],
-        to_account_id=g.account.id(),
-        status=connection_status_name_to_id["Blocked"]
+def serve_block_connection():
+    Connections(g.db).update_connection(
+        id=request.json["connection_id"],
+        connection_status_id=connection_status_name_to_id["Blocked"],
+        blocked_by_account_id=g.account.id()
+    )
+    return {}
+
+
+@bp.route('/dashboard/unblock-connection', methods=['POST'])
+@crut.require_account
+def serve_unblock_connection():
+    Connections(g.db).update_connection(
+        id=request.json["connection_id"],
+        connection_status_id=connection_status_name_to_id["Connected"],
+        blocked_by_account_id=None
     )
     return {}
 
