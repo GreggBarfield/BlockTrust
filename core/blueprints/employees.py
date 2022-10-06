@@ -24,7 +24,7 @@ from random import randint
 from ..utilities.general_utilities import format_field, validate_email
 
 from core.config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
-import json, inspect
+import json
 
 bp = Blueprint('employees_bp', __name__)
 
