@@ -13,19 +13,18 @@ from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
+from ..database.tables.debug_logs import DebugLogs
 
 from ..common_exceptions import ExportException
 
-
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth, token
+from ..utilities import crut, auth, token, scripts
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.general_utilities import format_field, validate_email
 
 from core.config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
-import json
-
+import json, inspect
 
 bp = Blueprint('employees_bp', __name__)
 
@@ -412,3 +411,20 @@ def serve_animal_eid(animal_eid):
         return employee_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
         return employee_render("animals/animal.html", {"animal": animal})
+
+
+@bp.route("/employee/run/<string:script>", methods=["POST"])
+@crut.require_employee
+def serve_run_script(script):
+    if script in scripts.get_available_scripts():
+        script_function = getattr(scripts, script)
+        kwargs = {}
+        kwargs["db"] = g.db
+        if not (log := script_function(**kwargs)):
+            log = {}
+        log["runner"] = "Employee"
+        log["runner_id"] = g.employee.id()
+        DebugLogs(g.db).insert_debug_log("Scripts", f"{script} run invoked successfully by employeed id: {g.employee.id()}", None, log)
+        return ("", 204)
+    else:
+        return script + " not found", 404
