@@ -13,7 +13,7 @@ Plans
     <div class="col-md">
         <div class="card">
             <h5 class="card-header">Plans</h5> 
-            {% if dashboard_standard_account.generated_paid() == 1 %}
+            {% if dashboard_standard_account.generated_paid() %}
             <div class="card-body">
                 <h4>You have already subscribed. Thank you!</h4>
             </div>
