@@ -424,7 +424,7 @@ def serve_run_script(script):
             log = {}
         log["runner"] = "Employee"
         log["runner_id"] = g.employee.id()
-        DebugLogs(g.db).insert_debug_log("Scripts", f"{script} run invoked successfully by employeed id: {g.employee.id()}", None, log)
+        DebugLogs(g.db).insert_debug_log("Scripts", f"{script} invoked successfully by employeed id: {g.employee.id()}", None, log)
         return ("", 204)
     else:
         return script + " not found", 404
