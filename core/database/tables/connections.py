@@ -1,3 +1,4 @@
+from datetime import datetime
 from .accounts import Accounts
 from .. import database
 from ..no_value import NoValue
@@ -182,7 +183,8 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
-                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type_id=NO_VALUE):
+                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE,
+                        blocked_date_time=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -194,6 +196,8 @@ class Connections:
             to_account_name: Account name of second account
             status: Connection status between accounts
             connection_type_id: Type of connection established
+            blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
+            blocked_date_time: UTC time of blocking
 
         Returns:
             A list of connections or and empty list
@@ -224,6 +228,12 @@ class Connections:
         if connection_type_id is not NO_VALUE:
             query_conditions.append(" connection_type_id = %(connection_type_id)s")
             query_values["connection_type_id"] = connection_type_id
+        if blocked_by_account_id is not NO_VALUE:
+            query_conditions.append(" blocked_by_account_id = %(blocked_by_account_id)s")
+            query_values["blocked_by_account_id"] = blocked_by_account_id
+        if blocked_date_time is not NO_VALUE:
+            query_conditions.append(" blocked_date_time = %(blocked_date_time)s")
+            query_values["blocked_date_time"] = blocked_date_time
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -238,13 +248,16 @@ class Connections:
         else:
             return []
 
-    def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE):
+    def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE,
+                          blocked_by_account_id=NO_VALUE):
         """
         Updates the connection based on the id specified
 
         Params:
             id: The ID of the connection to be updated
             connection_status_id: The status id of the connection
+            connection_type_id: Type of connection established
+            blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
 
         Returns:
             Number of rows affected.
@@ -260,6 +273,17 @@ class Connections:
         if connection_type_id is not NO_VALUE:
             query_updated_columns.append("connection_type_id = %(connection_type_id)s")
             query_updated_values["connection_type_id"] = connection_type_id
+        if blocked_by_account_id is not NO_VALUE:
+            if blocked_by_account_id is not None:
+                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
+                query_updated_values["blocked_by_account_id"] = blocked_by_account_id
+                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
+                query_updated_values["blocked_date_time"] = datetime.utcnow()
+            else:
+                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
+                query_updated_values["blocked_by_account_id"] = None
+                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
+                query_updated_values["blocked_date_time"] = None
         if len(query_updated_columns) >= 1:
             combined_query_updated_values = " SET " + ", ".join(query_updated_columns) + " WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
