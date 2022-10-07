@@ -105,3 +105,5 @@ RECAPTCHA_MIN_SCORE = config_file["recaptcha"]["min_score"]
 
 IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
+
+RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER = config_file["run_jobs"]["notify_admin_if_no_data_received_from_partner"]
