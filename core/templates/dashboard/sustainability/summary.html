@@ -15,24 +15,20 @@ Sustainability Summary
 
 <script>
     function printPageArea(areaID, accountName){
-        var printContent = document.getElementById(areaID);
-        var WinPrint = window.open('', '', 'width=1200,height=900');
-        let customHeader = "<h5> Sustainability Metrics Report: </h5>"+accountName;
-        let addressFooter = "<h5>BlockTrust Network<br>3511 Longmire, College Station, TX 77845<br>info@Blocktrustnetwork.com</h5>"
+        let tempWindowForPrint = window.open('', '', 'width=1200,height=900');
         let breakLine = "<hr style='height:2px;background:black'/>"
 
-        WinPrint.document.write('<html><head><title>Sustainability Metrics</title><link rel="stylesheet" href="/static/build/build_dashboard_main.min.css" /></head><body>');
-        WinPrint.document.write(customHeader);
-        WinPrint.document.write(breakLine);
-        WinPrint.document.write(printContent.innerHTML);
-        WinPrint.document.write(breakLine);
-        WinPrint.document.write(addressFooter);
-        WinPrint.document.write('</body></html>');
-        WinPrint.document.close();
-        WinPrint.focus();
+        tempWindowForPrint.document.write('<html><title>Sustainability Metrics</title><head><h5> Sustainability Metrics Report: </h5>' + accountName +'<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css"/></head><body>');
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write(document.getElementById(areaID).innerHTML);
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write("<h5>BlockTrust Network<br>3511 Longmire, College Station, TX 77845<br>info@Blocktrustnetwork.com</h5>");
+        tempWindowForPrint.document.write('</body></html>');
+        tempWindowForPrint.document.close();
+        tempWindowForPrint.focus();
         setTimeout(function() {
-            WinPrint.print();
-            WinPrint.close();
+            tempWindowForPrint.print();
+            tempWindowForPrint.close();
         }, 1000);
     }
 </script>
@@ -58,7 +54,7 @@ Sustainability Summary
         <div class="card">
           <h5 class="card-header">Sustainability Timeline</h5>
           <div class="card-body">
-            <div id="sustainability-timeline" class="col-sm-12 widget" data-widget-type="sustainability timeline v2"></div>
+            <div id="sustainabilityTimeline" class="col-sm-12 widget" data-widget-type="sustainability timeline v2"></div>
           </div>
         </div>
       </div>
