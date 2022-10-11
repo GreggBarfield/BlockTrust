@@ -14,11 +14,11 @@ from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.debug_logs import DebugLogs
-
+from ..database import scripts
 from ..common_exceptions import ExportException
 
 from ..sectors import sectors_by_id, sectors_by_name
-from ..utilities import crut, auth, token, scripts
+from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.general_utilities import format_field, validate_email
