@@ -1,6 +1,5 @@
 from datetime import datetime
 from .accounts import Accounts
-from .. import database
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
@@ -31,7 +30,7 @@ class ConnectionException(Exception):
 
 class Connections:
 
-    def __init__(self, db: 'database.Database'):
+    def __init__(self, db):
         self._db = db
 
     def get_account_connections(self, account_id, status):
