@@ -9,10 +9,6 @@ Sustainability Summary
 
 {% block dashboard_content %}
 
-<!-- jsPDF library -->
-<script src="/static/libs/jspdf/jspdf.min.js"></script>
-<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
-
 <script>
     function printPageArea(areaID, accountName){
         let tempWindowForPrint = window.open('', '', 'width=1200,height=900');
@@ -32,7 +28,6 @@ Sustainability Summary
         }, 1000);
     }
 </script>
-
 
 
 <div class="row mb-2 mx-2 flex-row-reverse">
