@@ -12,8 +12,7 @@ from ..sectors import sectors_by_id, sectors_by_name
 from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
-from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.connections import connection_status_name_to_id
+from ..database.tables.connections import connection_status_name_to_id, connection_type_id_to_name
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -429,8 +428,9 @@ def serve_connections():
     return dashboard_render("/dashboard/connections/connections.html", {
         "account_connections": account_connections,
         "requests": requests,
-        "blocked_connections": blocked_connections
-        })
+        "blocked_connections": blocked_connections,
+        "connection_type_id_to_name": connection_type_id_to_name
+    })
 
 
 @bp.route('/dashboard/add-connection', methods=['GET'])
@@ -573,13 +573,13 @@ def serve_sales_group_transaction(sales_group_id):
                 account_id=g.account.id(),
                 user_id=g.user.id(),
                 event_type_id=event_type_by_name["Sales Group Purchase"],
-                details=json.dumps({
+                details={
                     'sales_group_id': sales_group_id,
                     'transaction_amount': request_data['amount'],
                     'buyer_account_id': g.account.id(),
                     'seller_account_id': request_data['to_account_id'],
                     'payment_intent': request_data['paymentIntent']
-                })
+                }
             )
             return {}
         except Exception as e:

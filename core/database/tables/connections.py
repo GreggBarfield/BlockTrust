@@ -15,6 +15,10 @@ connection_type_name_to_id = {
     "Acquired": 2
 }
 
+connection_type_id_to_name = {
+    value: key for key, value in connection_type_name_to_id.items()
+}
+
 
 class ConnectionException(Exception):
     """Generic connection exception."""
