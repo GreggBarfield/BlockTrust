@@ -7,7 +7,7 @@ import inspect
 import sys
 
 
-def add_connections_for_supply_chain(db):
+def add_connections_for_supply_chain(db, dry_run=False):
     cow_calf_accounts = Accounts(db).get_accounts(sector=sectors_by_name["Cow-Calf"])
     no_account_link_ranchers = []
     new_connections = []
@@ -15,15 +15,17 @@ def add_connections_for_supply_chain(db):
         account_link = AccountLinks(db).get_account_links(account_id=ranch["id"])
         if len(account_link) > 0:
             if len(new_connections_for_ranch := create_connections_for_supply_chain(
-                db, account_link[0]["id"], ranch["id"])
+                db, account_link[0]["id"], ranch["id"], dry_run)
             ) > 0:
                 new_connections.append(new_connections_for_ranch)
         else:
             no_account_link_ranchers.append(ranch["id"])
 
-    log = {}
-    log["new_connections"] = ",".join(str(i) for i in new_connections)
-    log["no_account_links_found"] = ",".join(str(i) for i in no_account_link_ranchers)
+    log = {
+        "dry_run": dry_run,
+        "new_connections": ",".join(str(i) for i in new_connections),
+        "no_account_links_found": ",".join(str(i) for i in no_account_link_ranchers)
+    }
     return log
 
 

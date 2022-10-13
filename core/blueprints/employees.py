@@ -15,6 +15,8 @@ from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.debug_logs import DebugLogs
 from ..database import scripts
+from ..database.combinations import perform_new_account_actions
+from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
 
 from ..sectors import sectors_by_id, sectors_by_name
@@ -59,7 +61,7 @@ def serve_employee_create_account_action():
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         # Creating an account without an admin
-        account = g.db.accounts.create_account(
+        account_obj = g.db.accounts.create_account(
                 phone=format_field(request.form['phone']),
                 company=format_field(required['company']),
                 partner=format_field(request.form['partner']),
@@ -72,14 +74,17 @@ def serve_employee_create_account_action():
         )
 
         # Creating a default pseudo admin user for created account
-        username = "DefaultAdminAccount#" + str(account.id())
+        username = "DefaultAdminAccount#" + str(account_obj.id())
         first_name = "Default"
         last_name = "Admin"
         # password is a random 8 digit number
         password = str(randint(10000000, 99999999))
         user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
         # Assigning user as admin
-        account.add_user(user, 1)
+        account_obj.add_user(user, 1)
+
+        perform_new_account_actions(g.db, account_obj.id(), user.id(), event_type_by_name["Account Created"], g.employee.id())
+
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}, 400
@@ -420,6 +425,7 @@ def serve_run_script(script):
         script_function = getattr(scripts, script)
         kwargs = {}
         kwargs["db"] = g.db
+        kwargs["dry_run"] = bool(request.args.get("dry_run")) if request.args.get("dry_run") else False
         if not (log := script_function(**kwargs)):
             log = {}
         log["runner"] = "Employee"
