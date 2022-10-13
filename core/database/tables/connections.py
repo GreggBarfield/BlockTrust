@@ -10,13 +10,13 @@ connection_status_name_to_id = {
     "Blocked": 2
 }
 
-connection_type_name_to_id = {
+CONNECTION_TYPE_NAME_TO_ID = {
     "Created": 1,
     "Acquired": 2
 }
 
-connection_type_id_to_name = {
-    value: key for key, value in connection_type_name_to_id.items()
+CONNECTION_TYPE_ID_TO_NAME = {
+    value: key for key, value in CONNECTION_TYPE_NAME_TO_ID.items()
 }
 
 

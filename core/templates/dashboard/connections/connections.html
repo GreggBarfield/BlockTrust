@@ -82,7 +82,7 @@
                 {% if connection.from_account_id == dashboard_standard_account.id() %}
                     <tr>
                         <td>{{connection.to_account_name}}</td>
-                        <td>{{connection_type_id_to_name[connection.connection_type_id]|upper}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                         <td>
                             <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}>
                                 <i class="feather icon-user"></i>View Profile
@@ -97,7 +97,7 @@
                 {% else %}
                     <tr>
                         <td>{{connection.from_account_name}}</td>
-                        <td>{{connection_type_id_to_name[connection.connection_type_id]|upper}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                         <td>
                             <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}>
                                 <i class="feather icon-user"></i>View Profile
@@ -131,7 +131,7 @@
                         {% if blocked_connection.from_account_id == dashboard_standard_account.id() %}
                         <tr>
                             <td>{{blocked_connection.to_account_name}}</td>
-                            <td>{{connection_type_id_to_name[connection.connection_type_id]|upper}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock
@@ -141,7 +141,7 @@
                         {% else %}
                         <tr>
                             <td>{{blocked_connection.from_account_name}}</td>
-                            <td>{{connection_type_id_to_name[connection.connection_type_id]|upper}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock

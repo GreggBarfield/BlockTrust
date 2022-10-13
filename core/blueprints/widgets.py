@@ -13,7 +13,7 @@ from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK
 from ..database.objects.account import AccountException
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
-from ..database.tables.connections import Connections, connection_status_name_to_id, connection_type_name_to_id
+from ..database.tables.connections import Connections, connection_status_name_to_id, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_users import AccountUsers
 from ..database.tables.sustainability_responses import SustainabilityResponses
@@ -623,7 +623,7 @@ def serve_add_connection_request():
         invited_accounts = request.json["invited_account_ids_list"]
         for invited_account in invited_accounts:
             Connections(g.db).create_or_fail_connection(g.account.id(), invited_account, connection_status_name_to_id["Pending"],
-                                                        connection_type_id=connection_type_name_to_id["Created"])
+                                                        connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"])
             if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
                 if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
                     send_email(

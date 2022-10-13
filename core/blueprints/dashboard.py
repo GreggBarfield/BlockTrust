@@ -12,7 +12,7 @@ from ..sectors import sectors_by_id, sectors_by_name
 from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
-from ..database.tables.connections import connection_status_name_to_id, connection_type_id_to_name
+from ..database.tables.connections import connection_status_name_to_id, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -429,7 +429,7 @@ def serve_connections():
         "account_connections": account_connections,
         "requests": requests,
         "blocked_connections": blocked_connections,
-        "connection_type_id_to_name": connection_type_id_to_name
+        "CONNECTION_TYPE_ID_TO_NAME": CONNECTION_TYPE_ID_TO_NAME
     })
 
 
