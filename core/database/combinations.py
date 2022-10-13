@@ -1,4 +1,4 @@
-"""Reusable functions which perform actions using multiple tables"""
+"""Reusable functions which perform actions using multiple table routines"""
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.event_logs import EventLogs
 from .tables.matches import Matches
