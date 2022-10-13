@@ -140,12 +140,54 @@ class Accounts:
             return None
         return Account(self._db, account_rows[0])
 
-
-    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
-        """Creates a new account with the user automatically added as the admin.
+    def validate_new_account(self, sector, partner, affiliate_id, phone):
+        """validates input to create account
 
         Params:
-            user: a User object (assumed to be safe)
+            sector: the sector number
+            partner: partner id
+            affiliate_id: account number in our partners system
+
+        Returns:
+            Processed sector and phone in that order
+
+        Raises:
+            AccountsException
+        """
+        if partner is not None:
+            if affiliate_id is None:
+                raise AccountsException("You have not entered a partner id for the selected partner")
+            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
+            if len(accounts) > 0:
+                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+
+        try:
+            sector = int(sector)
+        except Exception as e:
+            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
+
+        if sector not in sectors_by_id:
+            raise AccountsException("Sector number is not listed internally.")
+
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+
+        return sector, phone
+
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account without a user.
+
+        Params:
             company: the company name
             sector: the sector number
             partner: partner id
@@ -191,11 +233,8 @@ class Accounts:
         # update account name
         name = company
         if sector == sectors_by_name["Cow-Calf"]:
-            name = "Ranch "+ str(account.id())
+            name = "Ranch " + str(account.id())
         self.update_account(account.id(), name=name)
-
-        # make the first user the account admin
-        account.add_user(user, 1)
 
         # Link the account appropriately in the database
         self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
@@ -205,54 +244,11 @@ class Accounts:
 
         return account
 
-    def validate_new_account(self, sector, partner, affiliate_id, phone):
-        """validates input to create account
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+        """Creates a new account with the user automatically added as the admin.
 
         Params:
-            sector: the sector number
-            partner: partner id
-            affiliate_id: account number in our partners system
-
-        Returns:
-            Processed sector and phone in that order
-
-        Raises:
-            AccountsException
-        """
-        if partner is not None:
-            if affiliate_id is None:
-                raise AccountsException("You have not entered a partner id for the selected partner")
-            accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0:
-                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
-
-        try:
-            sector = int(sector)
-        except Exception as e:
-            raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
-
-        if sector not in sectors_by_id:
-            raise AccountsException("Sector number is not listed internally.")
-        
-        # Process phone
-        if phone != None:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-        
-        return sector, phone
-
-    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
-        """Creates a new account without a user.
-
-        Params:
+            user: a User object (assumed to be safe)
             company: the company name
             sector: the sector number
             partner: partner id
@@ -270,41 +266,10 @@ class Accounts:
             AccountsException
         """
 
-        # Validations
-        affiliate_id = int(affiliate_id) if affiliate_id.isdigit() else affiliate_id
-        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
+        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone)
 
-        self._db.execute(
-            """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
-                VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
-            """,
-            {
-                "company": company,
-                "sector": sector,
-                "partner": partner,
-                "affiliate_id": affiliate_id,
-                "address": address,
-                "city": city,
-                "state": state,
-                "zip": zip,
-                "phone": phone
-            }
-        )
-        account = self.get_account_by_id(self._db.last_row_id())
-
-        # update account name
-        name = company
-        if sector == sectors_by_name["Cow-Calf"]:
-            name = "Ranch " + str(account.id())
-        self.update_account(account.id(), name=name)
-
-        # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
-
-        # Create reports needed for the account
-        self._db.reports.make_reports_for_account(account.id(), account.sector_id())
+        # make the first user the account admin
+        account.add_user(user, 1)
 
         return account
 

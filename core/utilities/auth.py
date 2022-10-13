@@ -9,7 +9,7 @@ from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.account_links import AccountLinks
-from ..database.combinations import create_connections_for_supply_chain
+from ..database.combinations import create_connections_for_supply_chain, perform_new_account_actions
 from ..renderers.email import render_email
 
 from ..utilities.general_utilities import validate_email, format_field
@@ -211,11 +211,9 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         )
         ConnectionInvites(g.db).convert_invites_to_connections(email, account_obj)
 
-        account_link_id = AccountLinks(g.db).get_account_links(account_id=account_obj.id())[0]["id"]
-        new_connections = create_connections_for_supply_chain(g.db, account_link_id, account_obj.id())
+        perform_new_account_actions(db=g.db, account_id=account_obj.id(), user_id=user.id(),
+                                    event_type_id=event_type_by_name["Signup"])
 
-        EventLogs(g.db).insert_event_log(account_id=account_obj.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"],
-                                         details={"connections": ",".join(str(n) for n in new_connections)})
     except Exception as e:
         raise e
 
