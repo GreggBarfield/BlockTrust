@@ -71,8 +71,8 @@
             <table class="table table-xs">
                 <thead>
                     <tr>
-                        <th>Account ID</th>
                         <th>Account Name</th>
+                        <th>Type</th>
                         <th></th>
                         <th></th>
                     </tr>
@@ -81,8 +81,8 @@
             {% for connection in account_connections %}
                 {% if connection.from_account_id == dashboard_standard_account.id() %}
                     <tr>
-                        <td>{{connection.to_account_id}}</td>
                         <td>{{connection.to_account_name}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                         <td>
                             <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}>
                                 <i class="feather icon-user"></i>View Profile
@@ -96,8 +96,8 @@
                     </tr>
                 {% else %}
                     <tr>
-                        <td>{{connection.from_account_id}}</td>
                         <td>{{connection.from_account_name}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                         <td>
                             <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}>
                                 <i class="feather icon-user"></i>View Profile
@@ -121,8 +121,8 @@
             <table class="table table-xs">
                 <thead>
                     <tr>
-                        <th>Account ID</th>
                         <th>Account Name</th>
+                        <th>Type</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -130,8 +130,8 @@
                     {% for blocked_connection in blocked_connections %}
                         {% if blocked_connection.from_account_id == dashboard_standard_account.id() %}
                         <tr>
-                            <td>{{blocked_connection.to_account_id}}</td>
                             <td>{{blocked_connection.to_account_name}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock
@@ -140,8 +140,8 @@
                         </tr>
                         {% else %}
                         <tr>
-                            <td>{{blocked_connection.from_account_id}}</td>
                             <td>{{blocked_connection.from_account_name}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock

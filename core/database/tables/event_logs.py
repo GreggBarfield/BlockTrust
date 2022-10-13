@@ -1,4 +1,5 @@
 from ..no_value import NoValue
+from json import dumps
 
 NO_VALUE = NoValue()
 
@@ -9,7 +10,8 @@ event_type_by_name = {
     "User Info Edit": 4,
     "Email Verified": 5,
     "Invited Signup": 6,
-    "Sales Group Purchase": 7
+    "Sales Group Purchase": 7,
+    "Account Created": 8
 }
 event_type_by_id = {
     value: key
@@ -90,6 +92,6 @@ class EventLogs:
                 "account_id": account_id,
                 "user_id": user_id,
                 "event_type_id": event_type_id,
-                "details": details
+                "details": dumps(details) if details else None
             }
         )
