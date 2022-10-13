@@ -1,14 +1,10 @@
 import time as time_module
 import json
-from datetime import  datetime
+from datetime import datetime
 from core.database.no_value import NoValue
 from ..frag import frag
 from core.match_types import match_types_by_name
-from core.sectors import sectors_by_name
-from .scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
-from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 from ..objects.animal import Animal
-
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
 NO_VALUE = NoValue()
@@ -274,10 +270,11 @@ class Matches:
             return match_rows
         else:
             return []
-    
+
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
-        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE, account_links_account_id=NO_VALUE,
-        matches_partner_account_id=NO_VALUE , is_distinct=False, matches_cols=()):
+                                       matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
+                                       account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE, is_distinct=False,
+                                       matches_cols=()):
         """
         Get an account by the values specified.
 
@@ -398,6 +395,8 @@ class Matches:
                 "zip": zip
             }
         )
+
+        return self._db.last_row_id()
 
     def get_count_eid_distinct(self):
         """Count the number of distinct EIDs in the database.
@@ -629,17 +628,18 @@ class Matches:
         """
         matches = []
         if account_id is None:
-            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
+            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid",))
 
             if len(matches) == 0:
                 matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
+
         else:
             matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
-                is_distinct=True, matches_cols=("eid", "visual_id"))
+                                                          is_distinct=True, matches_cols=("eid", "visual_id"))
 
             if len(matches) == 0:
                 matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
-                    is_distinct=True, matches_cols=("eid", "visual_id"))
+                                                              is_distinct=True, matches_cols=("eid", "visual_id"))
 
         return matches
 
@@ -759,8 +759,9 @@ class MatchTypes:
                                         account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
         if len(match) > 0:
             print("Sighting match exists. Match ID: ", match[0]["id"])
+            return 0
         else:
-            self._generic_insert(
+            return self._generic_insert(
                 type_int=match_types_by_name["Sighting"],
                 **kwargs
             )
@@ -771,7 +772,7 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Weaned"],
             **kwargs
         )
@@ -783,7 +784,7 @@ class MatchTypes:
             weight: The weight in pounds (number)
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Hot Weight"],
             data=float(weight),
             **kwargs
@@ -796,7 +797,7 @@ class MatchTypes:
             kwargs: See _generic_insert
                 Recommended: time
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Born"],
             **kwargs
         )
@@ -810,7 +811,7 @@ class MatchTypes:
         """
         assert isinstance(grade, (float, int))
 
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["USDA Yield Grade"],
             data=grade,
             **kwargs
@@ -824,7 +825,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         assert isinstance(grade, str)
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["USDA Quality Grade"],
             data=grade,
             **kwargs
@@ -848,7 +849,7 @@ class MatchTypes:
             raise ValueError("data should be a dictionary")
         if time is None:
             raise ValueError("time should not be None")
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Medical"],
             time=time,
             data=data,
@@ -861,7 +862,7 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Railed"],
             **kwargs
         )
@@ -873,7 +874,7 @@ class MatchTypes:
             packer_str: Temporary string format, see FeederResultsCSV
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Packer"],
             data=packer_str,
             **kwargs
@@ -886,7 +887,7 @@ class MatchTypes:
             reason: String or None
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Died"],
             data=reason,
             **kwargs
@@ -898,7 +899,7 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        self._generic_insert(
+        return self._generic_insert(
             type_int=match_types_by_name["Sold"],
             **kwargs
         )
@@ -916,11 +917,10 @@ class MatchTypes:
                                           account_link=account_link, lat=lat, lon=lon, time=time, selectColumns=["id"])
         if len(match) > 0:
             print("Match exists. Match ID: ", match[0]["id"])
+            return 0
         else:
-            if type_int == match_types_by_name["USDA Yield Grade"]:
-                self.schedule_match_found_email(eid)
             # Insert a match only if match doesn't already exist
-            self._matches.insert(
+            return self._matches.insert(
                 eid=eid,
                 visual_id=visual_id,
                 type_int=type_int,
@@ -935,28 +935,3 @@ class MatchTypes:
                 debug=debug,
                 api_insert=api_insert
             )
-
-    def schedule_match_found_email(self, eid):
-        if len(sightings := self._matches.get_matches_with_account_links(
-            matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
-            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created"
-        )) > 0:
-            owner_match_account_link = sightings[0]
-            scheduled_emails_data_access = ScheduledEmails(self._db)
-            # if same email is not yet to be sent, add the scheduled email. Scheduled emails are processed once a day.
-            if len(scheduled_emails_data_access.get_scheduled_emails(
-                subject=EMAILS["MATCH FOUND"]["SUBJECT"],
-                status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
-            )) == 0:
-                if len(match_account_admin_users := self._db.account_users.get_account_users(account=owner_match_account_link["account"], is_admin=1)) > 0:
-                    if len(users := self._db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
-                        scheduled_emails_data_access.insert_scheduled_email(
-                            user_id=users[0]["id"], account_id=owner_match_account_link["account"], subject=EMAILS["MATCH FOUND"]["SUBJECT"],
-                            body=EMAILS["MATCH FOUND"]["BODY"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
-                        )
-                        if SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND:
-                            notification_email = f"A match has been found for account: <strong>{owner_match_account_link['company']}</strong>"
-                            scheduled_emails_data_access.insert_scheduled_email(
-                                email_address=SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND, account_id=owner_match_account_link["account"], subject="Match found",
-                                body=notification_email, status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
-                            )

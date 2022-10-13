@@ -1,8 +1,8 @@
-"""Routines which perform changes to the BlockTrustNetwork database."""
+"""Routines which can be run individually to perform specific changes to the database."""
 from .tables.accounts import Accounts
 from .tables.account_links import AccountLinks
 from ..sectors import sectors_by_name
-from .utilities import create_connections_for_supply_chain
+from .combinations import create_connections_for_supply_chain
 import inspect
 import sys
 
@@ -15,7 +15,8 @@ def add_connections_for_supply_chain(db):
         account_link = AccountLinks(db).get_account_links(account_id=ranch["id"])
         if len(account_link) > 0:
             if len(new_connections_for_ranch := create_connections_for_supply_chain(
-             db, account_link[0]["id"], ranch["id"])) > 0:
+                db, account_link[0]["id"], ranch["id"])
+            ) > 0:
                 new_connections.append(new_connections_for_ranch)
         else:
             no_account_link_ranchers.append(ranch["id"])
