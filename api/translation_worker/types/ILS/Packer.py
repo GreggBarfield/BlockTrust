@@ -3,7 +3,7 @@ from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import sectors_by_name
-from core.database.combinations import perform_feeder_packer_actions
+from core.database.combinations import perform_feeder_packer_data_received_actions
 
 def _check_format(insert):
     keys = [
@@ -148,8 +148,8 @@ def handle(db: Database, insert):
             api_insert=api_insert
         )
 
-        perform_feeder_packer_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
-                                      packer_account_id=packer.id() if packer is not None else None)
+        perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
+                                                    packer_account_id=packer.id() if packer is not None else None)
 
         # Hot Weight
         if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
@@ -205,4 +205,4 @@ def handle(db: Database, insert):
                         zip=zipcode
                     )
 
-            perform_feeder_packer_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id())
+            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id())

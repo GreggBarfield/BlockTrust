@@ -32,7 +32,6 @@ def schedule_match_found_email(db, owner_match_account_link):
     if len(match_account_admin_users := db.account_users.get_account_users(account=owner_match_account_link["account"], is_admin=1)) > 0:
         for account_user in match_account_admin_users:
             if len(user := db.users.get_users(id=account_user["user"], is_email_verified=1)) > 0:
-                print("user:", user)
                 # if same email is not yet to be sent, add the scheduled email. Scheduled emails are processed once a day.
                 if len(scheduled_emails_data_access.get_scheduled_emails(
                     user_id=user[0]["id"],
@@ -52,7 +51,7 @@ def schedule_match_found_email(db, owner_match_account_link):
                         )
 
 
-def perform_feeder_packer_actions(db, eid, schedule_email=False, feeder_account_id=None, packer_account_id=None):
+def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=None, packer_account_id=None):
     """
     Performs actions when new data is received from a feeder/packer
     """
@@ -64,7 +63,7 @@ def perform_feeder_packer_actions(db, eid, schedule_email=False, feeder_account_
 
         debug_log = {"schedule_email": schedule_email, "owner_account_id": owner_match_account_link['account'],
                      "feeder_account_id": feeder_account_id, "packer_account_id": packer_account_id}
-        DebugLogs(db).insert_debug_log(perform_feeder_packer_actions.__name__, "Function execution", None, debug_log)
+        DebugLogs(db).insert_debug_log(perform_feeder_packer_data_received_actions.__name__, "Function execution", None, debug_log)
 
         if schedule_email:
             schedule_match_found_email(db, owner_match_account_link)
