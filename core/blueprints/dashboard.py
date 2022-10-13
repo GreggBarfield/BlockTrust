@@ -12,7 +12,7 @@ from ..sectors import sectors_by_id, sectors_by_name
 from ..common_exceptions import ExportException
 
 from ..database.tables.connections import Connections
-from ..database.tables.connections import connection_status_name_to_id, CONNECTION_TYPE_ID_TO_NAME
+from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -82,7 +82,7 @@ def serve_account_id(account_id):
     unread_notifications_count = len(unread_notifications_list)
 
     pending_connection_requests_count = 0
-    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"]))
+    pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"]))
 
     account_params = {
         "account": account,
@@ -422,8 +422,8 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_account_connections(g.account.id(), connection_status_name_to_id["Connected"])
-    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=connection_status_name_to_id["Pending"])
+    account_connections = Connections(g.db).get_account_connections(g.account.id(), CONNECTION_STATUS_NAME_TO_ID["Connected"])
+    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"])
     blocked_connections = Connections(g.db).get_connections(blocked_by_account_id=g.account.id())
     return dashboard_render("/dashboard/connections/connections.html", {
         "account_connections": account_connections,
@@ -445,7 +445,7 @@ def serve_accept_invite():
     Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
-        status=connection_status_name_to_id["Connected"]
+        status=CONNECTION_STATUS_NAME_TO_ID["Connected"]
     )
     return {}
 
@@ -466,7 +466,7 @@ def serve_accept_invite():
 def serve_block_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
-        connection_status_id=connection_status_name_to_id["Blocked"],
+        connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Blocked"],
         blocked_by_account_id=g.account.id()
     )
     return {}
@@ -477,7 +477,7 @@ def serve_block_connection():
 def serve_unblock_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
-        connection_status_id=connection_status_name_to_id["Connected"],
+        connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Connected"],
         blocked_by_account_id=None
     )
     return {}
@@ -487,7 +487,7 @@ def serve_unblock_connection():
 @crut.require_account
 def serve_view_profile(account_id):
     account_details = g.db.accounts.get_account_by_id(account_id)
-    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), connection_status_name_to_id["Connected"]) is not None:
+    if Connections(g.db).get_connection_between(g.account.id(), account_details.id(), CONNECTION_STATUS_NAME_TO_ID["Connected"]) is not None:
         return dashboard_render("/dashboard/connections/view-profile.html", {"account_details": account_details})
     else:
         return redirect("/dashboard/connections")

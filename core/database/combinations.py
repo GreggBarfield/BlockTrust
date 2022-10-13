@@ -2,7 +2,7 @@
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.event_logs import EventLogs
 from .tables.matches import Matches
-from .tables.connections import Connections, ConnectionException, connection_status_name_to_id, CONNECTION_TYPE_NAME_TO_ID
+from .tables.connections import Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.match_types import match_types_by_name
 from core.sectors import sectors_by_name
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
@@ -19,7 +19,7 @@ def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_a
             if not dry_run:
                 try:
                     Connections(db).create_or_fail_connection(from_account_id=cow_calf_account_id, to_account_id=account_link["account"],
-                                                              status=connection_status_name_to_id["Connected"],
+                                                              status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                                                               connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
                 except ConnectionException:
                     pass
@@ -71,7 +71,7 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
             if feeder_account_id:
                 Connections(db).create_or_fail_connection(from_account_id=owner_match_account_link["account"],
                                                           to_account_id=feeder_account_id,
-                                                          status=connection_status_name_to_id["Connected"],
+                                                          status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                                                           connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
         except ConnectionException:
             pass
@@ -80,7 +80,7 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
             if packer_account_id:
                 Connections(db).create_or_fail_connection(from_account_id=owner_match_account_link["account"],
                                                           to_account_id=packer_account_id,
-                                                          status=connection_status_name_to_id["Connected"],
+                                                          status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                                                           connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
         except ConnectionException:
             pass
