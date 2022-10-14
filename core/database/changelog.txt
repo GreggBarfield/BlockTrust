@@ -1714,3 +1714,8 @@ ADD COLUMN `blocked_date_time` DATETIME DEFAULT NULL;
 /* Rohan Sureshkumar 10/3/2022 */
 ALTER TABLE `connections` 
 CHANGE COLUMN `status` `connection_status_id` INT NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/14/2022 */
+ALTER TABLE `connections` 
+DROP COLUMN `to_account_name`,
+DROP COLUMN `from_account_name`;
