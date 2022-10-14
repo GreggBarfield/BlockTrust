@@ -106,7 +106,6 @@ def send_connection_request_email_to_admin_users(db, to_account_id, from_account
     if len(admin_account_users := AccountUsers(db).get_account_users(account=to_account_id, is_admin=1)) > 0:
         for admin_account_user in admin_account_users:
             if len(email_verified_user := Users(db).get_users(id=admin_account_user["user"], is_email_verified=1)) > 0:
-                print(email_verified_user)
                 send_email(
                     "BlockTrust Network New Connection Request",
                     render_email("new_connection_request.html", {

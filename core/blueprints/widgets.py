@@ -1,27 +1,20 @@
 import json
 from flask import (
-    Flask, request, session, Blueprint, g, redirect, render_template, url_for
+    request, Blueprint, g, url_for
 )
-
-from core.database.combinations import send_connection_request_email_to_admin_users
 
 from ..sectors import sectors_by_name, sectors_by_id
 from ..match_types import match_types_by_name, match_types_by_id
 
 from ..common_exceptions import ExportException
 
-from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_COMPANY
-from ..database.objects.account import AccountException
+from ..database.combinations import send_connection_request_email_to_admin_users
+from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.account_users import AccountUsers
 from ..database.tables.sustainability_responses import SustainabilityResponses
-from ..database.tables.users import Users
-
-from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
 
