@@ -8,6 +8,8 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.account_links import AccountLinks
+from ..database.combinations import create_connections_for_supply_chain, perform_new_account_actions
 from ..renderers.email import render_email
 
 from ..utilities.general_utilities import validate_email, format_field
@@ -189,13 +191,13 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         last_name=last_name,
         phone=personal_phone,
         email_verified=0,
-        recaptcha_score = recaptcha_score,
-        ip_address = ip_address,
-        ip_country = ip_country
+        recaptcha_score=recaptcha_score,
+        ip_address=ip_address,
+        ip_country=ip_country
     )
 
     try:
-        account = g.db.accounts.create_account_with_admin(
+        account_obj = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -207,11 +209,12 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
-        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
-        EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"])
+        ConnectionInvites(g.db).convert_invites_to_connections(email, account_obj)
+
+        perform_new_account_actions(db=g.db, account_id=account_obj.id(), user_id=user.id(),
+                                    event_type_id=event_type_by_name["Signup"])
+
     except Exception as e:
-        # Delete the user if there are errors in account creation. This will let them register again.
-        g.db.users.delete_by_user(user)
         raise e
 
 

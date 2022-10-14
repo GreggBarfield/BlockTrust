@@ -3,6 +3,7 @@ from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import sectors_by_name
+from core.database.combinations import perform_feeder_packer_data_received_actions
 
 def _check_format(insert):
     keys = [
@@ -45,6 +46,7 @@ def handle(db: Database, insert):
     api_insert = insert["id"]
 
     feeder_account_link = None
+    feeder = None
     if fields["Company"] != "":
         feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
                                                                         sector=sectors_by_name["Feedlot"], insert=True)[0]
@@ -97,7 +99,7 @@ def handle(db: Database, insert):
         # add sighting at packer using plant id
 
         if fields["PlantID"].isdigit():
-            fields["PlantID"] =  fields["PlantID"].lstrip("0")
+            fields["PlantID"] = fields["PlantID"].lstrip("0")
 
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
@@ -138,13 +140,16 @@ def handle(db: Database, insert):
         )
 
         # USDAQualityGrade
-        db.matches.types.insert_usda_quality_grade(
+        id = db.matches.types.insert_usda_quality_grade(
             fields["USDAQualityGrade"],
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
             api_insert=api_insert
         )
+
+        perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
+                                                    packer_account_id=packer.id() if packer is not None else None)
 
         # Hot Weight
         if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
@@ -199,3 +204,5 @@ def handle(db: Database, insert):
                         api_insert=api_insert,
                         zip=zipcode
                     )
+
+            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id())

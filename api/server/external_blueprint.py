@@ -2,7 +2,7 @@ from flask import (
     request, Blueprint, g
 )
 from core.database.database import Database
-from core.database.tables.connections import Connections, ConnectionException, connection_status_name_to_id, connection_type_name_to_id
+from core.database.tables.connections import Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sustainability_responses import SustainabilityResponses
@@ -73,14 +73,14 @@ def serve_get_animal_data():
             account_id = match["account"]
 
             # check if connection is established
-            if Connections(g.db).get_connection_between(account_id, requesting_account["id"], connection_status_name_to_id["Connected"]) is None:
+            if Connections(g.db).get_connection_between(account_id, requesting_account["id"], CONNECTION_STATUS_NAME_TO_ID["Connected"]) is None:
                 # create a new pending connection
                 try:
                     Connections(g.db).create_or_fail_connection(
                         from_account_id=requesting_account["id"],
                         to_account_id=account_id,
-                        status=connection_status_name_to_id["Pending"],
-                        connection_type_id=connection_type_name_to_id["Created"]
+                        status=CONNECTION_STATUS_NAME_TO_ID["Pending"],
+                        connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
                     )
                 except ConnectionException as e:
                     pass
