@@ -1,8 +1,9 @@
 from flask import (
     request, Blueprint, g
 )
+from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
-from core.database.tables.connections import Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
+from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sustainability_responses import SustainabilityResponses
@@ -10,9 +11,7 @@ from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
-from core.renderers.email import render_email
 from core.sectors import sectors_by_name
-from core.utilities.email import send_email
 from json import loads
 from datetime import datetime
 from traceback import format_exc
@@ -39,8 +38,8 @@ def serve_get_animal_data():
             APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
         else:
-            requesting_account = requesting_account_list[0]
-        APIDataRequests(g.db).insert_api_data_request(account_id=requesting_account["id"], api_route=request.path, request_data=request_data)
+            authenticated_account = requesting_account_list[0]
+        APIDataRequests(g.db).insert_api_data_request(account_id=authenticated_account["id"], api_route=request.path, request_data=request_data)
 
         birth_date = None
         visual_id = None
@@ -63,55 +62,43 @@ def serve_get_animal_data():
         zip_code = None
         sustainability = {}
 
-        match_ranch_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
-            account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
+        owner_account_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
+                                                                              account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
         unauthorized_message = "Access to this EID is not allowed at this time"
-        if len(match_ranch_sightings) == 0:
+        if len(owner_account_sightings) == 0:
             return {"error": unauthorized_message}, 401
         else:
-            match = match_ranch_sightings[0]
-            account_id = match["account"]
+            owner_account_link_and_match = owner_account_sightings[0]
+            owner_account_id = owner_account_link_and_match["account"]
 
-            # check if connection is established
-            if Connections(g.db).get_connection_between(account_id, requesting_account["id"], CONNECTION_STATUS_NAME_TO_ID["Connected"]) is None:
+            existing_connection = Connections(g.db).get_connection_between(owner_account_id, authenticated_account["id"])
+            if existing_connection is None:
                 # create a new pending connection
-                try:
-                    Connections(g.db).create_or_fail_connection(
-                        from_account_id=requesting_account["id"],
-                        to_account_id=account_id,
+                Connections(g.db).create_or_fail_connection(
+                        from_account_id=authenticated_account["id"],
+                        to_account_id=owner_account_id,
                         status=CONNECTION_STATUS_NAME_TO_ID["Pending"],
                         connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
-                    )
-                except ConnectionException as e:
-                    pass
-                else:
-                    # send an email to admin of match account
-                    if len(match_account_admin_users := g.db.account_users.get_account_users(account=account_id, is_admin=1)) > 0:
-                        if len(email_verified_admin_user := g.db.users.get_users(id=match_account_admin_users[0]["user"], is_email_verified=1)) > 0:
-                            send_email(
-                                "BlockTrust Network New Connection Request",
-                                render_email("new_connection_request.html", {
-                                    "connection_receiving_user": email_verified_admin_user[0],
-                                    "requesting_account": requesting_account
-                                }), email_verified_admin_user[0]["email"]
-                            )
-                finally:
-                    return {"error": unauthorized_message}, 401
+                )
+                send_connection_request_email_to_admin_users(g.db, owner_account_id, authenticated_account["id"])
+                return {"error": unauthorized_message}, 401
+            elif existing_connection["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
+                return {"error": unauthorized_message}, 401
 
             match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
             if len(match_birth_date_row) > 0:
                 birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
 
-            if match["data"] is not None:
-                data = loads(match["data"])
+            if owner_account_link_and_match["data"] is not None:
+                data = loads(owner_account_link_and_match["data"])
                 birth_weight = data.get("birth_weight", None)
                 description = data.get("description", None)
                 sex = data.get("sex", None)
-            visual_id = match["visual_id"]
-            if match["debug"] is not None:
-                zip_code = loads(match["debug"]).get("zip", None)
+            visual_id = owner_account_link_and_match["visual_id"]
+            if owner_account_link_and_match["debug"] is not None:
+                zip_code = loads(owner_account_link_and_match["debug"]).get("zip", None)
 
-            sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id)
+            sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=owner_account_id)
             if len(sustainability_responses) > 0:
                 latest_response = sustainability_responses[0]
                 sustainability["airAndGHGemissions"] = latest_response.get("air_points", 0)
@@ -125,10 +112,10 @@ def serve_get_animal_data():
 
             match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
             if len(match_wean_row) > 0:
-                match = match_wean_row[0]
-                wean_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
-                if match["data"] is not None:
-                    data = loads(match["data"])
+                owner_account_link_and_match = match_wean_row[0]
+                wean_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
+                if owner_account_link_and_match["data"] is not None:
+                    data = loads(owner_account_link_and_match["data"])
                     creep_feed = data.get("creep_feed", None)
                     first_14_day_feed_method = data.get("first_14_method", None)
                     second_31_day_feed_method = data.get("second_31_method", None)
@@ -137,11 +124,11 @@ def serve_get_animal_data():
 
             match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
             if len(match_sold_row) > 0:        
-                match = match_sold_row[0]
-                if match['time'] is not None:
-                    marketing_date = datetime.utcfromtimestamp(match['time']).strftime('%Y-%m-%d %H:%M:%S')
-                if match["data"] is not None:
-                    data = loads(match["data"])
+                owner_account_link_and_match = match_sold_row[0]
+                if owner_account_link_and_match['time'] is not None:
+                    marketing_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
+                if owner_account_link_and_match["data"] is not None:
+                    data = loads(owner_account_link_and_match["data"])
                     marketing_method_name = data.get("method", None)
                     sale_location = data.get("location", None)
                     number_of_calves = data.get("group_size", None)
@@ -182,11 +169,11 @@ def serve_get_animal_data():
                 "sustainabilityScores": sustainability if sustainability != {} else None
             }
 
-            ViewLogs(g.db).insert_view_logs(owner_account_id=account_id, viewer_account_id=requesting_account["id"],
+            ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
                                             data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=eid)
 
             if len(sustainability_responses) > 0:
-                ViewLogs(g.db).insert_view_logs(owner_account_id=account_id, viewer_account_id=requesting_account["id"],
+                ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
                                                 data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability Score"],
                                                 sustainability_response_id=latest_response["id"])
 

@@ -37,27 +37,6 @@ class Connections:
     def __init__(self, db):
         self._db = db
 
-    def get_account_connections(self, account_id, status):
-        """
-        Params:
-            account_id: Account ID whose connections are requested
-            status: Status of the connections requested
-        Returns:
-            connections: List of connected accounts
-
-        """
-        connections = self._db.execute_d(
-            """
-            SELECT * FROM connections
-            WHERE (from_account_id= %(account_id)s OR to_account_id=%(account_id)s) AND connection_status_id= %(status)s
-            """,
-            {
-                "account_id": account_id,
-                "status": status
-            }
-        )
-        return connections
-
     def update_connection_between(self, from_account_id, to_account_id, status):
         """
         Updates the connection between two accounts
@@ -96,21 +75,19 @@ class Connections:
         Raises:
             ConnectionException on connection being present or connection request being present
         """
-        first_account = Accounts(self._db).get_account_by_id(account_id=from_account_id)
-        second_account = Accounts(self._db).get_account_by_id(account_id=to_account_id)
-        from_account_name = first_account.name()
-        to_account_name = second_account.name()
+        from_account = Accounts(self._db).get_accounts(id=from_account_id)[0]
+        to_account = Accounts(self._db).get_accounts(id=to_account_id)[0]
         existing_connection = self.get_connection_between(from_account_id, to_account_id)
         if existing_connection is not None:
             if existing_connection["connection_status_id"] == CONNECTION_STATUS_NAME_TO_ID["Connected"]:
-                raise ConnectionException(to_account_name + " is already connected!")
+                raise ConnectionException(from_account["name"] + " is already connected!")
             if existing_connection["connection_status_id"] == CONNECTION_STATUS_NAME_TO_ID["Pending"]:
-                raise ConnectionException("Connection Invite already sent to " + to_account_name)
+                raise ConnectionException("Connection Invite already sent to " + to_account["name"])
             if existing_connection["connection_status_id"] == CONNECTION_STATUS_NAME_TO_ID["Blocked"]:
                 raise ConnectionException("Cannot send Connection Invite")
-        self.insert_connection(from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id)
+        self.insert_connection(from_account_id, to_account_id, status, connection_type_id)
 
-    def insert_connection(self, from_account_id, to_account_id, status, from_account_name, to_account_name, connection_type_id):
+    def insert_connection(self, from_account_id, to_account_id, status, connection_type_id):
         """
         Returns:
             None
@@ -119,19 +96,19 @@ class Connections:
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, from_account_name, to_account_id, to_account_name, connection_status_id, connection_type_id)
+                    (from_account_id, to_account_id, connection_status_id, connection_type_id)
                     VALUES
-                        (%(from_account_id)s, %(from_account_name)s, %(to_account_id)s, %(to_account_name)s, %(status)s, %(connection_type_id)s)
+                        (%(from_account_id)s, %(to_account_id)s, %(status)s, %(connection_type_id)s)
             """,
             {
                 "from_account_id": from_account_id,
-                "from_account_name": from_account_name,
                 "to_account_id": to_account_id,
-                "to_account_name": to_account_name,
                 "status": status,
                 "connection_type_id": connection_type_id
             }
         )
+
+        return self._db.last_row_id()
 
     def get_connection_between(self, from_account_id, to_account_id, status=NO_VALUE):
         """
@@ -185,9 +162,8 @@ class Connections:
             return unconnected_accounts
         return []
 
-    def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, from_account_name=NO_VALUE,
-                        to_account_name=NO_VALUE, status=NO_VALUE, connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE,
-                        blocked_date_time=NO_VALUE):
+    def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
+                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False):
         """
         Gets the connections based on the provided parameters
 
@@ -195,8 +171,6 @@ class Connections:
             id: Connection table ID
             from_account_id: Account ID of first account
             to_account_id: Account ID of second account
-            from_account_name: Account name of first account
-            to_account_name: Account name of second account
             status: Connection status between accounts
             connection_type_id: Type of connection established
             blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
@@ -205,41 +179,40 @@ class Connections:
         Returns:
             A list of connections or and empty list
         """
-        base_query = "SELECT * FROM connections"
+
+        if get_full:
+            base_query = """
+                SELECT c.*, fa.name as from_account_name, ta.name as to_account_name FROM connections c
+                INNER JOIN accounts fa ON c.from_account_id = fa.id
+                INNER JOIN accounts ta on c.to_account_id=ta.id
+            """
+        else:
+            base_query = "SELECT * FROM connections c"
 
         query_conditions = []
         query_values = {}
 
         if id is not NO_VALUE:
-            query_conditions.append(" id = %(id)s")
+            query_conditions.append("c.id = %(id)s")
             query_values["id"] = id
         if from_account_id is not NO_VALUE:
-            query_conditions.append(" from_account_id = %(from_account_id)s")
+            query_conditions.append("from_account_id = %(from_account_id)s")
             query_values["from_account_id"] = from_account_id
         if to_account_id is not NO_VALUE:
-            query_conditions.append(" to_account_id = %(to_account_id)s")
+            query_conditions.append("to_account_id = %(to_account_id)s")
             query_values["to_account_id"] = to_account_id
-        if from_account_name is not NO_VALUE:
-            query_conditions.append(" from_account_name = %(from_account_name)s")
-            query_values["from_account_name"] = from_account_name
-        if to_account_name is not NO_VALUE:
-            query_conditions.append(" to_account_name = %(to_account_name)s")
-            query_values["to_account_name"] = to_account_name
         if status is not NO_VALUE:
-            query_conditions.append(" connection_status_id = %(status)s")
+            query_conditions.append("connection_status_id = %(status)s")
             query_values["status"] = status
         if connection_type_id is not NO_VALUE:
-            query_conditions.append(" connection_type_id = %(connection_type_id)s")
+            query_conditions.append("connection_type_id = %(connection_type_id)s")
             query_values["connection_type_id"] = connection_type_id
         if blocked_by_account_id is not NO_VALUE:
-            query_conditions.append(" blocked_by_account_id = %(blocked_by_account_id)s")
+            query_conditions.append("blocked_by_account_id = %(blocked_by_account_id)s")
             query_values["blocked_by_account_id"] = blocked_by_account_id
-        if blocked_date_time is not NO_VALUE:
-            query_conditions.append(" blocked_date_time = %(blocked_date_time)s")
-            query_values["blocked_date_time"] = blocked_date_time
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
 

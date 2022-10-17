@@ -422,9 +422,13 @@ def serve_invite_user():
 @bp.route('/dashboard/connections', methods=['GET'])
 @crut.require_account
 def serve_connections():
-    account_connections = Connections(g.db).get_account_connections(g.account.id(), CONNECTION_STATUS_NAME_TO_ID["Connected"])
-    requests = Connections(g.db).get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"])
-    blocked_connections = Connections(g.db).get_connections(blocked_by_account_id=g.account.id())
+    connections_data_access = Connections(g.db)
+    account_connections = connections_data_access.get_connections(from_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Connected"], 
+                                                                  get_full=True)
+    account_connections.extend(connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                                                                       get_full=True))
+    requests = connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"], get_full=True)
+    blocked_connections = connections_data_access.get_connections(blocked_by_account_id=g.account.id(), get_full=True)
     return dashboard_render("/dashboard/connections/connections.html", {
         "account_connections": account_connections,
         "requests": requests,

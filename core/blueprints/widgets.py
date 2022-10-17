@@ -1,6 +1,6 @@
 import json
 from flask import (
-    Flask, request, session, Blueprint, g, redirect, render_template, url_for
+    request, Blueprint, g, url_for
 )
 
 from ..sectors import sectors_by_name, sectors_by_id
@@ -8,18 +8,13 @@ from ..match_types import match_types_by_name, match_types_by_id
 
 from ..common_exceptions import ExportException
 
-from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.accounts import AccountsException, Accounts, HEALTH_TRACK_PARTNER_COMPANY
-from ..database.objects.account import AccountException
+from ..database.combinations import send_connection_request_email_to_admin_users
+from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.account_users import AccountUsers
 from ..database.tables.sustainability_responses import SustainabilityResponses
-from ..database.tables.users import Users
-
-from ..database.tables import zip_codes
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
 
@@ -621,18 +616,10 @@ def serve_create_auction_market():
 def serve_add_connection_request():
     try:
         invited_accounts = request.json["invited_account_ids_list"]
-        for invited_account in invited_accounts:
-            Connections(g.db).create_or_fail_connection(g.account.id(), invited_account, CONNECTION_STATUS_NAME_TO_ID["Pending"],
+        for invited_account_id in invited_accounts:
+            Connections(g.db).create_or_fail_connection(g.account.id(), invited_account_id, CONNECTION_STATUS_NAME_TO_ID["Pending"],
                                                         connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"])
-            if len(admin_account_users:=AccountUsers(g.db).get_account_users(account=invited_account, is_admin=1)) > 0:
-                if len(email_verified_admin_user:=Users(g.db).get_users(id=admin_account_users[0]["user"],is_email_verified=1)) > 0:
-                    send_email(
-                        "BlockTrust Network New Connection Request",
-                        render_email("new_account_connection_request.html", {
-                            'connection_receiving_user': email_verified_admin_user[0],
-                            'requesting_account': g.account
-                        }), email_verified_admin_user[0]["email"]
-                    )
+            send_connection_request_email_to_admin_users(g.db, invited_account_id, g.account.id())
         if request.json["unlisted_company"]:
             ConnectionInvites(g.db).add_connection_invite(
                 from_account=g.account.id(),
