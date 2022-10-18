@@ -209,7 +209,12 @@ def serve_search_sales_groups_2():
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number, account_id=g.account.id())
+    connected_cow_calf_account_ids = Connections(g.db).get_connected_account_ids(g.account.id(), sectors_by_name["Cow-Calf"])
+    rows = g.db.matches.get_matches_by_eid_or_visual_id(
+        eid_or_visual_id=eid_number,
+        account_id=g.account.id() if g.account.sector_id() == sectors_by_name["Cow-Calf"] else None,
+        connected_account_ids=connected_cow_calf_account_ids
+    )
     redirect_route = url_for('dashboard_bp.serve_animal_eid')
     if len(rows) > 0:
         return {
