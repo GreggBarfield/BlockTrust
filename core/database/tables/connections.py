@@ -164,7 +164,7 @@ class Connections:
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
                         connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False, 
-                        from_OR_to_account_id=NO_VALUE):
+                        from_account_id_OR_to_account_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -203,9 +203,9 @@ class Connections:
         if to_account_id is not NO_VALUE:
             query_conditions.append("to_account_id = %(to_account_id)s")
             query_values["to_account_id"] = to_account_id
-        if from_OR_to_account_id is not NO_VALUE:
+        if from_account_id_OR_to_account_id is not NO_VALUE:
             query_conditions.append("(from_account_id = %(account_id)s OR to_account_id = %(account_id)s)")
-            query_values["account_id"] = from_OR_to_account_id
+            query_values["account_id"] = from_account_id_OR_to_account_id
         if status is not NO_VALUE:
             query_conditions.append("connection_status_id = %(status)s")
             query_values["status"] = status
@@ -273,7 +273,7 @@ class Connections:
 
     def get_connected_account_ids(self, account_id, sector_id=None):
         connections = Connections(self._db).get_connections(
-            from_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_full=True
+            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_full=True
         )
 
         connected_account_ids = []
