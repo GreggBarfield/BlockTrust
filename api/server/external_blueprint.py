@@ -12,7 +12,7 @@ from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
 from core.sectors import sectors_by_name
-from json import loads
+import json
 from datetime import datetime
 from traceback import format_exc
 
@@ -28,18 +28,25 @@ def before_request():
 @bp.route("/fetch-animal-data", methods=["POST"])
 def serve_get_animal_data():
     try:
-        request_data = loads(request.data)
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
         if "eid" not in request_data or "token" not in request_data:
             raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
+        dry_run = bool(request_data.get("dry_run"))
+
         requesting_account_list = g.db.accounts.get_accounts(token=token)
         if len(requesting_account_list) == 0:
-            APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
+            if not dry_run:
+                APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data=request_data)
             raise ExportException("Bad token. You are not authorized")
         else:
             authenticated_account = requesting_account_list[0]
-        APIDataRequests(g.db).insert_api_data_request(account_id=authenticated_account["id"], api_route=request.path, request_data=request_data)
+        if not dry_run:
+            APIDataRequests(g.db).insert_api_data_request(account_id=authenticated_account["id"], api_route=request.path, request_data=request_data)
 
         birth_date = None
         visual_id = None
@@ -74,13 +81,16 @@ def serve_get_animal_data():
             existing_connection = Connections(g.db).get_connection_between(owner_account_id, authenticated_account["id"])
             if existing_connection is None:
                 # create a new pending connection
-                Connections(g.db).create_or_fail_connection(
-                        from_account_id=authenticated_account["id"],
-                        to_account_id=owner_account_id,
-                        status=CONNECTION_STATUS_NAME_TO_ID["Pending"],
-                        connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
-                )
-                send_connection_request_email_to_admin_users(g.db, owner_account_id, authenticated_account["id"])
+                if not dry_run:
+                    Connections(g.db).create_or_fail_connection(
+                            from_account_id=authenticated_account["id"],
+                            to_account_id=owner_account_id,
+                            status=CONNECTION_STATUS_NAME_TO_ID["Pending"],
+                            connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
+                    )
+                    send_connection_request_email_to_admin_users(g.db, owner_account_id, authenticated_account["id"])
+                else:
+                    return {"dry_run": f"Connection doesn't exist between {authenticated_account['id']} and {owner_account_id}"}
                 return {"error": unauthorized_message}, 401
             elif existing_connection["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
                 return {"error": unauthorized_message}, 401
@@ -90,13 +100,13 @@ def serve_get_animal_data():
                 birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
 
             if owner_account_link_and_match["data"] is not None:
-                data = loads(owner_account_link_and_match["data"])
+                data = json.loads(owner_account_link_and_match["data"])
                 birth_weight = data.get("birth_weight", None)
                 description = data.get("description", None)
                 sex = data.get("sex", None)
             visual_id = owner_account_link_and_match["visual_id"]
             if owner_account_link_and_match["debug"] is not None:
-                zip_code = loads(owner_account_link_and_match["debug"]).get("zip", None)
+                zip_code = json.loads(owner_account_link_and_match["debug"]).get("zip", None)
 
             sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=owner_account_id)
             if len(sustainability_responses) > 0:
@@ -115,7 +125,7 @@ def serve_get_animal_data():
                 owner_account_link_and_match = match_wean_row[0]
                 wean_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = loads(owner_account_link_and_match["data"])
+                    data = json.loads(owner_account_link_and_match["data"])
                     creep_feed = data.get("creep_feed", None)
                     first_14_day_feed_method = data.get("first_14_method", None)
                     second_31_day_feed_method = data.get("second_31_method", None)
@@ -128,7 +138,7 @@ def serve_get_animal_data():
                 if owner_account_link_and_match['time'] is not None:
                     marketing_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = loads(owner_account_link_and_match["data"])
+                    data = json.loads(owner_account_link_and_match["data"])
                     marketing_method_name = data.get("method", None)
                     sale_location = data.get("location", None)
                     number_of_calves = data.get("group_size", None)
@@ -169,15 +179,18 @@ def serve_get_animal_data():
                 "sustainabilityScores": sustainability if sustainability != {} else None
             }
 
-            ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
-                                            data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=eid)
-
-            if len(sustainability_responses) > 0:
+            if not dry_run:
                 ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
-                                                data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability Score"],
-                                                sustainability_response_id=latest_response["id"])
+                                                data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=eid)
 
-            return animal_data
+                if len(sustainability_responses) > 0:
+                    ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
+                                                    data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability Score"],
+                                                    sustainability_response_id=latest_response["id"])
+
+                return animal_data
+            else:
+                return {"dry_run": "Data fetched successfully"}
     except ExportException as e:
         raise e
     except Exception as e:
