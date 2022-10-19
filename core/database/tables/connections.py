@@ -163,7 +163,8 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
-                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False):
+                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False,
+                        from_account_id_OR_to_account_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
 
@@ -182,7 +183,8 @@ class Connections:
 
         if get_full:
             base_query = """
-                SELECT c.*, fa.name as from_account_name, ta.name as to_account_name FROM connections c
+                SELECT c.*, fa.name as from_account_name, fa.sector as from_account_sector_id,
+                ta.name as to_account_name, ta.sector as to_account_sector_id FROM connections c
                 INNER JOIN accounts fa ON c.from_account_id = fa.id
                 INNER JOIN accounts ta on c.to_account_id=ta.id
             """
@@ -201,6 +203,9 @@ class Connections:
         if to_account_id is not NO_VALUE:
             query_conditions.append("to_account_id = %(to_account_id)s")
             query_values["to_account_id"] = to_account_id
+        if from_account_id_OR_to_account_id is not NO_VALUE:
+            query_conditions.append("(from_account_id = %(account_id)s OR to_account_id = %(account_id)s)")
+            query_values["account_id"] = from_account_id_OR_to_account_id
         if status is not NO_VALUE:
             query_conditions.append("connection_status_id = %(status)s")
             query_values["status"] = status
@@ -265,3 +270,26 @@ class Connections:
             query = base_query + combined_query_updated_values
             self._db.execute(query, query_updated_values)
         return self._db.row_count()
+
+    def get_connected_account_ids(self, account_id, sector_id=None):
+        connections = Connections(self._db).get_connections(
+            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_full=True
+        )
+
+        connected_account_ids = []
+        for c in connections:
+            if c["from_account_id"] == account_id:
+                if sector_id:
+                    if c["to_account_sector_id"] == sector_id:
+                        connected_account_ids.append(c["to_account_id"])
+                else:
+                    connected_account_ids.append(c["to_account_id"])
+
+            elif c["to_account_id"] == account_id:
+                if sector_id:
+                    if c["from_account_sector_id"] == sector_id:
+                        connected_account_ids.append(c["from_account_id"])
+                else:
+                    connected_account_ids.append(c["from_account_id"])
+
+        return connected_account_ids
