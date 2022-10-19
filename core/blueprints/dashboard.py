@@ -106,20 +106,25 @@ def serve_account_id(account_id):
 @crut.require_user
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
-
-    if len(animal.matches) > 0 and any((row["account_links.account"] == g.account.id() for row in animal.matches)):
-
+    available_account_ids = [g.account.id()] if g.account.sector_id() == sectors_by_name["Cow-Calf"] else []
+    available_account_ids += Connections(g.db).get_connected_account_ids(
+        account_id=g.account.id(), sector_id=sectors_by_name["Cow-Calf"]
+    )
+    if len(animal.matches) > 0:
         # first ranch is owner
         owner_account_id = sorted(
-            list(filter(lambda row: row["account_links.sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
+            list(filter(lambda row: row["sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
             key=lambda row: row["id"]
-        )[0]["account_links.account"]
-        if owner_account_id != g.account.id():
-            ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
-                                            viewer_user_id=g.user.id(),
-                                            data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
+        )[0]["account"]
+        if owner_account_id in available_account_ids:
+            if owner_account_id != g.account.id():
+                ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
+                                                viewer_user_id=g.user.id(),
+                                                data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
 
-        return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
+            return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
+        else:
+            return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
 

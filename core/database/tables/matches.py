@@ -51,7 +51,7 @@ class Matches:
         Raises:
             AnimalsException
         """
-        return Animal(self._db, eid, self.get_by_eids((eid,),(),True))
+        return Animal(self._db, eid, self.get_matches_with_account_links(matches_eid=eid))
 
     def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
         """Gets matches by eids.
@@ -274,12 +274,13 @@ class Matches:
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
                                        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
                                        account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE, is_distinct=False,
-                                       matches_cols=()):
+                                       matches_cols=(), account_links_multiple_account_ids=()):
         """
-        Get an account by the values specified.
+        Get matches with account_links (if any) by the values specified. If no account_links exist for a match,
+        only the match is returned
 
         Returns:
-            A list of account(s) record if found else []
+            A list of matches and account_links record if found else []
         """
 
         if is_distinct:
@@ -293,11 +294,11 @@ class Matches:
             if len(incorrect_cols) > 0:
                 raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in matches table")
 
-            base_query += " " + ",".join("m."+ c for c in matches_cols)
+            base_query += " " + ",".join("m." + c for c in matches_cols)
         else:
             base_query += " *"
 
-        base_query += " FROM matches m INNER JOIN account_links al ON m.account_link=al.id "
+        base_query += " FROM matches m LEFT JOIN account_links al ON m.account_link=al.id "
 
         query_conditions = []
         query_values = {}
@@ -323,9 +324,15 @@ class Matches:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
             query_values["account_links_sector"] = account_links_sector
 
+        # cannot pass values for both account_links_account_id AND account_links_multiple_account_ids
         if account_links_account_id is not NO_VALUE:
             query_conditions.append("al.account = %(account_links_account_id)s" if account_links_account_id is not None else "al.account IS %(account_links_account_id)s")
             query_values["account_links_account_id"] = account_links_account_id
+        elif len(account_links_multiple_account_ids) > 0:
+            if all(isinstance(i, int) for i in account_links_multiple_account_ids):
+                query_conditions.append("al.account IN (" + ",".join(str(i) for i in account_links_multiple_account_ids) + ")")
+            else:
+                raise MatchesException("Not all the Account Ids in account_links_multiple_account_ids are integers")
 
         if matches_order_by is not NO_VALUE:
             if matches_order_by not in self._match_cols:
@@ -616,31 +623,35 @@ class Matches:
             )
         ))
 
-    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None):
-        """Gets matches data associated with a eid or visual id if it belongs to the account.
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_ids=()):
+        """Gets matches data associated with a eid or visual id if it belongs to any of the accounts passed in account_ids.
 
         Params:
             eid_or_visual_id: The eid or visual id to look up
-            account_id: current active account
+            account_ids: list of account(s)
 
         Returns:
-            All the matches table rows
+            All the matches joined with account_links table rows
         """
         matches = []
-        if account_id is None:
+
+        if len(account_ids) == 0:
             matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid",))
 
             if len(matches) == 0:
                 matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
         else:
-            matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, account_links_account_id=account_id,
-                                                          is_distinct=True, matches_cols=("eid", "visual_id"))
+            matches = self.get_matches_with_account_links(
+                matches_eid=eid_or_visual_id, account_links_multiple_account_ids=account_ids,
+                is_distinct=True, matches_cols=("eid",)
+            )
 
             if len(matches) == 0:
-                matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, account_links_account_id=account_id, 
-                                                              is_distinct=True, matches_cols=("eid", "visual_id"))
-
+                matches = self.get_matches_with_account_links(
+                    matches_visual_id=eid_or_visual_id, account_links_multiple_account_ids=account_ids,
+                    is_distinct=True, matches_cols=("eid", "visual_id")
+                )
         return matches
 
     def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
