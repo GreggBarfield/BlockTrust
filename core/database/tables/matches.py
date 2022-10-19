@@ -276,10 +276,11 @@ class Matches:
                                        account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE, is_distinct=False,
                                        matches_cols=(), account_links_multiple_account_ids=()):
         """
-        Get an account by the values specified.
+        Get matches with account_links (if any) by the values specified. If no account_links exist for a match,
+        only the match is returned
 
         Returns:
-            A list of account(s) record if found else []
+            A list of matches and account_links record if found else []
         """
 
         if is_distinct:
@@ -622,38 +623,35 @@ class Matches:
             )
         ))
 
-    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_id=None, connected_account_ids=()):
-        """Gets matches data associated with a eid or visual id if it belongs to the account.
+    def get_matches_by_eid_or_visual_id(self, eid_or_visual_id, account_ids=()):
+        """Gets matches data associated with a eid or visual id if it belongs to any of the accounts passed in account_ids.
 
         Params:
             eid_or_visual_id: The eid or visual id to look up
-            account_id: current active account
+            account_ids: list of account(s)
 
         Returns:
-            All the matches table rows
+            All the matches joined with account_links table rows
         """
         matches = []
 
-        if account_id is None and len(connected_account_ids) == 0:
+        if len(account_ids) == 0:
             matches = self.get_matches_with_account_links(matches_eid=eid_or_visual_id, is_distinct=True, matches_cols=("eid",))
 
             if len(matches) == 0:
                 matches = self.get_matches_with_account_links(matches_visual_id=eid_or_visual_id, is_distinct=True, matches_cols=("eid", "visual_id"))
 
         else:
-            available_account_ids = [account_id] if account_id else []
-            available_account_ids += connected_account_ids if len(connected_account_ids) > 0 else []
             matches = self.get_matches_with_account_links(
-                matches_eid=eid_or_visual_id, account_links_multiple_account_ids=available_account_ids,
+                matches_eid=eid_or_visual_id, account_links_multiple_account_ids=account_ids,
                 is_distinct=True, matches_cols=("eid",)
             )
 
             if len(matches) == 0:
                 matches = self.get_matches_with_account_links(
-                    matches_visual_id=eid_or_visual_id, account_links_multiple_account_ids=available_account_ids, 
+                    matches_visual_id=eid_or_visual_id, account_links_multiple_account_ids=account_ids,
                     is_distinct=True, matches_cols=("eid", "visual_id")
                 )
-
         return matches
 
     def get_count_distribution_for_account_across_sector(self, account_id, sector_id):

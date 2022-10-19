@@ -163,7 +163,7 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
-                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False, 
+                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False,
                         from_account_id_OR_to_account_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
