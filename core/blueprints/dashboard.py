@@ -112,17 +112,19 @@ def serve_animal_eid(animal_eid):
     )
     if len(animal.matches) > 0:
         # first ranch is owner
-        owner_account_id = sorted(
+        owner_account_match = sorted(
             list(filter(lambda row: row["sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
             key=lambda row: row["id"]
-        )[0]["account"]
+        )[0]
+        owner_account_id = owner_account_match["account"]
+        owner_account_name = owner_account_match["name"]
         if owner_account_id in available_account_ids:
             if owner_account_id != g.account.id():
                 ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
                                                 viewer_user_id=g.user.id(),
                                                 data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
 
-            return dashboard_render("animals/animal.html", {"animal": animal, "account_name": g.account.name()})
+            return dashboard_render("animals/animal.html", {"animal": animal, "account_name": owner_account_name})
         else:
             return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
