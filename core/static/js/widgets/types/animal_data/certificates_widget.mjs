@@ -24,7 +24,7 @@ export class CertificatesWidget extends Widget {
                         params: {
                             eids: [this.eid],
                             ljoin_account_links: false,
-                            types: ["Weaned","First Birth","Medical"]
+                            types: ["Weaned","First Birth","Medical", "Sighting"]
                         }
                     }
                 }
@@ -33,6 +33,7 @@ export class CertificatesWidget extends Widget {
                 this.medical_rows=[];
                 this.wean_data=null;
                 this.first_born=null;
+                this.sighting_rows=[];
                 for ( const match of data.result.matches)
                 {
                     if (match.type == this.matchTypes["Medical"]){
@@ -43,6 +44,9 @@ export class CertificatesWidget extends Widget {
                     }
                     else if(match.type == this.matchTypes["First Birth"]){
                         this.first_born=match
+                    }
+                    else if(match.type == this.matchTypes["Sighting"]){
+                        this.sighting_rows.push(match);
                     }
                 }
                 this.createDisplay();
@@ -65,7 +69,10 @@ export class CertificatesWidget extends Widget {
 
         let appNo =document.createElement("div");
         appNo.className = "col-md-4";
-        appNo.textContent="App No:"+ ((this.wean_data["grouping_id"]!==null)? this.wean_data["grouping_id"]: "N/A");
+        let rowsWithGroupingId = this.sighting_rows.filter((sighting) => sighting["grouping_id"]);
+        if (rowsWithGroupingId.length) {
+            appNo.textContent="App No: " + rowsWithGroupingId[0]["grouping_id"];
+        }
         row.append(appNo)
 
         let prodName =document.createElement("div");
