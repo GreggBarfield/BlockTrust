@@ -1719,3 +1719,10 @@ CHANGE COLUMN `status` `connection_status_id` INT NULL DEFAULT NULL ;
 ALTER TABLE `connections` 
 DROP COLUMN `to_account_name`,
 DROP COLUMN `from_account_name`;
+
+/* Nisheet Thakur 10/21/2022 */
+ALTER TABLE `accounts`
+ADD COLUMN `display_name` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `display_subheading` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `display_description` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `uploaded_image_ids` JSON DEFAULT NULL;
