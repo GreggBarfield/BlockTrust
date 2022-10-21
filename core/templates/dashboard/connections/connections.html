@@ -131,7 +131,7 @@
                         {% if blocked_connection.from_account_id == dashboard_standard_account.id() %}
                         <tr>
                             <td>{{blocked_connection.to_account_name}}</td>
-                            <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
                             <td>
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock
