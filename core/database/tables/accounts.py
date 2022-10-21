@@ -1,3 +1,4 @@
+import json
 from ...sectors import sectors_by_id, sectors_by_name
 from ..objects.account import Account, AccountException
 from ..no_value import NoValue
@@ -12,7 +13,8 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
                 "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_charges_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
-                "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup")
+                "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup", "display_name",
+                "display_subheading", "display_description", "uploaded_image_ids")
 
 
 class AccountsException(Exception):
@@ -333,7 +335,8 @@ class Accounts:
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
                        state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
-                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE):
+                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE, display_name=NO_VALUE,
+                       display_subheading=NO_VALUE, display_description=NO_VALUE, uploaded_image_ids=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -458,6 +461,30 @@ class Accounts:
                             set_frags,
                             "is_stripe_charges_enabled=:is_stripe_charges_enabled",
                             is_stripe_charges_enabled=is_stripe_charges_enabled
+                        )
+        if display_name is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "display_name=:display_name",
+                            display_name=display_name
+                        )
+        if display_subheading is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "display_subheading=:display_subheading",
+                            display_subheading=display_subheading
+                        )
+        if display_description is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "display_description=:display_description",
+                            display_description=display_description
+                        )
+        if uploaded_image_ids is not NO_VALUE:
+            set_frags = frag(
+                            set_frags,
+                            "uploaded_image_ids=:uploaded_image_ids",
+                            uploaded_image_ids=json.dumps(uploaded_image_ids)
                         )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
