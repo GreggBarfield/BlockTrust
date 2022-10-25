@@ -628,3 +628,8 @@ def serve_views():
     return dashboard_render("privacy/view-logs.html",
                             {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
                              "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})
+
+@bp.route("/dashboard/edit/edit-account-public-details", methods=["GET"])
+@crut.require_account
+def serve_edit_account_details():
+    return dashboard_render("accounts/edit_account_public_details.html")
