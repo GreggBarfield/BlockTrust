@@ -1722,7 +1722,7 @@ DROP COLUMN `from_account_name`;
 
 /* Nisheet Thakur 10/21/2022 */
 ALTER TABLE `accounts`
-ADD COLUMN `display_name` VARCHAR(100) DEFAULT NULL,
-ADD COLUMN `display_subheading` VARCHAR(100) DEFAULT NULL,
-ADD COLUMN `display_description` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `retail_name` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `retail_subheading` VARCHAR(100) DEFAULT NULL,
+ADD COLUMN `retail_description` VARCHAR(100) DEFAULT NULL,
 ADD COLUMN `uploaded_image_ids` JSON DEFAULT NULL;
