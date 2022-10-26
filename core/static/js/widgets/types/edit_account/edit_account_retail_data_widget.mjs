@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
-import { ProgressBar } from '../../../core/progress_bar.mjs';
+import { AsyncForm } from '../../../../global/async_form.mjs';
 
 export class EditAccountRetailDataWidget extends Widget{
     constructor(frame) {
@@ -8,12 +8,14 @@ export class EditAccountRetailDataWidget extends Widget{
     }
     
     initType = () => {
+        this.retailName = "";
+        this.reatilDescription = "";
         this.createEditForm();
     }
 
     createEditForm = () => {
 
-        function createTextInput(inputLabel, inputID){
+        function createTextInput(inputLabel, inputID, maxLength){
             let textInputContainer = document.createElement("div");
             textInputContainer.className = "row p-1 border-bottom";
             let inputLabelContainer = document.createElement("div");
@@ -28,6 +30,7 @@ export class EditAccountRetailDataWidget extends Widget{
             input.type = "text";
             input.className = "form-control";
             input.id = inputID;
+            input.maxLength = maxLength;
             inputContainer.append(input);
 
             textInputContainer.append(inputLabelContainer);
@@ -35,7 +38,7 @@ export class EditAccountRetailDataWidget extends Widget{
             return textInputContainer;
         }
 
-        function createTextAreaInput(inputLabel, inputID){
+        function createTextAreaInput(inputLabel, inputID, maxLength){
             let textInputContainer = document.createElement("div");
             textInputContainer.className = "row p-1 border-bottom";
             let inputLabelContainer = document.createElement("div");
@@ -50,6 +53,7 @@ export class EditAccountRetailDataWidget extends Widget{
             textArea.className = "form-control";
             textArea.id = inputID;
             textArea.rows=5;
+            textArea.maxLength = maxLength;
             inputContainer.append(textArea);
 
             textInputContainer.append(inputLabelContainer);
@@ -76,16 +80,14 @@ export class EditAccountRetailDataWidget extends Widget{
         
         let form = document.createElement("form");
         
-        let retailNameInput = createTextInput("Account Retail Name", "retailName");
-        let retailSubheadingInput = createTextInput("Retail Subheading", "retailSubheading");
-        let retailDescriptionInput = createTextAreaInput("Retail Description", "retailDescription");
+        let retailNameInput = createTextInput("Account Retail Name", "retailName", "100");
+        let retailDescriptionInput = createTextAreaInput("Retail Description", "retailDescription", "250");
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";
         this.imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer);
         
         form.append(retailNameInput);
-        form.append(retailSubheadingInput);
         form.append(retailDescriptionInput);
         form.append(imageUploadContainer);
         
@@ -108,20 +110,38 @@ export class EditAccountRetailDataWidget extends Widget{
         errorMessage.style.display = "none";
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
+
+        this.asyncForm = new AsyncForm({
+            action: "/widgets/data/save_account_retail_data",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            asJSON: true,
+            getData: () => {
+                return {
+                    retail_name: this.retailName,
+                    retail_description: this.retailDescription,
+                    uploaded_images: this.imageUploader.getFileIDs()
+                };
+            },
+        });
        
         submitButton.addEventListener("click", () => {
-            function progress(){} 
-            console.log(this.imageUploader.files);
-            if(this.imageUploader.files.length < 4){
-                this.imageUploader.upload(progress)
-                    .then(() => {
-                        console.log("uploaded");
-                    });
-            }
-            else{
-                errorMessage.style.display = "block";
-                errorMessage.textContent = "Please upload a Maximum of 3 images.";
-            }
+            function progress(){}
+            this.retailName = document.getElementById("retailName").value;
+            this.retailDescription = document.getElementById("retailDescription").value;
+            this.imageUploader.upload(progress)
+                .then(() => {
+                    if(this.imageUploader.getFileIDs().length < 4){
+                        this.asyncForm.submit();
+                    }
+                    else{
+                        errorMessage.style.display = "block";
+                        errorMessage.textContent = "Please upload a maximum of 3 images.";
+                    }
+            });
         });
 
         cardBody.append(form);
