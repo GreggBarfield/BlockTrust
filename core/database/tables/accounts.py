@@ -1,4 +1,3 @@
-import json
 from ...sectors import sectors_by_id, sectors_by_name
 from ..objects.account import Account, AccountException
 from ..no_value import NoValue
@@ -14,7 +13,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_charges_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup", "retail_name",
-                "retail_subheading", "retail_description", "uploaded_image_ids")
+                "retail_description")
 
 
 class AccountsException(Exception):
