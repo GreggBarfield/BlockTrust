@@ -35,7 +35,7 @@ import { PackerQuestionnaireV2Widget } from "./types/sustainability/packer_quest
 import { SustainabilityTimelineV2Widget } from "./types/sustainability/sustainability_timeline_v2_widget.mjs"
 import { SustainabilitySummaryWidget } from './types/sustainability/sustainability_summary.mjs';
 import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs';
-import { EditAccountPublicDetailsWidget } from './types/edit_account/edit_account_public_details_widget.mjs';
+import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_retail_data_widget.mjs';
 
 
 // Immediately invoked
@@ -87,7 +87,7 @@ import { EditAccountPublicDetailsWidget } from './types/edit_account/edit_accoun
     attach("sustainability timeline v2", SustainabilityTimelineV2Widget);
     attach("sustainability summary", SustainabilitySummaryWidget);
     attach("epd table", EPDTableWidget);
-    attach("edit account public details", EditAccountPublicDetailsWidget);
+    attach("edit account retail data", EditAccountRetailDataWidget);
 
     // Find widgets
     $(".widget").each(function () {
