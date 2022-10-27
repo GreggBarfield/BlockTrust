@@ -751,4 +751,4 @@ def serve_get_sustainability_response_timeline_data():
 @crut.require_account
 def serve_save_account_retail_data():
     g.db.accounts.update_account(account_id=g.account.id(), retail_name=request.json["retail_name"], retail_description=request.json["retail_description"])
-    return {}
+    return {"redirect": "/dashboard"}

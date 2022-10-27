@@ -61,6 +61,21 @@ export class EditAccountRetailDataWidget extends Widget{
             return textInputContainer;
         }
 
+        function checkFileCount(images){
+            let totalFiles = 0;
+            for(const imageData of images){
+                if(imageData.removed === undefined || imageData.removed === false){
+                    totalFiles++;   
+                }
+            }
+            if(totalFiles < 4){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
         this.frame.innerHTML = "";
         let card = document.createElement("div");
         card.className = "card";
@@ -129,19 +144,20 @@ export class EditAccountRetailDataWidget extends Widget{
         });
        
         submitButton.addEventListener("click", () => {
-            function progress(){}
+            function progress(){};
             this.retailName = document.getElementById("retailName").value;
             this.retailDescription = document.getElementById("retailDescription").value;
-            this.imageUploader.upload(progress)
+
+            if(checkFileCount(this.imageUploader.files)){
+                this.imageUploader.upload(progress)
                 .then(() => {
-                    if(this.imageUploader.getFileIDs().length < 4){
-                        this.asyncForm.submit();
-                    }
-                    else{
-                        errorMessage.style.display = "block";
-                        errorMessage.textContent = "Please upload a maximum of 3 images.";
-                    }
-            });
+                    this.asyncForm.submit();
+                })
+            }
+            else{
+                errorMessage.style.display = "block";
+                errorMessage.textContent = "Please upload a maximum of 3 images.";
+            }
         });
 
         cardBody.append(form);
