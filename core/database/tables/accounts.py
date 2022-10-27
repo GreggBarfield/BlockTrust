@@ -333,8 +333,7 @@ class Accounts:
 
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
                        state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
-                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE, retail_name=NO_VALUE,
-                       retail_description=NO_VALUE):
+                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE):
         """Updates an account.
 
         Params:
@@ -459,18 +458,6 @@ class Accounts:
                             set_frags,
                             "is_stripe_charges_enabled=:is_stripe_charges_enabled",
                             is_stripe_charges_enabled=is_stripe_charges_enabled
-                        )
-        if retail_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "retail_name=:retail_name,",
-                            retail_name=retail_name
-                        )
-        if retail_description is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "retail_description=:retail_description,",
-                            retail_description=retail_description
                         )
 
         if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
