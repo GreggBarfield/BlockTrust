@@ -9,10 +9,9 @@ export class EditAccountRetailDataWidget extends Widget{
     
     initType = () => {
         this.retailName = "";
-        this.reatilDescription = "";
+        this.retailDescription = "";
         this.getData("get_account_retail_data")
         .then((data) => {
-            console.log(data);
             this.retailName = data.retail_name;
             this.retailDescription = data.retail_description;
             this.createEditForm();
