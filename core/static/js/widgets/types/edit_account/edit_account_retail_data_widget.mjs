@@ -10,12 +10,18 @@ export class EditAccountRetailDataWidget extends Widget{
     initType = () => {
         this.retailName = "";
         this.reatilDescription = "";
-        this.createEditForm();
+        this.getData("get_account_retail_data")
+        .then((data) => {
+            console.log(data);
+            this.retailName = data.retail_name;
+            this.retailDescription = data.retail_description;
+            this.createEditForm();
+        });
     }
 
     createEditForm = () => {
 
-        function createTextInput(inputLabel, inputID, maxLength){
+        function createTextInput(inputLabel, inputID, maxLength, inputValue){
             let textInputContainer = document.createElement("div");
             textInputContainer.className = "row p-1 border-bottom";
             let inputLabelContainer = document.createElement("div");
@@ -31,6 +37,7 @@ export class EditAccountRetailDataWidget extends Widget{
             input.className = "form-control";
             input.id = inputID;
             input.maxLength = maxLength;
+            input.value = inputValue;
             inputContainer.append(input);
 
             textInputContainer.append(inputLabelContainer);
@@ -38,7 +45,7 @@ export class EditAccountRetailDataWidget extends Widget{
             return textInputContainer;
         }
 
-        function createTextAreaInput(inputLabel, inputID, maxLength){
+        function createTextAreaInput(inputLabel, inputID, maxLength, inputValue){
             let textInputContainer = document.createElement("div");
             textInputContainer.className = "row p-1 border-bottom";
             let inputLabelContainer = document.createElement("div");
@@ -54,6 +61,7 @@ export class EditAccountRetailDataWidget extends Widget{
             textArea.id = inputID;
             textArea.rows=5;
             textArea.maxLength = maxLength;
+            textArea.value = inputValue;
             inputContainer.append(textArea);
 
             textInputContainer.append(inputLabelContainer);
@@ -95,8 +103,8 @@ export class EditAccountRetailDataWidget extends Widget{
         
         let form = document.createElement("form");
         
-        let retailNameInput = createTextInput("Account Retail Name", "retailName", "100");
-        let retailDescriptionInput = createTextAreaInput("Retail Description", "retailDescription", "250");
+        let retailNameInput = createTextInput("Account Retail Name", "retailName", "100", this.retailName);
+        let retailDescriptionInput = createTextAreaInput("Retail Description", "retailDescription", "250", this.retailDescription);
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";

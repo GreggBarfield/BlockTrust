@@ -747,6 +747,13 @@ def serve_get_sustainability_response_timeline_data():
         return {'timeline_data': matched_accounts}, 200
 
 
+@bp.route('/widgets/data/get_account_retail_data', methods=["POST"])
+@crut.require_account
+def serve_get_account_retail_data():
+    account_data = g.db.accounts.get_accounts(id=g.account.id())
+    return {"retail_name": account_data[0]["retail_name"], "retail_description": account_data[0]["retail_description"]}
+
+
 @bp.route('/widgets/data/save_account_retail_data', methods=["POST"])
 @crut.require_account
 def serve_save_account_retail_data():
