@@ -553,3 +553,8 @@ def serve_add_admin_user(invite_token):
 def serve_external_sales_group_viewer(sales_group_id):
     sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
+
+
+@bp.route("/retail-data/<int:eid>", methods=["GET"])
+def serve_external_retail_data_viewer(eid):
+    return outside_render("/outside/external-retail-data-viewer.html")
