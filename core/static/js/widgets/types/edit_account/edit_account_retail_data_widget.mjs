@@ -8,81 +8,75 @@ export class EditAccountRetailDataWidget extends Widget{
     }
     
     initType = () => {
-        this.retailName = "";
-        this.retailDescription = "";
-        this.getData("get_account_retail_data")
-        .then((data) => {
-            this.retailName = data.retail_name;
-            this.retailDescription = data.retail_description;
-            this.createEditForm();
-        });
+        let retailName = this.frame.getAttribute("data-widget-retail-name");
+        let retailDescription = this.frame.getAttribute("data-widget-retail-description"); 
+        this.createEditForm(retailName, retailDescription);
     }
 
-    createEditForm = () => {
+    createTextInput = (inputLabel, inputID, maxLength, inputValue) => {
+        let textInputContainer = document.createElement("div");
+        textInputContainer.className = "row p-1 border-bottom";
+        let inputLabelContainer = document.createElement("div");
+        inputLabelContainer.className = "col-md-2";
+        let label = document.createElement("label");
+        label.textContent = inputLabel;
+        inputLabelContainer.append(label);
 
-        function createTextInput(inputLabel, inputID, maxLength, inputValue){
-            let textInputContainer = document.createElement("div");
-            textInputContainer.className = "row p-1 border-bottom";
-            let inputLabelContainer = document.createElement("div");
-            inputLabelContainer.className = "col-md-2";
-            let label = document.createElement("label");
-            label.textContent = inputLabel;
-            inputLabelContainer.append(label);
+        let inputContainer = document.createElement("div");
+        inputContainer.className = "col-md-8 p-1";
+        let input = document.createElement("input");
+        input.type = "text";
+        input.className = "form-control";
+        input.id = inputID;
+        input.maxLength = maxLength;
+        input.value = inputValue;
+        inputContainer.append(input);
 
-            let inputContainer = document.createElement("div");
-            inputContainer.className = "col-md-8 p-1";
-            let input = document.createElement("input");
-            input.type = "text";
-            input.className = "form-control";
-            input.id = inputID;
-            input.maxLength = maxLength;
-            input.value = inputValue;
-            inputContainer.append(input);
+        textInputContainer.append(inputLabelContainer);
+        textInputContainer.append(inputContainer);
+        return textInputContainer;
+    }
 
-            textInputContainer.append(inputLabelContainer);
-            textInputContainer.append(inputContainer);
-            return textInputContainer;
-        }
+    createTextAreaInput = (inputLabel, inputID, maxLength, inputValue) => {
+        let textInputContainer = document.createElement("div");
+        textInputContainer.className = "row p-1 border-bottom";
+        let inputLabelContainer = document.createElement("div");
+        inputLabelContainer.className = "col-md-2";
+        let label = document.createElement("label");
+        label.textContent = inputLabel;
+        inputLabelContainer.append(label);
 
-        function createTextAreaInput(inputLabel, inputID, maxLength, inputValue){
-            let textInputContainer = document.createElement("div");
-            textInputContainer.className = "row p-1 border-bottom";
-            let inputLabelContainer = document.createElement("div");
-            inputLabelContainer.className = "col-md-2";
-            let label = document.createElement("label");
-            label.textContent = inputLabel;
-            inputLabelContainer.append(label);
+        let inputContainer = document.createElement("div");
+        inputContainer.className = "col-md-8 p-1"
+        let textArea = document.createElement("textArea");
+        textArea.className = "form-control";
+        textArea.id = inputID;
+        textArea.rows=5;
+        textArea.maxLength = maxLength;
+        textArea.value = inputValue;
+        inputContainer.append(textArea);
 
-            let inputContainer = document.createElement("div");
-            inputContainer.className = "col-md-8 p-1"
-            let textArea = document.createElement("textArea");
-            textArea.className = "form-control";
-            textArea.id = inputID;
-            textArea.rows=5;
-            textArea.maxLength = maxLength;
-            textArea.value = inputValue;
-            inputContainer.append(textArea);
+        textInputContainer.append(inputLabelContainer);
+        textInputContainer.append(inputContainer);
+        return textInputContainer;
+    }
 
-            textInputContainer.append(inputLabelContainer);
-            textInputContainer.append(inputContainer);
-            return textInputContainer;
-        }
-
-        function checkFileCount(images){
-            let totalFiles = 0;
-            for(const imageData of images){
-                if(imageData.removed === undefined || imageData.removed === false){
-                    totalFiles++;   
-                }
-            }
-            if(totalFiles < 4){
-                return true;
-            }
-            else{
-                return false;
+    checkFileCount = (images) => {
+        let totalFiles = 0;
+        for(const imageData of images){
+            if(imageData.removed === undefined || imageData.removed === false){
+                totalFiles++;   
             }
         }
+        if(totalFiles < 4){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 
+    createEditForm = (retailName, retailDescription) => {
         this.frame.innerHTML = "";
         let card = document.createElement("div");
         card.className = "card";
@@ -102,8 +96,8 @@ export class EditAccountRetailDataWidget extends Widget{
         
         let form = document.createElement("form");
         
-        let retailNameInput = createTextInput("Account Retail Name", "retailName", "100", this.retailName);
-        let retailDescriptionInput = createTextAreaInput("Retail Description", "retailDescription", "250", this.retailDescription);
+        let retailNameInput = this.createTextInput("Account Retail Name", "retailName", "100", retailName);
+        let retailDescriptionInput = this.createTextAreaInput("Retail Description", "retailDescription", "250", retailDescription);
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";
@@ -143,8 +137,8 @@ export class EditAccountRetailDataWidget extends Widget{
             asJSON: true,
             getData: () => {
                 return {
-                    retail_name: this.retailName,
-                    retail_description: this.retailDescription,
+                    retail_name: document.getElementById("retailName").value,
+                    retail_description: document.getElementById("retailDescription").value,
                     uploaded_images: this.imageUploader.getFileIDs()
                 };
             },
@@ -152,10 +146,8 @@ export class EditAccountRetailDataWidget extends Widget{
        
         submitButton.addEventListener("click", () => {
             function progress(){};
-            this.retailName = document.getElementById("retailName").value;
-            this.retailDescription = document.getElementById("retailDescription").value;
 
-            if(checkFileCount(this.imageUploader.files)){
+            if(this.checkFileCount(this.imageUploader.files)){
                 this.imageUploader.upload(progress)
                 .then(() => {
                     this.asyncForm.submit();
