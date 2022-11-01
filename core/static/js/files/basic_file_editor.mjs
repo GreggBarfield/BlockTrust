@@ -200,6 +200,16 @@ export class BasicFileEditor {
         return result;
     }
 
+    getNumberOfFilesPendingUpload() {
+        let count = 0;
+        for(const file of this.files){
+            if(!file.removed){
+                count++;
+            }
+        }
+        return count;
+    }
+
     upload(progress=null) {
         // Uploads remaining files
         // Returns a Promise

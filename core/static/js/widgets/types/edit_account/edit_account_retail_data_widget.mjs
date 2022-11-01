@@ -61,21 +61,6 @@ export class EditAccountRetailDataWidget extends Widget{
         return textInputContainer;
     }
 
-    checkFileCount = (images) => {
-        let totalFiles = 0;
-        for(const imageData of images){
-            if(imageData.removed === undefined || imageData.removed === false){
-                totalFiles++;   
-            }
-        }
-        if(totalFiles < 4){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
-
     createEditForm = (retailName, retailDescription) => {
         this.frame.innerHTML = "";
         let card = document.createElement("div");
@@ -101,7 +86,7 @@ export class EditAccountRetailDataWidget extends Widget{
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";
-        this.imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer);
+        let imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer);
         
         form.append(retailNameInput);
         form.append(retailDescriptionInput);
@@ -139,19 +124,14 @@ export class EditAccountRetailDataWidget extends Widget{
                 return {
                     retail_name: document.getElementById("retailName").value,
                     retail_description: document.getElementById("retailDescription").value,
-                    uploaded_images: this.imageUploader.getFileIDs()
+                    uploaded_images: imageUploader.getFileIDs()
                 };
             },
         });
        
         submitButton.addEventListener("click", () => {
-            function progress(){};
-
-            if(this.checkFileCount(this.imageUploader.files)){
-                this.imageUploader.upload(progress)
-                .then(() => {
-                    this.asyncForm.submit();
-                })
+            if(imageUploader.getNumberOfFilesPendingUpload() < 4){
+                this.uploadFilesAndSubmit(imageUploader);
             }
             else{
                 errorMessage.style.display = "block";
@@ -161,5 +141,11 @@ export class EditAccountRetailDataWidget extends Widget{
 
         cardBody.append(form);
         this.frame.append(card);
+    }
+
+    uploadFilesAndSubmit = async (imageUploader) => {
+        function progress(){};
+        await imageUploader.upload(progress)
+        this.asyncForm.submit();
     }
 }
