@@ -9,8 +9,14 @@ export class EditAccountRetailDataWidget extends Widget{
     
     initType = () => {
         let retailName = this.frame.getAttribute("data-widget-retail-name");
-        let retailDescription = this.frame.getAttribute("data-widget-retail-description"); 
-        this.createEditForm(retailName, retailDescription);
+        let retailDescription = this.frame.getAttribute("data-widget-retail-description");
+        this.getData(
+            "get_uploaded_retail_image_data",
+        ).then((data) => {
+            let uploadedImageIDs = data.uploaded_retail_image_ids;
+            let uploadedImageAuths =  data.uploaded_retail_images_file_auths;
+            this.createEditForm(retailName, retailDescription, uploadedImageIDs, uploadedImageAuths);
+        });
     }
 
     createTextInput = (inputLabel, inputID, maxLength, inputValue) => {
@@ -61,7 +67,7 @@ export class EditAccountRetailDataWidget extends Widget{
         return textInputContainer;
     }
 
-    createEditForm = (retailName, retailDescription) => {
+    createEditForm = (retailName, retailDescription, uploadedImageIDs, uploadedImageAuths) => {
         this.frame.innerHTML = "";
         let card = document.createElement("div");
         card.className = "card";
@@ -86,7 +92,7 @@ export class EditAccountRetailDataWidget extends Widget{
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";
-        let imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer);
+        let imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer, uploadedImageIDs, uploadedImageAuths);
         
         form.append(retailNameInput);
         form.append(retailDescriptionInput);

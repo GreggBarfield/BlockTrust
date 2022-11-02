@@ -1,5 +1,8 @@
 from ... import config
 from ...utilities.aws import aws
+from ..no_value import NoValue
+
+NO_VALUE = NoValue()
 
 class FilesException(Exception):
     """Files generic exception."""
@@ -154,3 +157,73 @@ class Files:
                 "name": file_row["name"]
             }
         return auths
+
+    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, retail_page_account_id=NO_VALUE):
+        """
+        Gets the file rows based on attributes provided
+
+        Params:
+            id: Fild ID
+            name: Name of the file during upload
+            account_id: Account ID of uploading account
+            user_id: User ID of uploading user
+            retail_page_account_id: Account ID of Reatil image uploaded
+
+        Returns:
+            File rows based on attributes provided
+        """
+        base_query = "SELECT * FROM files"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if name is not NO_VALUE:
+            query_conditions.append("name = %(name)s")
+            query_values["name"] = name
+        if account_id is not NO_VALUE:
+            query_conditions.append("account_id = %(account_id)s")
+            query_values["account_id"] = account_id
+        if user_id is not NO_VALUE:
+            query_conditions.append("user_id = %(user_id)s")
+            query_values["user_id"] = user_id
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append("retail_page_account_id = %(retail_page_account_id)s")
+            query_values["retail_page_account_id"] = retail_page_account_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        file_rows = self._db.execute_d(query, query_values)
+        if len(file_rows) > 0:
+            return file_rows
+        else:
+            return []
+
+    def update_file(self, file_id, retail_page_account_id=NO_VALUE):
+        """
+        Updates file data for provided ID
+
+        Params: 
+            id: File ID
+            retail_page_account_id: Account ID of Retail image uploaded
+        """
+        base_query = "UPDATE files "
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = file_id
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Files table")
