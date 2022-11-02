@@ -130,7 +130,7 @@ export class EditAccountRetailDataWidget extends Widget{
         });
        
         submitButton.addEventListener("click", () => {
-            if(imageUploader.getNumberOfFilesPendingUpload() < 4){
+            if(imageUploader.getNumberOfAttachedFiles() < 4){
                 this.uploadFilesAndSubmit(imageUploader);
             }
             else{

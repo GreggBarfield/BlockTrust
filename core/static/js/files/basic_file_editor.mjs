@@ -200,7 +200,7 @@ export class BasicFileEditor {
         return result;
     }
 
-    getNumberOfFilesPendingUpload() {
+    getNumberOfAttachedFiles() {
         let count = 0;
         for(const file of this.files){
             if(!file.removed){
