@@ -745,3 +745,10 @@ def serve_get_sustainability_response_timeline_data():
             account_data["account_score_average"] = float(sustainability_response_averages["score_average"]) if sustainability_response_averages["score_average"] is not None else 0
 
         return {'timeline_data': matched_accounts}, 200
+
+
+@bp.route('/widgets/data/save_account_retail_data', methods=["POST"])
+@crut.require_account
+def serve_save_account_retail_data():
+    g.db.accounts.update_account(account_id=g.account.id(), retail_name=request.json["retail_name"], retail_description=request.json["retail_description"])
+    return {"redirect": "/dashboard"}

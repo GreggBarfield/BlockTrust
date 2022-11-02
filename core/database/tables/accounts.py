@@ -464,13 +464,13 @@ class Accounts:
         if retail_name is not NO_VALUE:
             set_frags = frag(
                             set_frags,
-                            "retail_name=:retail_name",
+                            "retail_name=:retail_name,",
                             retail_name=retail_name
                         )
         if retail_description is not NO_VALUE:
             set_frags = frag(
                             set_frags,
-                            "retail_description=:retail_description",
+                            "retail_description=:retail_description,",
                             retail_description=retail_description
                         )
 

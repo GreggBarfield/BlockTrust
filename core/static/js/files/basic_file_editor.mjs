@@ -200,7 +200,17 @@ export class BasicFileEditor {
         return result;
     }
 
-    upload(setProgress) {
+    getNumberOfAttachedFiles() {
+        let count = 0;
+        for(const file of this.files){
+            if(!file.removed){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    upload(setProgress=null) {
         // Uploads remaining files
         // Returns a Promise
 

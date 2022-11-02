@@ -103,6 +103,12 @@ class Account:
     def is_partner_used_for_signup(self):
         return self._row['is_partner_used_for_signup']
 
+    def retail_name(self):
+        return self._row["retail_name"]
+
+    def retail_description(self):
+        return self._row["retail_description"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
