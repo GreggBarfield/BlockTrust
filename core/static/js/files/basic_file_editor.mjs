@@ -210,7 +210,7 @@ export class BasicFileEditor {
         return count;
     }
 
-    upload(progress=null) {
+    upload(setProgress=null) {
         // Uploads remaining files
         // Returns a Promise
 
@@ -226,8 +226,8 @@ export class BasicFileEditor {
         }
 
         if (filesToBeProcessed.length == 0) {
-            if (typeof progress == "function") {
-                progress(1);
+            if (typeof setProgress == "function") {
+                setProgress(1);
             }
             return Promise.resolve(true);
         }
@@ -239,13 +239,13 @@ export class BasicFileEditor {
 
             return uploadFile(false, true, filesToBeProcessed[itr]["file"], function(perc) {
                 if (totalBytes == 0) {
-                    progress(1);
+                    setProgress(1);
                 }
                 else if (filesToBeProcessed[itr]["file"].size == 0) {
-                    progress(bytesSoFar / totalBytes);
+                    setProgress(bytesSoFar / totalBytes);
                 }
                 else {
-                    progress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
+                    setProgress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
                 }
             })
             .then((id)=>{
