@@ -221,6 +221,8 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 def logout():
     """Clear session of user info and remove g user."""
     session.clear()
+    g.user=None
+    g.employee=None
 
 
 def change_user_password(email, new_password, confirm_password):
