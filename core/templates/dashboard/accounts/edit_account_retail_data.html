@@ -1,0 +1,23 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/edit-account-retail-data", "Edit Account Retail Data")] %}
+
+{% block dashboard_content_header %}
+Edit Account Retail Data
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col">
+       <div
+            class="col-sm-12 widget" 
+            class="mb-0 widget" 
+            data-widget-type="edit account retail data" 
+            data-widget-retail-name="{{dashboard_standard_account.retail_name()}}" 
+            data-widget-retail-description="{{dashboard_standard_account.retail_description()}}">
+        </div>
+    </div>
+</div>
+{% endblock dashboard_content %}
