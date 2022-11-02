@@ -210,9 +210,12 @@ export class BasicFileEditor {
         return count;
     }
 
-    upload(setProgress=null) {
-        // Uploads remaining files
-        // Returns a Promise
+     /**
+     * Uploads remaining files and returns a promise
+     * 
+     * @param {function} setProgress function which processes the current progress percentage.
+     */
+    upload(setProgress) {
 
         let filesToBeProcessed = [];
 
@@ -226,9 +229,7 @@ export class BasicFileEditor {
         }
 
         if (filesToBeProcessed.length == 0) {
-            if (typeof setProgress == "function") {
-                setProgress(1);
-            }
+            setProgress(1);
             return Promise.resolve(true);
         }
 
