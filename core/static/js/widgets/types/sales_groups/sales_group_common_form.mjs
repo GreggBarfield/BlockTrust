@@ -597,11 +597,12 @@ export class SalesGroupsCommonForm{
 
         submitButton.addEventListener("click", () => {
             this.internalErrorMessage.style.display = "none";
-            function progress(perc) {
-                that.progressBar.setProgress(perc);
+            let parent = this;
+            function setProgress(perc) {
+                parent.progressBar.setProgress(perc);
             }
-            that.progressBar.show();
-            this.fileEditor.upload(progress)
+            this.progressBar.show();
+            this.fileEditor.upload(setProgress)
                 .then(() => {
                     this.asyncForm.submit();
                 });

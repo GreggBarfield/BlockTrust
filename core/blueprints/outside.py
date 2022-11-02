@@ -26,8 +26,9 @@ def serve_landing():
 
 @bp.route('/logout', methods=['GET'])
 def serve_logout():
+    login_url = url_for('outside_bp.serve_employee_login') if g.employee else url_for('outside_bp.serve_login')
     auth.logout()
-    return redirect('/')
+    return outside_render('logged-out.html', {"login_url": login_url})
 
 
 @bp.route('/login', methods=['GET'])
