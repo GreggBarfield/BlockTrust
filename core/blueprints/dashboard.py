@@ -17,6 +17,7 @@ from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
+from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
@@ -182,7 +183,7 @@ def serve_new_sales_group():
 @bp.route('/dashboard/sales-groups/edit/<int:sales_group_id>', methods=['GET'])
 @crut.require_paid_account
 def serve_edit_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] != g.account.id():
         return dashboard_render("sales-groups/sales-group/no.html")
@@ -207,7 +208,7 @@ def serve_sales_group_archive():
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_paid_account
 def serve_view_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
 
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         external_shareable_link = WEBSITE_ROOT + url_for(
@@ -226,7 +227,7 @@ def serve_view_sales_group(sales_group_id):
 @bp.route('/dashboard/sales-groups/manage-eids/<int:sales_group_id>', methods=["GET"])
 @crut.require_account
 def serve_manage_eids_sales_group(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         return dashboard_render(
             "sales-groups/sales-group/manage-eids.html",
@@ -568,7 +569,7 @@ def serve_view_notification(notification_id):
 @crut.require_account
 def serve_sales_group_transaction(sales_group_id):
     if request.method == "GET":
-        sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+        sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
         if sales_group_row["is_sold"] == 0:
             return dashboard_render("/dashboard/sales-groups/sales-group/purchase.html", {
                 "sales_group_row": sales_group_row, "stripe_key": STRIPE_PUBLISHABLE_KEY, "name": g.user.first_name() + ' ' + g.user.last_name()
@@ -579,7 +580,7 @@ def serve_sales_group_transaction(sales_group_id):
         try:
             request_data = json.loads(request.data)
 
-            g.db.sales_groups.update_sales_group(id=sales_group_id, is_sold=1, buyer_account_id=g.account.id())
+            SalesGroups(g.db).update_sales_group(id=sales_group_id, is_sold=1, buyer_account_id=g.account.id())
             EventLogs(g.db).insert_event_log(
                 account_id=g.account.id(),
                 user_id=g.user.id(),
@@ -600,7 +601,7 @@ def serve_sales_group_transaction(sales_group_id):
 @bp.route('/dashboard/sales-groups/<int:sales_group_id>/select-eids-by-grouping-id', methods=["GET"])
 @crut.require_account
 def serve_select_eids_by_application_id(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     if sales_group_row['account'] == g.account.id() or sales_group_row['published'] > 0:
         return dashboard_render(
             "sales-groups/sales-group/select-eids-by-grouping-id.html",
