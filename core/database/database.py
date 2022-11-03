@@ -10,11 +10,9 @@ from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
 from .tables.reports import Reports
-from .tables.products import ProductTable
 from .tables.orders import Orders
 from .tables.order_products import OrderProducts
 from .tables.usda_reports import USDAReports
-from .tables.product_discounts import ProductDiscounts
 from .tables.api_inserts import ApiInserts
 
 # all SQL should be in tables/ and in this file
@@ -50,10 +48,8 @@ class Database:
         self.auction_sales = AuctionSales(self)
         self.reports = Reports(self)
         self.usda_reports = USDAReports(self)
-        self.products = ProductTable(self)
         self.orders = Orders(self)
         self.order_products = OrderProducts(self)
-        self.product_discounts = ProductDiscounts(self)
         self.api_inserts = ApiInserts(self)
 
     def connect(self):
