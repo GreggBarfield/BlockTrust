@@ -332,164 +332,6 @@ class Accounts:
         partner = self.get_account_by_id(self._db.last_row_id())
         return partner
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
-                       state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE, stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
-                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE, retail_name=NO_VALUE,
-                       retail_description=NO_VALUE):
-        """Updates an account.
-
-        Params:
-            account_id: id of the account to update
-            name: the account name
-            company: the company name
-            sector_id: the sector number
-            address: Account address
-            city: Account city
-            state: Account state
-            zip: Account zip
-            phone: Phone number specified for the account
-            token: token that we give the customer to use our apis
-            stripe_paid: indicates if this account has an active subscription in stripe
-            manual_paid: indicates if it is a manually marked paid account
-            stripe_customer_id: the id for the corresponding customer object in stripe
-        """
-        if phone != NO_VALUE:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-
-        set_frags = frag()
-        if name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "name=:name,",
-                            name=name
-                        )
-        if company is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "company=:company,",
-                            company=company
-                        )
-        if sector_id is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "sector_id=:sector_id,",
-                            sector_id=sector_id
-                        )
-        if affiliate_id is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "affiliate_id=:affiliate_id,",
-                            affiliate_id=affiliate_id
-                        )
-        if address is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "address=:address,",
-                            address=address
-                        )     
-        if city is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "city=:city,",
-                            city=city
-                        )
-        if state is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "state=:state,",
-                            state=state
-                        )
-        if zip is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "zip=:zip,",
-                            zip=zip
-                        )
-        if phone is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "phone=:phone,",
-                            phone=phone
-                        )
-        if token is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "token=:token,",
-                            token=token
-                        )
-        if stripe_paid is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "stripe_paid=:stripe_paid,",
-                            stripe_paid=stripe_paid
-                        )
-        if manual_paid is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "manual_paid=:manual_paid,",
-                            manual_paid=manual_paid
-                        )
-        if stripe_customer_id is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "stripe_customer_id=:stripe_customer_id",
-                            stripe_customer_id=stripe_customer_id
-                        )
-        if partner_account is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "partner_account=:partner_account",
-                            partner_account=partner_account
-                        )
-        if stripe_account_id is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "stripe_account_id=:stripe_account_id",
-                            stripe_account_id=stripe_account_id
-                        )
-        if is_stripe_charges_enabled is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "is_stripe_charges_enabled=:is_stripe_charges_enabled",
-                            is_stripe_charges_enabled=is_stripe_charges_enabled
-                        )
-        if retail_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "retail_name=:retail_name,",
-                            retail_name=retail_name
-                        )
-        if retail_description is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "retail_description=:retail_description,",
-                            retail_description=retail_description
-                        )
-
-        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
-            #  check if last character in SQL is , and remove it if so
-            if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1], set_frags[1])
-
-            self._db.exec_frag(
-                frag(
-                    "UPDATE accounts SET",
-                    set_frags,
-                    frag(
-                        "WHERE id=:id",
-                        id=account_id
-                    )
-                )
-            )
-
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
                      partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
                      zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_customer_id=NO_VALUE,
@@ -662,6 +504,97 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Account")
+
+    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
+                       address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
+                       stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
+                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE,
+                       retail_name=NO_VALUE, retail_description=NO_VALUE):
+        """
+        Updates an account.
+
+        Params:
+            account_id: ID of the account to update
+            name: the account name
+            company: the company name
+            sector_id: the sector number
+            address: Account address
+            city: Account city
+            state: Account state
+            zip: Account zip
+            phone: Phone number specified for the account
+            token: token that we give the customer to use our APIs
+            stripe_paid: indicates if this account has an active subscription in stripe
+            manual_paid: indicates if it is a manually marked paid account
+            stripe_customer_id: the id for the corresponding customer object in stripe
+            retail_name: Retail name visible externally
+            retail_description: Retail Information visible externally
+        """
+        base_query = "UPDATE accounts "
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = account_id
+        if name is not NO_VALUE:
+            query_conditions.append(" name = %(name)s")
+            query_values["name"] = name
+        if company is not NO_VALUE:
+            query_conditions.append(" company = %(company)s")
+            query_values["company"] = company
+        if sector_id is not NO_VALUE:
+            query_conditions.append(" sector = %(sector_id)s")
+            query_values["sector_id"] = sector_id
+        if affiliate_id is not NO_VALUE:
+            query_conditions.append(" affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+        if address is not NO_VALUE:
+            query_conditions.append(" address = %(address)s")
+            query_values["address"] = address
+        if city is not NO_VALUE:
+            query_conditions.append(" city = %(city)s")
+            query_values["city"] = city
+        if state is not NO_VALUE:
+            query_conditions.append(" state = %(state)s")
+            query_values["state"] = state
+        if zip is not NO_VALUE:
+            query_conditions.append(" zip = %(zip)s")
+            query_values["zip"] = zip
+        if phone is not NO_VALUE:
+            query_conditions.append(" phone = %(phone)s")
+            query_values["phone"] = phone
+        if token is not NO_VALUE:
+            query_conditions.append(" token = %(token)s")
+            query_values["token"] = token
+        if stripe_paid is not NO_VALUE:
+            query_conditions.append(" stripe_paid = %(stripe_paid)s")
+            query_values["stripe_paid"] = stripe_paid
+        if manual_paid is not NO_VALUE:
+            query_conditions.append(" manual_paid = %(manual_paid)s")
+            query_values["manual_paid"] = manual_paid
+        if stripe_customer_id is not NO_VALUE:
+            query_conditions.append(" stripe_customer_id = %(stripe_customer_id)s")
+            query_values["stripe_customer_id"] = stripe_customer_id
+        if partner_account is not NO_VALUE:
+            query_conditions.append(" partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+        if stripe_account_id is not NO_VALUE:
+            query_conditions.append(" stripe_account_id = %(stripe_account_id)s")
+            query_values["stripe_account_id"] = stripe_account_id
+        if is_stripe_charges_enabled is not NO_VALUE:
+            query_conditions.append(" is_stripe_charges_enabled = %(is_stripe_charges_enabled)s")
+            query_values["is_stripe_charges_enabled"] = is_stripe_charges_enabled
+        if retail_name is not NO_VALUE:
+            query_conditions.append(" retail_name = %(retail_name)s")
+            query_values["retail_name"] = retail_name
+        if retail_description is not NO_VALUE:
+            query_conditions.append(" retail_description = %(retail_description)s")
+            query_values["retail_description"] = retail_description
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
