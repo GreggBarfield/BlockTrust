@@ -3,8 +3,9 @@ from flask import (
 )
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
+from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
-from ..database.tables.product_discounts import ProductDiscountException
+from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
 from ..database.tables.product_vendors import ProductVendors
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
@@ -18,7 +19,7 @@ bp = Blueprint('shop_bp', __name__)
 
 @bp.route('/external/shop/<int:partner_id>', methods=['GET'])
 def serve_partner_shop(partner_id):
-    allProductData = g.db.products.get_products(partner=partner_id, include_images=True)
+    allProductData = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
     productCategories = ProductCategories(g.db).get_product_categories()
     return outside_render('shop-iframe/shop-homepage.html', {
         "allProductData": allProductData,
@@ -29,7 +30,7 @@ def serve_partner_shop(partner_id):
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
-    allProductData = g.db.products.get_products()
+    allProductData = ProductTable(g.db).get_products()
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
@@ -42,7 +43,7 @@ def serve_external_cart(partner_id):
 def serve_apply_coupon():
     try:
         # Getting the discounts applcable for the coupon code supplied
-        discounts = g.db.product_discounts.get_discounts(request.form['coupon_code'])
+        discounts = ProductDiscounts(g.db).get_discounts(request.form['coupon_code'])
         # Creating a new object to store discount values
         discount_percentages = {}
         # Creating a browser friendly object to calculate discounts
@@ -112,7 +113,7 @@ def update_order():
         vendor_oriented_cart = {}
         # TODO: Name iterating variables explicitly. So here I think key should really be product_id. I am not sure what value stands for.
         for key, value in shopping_cart.items():
-            product_row = g.db.products.get_products(id=key)
+            product_row = ProductTable(g.db).get_products(id=key)
             if len(product_row) > 0:
                 product_vendor_id = product_row[0]["product_vendor_id"]
                 if product_vendor_id in vendor_oriented_cart:
