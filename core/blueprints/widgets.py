@@ -14,6 +14,7 @@ from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.files import Files
 from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
@@ -58,7 +59,7 @@ def serve_direct(name):
 @bp.route('/widgets/data/sales_group', methods=['POST'])
 @crut.require_account
 def serve_sales_group():
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     return {
@@ -69,7 +70,7 @@ def serve_sales_group():
         "account_name": sales_group_row["account_name"],
         "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
         "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
-        "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+        "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
         "delivery_location_type": sales_group_row["delivery_location_type"],
@@ -110,7 +111,7 @@ def serve_search_sales_groups():
     sales_group_rows = []
 
     # TODO: Optimize and fix
-    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
+    sales_group_rows = SalesGroups(g.db).get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=0)
 
     results = []
 
@@ -123,7 +124,7 @@ def serve_search_sales_groups():
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
                 "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
-                "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
+                "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
                 "delivery_location": sales_group_row["delivery_location"],
@@ -145,7 +146,7 @@ def serve_search_sales_groups():
 def serve_search_sales_groups_2():
     sales_group_rows = []
 
-    sales_group_rows = g.db.sales_groups.search_within(
+    sales_group_rows = SalesGroups(g.db).search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
         start=time.time(),
@@ -171,7 +172,7 @@ def serve_search_sales_groups_2():
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
-            "file_auths": g.db.files.get_auths(
+            "file_auths": Files(g.db).get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
                 else None
@@ -234,7 +235,7 @@ def serve_create_sales_group():
     images = []
     if 'images' in request.json["reported"]:
         images = request.json["reported"]["images"]
-    g.db.sales_groups.validate_or_fail_sales_group(
+    SalesGroups(g.db).validate_or_fail_sales_group(
         account_id=g.account.id(),
         group_name=request.json["group_name"],
         zip=request.json["zip"],
@@ -258,7 +259,7 @@ def serve_create_sales_group():
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
-    sales_group_id = g.db.sales_groups.insert_new_sales_group(
+    sales_group_id = SalesGroups(g.db).insert_new_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
         published=request.json["published"],
@@ -283,14 +284,14 @@ def serve_create_sales_group():
 @crut.require_account
 def serve_update_sales_group():
     # Check that the account selected is the owner of the sales group
-    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
+    original_row = SalesGroups(g.db).get_sales_group_by_id(request.json["id"])
     if original_row["account"] != g.account.id():
         raise ExportException("Insufficient permissions to edit this sales group.")
     # Validate sales group fields
     images = []
     if 'images' in request.json["reported"]:
         images = request.json["reported"]["images"]
-    g.db.sales_groups.validate_or_fail_sales_group(
+    SalesGroups(g.db).validate_or_fail_sales_group(
         account_id=g.account.id(),
         group_name=request.json["group_name"],
         zip=request.json["zip"],
@@ -313,7 +314,7 @@ def serve_update_sales_group():
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
-    g.db.sales_groups.update_sales_group(
+    SalesGroups(g.db).update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
@@ -355,7 +356,7 @@ def unarchive_sales_group():
 @crut.require_account
 def serve_archived_sales_group():
     sales_group_rows = []
-    sales_group_rows = g.db.sales_groups.get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
+    sales_group_rows = SalesGroups(g.db).get_sales_groups_and_data(account_id=request.json["search"]["params"]["ID"], is_archived=1)
 
     results = []
 
@@ -367,7 +368,7 @@ def serve_archived_sales_group():
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
             "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
-            "file_auths": g.db.files.get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
+            "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
             "delivery_location": sales_group_row["delivery_location"],
@@ -395,13 +396,13 @@ def serve_get_eids_for_sales_group():
     is_healthtrack_partner_account = False
     if g.account.partner_account_id() == healthtrack_partner_row["id"]:
         is_healthtrack_partner_account = True
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(request.json["sales_group"])
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(request.json["sales_group"])
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
     distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = list(map(lambda item: item['id'], g.db.sales_groups.get_sales_groups_and_data(account_id=g.account.id())))
+    account_sales_groups_ids = list(map(lambda item: item['id'], SalesGroups(g.db).get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
@@ -426,7 +427,7 @@ def serve_get_eids_for_sales_group():
 @bp.route('/widgets/data/save_eids_for_sales_group', methods=['POST'])
 @crut.require_account
 def serve_save_eids_for_sales_group():
-    original_row = g.db.sales_groups.get_sales_group_by_id(request.json["id"])
+    original_row = SalesGroups(g.db).get_sales_group_by_id(request.json["id"])
     SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
     SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
@@ -440,7 +441,7 @@ def serve_get_upload_config():
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
 
-    file_id, file_config = g.db.files.get_post(
+    file_id, file_config = Files(g.db).get_post(
         request.json["file_name"],
         g.user.id() if user_owns else None,
         g.account.id() if account_owns else None
@@ -671,7 +672,7 @@ def get_animals_and_grouping_ids_for_account():
         matches_cols=("eid", "visual_id", "grouping_id")
     )
     # Getting sales groups owned by account and corresponding eid's
-    account_sales_groups_ids = g.db.sales_groups.get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
+    account_sales_groups_ids = SalesGroups(g.db).get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
         assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))

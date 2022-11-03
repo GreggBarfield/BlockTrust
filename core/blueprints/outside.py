@@ -6,6 +6,7 @@ from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.sales_groups import SalesGroups
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
@@ -552,5 +553,5 @@ def serve_add_admin_user(invite_token):
 
 @bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
 def serve_external_sales_group_viewer(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
