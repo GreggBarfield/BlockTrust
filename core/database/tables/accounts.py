@@ -542,58 +542,58 @@ class Accounts:
         query_values = {}
         query_values["id"] = account_id
         if name is not NO_VALUE:
-            query_conditions.append(" name = %(name)s")
+            query_conditions.append("name = %(name)s")
             query_values["name"] = name
         if company is not NO_VALUE:
-            query_conditions.append(" company = %(company)s")
+            query_conditions.append("company = %(company)s")
             query_values["company"] = company
         if sector_id is not NO_VALUE:
-            query_conditions.append(" sector = %(sector_id)s")
+            query_conditions.append("sector = %(sector_id)s")
             query_values["sector_id"] = sector_id
         if affiliate_id is not NO_VALUE:
-            query_conditions.append(" affiliate_id = %(affiliate_id)s")
+            query_conditions.append("affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
         if address is not NO_VALUE:
-            query_conditions.append(" address = %(address)s")
+            query_conditions.append("address = %(address)s")
             query_values["address"] = address
         if city is not NO_VALUE:
-            query_conditions.append(" city = %(city)s")
+            query_conditions.append("city = %(city)s")
             query_values["city"] = city
         if state is not NO_VALUE:
-            query_conditions.append(" state = %(state)s")
+            query_conditions.append("state = %(state)s")
             query_values["state"] = state
         if zip is not NO_VALUE:
-            query_conditions.append(" zip = %(zip)s")
+            query_conditions.append("zip = %(zip)s")
             query_values["zip"] = zip
         if phone is not NO_VALUE:
-            query_conditions.append(" phone = %(phone)s")
+            query_conditions.append("phone = %(phone)s")
             query_values["phone"] = phone
         if token is not NO_VALUE:
-            query_conditions.append(" token = %(token)s")
+            query_conditions.append("token = %(token)s")
             query_values["token"] = token
         if stripe_paid is not NO_VALUE:
-            query_conditions.append(" stripe_paid = %(stripe_paid)s")
+            query_conditions.append("stripe_paid = %(stripe_paid)s")
             query_values["stripe_paid"] = stripe_paid
         if manual_paid is not NO_VALUE:
-            query_conditions.append(" manual_paid = %(manual_paid)s")
+            query_conditions.append("manual_paid = %(manual_paid)s")
             query_values["manual_paid"] = manual_paid
         if stripe_customer_id is not NO_VALUE:
-            query_conditions.append(" stripe_customer_id = %(stripe_customer_id)s")
+            query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
             query_values["stripe_customer_id"] = stripe_customer_id
         if partner_account is not NO_VALUE:
-            query_conditions.append(" partner_account = %(partner_account)s")
+            query_conditions.append("partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
         if stripe_account_id is not NO_VALUE:
-            query_conditions.append(" stripe_account_id = %(stripe_account_id)s")
+            query_conditions.append("stripe_account_id = %(stripe_account_id)s")
             query_values["stripe_account_id"] = stripe_account_id
         if is_stripe_charges_enabled is not NO_VALUE:
-            query_conditions.append(" is_stripe_charges_enabled = %(is_stripe_charges_enabled)s")
+            query_conditions.append("is_stripe_charges_enabled = %(is_stripe_charges_enabled)s")
             query_values["is_stripe_charges_enabled"] = is_stripe_charges_enabled
         if retail_name is not NO_VALUE:
-            query_conditions.append(" retail_name = %(retail_name)s")
+            query_conditions.append("retail_name = %(retail_name)s")
             query_values["retail_name"] = retail_name
         if retail_description is not NO_VALUE:
-            query_conditions.append(" retail_description = %(retail_description)s")
+            query_conditions.append("retail_description = %(retail_description)s")
             query_values["retail_description"] = retail_description
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
