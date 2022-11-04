@@ -6,8 +6,6 @@ pipelines:
       - step:
           script:
             - echo "Manual triggers for Sonar are awesome!"
-  pull-requests:
-    '**':
       - step:
           name: Lint code
           script:

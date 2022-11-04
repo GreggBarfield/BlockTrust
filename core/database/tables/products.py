@@ -1,4 +1,3 @@
-from ..objects.product import Product
 from ..no_value import NoValue
 from ... import config
 from ...utilities.aws import aws
