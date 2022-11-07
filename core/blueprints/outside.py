@@ -14,6 +14,7 @@ from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
 from ..sectors import sectors_by_name
 from requests import post
+from ..match_types import match_types_by_name
 
 
 bp = Blueprint('outside_bp', __name__)
@@ -558,4 +559,14 @@ def serve_external_sales_group_viewer(sales_group_id):
 
 @bp.route("/retail-data/<int:eid>", methods=["GET"])
 def serve_external_retail_data_viewer(eid):
+    eid_data_orginal_ranch = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Born"])
+    eid_data_feedyard = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Feedlot"]
+    )
+    eid_data_packer = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
+    print(eid_data_orginal_ranch)
+    print(eid_data_feedyard)
+    print(eid_data_packer)
     return outside_render("/outside/external-retail-data-viewer.html")
