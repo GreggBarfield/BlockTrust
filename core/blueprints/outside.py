@@ -559,6 +559,7 @@ def serve_external_sales_group_viewer(sales_group_id):
 
 @bp.route("/retail-data/<int:eid>", methods=["GET"])
 def serve_external_retail_data_viewer(eid):
+    supply_chain_account_ids = []
     eid_data_orginal_ranch = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Born"])
     eid_data_feedyard = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
@@ -566,7 +567,15 @@ def serve_external_retail_data_viewer(eid):
         account_links_sector=sectors_by_name["Feedlot"]
     )
     eid_data_packer = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
+    
     print(eid_data_orginal_ranch)
     print(eid_data_feedyard)
     print(eid_data_packer)
+    if len(eid_data_orginal_ranch) > 1:
+        supply_chain_account_ids.append(eid_data_orginal_ranch[0]["account"])
+    if len(eid_data_feedyard) > 1:
+        supply_chain_account_ids.append(eid_data_feedyard[0]["account"])
+    if len(eid_data_packer) > 1:
+        supply_chain_account_ids.append(eid_data_packer[0]["account"])
+    accounts_retail_data = []
     return outside_render("/outside/external-retail-data-viewer.html")
