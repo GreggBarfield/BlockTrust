@@ -752,20 +752,9 @@ def serve_get_sustainability_response_timeline_data():
 @crut.require_account
 def serve_save_account_retail_data():
     g.db.accounts.update_account(account_id=g.account.id(), retail_name=request.json["retail_name"], retail_description=request.json["retail_description"]) 
-    previous_uploaded_retail_image_files = g.db.files.get_files(retail_page_account_id=g.account.id())
+    previous_uploaded_retail_image_files = Files(g.db).get_files(retail_page_account_id=g.account.id())
     for previous_uploaded_retail_image in previous_uploaded_retail_image_files:
-        g.db.files.update_file(file_id=previous_uploaded_retail_image["id"], retail_page_account_id=None)
+        Files(g.db).update_file(file_id=previous_uploaded_retail_image["id"], retail_page_account_id=None)
     for uploaded_image_id in request.json["uploaded_images"]:
-        g.db.files.update_file(file_id=uploaded_image_id, retail_page_account_id=g.account.id())
+        Files(g.db).update_file(file_id=uploaded_image_id, retail_page_account_id=g.account.id())
     return {"redirect": "/dashboard"}
-
-
-@bp.route('/widgets/data/get_uploaded_retail_image_data', methods=["POST"])
-@crut.require_account
-def serve_get_uploaded_retail_image_data():
-    uploaded_retail_image_files = g.db.files.get_files(retail_page_account_id=g.account.id())
-    uploaded_retail_image_ids = []
-    for uploaded_file in uploaded_retail_image_files:
-        uploaded_retail_image_ids.append(uploaded_file["id"])
-    uploaded_retail_images_file_auths = g.db.files.get_auths(uploaded_retail_image_ids)
-    return {"uploaded_retail_image_ids": uploaded_retail_image_ids, "uploaded_retail_images_file_auths": uploaded_retail_images_file_auths}

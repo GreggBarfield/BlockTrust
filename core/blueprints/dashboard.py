@@ -19,6 +19,7 @@ from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.users import UsersException
+from ..database.tables.files import Files
 
 from ..renderers.email import render_email
 
@@ -633,4 +634,10 @@ def serve_views():
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account
 def serve_edit_account_retail_data():
-    return dashboard_render("accounts/edit_account_retail_data.html")
+    uploaded_retail_image_files = Files(g.db).get_files(retail_page_account_id=g.account.id())
+    uploaded_retail_image_ids = [uploaded_file["id"] for uploaded_file in uploaded_retail_image_files]
+    uploaded_retail_images_file_auths = Files(g.db).get_auths(uploaded_retail_image_ids)
+    return dashboard_render("accounts/edit_account_retail_data.html", {
+        "uploaded_retail_image_ids": uploaded_retail_image_ids,
+        "uploaded_retail_images_file_auths": json.dumps(uploaded_retail_images_file_auths)
+    })

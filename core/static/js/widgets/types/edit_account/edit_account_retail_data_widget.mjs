@@ -10,13 +10,9 @@ export class EditAccountRetailDataWidget extends Widget{
     initType = () => {
         let retailName = this.frame.getAttribute("data-widget-retail-name");
         let retailDescription = this.frame.getAttribute("data-widget-retail-description");
-        this.getData(
-            "get_uploaded_retail_image_data",
-        ).then((data) => {
-            let uploadedImageIDs = data.uploaded_retail_image_ids;
-            let uploadedImageAuths =  data.uploaded_retail_images_file_auths;
-            this.createEditForm(retailName, retailDescription, uploadedImageIDs, uploadedImageAuths);
-        });
+        let uploadedImageIDs = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-ids"));
+        let uploadedImageAuths = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-auths")); 
+        this.createEditForm(retailName, retailDescription, uploadedImageIDs, uploadedImageAuths);
     }
 
     createTextInput = (inputLabel, inputID, maxLength, inputValue) => {
