@@ -19,6 +19,7 @@ class Files:
 
     def __init__(self, db):
         self._db = db
+        self.file_cols = ("id", "name", 'account_id', "user_id", "retail_page_account_id")
 
     def get_url(self, file_id, expires_in=3600):
         """Gets a signed URL to a file by the ID.
@@ -158,7 +159,8 @@ class Files:
             }
         return auths
 
-    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, retail_page_account_id=NO_VALUE):
+    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE,
+                  retail_page_account_id=NO_VALUE, get_url=False, select_columns=[]):
         """
         Gets the file rows based on attributes provided
 
@@ -172,7 +174,14 @@ class Files:
         Returns:
             File rows based on attributes provided
         """
-        base_query = "SELECT * FROM files"
+        if len(select_columns) > 0:
+            incorrect_columns = [col for col in select_columns if col not in self.file_cols]
+            if len(incorrect_columns) > 0:
+                raise Exception("Selected column(s) " + ",".join(incorrect_columns) + " don't exist in files table")
+            base_query = "SELECT "
+            base_query += ",".join(select_columns) + " FROM files"
+        else:
+            base_query = "SELECT * FROM files"
 
         query_conditions = []
         query_values = {}
@@ -201,7 +210,13 @@ class Files:
         query = base_query + combined_query_condition
         file_rows = self._db.execute_d(query, query_values)
         if len(file_rows) > 0:
-            return file_rows
+            if get_url is True:
+                for file in file_rows:
+                    file_url = self.get_url(file["id"])
+                    file["file_url"] = file_url
+                return file_rows
+            else:
+                return file_rows
         else:
             return []
 
@@ -232,7 +247,7 @@ class Files:
         """
         Updates file data for provided ID
 
-        Params: 
+        Params:
             ids: List of file ids
             retail_page_account_id: Account ID of Retail image uploaded or None
 
@@ -248,7 +263,7 @@ class Files:
         self._db.execute(
             "UPDATE files SET retail_page_account_id = %(retail_page_account_id)s " + where_clause,
             {
-                "retail_page_account_id":retail_page_account_id
+                "retail_page_account_id": retail_page_account_id
             }
         )
 

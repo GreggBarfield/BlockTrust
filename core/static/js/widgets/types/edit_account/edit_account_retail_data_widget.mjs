@@ -10,8 +10,13 @@ export class EditAccountRetailDataWidget extends Widget{
     initType = () => {
         let retailName = this.frame.getAttribute("data-widget-retail-name");
         let retailDescription = this.frame.getAttribute("data-widget-retail-description");
-        let uploadedImageIDs = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-ids"));
-        let uploadedImageAuths = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-auths")); 
+        let uploadedImageFiles = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-files"));
+        let uploadedImageIDs = [];
+        let uploadedImageAuths = {};
+        for(const file of uploadedImageFiles){
+            uploadedImageIDs.push(file.id);
+            uploadedImageAuths[file.id] = file;
+        }
         this.createEditForm(retailName, retailDescription, uploadedImageIDs, uploadedImageAuths);
     }
 

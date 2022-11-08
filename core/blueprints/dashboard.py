@@ -14,12 +14,12 @@ from ..common_exceptions import ExportException
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
+from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.users import UsersException
-from ..database.tables.files import Files
 
 from ..renderers.email import render_email
 
@@ -634,10 +634,8 @@ def serve_views():
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account
 def serve_edit_account_retail_data():
-    uploaded_retail_image_files = Files(g.db).get_files(retail_page_account_id=g.account.id())
-    uploaded_retail_image_ids = [uploaded_file["id"] for uploaded_file in uploaded_retail_image_files]
-    uploaded_retail_images_file_auths = Files(g.db).get_auths(uploaded_retail_image_ids)
-    return dashboard_render("accounts/edit_account_retail_data.html", {
-        "uploaded_retail_image_ids": uploaded_retail_image_ids,
-        "uploaded_retail_images_file_auths": json.dumps(uploaded_retail_images_file_auths)
-    })
+    uploaded_retail_image_files = Files(g.db).get_files(
+        retail_page_account_id=g.account.id(),
+        select_columns=["id", "name"]
+        )
+    return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})
