@@ -572,11 +572,18 @@ def serve_external_retail_data_viewer(eid):
     print(eid_data_orginal_ranch)
     print(eid_data_feedyard)
     print(eid_data_packer)
-    if len(eid_data_orginal_ranch) > 1:
+    if len(eid_data_orginal_ranch) > 0:
         supply_chain_account_ids.append(eid_data_orginal_ranch[0]["account"])
-    if len(eid_data_feedyard) > 1:
+    if len(eid_data_feedyard) > 0:
         supply_chain_account_ids.append(eid_data_feedyard[0]["account"])
-    if len(eid_data_packer) > 1:
+    if len(eid_data_packer) > 0:
         supply_chain_account_ids.append(eid_data_packer[0]["account"])
     accounts_retail_data = []
-    return outside_render("/outside/external-retail-data-viewer.html")
+    for account_id in supply_chain_account_ids:
+        account_data = g.db.accounts.get_accounts(id=account_id)
+        if len(account_data) > 0:
+            accounts_retail_data.append({
+                "retail_name": account_data[0]["retail_name"],
+                "retail_description": account_data[0]["retail_description"]
+            })
+    return outside_render("/outside/external-retail-data-viewer.html", {"accounts_retail_data": accounts_retail_data})
