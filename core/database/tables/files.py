@@ -227,3 +227,29 @@ class Files:
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Files table")
+
+    def update_multiple_files(self, file_ids, retail_page_account_id):
+        """
+        Updates file data for provided ID
+
+        Params: 
+            ids: List of file ids
+            retail_page_account_id: Account ID of Retail image uploaded or None
+
+        Returns:
+            Number of rows affected
+        """
+
+        if all(isinstance(id, int) for id in file_ids):
+            where_clause = "WHERE id IN (" + ",".join(str(id) for id in file_ids) + ")"
+        else:
+            raise Exception("Not all the File ids provided are integers")
+
+        self._db.execute(
+            "UPDATE files SET retail_page_account_id = %(retail_page_account_id)s " + where_clause,
+            {
+                "retail_page_account_id":retail_page_account_id
+            }
+        )
+
+        return self._db.row_count()
