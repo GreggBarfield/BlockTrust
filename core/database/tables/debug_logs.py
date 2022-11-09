@@ -6,7 +6,7 @@ class DebugLogs:
     def __init__(self, db):
         self._db = db
 
-    def insert_debug_log(self, component, short_info, long_info=None, details=None):
+    def insert_debug_log(self, component, short_info=None, long_info=None, details=None):
         """Inserts Error Log.
         """
         try:

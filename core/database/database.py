@@ -171,3 +171,6 @@ class Database:
     def close(self):
         self._cursor.close()
         self._connection.close()
+    
+    def commit(self):
+        self._connection.commit()
