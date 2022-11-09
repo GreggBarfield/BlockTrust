@@ -1,3 +1,4 @@
+from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from ...all_to_unix import all_to_unix
 from core.sectors import sectors_by_name
@@ -43,7 +44,7 @@ def handle(db, insert):
                 if d not in "0123456789":
                     break
             else:
-                lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                lat, lon = get_lat_lon(int(f5))
                 db.matches.types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['KillDate'])-86400,
@@ -76,7 +77,7 @@ def handle(db, insert):
                 if d not in "0123456789":
                     break
             else:
-                lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                lat, lon = get_lat_lon(int(f5))
                 db.matches.types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['KillDate']),

@@ -19,14 +19,13 @@ from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
 
-from ..database.const.spatial_math import meters_to_miles, distance
-from ..database.const.zip_codes_data import ZIP_CODES
-
 from ..reports.query_types import count_eid_distinct
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
+from ..utilities.spatial_math import meters_to_miles, distance
+from ..utilities.data.zip_codes_data import ZIP_CODES
 
 from ..config import ROOT as WEBSITE_ROOT
 
