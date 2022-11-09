@@ -4,8 +4,10 @@ from flask import (
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 
-from core.database.tables.invited_users import InvitedUsers
 from ..database.tables.accounts import Accounts
+from ..database.tables.api_inserts import ApiInserts
+from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
@@ -13,7 +15,6 @@ from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
-from ..database.tables.debug_logs import DebugLogs
 from ..database import scripts
 from ..database.combinations import perform_new_account_actions
 from ..database.tables.event_logs import event_type_by_name
@@ -309,7 +310,7 @@ def serve_upload_packer_data():
         partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=sectors_by_name["Feedlot"], is_partner=1)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)
+                ApiInserts(g.db).insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
