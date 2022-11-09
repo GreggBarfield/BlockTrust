@@ -10,7 +10,7 @@ from ..renderers.dashboard import dashboard_render
 from ..sectors import sectors_by_id, sectors_by_name
 
 from ..common_exceptions import ExportException
-
+from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
@@ -284,7 +284,7 @@ def serve_upload_tags():
         data = json.loads(request.data)
         try:
             for row in data["eids"]:
-                g.db.api_inserts.insert(g.account.id(), "SELF", "TagUpload", row)
+                ApiInserts(g.db).insert(g.account.id(), "SELF", "TagUpload", row)
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:
