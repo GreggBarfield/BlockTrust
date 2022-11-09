@@ -1,6 +1,6 @@
 import json
 import os
-from .spatial_math import lla_wgs84_to_ecef
+from ..spatial_math import lla_wgs84_to_ecef
 RAW_ZIP_CODES_FILE_PATH = "./us-zip-code-latitude-and-longitude.json"
 dir_path = os.path.dirname(os.path.realpath(__file__))
 raw_zip_codes = json.load(open(os.path.join(dir_path,RAW_ZIP_CODES_FILE_PATH)))
