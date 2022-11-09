@@ -6,7 +6,6 @@ from .tables.account_users import AccountUsers
 from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
-from .tables.zip_codes import ZIPCodes
 from .tables.messages import Messages
 from .tables.auction_sales import AuctionSales
 from .tables.reports import Reports
@@ -43,7 +42,6 @@ class Database:
         self.users = Users(self)
         self.matches = Matches(self)
         self.account_links = AccountLinks(self)
-        self.zip_codes = ZIPCodes(self)
         self.messages = Messages(self)
         self.auction_sales = AuctionSales(self)
         self.reports = Reports(self)
