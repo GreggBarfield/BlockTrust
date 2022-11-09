@@ -10,6 +10,7 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import send_connection_request_email_to_admin_users
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from ..database.tables.auction_sales import AuctionSales
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
@@ -19,14 +20,13 @@ from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
 
-from ..database.const.spatial_math import meters_to_miles, distance
-from ..database.const.zip_codes_data import ZIP_CODES
-
 from ..reports.query_types import count_eid_distinct
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
+from ..utilities.spatial_math import meters_to_miles, distance
+from ..utilities.data.zip_codes_data import ZIP_CODES
 
 from ..config import ROOT as WEBSITE_ROOT
 
@@ -498,52 +498,52 @@ def serve_send_message():
             )
     return {}, 200
 
-
-@bp.route('/widgets/data/get_auction_sales', methods=['POST'])
-@crut.require_account
-def serve_get_auction_sales():
-    return {
-        "auction_sales": g.db.auction_sales.get_auction_sales_by_account(g.account.id())
-    }
-
-
-@bp.route('/widgets/data/search_auction_sales', methods=['POST'])
-@crut.require_account
-def serve_search_auction_sales():
-    return {
-        "auction_sales": g.db.auction_sales.search_auction_sales(request.json["term"])
-    }
+# Deprecated 11/9/22
+# @bp.route('/widgets/data/get_auction_sales', methods=['POST'])
+# @crut.require_account
+# def serve_get_auction_sales():
+#     return {
+#         "auction_sales": AuctionSales(g.db).get_auction_sales_by_account(g.account.id())
+#     }
 
 
-@bp.route('/widgets/data/new_auction_sale', methods=['POST'])
-@crut.require_account
-def serve_new_auction_sale():
-    g.db.auction_sales.new_auction_sale(
-        name=request.json["name"],
-        at=request.json["at"],
-        account_id=g.account.id(),
-        comments=request.json["comments"],
-        published=request.json["published"]
-    )
-    return {}, 200
+# @bp.route('/widgets/data/search_auction_sales', methods=['POST'])
+# @crut.require_account
+# def serve_search_auction_sales():
+#     return {
+#         "auction_sales": AuctionSales(g.db).search_auction_sales(request.json["term"])
+#     }
 
 
-@bp.route('/widgets/data/update_auction_sale', methods=['POST'])
-@crut.require_account
-def serve_update_auction_sale():
-    if g.db.auction_sales.get_auction_sale_by_id(request.json["id"])["account"] == g.account.id():
-        g.db.auction_sales.update_auction_sale(
-            name=request.json["name"],
-            at=request.json["at"],
-            auction_sale_id=request.json["id"],
-            comments=request.json["comments"],
-            published=request.json["published"]
-        )
-        return {}, 200
-    else:
-        return {
-            "Account does not match"
-        }, 400
+# @bp.route('/widgets/data/new_auction_sale', methods=['POST'])
+# @crut.require_account
+# def serve_new_auction_sale():
+#     AuctionSales(g.db).new_auction_sale(
+#         name=request.json["name"],
+#         at=request.json["at"],
+#         account_id=g.account.id(),
+#         comments=request.json["comments"],
+#         published=request.json["published"]
+#     )
+#     return {}, 200
+
+
+# @bp.route('/widgets/data/update_auction_sale', methods=['POST'])
+# @crut.require_account
+# def serve_update_auction_sale():
+#     if AuctionSales(g.db).get_auction_sale_by_id(request.json["id"])["account"] == g.account.id():
+#         AuctionSales(g.db).update_auction_sale(
+#             name=request.json["name"],
+#             at=request.json["at"],
+#             auction_sale_id=request.json["id"],
+#             comments=request.json["comments"],
+#             published=request.json["published"]
+#         )
+#         return {}, 200
+#     else:
+#         return {
+#             "Account does not match"
+#         }, 400
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
