@@ -2,7 +2,8 @@ import json
 from core.database.no_value import NoValue
 from core.database.tables.auction_sales import AuctionSales
 from core.database.tables.files import Files
-from core.database.const.zip_codes_data import ZIP_CODES
+from core.utilities.data.zip_codes_data import ZIP_CODES
+from core.utilities.zip_codes import get_locations, zips_nearby_zip
 
 from ...common_exceptions import ExportException
 
@@ -258,7 +259,7 @@ class SalesGroups:
         if zip_code is not NO_VALUE:
             query_conditions.append(" zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
-            market_location = self._db.zip_codes.get_locations(zip_code)
+            market_location = get_locations(zip_code)
             query_conditions.append(" market_location = %(market_location)s")
             query_values["market_location"] = market_location
         if delivery_location is not NO_VALUE:
@@ -332,7 +333,7 @@ class SalesGroups:
 
             Enhanced with account_name, auction_sale_name
         """
-        zip_codes = self._db.zip_codes.zips_nearby_zip(zip_code, miles)
+        zip_codes = zips_nearby_zip(zip_code, miles)
 
         # TODO: Optimize
         # TODO: Add skip, limit
@@ -500,7 +501,7 @@ class SalesGroups:
         if zip_code is not NO_VALUE:
             query_conditions.append(" zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
-            market_location = self._db.zip_codes.get_locations(zip_code)
+            market_location = get_locations(zip_code)
             query_conditions.append(" market_location = %(market_location)s")
             query_values["market_location"] = market_location
         if delivery_location is not NO_VALUE:
