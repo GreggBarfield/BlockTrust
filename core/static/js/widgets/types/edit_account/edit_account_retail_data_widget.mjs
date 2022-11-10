@@ -9,8 +9,13 @@ export class EditAccountRetailDataWidget extends Widget{
     
     initType = () => {
         let retailName = this.frame.getAttribute("data-widget-retail-name");
-        let retailDescription = this.frame.getAttribute("data-widget-retail-description"); 
-        this.createEditForm(retailName, retailDescription);
+        let retailDescription = this.frame.getAttribute("data-widget-retail-description");
+        let uploadedImageFiles = JSON.parse(this.frame.getAttribute("data-widget-uploaded-image-files"));
+        let imageIDToImageNameObject = {};
+        for(const file of uploadedImageFiles){
+            imageIDToImageNameObject[file.id] = {"name": file.name};
+        }
+        this.createEditForm(retailName, retailDescription, imageIDToImageNameObject);
     }
 
     createTextInput = (inputLabel, inputID, maxLength, inputValue) => {
@@ -61,7 +66,7 @@ export class EditAccountRetailDataWidget extends Widget{
         return textInputContainer;
     }
 
-    createEditForm = (retailName, retailDescription) => {
+    createEditForm = (retailName, retailDescription, imageIDToImageNameObject) => {
         this.frame.innerHTML = "";
         let card = document.createElement("div");
         card.className = "card";
@@ -86,7 +91,7 @@ export class EditAccountRetailDataWidget extends Widget{
 
         let imageUploadContainer = document.createElement("div");
         imageUploadContainer.className = "p-1 col-md-8";
-        let imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer);
+        let imageUploader = new BasicFileEditor({filetype:["image"]}, imageUploadContainer, Object.keys(imageIDToImageNameObject), imageIDToImageNameObject);
         
         form.append(retailNameInput);
         form.append(retailDescriptionInput);

@@ -14,6 +14,7 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
+from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
@@ -633,4 +634,9 @@ def serve_views():
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account
 def serve_edit_account_retail_data():
-    return dashboard_render("accounts/edit_account_retail_data.html")
+    uploaded_retail_image_files = Files(g.db).get_files(
+        retail_page_account_id=g.account.id(),
+        select_columns=["id", "name"]
+        )
+    # json.dumps() helps to convert uploaded_retail_image_files into a JSON string which can be converted back in the widget without any errors.
+    return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})
