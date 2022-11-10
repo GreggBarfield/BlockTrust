@@ -10,12 +10,12 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import send_connection_request_email_to_admin_users
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
-from ..database.tables.auction_sales import AuctionSales
-from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files
+from ..database.tables.messages import Messages
+from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.sales_groups import SalesGroups
@@ -464,14 +464,14 @@ def serve_get_accounts_list():
 @crut.require_account
 def serve_get_account_messages():
     return {
-        "messages": g.db.messages.get(g.account.id(), g.account.id())
+        "messages": Messages(g.db).get(g.account.id(), g.account.id())
     }
 
 
 @bp.route('/widgets/data/send_message', methods=['POST'])
 @crut.require_account
 def serve_send_message():
-    message_id = g.db.messages.insert_message(
+    message_id = Messages(g.db).insert_message(
         g.account.id(),
         request.json["params"]["to_account"],
         request.json["params"]["data"]
