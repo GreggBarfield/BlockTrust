@@ -1724,3 +1724,7 @@ DROP COLUMN `from_account_name`;
 ALTER TABLE `accounts`
 ADD COLUMN `retail_name` VARCHAR(100) DEFAULT NULL,
 ADD COLUMN `retail_description` VARCHAR(250) DEFAULT NULL;
+
+/* Nisheet Thakur 11/2/2022 */
+ALTER TABLE `files`
+ADD COLUMN `retail_page_account_id` INT DEFAULT NULL;

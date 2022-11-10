@@ -6,14 +6,8 @@ from .tables.account_users import AccountUsers
 from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
-from .tables.zip_codes import ZIPCodes
-from .tables.messages import Messages
-from .tables.auction_sales import AuctionSales
 from .tables.reports import Reports
-from .tables.orders import Orders
-from .tables.order_products import OrderProducts
 from .tables.usda_reports import USDAReports
-from .tables.api_inserts import ApiInserts
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -43,14 +37,8 @@ class Database:
         self.users = Users(self)
         self.matches = Matches(self)
         self.account_links = AccountLinks(self)
-        self.zip_codes = ZIPCodes(self)
-        self.messages = Messages(self)
-        self.auction_sales = AuctionSales(self)
         self.reports = Reports(self)
         self.usda_reports = USDAReports(self)
-        self.orders = Orders(self)
-        self.order_products = OrderProducts(self)
-        self.api_inserts = ApiInserts(self)
 
     def connect(self):
         try:
@@ -181,3 +169,6 @@ class Database:
     def close(self):
         self._cursor.close()
         self._connection.close()
+    
+    def commit(self):
+        self._connection.commit()

@@ -1,3 +1,4 @@
+from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from api.database.inserts_model import InsertsModel
@@ -81,7 +82,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate'])-86400,
@@ -118,7 +119,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate']),
@@ -193,7 +194,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate']),

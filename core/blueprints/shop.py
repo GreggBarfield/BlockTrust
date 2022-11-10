@@ -3,6 +3,8 @@ from flask import (
 )
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
+from ..database.tables.orders import Orders
+from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
@@ -63,13 +65,13 @@ def create_order():
 
         order_details = eval(data["orderDetails"])
         # Adding order to orders table and getting current order id from orders table
-        order_id = g.db.orders.add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
-        order_details["zip_code"])
+        order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
+                                          order_details["zip_code"])
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-            g.db.order_products.add_order_product(order_id, key, value["quantity"])
+            OrderProducts(g.db).add_order_product(order_id, key, value["quantity"])
 
         return {"orderId": order_id}
     except Exception as e:
@@ -81,7 +83,7 @@ def update_order():
     try:
         data = json.loads(request.data)
         # Updating the orders table if payment goes through
-        g.db.orders.update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+        Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
         order_details = eval(data["orderDetails"])
         shopping_cart = eval(order_details["shoppingCart"])
@@ -192,12 +194,12 @@ def serve_external_paymentinfo(partner_id):
         shipping_state = request.form['shipping_state']
         shipping_zip_code = request.form['shipping_zip_code']
         # Adding order to orders table and getting current order id from orders table
-        order_id = g.db.orders.add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
+        order_id = Orders(g.db).add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-            g.db.order_products.add_order_product(order_id, key, value["quantity"])
+            OrderProducts(g.db).add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
         return jsonify({"redirect": "/external/invoice/"+partner_id})
