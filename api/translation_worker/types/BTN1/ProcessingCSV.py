@@ -3,6 +3,7 @@ from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
 from .medical_helper import format_data
 from .remapper import remap
+from ...exceptions import ExecutionException
 
 
 def block_key(insert):
@@ -28,7 +29,7 @@ def handle(db: Database, insert):
     api_insert = insert["id"]
 
     if time is None:
-        return
+        raise ExecutionException("Time is none")
 
     medical_data = format_data(
         product=fields["prod_name"],
@@ -37,7 +38,7 @@ def handle(db: Database, insert):
     )
 
     if medical_data is None or medical_data == {}:
-        return
+        raise ExecutionException("Medical data is none")
 
     db.matches.types.insert_medical(
         time=time,

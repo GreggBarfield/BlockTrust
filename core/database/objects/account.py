@@ -85,6 +85,30 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
+    def partner_private_logo(self):
+        return self._row['partner_private_logo']
+
+    def account_manager_id(self):
+        return self._row['account_manager_id']
+
+    def archived(self):
+        return self._row['archived']
+
+    def stripe_account_id(self):
+        return self._row['stripe_account_id']
+    
+    def is_stripe_charges_enabled(self):
+        return self._row['is_stripe_charges_enabled']
+
+    def is_partner_used_for_signup(self):
+        return self._row['is_partner_used_for_signup']
+
+    def retail_name(self):
+        return self._row["retail_name"]
+
+    def retail_description(self):
+        return self._row["retail_description"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
@@ -108,3 +132,4 @@ class Account:
         if not allow_cache or not self._account_links:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
+

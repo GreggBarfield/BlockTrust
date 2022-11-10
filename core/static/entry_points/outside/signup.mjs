@@ -19,6 +19,16 @@ let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone");
 
+let ip="", country="";
+if(checkIP.toLowerCase() === "true") {
+    const response = await fetch("https://ipinfo.io/json?token=" + ipInfoAccessToken);
+    const clientMachineDetails = await response.json();
+    if ("ip" in clientMachineDetails && "country" in clientMachineDetails){
+        ip = clientMachineDetails.ip;
+        country = clientMachineDetails.country;
+    }
+}
+
 let form = new AsyncForm({
     action: "/signup/action",
     form: signupForm[0],
@@ -46,7 +56,9 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            personal_phone: personal_phone.val()
+            personal_phone: personal_phone.val(),
+            ip_address: ip,
+            ip_country: country
         }
     }
 });

@@ -1,8 +1,6 @@
 import { BootstrapCarousel } from "../core/bootstrap_carousel.mjs";
 import { fileNameIsImage } from "../files/file_types.mjs";
 import { urlHighlighter } from "../core/url_highlighter.mjs";
-import { DL } from "../core/dl.mjs";
-import { formatDate } from "../core/time.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
@@ -10,11 +8,9 @@ export class SalesGroupViewer {
         this.frame = null;
 
         this.box = document.createElement("div");
-
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
-
         this.data = data;
         this.createDisplay();
 
@@ -132,19 +128,74 @@ export class SalesGroupViewer {
             row.append(left);
 
             let salesGroupID = document.createElement("h5");
-            salesGroupID.className = "mb-0";
-            salesGroupID.style = "display: inline;";
-            salesGroupID .textContent = "Sales Group "+this.data.id+": "+this.data.group_name; 
+            salesGroupID.className = "mb-0 d-inline pr-2"
+            salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
-            let sendMessageButton = document.createElement("button");
 
-            sendMessageButton.className = "btn btn-sm btn-primary";
-            sendMessageButton.style = "float:right"
-            sendMessageButton.textContent = "Contact Seller";
-            sendMessageButton.addEventListener("click", () => {
-                promptNewMessage(this.data.account, this.data.account_name);
-            });
-            left.append(sendMessageButton);
+            let scoreText = document.createElement("h4");
+            scoreText.className = "d-inline text-c-green";
+            scoreText.textContent = parseFloat(this.data.owner_account_sustainability_score_average).toFixed(2);
+            let scoreIcon = document.createElement("i");
+            scoreIcon.className = "fas fa-leaf text-c-green f-15 pr-2";
+
+            if( this.data.owner_account_sustainability_score_average){
+                left.append(scoreIcon);
+                left.append(scoreText);
+            }
+
+            if(this.data["is_archived"]==0){
+                let sendMessageButton = document.createElement("button");
+                sendMessageButton.className = "btn btn-sm btn-primary";
+                sendMessageButton.style = "float:right"
+                sendMessageButton.textContent = "Contact Seller";
+                sendMessageButton.addEventListener("click", () => {
+                    promptNewMessage(this.data.account, this.data.account_name);
+                });
+                left.append(sendMessageButton);
+            }
+            else{
+                let unarchiveButton = document.createElement("button");
+
+                unarchiveButton.className = "btn btn-sm btn-primary";
+                unarchiveButton.style = "float:right"
+                unarchiveButton.textContent = "Unarchive";
+                unarchiveButton.addEventListener("click", () => {
+                    $.ajax({
+                        url: "/widgets/data/unarchive_sales_group",
+                        data: JSON.stringify({
+                            "action": "unarchive_sales_group",
+                            "params": {
+                                id:this.data.id
+                            }
+                        }),
+                        contentType: 'application/json',
+                        method: "POST"
+                    }).then(()=>{
+                        let alert = document.createElement("div");
+                        alert.className = "alert alert-success";
+                        alert.textContent = "Unarchived success!";
+                        left.append(alert);   
+                        window.location.reload();
+                    })               
+                });
+                left.append(unarchiveButton);
+            }
+            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1 && this.data["price"] > 0){
+                let purchaseButton = document.createElement("button");
+                purchaseButton.className = "btn btn-sm btn-success";
+                purchaseButton.style = "float:right"
+                purchaseButton.textContent = "Purchase";
+                purchaseButton.addEventListener("click", () => {
+                    window.location.href = "/dashboard/sales-groups/purchase/"+this.data["id"];
+                });
+                left.append(purchaseButton);
+                let priceLabel = document.createElement("label");
+                priceLabel.innerHTML = `$${this.data["price"]}`;
+                priceLabel.className = "h3 text-info mr-4";
+                priceLabel.style = "float:right";
+                left.append(priceLabel);
+            }
+            
             let location = document.createElement("div");
 
             let milesAway = "--";
@@ -158,8 +209,13 @@ export class SalesGroupViewer {
             }
 
             location.style = "color:black";
-            location.textContent = "  Location: " + this.data.market_location + " ( " + milesAwayInt + " Miles)";
+            location.textContent = "  Location: " + this.formatData(this.data.market_location) + " ( " + milesAwayInt + " Miles)";
             left.append(location);
+
+            let category = document.createElement("div");
+            category.style = "color:black";
+            category.textContent =`Category: ${this.data.category}`;
+            left.append(category);
         }
 
         // Configure Animal data
@@ -181,18 +237,20 @@ export class SalesGroupViewer {
             animalBody.className = "card-body";
             animalDataCol.append(animalBody);
 
-            addInfo("Breed", this.data.reported.breeds, animalBody);
-            addInfo("Base Weight", this.data.reported.weight, animalBody);
-            addInfo("Wt. Variance", this.data.reported.weight_variance, animalBody);
-            addInfo("Frame", this.data.reported.usda_frame_size, animalBody);
-            addInfo("Horns", this.data.reported.horns, animalBody);
-            addInfo("Precon Program", this.data.reported.preconditioning_program, animalBody);
-            addInfo("Implants", this.data.reported.implants, animalBody);
-            addInfo("Castrated", this.data.reported.castrated, animalBody);
-            addInfo("Vaccinations", this.data.reported.vaccinations, animalBody);
-            addInfo("Feeding Program", this.data.reported.feeding_programs, animalBody);
-            addInfo("PVP Program", this.data.reported.process_verified_program, animalBody);
-
+            addInfo("Breed", this.formatData(this.data.reported.breeds), animalBody);
+            addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
+            addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
+            addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
+            addInfo("Weighing Conditions", this.formatData(this.data.weighing_conditions), animalBody);
+            addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
+            addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
+            addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), animalBody);
+            addInfo("Implants", this.formatData(this.data.reported.implants), animalBody);
+            addInfo("Castrated", this.formatData(this.data.reported.castrated), animalBody);
+            addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
+            addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
+            addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
+            addInfo("PVP Program", this.formatData(this.data.reported.process_verified_program), animalBody);
         }
 
         //Configure market data 
@@ -220,8 +278,8 @@ export class SalesGroupViewer {
             let marketInfoText = document.createElement("dl");
             marketInfoText.className = "dl-horizontal row";
 
-            addInfo("Total Count", this.data.reported.count, marketBody);
-            addInfo("Delivery Location", this.data.delivery_location, marketBody);
+            addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
+            addInfo("Delivery Location", this.formatData(this.data.delivery_location), marketBody);
 
             let daysRemaining = "--";
 
@@ -353,6 +411,11 @@ export class SalesGroupViewer {
             let thumb = document.createElement("div");
             thumb.className = "thumb";
             video.append(thumb);
+
+            
+            let embed = document.createElement("div");
+            embed.className ="embed-responsive embed-responsive-16by9";
+            thumb.append(embed);
 
             let videos = this.data.reported.videos;
             var videoUrls = [];
@@ -532,6 +595,11 @@ export class SalesGroupViewer {
         }
         this.frame = null;
     }
-
-
+    
+    formatData(data) {
+        if (data === null)
+            return "";
+        else
+            return data;
+    }
 }

@@ -155,14 +155,13 @@
 <header class="b-header">
     <div class="b-header-bar">
         <a class="b-header-logo" href="/">
-            <img
-                class="b-header-logo-desktop"
-                src="/static/images/logos/logo-color-light-eps-01.svg"
-            />
-            <img
-                class="b-header-logo-mobile"
-                src="/static/images/logos/logo-color-dark-eps-01.svg"
-            />
+        {% if dashboard_standard_account is not none and dashboard_standard_account.partner_private_logo() is not none %}
+            <img class="b-header-logo-desktop"src="{{dashboard_standard_account.partner_private_logo()}}"/>
+            <img class="b-header-logo-mobile" src="{{dashboard_standard_account.partner_private_logo()}}"/>
+        {% else %}
+            <img class="b-header-logo-desktop" src="/static/images/logos/logo-color-light-eps-01.svg"/>
+            <img class="b-header-logo-mobile" src="/static/images/logos/logo-color-dark-eps-01.svg"/>
+        {% endif %}
         </a>
     </div>
 
@@ -180,32 +179,37 @@
         <span>Utility</span>
         <div class="b-nav-utility">
             <ul>
-                {% if dashboard_standard_account is not none %}
-                {% if g.account.sector_name() != "Buyer"%}
-                <li> 
+            {% if dashboard_standard_account is not none %}
+            {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
+                <li title="Search for EID Numbers"> 
                   <a href="#" id="icon-search">
-                    <i class="icon feather icon-search"></i>
+                    <i class="icon feather icon-search h2"></i>
                   </a>
                 </li>
-                {% endif %}
-                <li>  
-                    <a href="/dashboard/messages">
-                    <i class="icon feather icon-mail"></i>
+            {% endif %}
+                <!-- below the whole code in title attribute is in quotes because we use strings with spaces-->
+                <li title="{{'You have pending connection requests' if pending_connection_requests_count else 'Manage Connections in the Beef Supply Chain'}}">  
+                    <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count else ""}}>
+                        <i class="icon feather icon-users h2"></i>
                     </a>
                 </li>
-                <li class="b-account-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-account-settings-li b-account-settings"
-                    >
-                        <i class="icon feather icon-settings"></i>
+                <li title="{{'You have unread notifications' if unread_notifications_count else 'Notifications'}}">  
+                    <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count else ""}}>
+                        <i class="icon feather icon-bell h2"></i>
+                    </a>
+                </li>
+                <li title="Internal Secure Messaging">  
+                    <a href="/dashboard/messages">
+                        <i class="icon feather icon-mail h2"></i>
+                    </a>
+                </li>
+                <li class="b-account-settings-li" title="Account Settings">
+                    <a href="#" class="toggler" data-toggles="b-account-settings-li b-account-settings">
+                        <i class="icon feather icon-settings h2"></i>
                     </a>
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
-                            <div>
-                              {{ g.account.name() | e }}
-                            </div>
+                            <div> {{ dashboard_standard_account.company()}} </div>
                         </div>
                         <ul class="pro-body">
                             <li>
@@ -213,34 +217,30 @@
                                     <i class="feather icon-credit-card"></i> Subscription
                                 </a>
                             </li>
-                            {% if dashboard_standard_is_admin == 1 %}
+                        {% if dashboard_standard_is_admin == 1 %}
                             <li>
                                 <a href="/dashboard/inviteuser">
                                     <i class="feather icon-user-plus"></i> Invite Users
                                 </a>
                             </li>
-                            {% endif %}
-                            <li>
-                                <a href="/dashboard/connections">
-                                    <i class="feather icon-users"></i> View Connections
-                                </a>
-                            </li>
+                        {% endif %}
                             <li>
                                 <a href="/dashboard/edit/edit-account">
                                     <i class="feather icon-briefcase"></i> Edit Account
                                 </a>
                             </li>
+                            <li>
+                                <a href="/dashboard/edit/edit-account-retail-data">
+                                    <i class="feather icon-briefcase"></i> Edit Account Retail Data
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
-                {% endif %}
-                <li class="b-user-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-user-settings-li b-user-settings"
-                    >
-                        <i class="icon feather icon-user"></i>
+            {% endif %}
+                <li class="b-user-settings-li" title="User Settings">
+                    <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
+                        <i class="icon feather icon-user h2"></i>
                     </a>
                     <div class="b-expandable-icon b-user-settings">
                         <div class="pro-head">
@@ -250,13 +250,13 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                            {% if dashboard_is_employee_impersonating == 0 %}
+                        {% if dashboard_is_employee_impersonating == 0 %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
                                 </a>
                             </li>
-                            {% endif %}
+                        {% endif %}
                             <li>
                                 <a href="/logout">
                                     <i class="feather icon-lock"></i> Logout
@@ -271,46 +271,43 @@
         <span>Navigation</span>
         <ul style="display:inline-flex;">
             <li>
-                {% if dashboard_standard_account is not none %}
+            {% if dashboard_standard_account is not none %}
                 <a
                     href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
                 >
                     <span><i class="feather icon-home"></i></span>
                     <span>{{ dashboard_standard_account.name()|e }}</span>
                 </a>
-                {% else %}
+            {% else %}
                 <a href="/dashboard/accounts">
                     <span><i class="feather icon-home"></i></span>
                     <span>Accounts</span>
                 </a>
-                {% endif %}
-                {% if false %}
+            {% endif %}
+            {% if false %}
                 <!-- 5/23/21: Not visible now but retained for future use -->
                 <ul>
                     <li class=""><a href="/dashboard/accounts" class="">Switch Account</a></li>
                     <li class=""><a href="/dashboard/accounts/new-account" class="">New Account</a></li>
                 </ul>
-                {% endif %}
+            {% endif %}
             </li>
-            {% if dashboard_standard_account is not none %}
+        {% if dashboard_standard_account is not none %}
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
-                    {% if g.account.sector_name() == "Feedlot" %}
-                    <span>MarketTrust</span>
-                    {% else %}
-                    <span>Sales Groups</span>
-                    {% endif %}
+                    <span>MarketTrust<sup>™</sup></span>
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                    {% if g.account.sector_name() != "Feedlot" and g.account.sector_name() != "Buyer"%}
+                {% if dashboard_standard_account.sector_name() != "Feedlot" and dashboard_standard_account.sector_name() != "Buyer"%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
-                    {% endif %}
+                    <li><a href="/dashboard/sales-groups/archive">Archived Sales Groups</a></li>
+                {% endif %}
                 </ul>
             </li>
-            {% if g.account.sector_name() == "Auction House" %}
+        {% if dashboard_standard_account.sector_name() == "Auction House" %}
             <li>
                 <a href="/dashboard/auction-sales/manage">
                     <span><i class="feather icon-award"></i></span>
@@ -321,8 +318,8 @@
                     <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
                 </ul>
             </li>
-            {% endif %}
-            {% if g.account.sector_name() != "Buyer"%}
+        {% endif %}
+        {% if dashboard_standard_account.sector_name() != "Buyer"%}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
@@ -332,17 +329,24 @@
                     <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
                     <li><a href="/dashboard/data/market">Market Data</a></li>
                     <li><a href="/dashboard/sustainability">Sustainability</a></li>
+                    {% if dashboard_standard_account.sector_name() == "Cow-Calf" %}
+                    <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
+                    {% endif %} 
                 </ul>
             </li>
-            {% endif %}
-            {% endif %}
+        {% endif %}
+        {% endif %}
         </ul>
         <span>Support</span>
-        <ul class="float-right" style="display:inline-flex;">
+        <ul class="float-right mr-4" style="display:inline-flex;">
             <li>
                 <a href="/dashboard/support">
                     <span>Support</span>
                 </a>
+                <ul>
+                    <li><a href="/dashboard/support">Support Form</a></li> 
+                    <li><a href="/dashboard/files/BT_Onboarding_Guide.pdf" target="_blank">Onboarding Guide</a></li>
+                </ul>
             </li>
         </ul>
     </nav>
@@ -369,9 +373,9 @@
                     <ul class="breadcrumb">
                       <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
                       <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
-                      {% for path, name in dashboard_locations %}
+                    {% for path, name in dashboard_locations %}
                       <li class="breadcrumb-item"><a href="{{path}}">{{name}}</a></li>
-                      {% endfor %}
+                    {% endfor %}
                     </ul>
                   </div>
                 </div>

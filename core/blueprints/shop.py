@@ -1,14 +1,17 @@
 from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
-from ..utilities.aws.aws import get_ses_client
 from ..renderers.outside import outside_render
 from ..common_exceptions import ExportException
-from ..database.tables.product_discounts import ProductDiscountException
+from ..database.tables.orders import Orders
+from ..database.tables.order_products import OrderProducts
+from ..database.tables.products import ProductTable
+from ..database.tables.product_categories import ProductCategories
+from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
+from ..database.tables.product_vendors import ProductVendors
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id, sectors_by_name
+
 import json
 
 bp = Blueprint('shop_bp', __name__)
@@ -16,15 +19,20 @@ bp = Blueprint('shop_bp', __name__)
 # Routes for shop homepage and cart iframes
 
 
-@bp.route('/external/shop/<tok>', methods=['GET'])
-def serve_partner_shop(tok):
-    allProductData = g.db.products.get_partner_products(tok)
-    return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData, "partner_id": tok})
+@bp.route('/external/shop/<int:partner_id>', methods=['GET'])
+def serve_partner_shop(partner_id):
+    allProductData = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
+    productCategories = ProductCategories(g.db).get_product_categories()
+    return outside_render('shop-iframe/shop-homepage.html', {
+        "allProductData": allProductData,
+        "partner_id": partner_id,
+        "product_categories": productCategories
+        })
 
 
 @bp.route('/external/shop', methods=['GET'])
 def serve_external_shop():
-    allProductData = g.db.products.get_all_products()
+    allProductData = ProductTable(g.db).get_products()
     return outside_render('shop-iframe/shop-homepage.html', {"allProductData": allProductData})
 
 
@@ -37,7 +45,7 @@ def serve_external_cart(partner_id):
 def serve_apply_coupon():
     try:
         # Getting the discounts applcable for the coupon code supplied
-        discounts = g.db.product_discounts.get_discounts(request.form['coupon_code'])
+        discounts = ProductDiscounts(g.db).get_discounts(request.form['coupon_code'])
         # Creating a new object to store discount values
         discount_percentages = {}
         # Creating a browser friendly object to calculate discounts
@@ -57,13 +65,13 @@ def create_order():
 
         order_details = eval(data["orderDetails"])
         # Adding order to orders table and getting current order id from orders table
-        order_id = g.db.orders.add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
-        order_details["zip_code"])
+        order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"], order_details["state"],
+                                          order_details["zip_code"])
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-            g.db.order_products.add_order_product(order_id, key, value["quantity"])
+            OrderProducts(g.db).add_order_product(order_id, key, value["quantity"])
 
         return {"orderId": order_id}
     except Exception as e:
@@ -75,10 +83,14 @@ def update_order():
     try:
         data = json.loads(request.data)
         # Updating the orders table if payment goes through
-        g.db.orders.update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+        Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
-        order_details = eval(data["orderDetails"])               
+        order_details = eval(data["orderDetails"])
+        shopping_cart = eval(order_details["shoppingCart"])
         # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if order_details["premise_id"] != "":
+            premise_id = order_details["premise_id"]
         send_tag_store_email(
             "Tag Store Purchase Summary",
             render_email("purchase_summary_customer.html", {
@@ -93,11 +105,44 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
             order_details["email"]
-        )
+        ) 
         # Once payment goes through sending email to confirm order to seller
+        # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
+        vendor_oriented_cart = {}
+        # TODO: Name iterating variables explicitly. So here I think key should really be product_id. I am not sure what value stands for.
+        for key, value in shopping_cart.items():
+            product_row = ProductTable(g.db).get_products(id=key)
+            if len(product_row) > 0:
+                product_vendor_id = product_row[0]["product_vendor_id"]
+                if product_vendor_id in vendor_oriented_cart:
+                    vendor_oriented_cart[product_vendor_id].append(value)
+                else:
+                    vendor_oriented_cart[product_vendor_id] = [value]
+        # TODO: Same comment as on line 109
+        for key, value in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=key)
+            if len(vendor_row) > 0:
+                vendor_email = vendor_row[0]["vendor_email"]
+                send_tag_store_email(
+                    "New order summary",
+                    render_email("purchase_summary_vendor.html", {
+                        'order_id': data["orderId"],
+                        'first': order_details["first_name"],
+                        'last': order_details["last_name"],
+                        'shipping_address_line': order_details["address_line"],
+                        'shipping_city': order_details["city"],
+                        'shipping_state': order_details["state"],
+                        'shipping_zip_code': order_details["zip_code"],
+                        'cart': value,
+                        'premise_id': premise_id
+                        }),
+                    vendor_email
+                    )
+
         send_multiple_tag_store_email(
             "New order summary",
             render_email("purchase_summary_seller.html", {
@@ -113,11 +158,12 @@ def update_order():
                 'shipping_city': order_details["city"],
                 'shipping_state': order_details["state"],
                 'shipping_zip_code': order_details["zip_code"],
-                'cart': eval(order_details["shoppingCart"])
+                'cart': eval(order_details["shoppingCart"]),
+                'premise_id': premise_id
             }),
-            ["cattletrace@fort-supply.com", "klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
-        
+
         return {"success": True}
     except Exception as e:
         return {"error": str(e)}, 400
@@ -148,12 +194,12 @@ def serve_external_paymentinfo(partner_id):
         shipping_state = request.form['shipping_state']
         shipping_zip_code = request.form['shipping_zip_code']
         # Adding order to orders table and getting current order id from orders table
-        order_id = g.db.orders.add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
+        order_id = Orders(g.db).add_order(order_details, shipping_address_line, shipping_city, shipping_state, shipping_zip_code)
         # Getting the cart details
         cart = eval(order_details['shoppingCart'])
         # Adding product data and quantities to the OrderProducts table
         for key, value in cart.items():
-            g.db.order_products.add_order_product(order_id, key, value["quantity"])
+            OrderProducts(g.db).add_order_product(order_id, key, value["quantity"])
 
         # Once payment goes through sending email to confirm order to buyer and seller
         return jsonify({"redirect": "/external/invoice/"+partner_id})

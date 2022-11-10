@@ -143,10 +143,90 @@ let commonPreconditioningProgramNames = [
 	"SelectVac WeanVac"
 ];
 
+let commonFrames = [
+	"N/A",
+	"Small",
+	"Medium",
+	"Large"
+];
+
+let commonMusclings = [
+	"N/A",
+	"Light",
+	"Heavy"
+];
+
+let commonHorns = [
+	"N/A",
+	"Horns",
+	"No Horns"
+]
+
+let commonVaccinations = [
+	"Not Applicable",
+	"Blackleg",
+	"H. Somnus",
+	"Pasturella",
+	"4-way virus (MLV)",
+	"4-way virus (Killed)",
+	"5-way virus (MLV)",
+	"5-way virus (Killed)",
+	"Internal Parasites",
+	"External Parasites"
+];
+
+let commonDeliveryLocationTypes = [
+	"Off Ranch",
+	"Auction"
+];
+
+let commonCastrated = [
+	"Not Applicable",
+	"Not Castrated",
+	"Banded",
+	"Blade",
+	"Chemicals",
+	"Other"
+];
+
+let commonFeedingPrograms = [
+	"Not Applicable",
+	"Native Range",
+	"Improved Pasture"
+];
+
+let commonImplants = [
+	"Not Applicable",
+	"Ralgro"
+];
+
+let commonCategoryNames = [
+	"Mixed Steers and Heifers",
+	"Feeder Steers",
+	"Feeder Heifers",
+	"Beef Dairy Cross Steers",
+	"Beef Dairy Cross Heifers",
+	"Weaned Heifer Calves",
+	"Weaned Steer Calves",
+	"Steer Calves",
+	"Heifer Calves",
+	"Replacement Heifers",
+	"Bred Cows"
+]
+
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
     commonPVPProgramNames: commonPVPProgramNames,
 	commonMiles: commonMiles,
 	commonWeights: commonWeights,
-	commonPreconditioningProgramNames: commonPreconditioningProgramNames
+	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
+	commonFrames: commonFrames,
+	commonVaccinations: commonVaccinations,
+	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
+	commonCastrated: commonCastrated,
+	commonFeedingPrograms: commonFeedingPrograms,
+	commonImplants: commonImplants,
+	commonCategoryNames: commonCategoryNames,
+	commonMusclings: commonMusclings,
+	commonHorns: commonHorns
 };

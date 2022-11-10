@@ -1,8 +1,10 @@
+from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import sectors_by_name
+from core.database.combinations import perform_feeder_packer_data_received_actions
 
 def _check_format(insert):
     keys = [
@@ -45,16 +47,17 @@ def handle(db: Database, insert):
     api_insert = insert["id"]
 
     feeder_account_link = None
+    feeder = None
     if fields["Company"] != "":
         feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
                                                                         sector=sectors_by_name["Feedlot"], insert=True)[0]
         if feeder_account_link.account_id() is not None:
-            feeder = db.accounts.get_by_id(feeder_account_link.account_id())
+            feeder = db.accounts.get_account_by_id(feeder_account_link.account_id())
         else:
             # See if account is present but not linked to account_links and if so link the account.
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
             if feeder is not None:
-                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.name(), feeder.id())
+                db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.name(), feeder.id())
 
     # Born
     # EIDDate is not a birthday!
@@ -79,7 +82,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate'])-86400,
@@ -87,21 +90,26 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
             raise ExecutionException("; not allowed in packer info")
 
         # add sighting at packer using plant id
+
+        if fields["PlantID"].isdigit():
+            fields["PlantID"] = fields["PlantID"].lstrip("0")
+
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
         if packer_account_link.account_id() is not None:
-            packer = db.accounts.get_by_id(packer_account_link.account_id())
+            packer = db.accounts.get_account_by_id(packer_account_link.account_id())
         else:
             packer = db.accounts.get_by_partner_affiliate_id(packer_account_link.partner_account_id(), packer_account_link.affiliate_id())
             if packer is not None:
-                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.name(), packer.id())
+                db.account_links.update_account_link_with_account(packer.partner_account_id(), packer.affiliate_id(), packer.sector_id(), packer.company(), packer.name(), packer.id())
 
         if packer is not None:
             zipcode = str(packer.zip())
@@ -111,7 +119,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate']),
@@ -119,7 +127,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=packer_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
 
         # USDAYieldGrade
@@ -132,13 +141,48 @@ def handle(db: Database, insert):
         )
 
         # USDAQualityGrade
-        db.matches.types.insert_usda_quality_grade(
+        id = db.matches.types.insert_usda_quality_grade(
             fields["USDAQualityGrade"],
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
             api_insert=api_insert
         )
+
+        perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
+                                                    packer_account_id=packer.id() if packer is not None else None)
+
+        # Hot Weight
+        if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
+            db.matches.types.insert_hot_weight(
+                weight=float(fields["CarcassWeight"]),
+                eid=eid,
+                partner_account=partner_account,
+                account_link=packer_account_link.id(),
+                api_insert=api_insert
+            )
+
+        # Ribeye Area. These are commented out because we don't know the keys that packer will send us
+        # packer_data = {}
+        # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
+        #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
+
+        # Marbling Score
+        # if fields["MarblingScore"] != "" and int(fields["MarblingScore"]) != 0:
+        #     packer_data["MarblingScore"] = int(fields["MarblingScore"])
+
+        # Fat Thickness
+        # if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
+        #     packer_data["FatThickness"] = float(fields["FatThickness"])
+            
+        # if packer_data:
+        #     db.matches.types.insert_packer(
+        #         packer_str = packer_data,
+            # eid=eid,
+            # partner_account=partner_account,
+            # account_link=packer_account_link.id(),
+            # api_insert=api_insert
+        #     )
 
     else:
         # Packer data not available and hence Add feed yard sighting
@@ -150,7 +194,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['EIDDate']),
@@ -158,5 +202,8 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert
+                        api_insert=api_insert,
+                        zip=zipcode
                     )
+
+            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id())

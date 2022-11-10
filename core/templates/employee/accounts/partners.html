@@ -1,0 +1,50 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Partners" %}
+{% set employee_locations = [("/employee/dashboard", "Partners")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+        <div class="card d-inline-block col-md-12">
+            <div class="card-header">
+                <h5>Partners</h5>
+                <button class="btn btn-sm btn-primary float-right" onclick="window.location.href='/employee/dashboard/create-new-partner'">
+                    Create New Partner
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table" id="partnersTable">
+                    <thead>
+                        <tr>
+                            <th>Partner Number</th>
+                            <th>Partner Name</th>
+                            <th>Sector</th>
+                            <th>Partner city, state</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for partner in partner_rows%}
+                        <tr>
+                            <td>{{partner.id}}</td>
+                            <td>
+                                <a href="/employee/dashboard/edit-partner/{{partner.id}}">
+                                    {{partner.company}}
+                                </a>
+                            </td>
+                            <td>{{sectors_by_id[partner.sector]}}</td>
+                            <td>{{partner.city}}, {{partner.state}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#partnersTable').DataTable();
+    });
+</script>
+{% endblock employee_content %}

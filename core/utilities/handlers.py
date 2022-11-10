@@ -1,10 +1,11 @@
 from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
-from .crut.requirements import RequireAccountFailed, RequireUserFailed
+from .crut.requirements import RequireAccountFailed, RequireAccountOrEmployeeFailed, RequireUserFailed, RequirePaidAccountFailed
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
+from flask_wtf.csrf import CSRFError
 
 def respond(code, short, exception=None):
     """Generate a response.
@@ -31,7 +32,7 @@ def respond(code, short, exception=None):
 
 
 def attach_handlers(app):
-    
+
     @app.errorhandler(RequireUserFailed)
     def handle_require_user_failed(e):
         # If g.api is not set and the request method is GET, redirect and have them sign in
@@ -44,7 +45,7 @@ def attach_handlers(app):
         else:
             # Else send a 401
             return respond(401, 'Not logged in')
-    
+
     @app.errorhandler(RequireAccountFailed)
     def handle_require_account_failed(e):
         # If g.api is not set and the request method is GET, send them to account missing page
@@ -53,6 +54,19 @@ def attach_handlers(app):
         else:
             # Else send a 401
             return respond(401, 'No account selected', e)
+
+    @app.errorhandler(RequirePaidAccountFailed)
+    def handle_require_paid_account_failed(e):
+        # If g.api is not set and the request method is GET, send them to account missing page
+        if 'api' not in g and request.method == 'GET':
+            return dashboard_render("errors/no-paid-account.html")
+        else:
+            # Else send a 401
+            return respond(401, 'No active subscription', e)
+
+    @app.errorhandler(RequireAccountOrEmployeeFailed)
+    def handle_require_account_or_employee_failed(e):
+        return respond(401, "Not authorized", e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):
@@ -69,3 +83,7 @@ def attach_handlers(app):
     @app.errorhandler(404)
     def handle_error_404(error):
         return respond(404, 'Page not found')
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        return respond(400, e.description, e)

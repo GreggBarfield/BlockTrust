@@ -4,49 +4,207 @@
 {% set dashboard_locations = [("/dashboard/connections", "Connections")] %}
 
 {% block dashboard_content_header %}
-Connections
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
 
 <div class="row">
-    <div class="col-md">
+    <div class="col-md">   
         <div class="card">
             <div class="card-header">
-                <h5>Connections</h5>
-                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/add-connection'>Add Connections</button>
-                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/view-invites'>View Invites</button>
+                <h5>View Invites</h5>
             </div>
-            <table class="table table-xs">
+            <table class="table table-xs">  
                 <thead>
                     <tr>
                         <th>Account ID</th>
                         <th>Account Name</th>
+                        <th>Received On</th>
+                        <th></th>
                         <th></th>
                     </tr>
                 </thead>
-            <tbody>  
-            {% for connection in account_connections %}
-                    {% if connection.from_account_id == dashboard_standard_account %}
+            <tbody>
+            {% for request in requests %}
+                {% if request.to_account_id == dashboard_standard_account.id() %}
                     <tr>
-                        <td>{{connection.to_account_id}}</td>
-                        <td>{{connection.to_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.to_account_id}}>View Profile</button></td>
+                        <td>{{request.from_account_id}}</td>
+                        <td>{{request.from_account_name}}</td>
+                        <td>{{request.create_timestamp}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
+                                <i class="feather icon-check"></i>Accept
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{request.id}})">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
                     </tr>
-                    {% else %}
+                {% else %}
                     <tr>
-                        <td>{{connection.from_account_id}}</td>
-                        <td>{{connection.from_account_name}}</td>
-                        <td><button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile'+{{connection.from_account_id}}>View Profile</button></td>
+                        <td>{{request.to_account_id}}</td>
+                        <td>{{request.to_account_name}}</td>
+                        <td>{{request.create_timestamp}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
+                                <i class="feather icon-check"></i>Accept
+                            </button>
+                        </td>
+                        <td>
+                        <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{request.id}})">
+                            <i class="feather icon-x"></i>Block
+                        </button>
+                        </td>
                     </tr>
-                    {% endif %}
-
+                {% endif %}
             {% endfor %}
             </tbody>
             </table>
-
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>Connections</h5>
+                <button class="btn btn-sm btn-primary float-right" style="width:200px" onclick=window.location.href='/dashboard/add-connection'>Add Connections</button>
+            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th>Type</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+            <tbody>
+            {% for connection in account_connections %}
+                {% if connection.from_account_id == dashboard_standard_account.id() %}
+                    <tr>
+                        <td>{{connection.to_account_name}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.to_account_id}}>
+                                <i class="feather icon-user"></i>View Profile
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="block({{connection.id}})">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td>{{connection.from_account_name}}</td>
+                        <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/dashboard/view-profile/'+{{connection.from_account_id}}>
+                                <i class="feather icon-user"></i>View Profile
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="block({{connection.id}})">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>Blocked Connections</h5>
+            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th>Account Name</th>
+                        <th>Type</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blocked_connection in blocked_connections %}
+                        {% if blocked_connection.from_account_id == dashboard_standard_account.id() %}
+                        <tr>
+                            <td>{{blocked_connection.to_account_name}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
+                                    <i class="feather icon-x"></i>Unblock
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td>{{blocked_connection.from_account_name}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
+                                    <i class="feather icon-x"></i>Unblock
+                                </button>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
-<script type="module" src="/static/entry_points/dashboard/connections/connections.mjs" ></script> 
+<script>
+    async function accept(fromAccountId){
+        const response = await fetch(
+            "/dashboard/accept-invite",{
+                method: "POST",
+                body: JSON.stringify({"account_id": fromAccountId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+    // Deprecated 10/04/2022
+    function decline(current){
+        fetch(
+            "/dashboard/decline-invite",{
+            method: "POST",
+            body: JSON.stringify({"account_id": current.value}),
+            headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+            .then(function(response){
+            if(response.status == 200){
+                location.reload();
+            }
+            });
+    }
+    async function block(connectionId){
+        const response = await fetch(
+            "/dashboard/block-connection",{
+                method: "POST",
+                body: JSON.stringify({"connection_id": connectionId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+    async function unblock(connectionId){
+        const response = await fetch(
+            "/dashboard/unblock-connection",{
+                method: "POST",
+                body: JSON.stringify({"connection_id": connectionId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+</script> 
 {% endblock dashboard_content %}

@@ -9,10 +9,51 @@ Sustainability Summary
 
 {% block dashboard_content %}
 
-<div class="row">
-    <div class="col">
-            <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="{{sector}} summary"></div>
-    </div>
+<script>
+    function printPageArea(areaID, accountName){
+        let tempWindowForPrint = window.open('', '', 'width=1200,height=900');
+        let breakLine = "<hr style='height:2px;background:black'/>"
+
+        tempWindowForPrint.document.write('<html><title>Sustainability Metrics</title><head><h5> Sustainability Metrics Report: </h5>' + accountName +'<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css"/></head><body>');
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write(document.getElementById(areaID).innerHTML);
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write("<h5>BlockTrust Network<br>3511 Longmire, College Station, TX 77845<br>info@Blocktrustnetwork.com</h5>");
+        tempWindowForPrint.document.write('</body></html>');
+        tempWindowForPrint.document.close();
+        tempWindowForPrint.focus();
+        setTimeout(function() {
+            tempWindowForPrint.print();
+            tempWindowForPrint.close();
+        }, 1000);
+    }
+</script>
+
+
+<div class="row mb-2 mx-2 flex-row-reverse">
+    {% if sustainability_enabled_for_sector == True %}
+    <a class="btn btn-outline-primary btn-sm" href="/dashboard/sustainability/questionnaire">New {{sector}} Survey</a>
+    {% endif %}
+    <button class="btn btn-outline-primary btn-sm" onclick="printPageArea('sustainability', '{{ accountName }}')">Print/Save</button>
 </div>
+<div class="row">
+    {% if sustainability_enabled_for_sector == True %}
+    <div class="col">
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="sustainability summary" data-widget-sector-id="{{sector_id}}"></div>
+    </div>
+    {% endif  %}
+</div>   
+{% if sector == "Cow-Calf" %}
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+          <h5 class="card-header">Sustainability Timeline</h5>
+          <div class="card-body">
+            <div id="sustainabilityTimeline" class="col-sm-12 widget" data-widget-type="sustainability timeline v2"></div>
+          </div>
+        </div>
+      </div>
+</div>
+{% endif  %}
 
 {% endblock dashboard_content %}

@@ -1,0 +1,99 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Notifications" %}
+{% set employee_locations = [("/employee/notifications", "Notifications")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">
+                Active Notifications
+                <a class="btn btn-sm btn-primary float-right" href="/employee/dashboard/create-new-notification">
+                    Create New Notification
+                </a>
+            </h5>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Notification ID</th>
+                            <th>Notification Subject</th>
+                            <th>Notification Message</th>
+                            <th>Notification Type</th>
+                            <th>Created Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notification in notifications %}
+                        {% if notification.is_archived == 0 %}
+                        <tr>
+                            <td>{{notification.id}}</td>
+                            <td>{{notification.subject}}</td>
+                            <td>{{notification.message}}</td>
+                            <td>{{notification_type_id_to_name[notification.notification_type_id]}}</td>
+                            <td>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
+                            <td><button class ="btn btn-danger" id="archive" value="{{notification.id}}" onClick="archive(this)">Archive</button></td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <h5 class="card-header">
+                Archived Notifications
+            </h5>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Notification ID</th>
+                            <th>Notification Subject</th>
+                            <th>Notification Message</th>
+                            <th>Notification Type</th>
+                            <th>Created Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for notification in notifications %}
+                        {% if notification.is_archived == 1 %}
+                        <tr>
+                            <td>{{notification.id}}</td>
+                            <td>{{notification.subject}}</td>
+                            <td>{{notification.message}}</td>
+                            <td>{{notification_type_id_to_name[notification.notification_type_id]}}</td>
+                            <th>{{notification.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</th>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function archive(archiveButton){ 
+        fetch("/employee/dashboard/archive-notification",{
+          method: "POST",
+          body: JSON.stringify({"notification_id": archiveButton.value}),
+          headers: {
+            "Content-type": "application/json;charset=UTF-8"
+          }
+        })
+        .then(function(r){
+          location.reload();
+        })
+        .catch(function(error){
+          alert("Archive failed");
+        });
+      }
+</script>
+{% endblock employee_content %}

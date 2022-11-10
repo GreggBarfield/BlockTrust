@@ -1,5 +1,5 @@
 from ..objects.usda_report import USDAReport
-
+from datetime import datetime, timedelta
 
 class USDAReportsException(Exception):
     """Generic USDA reports exception."""
@@ -86,7 +86,7 @@ class USDAReports:
         """
         result = self._db.execute_d(
             """
-                SELECT DISTINCT slug_id, market_location_city
+                SELECT DISTINCT slug_id, market_location_city, market_location_name
                 FROM usda_reports
                 WHERE market_location_state=%(state)s
             """,
@@ -97,16 +97,27 @@ class USDAReports:
 
         return result
 
-    def get_all_by_slug_id(self, slug_id):
+    def get_by_slug_id(self, slug_id):
         """Gets all USDA Reports based on the given slug_id
 
         Returns:
             A list of reports based on the slug_id
             on success, or None on no match.
         """
+        cols = ("report_date", "report_begin_date", "report_end_date", "published_date", "market_type", "market_type_category",
+        "market_location_name", "market_location_state", "market_location_city", "slug_id", "slug_name", "report_title", "report_group",
+        "category", "commodity", "class", "frame", "muscle_grade", "quality_grade_name", "lot_desc", "freight", "price_unit", "age",
+        "pregnancy_stage","weight_collect", "offspring_weight_est", "dressing", "yield_grade", "head_count", "avg_weight_min", "avg_weight_max",
+        "avg_weight", "avg_price_min", "avg_price_max", "avg_price", "weight_break_low", "weight_break_high", "receipts", "receipts_week_ago",
+        "receipts_year_ago", "comments_commodity", "report_narrative", "final_ind", "purchase_selling_desc", "class_desc", "grade_desc",
+        "weight_range_low", "weight_range_high", "dressed_pct", "price_range_low", "price_range_high", "wtd_avg_price", "region", 
+        "current_volume")
+
+        select_columns_clause = ", ".join(cols)    
+
         result = self._db.execute_d(
-            """
-                SELECT *
+            f"""
+                SELECT {select_columns_clause} 
                 FROM usda_reports 
                 WHERE slug_id=%(slug_id)s
             """,
@@ -117,7 +128,7 @@ class USDAReports:
 
         return result
 
-    def get_all_published_dates(self):
+    def get_unique_published_dates_and_slug_id(self):
         """Gets all the unique published date/slug_id combinations
 
         Returns:
@@ -248,18 +259,24 @@ class USDAReports:
 
         # print("New USDAReport id: " + str(self._db._cursor.lastrowid))
         return self._db._cursor.lastrowid
- 
-    def get_all_published_dates(self):
-        """Gets all the unique published date/slug_id combinations
+
+    def delete_reports_older_than(self, time_length_in_days):
+        """Deletes all reports that are older than time_length in days
 
         Returns:
-            A list of published dates and slug_ids
-            on success, or None on no match.
+            The row count in the database
         """
-        result = self._db.execute_d(
+
+        cutoff_date = (datetime.now().date() - timedelta(days=time_length_in_days))
+
+        self._db.execute(
             """
-                SELECT DISTINCT slug_id, published_date
-                FROM usda_reports 
-            """
+                DELETE FROM usda_reports
+                WHERE published_date < %(published_date_cutoff)s;
+            """,
+            {
+                "published_date_cutoff": cutoff_date
+            }
         )
-        return result
+
+        return self._db.row_count()

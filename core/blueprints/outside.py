@@ -1,18 +1,18 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for, send_from_directory
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
-from ..database.tables.account_users import AccountUsersException
+from ..database.tables.sales_groups import SalesGroups
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE
+from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
 from ..sectors import sectors_by_name
 from requests import post
 
@@ -26,18 +26,13 @@ def serve_landing():
 
 
 @bp.route('/logout', methods=['GET'])
-@bp.route('/log-out', methods=['GET'])
-@bp.route('/signout', methods=['GET'])
-@bp.route('/sign-out', methods=['GET'])
 def serve_logout():
+    login_url = url_for('outside_bp.serve_employee_login') if g.employee else url_for('outside_bp.serve_login')
     auth.logout()
-    return redirect('/')
+    return outside_render('logged-out.html', {"login_url": login_url})
 
 
 @bp.route('/login', methods=['GET'])
-@bp.route('/log-in', methods=['GET'])
-@bp.route('/signin', methods=['GET'])
-@bp.route('/sign-in', methods=['GET'])
 def serve_login():
     redirect_to = ''
 
@@ -76,20 +71,24 @@ def serve_login_action():
         except auth.SignupFailedException as e:
             raise ExportException("internal error in Users.login")
     except ExportException as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 400
 
 
-@bp.route('/sign-up', methods=['GET'])
-@bp.route('/register', methods=['GET'])
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
     # Only add cowcalf partners
     cow_calf_sector_id = sectors_by_name['Cow-Calf']
-    partners = g.db.accounts.get_partners_by_sector_id(cow_calf_sector_id)
+    partners = g.db.accounts.get_accounts(
+        sector=cow_calf_sector_id,
+        is_partner=1,
+        is_partner_used_for_signup=1
+    )
     return outside_render('signup.html', {
         "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
         "partners": partners,
-        "site_key": RECAPTCHA_SITE_KEY
+        "site_key": RECAPTCHA_SITE_KEY,
+        "ipinfo_access_token": IPINFO_TOKEN,
+        "check_ip": CHECK_IP
     })
 
 
@@ -135,7 +134,9 @@ def serve_signup_action():
                         state=required['state'],
                         zip_code=required['zip_code'],
                         personal_phone=request.form['personal_phone'],
-                        recaptcha_score=verification_response_json['score']
+                        recaptcha_score=verification_response_json['score'],
+                        ip_address=request.form['ip_address'],
+                        ip_country=request.form['ip_country']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
@@ -151,7 +152,6 @@ def serve_signup_action():
                         'confirm_url': confirm_url
                     }), required['email']
                 )
-
                 return {"redirect": "/email_not_verified"}
             else:
                 RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
@@ -159,7 +159,7 @@ def serve_signup_action():
         else:
             raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 # About us
 
@@ -248,9 +248,9 @@ def serve_request_password_reset():
 def serve_password_request_action():
     user = g.db.users.get_by_email(request.form['email'])
     if user is None:
-        return {"error": "Sorry, we couldn't find this email address"}
+        return {"error": "Sorry, we couldn't find this email address"}, 400
     elif user.is_email_verified() != 1:
-        return {"error": "Sorry, this user does not have a verified email address"}
+        return {"error": "Sorry, this user does not have a verified email address"}, 400
     else:
         # Generating token identifier for changing password securely
         userToken = token.generateConfirmationToken(request.form['email'])
@@ -302,8 +302,6 @@ def serve_reset_password_action(tok):
     except Exception as e:
         return jsonify({"error": str(e)})
 
-# Route for user to confirm their account
-
 
 @bp.route('/confirm/<tok>', methods=['GET', 'POST'])
 def serve_confirm(tok):
@@ -316,8 +314,6 @@ def serve_confirm(tok):
         raise ExportException("User email could not be verified")
     # Redirect to user login page
     return outside_render('email_verified.html')
-
-# Route to display that user email is not verified and needs to be verified after signing up
 
 
 @bp.route('/email_not_verified', methods=['GET'])
@@ -457,10 +453,10 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/add-user/<tok>', methods=['GET'])
-def serve_add_user(tok):
+@bp.route('/add-user/<string:invite_token>', methods=['GET'])
+def serve_add_user(invite_token):
     try:
-        invite_string = token.confirmToken(tok)
+        invite_string = token.confirmToken(invite_token)
         invite_object = eval(invite_string)
         user_email = invite_object["user_email"]
         account_name = invite_object["current_account"]
@@ -490,7 +486,7 @@ def serve_add_invited_user():
         )
         return {"redirect": "/login"}
     except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
 
 
 @bp.route('/rfid-tags', methods=["GET"])
@@ -542,7 +538,9 @@ def serve_add_admin_user(invite_token):
         invite_object = eval(invite_string)
         account_id = invite_object["account_id"]
         admin_email = invite_object["admin_email"]
-        account_row = g.db.accounts.get_by_id(account_id)
+        account_row = g.db.accounts.get_account_by_id(account_id)
+        if account_row is None:
+            raise Exception("Account not found.")
         return outside_render("/outside/add-user-signup.html", {
             "user_email": admin_email,
             "account_name": account_row.name(),
@@ -551,3 +549,9 @@ def serve_add_admin_user(invite_token):
             })
     except Exception as e:
         return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
+
+
+@bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
+def serve_external_sales_group_viewer(sales_group_id):
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})

@@ -1,0 +1,20 @@
+image: python:3.9
+
+pipelines:
+  custom:
+    sonar:
+      - step:
+        script:
+            - echo "Manual triggers for Sonar are awesome!"
+    lint:  
+      - step:
+          script:
+            - pip install flake8
+            - flake8 . --extend-exclude=dist,build --show-source --statistics --exit-zero --max-line-length 120
+    tests:
+      - step:
+          caches:
+            - pip
+          script:
+            - if [ -f tests/requirements.txt ]; then pip install -r tests/requirements.txt; fi
+            - pytest -s -v tests/* --junitxml=test-reports/report.xml

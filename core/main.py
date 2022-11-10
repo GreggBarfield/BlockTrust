@@ -1,6 +1,4 @@
 import os
-import json
-import random
 import sys
 
 sys.path = [
@@ -15,19 +13,19 @@ if __name__ == "__main__":
 __name__ = "core.main"
 
 from flask import (
-    Flask, jsonify, request, render_template, session, redirect, url_for, g
+    Flask, request, g
 )
 from flask_cors import CORS
 from flask_talisman import Talisman
+from flask_qrcode import QRcode
 
 from .config import *
-from urllib.parse import unquote_plus
 from .database.database import Database
 
 from .blueprints import dashboard, outside, widgets, stripe, shop, employees
 
 from .utilities.handlers import attach_handlers
-from .utilities import auth
+from .utilities import auth, csrf
 
 app = Flask(__name__)
 app.secret_key = FLASK_SESSION_SECRET_KEY
@@ -37,9 +35,10 @@ Talisman(
     force_https=False  # Handle at nginx in deployment
 )
 CORS(app)
+qrcode = QRcode(app)
 
 attach_handlers(app)
-
+csrf.add_csrf(app)
 
 @app.before_request
 def before_request():
@@ -76,6 +75,7 @@ def teardown_request(err):
     db = g.pop("db", None)
     if db is not None:
         db.close()
+
 
 app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)

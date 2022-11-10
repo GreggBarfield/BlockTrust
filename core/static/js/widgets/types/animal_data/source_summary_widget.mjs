@@ -7,60 +7,93 @@ export class SourceSummaryWidget extends Widget {
 
     initType() {
 
-        // TODO: This is a bad data request, optimize later
-        Promise.all([
-            this.getData(
-                "data_request",
-                {
-                    request: {
-                        type: "matches_by_account",
-                        params: {
-                            animals_with_data: true
-                        }
-                    }
+        this.display = this.frame.getAttribute("data-widget-display");
+        if(this.display == "animals-with-data") {
+            this.request = {
+                type: "matches_by_account",
+                params: {
+                    sighted_animals: true
                 }
-            ).then((data) => {
-                console.log("Match row sourcing: ", data.result.matches);
-                this.match_rows = data.result.matches;
-            }),
+            }
+            this.sightedAnimals = true;
+        }
+        else {
+            this.request = {
+                type: "matches_by_account",
+                params: {
+                    all_matches: true,
+                    types: ["Sighting"]      
+                }
+            }
+        }
 
-            this.getData(
-                "direct/match_types_by_name",
-                {}
-            ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
-            }),
-
-        ]).then(() => {
+        this.getData(
+            "data_request",
+            {
+                request: this.request
+            }
+        ).then((data) => {
+            let matchRows = data.result.matches;
             this.frame.innerHTML = "";
-            this.makeAnimals();
-            this.makeTable();
+            if (this.sightedAnimals && matchRows.length){
+                this.downloadButton = document.createElement("button");
+                this.downloadButton.className = "btn btn-outline-primary btn-sm float-right";
+                this.downloadButton.innerHTML = "<i class='fa fa-download'></i> Download";
+                
+                let exportTable = this.makeExportTable(matchRows);
+                this.downloadButton.onclick = () => {
+                    
+                    let csvContent = "data:text/csv;charset=utf-8," + exportTable.map(e => e.join(",")).join("\n");
+                    let encodedUri = encodeURI(csvContent);
+                    //Having text color issues on mouse hover when making this.downloadButton a hyperlink tag. So below workaround is used
+                    let temporaryLink = document.createElement("a");
+                    temporaryLink.setAttribute("href", encodedUri);
+                    temporaryLink.setAttribute("download", "Sighted Calves.csv");
+                    temporaryLink.click();
+                } 
+                this.frame.appendChild(this.downloadButton)
+            }
+            this.makeDisplayTable(matchRows);
         });
     }
 
-    formatDate(epoch) {
-        if (epoch == null || epoch <= 0)
-            return "--";
-        let d = new Date(parseInt(epoch) * 1000);
-        return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
+    makeExportTable = (matchRows) => {
+        let exportTable = [["EID", "VISUAL ID", "QUALITY GRADE", "YIELD GRADE", "CREEP FEED", "FIRST 14 DAY FEED METHOD", 
+            "SECOND 31 DAY FEED METHOD", "HOT WEIGHT", "MARKETING DATE", "MARKETING METHOD NAME", "NUMBER OF CALVES", "SALE LOCATION", "WEAN DATE", 
+            "WEAN WEIGHT", "WEANING STRATEGY"]];
+
+        for(const match_row of matchRows){
+            let row = [match_row["eid"], match_row["visual_id"], match_row["quality_grade"], match_row["yield_grade"]]
+
+            let saleLocation = match_row["sale_location"] ? '\"' + match_row["sale_location"] + '\"' : ""
+            row.push([match_row["creep_feed"] ?? "", match_row["first_14_day_feed_method"] ?? "", match_row["second_31_day_feed_method"] ?? "", 
+                match_row["hot_weight"] ?? "", match_row["marketing_date"] ?? "", match_row["marketing_method_name"] ?? "", 
+                match_row["number_of_calves"] ?? "", saleLocation, match_row["wean_date"] ?? "", match_row["wean_weight"] ?? "", 
+                match_row["weaning_strategy"]  ?? ""])
+
+            exportTable.push(row)
+        }
+        return exportTable;
     }
 
-    makeAnimals() {
-        this.animals = {};
+    makeAnimals(matchRows) {
+        let animals = {};
 
-        for (const match_row of this.match_rows) {
-            if (!(match_row.eid in this.animals)) {
-                this.animals[match_row.eid] = {
+        for (const match_row of matchRows) {
+            if (!(match_row.eid in animals)) {
+                animals[match_row.eid] = {
                     "visual_id": "(no data)"
                 };
             }
             if(match_row.visual_id != null)
-                this.animals[match_row.eid]["visual_id"] = match_row.visual_id;
+                animals[match_row.eid]["visual_id"] = match_row.visual_id;
         }
-
+        return animals;
     }
 
-    makeTable() {
+    makeDisplayTable(matchRows) {
+
+        let animals = this.makeAnimals(matchRows);
 
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
@@ -88,11 +121,11 @@ export class SourceSummaryWidget extends Widget {
         this.mainTableBody = document.createElement("tbody");
         this.mainTable.appendChild(this.mainTableBody);
 
-        for (const eid in this.animals) {
+        for (const eid in animals) {
             let rowTag = document.createElement("tr");
             this.mainTableBody.appendChild(rowTag);
 
-            let rowPreformat = this.animals[eid];
+            let rowPreformat = animals[eid];
 
             let row = [];
 
@@ -115,7 +148,7 @@ export class SourceSummaryWidget extends Widget {
             tdOptions.appendChild(button);
         }
 
-        // Put HTML in frame
+        // Put HTML in frame    
 
         this.frame.appendChild(this.divTableResponsive);
         $(this.mainTable).DataTable();

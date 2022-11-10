@@ -1,11 +1,12 @@
-from .types.MFA import Animal
-from .types.TestNS import TestTY
 from .types.ILS import Packer
 from .types.BTN1 import (
-    AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV
+    AnimalsCSV, FeederResultsCSV, MatchTableCSV, ProcessingCSV, TreatmentCSV, PackerFileDataExport
+)
+from .types.REDANGUS import (
+    Animals
 )
 from .types.SELF import TagUpload
-from ..database.inserts_model import statuses_by_name, BlockNotAvailable
+from .types.EMP import PackerDataUpload
 
 
 types = {
@@ -17,10 +18,17 @@ types = {
         "FeederResultsCSV": FeederResultsCSV,
         "MatchTableCSV": MatchTableCSV,
         "ProcessingCSV": ProcessingCSV,
-        "TreatmentCSV": TreatmentCSV
+        "TreatmentCSV": TreatmentCSV,
+        "PackerFileDataExport": PackerFileDataExport
+    },
+    "REDANGUS": {
+        "Animals": Animals
     },
     "SELF": {
         "TagUpload": TagUpload
+    },
+    "EMP": {
+        "PackerDataUpload": PackerDataUpload
     }
 }
 

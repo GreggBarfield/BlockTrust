@@ -76,6 +76,41 @@ export class SubscribeWidget extends Widget {
         const elements = stripe.elements();
         const cardElement = elements.create('card');
         cardElement.mount(cardElementDiv);
+
+        let termsAndConditionsFormGroup = document.createElement("div");
+        termsAndConditionsFormGroup.className = "col-md-12 m-1";
+        firstFormRow.append(termsAndConditionsFormGroup);
+
+        let termsAndConditionsLabel = document.createElement("label");
+        termsAndConditionsLabel.className = "row m-1";
+        termsAndConditionsLabel.textContent = "Please read these documents and check the box saying you understand and agree with the terms and conditions within: ";
+        termsAndConditionsFormGroup.append(termsAndConditionsLabel);
+
+        let documentsList = document.createElement("ul");
+        let firstDocument = document.createElement("li");
+        firstDocument.appendChild(this.generateLinkElement("BlockTrust Network EULA", "/dashboard/files/BTN_EULA.pdf"));
+        documentsList.append(firstDocument);
+        let secondDocument = document.createElement("li");
+        secondDocument.appendChild(this.generateLinkElement("BlockTrust Network Privacy", "/dashboard/files/BTN_PRIVACY.pdf"));
+        documentsList.append(secondDocument);
+        let thirdDocument = document.createElement("li");
+        thirdDocument.appendChild(this.generateLinkElement("BlockTrust Network Terms of Service", "/dashboard/files/BTN_TERMS_OF_SERVICE.pdf"));
+        documentsList.append(thirdDocument);
+        termsAndConditionsFormGroup.append(documentsList);
+
+        let termsAndConditionsCheckboxGroup = document.createElement("div");
+        termsAndConditionsCheckboxGroup.className = "row m-1";
+        this.inputs.termsAndConditionsCheckbox = document.createElement("input");
+        this.inputs.termsAndConditionsCheckbox.type = "checkbox";
+        termsAndConditionsCheckboxGroup.append(this.inputs.termsAndConditionsCheckbox);
+
+        let termsAndConditionsCheckboxLabel = document.createElement("label");
+        termsAndConditionsCheckboxLabel.className = "m-1";
+        termsAndConditionsCheckboxLabel.textContent = "I have read these documents and agree.";
+        termsAndConditionsCheckboxGroup.append(termsAndConditionsCheckboxLabel);
+
+        termsAndConditionsFormGroup.append(termsAndConditionsCheckboxGroup);
+
       
         this.submitButton = document.createElement("button");
         this.submitButton.className = "btn btn-primary";
@@ -103,6 +138,15 @@ export class SubscribeWidget extends Widget {
         this.searchErrorAlert.textContent = error;
     }
 
+    generateLinkElement(linkText, linkURL){
+      let link = document.createElement("a");
+      link.className = "m-1";
+      link.href = linkURL;
+      link.textContent  = linkText;
+      link.target = "_blank";
+      return link;
+    }
+
     disableSubmitButtonIfIncorrectPrice(priceLookupKey) {
       //only supporting basic price right now
       if(priceLookupKey != "basic") {
@@ -121,7 +165,10 @@ export class SubscribeWidget extends Widget {
             this.showError("Email is required.");
             return;
         }
-
+        if(this.inputs.termsAndConditionsCheckbox.checked == false){
+            this.showError("Please check the Terms and Conditions");
+            return;
+        }
         //display appropriate alerts
         this.loadingAction.style.display = "inline-block";
         this.loadingAction.innerHTML = '\

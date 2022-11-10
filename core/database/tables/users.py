@@ -122,28 +122,6 @@ class Users:
         )
         return rows
 
-    def verify_email(self, email):
-        """
-            Confirms a user profile and marks it as verified
-
-            Params:
-            email: User email to be verified
-
-            Returns:
-            None
-            """
-
-        self._db.execute_d(
-                """
-                UPDATE users
-                SET is_email_verified=1
-                WHERE users.email=%(email)s
-                """,
-                {
-                    "email": email
-                }
-                )
-
     def get_email_verified_status(self, email):
         """
         Confirms if the user email is verified
@@ -183,7 +161,7 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None):
+    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
         """Creates a new user
 
         Params:
@@ -247,9 +225,9 @@ class Users:
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score, ip_address, ip_country)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s)
+                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s)
             """,
             {
                 "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
@@ -259,13 +237,15 @@ class Users:
                 "first_name": first_name,
                 "last_name": last_name,
                 "email_verified": email_verified,
-                "recaptcha_score": recaptcha_score
+                "recaptcha_score": recaptcha_score,
+                "ip_address": ip_address,
+                "ip_country": ip_country
             }
         )
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
+    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE):
         """Updates user information.
 
         Params:
@@ -284,7 +264,7 @@ class Users:
         """
         username = Users._format_field(username)
 
-        if password is not NO_VALUE and len(password) > 0:
+        if password is not None:
             password = Users._format_field(password)
             if len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
@@ -296,7 +276,7 @@ class Users:
                 raise UsersException("Password and Confirm password are not the same!")
 
         # Process phone number
-        if phone != NO_VALUE:
+        if phone is not NO_VALUE:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:
@@ -326,7 +306,8 @@ class Users:
                             "phone=:phone,",
                             phone=phone
                         )
-        if password is not NO_VALUE:
+        #password should never be none
+        if password is not None:
             set_frags = frag(
                             set_frags,
                             "password=:password,",
@@ -437,3 +418,118 @@ class Users:
         )
         user = self.get_by_username(username)
         return user
+
+    def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                  is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
+                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE):
+        """
+        Returns the users based on provided attributes
+
+        Params:
+            id: USer ID
+            username: username to login
+            email: email to login
+            phone: phone number of user
+            first_name: first name of the user
+            last_name: last name of the user
+            is_email_verified: email verification status
+            failed_attempts: failed login attempts
+            is_user_locked: user account locked status
+            is_system_generated: indicates if user is system generated
+
+        Returns:
+            A list of users or None
+
+        """
+        base_query = "SELECT * FROM users"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if username is not NO_VALUE:
+            query_conditions.append("username = %(username)s")
+            query_values["username"] = username
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s")
+            query_values["email"] = email
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s")
+            query_values["last_name"] = last_name
+        if is_email_verified is not NO_VALUE:
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
+            query_values["is_email_verified"] = is_email_verified
+        if failed_attempts is not NO_VALUE:
+            query_conditions.append("failed_attempts = %(failed_attempts)s")
+            query_values["failed_attempts"] = failed_attempts
+        if is_user_locked is not NO_VALUE:
+            query_conditions.append("is_user_locked = %(is_user_locked)s")
+            query_values["is_user_locked"] = is_user_locked
+        if locked_time is not NO_VALUE:
+            query_conditions.append("locked_time = %(locked_time)s")
+            query_values["locked_time"] = locked_time
+        if is_system_generated is not NO_VALUE:
+            query_conditions.append("is_system_generated = %(is_system_generated)s")
+            query_values["is_system_generated"] = is_system_generated
+        if recaptcha_score is not NO_VALUE:
+            query_conditions.append("recaptcha_score = %(recaptcha_score)s")
+            query_values["recaptcha_score"] = recaptcha_score
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        user_rows = self._db.execute_d(query, query_values)
+        if len(user_rows) > 0:
+            return user_rows
+        else:
+            return []
+
+    def get_users_and_accounts(self, user_id=NO_VALUE, user_email=NO_VALUE):
+        """
+        Gets the user and accounts based on parameters
+
+        Params:
+            user_id: user id
+
+        Returns:
+            A list of user and account rows joined or an empty list
+        """
+
+        base_query = """
+            SELECT *, u.id as user_id, a.id as account_id, u.phone as user_phone, a.phone as account_phone FROM users u
+            INNER JOIN account_users au on au.user = u.id
+            INNER JOIN accounts a on a.id = au.account 
+        """
+        query_conditions = []
+        query_values = {}
+
+        if user_id is not NO_VALUE:
+            query_conditions.append("u.id = %(user_id)s")
+            query_values["user_id"] = user_id
+
+        if user_email is not NO_VALUE:
+            query_conditions.append("u.email = %(user_email)s")
+            query_values["user_email"] = user_email
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
+        else:
+            return []

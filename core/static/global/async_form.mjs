@@ -92,6 +92,11 @@ export class AsyncForm {
             postOptions.data.requestRedirectTo = this.requestRedirectTo;
         }
 
+        let csrfTokenElement = this.form.querySelector("#csrf_token");
+        if (csrfTokenElement !== null) {
+            postOptions.headers = {"X-CSRFToken": csrfTokenElement.value}
+        }
+
         $.post(postOptions)
             .always(function(){
                 that.clearStatus();
@@ -100,7 +105,7 @@ export class AsyncForm {
             .done(function(data){
                 try {
                     if ('error' in data) {
-                        that.setError(data.error);
+                        that.setStatus(data.error);
                     }
                     if ('redirect' in data) {
                         if (that.redirectMessage !== undefined) {
@@ -120,7 +125,7 @@ export class AsyncForm {
                 try {
                     let data = JSON.parse(xhr.responseText);
                     if ("error" in data) {
-                        that.setError("An error occurred: " + data.error);
+                        that.setError(data.error);
                     }
                     else {
                         throw "Nope";
