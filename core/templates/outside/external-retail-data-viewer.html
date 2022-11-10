@@ -12,11 +12,25 @@
         </div>
     </div>
 </div>
-<div class="card">
-    {{accounts_retail_data}}
-</div>
 {% endblock outside_banner %}
 
 {% block outside_content %}
-
+<section style="background-color: white;">
+    <div class="container">
+        <div class="row" style="border: 1px solid rgb(192, 192, 192); padding: 15px; border-radius: 25px;">
+            <div class="col-12">
+                {% for account_data in accounts_retail_data %}
+                    <div class="card">
+                        <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
+                            {{account_data["retail_name"]}}
+                        </div>
+                        <div class="card-body">
+                            {{account_data["retail_description"]}}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock outside_content %}

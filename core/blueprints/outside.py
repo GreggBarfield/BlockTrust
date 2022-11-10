@@ -554,7 +554,7 @@ def serve_add_admin_user(invite_token):
 
 @bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
 def serve_external_sales_group_viewer(sales_group_id):
-    sales_group_row = g.db.sales_groups.get_sales_group_by_id(sales_group_id)
+    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
 
 
@@ -583,6 +583,7 @@ def serve_external_retail_data_viewer(eid):
         account_data = g.db.accounts.get_accounts(id=account_id)
         if len(account_data) > 0:
             accounts_retail_data.append({
+                "id": account_data[0]["id"],
                 "retail_name": account_data[0]["retail_name"],
                 "retail_description": account_data[0]["retail_description"]
             })
