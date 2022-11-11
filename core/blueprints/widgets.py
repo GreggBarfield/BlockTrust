@@ -18,6 +18,7 @@ from ..database.tables.messages import Messages
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
+from ..database.tables.usda_reports import USDAReports
 from ..database.tables.sales_groups import SalesGroups
 
 from ..reports.query_types import count_eid_distinct
@@ -556,7 +557,7 @@ def serve_data_request():
 @crut.require_account
 def serve_get_market_data(slug_id):
     return {
-        'market_data': g.db.usda_reports.get_by_slug_id(slug_id)
+        'market_data': USDAReports(g.db).get_by_slug_id(slug_id)
     }, 200
 
 
@@ -751,5 +752,13 @@ def serve_get_sustainability_response_timeline_data():
 @bp.route('/widgets/data/save_account_retail_data', methods=["POST"])
 @crut.require_account
 def serve_save_account_retail_data():
-    g.db.accounts.update_account(account_id=g.account.id(), retail_name=request.json["retail_name"], retail_description=request.json["retail_description"])
+    g.db.accounts.update_account(account_id=g.account.id(), retail_name=request.json["retail_name"], retail_description=request.json["retail_description"]) 
+    previous_uploaded_retail_image_files = Files(g.db).get_files(retail_page_account_id=g.account.id())
+    previous_uploaded_retail_image_ids = [image["id"] for image in previous_uploaded_retail_image_files]
+    removed_image_ids = [id for id in previous_uploaded_retail_image_ids if id not in request.json["uploaded_images"]]
+    newly_uploaded_image_ids = [id for id in request.json["uploaded_images"] if id not in previous_uploaded_retail_image_ids]
+    if len(removed_image_ids) > 0:
+        Files(g.db).update_multiple_files(removed_image_ids, None)
+    if len(newly_uploaded_image_ids) > 0:
+        Files(g.db).update_multiple_files(newly_uploaded_image_ids, g.account.id())
     return {"redirect": "/dashboard"}

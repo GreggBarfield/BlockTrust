@@ -14,10 +14,12 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
+from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
@@ -317,8 +319,8 @@ def serve_market_state_data():
 @crut.require_paid_account
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
-    market_states = g.db.usda_reports.get_all_states()
-    report = g.db.usda_reports.get_by_slug_id(slug_id)[0]
+    market_states = USDAReports(g.db).get_all_states()
+    report = USDAReports(g.db).get_by_slug_id(slug_id)[0]
     city = report["market_location_city"]
     # get rid of any "- <city name>" and/or ", <state>" that some locations have
     market_name = report["market_location_name"].replace("- " + city, "").replace(", " + state, "")
@@ -633,4 +635,9 @@ def serve_views():
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account
 def serve_edit_account_retail_data():
-    return dashboard_render("accounts/edit_account_retail_data.html")
+    uploaded_retail_image_files = Files(g.db).get_files(
+        retail_page_account_id=g.account.id(),
+        select_columns=["id", "name"]
+        )
+    # json.dumps() helps to convert uploaded_retail_image_files into a JSON string which can be converted back in the widget without any errors.
+    return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})

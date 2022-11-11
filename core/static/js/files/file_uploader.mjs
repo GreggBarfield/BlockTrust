@@ -92,7 +92,7 @@ export class FileUploader {
         if(!this.uploadDeclinedByUser){
             if(!this.isFileAttached()){return;}
 
-            return uploadFile(false, true, this.file)
+            return uploadFile(true, true, this.file)
             .then((id)=>{
                 this.uploaded= true;
                 this.inputFileNameContainer.className = "m-1 font-italic text-success";
