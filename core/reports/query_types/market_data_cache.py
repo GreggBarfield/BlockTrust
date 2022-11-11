@@ -1,3 +1,6 @@
+from core.database.tables.usda_reports import USDAReports
+
+
 TYPE_NAME = "market_data_cache"
 
 
@@ -7,13 +10,13 @@ def execute(db, query):
         "states": [],
         "cities_per_state": {}
     }
-    states = db.usda_reports.get_all_states()
+    states = USDAReports(db).get_all_states()
     data['states'] = states
 
     # Go through each state and get all cities
     for state in states:
         state = state['market_location_state']
-        db_data = db.usda_reports.get_all_city_by_state(state)
+        db_data = USDAReports(db).get_all_city_by_state(state)
 
         for item in db_data:
             if state not in data['cities_per_state']:

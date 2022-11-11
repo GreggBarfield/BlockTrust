@@ -238,7 +238,7 @@ export class BasicFileEditor {
                 return Promise.resolve(true);
             }
 
-            return uploadFile(false, true, filesToBeProcessed[itr]["file"], function(perc) {
+            return uploadFile(true, true, filesToBeProcessed[itr]["file"], function(perc) {
                 if (totalBytes == 0) {
                     setProgress(1);
                 }
