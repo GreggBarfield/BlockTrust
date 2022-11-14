@@ -3,15 +3,14 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addini('host', help="Database server")
-    parser.addini('user', help="Username")
-    parser.addini('password', help="Password")
-    parser.addini('database', help="Database name")
+    parser.addoption("--DB", action="store", help="Server|Username|Password|DB", default="")
 
 
 @pytest.fixture(scope='session')
 def db_connection(request):
-    db = Database({"host": request.config.getini("host"), "user": request.config.getini("user"),
-                   "passwd": request.config.getini("password"), "database": request.config.getini("database")})
+    db_string = request.config.getoption("--DB")
+    db_config = db_string.split('|')
+    db = Database({"host": db_config[0], "user": db_config[1],
+                   "passwd": db_config[2], "database": db_config[3]})
     yield db
     db.close()
