@@ -18,6 +18,7 @@ from ..database.tables.messages import Messages
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
+from ..database.tables.usda_reports import USDAReports
 from ..database.tables.sales_groups import SalesGroups
 
 from ..reports.query_types import count_eid_distinct
@@ -556,7 +557,7 @@ def serve_data_request():
 @crut.require_account
 def serve_get_market_data(slug_id):
     return {
-        'market_data': g.db.usda_reports.get_by_slug_id(slug_id)
+        'market_data': USDAReports(g.db).get_by_slug_id(slug_id)
     }, 200
 
 

@@ -19,6 +19,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
 
 from ..renderers.email import render_email
@@ -318,8 +319,8 @@ def serve_market_state_data():
 @crut.require_paid_account
 def serve_market_data(state, slug_id):
     stateLabel = {'market_location_state': state}
-    market_states = g.db.usda_reports.get_all_states()
-    report = g.db.usda_reports.get_by_slug_id(slug_id)[0]
+    market_states = USDAReports(g.db).get_all_states()
+    report = USDAReports(g.db).get_by_slug_id(slug_id)[0]
     city = report["market_location_city"]
     # get rid of any "- <city name>" and/or ", <state>" that some locations have
     market_name = report["market_location_name"].replace("- " + city, "").replace(", " + state, "")
