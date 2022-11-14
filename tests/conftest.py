@@ -14,7 +14,9 @@ def pytest_addoption(parser):
 def db_connection(request):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
-    db_string = request.config.getoption("--DB").split()
+    db_string = request.config.getoption("--DB")
+    print(type(db_string))
+    db_string = db_string.split('|')
     print(db_string)
     # if 'name' in metafunc.fixturenames and option_value is not None:
     #     metafunc.parametrize("name", [option_value])
