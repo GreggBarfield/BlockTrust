@@ -1,0 +1,25 @@
+{% extends "email/standard.html" %}
+
+{% block email_standard_center %}
+<table>
+    <tr>
+        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
+            <p style="margin: 0;">Retail Customer Message</p>
+        </td>
+    </tr>
+</table>
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
+
+<br>
+<div style="border-left: 1px solid black;padding-left:20px;">
+    Name: {{ name }}<br>
+    Phone: {{ phone }}<br>
+    Email: {{ email }}<br>
+    Message: <pre>{{ message }}</pre><br>
+</div>
+<br>
+<br><br>
+(Don't respond to this email. Start a new email to respond to the client.)<br>
+{% endblock email_standard_subdescription %}

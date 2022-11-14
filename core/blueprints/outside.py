@@ -6,6 +6,7 @@ from ..renderers.outside import outside_render
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.files import Files
 from ..database.tables.sales_groups import SalesGroups
 from ..common_exceptions import ExportException
 from ..utilities import auth
@@ -568,10 +569,6 @@ def serve_external_retail_data_viewer(eid):
         account_links_sector=sectors_by_name["Feedlot"]
     )
     eid_data_packer = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
-    
-    print(eid_data_orginal_ranch)
-    print(eid_data_feedyard)
-    print(eid_data_packer)
     if len(eid_data_orginal_ranch) > 0:
         supply_chain_account_ids.append(eid_data_orginal_ranch[0]["account"])
     if len(eid_data_feedyard) > 0:
@@ -579,12 +576,41 @@ def serve_external_retail_data_viewer(eid):
     if len(eid_data_packer) > 0:
         supply_chain_account_ids.append(eid_data_packer[0]["account"])
     accounts_retail_data = []
+    retail_sector_names = {
+        sectors_by_name["Cow-Calf"]: "Original Ranch",
+        sectors_by_name["Feedlot"]: "Stocker",
+        sectors_by_name["Packer"]: "Packer"
+    }
     for account_id in supply_chain_account_ids:
         account_data = g.db.accounts.get_accounts(id=account_id)
         if len(account_data) > 0:
+            retail_image_files = Files(g.db).get_files(retail_page_account_id=account_data[0]["id"], get_url=True)
+            retail_image_urls = [file["file_url"] for file in retail_image_files]
             accounts_retail_data.append({
                 "id": account_data[0]["id"],
+                "retail_sector_name": retail_sector_names[account_data[0]["sector"]],
                 "retail_name": account_data[0]["retail_name"],
-                "retail_description": account_data[0]["retail_description"]
+                "retail_description": account_data[0]["retail_description"],
+                "retail_image_urls": retail_image_urls
             })
     return outside_render("/outside/external-retail-data-viewer.html", {"accounts_retail_data": accounts_retail_data})
+
+
+@bp.route("/contact_account/action", methods=["POST"])
+def serve_contact_account():
+    print(request.form)
+    account_admin_data = g.db.account_users.get_account_users(account=request.form["account_id"], is_admin=1)
+    if len(account_admin_data) > 0:
+        account_admin_user_data = g.db.users.get_users(id=account_admin_data[0]["user"])
+        if len(account_admin_user_data) > 0:
+            send_email(
+                "New Retail Customer Message",
+                render_email("new_retail_customer_message.html", {
+                    'name': request.form['name'],
+                    'phone': request.form['phone'],
+                    'email': request.form['email'],
+                    'message': request.form['message']
+                }),
+                account_admin_user_data[0]["email"]
+                )
+    return {"redirect": request.form["requestRedirectTo"]}

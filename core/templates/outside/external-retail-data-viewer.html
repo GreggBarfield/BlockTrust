@@ -17,20 +17,85 @@
 {% block outside_content %}
 <section style="background-color: white;">
     <div class="container">
-        <div class="row" style="border: 1px solid rgb(192, 192, 192); padding: 15px; border-radius: 25px;">
+        <div class="row">
             <div class="col-12">
+                <h5 class="font-weight-bold font-italic">Meet the people and visit the places that have taken extra care to make this meat product safe for you and your family.</h5>
                 {% for account_data in accounts_retail_data %}
-                    <div class="card">
+                    <div class="card m-1">
                         <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
-                            {{account_data["retail_name"]}}
+                            <p><h4 class="text-primary">{{account_data["retail_sector_name"]}}</h4></p>
+                            <p><h5>{{account_data["retail_name"]}}</h5></p>
+                        </div>
+                        <div id="retail_images_carousel" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image_url in account_data["retail_image_urls"] %}
+                                    <div class="carousel-item {% if loop.index == 1 %} active{% endif %}">
+                                        <img class="d-block w-100" src="{{image_url}}">
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <a class="carousel-control-prev" href="#retail_images_carousel" role="button" data-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                            <a class="carousel-control-next" href="#retail_images_carousel" role="button" data-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="sr-only">Next</span>
+                            </a>
                         </div>
                         <div class="card-body">
-                            {{account_data["retail_description"]}}
+                            <p>{{account_data["retail_description"]}}</p>
+                            <p>
+                                <a class="btn btn-outline-primary" data-toggle="modal" data-target="#contact_form_modal_{{account_data['id']}}">
+                                    Contact {{account_data["retail_name"]}} 
+                                </a>
+                            </p>
                         </div>
                     </div>
                 {% endfor %}
             </div>
         </div>
     </div>
+    {% for account_data in accounts_retail_data %}
+        <div class="modal fade" id="contact_form_modal_{{account_data['id']}}" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5>Send Message to {{account_data["retail_name"]}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="bg-white m-1" id="contact_form_{{account_data['id']}}" account_id="{{account_data['id']}}">     
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" class="form-control" id="name_{{account_data['id']}}">
+                            </div>     
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="text" class="form-control" id="phone_{{account_data['id']}}">
+                            </div>     
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email_{{account_data['id']}}">
+                            </div>    
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea type="text" class="form-control" rows="5" id="message_{{account_data['id']}}"></textarea>
+                            </div>
+                            <p><button type="submit" class="btn btn-primary">Send Message</button></p>
+                            <p class="mt-2 mb-0" id="contact_form_status_message_{{account_data['id']}}" style="display:none;">Sending Message...</p>
+                            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="contact_form_error_message_{{account_data['id']}}">Error while delivering message</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 </section>
+<script type="text/javascript">
+    var accounts_retail_data = JSON.parse('{{ accounts_retail_data|tojson }}');
+</script>
+<script type="module" src="/static/entry_points/outside/external_retail_data_viewer.mjs"></script>
 {% endblock outside_content %}
