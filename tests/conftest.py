@@ -3,7 +3,7 @@ import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption("--DB", action="store", default="DB_server Username Password DB")
+    parser.addoption("--DB", action="store", help="Server|Username|Password|DB", default="")
 
 
 @pytest.fixture(scope='session')

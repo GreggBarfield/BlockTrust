@@ -17,4 +17,4 @@ pipelines:
             - pip
           script:
             - if [ -f tests/requirements.txt ]; then pip install -r tests/requirements.txt; fi
-            - pytest -s -v tests/* --junitxml=test-reports/report.xml --DB $DB || true
+            - pytest -s -v tests/* --junitxml=test-reports/report.xml --DB $DB
