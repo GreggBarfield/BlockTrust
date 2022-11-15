@@ -14,7 +14,7 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
-from ..sectors import sectors_by_name
+from ..sectors import sectors_by_name, sectors_by_id
 from requests import post
 from ..match_types import match_types_by_name
 
@@ -559,58 +559,55 @@ def serve_external_sales_group_viewer(sales_group_id):
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
 
 
-@bp.route("/retail-data/<int:eid>", methods=["GET"])
-def serve_external_retail_data_viewer(eid):
+@bp.route("/retail/<int:eid>", methods=["GET"])
+def serve_external_retail_viewer(eid):
     supply_chain_account_ids = []
-    eid_data_orginal_ranch = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Born"])
-    eid_data_feedyard = g.db.matches.get_matches_with_account_links(
+    original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Cow-Calf"],
+        matches_order_by="created"
+    )
+    if len(original_ranch_match_and_account_link) > 0:
+        supply_chain_account_ids.append(original_ranch_match_and_account_link[0]["account"])
+    feedyard_match_and_account_link = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=match_types_by_name["Sighting"],
         account_links_sector=sectors_by_name["Feedlot"]
     )
-    eid_data_packer = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
-    if len(eid_data_orginal_ranch) > 0:
-        supply_chain_account_ids.append(eid_data_orginal_ranch[0]["account"])
-    if len(eid_data_feedyard) > 0:
-        supply_chain_account_ids.append(eid_data_feedyard[0]["account"])
-    if len(eid_data_packer) > 0:
-        supply_chain_account_ids.append(eid_data_packer[0]["account"])
+    if len(feedyard_match_and_account_link) > 0:
+        supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
+    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
+    if len(packer_match_and_account_link) > 0:
+        supply_chain_account_ids.append(packer_match_and_account_link[0]["account"])
     accounts_retail_data = []
-    retail_sector_names = {
-        sectors_by_name["Cow-Calf"]: "Original Ranch",
-        sectors_by_name["Feedlot"]: "Stocker",
-        sectors_by_name["Packer"]: "Packer"
-    }
     for account_id in supply_chain_account_ids:
-        account_data = g.db.accounts.get_accounts(id=account_id)
-        if len(account_data) > 0:
-            retail_image_files = Files(g.db).get_files(retail_page_account_id=account_data[0]["id"], get_url=True)
-            retail_image_urls = [file["file_url"] for file in retail_image_files]
-            accounts_retail_data.append({
-                "id": account_data[0]["id"],
-                "retail_sector_name": retail_sector_names[account_data[0]["sector"]],
-                "retail_name": account_data[0]["retail_name"],
-                "retail_description": account_data[0]["retail_description"],
-                "retail_image_urls": retail_image_urls
-            })
+        account_data = g.db.accounts.get_accounts(id=account_id)[0]
+        retail_image_files = Files(g.db).get_files(retail_page_account_id=account_data["id"], get_url=True)
+        accounts_retail_data.append({
+            "id": account_data["id"],
+            "retail_sector_name": sectors_by_id[account_data["sector"]] if account_data["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
+            "retail_name": account_data["retail_name"],
+            "retail_description": account_data["retail_description"],
+            "retail_image_urls": [file["file_url"] for file in retail_image_files]
+        })
     return outside_render("/outside/external-retail-data-viewer.html", {"accounts_retail_data": accounts_retail_data})
 
 
-@bp.route("/contact_account/action", methods=["POST"])
+@bp.route("/contact_account", methods=["POST"])
 def serve_contact_account():
-    print(request.form)
-    account_admin_data = g.db.account_users.get_account_users(account=request.form["account_id"], is_admin=1)
-    if len(account_admin_data) > 0:
-        account_admin_user_data = g.db.users.get_users(id=account_admin_data[0]["user"])
-        if len(account_admin_user_data) > 0:
+    admin_account_users = g.db.account_users.get_account_users(account=request.form["account_id"], is_admin=1)
+    for admin_account_user in admin_account_users:
+        admin_account_user_data = g.db.users.get_users(id=admin_account_user["user"])
+        if len(admin_account_user_data) > 0 and admin_account_user_data[0]["is_system_generated"] == 0:
             send_email(
                 "New Retail Customer Message",
-                render_email("new_retail_customer_message.html", {
+                render_email("retail_customer_message.html", {
                     'name': request.form['name'],
                     'phone': request.form['phone'],
                     'email': request.form['email'],
                     'message': request.form['message']
                 }),
-                account_admin_user_data[0]["email"]
+                admin_account_user_data[0]["email"]
                 )
     return {"redirect": request.form["requestRedirectTo"]}

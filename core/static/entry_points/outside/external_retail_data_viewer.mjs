@@ -11,7 +11,7 @@ for(const account_data of accounts_retail_data){
     let message = contactForm.find("#message_"+account_data.id);
 
     let form = new AsyncForm({
-        action: "/contact_account/action",
+        action: "/contact_account",
         form: contactForm[0],
         status: statusMessage[0],
         error: errorMessage[0],
