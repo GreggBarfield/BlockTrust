@@ -113,3 +113,10 @@ def send_connection_request_email_to_admin_users(db, to_account_id, from_account
                         "requesting_account": Accounts(db).get_accounts(id=from_account_id)[0]
                     }), email_verified_user[0]["email"]
                 )
+
+
+def send_email_to_admin_users(db, account_id, subject, body):
+    if len(admin_account_users := AccountUsers(db).get_account_users(account=account_id, is_admin=1)) > 0:
+        for admin_account_user in admin_account_users:
+            if len(email_verified_user := Users(db).get_users(id=admin_account_user["user"], is_email_verified=1)) > 0:
+                send_email(subject, body, email_verified_user[0]["email"])
