@@ -3,6 +3,7 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
+from ..database.combinations import send_email_to_admin_users
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
@@ -560,7 +561,7 @@ def serve_external_sales_group_viewer(sales_group_id):
 
 
 @bp.route("/retail/<int:eid>", methods=["GET"])
-def serve_external_retail_viewer(eid):
+def serve_retail(eid):
     supply_chain_account_ids = []
     original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
@@ -582,32 +583,29 @@ def serve_external_retail_viewer(eid):
         supply_chain_account_ids.append(packer_match_and_account_link[0]["account"])
     accounts_retail_data = []
     for account_id in supply_chain_account_ids:
-        account_data = g.db.accounts.get_accounts(id=account_id)[0]
-        retail_image_files = Files(g.db).get_files(retail_page_account_id=account_data["id"], get_url=True)
+        account = g.db.accounts.get_accounts(id=account_id)[0]
+        retail_image_files = Files(g.db).get_files(retail_page_account_id=account["id"], get_url=True)
         accounts_retail_data.append({
-            "id": account_data["id"],
-            "retail_sector_name": sectors_by_id[account_data["sector"]] if account_data["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
-            "retail_name": account_data["retail_name"],
-            "retail_description": account_data["retail_description"],
+            "id": account["id"],
+            "retail_sector_name": sectors_by_id[account["sector"]] if account["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
+            "retail_name": account["retail_name"],
+            "retail_description": account["retail_description"],
             "retail_image_urls": [file["file_url"] for file in retail_image_files]
         })
-    return outside_render("/outside/external-retail-data-viewer.html", {"accounts_retail_data": accounts_retail_data})
+    return outside_render("/outside/retail.html", {"accounts_retail_data": accounts_retail_data, "eid": eid})
 
 
-@bp.route("/contact_account", methods=["POST"])
+@bp.route("/contact-account", methods=["POST"])
 def serve_contact_account():
-    admin_account_users = g.db.account_users.get_account_users(account=request.form["account_id"], is_admin=1)
-    for admin_account_user in admin_account_users:
-        admin_account_user_data = g.db.users.get_users(id=admin_account_user["user"])
-        if len(admin_account_user_data) > 0 and admin_account_user_data[0]["is_system_generated"] == 0:
-            send_email(
-                "New Retail Customer Message",
-                render_email("retail_customer_message.html", {
-                    'name': request.form['name'],
-                    'phone': request.form['phone'],
-                    'email': request.form['email'],
-                    'message': request.form['message']
-                }),
-                admin_account_user_data[0]["email"]
-                )
-    return {"redirect": request.form["requestRedirectTo"]}
+    send_email_to_admin_users(
+        g.db, request.form["account_id"],
+        "New Retail Customer Message",
+        render_email("retail_customer_message.html", {
+            'name': request.form['name'],
+            'phone': request.form['phone'],
+            'email': request.form['email'],
+            'message': request.form['message']
+        })
+    )
+    retail_url = url_for('outside_bp.serve_retail', eid=request.form["eid"])
+    return {"redirect": retail_url}

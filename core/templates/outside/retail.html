@@ -96,6 +96,7 @@
 </section>
 <script type="text/javascript">
     let accounts_retail_data = JSON.parse('{{ accounts_retail_data|tojson }}');
+    let eid = '{{ eid }}';
 </script>
-<script type="module" src="/static/entry_points/outside/external_retail_data_viewer.mjs"></script>
+<script type="module" src="/static/entry_points/outside/retail.mjs"></script>
 {% endblock outside_content %}
