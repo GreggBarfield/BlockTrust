@@ -586,7 +586,7 @@ def serve_retail(eid):
         account = g.db.accounts.get_accounts(id=account_id)[0]
         retail_image_files = Files(g.db).get_files(retail_page_account_id=account["id"], get_url=True)
         accounts_retail_data.append({
-            "id": account["id"],
+            "retail_reference_number": account["id"],
             "retail_sector_name": sectors_by_id[account["sector"]] if account["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
             "retail_name": account["retail_name"],
             "retail_description": account["retail_description"],
@@ -598,7 +598,7 @@ def serve_retail(eid):
 @bp.route("/contact-account", methods=["POST"])
 def serve_contact_account():
     send_email_to_admin_users(
-        g.db, request.form["account_id"],
+        g.db, request.form["retail_reference_number"],
         "New Retail Customer Message",
         render_email("retail_customer_message.html", {
             'name': request.form['name'],

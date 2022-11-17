@@ -1,14 +1,14 @@
 import { AsyncForm } from '/static/global/async_form.mjs';
 
-for(const account_data of accounts_retail_data){
-    let contactForm = $("#contact_form_"+account_data.id);
-    let statusMessage = contactForm.find("#contact_form_status_message_"+account_data.id);
-    let errorMessage = contactForm.find("#contact_form_error_message_"+account_data.id);
+for(const retail_data of accounts_retail_data){
+    let contactForm = $("#contact_form_"+retail_data.retail_reference_number);
+    let statusMessage = contactForm.find("#contact_form_status_message_"+retail_data.retail_reference_number);
+    let errorMessage = contactForm.find("#contact_form_error_message_"+retail_data.retail_reference_number);
 
-    let name = contactForm.find("#name_"+account_data.id);
-    let email = contactForm.find("#email_"+account_data.id);
-    let phone = contactForm.find("#phone_"+account_data.id);
-    let message = contactForm.find("#message_"+account_data.id);
+    let name = contactForm.find("#name_"+retail_data.retail_reference_number);
+    let email = contactForm.find("#email_"+retail_data.retail_reference_number);
+    let phone = contactForm.find("#phone_"+retail_data.retail_reference_number);
+    let message = contactForm.find("#message_"+retail_data.retail_reference_number);
 
     let form = new AsyncForm({
         action: "/contact-account",
@@ -23,7 +23,7 @@ for(const account_data of accounts_retail_data){
                 email: email.val(),
                 phone: phone.val(),
                 message: message.val(),
-                account_id: account_data.id,
+                retail_reference_number: retail_data.retail_reference_number,
                 eid: eid
             }
         }
