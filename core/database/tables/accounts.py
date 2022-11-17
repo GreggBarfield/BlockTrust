@@ -1,7 +1,6 @@
 from ...sectors import sectors_by_id, sectors_by_name
 from ..objects.account import Account, AccountException
 from ..no_value import NoValue
-from ..frag import frag
 
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
@@ -412,7 +411,7 @@ class Accounts:
             query_conditions.append("stripe_account_id = %(stripe_account_id)s")
             query_values["stripe_account_id"] = stripe_account_id
 
-        if generated_paid is not None:
+        if generated_paid is not NO_VALUE:
             query_conditions.append(" generated_paid = %(generated_paid)s ")
             query_values["generated_paid"] = generated_paid
 
