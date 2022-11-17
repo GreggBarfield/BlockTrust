@@ -6,6 +6,5 @@ bcrypt
 boto3
 stripe
 pyzipcode
-Flask-Excel
 Flask-QRcode
 Flask-WTF
