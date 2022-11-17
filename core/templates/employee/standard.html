@@ -219,7 +219,7 @@
         <span>Navigation</span>
         <ul>
             <li>
-                <a href="">
+                <a href="#">
                     <span><i class="feather icon-user"></i></span>
                     <span>Accounts</span>    
                 </a>
@@ -228,6 +228,15 @@
                     <li><a href="/employee/dashboard/view-partners">Partners</a></li>
                     <li><a href="/employee/dashboard/notifications">Notifications</a></li>
                 </ul>
+            </li>
+            <li>
+              <a href="#">
+                <span><i class="feather icon-user"></i></span>
+                <span>Finance</span>
+              </a>
+              <ul>
+                    <li><a href="/employee/dashboard/select-report-type">View Reports</a> </li>
+              </ul>
             </li>
             <li>
               <a href="/employee/dashboard">
@@ -257,8 +266,7 @@
                 <div class="row align-items-center">
                   <div class="col-md-12">
                     <div class="page-header-title">
-                      <h5 class="m-b-10">{% block employee_content_header %}Needs employee content
-                        header{% endblock employee_content_header %}</h5>
+                      <h5 class="m-b-10">{% block employee_content_header %}{% endblock employee_content_header %}</h5>
                     </div>
                   </div>
                 </div>

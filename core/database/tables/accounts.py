@@ -1,7 +1,6 @@
 from ...sectors import sectors_by_id, sectors_by_name
-from ..objects.account import Account, AccountException
+from ..objects.account import Account
 from ..no_value import NoValue
-from ..frag import frag
 
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
@@ -26,6 +25,7 @@ class AccountsException(Exception):
         """
         super().__init__(reason)
 
+
 class Accounts:
 
     def __init__(self, db):
@@ -36,7 +36,7 @@ class Accounts:
 
         Params:
             id: the account id
-        
+
         Returns:
             An Account() object or None if Account ID is not found
         """
@@ -52,13 +52,13 @@ class Accounts:
         if len(account_rows) != 1:
             return None
         return Account(self._db, account_rows[0])
-        
+
     def get_partners_by_sector_id(self, sector_id):
         """Gets an partners in the accounts table using sector ID.
 
         Params:
             id: the sector id
-        
+
         Returns:
             One or more partner Account() object
 
@@ -84,10 +84,10 @@ class Accounts:
 
         Params:
             account_user: the AccountUser object
-        
+
         Returns:
             An Account() object
-        
+
         Raises:
             AccountsException
         """
@@ -99,7 +99,7 @@ class Accounts:
 
         Params:
             user: The User object
-        
+
         Returns:
             A possibly empty list of Account() objects.
         """
@@ -117,6 +117,7 @@ class Accounts:
             Account(self._db, account_row)
             for account_row in account_rows
         ]
+
 
     def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
         """Gets an account using the partner and affiliate id.
@@ -139,6 +140,7 @@ class Accounts:
         if len(account_rows) == 0:
             return None
         return Account(self._db, account_rows[0])
+
 
     def validate_new_account(self, sector, partner, affiliate_id, phone):
         """validates input to create account
@@ -334,7 +336,8 @@ class Accounts:
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
                      partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
                      zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_customer_id=NO_VALUE,
-                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE):
+                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE, 
+                     generated_paid=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -406,6 +409,10 @@ class Accounts:
         if stripe_account_id is not NO_VALUE:
             query_conditions.append("stripe_account_id = %(stripe_account_id)s")
             query_values["stripe_account_id"] = stripe_account_id
+
+        if generated_paid is not NO_VALUE:
+            query_conditions.append(" generated_paid = %(generated_paid)s ")
+            query_values["generated_paid"] = generated_paid
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

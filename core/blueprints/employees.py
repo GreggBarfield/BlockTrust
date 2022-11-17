@@ -1,9 +1,9 @@
 from flask import (
     request, Blueprint, g, redirect, url_for
 )
-from ..renderers.employee import employee_render
-from ..renderers.email import render_email
 
+from ..blueprints.stripe import serve_stripe_price
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from ..database.tables.accounts import Accounts
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.debug_logs import DebugLogs
@@ -13,20 +13,21 @@ from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
+from ..database.tables.orders import Orders
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database import scripts
 from ..database.combinations import perform_new_account_actions
 from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
-
+from ..renderers.employee import employee_render
+from ..renderers.email import render_email
 from ..sectors import sectors_by_id, sectors_by_name
 from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
+from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, validate_email
-
-from core.config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 import json
 
 bp = Blueprint('employees_bp', __name__)
@@ -435,3 +436,34 @@ def serve_run_script(script):
         return ("", 204)
     else:
         return script + " not found", 404
+
+
+@bp.route("/employee/dashboard/select-report-type", methods=["GET"])
+@crut.require_employee
+def serve_select_report_type():
+    return employee_render("/employee/finance/select-report-type.html")
+
+
+@bp.route("/employee/dashboard/select-report-type/subscription-reports", methods=["GET"])
+@crut.require_employee
+def serve_subscription_reports():
+    subscribed_accounts = Accounts(g.db).get_accounts(generated_paid=1)
+    price = serve_stripe_price(StripePrices.basic.name)["price"]/1200
+    total = sum(account["stripe_paid"] for account in subscribed_accounts) * price
+    return employee_render("/employee/finance/subscription-reports.html", {
+        "subscribed_accounts": subscribed_accounts, 
+        "monthly_amount":price,
+        "monthly_total": total
+    })
+
+
+@bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
+@crut.require_employee
+def serve_tag_store_reports():
+    orders = Orders(g.db).get_orders(stripe_paid=1)
+    total = sum([order["grand_total"] for order in orders])
+    return employee_render("/employee/finance/tag-store-reports.html", {
+        "orders": orders, "total": round(total, 2)
+    })
+
+

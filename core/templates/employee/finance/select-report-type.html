@@ -1,0 +1,36 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Select Report Type" %}
+
+{% block employee_content_header %}
+Financial Reports
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Select Report Type</h5>
+            <div class="card-body">
+                <div class="col-lg-8 mb-2">
+                    <div class="form-group">
+                        <select class="form-control col-lg-4 m-2" id="reportType" required>
+                            <option disabled selected value> -- Select an option -- </option>
+                            <option value="subscription-reports">Subscription Reports</option>
+                            <option value="tag-store-reports">Tag store Reports</option>
+                        </select>    
+                        <button class="btn btn-primary m-2">Get Reports</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+        document.getElementsByClassName("btn-primary")[0].addEventListener("click", () => {
+            let type_selected = document.getElementById("reportType").value;
+            window.location.href = '/employee/dashboard/select-report-type/'+type_selected;
+        });
+</script>
+{% endblock employee_content %}

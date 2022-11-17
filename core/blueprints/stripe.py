@@ -43,9 +43,7 @@ def serve_stripe_price(priceLookupKey):
             price = stripe.Price.retrieve(
                 STRIPE_BASIC_PRICE,
             )
-            return {
-                'price': "${:,.2f}".format(price['unit_amount']/100)
-            }
+            return {'price': price['unit_amount']}
         else:
             return {'error':{'message': 'Incorrect price key'}}, 400    
     except Exception as e:
