@@ -1,5 +1,5 @@
 from ...sectors import sectors_by_id, sectors_by_name
-from ..objects.account import Account, AccountException
+from ..objects.account import Account
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
