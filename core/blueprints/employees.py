@@ -1,9 +1,9 @@
 from flask import (
-    request, Blueprint, g, redirect, url_for, Response
+    request, Blueprint, g, redirect, url_for
 )
-from ..renderers.employee import employee_render
-from ..renderers.email import render_email
 
+from ..blueprints.stripe import serve_stripe_price
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from ..database.tables.accounts import Accounts
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.debug_logs import DebugLogs
@@ -20,19 +20,17 @@ from ..database import scripts
 from ..database.combinations import perform_new_account_actions
 from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
-
+from ..renderers.employee import employee_render
+from ..renderers.email import render_email
 from ..sectors import sectors_by_id, sectors_by_name
 from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
+from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, validate_email
-import flask_excel as excel
-from core.config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 import json
 
 bp = Blueprint('employees_bp', __name__)
-
-excel.init_excel(bp)
 
 
 @bp.route('/employee/dashboard', methods=['GET'])
@@ -446,134 +444,26 @@ def serve_select_report_type():
     return employee_render("/employee/finance/select-report-type.html")
 
 
-@bp.route("/employee/dashboard/select-report-type/all-reports", methods=["GET"])
-@crut.require_employee
-def serve_all_reports():
-    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
-    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
-    reports = []
-    total = 0
-    for tag_store_report in tag_store_reports:
-        report = {
-            "account": tag_store_report["account"],
-            "account_name": "Test account name",  # Need to change after orders table fix
-            "amount": tag_store_report["grand_total"],
-            "type": "Tag Store",
-            "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-            }
-        reports.append(report)
-        total = total + tag_store_report["grand_total"]
-    for subscription_report in subscription_reports:
-        report = {
-            "account": subscription_report["id"],
-            "account_name": subscription_report["company"],
-            "amount": 5.99,
-            "type": "Subscription",
-            "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        }
-        reports.append(report)
-        total = total + 5.99
-    return employee_render("/employee/finance/all-reports.html", {"reports": reports, "total": round(total, 2)})
-
-
 @bp.route("/employee/dashboard/select-report-type/subscription-reports", methods=["GET"])
 @crut.require_employee
 def serve_subscription_reports():
-    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
-    reports = []
-    total = 0
-    for subscription_report in subscription_reports:
-        report = {
-            "account": subscription_report["id"],
-            "account_name": subscription_report["company"],
-            "amount": 5.99,
-            "type": "Subscription",
-            "create_timestamp": subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        }
-        reports.append(report)
-        total = total + 5.99
-    return employee_render("/employee/finance/subscription-reports.html", {"reports": reports, "total": round(total, 2)})
+    subscribed_accounts = Accounts(g.db).get_accounts(generated_paid=1)
+    price = serve_stripe_price(StripePrices.basic.name)["price"]/1200
+    total = sum(account["stripe_paid"] for account in subscribed_accounts) * price
+    return employee_render("/employee/finance/subscription-reports.html", {
+        "subscribed_accounts": subscribed_accounts, 
+        "monthly_amount":price,
+        "monthly_total": total
+    })
 
 
 @bp.route("/employee/dashboard/select-report-type/tag-store-reports", methods=["GET"])
 @crut.require_employee
 def serve_tag_store_reports():
-    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
-    reports = []
-    total = 0
-    for tag_store_report in tag_store_reports:
-        report = {
-            "account": tag_store_report["account"],
-            "account_name": "Test account name",  # Need to change after orders table fix
-            "amount": tag_store_report["grand_total"],
-            "type": "Tag Store",
-            "create_timestamp": tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-            }
-        reports.append(report)
-        total = total + tag_store_report["grand_total"]
-    return employee_render("/employee/finance/tag-store-reports.html", {"reports": reports, "total": round(total, 2)})
+    orders = Orders(g.db).get_orders(stripe_paid=1)
+    total = sum([order["grand_total"] for order in orders])
+    return employee_render("/employee/finance/tag-store-reports.html", {
+        "orders": orders, "total": round(total, 2)
+    })
 
-
-@bp.route("/employee/dashboard/select-report-type/all-reports/download", methods=['GET'])
-@crut.require_employee
-def serve_all_reports_download():
-    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
-    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
-    reports = []
-    reports.append(["Account ID", "Account Name", "Amount", "Transaction type", "Timestamp"])
-    for subscription_report in subscription_reports:
-        report = [
-            subscription_report["id"],
-            subscription_report["company"],
-            5.99,
-            "Subscription",
-            subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        ]
-        reports.append(report)
-    for tag_store_report in tag_store_reports:
-        report = [
-            tag_store_report["account"],
-            "Test account name",  # Need to change after orders table fix
-            tag_store_report["grand_total"],
-            "Tag Store",
-            tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        ]
-        reports.append(report)
-    return excel.make_response_from_array(reports, "xlsx", file_name="all-reports")
-
-
-@bp.route("/employee/dashboard/select-report-type/subscription-reports/download", methods=["GET"])
-@crut.require_employee
-def serve_subscription_reports_download():
-    subscription_reports = Accounts(g.db).get_accounts(generated_paid=1, selectColumns=["id", "company", "last_updated_timestamp"])
-    reports = []
-    reports.append(["Account ID", "Account Name", "Amount", "Transaction type", "Timestamp"])
-    for subscription_report in subscription_reports:
-        report = [
-            subscription_report["id"],
-            subscription_report["company"],
-            5.99,
-            "Subscription",
-            subscription_report["last_updated_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        ]
-        reports.append(report)
-    return excel.make_response_from_array(reports, "xlsx", file_name="subscription-reports")
-
-
-@bp.route("/employee/dashboard/select-report-type/tag-store-reports/download", methods=["GET"])
-@crut.require_employee
-def serve_tag_store_reports_download():
-    tag_store_reports = Orders(g.db).get_orders(selectColumns=["account", "grand_total", "create_timestamp"])
-    reports = []
-    reports.append(["Account ID", "Account Name", "Amount", "Transaction type", "Timestamp"])
-    for tag_store_report in tag_store_reports:
-        report = [
-            tag_store_report["account"],
-            "Test account name",  # Need to change after orders table fix
-            tag_store_report["grand_total"],
-            "Tag Store",
-            tag_store_report["create_timestamp"].strftime("%m/%d/%Y" + " at " + "%H:%M")
-        ]
-        reports.append(report)
-    return excel.make_response_from_array(reports, "xlsx", file_name="tag-store-reports")
 

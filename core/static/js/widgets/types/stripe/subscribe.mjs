@@ -20,7 +20,7 @@ export class SubscribeWidget extends Widget {
         priceHeader.className = "text-warning";
         let {price} = await fetch("/stripe/price/" + priceLookupKey).then(r => r.json());
         if(price) {
-          priceHeader.textContent = "You will be charged: " + price;
+          priceHeader.textContent = `You will be charged: $${(price/100).toFixed(2)}`;
         }
         this.frame.append(priceHeader);
 
