@@ -14,7 +14,6 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "retail_description")
 
 
-
 class AccountsException(Exception):
     """Account generic exception."""
 

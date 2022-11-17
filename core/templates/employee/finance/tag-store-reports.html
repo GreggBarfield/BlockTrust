@@ -15,20 +15,20 @@
                     <thead>
                         <tr>
                             <th>NAME</th>
-                            <th>AMOUNT</th>
                             <th>EMAIL</th>
                             <th>PHONE</th>
                             <th>ORDER DATE</th>
+                            <th>AMOUNT</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for order in orders %}
                         <tr>
                             <th>{{order.first_name ~ " " ~ order.last_name}}</th>
-                            <th>{{order.grand_total}}</th>
                             <th>{{order.email}}</th>
                             <th>{{order.phone}}</th>
                             <th name="order-date">{{order.created_timestamp}}</th>
+                            <th>{{order.grand_total}}</th>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -56,13 +56,14 @@
     }
 
     let orders = JSON.parse('{{ orders|tojson }}');
-    let headers = ["NAME", "AMOUNT", "EMAIL", "PHONE", "ORDER DATE"];
+    let headers = ["NAME", "EMAIL", "PHONE", "ORDER DATE", "AMOUNT"];
     let tableExport = [headers];
     for(order of orders){
         tableExport.push([
-            `${order.first_name} ${order.last_name}`, order.grand_total, order.email,
+            `${order.first_name} ${order.last_name}`, order.email,
              order.phone,
-             new Date(order.created_timestamp).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric'})
+             new Date(order.created_timestamp).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric'}), 
+             order.grand_total
         ])
     }
     tableExport.push([])
