@@ -638,6 +638,6 @@ def serve_edit_account_retail_data():
     uploaded_retail_image_files = Files(g.db).get_files(
         retail_page_account_id=g.account.id(),
         select_columns=["id", "name"]
-        )
+    )
     # json.dumps() helps to convert uploaded_retail_image_files into a JSON string which can be converted back in the widget without any errors.
     return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})

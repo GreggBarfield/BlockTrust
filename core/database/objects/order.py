@@ -1,9 +1,10 @@
 from copy import deepcopy
 
+
 class Order:
 
     def __init__(self, db, row):
-        """User constructor.
+        """Order constructor.
 
         Params:
             db: Database object

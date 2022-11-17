@@ -1,0 +1,79 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Subscription Reports" %}
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Subscription Reports</h5>
+                <a style="width:250px" class="btn btn-outline-primary float-right">Download Reports</a>
+            </div>
+            <div class="card-body col-lg-6 mb-2">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ACCOUNT NUMBER</th>
+                            <th>COMPANY</th>
+                            <th>CREATED DATE</th>
+                            <th>SUBSCRIPTION TYPE</th>
+                            <th>MONTHLY AMOUNT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for account in subscribed_accounts %}
+                        <tr>
+                            <th>{{account.id}}</th>
+                            <th>{{account.company}}</th>
+                            <th name="create-date">{{account.created_timestamp}}</th>
+                            <th>{{"MANUAL" if account.manual_paid else "STRIPE"}}</th>
+                            <th>{{"N/A" if account.manual_paid else monthly_amount}}</th>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <table class="table col-lg-6">
+                    <thead>
+                        <tr>
+                            <th>Monthly Total (Stripe):</th>
+                            <th>${{monthly_total}}</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    let createDates = document.getElementsByName("create-date");
+    for(date of createDates){
+        date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        });
+    }
+
+    let subscribedAccounts = JSON.parse('{{ subscribed_accounts|tojson }}');
+    let headers = ["ACCOUNT NUMBER", "COMPANY", "CREATED DATE", "SUBSCRIPTION TYPE", "MONTHLY AMOUNT"];
+    let tableExport = [headers];
+    for(account of subscribedAccounts){
+        tableExport.push([
+            account.id, 
+            account.company, 
+            new Date(account.created_timestamp).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric'}),
+            account.manual_paid? "Manual" : "Stripe", 
+            account.manual_paid? "N/A" : "{{monthly_total}}"
+        ])
+    }
+    tableExport.push([]);
+    tableExport.push(["Monthly Total(Stripe): ", "${{monthly_total}}"])
+    let csvContent = "data:text/csv;charset=utf-8," + tableExport.map(e => e.join(",")).join("\n");
+    let encodedUri = encodeURI(csvContent);
+    let downloadButton = document.getElementsByClassName("btn-outline-primary")[0];
+    downloadButton.setAttribute("href", encodedUri);
+    downloadButton.setAttribute("download", "Subscriptions.csv");
+    downloadButton.classList.remove("d-none")
+</script>
+{% endblock employee_content %}
