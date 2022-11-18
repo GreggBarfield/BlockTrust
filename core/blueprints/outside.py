@@ -3,9 +3,11 @@ from flask import (
 )
 
 from ..renderers.outside import outside_render
+from ..database.combinations import send_email_to_admin_users
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
+from ..database.tables.files import Files
 from ..database.tables.sales_groups import SalesGroups
 from ..common_exceptions import ExportException
 from ..utilities import auth
@@ -13,8 +15,9 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..renderers.email import render_email
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
-from ..sectors import sectors_by_name
+from ..sectors import sectors_by_name, sectors_by_id
 from requests import post
+from ..match_types import match_types_by_name
 
 
 bp = Blueprint('outside_bp', __name__)
@@ -555,3 +558,58 @@ def serve_add_admin_user(invite_token):
 def serve_external_sales_group_viewer(sales_group_id):
     sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
+
+
+@bp.route("/retail/<int:eid>", methods=["GET"])
+def serve_retail(eid):
+    supply_chain_account_ids = []
+    original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Cow-Calf"],
+        matches_order_by="created"
+    )
+    if len(original_ranch_match_and_account_link) > 0:
+        supply_chain_account_ids.append(original_ranch_match_and_account_link[0]["account"])
+    feedyard_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Feedlot"]
+    )
+    if len(feedyard_match_and_account_link) > 0:
+        supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
+    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Packer"]
+    )
+    if len(packer_match_and_account_link) > 0:
+        supply_chain_account_ids.append(packer_match_and_account_link[0]["account"])
+    accounts_retail_data = []
+    for account_id in supply_chain_account_ids:
+        account = g.db.accounts.get_accounts(id=account_id)[0]
+        retail_image_files = Files(g.db).get_files(retail_page_account_id=account["id"], get_url=True)
+        accounts_retail_data.append({
+            "retail_reference_number": account["id"],
+            "retail_sector_name": sectors_by_id[account["sector"]] if account["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
+            "retail_name": account["retail_name"],
+            "retail_description": account["retail_description"],
+            "retail_image_urls": [file["file_url"] for file in retail_image_files]
+        })
+    return outside_render("/outside/retail.html", {"accounts_retail_data": accounts_retail_data, "eid": eid})
+
+
+@bp.route("/contact-account", methods=["POST"])
+def serve_contact_account():
+    send_email_to_admin_users(
+        g.db, request.form["retail_reference_number"],
+        "New Retail Customer Message",
+        render_email("retail_customer_message.html", {
+            'name': request.form['name'],
+            'phone': request.form['phone'],
+            'email': request.form['email'],
+            'message': request.form['message']
+        })
+    )
+    retail_url = url_for('outside_bp.serve_retail', eid=request.form["eid"])
+    return {"redirect": retail_url}

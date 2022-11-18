@@ -169,7 +169,7 @@ class Files:
             name: Name of the file during upload
             account_id: Account ID of uploading account
             user_id: User ID of uploading user
-            retail_page_account_id: Account ID of Reatil image uploaded
+            retail_page_account_id: Account ID of Retail image uploaded
 
         Returns:
             File rows based on attributes provided
