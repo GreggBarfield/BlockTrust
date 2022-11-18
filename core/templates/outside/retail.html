@@ -20,15 +20,15 @@
         <div class="row">
             <div class="col-12">
                 <h5 class="font-weight-bold font-italic">Meet the people and visit the places that have taken extra care to make this meat product safe for you and your family.</h5>
-                {% for retail_data in accounts_retail_data %}
+                {% for account_retail_data in accounts_retail_data %}
                     <div class="card m-1">
                         <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
-                            <p><h4 class="text-primary">{{retail_data["retail_sector_name"]}}</h4></p>
-                            <p><h5>{{retail_data["retail_name"]}}</h5></p>
+                            <p><h4 class="text-primary">{{account_retail_data["retail_sector_name"]}}</h4></p>
+                            <p><h5>{{account_retail_data["retail_name"]}}</h5></p>
                         </div>
                         <div id="retail_images_carousel" class="carousel slide" data-ride="carousel">
                             <div class="carousel-inner">
-                                {% for image_url in retail_data["retail_image_urls"] %}
+                                {% for image_url in account_retail_data["retail_image_urls"] %}
                                     <div class="carousel-item {% if loop.index == 1 %} active{% endif %}">
                                         <img class="d-block w-100" src="{{image_url}}">
                                     </div>
@@ -44,10 +44,10 @@
                             </a>
                         </div>
                         <div class="card-body">
-                            <p>{{retail_data["retail_description"]}}</p>
+                            <p>{{account_retail_data["retail_description"]}}</p>
                             <p>
-                                <a class="btn btn-outline-primary" data-toggle="modal" data-target="#contact_form_modal_{{retail_data['retail_reference_number']}}">
-                                    Contact {{retail_data["retail_name"]}} 
+                                <a class="btn btn-outline-primary" data-toggle="modal" data-target="#contact_form_modal_{{account_retail_data['retail_reference_number']}}">
+                                    Contact {{account_retail_data["retail_name"]}} 
                                 </a>
                             </p>
                         </div>
@@ -56,37 +56,37 @@
             </div>
         </div>
     </div>
-    {% for retail_data in accounts_retail_data %}
-        <div class="modal fade" id="contact_form_modal_{{retail_data['retail_reference_number']}}" tabindex="-1" role="dialog">
+    {% for account_retail_data in accounts_retail_data %}
+        <div class="modal fade" id="contact_form_modal_{{account_retail_data['retail_reference_number']}}" tabindex="-1" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5>Send Message to {{retail_data["retail_name"]}}</h5>
+                        <h5>Send Message to {{account_retail_data["retail_name"]}}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form class="bg-white m-1" id="contact_form_{{retail_data['retail_reference_number']}}" account_id="{{retail_data['retail_reference_number']}}">     
+                        <form class="bg-white m-1" id="contact_form_{{account_retail_data['retail_reference_number']}}">     
                             <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name_{{retail_data['retail_reference_number']}}">
+                                <input type="text" class="form-control" id="name_{{account_retail_data['retail_reference_number']}}">
                             </div>     
                             <div class="form-group">
                                 <label for="phone">Phone</label>
-                                <input type="text" class="form-control" id="phone_{{retail_data['retail_reference_number']}}">
+                                <input type="text" class="form-control" id="phone_{{account_retail_data['retail_reference_number']}}">
                             </div>     
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email_{{retail_data['retail_reference_number']}}">
+                                <input type="email" class="form-control" id="email_{{account_retail_data['retail_reference_number']}}">
                             </div>    
                             <div class="form-group">
                                 <label for="message">Message</label>
-                                <textarea type="text" class="form-control" rows="5" id="message_{{retail_data['retail_reference_number']}}"></textarea>
+                                <textarea type="text" class="form-control" rows="5" id="message_{{account_retail_data['retail_reference_number']}}"></textarea>
                             </div>
                             <p><button type="submit" class="btn btn-primary">Send Message</button></p>
-                            <p class="mt-2 mb-0" id="contact_form_status_message_{{retail_data['retail_reference_number']}}" style="display:none;">Sending Message...</p>
-                            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="contact_form_error_message_{{retail_data['retail_reference_number']}}">Error while delivering message</p>
+                            <p class="mt-2 mb-0" id="contact_form_status_message_{{account_retail_data['retail_reference_number']}}" style="display:none;">Sending Message...</p>
+                            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="contact_form_error_message_{{account_retail_data['retail_reference_number']}}">Error while delivering message</p>
                         </form>
                     </div>
                 </div>

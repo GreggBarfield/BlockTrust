@@ -578,7 +578,11 @@ def serve_retail(eid):
     )
     if len(feedyard_match_and_account_link) > 0:
         supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
-    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Packer"])
+    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        matches_eid=eid,
+        matches_restrict_type=match_types_by_name["Sighting"],
+        account_links_sector=sectors_by_name["Packer"]
+    )
     if len(packer_match_and_account_link) > 0:
         supply_chain_account_ids.append(packer_match_and_account_link[0]["account"])
     accounts_retail_data = []
