@@ -86,7 +86,7 @@ class Files:
             limit: The file size limit in B
                 (default 10MB)
             expires_in: The number of seconds available to upload the image
-                (default 2 minutes)
+                (default 8 minutes)
         
         Returns:
             The file ID and the POST config (dictionary)
