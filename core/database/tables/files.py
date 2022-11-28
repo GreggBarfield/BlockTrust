@@ -71,7 +71,7 @@ class Files:
         
         return False
 
-    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=120):
+    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=480):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
