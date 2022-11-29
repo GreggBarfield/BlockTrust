@@ -71,7 +71,7 @@ class Files:
         
         return False
 
-    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=120):
+    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=480):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -86,7 +86,7 @@ class Files:
             limit: The file size limit in B
                 (default 10MB)
             expires_in: The number of seconds available to upload the image
-                (default 2 minutes)
+                (default 8 minutes)
         
         Returns:
             The file ID and the POST config (dictionary)
