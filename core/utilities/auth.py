@@ -212,7 +212,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         ConnectionInvites(g.db).convert_invites_to_connections(email, account_obj)
 
         perform_new_account_actions(db=g.db, account_id=account_obj.id(), user_id=user.id(),
-                                    event_type_id=event_type_by_name["Signup"])
+                                    event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id())
 
     except Exception as e:
         raise e

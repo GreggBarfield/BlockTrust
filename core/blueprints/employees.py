@@ -85,7 +85,7 @@ def serve_employee_create_account_action():
         # Assigning user as admin
         account_obj.add_user(user, 1)
 
-        perform_new_account_actions(g.db, account_obj.id(), user.id(), event_type_by_name["Account Created"], g.employee.id())
+        perform_new_account_actions(g.db, account_obj.id(), user.id(), event_type_by_name["Account Created"], account_obj.sector_id(), g.employee.id())
 
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:

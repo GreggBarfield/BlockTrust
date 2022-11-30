@@ -6,7 +6,6 @@ from .tables.account_users import AccountUsers
 from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
-from .tables.reports import Reports
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -36,7 +35,6 @@ class Database:
         self.users = Users(self)
         self.matches = Matches(self)
         self.account_links = AccountLinks(self)
-        self.reports = Reports(self)
 
     def connect(self):
         try:

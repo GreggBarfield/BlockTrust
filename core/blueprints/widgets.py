@@ -15,6 +15,7 @@ from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files
 from ..database.tables.messages import Messages
+from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -566,7 +567,7 @@ def serve_get_market_data(slug_id):
 def get_employee_summary_graphs_data():
     ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
     feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
-    tags_count_list = g.db.reports.get_reports(query=count_eid_distinct.create(), selectColumns=["result", "created_timestamp"])
+    tags_count_list = Reports(g.db).get_reports(query=count_eid_distinct.create(), selectColumns=["result", "created_timestamp"])
     return {
         "ranches": ranches,
         "feedyards": feedyards,
