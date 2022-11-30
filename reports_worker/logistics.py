@@ -1,5 +1,6 @@
 from time import sleep
 from core.reports.query import execute_query
+from core.database.tables.reports import Reports
 import datetime
 import traceback
 
@@ -10,7 +11,8 @@ def run(db):
     Params:
         db: A Database object
     """
-    report = db.reports.work_report()
+    reports_data_access = Reports(db)
+    report = reports_data_access.work_report()
 
     if report is None:
         print("Sleeping. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
@@ -19,12 +21,12 @@ def run(db):
         print("Running report:", report['id'], "account id:", report['account_id'])
         try:
             result = execute_query(db, report['query'])
-            db.reports.fulfill_report(
+            reports_data_access.fulfill_report(
                 report['id'],
                 result
             )
         except Exception as e:
-            db.reports.fulfill_report(
+            reports_data_access.fulfill_report(
                 report['id'],
                 {
                     "error": str(e), "Traceback": traceback.format_exc()

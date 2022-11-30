@@ -3,6 +3,7 @@ from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.event_logs import EventLogs
+from core.database.tables.reports import Reports
 from core.database.tables.users import Users
 from core.renderers.email import render_email
 from core.utilities.email import send_email
@@ -91,7 +92,8 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
             pass
 
 
-def perform_new_account_actions(db, account_id, user_id, event_type_id, employee_id=None):
+def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, employee_id=None):
+    Reports(db).make_reports_for_account(account_id, sector_id)
     account_link_id = AccountLinks(db).get_account_links(account_id=account_id)[0]["id"]
     new_connections = create_connections_for_supply_chain(db, account_link_id, account_id)
 
