@@ -50,6 +50,13 @@
                                     Contact {{account_retail_data["retail_name"]}} 
                                 </a>
                             </p>
+                            <p>
+                                {% if account_retail_data.is_tipping_enabled %}                               
+                                <a class="btn btn-outline-success" href="{{tip_URL}}">
+                                    Tip {{account_retail_data["retail_name"]}} 
+                                </a>
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
                 {% endfor %}

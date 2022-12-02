@@ -180,7 +180,7 @@ export class SalesGroupViewer {
                 });
                 left.append(unarchiveButton);
             }
-            if(this.data["is_sold"] == 0 && this.data["is_account_charges_enabled"] == 1 && this.data["price"] > 0){
+            if(this.data["is_sold"] == 0 && this.data["is_account_payouts_enabled"] == 1 && this.data["price"] > 0){
                 let purchaseButton = document.createElement("button");
                 purchaseButton.className = "btn btn-sm btn-success";
                 purchaseButton.style = "float:right"
