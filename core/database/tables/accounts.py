@@ -8,7 +8,7 @@ RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
-                "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_charges_enabled",
+                "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_payouts_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup", "retail_name",
                 "retail_description")
@@ -333,8 +333,8 @@ class Accounts:
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
                      partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
                      zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_customer_id=NO_VALUE,
-                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE, 
-                     generated_paid=NO_VALUE):
+                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
+                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE):
         """
         Get an account by the values specified.
 
@@ -408,8 +408,12 @@ class Accounts:
             query_values["stripe_account_id"] = stripe_account_id
 
         if generated_paid is not NO_VALUE:
-            query_conditions.append(" generated_paid = %(generated_paid)s ")
+            query_conditions.append("generated_paid = %(generated_paid)s ")
             query_values["generated_paid"] = generated_paid
+
+        if is_stripe_payouts_enabled is not NO_VALUE:
+            query_conditions.append(" is_stripe_payouts_enabled = %(is_stripe_payouts_enabled)s ")
+            query_values["is_stripe_payouts_enabled"] = is_stripe_payouts_enabled
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -517,7 +521,7 @@ class Accounts:
     def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
-                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_charges_enabled=NO_VALUE,
+                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE):
         """
         Updates an account.
@@ -589,9 +593,9 @@ class Accounts:
         if stripe_account_id is not NO_VALUE:
             query_conditions.append("stripe_account_id = %(stripe_account_id)s")
             query_values["stripe_account_id"] = stripe_account_id
-        if is_stripe_charges_enabled is not NO_VALUE:
-            query_conditions.append("is_stripe_charges_enabled = %(is_stripe_charges_enabled)s")
-            query_values["is_stripe_charges_enabled"] = is_stripe_charges_enabled
+        if is_stripe_payouts_enabled is not NO_VALUE:
+            query_conditions.append("is_stripe_payouts_enabled = %(is_stripe_payouts_enabled)s")
+            query_values["is_stripe_payouts_enabled"] = is_stripe_payouts_enabled
         if retail_name is not NO_VALUE:
             query_conditions.append("retail_name = %(retail_name)s")
             query_values["retail_name"] = retail_name

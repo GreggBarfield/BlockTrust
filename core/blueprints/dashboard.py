@@ -1,4 +1,3 @@
-from core.database.tables.notification_recipients import NotificationRecipients
 from flask import (
     request, Blueprint, g, redirect, url_for, send_from_directory
 )
@@ -17,6 +16,7 @@ from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
+from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.usda_reports import USDAReports
@@ -26,10 +26,10 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth, csrf
 from ..utilities import token
+from ..utilities.constants import HTTP_BAD_REQUEST
 from ..utilities.email import send_email
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
-
 import json
 import stripe
 
@@ -357,19 +357,21 @@ def serve_edit_account():
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
-            return {"error": str(e)}, 400
+            return {"error": str(e)}, HTTP_BAD_REQUEST
     elif request.method == 'GET':
         stripe.api_key = STRIPE_SECRET_KEY
-        is_stripe_charges_enabled = False
-        if bool(request.args.get("stripe_onboarding")) and g.account.stripe_account_id() is not None and not bool(g.account.is_stripe_charges_enabled()):
+        is_stripe_payouts_enabled = False
+        if bool(request.args.get("stripe_onboarding")) and g.account.stripe_account_id() is not None and not bool(g.account.is_stripe_payouts_enabled()):
             # Check if this has changed
             stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
             if stripe_account["charges_enabled"]:
-                g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
-                is_stripe_charges_enabled = True
+                g.db.accounts.update_account(account_id=g.account.id(), is_stripe_payouts_enabled=1)
+                is_stripe_payouts_enabled = True
         else:
-            is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
-        return dashboard_render("/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_charges_enabled": is_stripe_charges_enabled })
+            is_stripe_payouts_enabled = bool(g.account.is_stripe_payouts_enabled())
+        return dashboard_render(
+            "/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_payouts_enabled": is_stripe_payouts_enabled}
+        )
 
 
 # edit user profile

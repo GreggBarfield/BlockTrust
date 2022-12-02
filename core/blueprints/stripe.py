@@ -8,6 +8,7 @@ import traceback
 from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
+from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
 
@@ -23,7 +24,7 @@ def serve_stripe_test():
 
 @bp.route('/stripe/config', methods=['GET'])
 def serve_stripe_config():
-    return  {
+    return {
         'publishableKey': STRIPE_PUBLISHABLE_KEY
     }
 
@@ -144,7 +145,7 @@ def create_subscription():
                 }],
                 expand=['latest_invoice.payment_intent'],
             )
-            return {'subscription':subscription}
+            return {'subscription': subscription}
         else:
             return {'error':{'message': 'No or incorrect price selected'}}, 400
     except Exception as e:
@@ -188,24 +189,14 @@ def create_sales_group_payment():
     data = json.loads(request.data)
     try:
         if len(account := g.db.accounts.get_accounts(id=data['account_id'])) > 0 and account[0]["stripe_account_id"] is not None \
-         and account[0]["is_stripe_charges_enabled"] == 1:
-            stripe.api_key = STRIPE_SECRET_KEY
-            currency = data['currency']
-            sales_group_id = data['sales_group_id']
-            amount = int(float(data['amount'])*100)
-            params = {
-                'transfer_data': {
-                    'destination': account[0]["stripe_account_id"]
-                },
-                'automatic_payment_methods': {
-                    'enabled': True,
-                },
-                'application_fee_amount': int(0.1*amount),
-                'amount': amount,
-                'currency': currency,
-                'metadata': {'sales_group_id': sales_group_id}
-            }
-            intent = stripe.PaymentIntent.create(**params)
+         and account[0]["is_stripe_payouts_enabled"] == 1:
+            intent = create_intent_for_transfer_to_connected_account(
+                amount=int(float(data['amount'])*100)*0.96,
+                charged_amount=int(float(data['amount'])*100),
+                account=account,
+                metadata={'sales_group_id': data['sales_group_id']},
+                currency=data['currency']
+            )
             return {'clientSecret': intent.client_secret}
         else:
             raise Exception("There is a problem with this sales group transaction. Please try later.")
@@ -213,6 +204,54 @@ def create_sales_group_payment():
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-payment-intent/tip/<account_id>', methods=['POST'])
+def create_account_payment(account_id):
+    input_post_data = json.loads(request.data)
+    try:
+        if len(account := g.db.accounts.get_accounts(id=account_id)) > 0 and account[0]["stripe_account_id"] is not None \
+         and account[0]["is_stripe_payouts_enabled"] == 1:
+            charged_amount = round((float(input_post_data['amount']) + 0.3)/0.97, 2)
+            tip_id = Tips(g.db).insert_tip(
+                account_id, input_post_data['amount'],
+                charged_amount, input_post_data["name"],
+                input_post_data["email"] if input_post_data["email"] else None,
+                input_post_data["phone"] if input_post_data["phone"] else None
+            )
+            intent = create_intent_for_transfer_to_connected_account(
+                amount=int(float(input_post_data['amount'])*100),
+                charged_amount=int(charged_amount*100),
+                account=account,
+                metadata={'tip_id': tip_id},
+                currency=input_post_data['currency']
+            )
+            Tips(g.db).update_tip(tip_id, stripe_payment_intent_id=intent.id)
+            return {'client_secret': intent.client_secret, 'intent_id': intent.id, 'tip_id': tip_id}
+        else:
+            raise Exception("Your tip cannot be sent currently. Please try later.")
+    except stripe.error.StripeError as e:
+        Tips(g.db).update_tip(tip_id, stripe_error=str(e))
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400
+
+
+def create_intent_for_transfer_to_connected_account(amount, charged_amount, account, metadata, currency):
+    stripe.api_key = STRIPE_SECRET_KEY
+    params = {
+        'transfer_data': {
+            'amount': amount,
+            'destination': account[0]["stripe_account_id"]
+        },
+        'automatic_payment_methods': {
+            'enabled': True,
+        },
+        'amount': charged_amount,
+        'currency': currency,
+        'metadata': metadata
+    }
+    return stripe.PaymentIntent.create(**params)
 
 
 @bp.route('/stripe/onboard-account', methods=['POST'])
@@ -274,6 +313,7 @@ def _generate_account_link(stripe_account_id, origin):
     )
     return account_link.url
 
+
 @bp.route('/stripe/connect/account-events', methods=['POST'])
 def serve_stripe_account():
     payload = request.data
@@ -281,7 +321,7 @@ def serve_stripe_account():
     sig_header = request.headers.get('stripe-signature')
 
     DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
-     json.dumps(json.loads(request.data)))
+                                     json.dumps(json.loads(request.data)))
 
     try:
         event = stripe.Webhook.construct_event(
@@ -300,7 +340,7 @@ def serve_stripe_account():
         stripe_account = event.data.object
         accounts_table = Accounts(g.db)
         if len(account := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
-            accounts_table.update_account(account_id=account[0]["id"], is_stripe_charges_enabled=int(stripe_account.charges_enabled))
+            accounts_table.update_account(account_id=account[0]["id"], is_stripe_payouts_enabled=int(stripe_account.charges_enabled))
         else:
             ErrorLogs(g.db).insert_error_log("Stripe", f"An event was received for stripe account id: {stripe_account.id} which doesn't exist")
     else:
