@@ -1,5 +1,5 @@
 from flask import (
-    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory, current_app, Response
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory, Response
 )
 
 from ..renderers.outside import outside_render
@@ -16,8 +16,10 @@ from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..renderers.email import render_email
-from core.config import (SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY,
-    RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY)
+from core.config import (
+    SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY,
+    RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY
+)
 from ..sectors import sectors_by_name, sectors_by_id
 from json import loads
 from requests import post
@@ -599,7 +601,7 @@ def serve_retail(eid):
             "retail_name": account["retail_name"],
             "retail_description": account["retail_description"],
             "retail_image_urls": [file["file_url"] for file in retail_image_files],
-            "is_tipping_enabled": True if account["sector"] == sectors_by_name["Cow-Calf"] else False
+            "is_tipping_enabled": account["sector"] == sectors_by_name["Cow-Calf"]
         })
     return outside_render("/outside/retail.html", {
         "accounts_retail_data": accounts_retail_data,
