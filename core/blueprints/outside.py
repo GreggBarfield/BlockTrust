@@ -505,8 +505,7 @@ def serve_rfid_tags():
 
 @bp.route('/employee/login', methods=['GET'])
 def serve_employee_login():
-    return outside_render('employee-login.html')
-
+    return outside_render('employee-login.html', {"customer_login_URL": url_for("outside_bp.serve_login")})
 
 @bp.route('/employee/login/action', methods=['POST'])
 def serve_employee_login_action():
