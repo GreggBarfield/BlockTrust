@@ -1,5 +1,5 @@
 from flask import (
-    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory
+    jsonify, request, Blueprint, g, redirect, url_for, send_from_directory, Response
 )
 
 from ..renderers.outside import outside_render
@@ -9,13 +9,19 @@ from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.files import Files
 from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from ..utilities import auth
 from ..utilities.email import send_email
 from ..utilities import token
+from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..renderers.email import render_email
-from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY, RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP
+from core.config import (
+    SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY,
+    RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY
+)
 from ..sectors import sectors_by_name, sectors_by_id
+from json import loads
 from requests import post
 from ..match_types import match_types_by_name
 
@@ -594,9 +600,14 @@ def serve_retail(eid):
             "retail_sector_name": sectors_by_id[account["sector"]] if account["sector"] != sectors_by_name["Cow-Calf"] else "Original Ranch",
             "retail_name": account["retail_name"],
             "retail_description": account["retail_description"],
-            "retail_image_urls": [file["file_url"] for file in retail_image_files]
+            "retail_image_urls": [file["file_url"] for file in retail_image_files],
+            "is_tipping_enabled": account["sector"] == sectors_by_name["Cow-Calf"]
         })
-    return outside_render("/outside/retail.html", {"accounts_retail_data": accounts_retail_data, "eid": eid})
+    return outside_render("/outside/retail.html", {
+        "accounts_retail_data": accounts_retail_data,
+        "eid": eid,
+        "tip_URL": url_for('outside_bp.serve_tip', eid=eid, account_id=original_ranch_match_and_account_link[0]["account"])
+    })
 
 
 @bp.route("/contact-account", methods=["POST"])
@@ -613,3 +624,36 @@ def serve_contact_account():
     )
     retail_url = url_for('outside_bp.serve_retail', eid=request.form["eid"])
     return {"redirect": retail_url}
+
+
+@bp.route("/tip/<int:eid>/<int:account_id>", methods=["GET"])
+def serve_tip(eid, account_id):
+    account_with_payouts_enabled = g.db.accounts.get_accounts(id=account_id, is_stripe_payouts_enabled=1)
+    if len(account_with_payouts_enabled) > 0:
+        original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+            matches_eid=eid,
+            matches_restrict_type=match_types_by_name["Sighting"],
+            account_links_sector=sectors_by_name["Cow-Calf"],
+            matches_order_by="created"
+        )
+        if original_ranch_match_and_account_link and original_ranch_match_and_account_link[0]["account"] == account_id:
+            return outside_render("/outside/tip.html", {
+                "stripe_key": STRIPE_PUBLISHABLE_KEY, "account_id": account_id, "eid": eid,
+                "retail_URL": url_for('outside_bp.serve_retail', eid=eid), "name": account_with_payouts_enabled[0]["retail_name"],
+                "update_tip_URL": url_for('outside_bp.serve_modify_tip')
+            })
+
+    return outside_render("/outside/tip.html", {"has_error": True, "message": "Sorry, this operation cannot be completed at this time"})
+
+
+@bp.route('/tip/', defaults={'tip_id': ''}, methods=['PUT'])
+@bp.route("/tip/<int:tip_id>", methods=["PUT"])
+def serve_modify_tip(tip_id):
+    request_data = loads(request.get_data())
+    # best practise to retreive the tip instead of updating it directly
+    tip = Tips(g.db).get_tips(id=tip_id, stripe_payment_intent_id=request_data["stripe_payment_intent_id"])
+    if tip:
+        Tips(g.db).update_tip(id=tip[0]["id"], **request_data)
+        return Response(status=HTTP_NO_CONTENT)
+    else:
+        return Response(status=HTTP_BAD_REQUEST)
