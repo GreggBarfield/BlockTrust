@@ -2,6 +2,7 @@ import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { sections, scoringCriteria, questionType } from '../../../core/sustainability_constants.mjs'
+import { ProgressBar } from '../../../core/progress_bar.mjs';
 
 export class BaseQuestionnaireV2Widget extends Widget{
     constructor(frame) {
@@ -85,11 +86,15 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.textContent = "Submit";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
+
+        this.progressBar = new ProgressBar();
+        this.progressBar.attach(form);
+        this.progressBar.hide();
         
-        let statusMessage = document.createElement("p");
-        statusMessage.style.display = "none";
-        statusMessage.className = "mt-2 mb-0";
-        form.append(statusMessage);
+        this.statusMessage = document.createElement("p");
+        this.statusMessage.style.display = "none";
+        this.statusMessage.className = "mt-2 mb-0";
+        form.append(this.statusMessage);
 
         let errorMessage = document.createElement("p");
         errorMessage.style.display = "none";
@@ -99,7 +104,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.asyncForm = new AsyncForm({
             action: "/widgets/data/save_sustainability_questionnaire",
             form: form,
-            status: statusMessage,
+            status: this.statusMessage,
             error: errorMessage,
             redirectMessage: "Saved!",
             loadingMessage: "Saving...",
@@ -141,6 +146,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             
             if(allQuestionsAnswered && allDocumentsUploaded){
                 errorMessage.style.display = "none";
+                this.progressBar.show();
                 this.uploadDocuments()
                 .then(() =>{
                     this.calculateScores(questionnaireData);
@@ -192,14 +198,27 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     uploadDocuments = () =>{
+        this.statusMessage.style.display = "block";
+        this.statusMessage.textContent = "Uploading documents...";
         return new Promise((resolve, reject) =>{     
             this.uploadedDocumentIDs = [];
+            let uploadedFiles = 0;
+            let numberOfFilesToBeUploaded = 0;
+            for(let uploadInput of this.documentUploadInputs){
+                if(!uploadInput.uploadDeclinedByUser && uploadInput.isFileAttached()){
+                    numberOfFilesToBeUploaded++;
+                }
+            }
             for(let uploadInput of this.documentUploadInputs){
                 uploadInput.upload()
                 .then((id) =>{
                     this.uploadedDocumentIDs.push(id);
+                    uploadedFiles++;
+                    this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
                     //below check is necessary in case any document upload failed
                     if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
+                        this.statusMessage.style.display = "block";
+                        this.statusMessage.textContent = "All documents uploaded";
                         resolve(true);
                     }
                 });
