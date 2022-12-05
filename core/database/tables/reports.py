@@ -1,7 +1,7 @@
 from json import dumps, loads
 from time import time
 from core.database.no_value import NoValue
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
@@ -151,15 +151,15 @@ class Reports:
         )
 
     def make_reports_for_account(self, account_id, sector_id):
-        if sector_id != sectors_by_name["Buyer"]:
+        if sector_id != SECTORS_NAME_TO_ID["Buyer"]:
             queries = [
                 count_distribution.create(account_id, "USDA Yield Grade"),
                 count_distribution.create(account_id, "USDA Quality Grade"),
                 count_eid_distinct_by_account.create(account_id)
             ]
 
-            if sector_id == sectors_by_name["Feedlot"]:
-                queries.append(count_distribution_for_sector_at_account.create(account_id, sectors_by_name["Cow-Calf"]))
+            if sector_id == SECTORS_NAME_TO_ID["Feedlot"]:
+                queries.append(count_distribution_for_sector_at_account.create(account_id, SECTORS_NAME_TO_ID["Cow-Calf"]))
 
             for query in queries:
                 self.insert_query(account_id, query)

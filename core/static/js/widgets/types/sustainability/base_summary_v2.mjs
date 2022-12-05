@@ -26,9 +26,9 @@ export class BaseSummaryV2Widget extends Widget {
             this.globalAverages = data.result;
         }); 
         const getSectorsByName = this.getData(
-            "direct/sectors_by_name"
+            "direct/sectors_name_to_id"
         ).then((data) => {
-            this.sectorsNameToId = data.sectors_by_name
+            this.sectorsNameToId = data.sectors_name_to_id
         })
         Promise.all([
             getAccountSustainabilityData, getGlobalSustainabilityData, getSectorsByName

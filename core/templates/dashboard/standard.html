@@ -180,7 +180,7 @@
         <div class="b-nav-utility">
             <ul>
             {% if dashboard_standard_account is not none %}
-            {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
+            {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"] and dashboard_standard_account.generated_paid() == 1 %}
                 <li title="Search for EID Numbers"> 
                   <a href="#" id="icon-search">
                     <i class="icon feather icon-search h2"></i>

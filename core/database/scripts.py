@@ -1,14 +1,14 @@
 """Routines which can be run individually to perform specific changes to the database."""
 from .tables.accounts import Accounts
 from .tables.account_links import AccountLinks
-from ..sectors import sectors_by_name
+from ..sectors import SECTORS_NAME_TO_ID
 from .combinations import create_connections_for_supply_chain
 import inspect
 import sys
 
 
 def add_connections_for_supply_chain(db, dry_run=False):
-    cow_calf_accounts = Accounts(db).get_accounts(sector=sectors_by_name["Cow-Calf"])
+    cow_calf_accounts = Accounts(db).get_accounts(sector=SECTORS_NAME_TO_ID["Cow-Calf"])
     no_account_link_ranchers = []
     new_connections = []
     for ranch in cow_calf_accounts:

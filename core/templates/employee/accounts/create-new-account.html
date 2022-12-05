@@ -36,8 +36,8 @@
                                             </label>
                                             <select class="form-control" id="signup_form_sector">
                                                 <option disabled selected value> -- Select an option -- </option>
-                                                {% for sector in sectors_by_name %}
-                                                <option value={{sectors_by_name[sector]}}>{{sector}}</option>
+                                                {% for sector in sectors_name_to_id %}
+                                                <option value={{sectors_name_to_id[sector]}}>{{sector}}</option>
                                                 {% endfor %}
                                             </select>
                                             <span class="focus-border"></span>
@@ -197,7 +197,7 @@
 </div>
 <script type="text/javascript">
 var partners = JSON.parse('{{partners|tojson}}')
-var sectors_by_name = JSON.parse('{{sectors_by_name|tojson}}')
+var sectors_name_to_id = JSON.parse('{{sectors_name_to_id|tojson}}')
 </script>
 <script type="module" src="/static/entry_points/employee/accounts/create-new-account.mjs"></script>
 {% endblock employee_content %}

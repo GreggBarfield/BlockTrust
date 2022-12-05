@@ -11,7 +11,7 @@ sectors_by_id = {
     10: "Stocker/Backgrounder"
 }
 
-sectors_by_name = {
+SECTORS_NAME_TO_ID = {
     value: key
     for key, value in sectors_by_id.items()
 }

@@ -11,7 +11,7 @@ from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import match_types_by_name
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 import json
 from datetime import datetime
 from traceback import format_exc
@@ -70,7 +70,7 @@ def serve_get_animal_data():
         sustainability = {}
 
         owner_account_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
-                                                                              account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created")
+                                                                              account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created")
         unauthorized_message = "Access to this EID is not allowed at this time"
         if len(owner_account_sightings) == 0:
             return {"error": unauthorized_message}, 401
