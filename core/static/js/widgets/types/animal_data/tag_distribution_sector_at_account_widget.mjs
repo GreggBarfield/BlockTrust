@@ -10,13 +10,13 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
         let companyName = this.frame.getAttribute("data-widget-account-company");
 
         this.getData(
-            "direct/sectors_by_name",
+            "direct/sectors_name_to_id",
             {}
         ).then((data) => {
             this.request = {
                 type: "count_distribution_for_sector_at_account",
                 params: {
-                    sector_id: data.sectors_by_name["Cow-Calf"]      
+                    sector_id: data.sectors_name_to_id["Cow-Calf"]      
                 }
             }
 

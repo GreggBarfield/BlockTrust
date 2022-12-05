@@ -1,4 +1,4 @@
-from ...sectors import sectors_by_id, sectors_by_name
+from ...sectors import sectors_by_id, SECTORS_NAME_TO_ID
 from ..objects.account import Account
 from ..no_value import NoValue
 
@@ -234,7 +234,7 @@ class Accounts:
 
         # update account name
         name = company
-        if sector == sectors_by_name["Cow-Calf"]:
+        if sector == SECTORS_NAME_TO_ID["Cow-Calf"]:
             name = "Ranch " + str(account.id())
         self.update_account(account.id(), name=name)
 

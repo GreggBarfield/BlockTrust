@@ -13,9 +13,9 @@ export class AddConnectionsWidget extends Widget {
             this.accountRows = data.account_rows;  
         });
         const getSectorsByName = this.getData(
-            "direct/sectors_by_name"
+            "direct/sectors_name_to_id"
         ).then((data) => {
-            this.sectorsByName = data.sectors_by_name;
+            this.sectorsByName = data.sectors_name_to_id;
         }); 
         Promise.all([
             getInvitableAccounts, getSectorsByName

@@ -37,8 +37,8 @@
                                             </label>
                                             <select class="form-control" id="partner_form_sector">
                                                 <option disabled selected value> -- Select an option -- </option>
-                                                {% for sector in sectors_by_name %}
-                                                <option value={{sectors_by_name[sector]}}>{{sector}}</option>
+                                                {% for sector in sectors_name_to_id %}
+                                                <option value={{sectors_name_to_id[sector]}}>{{sector}}</option>
                                                 {% endfor %}
                                             </select>
                                             <span class="focus-border"></span>

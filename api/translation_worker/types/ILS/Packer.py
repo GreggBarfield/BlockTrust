@@ -3,7 +3,7 @@ from ...exceptions import ExecutionException
 from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 from core.database.combinations import perform_feeder_packer_data_received_actions
 
 def _check_format(insert):
@@ -50,7 +50,7 @@ def handle(db: Database, insert):
     feeder = None
     if fields["Company"] != "":
         feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
-                                                                        sector=sectors_by_name["Feedlot"], insert=True)[0]
+                                                                        sector=SECTORS_NAME_TO_ID["Feedlot"], insert=True)[0]
         if feeder_account_link.account_id() is not None:
             feeder = db.accounts.get_account_by_id(feeder_account_link.account_id())
         else:
@@ -102,7 +102,7 @@ def handle(db: Database, insert):
         if fields["PlantID"].isdigit():
             fields["PlantID"] = fields["PlantID"].lstrip("0")
 
-        packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
+        packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=SECTORS_NAME_TO_ID["Packer"], 
                                                                         api_insert=api_insert, insert=True)[0]
         if packer_account_link.account_id() is not None:
             packer = db.accounts.get_account_by_id(packer_account_link.account_id())
