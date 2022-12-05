@@ -237,7 +237,6 @@ export class SalesGroupsCommonForm{
             return select;
         }
 
-        let that = this;
         let form = document.createElement("form");
         this.box.append(form);
 
@@ -448,7 +447,7 @@ export class SalesGroupsCommonForm{
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.reportedImages, this.fileAuths);
+        let fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.reportedImages, this.fileAuths);
         mediaGroup.append(fileEditorFrame);
 
 
@@ -465,7 +464,7 @@ export class SalesGroupsCommonForm{
         videoGroup.append(videoLabel);
 
         let videoText = document.createElement("div");
-        this.VideoEditor = new VideoSession({}, videoText, this.reportedVideos, this.fileAuths);
+        let videoEditor = new VideoSession({}, videoText, this.reportedVideos, this.fileAuths);
         videoGroup.append(videoText);
 
         // Comments
@@ -520,7 +519,8 @@ export class SalesGroupsCommonForm{
         submitButton.textContent = "Save";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
-
+      
+        //progress bar needs to be accessible from parent
         this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
@@ -533,10 +533,10 @@ export class SalesGroupsCommonForm{
         errorMessage.style.display = "none";
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
-        this.internalErrorMessage = document.createElement("p");
-        this.internalErrorMessage.style.display = "none";
-        this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
-        form.append(this.internalErrorMessage);
+        let internalErrorMessage = document.createElement("p");
+        internalErrorMessage.style.display = "none";
+        internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(internalErrorMessage);
 
         this.asyncForm = new AsyncForm({
             action: this.postRoute,
@@ -555,7 +555,7 @@ export class SalesGroupsCommonForm{
                 }
 
                 return {
-                    id: that.salesGroupID,
+                    id: this.salesGroupID,
                     published: publishSwitch.isChecked(),
                     eids: [],
                     reported: {
@@ -573,8 +573,8 @@ export class SalesGroupsCommonForm{
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
-                        images: that.fileEditor.getFileIDs(),
-                        videos: that.VideoEditor.getVideoLinks(),
+                        images: fileEditor.getFileIDs(),
+                        videos: videoEditor.getVideoLinks(),
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
@@ -596,13 +596,13 @@ export class SalesGroupsCommonForm{
         });
 
         submitButton.addEventListener("click", () => {
-            this.internalErrorMessage.style.display = "none";
+            internalErrorMessage.style.display = "none";
             let parent = this;
             function setProgress(perc) {
                 parent.progressBar.setProgress(perc);
             }
             this.progressBar.show();
-            this.fileEditor.upload(setProgress)
+            fileEditor.upload(setProgress)
                 .then(() => {
                     this.asyncForm.submit();
                 });
