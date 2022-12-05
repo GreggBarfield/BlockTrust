@@ -44,7 +44,7 @@ def handle(db: Database, insert):
         
         # Retained in case needed for future use
         # else:
-        #     feeders = db.accounts.get_accounts(company_like=fields["FeederCompany"].strip(), sector=sectors_by_name["Feedlot"])
+        #     feeders = db.accounts.get_accounts(company_like=fields["FeederCompany"].strip(), sector=SECTORS_NAME_TO_ID["Feedlot"])
         #     if len(feeders) > 0:
         #         feeder = feeders[0]
         #         feeder_zip = feeder["zip"]

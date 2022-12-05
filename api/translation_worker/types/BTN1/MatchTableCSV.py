@@ -34,7 +34,7 @@ def handle(db: Database, insert):
 
         # account_link= db.account_links.get_by_company(
         #                 company,
-        #                 insert_sector=sectors_by_name[sectors_by_abbreviation[sector]],
+        #                 insert_sector=SECTORS_NAME_TO_ID[sectors_by_abbreviation[sector]],
         #                 insert=True
         #             )[0].id()
 

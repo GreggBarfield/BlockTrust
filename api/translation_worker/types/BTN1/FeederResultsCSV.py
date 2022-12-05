@@ -18,7 +18,7 @@ def handle(db: Database, insert):
 
     # account_link = db.account_links.get_by_company(
     #     fields["packer"].strip(),
-    #     insert_sector=sectors_by_name["Packer"],
+    #     insert_sector=SECTORS_NAME_TO_ID["Packer"],
     #     insert=True
     # )[0].id()
 
