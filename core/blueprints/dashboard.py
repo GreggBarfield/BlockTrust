@@ -1,4 +1,3 @@
-from core.database.tables.notification_recipients import NotificationRecipients
 from flask import (
     request, Blueprint, g, redirect, url_for, send_from_directory
 )
@@ -7,7 +6,7 @@ from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_
 from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
-from ..sectors import sectors_by_id, sectors_by_name
+from ..sectors import sectors_by_id, SECTORS_NAME_TO_ID
 
 from ..common_exceptions import ExportException
 from ..database.tables.api_inserts import ApiInserts
@@ -17,6 +16,7 @@ from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
+from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.usda_reports import USDAReports
@@ -26,10 +26,10 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth, csrf
 from ..utilities import token
+from ..utilities.constants import HTTP_BAD_REQUEST
 from ..utilities.email import send_email
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
-
 import json
 import stripe
 
@@ -109,14 +109,14 @@ def serve_account_id(account_id):
 @crut.require_user
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
-    available_account_ids = [g.account.id()] if g.account.sector_id() == sectors_by_name["Cow-Calf"] else []
+    available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
     available_account_ids += Connections(g.db).get_connected_account_ids(
-        account_id=g.account.id(), sector_id=sectors_by_name["Cow-Calf"]
+        account_id=g.account.id(), sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
     )
     if len(animal.matches) > 0:
         # first ranch is owner
         owner_account_match = sorted(
-            list(filter(lambda row: row["sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
+            list(filter(lambda row: row["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"], animal.matches)),
             key=lambda row: row["id"]
         )[0]
         owner_account_id = owner_account_match["account"]
@@ -357,19 +357,21 @@ def serve_edit_account():
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
-            return {"error": str(e)}, 400
+            return {"error": str(e)}, HTTP_BAD_REQUEST
     elif request.method == 'GET':
         stripe.api_key = STRIPE_SECRET_KEY
-        is_stripe_charges_enabled = False
-        if bool(request.args.get("stripe_onboarding")) and g.account.stripe_account_id() is not None and not bool(g.account.is_stripe_charges_enabled()):
+        is_stripe_payouts_enabled = False
+        if bool(request.args.get("stripe_onboarding")) and g.account.stripe_account_id() is not None and not bool(g.account.is_stripe_payouts_enabled()):
             # Check if this has changed
             stripe_account = stripe.Account.retrieve(g.account.stripe_account_id())
             if stripe_account["charges_enabled"]:
-                g.db.accounts.update_account(account_id=g.account.id(), is_stripe_charges_enabled=1)
-                is_stripe_charges_enabled = True
+                g.db.accounts.update_account(account_id=g.account.id(), is_stripe_payouts_enabled=1)
+                is_stripe_payouts_enabled = True
         else:
-            is_stripe_charges_enabled = bool(g.account.is_stripe_charges_enabled())
-        return dashboard_render("/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_charges_enabled": is_stripe_charges_enabled })
+            is_stripe_payouts_enabled = bool(g.account.is_stripe_payouts_enabled())
+        return dashboard_render(
+            "/dashboard/accounts/edit_account.html", {"sectors": SECTORS_NAME_TO_ID, "is_stripe_payouts_enabled": is_stripe_payouts_enabled}
+        )
 
 
 # edit user profile

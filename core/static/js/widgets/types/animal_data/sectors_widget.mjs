@@ -33,10 +33,10 @@ export class SectorsWidget extends Widget {
             }),
             
             this.getData(
-                "direct/sectors_by_name",
+                "direct/sectors_name_to_id",
                 {}
             ).then((data) => {
-                this.sectors_by_name = data.sectors_by_name;
+                this.sectors_name_to_id = data.sectors_name_to_id;
             }),
             
             this.getData(
@@ -69,7 +69,7 @@ export class SectorsWidget extends Widget {
 
     prepData() {
         let match_types_by_name=this.match_types_by_name;
-        let sectors_by_name=this.sectors_by_name;
+        let sectors_name_to_id=this.sectors_name_to_id;
         let match_rows=this.match_rows;
         let formatDate = this.formatDate;
 
@@ -139,7 +139,7 @@ export class SectorsWidget extends Widget {
 
         function filterMatchTypeAccountLinkSector(matchTypeStr, sectorName) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr] && row["account_links.sector"] === sectors_by_name[sectorName];
+                return row.type === match_types_by_name[matchTypeStr] && row["account_links.sector"] === sectors_name_to_id[sectorName];
             }
         }
 

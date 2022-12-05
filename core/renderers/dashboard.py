@@ -3,6 +3,7 @@ from flask import (
     render_template, g
 )
 from core.config import DOMAIN
+from core.sectors import SECTORS_NAME_TO_ID
 
 
 def dashboard_render(file, args={}):
@@ -29,7 +30,8 @@ def dashboard_render(file, args={}):
         "dashboard_standard_account": g.account,
         "dashboard_standard_is_admin": g.is_admin,
         "dashboard_is_employee_impersonating": g.is_employee_impersonating,
-        "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False
+        "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False,
+        "sectors_name_to_id": SECTORS_NAME_TO_ID
     }
     for key in args:
         if key in dashboard_standard_args:

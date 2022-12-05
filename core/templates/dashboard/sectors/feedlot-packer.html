@@ -5,7 +5,7 @@
 
 
 {% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, "Feedlot - " + account.name()|e)] %}
+{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.sector_name() + " - " + account.name()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.name()|e }}

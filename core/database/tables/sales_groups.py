@@ -56,7 +56,7 @@ class SalesGroups:
     """
 
     _STANDARD_SELECT = """
-        SELECT sales_groups.*, accounts.name AS account_name, accounts.is_stripe_charges_enabled AS is_account_charges_enabled,
+        SELECT sales_groups.*, accounts.name AS account_name, accounts.is_stripe_payouts_enabled AS is_account_payouts_enabled,
                 auction_sales.name AS auction_sale_name
             FROM sales_groups
             LEFT JOIN accounts ON sales_groups.account=accounts.id

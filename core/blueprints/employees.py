@@ -22,7 +22,7 @@ from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
-from ..sectors import sectors_by_id, sectors_by_name
+from ..sectors import sectors_by_id, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
@@ -44,7 +44,7 @@ def serve_employee_dashboard():
 def serve_employee_create_account():
     partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/create-new-account.html", {
-        "sectors_by_name": sectors_by_name,
+        "sectors_name_to_id": SECTORS_NAME_TO_ID,
         "partners": partners
         })
 
@@ -211,7 +211,7 @@ def serve_edit_selected_account(account_id):
     if request.method == "GET":
         account_row = g.db.accounts.get_account_by_id(account_id)
         partners = g.db.accounts.get_accounts(
-            sector=sectors_by_name["Cow-Calf"],
+            sector=SECTORS_NAME_TO_ID["Cow-Calf"],
             is_partner=1,
             is_partner_used_for_signup=1
         )
@@ -264,7 +264,7 @@ def serve_view_partners():
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
 def serve_create_new_partner():
     return employee_render("/employee/accounts/create-new-partner.html", {
-        "sectors_by_name": sectors_by_name
+        "sectors_name_to_id": SECTORS_NAME_TO_ID
         })
 
 
@@ -308,7 +308,7 @@ def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
         #partner account is assumed to be ILS
-        partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=sectors_by_name["Feedlot"], is_partner=1)
+        partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=SECTORS_NAME_TO_ID["Feedlot"], is_partner=1)
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)

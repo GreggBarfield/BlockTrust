@@ -3,7 +3,7 @@ from flask import (
     request, Blueprint, g, url_for
 )
 
-from ..sectors import sectors_by_name, sectors_by_id
+from ..sectors import SECTORS_NAME_TO_ID, sectors_by_id
 from ..match_types import match_types_by_name, match_types_by_id
 
 from ..common_exceptions import ExportException
@@ -48,7 +48,7 @@ def serve_direct(name):
         "match_types_by_id": match_types_by_id,
         "match_types_by_name": match_types_by_name,
         "sectors_by_id": sectors_by_id,
-        "sectors_by_name": sectors_by_name
+        "sectors_name_to_id": SECTORS_NAME_TO_ID
     }
 
     if name in direct_export:
@@ -70,7 +70,7 @@ def serve_sales_group():
         "published": sales_group_row["published"],
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
-        "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+        "is_account_payouts_enabled": sales_group_row["is_account_payouts_enabled"],
         "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
         "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
@@ -195,7 +195,7 @@ def serve_search_sales_groups_2():
             "is_archived": sales_group_row["is_archived"],
             "price": sales_group_row["price"],
             "is_sold": sales_group_row["is_sold"],
-            "is_account_charges_enabled": sales_group_row["is_account_charges_enabled"],
+            "is_account_payouts_enabled": sales_group_row["is_account_payouts_enabled"],
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
@@ -212,8 +212,8 @@ def serve_search_sales_groups_2():
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    available_account_ids = [g.account.id()] if g.account.sector_id() == sectors_by_name["Cow-Calf"] else []
-    available_account_ids += Connections(g.db).get_connected_account_ids(g.account.id(), sectors_by_name["Cow-Calf"])
+    available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
+    available_account_ids += Connections(g.db).get_connected_account_ids(g.account.id(), SECTORS_NAME_TO_ID["Cow-Calf"])
     rows = g.db.matches.get_matches_by_eid_or_visual_id(
         eid_or_visual_id=eid_number,
         account_ids=available_account_ids
@@ -565,8 +565,8 @@ def serve_get_market_data(slug_id):
 @bp.route('/widgets/data/get_employee_summary_graphs_data', methods=['POST'])
 @crut.require_employee
 def get_employee_summary_graphs_data():
-    ranches = g.db.accounts.get_accounts(sector=sectors_by_name["Cow-Calf"], accounts_order_by="created_timestamp")
-    feedyards = g.db.accounts.get_accounts(sector=sectors_by_name["Feedlot"], accounts_order_by="created_timestamp")
+    ranches = g.db.accounts.get_accounts(sector=SECTORS_NAME_TO_ID["Cow-Calf"], accounts_order_by="created_timestamp")
+    feedyards = g.db.accounts.get_accounts(sector=SECTORS_NAME_TO_ID["Feedlot"], accounts_order_by="created_timestamp")
     tags_count_list = Reports(g.db).get_reports(query=count_eid_distinct.create(), selectColumns=["result", "created_timestamp"])
     return {
         "ranches": ranches,

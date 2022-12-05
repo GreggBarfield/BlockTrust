@@ -10,7 +10,7 @@ from core.utilities.email import send_email
 from .tables.matches import Matches
 from .tables.connections import Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.match_types import match_types_by_name
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from .tables.debug_logs import DebugLogs
 from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
@@ -63,7 +63,7 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
     """
     if len(sightings := Matches(db).get_matches_with_account_links(
         matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
-        account_links_sector=sectors_by_name["Cow-Calf"], matches_order_by="created"
+        account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created"
     )) > 0:
         owner_match_account_link = sightings[0]
 
