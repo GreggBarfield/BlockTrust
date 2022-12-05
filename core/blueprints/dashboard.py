@@ -6,7 +6,7 @@ from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_
 from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
-from ..sectors import sectors_by_id, sectors_by_name
+from ..sectors import sectors_by_id, SECTORS_NAME_TO_ID
 
 from ..common_exceptions import ExportException
 from ..database.tables.api_inserts import ApiInserts
@@ -109,14 +109,14 @@ def serve_account_id(account_id):
 @crut.require_user
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
-    available_account_ids = [g.account.id()] if g.account.sector_id() == sectors_by_name["Cow-Calf"] else []
+    available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
     available_account_ids += Connections(g.db).get_connected_account_ids(
-        account_id=g.account.id(), sector_id=sectors_by_name["Cow-Calf"]
+        account_id=g.account.id(), sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
     )
     if len(animal.matches) > 0:
         # first ranch is owner
         owner_account_match = sorted(
-            list(filter(lambda row: row["sector"] == sectors_by_name["Cow-Calf"], animal.matches)),
+            list(filter(lambda row: row["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"], animal.matches)),
             key=lambda row: row["id"]
         )[0]
         owner_account_id = owner_account_match["account"]
@@ -370,7 +370,7 @@ def serve_edit_account():
         else:
             is_stripe_payouts_enabled = bool(g.account.is_stripe_payouts_enabled())
         return dashboard_render(
-            "/dashboard/accounts/edit_account.html", {"sectors": sectors_by_name, "is_stripe_payouts_enabled": is_stripe_payouts_enabled}
+            "/dashboard/accounts/edit_account.html", {"sectors": SECTORS_NAME_TO_ID, "is_stripe_payouts_enabled": is_stripe_payouts_enabled}
         )
 
 

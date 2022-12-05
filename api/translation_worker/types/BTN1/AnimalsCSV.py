@@ -3,7 +3,7 @@ from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
 from core.utilities.zip_codes import get_lat_lon
 from .medical_helper import format_data
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
 from .remapper import remap
 
