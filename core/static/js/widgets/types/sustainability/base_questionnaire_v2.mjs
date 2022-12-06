@@ -207,7 +207,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         for(let fileUploader of this.fileUploaders){
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
-                id =await fileUploader.upload();
+                id = await fileUploader.upload();
                 uploadedFiles++;
             }
             this.uploadedDocumentIDs.push(id);
