@@ -451,7 +451,7 @@ def serve_contact_email():
 #         return redirect('/checkout_loggedIn')
 #     else:
 #         return outside_render('shop/checkout.html', {
-#             "sectors_by_id": sectors_by_id,
+#             "sectors_id_to_name": SECTORS_ID_TO_NAME,
 #             "redirect_to": '/checkout'
 #             })
 
