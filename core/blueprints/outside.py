@@ -20,7 +20,7 @@ from core.config import (
     SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT, SUPPORT_TAG_STORE_EMAIL, RECAPTCHA_SITE_KEY,
     RECAPTCHA_SECRET_KEY, RECAPTCHA_MIN_SCORE, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY
 )
-from ..sectors import SECTORS_NAME_TO_ID, sectors_by_id
+from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from json import loads
 from requests import post
 from ..match_types import match_types_by_name
@@ -451,7 +451,7 @@ def serve_contact_email():
 #         return redirect('/checkout_loggedIn')
 #     else:
 #         return outside_render('shop/checkout.html', {
-#             "sectors_by_id": sectors_by_id,
+#             "sectors_id_to_name": SECTORS_ID_TO_NAME,
 #             "redirect_to": '/checkout'
 #             })
 
@@ -596,7 +596,7 @@ def serve_retail(eid):
         retail_image_files = Files(g.db).get_files(retail_page_account_id=account["id"], get_url=True)
         accounts_retail_data.append({
             "retail_reference_number": account["id"],
-            "retail_sector_name": sectors_by_id[account["sector"]] if account["sector"] != SECTORS_NAME_TO_ID["Cow-Calf"] else "Original Ranch",
+            "retail_sector_name": SECTORS_ID_TO_NAME[account["sector"]] if account["sector"] != SECTORS_NAME_TO_ID["Cow-Calf"] else "Original Ranch",
             "retail_name": account["retail_name"],
             "retail_description": account["retail_description"],
             "retail_image_urls": [file["file_url"] for file in retail_image_files],
