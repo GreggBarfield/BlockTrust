@@ -1,4 +1,4 @@
-from ...sectors import sectors_by_id, SECTORS_NAME_TO_ID
+from ...sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..objects.account import Account
 from ..no_value import NoValue
 
@@ -168,7 +168,7 @@ class Accounts:
         except Exception as e:
             raise AccountsException("Sector number (" + str(sector) + ") is invalid.")
 
-        if sector not in sectors_by_id:
+        if sector not in SECTORS_ID_TO_NAME:
             raise AccountsException("Sector number is not listed internally.")
 
         # Process phone

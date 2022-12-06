@@ -72,10 +72,10 @@ export class MapWidget extends Widget {
             }),
 
             this.getData(
-                "direct/sectors_by_id",
+                "direct/sectors_id_to_name",
                 {}
             ).then((data) => {
-                this.sectors_by_id = data.sectors_by_id;
+                this.sectors_id_to_name = data.sectors_id_to_name;
             })
 
         ]).then(() => {
@@ -189,7 +189,7 @@ export class MapWidget extends Widget {
 
             let sector = match_row["account_links.sector"];
             if (sector != null) {
-                let sector_name = this.sectors_by_id[sector];
+                let sector_name = this.sectors_id_to_name[sector];
                 marker['fill'] = colorMap[sector_name];
                 if (im == null && sector_name in imageMap) {
                     im = imageMap[sector_name];
