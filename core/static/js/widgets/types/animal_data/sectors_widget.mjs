@@ -24,13 +24,6 @@ export class SectorsWidget extends Widget {
             ).then((data) => {
                 this.match_rows = data.result.matches;
             }),
-
-            this.getData(
-                "direct/sectors_by_id",
-                {}
-            ).then((data) => {
-                this.sectors_by_id = data.sectors_by_id;
-            }),
             
             this.getData(
                 "direct/sectors_name_to_id",

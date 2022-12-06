@@ -22,7 +22,7 @@ from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
-from ..sectors import sectors_by_id, SECTORS_NAME_TO_ID
+from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
@@ -142,7 +142,7 @@ def serve_view_account():
                 account["account_admin_email"] = user.email()
                 accounts_and_account_admins.append(account)
     accounts_and_account_admins = sorted(accounts_and_account_admins, key=lambda i: i['company'])
-    return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_by_id": sectors_by_id})
+    return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
 @bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
@@ -258,7 +258,7 @@ def serve_edit_selected_partner(partner_id):
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
     partner_rows = g.db.accounts.get_accounts(is_partner=1)
-    return employee_render("/employee/accounts/partners.html", {"partner_rows": partner_rows, "sectors_by_id": sectors_by_id})
+    return employee_render("/employee/accounts/partners.html", {"partner_rows": partner_rows, "sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
@@ -371,7 +371,7 @@ def serve_create_partner_notification_action():
 
 @bp.route("/employee/dashboard/create-new-notification/sector", methods=["GET"])
 def serve_create_sector_notification():
-    return employee_render("/employee/accounts/notifications/create-sector-notification.html", {"sectors": sectors_by_id})
+    return employee_render("/employee/accounts/notifications/create-sector-notification.html", {"sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])

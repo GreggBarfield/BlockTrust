@@ -1,5 +1,5 @@
 from copy import deepcopy
-from ...sectors import sectors_by_id
+from ...sectors import SECTORS_ID_TO_NAME
 from ..tables.account_users import AccountUsersException
 
 
@@ -44,7 +44,7 @@ class Account:
         return self._row['sector']
 
     def sector_name(self):
-        return sectors_by_id[self._row['sector']]
+        return SECTORS_ID_TO_NAME[self._row['sector']]
 
     def partner_account_id(self):
         return self._row['partner_account']
