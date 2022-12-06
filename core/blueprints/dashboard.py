@@ -6,7 +6,7 @@ from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_
 from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
-from ..sectors import sectors_by_id, SECTORS_NAME_TO_ID
+from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 
 from ..common_exceptions import ExportException
 from ..database.tables.api_inserts import ApiInserts
@@ -299,11 +299,11 @@ def serve_upload_tags():
 @crut.require_paid_account
 def serve_sustainability():
     sustainability_enabled_for_sector = True
-    if sectors_by_id[g.account.sector_id()] == "Buyer" or sectors_by_id[g.account.sector_id()] == "Financial":
+    if SECTORS_ID_TO_NAME[g.account.sector_id()] == "Buyer" or SECTORS_ID_TO_NAME[g.account.sector_id()] == "Financial":
         sustainability_enabled_for_sector = False
     return dashboard_render("sustainability/summary.html", {
         "sector_id": g.account.sector_id(),
-        "sector": sectors_by_id[g.account.sector_id()],
+        "sector": SECTORS_ID_TO_NAME[g.account.sector_id()],
         "accountName": g.account.name(),
         "sustainability_enabled_for_sector": sustainability_enabled_for_sector
     })
@@ -623,7 +623,7 @@ def send_document(path):
 @bp.route("/dashboard/sustainability/questionnaire", methods=["GET"])
 @crut.require_paid_account
 def serve_sustainability_questionnaire():
-    return dashboard_render("sustainability/questionnaire_v2.html", {"sector": sectors_by_id[g.account.sector_id()]})
+    return dashboard_render("sustainability/questionnaire_v2.html", {"sector": SECTORS_ID_TO_NAME[g.account.sector_id()]})
 
 @bp.route("/dashboard/data-views", methods=["GET"])
 @crut.require_account

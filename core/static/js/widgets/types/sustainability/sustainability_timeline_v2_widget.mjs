@@ -9,10 +9,10 @@ export class SustainabilityTimelineV2Widget extends Widget {
 
     initType = () => {
         const getSectorsByID = this.getData(
-            "direct/sectors_by_id",
+            "direct/sectors_id_to_name",
             {}
         ).then((data) => {
-            this.sectorsByID = data.sectors_by_id;
+            this.sectorsIdToName = data.sectors_id_to_name;
         });
         const getSustainabilityResponseTimelineData = this.getData(
             "get_sustainability_response_timeline_data",
@@ -78,7 +78,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             itemDiv.append(textComponent);
 
             let title = document.createElement("h5");
-            title.textContent = matchAccount.account_name + " [" + this.sectorsByID[matchAccount.account_sector_id] + "]";
+            title.textContent = matchAccount.account_name + " [" + this.sectorsIdToName[matchAccount.account_sector_id] + "]";
             title.className = "h5";
 
             let scoreText = document.createElement("h4");
