@@ -1,5 +1,4 @@
 from ..no_value import NoValue
-from ...sectors import sectors_by_id
 
 from .accounts import Accounts
 

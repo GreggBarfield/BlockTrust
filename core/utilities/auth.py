@@ -16,7 +16,7 @@ from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
 from ..config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id
+from ..sectors import SECTORS_ID_TO_NAME
 
 # since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
@@ -269,7 +269,7 @@ def confirm(email):
         render_email("new_account_info.html", {
             'user_account': user_account,
             'partner_account_company': partner_account_company,
-            'sectors_by_id': sectors_by_id
+            'sectors_id_to_name': SECTORS_ID_TO_NAME
         }), SUPPORT_GENERAL_EMAIL
     )
 
@@ -597,7 +597,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                 render_email("new_account_info.html", {
                     'user_account': user_account,
                     'partner_account_company': partner_account_company,
-                    'sectors_by_id': sectors_by_id
+                    'sectors_id_to_name': SECTORS_ID_TO_NAME
                 }), SUPPORT_GENERAL_EMAIL
             )
     else:

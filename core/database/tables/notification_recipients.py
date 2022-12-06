@@ -4,7 +4,7 @@ from .accounts import Accounts
 from .users import Users
 from .account_users import AccountUsers
 
-from ...sectors import sectors_by_id
+from ...sectors import SECTORS_ID_TO_NAME
 
 
 NO_VALUE = NoValue()
