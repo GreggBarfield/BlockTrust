@@ -15,7 +15,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
-        this.documentUploadInputs = [];
+        this.fileUploaders = [];
         this.uploadedDocumentIDs = [];
         this.totalScore = 0;
         
@@ -27,6 +27,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.responses.animal =[];
         this.responses.efficiency = [];
         this.responses.improvement = [];
+        this.progressBar = new ProgressBar();
+        this.statusMessage = document.createElement("p");
+        this.statusMessage.className = "d-none mt-2 mb-0";
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -69,9 +72,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
                         questionsSection.append(questionContainer);
                     }
                     else if(question.responseType == questionType.upload){
-                        const {questionContainer, uploadInput} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
+                        const {questionContainer, fileUploaderObject} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
                         questionsSection.append(questionContainer);
-                        this.documentUploadInputs.push(uploadInput);
+                        this.fileUploaders.push(fileUploaderObject);
                     }
                 }
                 form.append(questionsSection)
@@ -87,18 +90,13 @@ export class BaseQuestionnaireV2Widget extends Widget{
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
 
-        this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
         
-        this.statusMessage = document.createElement("p");
-        this.statusMessage.style.display = "none";
-        this.statusMessage.className = "mt-2 mb-0";
         form.append(this.statusMessage);
 
         let errorMessage = document.createElement("p");
-        errorMessage.style.display = "none";
-        errorMessage.className = "mt-2 mb-0 alert alert-danger";
+        errorMessage.className = "d-none mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
 
         this.asyncForm = new AsyncForm({
@@ -119,7 +117,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             },
         });
 
-        submitButton.addEventListener("click", () => {
+        submitButton.addEventListener("click",async () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
             let incompleteSection = "";
@@ -135,23 +133,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            for(let uploadInput of this.documentUploadInputs){
-                if(!(uploadInput.uploadDeclinedByUser)){
-                    if(!uploadInput.isFileAttached()){
+            for(let fileUploader of this.fileUploaders){
+                if(!(fileUploader.uploadDeclinedByUser)){
+                    if(!fileUploader.isFileAttached()){
                         allDocumentsUploaded=false;
                         break;
                     }
                 }
             }
-            
+
             if(allQuestionsAnswered && allDocumentsUploaded){
                 errorMessage.style.display = "none";
-                this.progressBar.show();
-                this.uploadDocuments()
-                .then(() =>{
-                    this.calculateScores(questionnaireData);
-                    this.asyncForm.submit();
-                });
+                await this.uploadDocuments();
+                this.calculateScores(questionnaireData);
+                this.asyncForm.submit();
             }
             else{
                 if(allQuestionsAnswered == false){
@@ -197,32 +192,29 @@ export class BaseQuestionnaireV2Widget extends Widget{
         }
     }
 
-    uploadDocuments = () =>{
-        this.statusMessage.style.display = "block";
+    uploadDocuments = async () =>{
+        this.uploadedDocumentIDs = [];
+        let uploadedFiles = 0;
+        let numberOfFilesToBeUploaded = 0;
+        this.progressBar.show();
+        this.statusMessage.className= "d-block p-2";
         this.statusMessage.textContent = "Uploading documents...";
-        return new Promise((resolve, reject) =>{     
-            this.uploadedDocumentIDs = [];
-            let uploadedFiles = 0;
-            let numberOfFilesToBeUploaded = 0;
-            for(let uploadInput of this.documentUploadInputs){
-                if(!uploadInput.uploadDeclinedByUser && uploadInput.isFileAttached()){
-                    numberOfFilesToBeUploaded++;
-                }
+        for(let fileUploader of this.fileUploaders){
+            if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
+                numberOfFilesToBeUploaded++;
             }
-            for(let uploadInput of this.documentUploadInputs){
-                uploadInput.upload()
-                .then((id) =>{
-                    this.uploadedDocumentIDs.push(id);
-                    uploadedFiles++;
-                    this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
-                    //below check is necessary in case any document upload failed
-                    if(this.uploadedDocumentIDs.length == this.documentUploadInputs.length){
-                        this.statusMessage.style.display = "block";
-                        this.statusMessage.textContent = "All documents uploaded";
-                        resolve(true);
-                    }
-                });
+        }
+        for(let fileUploader of this.fileUploaders){
+            let id=0;
+            if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
+                id =await fileUploader.upload();
+                uploadedFiles++;
             }
-        });
+            this.uploadedDocumentIDs.push(id);
+            this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
+            if(this.uploadedDocumentIDs.length == this.fileUploaders.length){
+                this.statusMessage.textContent = "All documents uploaded";
+            }
+        }
     }
 }

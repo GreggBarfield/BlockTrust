@@ -108,7 +108,7 @@ export class CommonQuestionnaireMethods{
         
         let questionUploadContainer = document.createElement("div");
         questionUploadContainer.className = "col-md-12 p-1 justify-content-center";
-        let uploadInput = new FileUploader(questionUploadContainer, ["application/pdf"]);
+        let fileUploaderObject = new FileUploader(questionUploadContainer, ["application/pdf"]);
 
         questionContainer.append(questionTextContainer);
         questionContainer.append(questionInputContainer);
@@ -116,15 +116,15 @@ export class CommonQuestionnaireMethods{
         uploadOptionsDropDown.onchange = () => {
             if(uploadOptionsDropDown.value == "Yes"){
                 questionUploadContainer.style.display = 'flex';
-                uploadInput.uploadDeclinedByUser=false;
+                fileUploaderObject.uploadDeclinedByUser=false;
             }
             else{
                 questionUploadContainer.style.display = 'none';
-                uploadInput.uploadDeclinedByUser=true;
+                fileUploaderObject.uploadDeclinedByUser=true;
             }
         }
         uploadOptionsDropDown.onchange();
-        return {questionContainer, uploadInput};
+        return {questionContainer, fileUploaderObject};
     }
     /**
      * Returns a card element with a specified header text for question groups
