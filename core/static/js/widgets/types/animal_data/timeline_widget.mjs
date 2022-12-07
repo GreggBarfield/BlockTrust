@@ -35,10 +35,10 @@ export class TimelineWidget extends Widget {
             }),
             
             this.getData(
-                "direct/match_types_by_id",
+                "direct/match_types_id_to_name",
                 {}
             ).then((data) => {
-                this.match_types_by_id = data.match_types_by_id;
+                this.match_types_id_to_name = data.match_types_id_to_name;
             })
 
         ]).then(() => {
@@ -151,7 +151,7 @@ export class TimelineWidget extends Widget {
 
             let eventGroup = [];
 
-            let typeName = this.match_types_by_id[availableRows[startItr].type];
+            let typeName = this.match_types_id_to_name[availableRows[startItr].type];
             if (handlers.hasOwnProperty(typeName)) {
                 eventGroup = handlers[typeName](availableRows.slice(startItr, endItr));
             }

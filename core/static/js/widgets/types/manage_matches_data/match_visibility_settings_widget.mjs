@@ -17,10 +17,10 @@ export class MatchVisibilitySettingsWidget extends Widget {
             }),
 
             this.getData(
-                "direct/match_types_by_id",
+                "direct/match_types_id_to_name",
                 {}
             ).then((data) => {
-                this.match_types_by_id = data.match_types_by_id;
+                this.match_types_id_to_name = data.match_types_id_to_name;
             }),
         ]).then(() => {
             this.frame.innerHTML = "";
@@ -28,7 +28,7 @@ export class MatchVisibilitySettingsWidget extends Widget {
             this.type_visibilities_local = {};
             this.typeSwitches = {};
 
-            for (const match_type_id in this.match_types_by_id) {
+            for (const match_type_id in this.match_types_id_to_name) {
                 this.type_visibilities_local[match_type_id] = false;
             }
 
@@ -70,8 +70,8 @@ export class MatchVisibilitySettingsWidget extends Widget {
             items.className = "form-row match-types-privacy-panel";
             itemsFormGroup.append(items);
     
-            for (const match_type_id in this.match_types_by_id) {
-                const match_type_name = this.match_types_by_id[match_type_id];
+            for (const match_type_id in this.match_types_id_to_name) {
+                const match_type_name = this.match_types_id_to_name[match_type_id];
     
                 let item = document.createElement("div");
                 item.className = "col-md-3";
@@ -135,7 +135,7 @@ export class MatchVisibilitySettingsWidget extends Widget {
         let visibilitySettings = {};
 
         for (const match_type_id in this.typeSwitches) {
-            visibilitySettings[this.match_types_by_id[match_type_id]] =
+            visibilitySettings[this.match_types_id_to_name[match_type_id]] =
                 !this.typeSwitches[match_type_id].isChecked();
         }
 

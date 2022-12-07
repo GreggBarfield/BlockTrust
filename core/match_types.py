@@ -1,9 +1,6 @@
 # Note: this is a dictionary to stress that the keys should not be changed
-# This definitely needs to be changed
 
-# Match description should be printable
-
-match_types_by_id = {
+MATCH_TYPES_ID_TO_NAME = {
     1: "Sighting",
     4: "Born",
     10: "Visual ID",
@@ -21,7 +18,7 @@ match_types_by_id = {
 
 match_types_by_name = {
     value: key
-    for key, value in match_types_by_id.items()
+    for key, value in MATCH_TYPES_ID_TO_NAME.items()
 }
 
 

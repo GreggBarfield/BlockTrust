@@ -30,15 +30,8 @@ export class SectorsWidget extends Widget {
                 {}
             ).then((data) => {
                 this.sectors_name_to_id = data.sectors_name_to_id;
-            }),
-            
-            this.getData(
-                "direct/match_types_by_id",
-                {}
-            ).then((data) => {
-                this.match_types_by_id = data.match_types_by_id;
-            }),
-            
+            }),         
+           
             this.getData(
                 "direct/match_types_by_name",
                 {}
