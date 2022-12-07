@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from core.database.no_value import NoValue
 from ..frag import frag
-from core.match_types import match_types_by_name
+from core.match_types import MATCH_TYPES_NAME_TO_ID
 from ..objects.animal import Animal
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
@@ -94,8 +94,8 @@ class Matches:
             """,
             {
                 "account_link_id": account_link_id,
-                "sighting_type": match_types_by_name["Sighting"],
-                "grade_type": match_types_by_name["USDA Quality Grade"]
+                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"],
+                "grade_type": MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]
             }
         )
         all_eid_data = {}
@@ -105,10 +105,10 @@ class Matches:
             else:
                 current_eid_data = all_eid_data[row["eid"]]
 
-            if row["type"] == match_types_by_name["Sighting"] and row["account_link"] == account_link_id:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["account_link"] == account_link_id:
                 current_eid_data["visual_id"] = row["visual_id"]
 
-            if row["type"] == match_types_by_name["Weaned"]:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
                 current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
                 data = json.loads(row["data"]) if row["data"] is not None else {}
                 current_eid_data["creep_feed"] = data.get("creep_feed", None)
@@ -117,20 +117,20 @@ class Matches:
                 current_eid_data["weaning_strategy"] = data.get("at", None)
                 current_eid_data["wean_weight"] = data.get("wean_weight", None)
 
-            if row["type"] == match_types_by_name["Sold"]:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
                 current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
                 data = json.loads(row["data"]) if row["data"] is not None else {}
                 current_eid_data["marketing_method_name"] = data.get("method", None)
                 current_eid_data["sale_location"] = data.get("location", None)
                 current_eid_data["number_of_calves"] = data.get("group_size", None)
 
-            if row["type"] == match_types_by_name["Hot Weight"]:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
                 current_eid_data["hot_weight"] = row['data']
 
-            if row["type"] == match_types_by_name["USDA Quality Grade"]:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
                 current_eid_data["quality_grade"] = row['data']
 
-            if row["type"] == match_types_by_name["USDA Yield Grade"]:
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
                 current_eid_data["yield_grade"] = row['data']
 
             all_eid_data[row["eid"]] = current_eid_data
@@ -181,7 +181,7 @@ class Matches:
             ORDER BY al.sector, date
             """,
             {
-                "type": match_types_by_name['Sighting'],
+                "type": MATCH_TYPES_NAME_TO_ID['Sighting'],
                 "account_link_id": account_link_id
             }
         )
@@ -447,7 +447,7 @@ class Matches:
                         """
                             MAX(IF(type=:usda_quality_grade_type,1,0))=0
                         """,
-                        usda_quality_grade_type=match_types_by_name[
+                        usda_quality_grade_type=MATCH_TYPES_NAME_TO_ID[
                             "USDA Quality Grade"
                         ]
                     )
@@ -678,7 +678,7 @@ class Matches:
                                     {
                                         "account_link_id": account_links[0]['id'],
                                         "sector_id": sector_id,
-                                        "match_type_id": match_types_by_name["Sighting"]
+                                        "match_type_id": MATCH_TYPES_NAME_TO_ID["Sighting"]
                                     }
                                 )
 
@@ -686,12 +686,12 @@ class Matches:
                 account_result = {}
                 account_result["quality_distribution"] = {x['data']: x['count'] for x in
                                                           self.get_count_distribution_two_accounts(
-                                                            match_types_by_name["USDA Quality Grade"],
+                                                            MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"],
                                                             account_links[0]['id'],
                                                             account_detail["account_link_id"])}
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in
                                                         self.get_count_distribution_two_accounts(
-                                                            match_types_by_name["USDA Yield Grade"],
+                                                            MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"],
                                                             account_links[0]['id'],
                                                             account_detail["account_link_id"])}
                 matched_result[account_detail["name"]] = account_result
@@ -699,9 +699,9 @@ class Matches:
                 account_result = {}
                 account = self._db.accounts.get_account_by_id(account_detail["account_id"])
                 account_link = account.account_links()
-                quality_distribution = self.get_count_distribution(match_types_by_name["USDA Quality Grade"], account_links=account_link)
+                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_links=account_link)
                 account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
-                yield_distribution = self.get_count_distribution(match_types_by_name["USDA Yield Grade"], account_links=account_link)
+                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_links=account_link)
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                 all_result[account_detail["name"]] = account_result
 
@@ -766,14 +766,14 @@ class MatchTypes:
         Params:
             kwargs: See _generic_insert
         """
-        match = self._matches.get_matches(eid=kwargs["eid"], restrict_type=match_types_by_name["Sighting"],
+        match = self._matches.get_matches(eid=kwargs["eid"], restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
                                         account_link=kwargs["account_link"], lat=kwargs["lat"], lon=kwargs["lon"], selectColumns=["id"])
         if len(match) > 0:
             print("Sighting match exists. Match ID: ", match[0]["id"])
             return 0
         else:
             return self._generic_insert(
-                type_int=match_types_by_name["Sighting"],
+                type_int=MATCH_TYPES_NAME_TO_ID["Sighting"],
                 **kwargs
             )
 
@@ -784,7 +784,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Weaned"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Weaned"],
             **kwargs
         )
 
@@ -796,7 +796,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Hot Weight"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Hot Weight"],
             data=float(weight),
             **kwargs
         )
@@ -809,7 +809,7 @@ class MatchTypes:
                 Recommended: time
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Born"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Born"],
             **kwargs
         )
 
@@ -823,7 +823,7 @@ class MatchTypes:
         assert isinstance(grade, (float, int))
 
         return self._generic_insert(
-            type_int=match_types_by_name["USDA Yield Grade"],
+            type_int=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"],
             data=grade,
             **kwargs
         )
@@ -837,7 +837,7 @@ class MatchTypes:
         """
         assert isinstance(grade, str)
         return self._generic_insert(
-            type_int=match_types_by_name["USDA Quality Grade"],
+            type_int=MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"],
             data=grade,
             **kwargs
         )
@@ -861,7 +861,7 @@ class MatchTypes:
         if time is None:
             raise ValueError("time should not be None")
         return self._generic_insert(
-            type_int=match_types_by_name["Medical"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Medical"],
             time=time,
             data=data,
             **kwargs
@@ -874,7 +874,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Railed"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Railed"],
             **kwargs
         )
 
@@ -886,7 +886,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Packer"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Packer"],
             data=packer_str,
             **kwargs
         )
@@ -899,7 +899,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Died"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Died"],
             data=reason,
             **kwargs
         )
@@ -911,7 +911,7 @@ class MatchTypes:
             kwargs: See _generic_insert
         """
         return self._generic_insert(
-            type_int=match_types_by_name["Sold"],
+            type_int=MATCH_TYPES_NAME_TO_ID["Sold"],
             **kwargs
         )
 

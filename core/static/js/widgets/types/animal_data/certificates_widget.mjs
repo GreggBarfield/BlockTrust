@@ -11,11 +11,11 @@ export class CertificatesWidget extends Widget {
         this.company = this.frame.getAttribute("data-widget-account_name");
         this.frame.innerHTML = "";
         this.getData(
-            "direct/match_types_by_name",
+            "direct/match_types_name_to_id",
             {}
         ).then((data) => {
 
-            this.matchTypes = data.match_types_by_name;
+            this.matchTypesNameToId = data.match_types_name_to_id;
             this.getData(
                 "data_request",
                 {
@@ -36,16 +36,16 @@ export class CertificatesWidget extends Widget {
                 this.sighting_rows=[];
                 for ( const match of data.result.matches)
                 {
-                    if (match.type == this.matchTypes["Medical"]){
+                    if (match.type == this.matchTypesNameToId["Medical"]){
                         this.medical_rows.push(match)
                     }
-                    else if(match.type == this.matchTypes["Weaned"]){
+                    else if(match.type == this.matchTypesNameToId["Weaned"]){
                         this.wean_data=match;
                     }
-                    else if(match.type == this.matchTypes["First Birth"]){
+                    else if(match.type == this.matchTypesNameToId["First Birth"]){
                         this.first_born=match
                     }
-                    else if(match.type == this.matchTypes["Sighting"]){
+                    else if(match.type == this.matchTypesNameToId["Sighting"]){
                         this.sighting_rows.push(match);
                     }
                 }

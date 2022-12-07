@@ -4,7 +4,7 @@ from flask import (
 )
 
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
-from ..match_types import match_types_by_name, MATCH_TYPES_ID_TO_NAME
+from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
 
 from ..common_exceptions import ExportException
 
@@ -46,7 +46,7 @@ bp = Blueprint('widgets_bp', __name__)
 def serve_direct(name):
     direct_export = {
         "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
-        "match_types_by_name": match_types_by_name,
+        "match_types_name_to_id": MATCH_TYPES_NAME_TO_ID,
         "sectors_id_to_name": SECTORS_ID_TO_NAME,
         "sectors_name_to_id": SECTORS_NAME_TO_ID
     }

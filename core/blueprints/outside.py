@@ -23,7 +23,7 @@ from core.config import (
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from json import loads
 from requests import post
-from ..match_types import match_types_by_name
+from ..match_types import MATCH_TYPES_NAME_TO_ID
 
 
 bp = Blueprint('outside_bp', __name__)
@@ -570,7 +570,7 @@ def serve_retail(eid):
     supply_chain_account_ids = []
     original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
-        matches_restrict_type=match_types_by_name["Sighting"],
+        matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],
         matches_order_by="created"
     )
@@ -578,14 +578,14 @@ def serve_retail(eid):
         supply_chain_account_ids.append(original_ranch_match_and_account_link[0]["account"])
     feedyard_match_and_account_link = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
-        matches_restrict_type=match_types_by_name["Sighting"],
+        matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Feedlot"]
     )
     if len(feedyard_match_and_account_link) > 0:
         supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
     packer_match_and_account_link = g.db.matches.get_matches_with_account_links(
         matches_eid=eid,
-        matches_restrict_type=match_types_by_name["Sighting"],
+        matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Packer"]
     )
     if len(packer_match_and_account_link) > 0:
@@ -631,7 +631,7 @@ def serve_tip(eid, account_id):
     if len(account_with_payouts_enabled) > 0:
         original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
             matches_eid=eid,
-            matches_restrict_type=match_types_by_name["Sighting"],
+            matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
             account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],
             matches_order_by="created"
         )

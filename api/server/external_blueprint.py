@@ -10,7 +10,7 @@ from core.database.tables.sustainability_responses import SustainabilityResponse
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
-from core.match_types import match_types_by_name
+from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
 import json
 from datetime import datetime
@@ -69,7 +69,7 @@ def serve_get_animal_data():
         zip_code = None
         sustainability = {}
 
-        owner_account_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=match_types_by_name["Sighting"],
+        owner_account_sightings = g.db.matches.get_matches_with_account_links(matches_eid=eid, matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
                                                                               account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created")
         unauthorized_message = "Access to this EID is not allowed at this time"
         if len(owner_account_sightings) == 0:
@@ -95,7 +95,7 @@ def serve_get_animal_data():
             elif existing_connection["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
                 return {"error": unauthorized_message}, 401
 
-            match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Born"])
+            match_birth_date_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Born"])
             if len(match_birth_date_row) > 0:
                 birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -120,7 +120,7 @@ def serve_get_animal_data():
                 sustainability["improvement"] = latest_response.get("improvement_points", 0)
                 sustainability["totalScore"] = latest_response["score"]
 
-            match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Weaned"])
+            match_wean_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Weaned"])
             if len(match_wean_row) > 0:
                 owner_account_link_and_match = match_wean_row[0]
                 wean_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
@@ -132,7 +132,7 @@ def serve_get_animal_data():
                     weaning_strategy = data.get("at", None)
                     wean_weight = data.get("wean_weight", None)
 
-            match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Sold"])
+            match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Sold"])
             if len(match_sold_row) > 0:        
                 owner_account_link_and_match = match_sold_row[0]
                 if owner_account_link_and_match['time'] is not None:
@@ -143,15 +143,15 @@ def serve_get_animal_data():
                     sale_location = data.get("location", None)
                     number_of_calves = data.get("group_size", None)
 
-            match_weight_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["Hot Weight"])
+            match_weight_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Hot Weight"])
             if len(match_weight_row) > 0:
                 hot_weight = match_weight_row[0]['data']
 
-            match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Quality Grade"])
+            match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"])
             if len(match_quality_row) > 0:
                 quality_grade = match_quality_row[0]['data']
 
-            match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=match_types_by_name["USDA Yield Grade"])
+            match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])
             if len(match_yield_row) > 0:
                 yield_grade = match_yield_row[0]['data']
 
