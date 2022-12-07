@@ -29,7 +29,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.responses.improvement = [];
         this.progressBar = new ProgressBar();
         this.statusMessage = document.createElement("p");
-        this.statusMessage.className = "d-none mt-2 mb-0";
+        this.statusMessage.className = "d-none p-2 mt-2 mb-0";
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -197,7 +197,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         let uploadedFiles = 0;
         let numberOfFilesToBeUploaded = 0;
         this.progressBar.show();
-        this.statusMessage.className= "d-block p-2";
+        this.statusMessage.className= "d-block";
         this.statusMessage.textContent = "Uploading documents...";
         for(let fileUploader of this.fileUploaders){
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){

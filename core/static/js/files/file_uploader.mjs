@@ -89,21 +89,13 @@ export class FileUploader {
 
     upload = () =>{
         //Returns a promise
-        if(!this.uploadDeclinedByUser){
-            if(!this.isFileAttached()){return;}
-
-            return uploadFile(true, true, this.file)
-            .then((id)=>{
-                this.uploaded= true;
-                this.inputFileNameContainer.className = "m-1 font-italic text-success";
-                this.inputFileNameContainer.textContent = this.fileName + " (Uploaded)"
-                return Promise.resolve(id);
-            }); 
-        }
-        else{
-            return Promise.resolve(0);
-        }
-            
+        return uploadFile(true, true, this.file)
+        .then((id)=>{
+            this.uploaded= true;
+            this.inputFileNameContainer.className = "m-1 font-italic text-success";
+            this.inputFileNameContainer.textContent = this.fileName + " (Uploaded)"
+            return Promise.resolve(id);
+        });      
     }
 
     isFileAttached = () =>{
