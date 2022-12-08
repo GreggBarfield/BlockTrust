@@ -659,9 +659,8 @@ const feedlotQuestionnaireData = {
             id: "animal6",
             responseType: questionType.input,
             questionText: "What percentage of your livestock handling employees are BQA certified?",
-            scoringCriteria: scoringCriteria.responsePresent,
-            inputType: "number",
-            score: 1
+            scoringCriteria: scoringCriteria.roundOff,
+            inputType: "number"
         },
     ],
     [sections.safety.name] : [
