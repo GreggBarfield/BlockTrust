@@ -1,5 +1,5 @@
 from flask import g
-from ....match_types import name_to_id
+from ....match_types import convert_match_type_names_to_ids
 
 
 def unauth(params):
@@ -30,7 +30,7 @@ def auth(params):
     elif 'all_matches' in params:
         restrict_types = ()
         if 'types' in params:
-            restrict_types = name_to_id(params['types'])
+            restrict_types = convert_match_type_names_to_ids(params['types'])
         return {
             "matches": g.db.matches.get_matches(account_link=account_link_id, restrict_type = restrict_types[0], selectColumns=["eid", "visual_id"])
         }
@@ -41,7 +41,7 @@ def auth(params):
 
         restrict_types = ()
         if 'types' in params:
-            restrict_types = name_to_id(params['types'])
+            restrict_types = convert_match_type_names_to_ids(params['types'])
 
         return {
             "matches": g.db.matches.get_distinct_match_locations_for_account(

@@ -16,13 +16,13 @@ MATCH_TYPES_ID_TO_NAME = {
     21: "Sold"
 }
 
-match_types_by_name = {
+MATCH_TYPES_NAME_TO_ID = {
     value: key
     for key, value in MATCH_TYPES_ID_TO_NAME.items()
 }
 
 
-def name_to_id(value):
+def convert_match_type_names_to_ids(value):
     """Converts value from name to id.
 
     Params:
@@ -32,6 +32,6 @@ def name_to_id(value):
         The value as ID (int) or a tuple of the conversions
     """
     if isinstance(value, (list, tuple)):
-        return tuple(name_to_id(v) for v in value)
+        return tuple(convert_match_type_names_to_ids(v) for v in value)
 
-    return match_types_by_name[value]
+    return MATCH_TYPES_NAME_TO_ID[value]

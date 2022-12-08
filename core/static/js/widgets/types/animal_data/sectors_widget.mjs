@@ -33,10 +33,10 @@ export class SectorsWidget extends Widget {
             }),         
            
             this.getData(
-                "direct/match_types_by_name",
+                "direct/match_types_name_to_id",
                 {}
             ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
+                this.match_types_name_to_id = data.match_types_name_to_id;
             })
 
         ]).then(() => {
@@ -54,7 +54,7 @@ export class SectorsWidget extends Widget {
     }
 
     prepData() {
-        let match_types_by_name=this.match_types_by_name;
+        let matchTypesNameToId=this.match_types_name_to_id;
         let sectors_name_to_id=this.sectors_name_to_id;
         let match_rows=this.match_rows;
         let formatDate = this.formatDate;
@@ -119,19 +119,19 @@ export class SectorsWidget extends Widget {
 
         function filterMatchTypeDataValue(matchTypeStr, dataValue) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr] && row.data === dataValue;
+                return row.type === matchTypesNameToId[matchTypeStr] && row.data === dataValue;
             }
         }
 
         function filterMatchTypeAccountLinkSector(matchTypeStr, sectorName) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr] && row["account_links.sector"] === sectors_name_to_id[sectorName];
+                return row.type === matchTypesNameToId[matchTypeStr] && row["account_links.sector"] === sectors_name_to_id[sectorName];
             }
         }
 
         function filterMatchType(matchTypeStr) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr];
+                return row.type === matchTypesNameToId[matchTypeStr];
             }
         }
 
