@@ -649,16 +649,18 @@ const feedlotQuestionnaireData = {
         },
         {
             id: "animal5",
-            responseType: questionType.upload,
+            responseType: questionType.input,
             questionText: "If yes, what was your score? Please upload",
-            scoringCriteria: scoringCriteria.confirmation,
+            scoringCriteria: scoringCriteria.responsePresent,
+            inputType: "text",
             score: 0.5
         },
         {
             id: "animal6",
-            responseType: questionType.select,
+            responseType: questionType.input,
             questionText: "What percentage of your livestock handling employees are BQA certified?",
-            scoringCriteria: scoringCriteria.roundOff,
+            scoringCriteria: scoringCriteria.responsePresent,
+            inputType: "number",
             score: 1
         },
     ],
@@ -672,10 +674,9 @@ const feedlotQuestionnaireData = {
         },
         {
             id: "safety2",
-            responseType: questionType.input,
+            responseType: questionType.upload,
             questionText: "If yes, are you willing to share it?",
-            scoringCriteria: scoringCriteria.responsePresent,
-            inputType : "text",
+            scoringCriteria: scoringCriteria.confirmation,
             score: 1
         },
         {
