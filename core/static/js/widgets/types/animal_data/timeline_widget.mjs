@@ -27,12 +27,7 @@ export class TimelineWidget extends Widget {
                 this.match_rows = data.result.matches;
             }),
 
-            this.getData(
-                "direct/match_types_by_name",
-                {}
-            ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
-            }),
+
             
             this.getData(
                 "direct/match_types_id_to_name",

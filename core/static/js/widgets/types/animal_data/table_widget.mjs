@@ -33,14 +33,6 @@ export class TableWidget extends Widget {
                 }
                 this.displayAccount();
             }),
-
-            this.getData(
-                "direct/match_types_by_name",
-                {}
-            ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
-                this.displayAccount();
-            }),
             
             this.getData(
                 "data_request",

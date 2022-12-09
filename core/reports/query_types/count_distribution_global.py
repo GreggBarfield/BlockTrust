@@ -1,4 +1,4 @@
-from ...match_types import match_types_by_name
+from ...match_types import MATCH_TYPES_NAME_TO_ID
 
 
 TYPE_NAME = "count_distribution_global"
@@ -9,7 +9,7 @@ def execute(db, query):
     params = query['params']
     return {
         "count_distribution": db.matches.get_count_distribution_global(
-            match_types_by_name[params["match_type"]]
+            MATCH_TYPES_NAME_TO_ID[params["match_type"]]
         )
     }
 

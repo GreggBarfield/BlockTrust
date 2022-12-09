@@ -25,10 +25,10 @@ export class DataTableWidget extends Widget {
             }),
 
             this.getData(
-                "direct/match_types_by_name",
+                "direct/match_types_name_to_id",
                 {}
             ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
+                this.match_types_name_to_id = data.match_types_name_to_id;
             }),
 
         ]).then(() => {
@@ -56,10 +56,10 @@ export class DataTableWidget extends Widget {
                 };
             }
             let animal = this.animals[match_row.eid];
-            if (match_row.type == this.match_types_by_name["Weaned"]) {
+            if (match_row.type == this.match_types_name_to_id["Weaned"]) {
                 animal["weaned"] = this.formatDate(match_row.time);
             }
-            else if (match_row.type == this.match_types_by_name["Sighting"]) {
+            else if (match_row.type == this.match_types_name_to_id["Sighting"]) {
                 if (animal["sightings"] == "(no data)") {
                     animal["sightings"] = [];
                 }
