@@ -272,11 +272,25 @@ class USDAReports:
         self._db.execute(
             """
                 DELETE FROM usda_reports
-                WHERE published_date < %(published_date_cutoff)s;
+                WHERE published_date < %(cutoff_date)s;
             """,
             {
-                "published_date_cutoff": cutoff_date
+                "cutoff_date": cutoff_date
             }
         )
 
-        return self._db.row_count()
+        deleted_count = self._db.row_count()
+
+        self._db.execute(
+            """
+                DELETE FROM usda_reports
+                WHERE published_date IS NULL AND created_timestamp < %(cutoff_date)s;
+            """,
+            {
+                "cutoff_date": cutoff_date
+            }
+        )
+
+        deleted_count = deleted_count + self._db.row_count()
+
+        return deleted_count
