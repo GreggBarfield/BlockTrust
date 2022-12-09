@@ -17,7 +17,7 @@ from ..database.tables.files import Files
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
-from ..database.tables.sustainability_responses import SustainabilityResponses
+from ..database.tables.sustainability_responses import SustainabilityResponses, questionnaire_status_to_id
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.sales_groups import SalesGroups
@@ -713,7 +713,8 @@ def serve_save_sustainability_questionnaire():
         score=request.json["total_score"],
         uploaded_file_ids=file_ids_json,
         response=request.json["responses"],
-        sector_id=g.account.sector_id()
+        sector_id=g.account.sector_id(),
+        questionnaire_status=questionnaire_status_to_id["Completed"]
     )
     return {"redirect": "/dashboard/sustainability"}
 

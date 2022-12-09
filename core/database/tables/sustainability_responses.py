@@ -3,6 +3,11 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
+questionnaire_status_to_id = {
+    "Pending": 0,
+    "Completed": 1
+}
+
 
 class SustainabilityResponses:
 
@@ -12,7 +17,7 @@ class SustainabilityResponses:
     def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                      land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
                                      safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
-                                     score=NO_VALUE, sector_id=NO_VALUE):
+                                     score=NO_VALUE, sector_id=NO_VALUE, questionnaire_status=NO_VALUE):
         """
         Gets the sustainability responses based on the attributes provided
 
@@ -29,6 +34,7 @@ class SustainabilityResponses:
             improvement_points: Improvement points
             score: Total Score
             sector_id: Account sector
+            questionnaire_status: Submission status of questionnaire
 
         Returns:
             A list of sustainability response rows or an empty list
@@ -74,6 +80,9 @@ class SustainabilityResponses:
         if sector_id is not NO_VALUE:
             query_conditions.append(" sector_id = %(sector_id)s")
             query_values["sector_id"] = sector_id
+        if questionnaire_status is not NO_VALUE:
+            query_conditions.append(" questionnaire_status = %(questionnaire_status)s")
+            query_values["questionnaire_status"] = questionnaire_status
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -90,7 +99,8 @@ class SustainabilityResponses:
 
     def insert_sustainabilty_response(self, account_id=None, user_id=None, air_points=None, land_points=None,
                                       water_points=None, animal_points=None, safety_points=None, efficiency_points=None,
-                                      improvement_points=None, score=None, uploaded_file_ids=None, response=None, sector_id=None):
+                                      improvement_points=None, score=None, uploaded_file_ids=None, response=None,
+                                      sector_id=None, questionnaire_status=None):
         """
         Insert a sustainability response
 
@@ -108,13 +118,14 @@ class SustainabilityResponses:
             uploaded_file_ids: List of uploaded file IDs
             response: Response provided by the user
             sector_id: Account sector
+            questionnaire_status: Submission status of questionnaire
         """
         self._db.execute(
             """
             INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points,
-            safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response, sector_id)
+            safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response, sector_id, questionnaire_status)
             VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
-            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s, %(sector_id)s)
+            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s, %(sector_id)s, %(questionnaire_status)s)
             """,
             {
                 "account_id": account_id,
@@ -129,14 +140,16 @@ class SustainabilityResponses:
                 "score": score,
                 "uploaded_file_ids": json.dumps(uploaded_file_ids) if uploaded_file_ids is not None else None,
                 "response": json.dumps(response) if response is not None else None,
-                "sector_id": sector_id
+                "sector_id": sector_id,
+                "questionnaire_status": questionnaire_status
             }
         )
 
     def update_sustainability_response(self, id, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                        land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
                                        safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
-                                       score=NO_VALUE, uploaded_file_ids=NO_VALUE, response=NO_VALUE, sector_id=NO_VALUE):
+                                       score=NO_VALUE, uploaded_file_ids=NO_VALUE, response=NO_VALUE,
+                                       sector_id=NO_VALUE, questionnaire_status=NO_VALUE):
         """
         Updates a sustainability response
 
@@ -155,6 +168,7 @@ class SustainabilityResponses:
             uploaded_file_ids: List of uploaded file IDs
             response: Response provided by the user
             sector_id: Account sector
+            questionnaire_status: Submission status of questionnaire
         """
         base_query = "UPDATE sustainability_responses "
 
@@ -201,6 +215,9 @@ class SustainabilityResponses:
         if sector_id is not NO_VALUE:
             query_conditions.append(" sector_id = %(sector_id)s")
             query_values["sector_id"] = sector_id
+        if questionnaire_status is not NO_VALUE:
+            query_conditions.append(" questionnaire_status = %(questionnaire_status)s")
+            query_values["questionnaire_status"] = questionnaire_status
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
