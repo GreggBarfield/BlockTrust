@@ -84,12 +84,12 @@ class UsdaDataRetriever:
 
                 reports = dict()
                 published_dates = USDAReports(self._db).get_unique_published_dates_and_slug_id()
-                for id in marketTypeIDs:
-                    response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(id), 
+                for market_type_id in marketTypeIDs:
+                    response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(market_type_id),
                         auth=(USDA_API_KEY, ''))
                     json_response = response.json()
 
-                    for row in json_response['results']:
+                    for row in json_response:
                         item = {
                             'published_date' : row['published_date'],
                             'slug_id' : int(row['slug_id'])
