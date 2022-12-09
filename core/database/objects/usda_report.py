@@ -332,7 +332,9 @@ class USDAReport:
     def currentVolume(self):
         if 'current_volume' in self._row:
             if isinstance(self._row['current_volume'], str):
-                return self._row['current_volume'].replace(',', '')
+                current_volume = self._row['current_volume'].replace(',', '')
+                if current_volume != '':
+                    return current_volume
             else:
                 return self._row['current_volume']
         return None
