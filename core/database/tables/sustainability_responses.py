@@ -97,10 +97,9 @@ class SustainabilityResponses:
         else:
             return []
 
-    def insert_sustainabilty_response(self, account_id=None, user_id=None, air_points=None, land_points=None,
-                                      water_points=None, animal_points=None, safety_points=None, efficiency_points=None,
-                                      improvement_points=None, score=None, uploaded_file_ids=None, response=None,
-                                      sector_id=None, questionnaire_status_id=None):
+    def insert_sustainabilty_response(self, account_id, user_id, air_points, land_points, water_points, animal_points,
+                                      safety_points, efficiency_points, improvement_points, score, uploaded_file_ids,
+                                      response, sector_id, questionnaire_status_id):
         """
         Insert a sustainability response
 
