@@ -1759,4 +1759,4 @@ ADD CONSTRAINT `fk_tips_to_account_id_id_accounts`
 
 /* Nisheet Thakur 12/12/2022 */
 ALTER TABLE `sustainability_responses`
-ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 1;
+ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 0;
