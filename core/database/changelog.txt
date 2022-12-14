@@ -1756,3 +1756,7 @@ ADD CONSTRAINT `fk_tips_to_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 12/12/2022 */
+ALTER TABLE `sustainability_responses`
+ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 1;
