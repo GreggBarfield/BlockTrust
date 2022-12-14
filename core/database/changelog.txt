@@ -340,10 +340,10 @@ ADD COLUMN `partner_contact_email` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This 
 /* Adding partners. Don't run on dev server it already has this data. */
 /* Note ids of partners on dev server: 582 - MFA PowerCalf, 603 - ILS, 604 - MFA HealthTrack, 605 - BTN1. You will see the same ids in the 
    api_inserts table depending on who the data came from */
-INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
-values( 'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
-      ( 'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
-      ( 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
+INSERT INTO `example_db_1`.`accounts`(id, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values(604,  'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      (582,  'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+      (603, 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
 
 /* Nisheet Thakur 6/28/2021 */
 CREATE TABLE order_products(
@@ -356,8 +356,8 @@ product_quantity INT,
 )
 
 /* Nisheet Thakur 7/6/2021 */
-INSERT INTO `example_db_1`.`accounts`(company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
-values( 'U.S. CattleTrace', 4, 1, '', 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457);
+INSERT INTO `example_db_1`.`accounts`(id, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
+values(618, 'U.S. CattleTrace', 4, 1, '', 'info@uscattletrace.org', 7854568472, '414 Lincoln Ave', 'Wamego', 'KS', 66457);
 SELECT id FROM accounts WHERE company = 'U.S. CattleTrace' INTO @partner_id;
 INSERT INTO products (product,pic_1,pic_2,price,orders,post,subheader,unit,details,partner)
 VALUES ("Strip Tag","tag-page-1smal.png","FST_Strip_Tags_1.png",44.0,0,"Y","2-piece, Tamper Evident","2-Piece","3.75 inches long.;Each Tag has a unique 15-digit number with a 999 prefix. ;Priced at $2.20 per individual tag* (*Prior to U.S. CattleTrace member discount).; Ultra-High Frequency (UHF).;Tags can be read at close range, with an extended read range of up to 30 feet.;Short Range Reading: 12 inches for Handheld, 2-3 feet with fixed readers.;Long Range Reading: 10-15 feet for Handheld, 20-30+ feet for fixed readers.", @partner_id)
@@ -810,7 +810,7 @@ CHANGE COLUMN `last_update_timestamp` `last_updated_timestamp` TIMESTAMP NOT NUL
 
 /* Rohan Sureshkumar 11/12/2021 */
 INSERT INTO `accounts`(name, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
-values('Red Angus Assoc','Red Angus Assoc', 4, 1, NULL, 'info@redangus.org', 9403873502, '18335 E 103rd Ave., Suite 202', 'Commerce City', 'CO', 80022)
+values(663, 'Red Angus Assoc','Red Angus Assoc', 4, 1, NULL, 'info@redangus.org', 9403873502, '18335 E 103rd Ave., Suite 202', 'Commerce City', 'CO', 80022)
 
 /* Rohan Sureshkumar 11/18/2021 */
 ALTER TABLE `account_users` 
@@ -1756,3 +1756,7 @@ ADD CONSTRAINT `fk_tips_to_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 12/12/2022 */
+ALTER TABLE `sustainability_responses`
+ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 0;
