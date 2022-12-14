@@ -30,6 +30,14 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.progressBar = new ProgressBar();
         this.statusMessage = document.createElement("p");
         this.statusMessage.className = "d-none p-2 mt-2 mb-0";
+        this.partialResponses = {};
+        this.partialResponses.air = {};
+        this.partialResponses.land = {};
+        this.partialResponses.water = {};
+        this.partialResponses.safety = {};
+        this.partialResponses.animal = {};
+        this.partialResponses.efficiency = {};
+        this.partialResponses.improvement = {};
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -123,6 +131,22 @@ export class BaseQuestionnaireV2Widget extends Widget{
             },
         });
 
+        this.savePartialSustainabilityQuestionnaire = new AsyncForm({
+            action: "/widgets/data/save_partial_sustainability_questionnaire",
+            form: form,
+            status: this.statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            asJSON: true,
+            getData: () => {
+                return {
+                    uploaded_document_ids: this.uploadedDocumentIDs,
+                    partial_responses: this.partialResponses
+                };
+            },
+        });
+
         submitButton.addEventListener("click",async () => {
             // Getting all response inputs in the form and check if they are answered
             let allQuestionsAnswered = true;
@@ -149,21 +173,26 @@ export class BaseQuestionnaireV2Widget extends Widget{
             }
 
             if(allQuestionsAnswered && allDocumentsUploaded){
-                errorMessage.style.display = "none";
+                errorMessage.className = "d-none";
                 await this.uploadDocuments();
                 this.calculateScores(questionnaireData);
                 this.asyncForm.submit();
             }
             else{
                 if(allQuestionsAnswered == false){
-                    errorMessage.style.display = "block";
+                    errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
                     errorMessage.textContent = "Please complete the following section: " + incompleteSection;
                 }
                 else{
-                    errorMessage.style.display = "block";
+                    errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
                     errorMessage.textContent = "Please upload all required documents";
                 }
             }
+        });
+
+        saveForLaterButton.addEventListener("click",async () => {
+            this.savePartialResponses(questionnaireData);
+            this.savePartialSustainabilityQuestionnaire.submit();
         });
         cardBody.append(form);
         this.frame.append(card);
@@ -222,5 +251,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 this.statusMessage.textContent = "All documents uploaded";
             }
         }
+    }
+
+    savePartialResponses = (questionnaireData) => {
+        for(let section of Object.values(sections)){
+            let questions = questionnaireData[section.name];
+            if(questions != null){
+                for (let question of questions){
+                    let response = document.getElementById(question.id);
+                    if(response.value != "Please Select" && response.value != ""){
+                        this.partialResponses[section.name][question.id]=response.value;
+                    }
+                }
+            }
+        }
+        console.log(this.partialResponses);
     }
 }
