@@ -1760,3 +1760,7 @@ ADD CONSTRAINT `fk_tips_to_account_id_id_accounts`
 /* Nisheet Thakur 12/12/2022 */
 ALTER TABLE `sustainability_responses`
 ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 0;
+
+/* Rohan Sureshkumar 12/15/22 */
+ INSERT INTO `accounts`(id,company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address)
+ values(670, 'RaboBank', 9 , 1, NULL, 'delilah.Butler@rabobank.com', 310887226600, 'P.O. Box 17100, 3500 HG Utrecht, The Netherlands');
