@@ -126,8 +126,6 @@ class SustainabilityResponses:
             VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
             %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s, %(sector_id)s, %(questionnaire_status_id)s)
             """,
-
-            
             {
                 "account_id": account_id,
                 "user_id": user_id,

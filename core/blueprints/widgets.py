@@ -764,3 +764,28 @@ def serve_save_account_retail_data():
     if len(newly_uploaded_image_ids) > 0:
         Files(g.db).update_multiple_files(newly_uploaded_image_ids, g.account.id())
     return {"redirect": "/dashboard"}
+
+
+@bp.route('/widgets/data/save_partial_sustainability_questionnaire', methods=["POST"])
+@crut.require_account
+def serve_save_partial_sustainability_questionnaire(): 
+    file_mappings_json = {"file_mappings": []}
+    for file_mapping in request.json["uploaded_document_ids_and_question_ids"]:
+        file_mappings_json["file_mappings"].append(file_mapping)
+    SustainabilityResponses(g.db).insert_sustainabilty_response(
+        account_id=g.account.id(),
+        user_id=g.user.id(),
+        air_points=0,
+        land_points=0,
+        water_points=0,
+        animal_points=0,
+        safety_points=0,
+        efficiency_points=0,
+        improvement_points=0,
+        score=0,
+        uploaded_file_ids=file_mappings_json,
+        response=request.json["partial_responses"],
+        sector_id=g.account.sector_id(),
+        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"]
+    )
+    return {"redirect": "/dashboard/sustainability"}

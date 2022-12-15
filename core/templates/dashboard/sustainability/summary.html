@@ -32,7 +32,11 @@ Sustainability Summary
 
 <div class="row mb-2 mx-2 flex-row-reverse">
     {% if sustainability_enabled_for_sector == True %}
+    {% if pending_questionnaires_for_user == True %}
+    <a class="btn btn-outline-primary btn-sm" href="/dashboard/sustainability/questionnaire">Complete Existing Survey</a>
+    {% else %}
     <a class="btn btn-outline-primary btn-sm" href="/dashboard/sustainability/questionnaire">New {{sector}} Survey</a>
+    {% endif %}
     {% endif %}
     <button class="btn btn-outline-primary btn-sm" onclick="printPageArea('sustainability', '{{ accountName }}')">Print/Save</button>
 </div>
