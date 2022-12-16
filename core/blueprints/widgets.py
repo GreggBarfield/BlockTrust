@@ -696,10 +696,9 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 @crut.require_account
 def serve_save_sustainability_questionnaire():
-    file_ids_json = {"file_ids": []}
-    for file_id in request.json["uploaded_document_ids"]:
-        if file_id != 0:
-            file_ids_json["file_ids"].append(file_id)
+    file_mappings_json = {"file_mappings": []}
+    for file_mapping in request.json["uploaded_document_ids_and_question_ids"]:
+        file_mappings_json["file_mappings"].append(file_mapping)
     SustainabilityResponses(g.db).insert_sustainabilty_response(
         account_id=g.account.id(),
         user_id=g.user.id(),
@@ -711,7 +710,7 @@ def serve_save_sustainability_questionnaire():
         efficiency_points=round(request.json["scores"]["efficiency"], 1),
         improvement_points=round(request.json["scores"]["improvement"], 1),
         score=request.json["total_score"],
-        uploaded_file_ids=file_ids_json,
+        uploaded_file_ids=file_mappings_json,
         response=request.json["responses"],
         sector_id=g.account.sector_id(),
         questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]

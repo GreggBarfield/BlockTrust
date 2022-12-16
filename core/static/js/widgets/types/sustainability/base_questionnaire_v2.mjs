@@ -1,4 +1,4 @@
-import { Widget } from '../../widget.mjs';this.fileUploaderMappingsList
+import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { sections, scoringCriteria, questionType } from '../../../core/sustainability_constants.mjs'
@@ -15,7 +15,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
-        this.fileUploaderMappingsList = [];
+        this.questionIDToFileUploaderMappingList = [];
         this.uploadedDocumentIDsAndQuestionIDs = [];
         this.totalScore = 0;
         
@@ -82,7 +82,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     else if(question.responseType == questionType.upload){
                         const {questionContainer, fileUploaderObject} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
                         questionsSection.append(questionContainer);
-                        this.fileUploaderMappingsList.push({questionID: question.id, fileUploader: fileUploaderObject});
+                        this.questionIDToFileUploaderMappingList.push({questionID: question.id, fileUploader: fileUploaderObject});
                     }
                 }
                 form.append(questionsSection)
@@ -124,7 +124,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    uploaded_document_ids: this.uploadedDocumentIDsAndQuestionIDs,
+                    uploaded_document_ids_and_question_ids: this.uploadedDocumentIDsAndQuestionIDs,
                     total_score: this.totalScore,
                     responses: this.responses
                 };
@@ -163,7 +163,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            for(let fileUploaderMapping of this.fileUploaderMappingsList){
+            for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
                 let fileUploader = fileUploaderMapping.fileUploader;
                 if(!(fileUploader.uploadDeclinedByUser)){
                     if(!fileUploader.isFileAttached()){
@@ -237,13 +237,13 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.progressBar.show();
         this.statusMessage.className= "d-block";
         this.statusMessage.textContent = "Uploading documents...";
-        for(let fileUploaderMapping of this.fileUploaderMappingsList){
+        for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
             let fileUploader = fileUploaderMapping.fileUploader;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 numberOfFilesToBeUploaded++;
             }
         }
-        for(let fileUploaderMapping of this.fileUploaderMappingsList){
+        for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
             let fileUploader = fileUploaderMapping.fileUploader;
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
@@ -252,7 +252,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             }
             this.uploadedDocumentIDsAndQuestionIDs.push({question_id: fileUploaderMapping.questionID, file_id: id});
             this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
-            if(this.uploadedDocumentIDsAndQuestionIDs.length == this.fileUploaderMappingsList.length){
+            if(this.uploadedDocumentIDsAndQuestionIDs.length == this.questionIDToFileUploaderMappingList.length){
                 this.statusMessage.textContent = "All documents uploaded";
             }
         }
