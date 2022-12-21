@@ -696,7 +696,6 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 @crut.require_account
 def serve_save_sustainability_questionnaire():
-    file_mappings_json = {"file_mappings": []}
     sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
         account_id=g.account.id(),
         user_id=g.user.id(),

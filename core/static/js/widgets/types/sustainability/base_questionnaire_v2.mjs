@@ -141,8 +141,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
-                let fileUploader = fileUploaderMapping.fileUploader;
+            for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
+                let fileUploader = questionIDToFileUploaderObject.fileUploader;
                 if(!(fileUploader.uploadDeclinedByUser)){
                     if(!fileUploader.isFileAttached()){
                         allDocumentsUploaded=false;
@@ -225,20 +225,20 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.progressBar.show();
         this.statusMessage.className= "d-block";
         this.statusMessage.textContent = "Uploading documents...";
-        for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
-            let fileUploader = fileUploaderMapping.fileUploader;
+        for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
+            let fileUploader = questionIDToFileUploaderObject.fileUploader;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 numberOfFilesToBeUploaded++;
             }
         }
-        for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
-            let fileUploader = fileUploaderMapping.fileUploader;
+        for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
+            let fileUploader = questionIDToFileUploaderObject.fileUploader;
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 id = await fileUploader.upload();
                 uploadedFiles++;
             }
-            this.questionIDToUploadedFileIDList.push({question_id: fileUploaderMapping.questionID, file_id: id});
+            this.questionIDToUploadedFileIDList.push({question_id: questionIDToFileUploaderObject.questionID, file_id: id});
             this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
             if(this.questionIDToUploadedFileIDList.length == this.questionIDToFileUploaderObjectList.length){
                 this.statusMessage.textContent = "All documents uploaded";
