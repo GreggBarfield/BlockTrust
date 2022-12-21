@@ -171,6 +171,8 @@ class Files:
             account_id: Account ID of uploading account
             user_id: User ID of uploading user
             retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
 
         Returns:
             File rows based on attributes provided
@@ -202,6 +204,12 @@ class Files:
         if retail_page_account_id is not NO_VALUE:
             query_conditions.append("retail_page_account_id = %(retail_page_account_id)s")
             query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append("sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append("question_id = %(question_id)s")
+            query_values["question_id"] = question_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -228,6 +236,8 @@ class Files:
         Params: 
             id: File ID
             retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
         """
         base_query = "UPDATE files "
 

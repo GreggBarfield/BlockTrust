@@ -1766,4 +1766,4 @@ ALTER TABLE `sustainability_responses`
 DROP COLUMN `uploaded_file_ids`;
 ALTER TABLE `files`
 ADD COLUMN `sustainability_response_id` INT NULL DEFAULT NULL,
-ADD COLUMN `question_id` INT NULL DEFAULT NULL;
+ADD COLUMN `question_id` VARCHAR(16) NULL DEFAULT NULL;
