@@ -1760,3 +1760,10 @@ ADD CONSTRAINT `fk_tips_to_account_id_id_accounts`
 /* Nisheet Thakur 12/12/2022 */
 ALTER TABLE `sustainability_responses`
 ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 0;
+
+/* Nisheet Thakur 12/21/2022 */
+ALTER TABLE `sustainability_responses`
+DROP COLUMN `uploaded_file_ids`;
+ALTER TABLE `files`
+ADD COLUMN `sustainability_response_id` INT NULL DEFAULT NULL,
+ADD COLUMN `question_id` INT NULL DEFAULT NULL;

@@ -15,29 +15,22 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
-        this.questionIDToFileUploaderMappingList = [];
-        this.uploadedDocumentIDsAndQuestionIDs = [];
+        this.questionIDToFileUploaderObjectList = [];
+        this.questionIDToUploadedFileIDList = [];
         this.totalScore = 0;
+        this.partialResponse = true;
         
         this.responses = {};
-        this.responses.air = [];
-        this.responses.land = [];
-        this.responses.water = [];
-        this.responses.safety = [];
-        this.responses.animal =[];
-        this.responses.efficiency = [];
-        this.responses.improvement = [];
+        this.responses.air = {};
+        this.responses.land = {};
+        this.responses.water = {};
+        this.responses.safety = {};
+        this.responses.animal = {};
+        this.responses.efficiency = {};
+        this.responses.improvement = {};
         this.progressBar = new ProgressBar();
         this.statusMessage = document.createElement("p");
         this.statusMessage.className = "d-none p-2 mt-2 mb-0";
-        this.partialResponses = {};
-        this.partialResponses.air = {};
-        this.partialResponses.land = {};
-        this.partialResponses.water = {};
-        this.partialResponses.safety = {};
-        this.partialResponses.animal = {};
-        this.partialResponses.efficiency = {};
-        this.partialResponses.improvement = {};
     }
     
     createQuestionnaire = (questionnaireData) =>{
@@ -82,7 +75,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     else if(question.responseType == questionType.upload){
                         const {questionContainer, fileUploaderObject} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
                         questionsSection.append(questionContainer);
-                        this.questionIDToFileUploaderMappingList.push({questionID: question.id, fileUploader: fileUploaderObject});
+                        this.questionIDToFileUploaderObjectList.push({questionID: question.id, fileUploader: fileUploaderObject});
                     }
                 }
                 form.append(questionsSection)
@@ -124,27 +117,12 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    uploaded_document_ids_and_question_ids: this.uploadedDocumentIDsAndQuestionIDs,
+                    uploaded_file_ids: this.questionIDToUploadedFileIDList,
                     total_score: this.totalScore,
-                    responses: this.responses
+                    responses: this.responses,
+                    partial_response: this.partialResponse
                 };
-            },
-        });
-
-        this.savePartialSustainabilityQuestionnaireForm = new AsyncForm({
-            action: "/widgets/data/save_partial_sustainability_questionnaire",
-            form: form,
-            status: this.statusMessage,
-            error: errorMessage,
-            redirectMessage: "Saved!",
-            loadingMessage: "Saving...",
-            asJSON: true,
-            getData: () => {
-                return {
-                    uploaded_document_ids_and_question_ids: this.uploadedDocumentIDsAndQuestionIDs,
-                    partial_responses: this.partialResponses
-                };
-            },
+            }
         });
 
         submitButton.addEventListener("click",async () => {
@@ -163,7 +141,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
+            for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
                 let fileUploader = fileUploaderMapping.fileUploader;
                 if(!(fileUploader.uploadDeclinedByUser)){
                     if(!fileUploader.isFileAttached()){
@@ -177,6 +155,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 errorMessage.className = "d-none";
                 await this.uploadDocuments();
                 this.calculateScores(questionnaireData);
+                this.partialResponse = false;
                 this.asyncForm.submit();
             }
             else{
@@ -193,10 +172,19 @@ export class BaseQuestionnaireV2Widget extends Widget{
 
         saveForLaterButton.addEventListener("click",async () => {
             await this.uploadDocuments();
-            this.savePartialResponses(questionnaireData);
-            this.savePartialSustainabilityQuestionnaireForm.submit();
+            for(let section of Object.values(sections)){
+                let questions = questionnaireData[section.name];
+                if(questions != null){
+                    for (let question of questions){
+                        let response = document.getElementById(question.id);
+                        if(response.value != "Please Select" && response.value != ""){
+                            this.responses[section.name][question.id]=response.value;
+                        }
+                    }
+                }
+            }
+            this.asyncForm.submit();
         });
-
         cardBody.append(form);
         this.frame.append(card);
     }
@@ -223,7 +211,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                             this.scores[section.name]+=response.value/100;
                         }
                     } 
-                    this.responses[section.name].push(response.value);
+                    this.responses[section.name][question.id]=response.value;
                 }
             }
             this.totalScore+= this.scores[section.name];
@@ -231,43 +219,29 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     uploadDocuments = async () =>{
-        this.uploadedDocumentIDsAndQuestionIDs = [];
+        this.questionIDToUploadedFileIDList = [];
         let uploadedFiles = 0;
         let numberOfFilesToBeUploaded = 0;
         this.progressBar.show();
         this.statusMessage.className= "d-block";
         this.statusMessage.textContent = "Uploading documents...";
-        for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
+        for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
             let fileUploader = fileUploaderMapping.fileUploader;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 numberOfFilesToBeUploaded++;
             }
         }
-        for(let fileUploaderMapping of this.questionIDToFileUploaderMappingList){
+        for(let fileUploaderMapping of this.questionIDToFileUploaderObjectList){
             let fileUploader = fileUploaderMapping.fileUploader;
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 id = await fileUploader.upload();
                 uploadedFiles++;
             }
-            this.uploadedDocumentIDsAndQuestionIDs.push({question_id: fileUploaderMapping.questionID, file_id: id});
+            this.questionIDToUploadedFileIDList.push({question_id: fileUploaderMapping.questionID, file_id: id});
             this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
-            if(this.uploadedDocumentIDsAndQuestionIDs.length == this.questionIDToFileUploaderMappingList.length){
+            if(this.questionIDToUploadedFileIDList.length == this.questionIDToFileUploaderObjectList.length){
                 this.statusMessage.textContent = "All documents uploaded";
-            }
-        }
-    }
-
-    savePartialResponses = (questionnaireData) => {
-        for(let section of Object.values(sections)){
-            let questions = questionnaireData[section.name];
-            if(questions != null){
-                for (let question of questions){
-                    let response = document.getElementById(question.id);
-                    if(response.value != "Please Select" && response.value != ""){
-                        this.partialResponses[section.name][question.id]=response.value;
-                    }
-                }
             }
         }
     }

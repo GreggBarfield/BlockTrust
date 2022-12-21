@@ -98,8 +98,8 @@ class SustainabilityResponses:
             return []
 
     def insert_sustainabilty_response(self, account_id, user_id, air_points, land_points, water_points, animal_points,
-                                      safety_points, efficiency_points, improvement_points, score, uploaded_file_ids,
-                                      response, sector_id, questionnaire_status_id):
+                                      safety_points, efficiency_points, improvement_points, score, response,
+                                      sector_id, questionnaire_status_id):
         """
         Insert a sustainability response
 
@@ -114,7 +114,6 @@ class SustainabilityResponses:
             efficiency_points: Efficiency and Yield points
             improvement_points: Improvement points
             score: Total Score
-            uploaded_file_ids: List of uploaded file IDs
             response: Response provided by the user
             sector_id: Account sector
             questionnaire_status_id: Submission status of questionnaire
@@ -122,9 +121,9 @@ class SustainabilityResponses:
         self._db.execute(
             """
             INSERT INTO sustainability_responses (account_id, user_id, air_points, land_points, water_points, animal_points,
-            safety_points, efficiency_points, improvement_points, score, uploaded_file_ids, response, sector_id, questionnaire_status_id)
+            safety_points, efficiency_points, improvement_points, score, response, sector_id, questionnaire_status_id)
             VALUES (%(account_id)s, %(user_id)s, %(air_points)s, %(land_points)s, %(water_points)s, %(animal_points)s,
-            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(uploaded_file_ids)s, %(response)s, %(sector_id)s, %(questionnaire_status_id)s)
+            %(safety_points)s, %(efficiency_points)s, %(improvement_points)s, %(score)s, %(response)s, %(sector_id)s, %(questionnaire_status_id)s)
             """,
             {
                 "account_id": account_id,
@@ -137,18 +136,18 @@ class SustainabilityResponses:
                 "efficiency_points": efficiency_points,
                 "improvement_points": improvement_points,
                 "score": score,
-                "uploaded_file_ids": json.dumps(uploaded_file_ids) if uploaded_file_ids is not None else None,
                 "response": json.dumps(response) if response is not None else None,
                 "sector_id": sector_id,
                 "questionnaire_status_id": questionnaire_status_id
             }
         )
+        sustainability_response_id = self._db.last_row_id()
+        return sustainability_response_id
 
     def update_sustainability_response(self, id, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                        land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
                                        safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
-                                       score=NO_VALUE, uploaded_file_ids=NO_VALUE, response=NO_VALUE,
-                                       sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE):
+                                       score=NO_VALUE, response=NO_VALUE, sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE):
         """
         Updates a sustainability response
 
@@ -164,7 +163,6 @@ class SustainabilityResponses:
             efficiency_points: Efficiency and Yield points
             improvement_points: Improvement points
             score: Total Score
-            uploaded_file_ids: List of uploaded file IDs
             response: Response provided by the user
             sector_id: Account sector
             questionnaire_status_id: Submission status of questionnaire
@@ -205,9 +203,6 @@ class SustainabilityResponses:
         if score is not NO_VALUE:
             query_conditions.append(" score = %(score)s")
             query_values["score"] = score
-        if uploaded_file_ids is not NO_VALUE:
-            query_conditions.append(" uploaded_file_ids = %(uploaded_file_ids)s")
-            query_values["uploaded_file_ids"] = json.dumps(uploaded_file_ids)
         if response is not NO_VALUE:
             query_conditions.append(" response = %(response)s")
             query_values["response"] = json.dumps(response)

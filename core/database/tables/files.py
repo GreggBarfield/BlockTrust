@@ -160,7 +160,8 @@ class Files:
         return auths
 
     def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE,
-                  retail_page_account_id=NO_VALUE, get_url=False, select_columns=[]):
+                  retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE,
+                  get_url=False, select_columns=[]):
         """
         Gets the file rows based on attributes provided
 
@@ -220,7 +221,7 @@ class Files:
         else:
             return []
 
-    def update_file(self, file_id, retail_page_account_id=NO_VALUE):
+    def update_file(self, file_id, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE):
         """
         Updates file data for provided ID
 
@@ -236,6 +237,12 @@ class Files:
         if retail_page_account_id is not NO_VALUE:
             query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s")
             query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append(" question_id = %(question_id)s")
+            query_values["question_id"] = question_id
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
