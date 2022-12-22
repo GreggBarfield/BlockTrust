@@ -711,11 +711,11 @@ def serve_save_sustainability_questionnaire():
         score=request.json["total_score"],
         response=request.json["responses"],
         sector_id=g.account.sector_id(),
-        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
     )
-    for uploaded_file in request.json["uploaded_file_ids"]:
-        Files(g.db).update_file(file_id=uploaded_file["file_id"], sustainability_response_id=sustainability_response_id, question_id=uploaded_file["question_id"])
-    return {"redirect": "/dashboard/sustainability"}
+    uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
+    Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
+    return {} # {"redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account

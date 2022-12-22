@@ -261,7 +261,7 @@ class Files:
         else:
             raise Exception("Must give values for fields to update on Files table")
 
-    def update_multiple_files(self, file_ids, retail_page_account_id):
+    def update_multiple_files(self, file_ids, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE):
         """
         Updates file data for provided ID
 
@@ -277,12 +277,16 @@ class Files:
             where_clause = "WHERE id IN (" + ",".join(str(id) for id in file_ids) + ")"
         else:
             raise Exception("Not all the File ids provided are integers")
-
-        self._db.execute(
-            "UPDATE files SET retail_page_account_id = %(retail_page_account_id)s " + where_clause,
-            {
-                "retail_page_account_id": retail_page_account_id
-            }
-        )
-
+        base_query = "UPDATE files SET"
+        query_conditions = []
+        query_values = {}
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s ")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s ")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if len(query_conditions) >= 1:
+            query = base_query + ",".join(query_conditions) + where_clause
+            self._db.execute(query, query_values)
         return self._db.row_count()

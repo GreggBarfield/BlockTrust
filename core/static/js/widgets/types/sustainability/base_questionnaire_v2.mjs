@@ -16,9 +16,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
         this.questionIDToFileUploaderObjectList = [];
-        this.questionIDToUploadedFileIDList = [];
+        this.uploadedFileIDList = [];
         this.totalScore = 0;
-        this.partialResponse = true;
+        this.isPartialResponse = true;
         
         this.responses = {};
         this.responses.air = {};
@@ -117,10 +117,10 @@ export class BaseQuestionnaireV2Widget extends Widget{
             getData: () => {
                 return {
                     scores: this.scores,
-                    uploaded_file_ids: this.questionIDToUploadedFileIDList,
+                    uploaded_file_ids: this.uploadedFileIDList,
                     total_score: this.totalScore,
                     responses: this.responses,
-                    partial_response: this.partialResponse
+                    is_partial_response: this.isPartialResponse
                 };
             }
         });
@@ -155,7 +155,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 errorMessage.className = "d-none";
                 await this.uploadDocuments();
                 this.calculateScores(questionnaireData);
-                this.partialResponse = false;
+                this.isPartialResponse = false;
                 this.asyncForm.submit();
             }
             else{
@@ -219,7 +219,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
 
     uploadDocuments = async () =>{
-        this.questionIDToUploadedFileIDList = [];
+        this.uploadedFileIDList = [];
         let uploadedFiles = 0;
         let numberOfFilesToBeUploaded = 0;
         this.progressBar.show();
@@ -235,12 +235,12 @@ export class BaseQuestionnaireV2Widget extends Widget{
             let fileUploader = questionIDToFileUploaderObject.fileUploader;
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
-                id = await fileUploader.upload();
+                id = await fileUploader.upload(questionIDToFileUploaderObject.questionID);
                 uploadedFiles++;
             }
-            this.questionIDToUploadedFileIDList.push({question_id: questionIDToFileUploaderObject.questionID, file_id: id});
+            this.uploadedFileIDList.push(id);
             this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
-            if(this.questionIDToUploadedFileIDList.length == this.questionIDToFileUploaderObjectList.length){
+            if(this.uploadedFileIDList.length == this.questionIDToFileUploaderObjectList.length){
                 this.statusMessage.textContent = "All documents uploaded";
             }
         }
