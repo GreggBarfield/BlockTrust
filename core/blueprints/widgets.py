@@ -715,7 +715,7 @@ def serve_save_sustainability_questionnaire():
     )
     uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
     Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
-    return {} # {"redirect": "/dashboard/sustainability"}
+    return {"redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account
