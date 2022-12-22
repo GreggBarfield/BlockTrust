@@ -435,18 +435,20 @@ def serve_save_eids_for_sales_group():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
-@bp.route('/widgets/data/get_upload_config', methods=['POST'])
+@bp.route('/widgets/data/save_file_and_get_upload_config', methods=['POST'])
 @crut.require_account
-def serve_get_upload_config():
+def serve_save_file_get_upload_config():
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
+    question_id = request.json.get("question_id", None)
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
 
-    file_id, file_config = Files(g.db).get_post(
+    file_id, file_config = Files(g.db).insert_file_and_get_post_configuration(
         request.json["file_name"],
         g.user.id() if user_owns else None,
-        g.account.id() if account_owns else None
+        g.account.id() if account_owns else None,
+        question_id
     )
 
     return {

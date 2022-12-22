@@ -71,7 +71,7 @@ class Files:
         
         return False
 
-    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=480):
+    def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, question_id=None, limit=10000000, expires_in=480):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -93,14 +93,15 @@ class Files:
         """
         self._db.execute(
             """INSERT INTO files
-                (name, user_id, account_id)
+                (name, user_id, account_id, question_id)
                 VALUES
-                    (%(name)s, %(user_id)s, %(account_id)s)
+                    (%(name)s, %(user_id)s, %(account_id)s, %(question_id)s)
             """,
             {
                 "name": file_name,
                 "account_id": account_id,
-                "user_id": user_id
+                "user_id": user_id,
+                "question_id": question_id
             }
         )
 
