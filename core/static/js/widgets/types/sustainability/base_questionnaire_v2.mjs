@@ -15,7 +15,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.scores.animal = 0;
         this.scores.efficiency = 0;
         this.scores.improvement = 0;
-        this.questionIDToFileUploaderObjectList = [];
+        this.questionIDAndFileUploaderObjectList = [];
         this.uploadedFileIDList = [];
         this.totalScore = 0;
         this.isPartialResponse = true;
@@ -75,7 +75,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     else if(question.responseType == questionType.upload){
                         const {questionContainer, fileUploaderObject} = this.commonMethods.createUploadQuestion(question.questionText, section.name, question.id);
                         questionsSection.append(questionContainer);
-                        this.questionIDToFileUploaderObjectList.push({questionID: question.id, fileUploader: fileUploaderObject});
+                        this.questionIDAndFileUploaderObjectList.push({questionID: question.id, fileUploader: fileUploaderObject});
                     }
                 }
                 form.append(questionsSection)
@@ -141,8 +141,8 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 }
                 if(allQuestionsAnswered == false){break;}
             }
-            for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
-                let fileUploader = questionIDToFileUploaderObject.fileUploader;
+            for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
+                let fileUploader = questionIDAndFileUploaderObject.fileUploader;
                 if(!(fileUploader.uploadDeclinedByUser)){
                     if(!fileUploader.isFileAttached()){
                         allDocumentsUploaded=false;
@@ -225,22 +225,22 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.progressBar.show();
         this.statusMessage.className= "d-block";
         this.statusMessage.textContent = "Uploading documents...";
-        for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
-            let fileUploader = questionIDToFileUploaderObject.fileUploader;
+        for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
+            let fileUploader = questionIDAndFileUploaderObject.fileUploader;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 numberOfFilesToBeUploaded++;
             }
         }
-        for(let questionIDToFileUploaderObject of this.questionIDToFileUploaderObjectList){
-            let fileUploader = questionIDToFileUploaderObject.fileUploader;
+        for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
+            let fileUploader = questionIDAndFileUploaderObject.fileUploader;
             let id=0;
             if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
-                id = await fileUploader.upload(questionIDToFileUploaderObject.questionID);
+                id = await fileUploader.upload(questionIDAndFileUploaderObject.questionID);
                 uploadedFiles++;
             }
             this.uploadedFileIDList.push(id);
             this.progressBar.setProgress(uploadedFiles/numberOfFilesToBeUploaded);
-            if(this.uploadedFileIDList.length == this.questionIDToFileUploaderObjectList.length){
+            if(this.uploadedFileIDList.length == this.questionIDAndFileUploaderObjectList.length){
                 this.statusMessage.textContent = "All documents uploaded";
             }
         }
