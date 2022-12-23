@@ -1764,3 +1764,10 @@ ADD COLUMN `questionnaire_status_id` TINYINT NULL DEFAULT 0;
 /* Rohan Sureshkumar 12/15/22 */
  INSERT INTO `accounts`(id,company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address)
  values(670, 'RaboBank', 9 , 1, NULL, 'delilah.Butler@rabobank.com', 310887226600, 'P.O. Box 17100, 3500 HG Utrecht, The Netherlands');
+
+/* Nisheet Thakur 12/21/2022 */
+ALTER TABLE `sustainability_responses`
+DROP COLUMN `uploaded_file_ids`;
+ALTER TABLE `files`
+ADD COLUMN `sustainability_response_id` INT NULL DEFAULT NULL,
+ADD COLUMN `question_id` VARCHAR(16) NULL DEFAULT NULL;

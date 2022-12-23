@@ -71,7 +71,7 @@ class Files:
         
         return False
 
-    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=480):
+    def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, question_id=None, limit=10000000, expires_in=480):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -93,14 +93,15 @@ class Files:
         """
         self._db.execute(
             """INSERT INTO files
-                (name, user_id, account_id)
+                (name, user_id, account_id, question_id)
                 VALUES
-                    (%(name)s, %(user_id)s, %(account_id)s)
+                    (%(name)s, %(user_id)s, %(account_id)s, %(question_id)s)
             """,
             {
                 "name": file_name,
                 "account_id": account_id,
-                "user_id": user_id
+                "user_id": user_id,
+                "question_id": question_id
             }
         )
 
@@ -160,7 +161,8 @@ class Files:
         return auths
 
     def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE,
-                  retail_page_account_id=NO_VALUE, get_url=False, select_columns=[]):
+                  retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE,
+                  get_url=False, select_columns=[]):
         """
         Gets the file rows based on attributes provided
 
@@ -170,6 +172,8 @@ class Files:
             account_id: Account ID of uploading account
             user_id: User ID of uploading user
             retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
 
         Returns:
             File rows based on attributes provided
@@ -201,6 +205,12 @@ class Files:
         if retail_page_account_id is not NO_VALUE:
             query_conditions.append("retail_page_account_id = %(retail_page_account_id)s")
             query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append("sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append("question_id = %(question_id)s")
+            query_values["question_id"] = question_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -220,13 +230,15 @@ class Files:
         else:
             return []
 
-    def update_file(self, file_id, retail_page_account_id=NO_VALUE):
+    def update_file(self, file_id, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE):
         """
         Updates file data for provided ID
 
         Params: 
             id: File ID
             retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
         """
         base_query = "UPDATE files "
 
@@ -236,6 +248,12 @@ class Files:
         if retail_page_account_id is not NO_VALUE:
             query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s")
             query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append(" question_id = %(question_id)s")
+            query_values["question_id"] = question_id
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
@@ -243,7 +261,7 @@ class Files:
         else:
             raise Exception("Must give values for fields to update on Files table")
 
-    def update_multiple_files(self, file_ids, retail_page_account_id):
+    def update_multiple_files(self, file_ids, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE):
         """
         Updates file data for provided ID
 
@@ -259,12 +277,16 @@ class Files:
             where_clause = "WHERE id IN (" + ",".join(str(id) for id in file_ids) + ")"
         else:
             raise Exception("Not all the File ids provided are integers")
-
-        self._db.execute(
-            "UPDATE files SET retail_page_account_id = %(retail_page_account_id)s " + where_clause,
-            {
-                "retail_page_account_id": retail_page_account_id
-            }
-        )
-
+        base_query = "UPDATE files SET"
+        query_conditions = []
+        query_values = {}
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s ")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s ")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if len(query_conditions) >= 1:
+            query = base_query + ",".join(query_conditions) + where_clause
+            self._db.execute(query, query_values)
         return self._db.row_count()

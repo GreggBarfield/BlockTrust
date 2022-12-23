@@ -46,14 +46,15 @@ function uploadFileToS3(config, file, progress=null) {
     });
 }
 
-export function uploadFile(userOwns, accountOwns, file, progress=null) {
+export function saveAndUploadFile(userOwns, accountOwns, file, questionId=null, progress=null) {
     let dataResult = null;
     return $.ajax({
-        url: "/widgets/data/get_upload_config",
+        url: "/widgets/data/save_file_and_get_upload_config",
         data: JSON.stringify({
             "user_owns": userOwns === true,
             "account_owns": accountOwns === true,
-            "file_name": file.name
+            "file_name": file.name,
+            "question_id": questionId
         }),
         contentType: 'application/json',
         method: "POST"

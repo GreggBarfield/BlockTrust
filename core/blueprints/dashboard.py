@@ -19,6 +19,7 @@ from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.account_users import NoAccountUserFound
 from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
 
@@ -301,11 +302,20 @@ def serve_sustainability():
     sustainability_enabled_for_sector = True
     if SECTORS_ID_TO_NAME[g.account.sector_id()] == "Buyer" or SECTORS_ID_TO_NAME[g.account.sector_id()] == "Financial":
         sustainability_enabled_for_sector = False
+    pending_questionnaires = SustainabilityResponses(g.db).get_sustainability_responses(
+        account_id=g.account.id(),
+        user_id=g.user.id(),
+        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"]
+    )
+    pending_questionnaires_for_user = False
+    if len(pending_questionnaires) > 0:
+        pending_questionnaires_for_user = True
     return dashboard_render("sustainability/summary.html", {
         "sector_id": g.account.sector_id(),
         "sector": SECTORS_ID_TO_NAME[g.account.sector_id()],
         "accountName": g.account.name(),
-        "sustainability_enabled_for_sector": sustainability_enabled_for_sector
+        "sustainability_enabled_for_sector": sustainability_enabled_for_sector,
+        "pending_questionnaires_for_user": pending_questionnaires_for_user
     })
 
 

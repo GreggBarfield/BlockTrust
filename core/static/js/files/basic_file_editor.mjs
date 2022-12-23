@@ -1,4 +1,4 @@
-import {uploadFile} from "./files.mjs";
+import {saveAndUploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class BasicFileEditor {
@@ -238,7 +238,7 @@ export class BasicFileEditor {
                 return Promise.resolve(true);
             }
 
-            return uploadFile(true, true, filesToBeProcessed[itr]["file"], function(perc) {
+            return saveAndUploadFile(true, true, filesToBeProcessed[itr]["file"], function(perc) {
                 if (totalBytes == 0) {
                     setProgress(1);
                 }
