@@ -1,4 +1,4 @@
-import {uploadFile} from "./files.mjs";
+import {saveAndUploadFile} from "./files.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class FileUploader {
     /**
@@ -87,9 +87,9 @@ export class FileUploader {
         }
     }
 
-    upload = () =>{
+    upload = (questionId=null) =>{
         //Returns a promise
-        return uploadFile(true, true, this.file)
+        return saveAndUploadFile(true, true, this.file, null, questionId)
         .then((id)=>{
             this.uploaded= true;
             this.inputFileNameContainer.className = "m-1 font-italic text-success";

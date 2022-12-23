@@ -435,18 +435,20 @@ def serve_save_eids_for_sales_group():
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
-@bp.route('/widgets/data/get_upload_config', methods=['POST'])
+@bp.route('/widgets/data/save_file_and_get_upload_config', methods=['POST'])
 @crut.require_account
-def serve_get_upload_config():
+def serve_save_file_get_upload_config():
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
+    question_id = request.json.get("question_id", None)
     if not user_owns and not account_owns:
         raise ExportException("Someone must own the file.")
 
-    file_id, file_config = Files(g.db).get_post(
+    file_id, file_config = Files(g.db).insert_file_and_get_post_configuration(
         request.json["file_name"],
         g.user.id() if user_owns else None,
-        g.account.id() if account_owns else None
+        g.account.id() if account_owns else None,
+        question_id
     )
 
     return {
@@ -696,11 +698,7 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 @crut.require_account
 def serve_save_sustainability_questionnaire():
-    file_ids_json = {"file_ids": []}
-    for file_id in request.json["uploaded_document_ids"]:
-        if file_id != 0:
-            file_ids_json["file_ids"].append(file_id)
-    SustainabilityResponses(g.db).insert_sustainabilty_response(
+    sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
         account_id=g.account.id(),
         user_id=g.user.id(),
         air_points=round(request.json["scores"]["air"], 1),
@@ -711,11 +709,12 @@ def serve_save_sustainability_questionnaire():
         efficiency_points=round(request.json["scores"]["efficiency"], 1),
         improvement_points=round(request.json["scores"]["improvement"], 1),
         score=request.json["total_score"],
-        uploaded_file_ids=file_ids_json,
         response=request.json["responses"],
         sector_id=g.account.sector_id(),
-        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
     )
+    uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
+    Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
     return {"redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
