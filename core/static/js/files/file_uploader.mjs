@@ -89,7 +89,7 @@ export class FileUploader {
 
     upload = (questionId=null) =>{
         //Returns a promise
-        return saveAndUploadFile(true, true, this.file, questionId)
+        return saveAndUploadFile(true, true, this.file, null, questionId)
         .then((id)=>{
             this.uploaded= true;
             this.inputFileNameContainer.className = "m-1 font-italic text-success";
