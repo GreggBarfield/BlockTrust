@@ -16,6 +16,6 @@ export class CowCalfQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
             let pendingQuestionnaireResponses = JSON.parse(data.pending_questionnaire_responses);
             let pendingQuestionnaireUploadedFiles = data.pending_questionnaire_uploaded_files;
             this.createQuestionnaire(cowCalfQuestionnaireData, pendingQuestionnaireID, pendingQuestionnaireResponses, pendingQuestionnaireUploadedFiles);
-        })
+        });
     }
 }

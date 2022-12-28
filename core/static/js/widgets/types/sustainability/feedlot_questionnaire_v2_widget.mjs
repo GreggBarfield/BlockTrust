@@ -7,6 +7,13 @@ export class FeedlotQuestionnaireV2Widget extends BaseQuestionnaireV2Widget {
     }
     initType() {
         this.frame.innerHTML = "";
-        this.createQuestionnaire(feedlotQuestionnaireData);
+        this.getData(
+            "get_existing_sustainability_responses_and_files"
+        ).then((data) => {
+            let pendingQuestionnaireID = data.pending_questionnaire_id;
+            let pendingQuestionnaireResponses = JSON.parse(data.pending_questionnaire_responses);
+            let pendingQuestionnaireUploadedFiles = data.pending_questionnaire_uploaded_files;
+            this.createQuestionnaire(feedlotQuestionnaireData, pendingQuestionnaireID, pendingQuestionnaireResponses, pendingQuestionnaireUploadedFiles);
+        });
     }
 }

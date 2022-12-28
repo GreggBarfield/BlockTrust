@@ -13,7 +13,6 @@ class SustainabilityResponses:
 
     def __init__(self, db):
         self._db = db
-        self.sustainability_responses_cols = ()
 
     def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                      land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
@@ -44,7 +43,6 @@ class SustainabilityResponses:
 
         query_conditions = []
         query_values = {}
-        order_by_clause = ""
 
         if id is not NO_VALUE:
             query_conditions.append(" id = %(id)s")
