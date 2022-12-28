@@ -9,7 +9,9 @@ export class FileUploader {
     constructor(parentNode=null, acceptFileTypes = []){
         this.file = null;
         this.fileName = "";
+        this.fileID = 0;
         this.uploaded = false;
+        this.removed = false;
         this.acceptFileTypes = acceptFileTypes;
         this.uploadDeclinedByUser = false;
 
@@ -46,8 +48,10 @@ export class FileUploader {
         inputFileRemoveButton.onclick = () =>{
             if(this.file !== null){  
                 this.file = null;
+                this.removed = true;
                 this.fileName = "";
                 uploadInput.value = "";
+                this.inputFileNameContainer.className = "m-1 font-italic";
                 this.inputFileNameContainer.textContent = "No File Uploaded";
             }
         }
@@ -93,7 +97,7 @@ export class FileUploader {
         .then((id)=>{
             this.uploaded= true;
             this.inputFileNameContainer.className = "m-1 font-italic text-success";
-            this.inputFileNameContainer.textContent = this.fileName + " (Uploaded)"
+            this.inputFileNameContainer.textContent = this.fileName + " (Uploaded)";
             return Promise.resolve(id);
         });      
     }
@@ -103,5 +107,10 @@ export class FileUploader {
             return true;
         }
         return false;
+    }
+
+    updateContainer = (customClassName, customTextContent) => {
+        this.inputFileNameContainer.className = customClassName;
+        this.inputFileNameContainer.textContent = customTextContent;
     }
 }

@@ -20,6 +20,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.totalScore = 0;
         this.isPartialResponse = true;
         
+        this.submittingPreExistingForm = false;
+        this.preExistingSustainabilityResponseID = null;
+
         this.responses = {};
         this.responses.air = {};
         this.responses.land = {};
@@ -33,7 +36,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.statusMessage.className = "d-none p-2 mt-2 mb-0";
     }
     
-    createQuestionnaire = (questionnaireData) =>{
+    createQuestionnaire = (questionnaireData, pendingQuestionnaireID, pendingQuestionnaireResponses, pendingQuestionnaireUploadedFiles) =>{
         this.commonMethods = new CommonQuestionnaireMethods();
         this.frame.innerHTML = "";
         let card = document.createElement("div");
@@ -120,7 +123,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     uploaded_file_ids: this.uploadedFileIDList,
                     total_score: this.totalScore,
                     responses: this.responses,
-                    is_partial_response: this.isPartialResponse
+                    is_partial_response: this.isPartialResponse,
+                    submitting_preexisting_form: this.submittingPreExistingForm,
+                    preexisting_sustainability_response_id: this.preExistingSustainabilityResponseID
                 };
             }
         });
@@ -187,6 +192,32 @@ export class BaseQuestionnaireV2Widget extends Widget{
         });
         cardBody.append(form);
         this.frame.append(card);
+
+        if(pendingQuestionnaireID !== null){
+            this.submittingPreExistingForm = true;
+            this.preExistingSustainabilityResponseID = pendingQuestionnaireID;
+            for(let section of Object.values(sections)){
+                let sectionalResponses = pendingQuestionnaireResponses[section.name];
+                for(let response in sectionalResponses){
+                    let inputElement = document.getElementById(response);
+                    inputElement.value = sectionalResponses[response];
+                }
+            }
+            for(let uploadedFile of pendingQuestionnaireUploadedFiles){
+                let inputElement = document.getElementById(uploadedFile.question_id);
+                inputElement.onchange();
+                for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
+                    if(questionIDAndFileUploaderObject.questionID == uploadedFile.question_id){
+                        let fileUploader = questionIDAndFileUploaderObject.fileUploader;
+                        fileUploader.fileID = uploadedFile.id;
+                        fileUploader.fileName = uploadedFile.name;
+                        fileUploader.file = {"name": uploadedFile.name};
+                        fileUploader.uploaded = true;
+                        fileUploader.updateContainer("m-1 font-italic text-success", uploadedFile.name + " (Uploaded)");
+                    }
+                }
+            }
+        }
     }
 
     calculateScores = (questionnaireData) => {
@@ -234,7 +265,11 @@ export class BaseQuestionnaireV2Widget extends Widget{
         for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
             let fileUploader = questionIDAndFileUploaderObject.fileUploader;
             let id=0;
-            if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
+            if(fileUploader.uploaded == true && fileUploader.removed !== true){
+                id = fileUploader.fileID;
+                uploadedFiles++;
+            }
+            else if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){
                 id = await fileUploader.upload(questionIDAndFileUploaderObject.questionID);
                 uploadedFiles++;
             }
