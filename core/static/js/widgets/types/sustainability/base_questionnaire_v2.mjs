@@ -129,7 +129,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     total_score: this.totalScore,
                     responses: this.responses,
                     is_partial_response: this.isPartialResponse,
-                    submitting_preexisting_form: this.submittingPreExistingForm,
                     sustainability_response_id: this.preExistingSustainabilityResponseID
                 };
             }
