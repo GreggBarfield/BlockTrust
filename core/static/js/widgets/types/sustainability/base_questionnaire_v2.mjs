@@ -19,8 +19,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.uploadedFileIDList = [];
         this.totalScore = 0;
         this.isPartialResponse = true;
-        
-        this.submittingPreExistingForm = false;
         this.preExistingSustainabilityResponseID = null;
 
         this.responses = {};
@@ -198,7 +196,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.frame.append(card);
 
         if(pendingQuestionnaireID !== null){
-            this.submittingPreExistingForm = true;
             this.preExistingSustainabilityResponseID = pendingQuestionnaireID;
             for(let section of Object.values(sections)){
                 let sectionalResponses = pendingQuestionnaireResponses[section.name];
