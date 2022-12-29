@@ -36,7 +36,12 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.statusMessage.className = "d-none p-2 mt-2 mb-0";
     }
     
-    createQuestionnaire = (questionnaireData, pendingQuestionnaireID, pendingQuestionnaireResponses, pendingQuestionnaireUploadedFiles) =>{
+    createQuestionnaire = async (questionnaireData) =>{
+        let pendingQuestionnaireData = await this.getData("get_existing_sustainability_responses_and_files");
+        let pendingQuestionnaireID = pendingQuestionnaireData.pending_questionnaire_id;
+        let pendingQuestionnaireResponses = JSON.parse(pendingQuestionnaireData.pending_questionnaire_responses);
+        let pendingQuestionnaireUploadedFiles = pendingQuestionnaireData.pending_questionnaire_uploaded_files;
+        
         this.commonMethods = new CommonQuestionnaireMethods();
         this.frame.innerHTML = "";
         let card = document.createElement("div");
@@ -125,7 +130,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     responses: this.responses,
                     is_partial_response: this.isPartialResponse,
                     submitting_preexisting_form: this.submittingPreExistingForm,
-                    preexisting_sustainability_response_id: this.preExistingSustainabilityResponseID
+                    sustainability_response_id: this.preExistingSustainabilityResponseID
                 };
             }
         });
@@ -265,7 +270,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
         for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
             let fileUploader = questionIDAndFileUploaderObject.fileUploader;
             let id=0;
-            if(fileUploader.uploaded == true && fileUploader.removed !== true){
+            if(fileUploader.uploaded == true){
                 id = fileUploader.fileID;
                 uploadedFiles++;
             }

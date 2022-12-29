@@ -698,9 +698,9 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 @crut.require_account
 def serve_save_sustainability_questionnaire():
-    if request.json["submitting_preexisting_form"] is True:
+    if request.json["sustainability_response_id"] is not None:
         SustainabilityResponses(g.db).update_sustainability_response(
-            id=request.json["preexisting_sustainability_response_id"],
+            id=request.json["sustainability_response_id"],
             air_points=round(request.json["scores"]["air"], 1),
             land_points=round(request.json["scores"]["land"], 1),
             water_points=round(request.json["scores"]["water"], 1),
@@ -713,13 +713,15 @@ def serve_save_sustainability_questionnaire():
             sector_id=g.account.sector_id(),
             questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
         )
-        previously_uploaded_files = Files(g.db).get_files(sustainability_response_id=request.json["preexisting_sustainability_response_id"])
+        previously_uploaded_files = Files(g.db).get_files(sustainability_response_id=request.json["sustainability_response_id"])
         if len(previously_uploaded_files) > 0:
             previously_uploaded_file_ids = [file["id"] for file in previously_uploaded_files]
-            Files(g.db).update_multiple_files(previously_uploaded_file_ids, sustainability_response_id=None)
-        uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
-        if len(uploaded_file_ids) > 0:
-            Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=request.json["preexisting_sustainability_response_id"])
+            removed_file_ids = [id for id in previously_uploaded_file_ids if id not in request.json["uploaded_file_ids"]]
+            newly_uploaded_file_ids = [id for id in request.json["uploaded_file_ids"] if id != 0 and id not in previously_uploaded_file_ids]
+            if len(removed_file_ids) > 0:
+                Files(g.db).update_multiple_files(removed_file_ids, sustainability_response_id=None)
+            if len(newly_uploaded_file_ids) > 0:
+                Files(g.db).update_multiple_files(newly_uploaded_file_ids, sustainability_response_id=request.json["sustainability_response_id"])
     else:
         sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
             account_id=g.account.id(),

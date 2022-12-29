@@ -11,7 +11,6 @@ export class FileUploader {
         this.fileName = "";
         this.fileID = 0;
         this.uploaded = false;
-        this.removed = false;
         this.acceptFileTypes = acceptFileTypes;
         this.uploadDeclinedByUser = false;
 
@@ -48,7 +47,7 @@ export class FileUploader {
         inputFileRemoveButton.onclick = () =>{
             if(this.file !== null){  
                 this.file = null;
-                this.removed = true;
+                this.uploaded = false;
                 this.fileName = "";
                 uploadInput.value = "";
                 this.inputFileNameContainer.className = "m-1 font-italic";
