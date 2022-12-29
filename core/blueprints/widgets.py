@@ -714,14 +714,13 @@ def serve_save_sustainability_questionnaire():
             questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
         )
         previously_uploaded_files = Files(g.db).get_files(sustainability_response_id=request.json["sustainability_response_id"])
-        if len(previously_uploaded_files) > 0:
-            previously_uploaded_file_ids = [file["id"] for file in previously_uploaded_files]
-            removed_file_ids = [id for id in previously_uploaded_file_ids if id not in request.json["uploaded_file_ids"]]
-            newly_uploaded_file_ids = [id for id in request.json["uploaded_file_ids"] if id != 0 and id not in previously_uploaded_file_ids]
-            if len(removed_file_ids) > 0:
-                Files(g.db).update_multiple_files(removed_file_ids, sustainability_response_id=None)
-            if len(newly_uploaded_file_ids) > 0:
-                Files(g.db).update_multiple_files(newly_uploaded_file_ids, sustainability_response_id=request.json["sustainability_response_id"])
+        previously_uploaded_file_ids = [file["id"] for file in previously_uploaded_files]
+        removed_file_ids = [id for id in previously_uploaded_file_ids if id not in request.json["uploaded_file_ids"]]
+        newly_uploaded_file_ids = [id for id in request.json["uploaded_file_ids"] if id != 0 and id not in previously_uploaded_file_ids]
+        if len(removed_file_ids) > 0:
+            Files(g.db).update_multiple_files(removed_file_ids, sustainability_response_id=None)
+        if len(newly_uploaded_file_ids) > 0:
+            Files(g.db).update_multiple_files(newly_uploaded_file_ids, sustainability_response_id=request.json["sustainability_response_id"])
     else:
         sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
             account_id=g.account.id(),
