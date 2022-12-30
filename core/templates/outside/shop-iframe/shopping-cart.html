@@ -23,7 +23,7 @@
                 <section id="cart-features" class="bg-white">
                     <div class="container">
                         <div class="row cart-footer">
-                            <div class="coupon col-md-6 mt-1 mb-1">
+                            <div class="coupon col-md-6 mt-1 mb-1 d-none">
                                 <form class="form-inline" id="coupon_form" method="POST" request_redirect_to="/external/cart">
                                 <div class="input-group">
                                     <input type="text" class="form-control form-control-sm" id="coupon-code" name="coupon-code" placeholder="Coupon Code">
@@ -37,12 +37,9 @@
                                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="coupon_error_message">Coupon code error</p>
                                     <p><span class="text-primary" id="coupon_applied" style="text-align:left"></span></p>
                                     </div>
-                            </form>
+                                </form>
                             </div>
-                            <div class="update-cart col-md-6 mt-1 mb-1">
-                                <a href="/external/shop/{{partner_id}}" class="btn btn-outline-primary rectangle m-1" ><span>CONTINUE SHOPPING</span></a>
-                            </div>
-                            <div class="col-md-auto cart-total">
+                            <div class="col-md-6 cart-total">
                                 <h4 class="pb-3">CART TOTAL</h4>
                                 <div class="row">
                                     <div class="col sub-col-left">
@@ -62,7 +59,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-10 cart-checkout">
+                            <div class="col-md-3">
+                                <a href="/external/shop/{{partner_id}}" class="btn btn-outline-primary rectangle m-1" ><span>CONTINUE SHOPPING</span></a>
+                            </div>
+                            <div class="col-md-3">
                                 <button class="btn btn-outline-primary rectangle m-1"id="proceedButton">PROCEED TO CHECKOUT</button>
                             </div>
                         </div>

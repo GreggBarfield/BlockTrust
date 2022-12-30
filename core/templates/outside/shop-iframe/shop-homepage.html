@@ -12,13 +12,13 @@
             </div>
             {% for product_category in product_categories %}
             <h2 class="text-black font-weight-bold">{{product_category.category_name}} Tags</h2>
-            <ul  class="row gallery line-effect list-unstyled mb-0" id="grid">
+            <ul  class="row gallery line-effect list-unstyled" id="grid">
             {% for product in allProductData %}
             {% if product.is_active == 1 and product.product_category_id == product_category.id%}
             <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
-                <figure class="gallery-item effect-bubba">
-                    <img src="{{product.pic_1_url}}" style="border:2px;border-style:solid;border-color:#c0c0c0" alt="">
-                    <figcaption>
+                <figure class="gallery-item effect-bubba d-table">
+                    <img src="{{product.pic_1_url}}" style="border:2px;border-style:solid;border-color:#c0c0c0" alt=""> 
+                    <figcaption class="d-table-caption caption-bottom" >
                         <div class="hover-content">
                             <h2 class="hover-title text-center text-white">{{product.product}}</h2>
                             <p class="gallery-info text-center text-white">
@@ -30,11 +30,7 @@
                     </figcaption>
                 </figure>
                 <h4 class="text-center text-black">{{product.product}}</h4>
-                <h6 class="text-center text-black">
-                    <span><i>Regular Price- {{"$%.2f"|format(product.price|float)}}/{{product.unit}} tags<br>
-                        U.S. CattleTrace Member Price- {{"$%.2f"|format(product.member_price|float)}}/{{product.unit}} tags
-                    </i></span> 
-                </h6>
+                <h6 class="text-center text-black">Offered by {{product_vendor_id_to_name[product.product_vendor_id]}}</h6>
             </li>
             {% endif %}
             {% endfor %}
