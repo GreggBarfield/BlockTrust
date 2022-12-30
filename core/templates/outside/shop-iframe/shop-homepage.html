@@ -16,9 +16,9 @@
             {% for product in allProductData %}
             {% if product.is_active == 1 and product.product_category_id == product_category.id%}
             <li class="col-md-6 col-lg-4 gallery" data-groups='["tags"]'>
-                <figure class="gallery-item effect-bubba d-table">
+                <figure class="gallery-item effect-bubba">
                     <img src="{{product.pic_1_url}}" style="border:2px;border-style:solid;border-color:#c0c0c0" alt=""> 
-                    <figcaption class="d-table-caption caption-bottom" >
+                    <figcaption>
                         <div class="hover-content">
                             <h2 class="hover-title text-center text-white">{{product.product}}</h2>
                             <p class="gallery-info text-center text-white">
