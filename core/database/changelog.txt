@@ -1771,3 +1771,7 @@ DROP COLUMN `uploaded_file_ids`;
 ALTER TABLE `files`
 ADD COLUMN `sustainability_response_id` INT NULL DEFAULT NULL,
 ADD COLUMN `question_id` VARCHAR(16) NULL DEFAULT NULL;
+
+/* Nisheet Thakur 01/02/2023 */
+SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
+UPDATE `products` SET `details`= 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.' WHERE id=@product_id;
