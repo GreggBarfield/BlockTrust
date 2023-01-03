@@ -19,7 +19,6 @@ export class BaseQuestionnaireV2Widget extends Widget{
         this.uploadedFileIDList = [];
         this.totalScore = 0;
         this.isPartialResponse = true;
-        this.preExistingSustainabilityResponseID = null;
 
         this.responses = {};
         this.responses.air = {};
@@ -35,10 +34,10 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
     
     createQuestionnaire = async (questionnaireData) =>{
-        let pendingQuestionnaireData = await this.getData("get_existing_sustainability_responses_and_files");
-        let pendingQuestionnaireID = pendingQuestionnaireData.pending_questionnaire_id;
-        let pendingQuestionnaireResponses = JSON.parse(pendingQuestionnaireData.pending_questionnaire_responses);
-        let pendingQuestionnaireUploadedFiles = pendingQuestionnaireData.pending_questionnaire_uploaded_files;
+        let sustainabilityResponseData = await this.getData("get_sustainability_response");
+        let sustainabilityResponseID = sustainabilityResponseData.pending_questionnaire_id;
+        let sustainabilityResponses = JSON.parse(sustainabilityResponseData.pending_questionnaire_responses);
+        let sustainabilityResponseUploadedFiles = sustainabilityResponseData.pending_questionnaire_uploaded_files;
         
         this.commonMethods = new CommonQuestionnaireMethods();
         this.frame.innerHTML = "";
@@ -127,7 +126,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     total_score: this.totalScore,
                     responses: this.responses,
                     is_partial_response: this.isPartialResponse,
-                    sustainability_response_id: this.preExistingSustainabilityResponseID
+                    sustainability_response_id: sustainabilityResponseID
                 };
             }
         });
@@ -195,16 +194,15 @@ export class BaseQuestionnaireV2Widget extends Widget{
         cardBody.append(form);
         this.frame.append(card);
 
-        if(pendingQuestionnaireID !== null){
-            this.preExistingSustainabilityResponseID = pendingQuestionnaireID;
+        if(sustainabilityResponseID !== null){
             for(let section of Object.values(sections)){
-                let sectionalResponses = pendingQuestionnaireResponses[section.name];
-                for(let response in sectionalResponses){
+                let sectionalResponses = sustainabilityResponses[section.name];
+                for(let response of Object.keys(sectionalResponses)){
                     let inputElement = document.getElementById(response);
                     inputElement.value = sectionalResponses[response];
                 }
             }
-            for(let uploadedFile of pendingQuestionnaireUploadedFiles){
+            for(let uploadedFile of sustainabilityResponseUploadedFiles){
                 let inputElement = document.getElementById(uploadedFile.question_id);
                 inputElement.onchange();
                 for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){

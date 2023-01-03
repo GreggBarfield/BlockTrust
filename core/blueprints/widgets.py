@@ -790,7 +790,7 @@ def serve_save_account_retail_data():
     return {"redirect": "/dashboard"}
 
 
-@bp.route('/widgets/data/get_existing_sustainability_responses_and_files', methods=["POST"])
+@bp.route('/widgets/data/get_sustainability_response', methods=["POST"])
 @crut.require_account
 def serve_get_existing_sustainability_responses():
     pending_questionnaires = SustainabilityResponses(g.db).get_sustainability_responses(
