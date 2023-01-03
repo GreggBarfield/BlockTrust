@@ -798,15 +798,15 @@ def serve_get_existing_sustainability_responses():
         user_id=g.user.id(),
         questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"]
     )
-    pending_questionnaire_id = None
-    pending_questionnaire_responses = None
-    pending_questionnaire_uploaded_files = None
+    sustainability_response_id = None
+    sustainability_responses = None
+    sustainability_response_uploaded_files = None
     if len(pending_questionnaires) > 0:
-        pending_questionnaire_id = pending_questionnaires[0]["id"]
-        pending_questionnaire_responses = pending_questionnaires[0]["response"]
-        pending_questionnaire_uploaded_files = Files(g.db).get_files(sustainability_response_id=pending_questionnaires[0]["id"])
+        sustainability_response_id = pending_questionnaires[0]["id"]
+        sustainability_responses = pending_questionnaires[0]["response"]
+        sustainability_response_uploaded_files = Files(g.db).get_files(sustainability_response_id=pending_questionnaires[0]["id"])
     return {
-        "pending_questionnaire_id": pending_questionnaire_id,
-        "pending_questionnaire_responses": pending_questionnaire_responses,
-        "pending_questionnaire_uploaded_files": pending_questionnaire_uploaded_files
+        "sustainability_response_id": sustainability_response_id,
+        "sustainability_responses": sustainability_responses,
+        "sustainability_response_uploaded_files": sustainability_response_uploaded_files
     }
