@@ -34,9 +34,9 @@ export class BaseQuestionnaireV2Widget extends Widget{
     }
     
     createQuestionnaire = async (questionnaireData) =>{
-        let sustainabilityResponseData = await this.getData("get_sustainability_response");
+        let sustainabilityResponseData = await this.getData("get_existing_sustainability_response");
         let sustainabilityResponseId = sustainabilityResponseData.sustainability_response_id;
-        let sustainabilityResponses = JSON.parse(sustainabilityResponseData.sustainability_responses);
+        let sustainabilityResponses = sustainabilityResponseData.sustainability_responses;
         let sustainabilityResponseUploadedFiles = sustainabilityResponseData.sustainability_response_uploaded_files;
         
         this.commonMethods = new CommonQuestionnaireMethods();
