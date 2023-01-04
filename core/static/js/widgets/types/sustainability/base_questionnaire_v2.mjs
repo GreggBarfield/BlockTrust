@@ -35,7 +35,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
     
     createQuestionnaire = async (questionnaireData) =>{
         let sustainabilityResponseData = await this.getData("get_sustainability_response");
-        let sustainabilityResponseID = sustainabilityResponseData.sustainability_response_id;
+        let sustainabilityResponseId = sustainabilityResponseData.sustainability_response_id;
         let sustainabilityResponses = JSON.parse(sustainabilityResponseData.sustainability_responses);
         let sustainabilityResponseUploadedFiles = sustainabilityResponseData.sustainability_response_uploaded_files;
         
@@ -126,7 +126,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                     total_score: this.totalScore,
                     responses: this.responses,
                     is_partial_response: this.isPartialResponse,
-                    sustainability_response_id: sustainabilityResponseID
+                    sustainability_response_id: sustainabilityResponseId
                 };
             }
         });
@@ -194,12 +194,12 @@ export class BaseQuestionnaireV2Widget extends Widget{
         cardBody.append(form);
         this.frame.append(card);
 
-        if(sustainabilityResponseID !== null){
+        if(sustainabilityResponseId !== null){
             for(let section of Object.values(sections)){
                 let sectionalResponses = sustainabilityResponses[section.name];
-                for(let response of Object.keys(sectionalResponses)){
-                    let inputElement = document.getElementById(response);
-                    inputElement.value = sectionalResponses[response];
+                for (const [questionId, responseValue] of Object.entries(sectionalResponses)) {
+                    let inputElement = document.getElementById(questionId);
+                    inputElement.value = responseValue;
                 }
             }
             for(let uploadedFile of sustainabilityResponseUploadedFiles){
@@ -208,7 +208,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
                 for(let questionIDAndFileUploaderObject of this.questionIDAndFileUploaderObjectList){
                     if(questionIDAndFileUploaderObject.questionID == uploadedFile.question_id){
                         let fileUploader = questionIDAndFileUploaderObject.fileUploader;
-                        fileUploader.fileID = uploadedFile.id;
+                        fileUploader.fileId = uploadedFile.id;
                         fileUploader.fileName = uploadedFile.name;
                         fileUploader.file = {"name": uploadedFile.name};
                         fileUploader.uploaded = true;
@@ -265,7 +265,7 @@ export class BaseQuestionnaireV2Widget extends Widget{
             let fileUploader = questionIDAndFileUploaderObject.fileUploader;
             let id=0;
             if(fileUploader.uploaded == true){
-                id = fileUploader.fileID;
+                id = fileUploader.fileId;
                 uploadedFiles++;
             }
             else if(!fileUploader.uploadDeclinedByUser && fileUploader.isFileAttached()){

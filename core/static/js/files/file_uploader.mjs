@@ -9,7 +9,7 @@ export class FileUploader {
     constructor(parentNode=null, acceptFileTypes = []){
         this.file = null;
         this.fileName = "";
-        this.fileID = 0;
+        this.fileId = 0;
         this.uploaded = false;
         this.acceptFileTypes = acceptFileTypes;
         this.uploadDeclinedByUser = false;
