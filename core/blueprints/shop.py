@@ -23,10 +23,15 @@ bp = Blueprint('shop_bp', __name__)
 def serve_partner_shop(partner_id):
     allProductData = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
     productCategories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
     return outside_render('shop-iframe/shop-homepage.html', {
         "allProductData": allProductData,
         "partner_id": partner_id,
-        "product_categories": productCategories
+        "product_categories": productCategories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names
         })
 
 
