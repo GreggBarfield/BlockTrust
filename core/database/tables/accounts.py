@@ -10,8 +10,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
                 "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_payouts_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
-                "account_manager_id", "archived", "partner_private_logo", "is_partner_used_for_signup", "retail_name",
-                "retail_description")
+                "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description")
 
 
 class AccountsException(Exception):
