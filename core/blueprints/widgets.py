@@ -698,23 +698,48 @@ def serve_save_eids_by_application_id():
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])
 @crut.require_account
 def serve_save_sustainability_questionnaire():
-    sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
-        account_id=g.account.id(),
-        user_id=g.user.id(),
-        air_points=round(request.json["scores"]["air"], 1),
-        land_points=round(request.json["scores"]["land"], 1),
-        water_points=round(request.json["scores"]["water"], 1),
-        animal_points=round(request.json["scores"]["animal"], 1),
-        safety_points=round(request.json["scores"]["safety"], 1),
-        efficiency_points=round(request.json["scores"]["efficiency"], 1),
-        improvement_points=round(request.json["scores"]["improvement"], 1),
-        score=request.json["total_score"],
-        response=request.json["responses"],
-        sector_id=g.account.sector_id(),
-        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
-    )
-    uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
-    Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
+    if request.json["sustainability_response_id"] is not None:
+        SustainabilityResponses(g.db).update_sustainability_response(
+            id=request.json["sustainability_response_id"],
+            air_points=round(request.json["scores"]["air"], 1),
+            land_points=round(request.json["scores"]["land"], 1),
+            water_points=round(request.json["scores"]["water"], 1),
+            animal_points=round(request.json["scores"]["animal"], 1),
+            safety_points=round(request.json["scores"]["safety"], 1),
+            efficiency_points=round(request.json["scores"]["efficiency"], 1),
+            improvement_points=round(request.json["scores"]["improvement"], 1),
+            score=request.json["total_score"],
+            response=request.json["responses"],
+            sector_id=g.account.sector_id(),
+            questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+        )
+        previously_uploaded_files = Files(g.db).get_files(sustainability_response_id=request.json["sustainability_response_id"])
+        previously_uploaded_file_ids = [file["id"] for file in previously_uploaded_files]
+        removed_file_ids = [id for id in previously_uploaded_file_ids if id not in request.json["uploaded_file_ids"]]
+        newly_uploaded_file_ids = [id for id in request.json["uploaded_file_ids"] if id != 0 and id not in previously_uploaded_file_ids]
+        if len(removed_file_ids) > 0:
+            Files(g.db).update_multiple_files(removed_file_ids, sustainability_response_id=None)
+        if len(newly_uploaded_file_ids) > 0:
+            Files(g.db).update_multiple_files(newly_uploaded_file_ids, sustainability_response_id=request.json["sustainability_response_id"])
+    else:
+        sustainability_response_id = SustainabilityResponses(g.db).insert_sustainabilty_response(
+            account_id=g.account.id(),
+            user_id=g.user.id(),
+            air_points=round(request.json["scores"]["air"], 1),
+            land_points=round(request.json["scores"]["land"], 1),
+            water_points=round(request.json["scores"]["water"], 1),
+            animal_points=round(request.json["scores"]["animal"], 1),
+            safety_points=round(request.json["scores"]["safety"], 1),
+            efficiency_points=round(request.json["scores"]["efficiency"], 1),
+            improvement_points=round(request.json["scores"]["improvement"], 1),
+            score=request.json["total_score"],
+            response=request.json["responses"],
+            sector_id=g.account.sector_id(),
+            questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"] if request.json["is_partial_response"] else QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+        )
+        uploaded_file_ids = [file_id for file_id in request.json["uploaded_file_ids"] if file_id != 0]
+        if len(uploaded_file_ids) > 0:
+            Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
     return {"redirect": "/dashboard/sustainability"}
 
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
@@ -763,3 +788,25 @@ def serve_save_account_retail_data():
     if len(newly_uploaded_image_ids) > 0:
         Files(g.db).update_multiple_files(newly_uploaded_image_ids, g.account.id())
     return {"redirect": "/dashboard"}
+
+
+@bp.route('/widgets/data/get_existing_sustainability_response', methods=["POST"])
+@crut.require_account
+def serve_get_existing_sustainability_responses():
+    pending_questionnaires = SustainabilityResponses(g.db).get_sustainability_responses(
+        account_id=g.account.id(),
+        user_id=g.user.id(),
+        questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Pending"]
+    )
+    sustainability_response_id = None
+    sustainability_responses = None
+    sustainability_response_uploaded_files = None
+    if len(pending_questionnaires) > 0:
+        sustainability_response_id = pending_questionnaires[0]["id"]
+        sustainability_responses = pending_questionnaires[0]["response"]
+        sustainability_response_uploaded_files = Files(g.db).get_files(sustainability_response_id=pending_questionnaires[0]["id"])
+    return {
+        "sustainability_response_id": sustainability_response_id,
+        "sustainability_responses": sustainability_responses,
+        "sustainability_response_uploaded_files": sustainability_response_uploaded_files
+    }
