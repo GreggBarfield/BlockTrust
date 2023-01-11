@@ -450,7 +450,7 @@ def serve_select_report_type():
 def serve_subscription_reports():
     subscribed_accounts = Accounts(g.db).get_accounts(generated_paid=1)
     sector_totals = { name:0 for name in SECTORS_ID_TO_NAME.keys()}
-    # working with cents below
+    # working with cents below to get around python's round problem
     price = serve_stripe_price(StripePrices.basic.name)["price"]/12
     total = sum(account["stripe_paid"] for account in subscribed_accounts) * price
     for account in subscribed_accounts:
