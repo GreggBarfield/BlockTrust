@@ -28,6 +28,7 @@ from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, validate_email
+from datetime import datetime
 import json
 
 bp = Blueprint('employees_bp', __name__)
@@ -401,12 +402,12 @@ def serve_update_account_paid_status():
     account_id = int(request_data["account_id"])
     paid_status = bool(request_data["paid_status"])
     if paid_status:
-        g.db.accounts.update_account(account_id, manual_paid=1)
+        g.db.accounts.update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
     else:
         account = g.db.accounts.get_account_by_id(account_id)
         if account.stripe_paid() == 1:
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
-        g.db.accounts.update_account(account_id, manual_paid=0)
+        g.db.accounts.update_account(account_id, manual_paid=0,  subscription_end_date=datetime.now())
     return {}, 200
 
 
@@ -448,12 +449,20 @@ def serve_select_report_type():
 @crut.require_employee
 def serve_subscription_reports():
     subscribed_accounts = Accounts(g.db).get_accounts(generated_paid=1)
-    price = serve_stripe_price(StripePrices.basic.name)["price"]/1200
+    sector_totals = { name:0 for name in SECTORS_ID_TO_NAME.keys()}
+    # working with cents below to get around python's round problem
+    price = serve_stripe_price(StripePrices.basic.name)["price"]/12
     total = sum(account["stripe_paid"] for account in subscribed_accounts) * price
+    for account in subscribed_accounts:
+        account["sector_name"] = SECTORS_ID_TO_NAME[account["sector"]]
+        if account["stripe_paid"]:
+            sector_totals[account["sector"]] += price/100 
     return employee_render("/employee/finance/subscription-reports.html", {
         "subscribed_accounts": subscribed_accounts, 
-        "monthly_amount":price,
-        "monthly_total": total
+        "monthly_amount":price/100, # will divide by 100 to get dollar amount only at the time of display/transfer
+        "monthly_total": total/100,
+        "sector_totals": sector_totals,
+        "SECTORS_ID_TO_NAME": SECTORS_ID_TO_NAME
     })
 
 
