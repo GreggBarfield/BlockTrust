@@ -1690,7 +1690,7 @@ SELECT id, CONCAT('{"type": "count_distribution_for_sector_at_account", "params"
 FROM accounts WHERE sector = 7;
 
 /* Rohan Sureshkuar 9/26/2022 */
-DROP TABLE sustainability
+DROP TABLE sustainability;
 
 /* Nisheet Thakur 09/26/2022 */
 ALTER TABLE `connections`
@@ -1775,3 +1775,8 @@ ADD COLUMN `question_id` VARCHAR(16) NULL DEFAULT NULL;
 /* Nisheet Thakur 01/02/2023 */
 SET @product_id := (SELECT id FROM products WHERE product='USDA HDX 840 Tag');
 UPDATE `products` SET `details`= 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.' WHERE id=@product_id;
+
+/* Rohan Sureshkumar 1/10/2023 */
+ALTER TABLE `accounts` 
+ADD COLUMN `subscription_start_date` DATETIME NULL DEFAULT NULL AFTER `stripe_customer_id`,
+ADD COLUMN `subscription_end_date` DATETIME NULL DEFAULT NULL AFTER `subscription_start_date`;

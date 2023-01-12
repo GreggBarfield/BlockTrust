@@ -521,7 +521,8 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
-                       retail_name=NO_VALUE, retail_description=NO_VALUE):
+                       retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
+                       subscription_end_date=NO_VALUE):
         """
         Updates an account.
 
@@ -601,6 +602,13 @@ class Accounts:
         if retail_description is not NO_VALUE:
             query_conditions.append("retail_description = %(retail_description)s")
             query_values["retail_description"] = retail_description
+        if subscription_start_date is not NO_VALUE:
+            query_conditions.append("subscription_start_date = %(subscription_start_date)s")
+            query_values["subscription_start_date"] = subscription_start_date
+        if subscription_end_date is not NO_VALUE:
+            query_conditions.append("subscription_end_date = %(subscription_end_date)s")
+            query_values["subscription_end_date"] = subscription_end_date
+
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition

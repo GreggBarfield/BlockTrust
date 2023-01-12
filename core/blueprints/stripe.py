@@ -2,15 +2,16 @@ from flask import (
     Blueprint, request, g, session, redirect, url_for
 )
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
-import stripe
-import json
-import traceback
 from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET 
+from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from datetime import datetime
+import json
+import stripe
+import traceback
 
 bp = Blueprint('stripe_bp', __name__)
 
@@ -77,18 +78,18 @@ def serve_stripe_subscription():
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
             if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1)
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
             else:
                 error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.deleted':
         if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
+            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
         else:
             error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.updated':
         if event.data.object.status == 'past_due':
             if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0)
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
             else:
                 error = f"No account for customer id: {customer_id}. Event: {event.type}"
     else:
