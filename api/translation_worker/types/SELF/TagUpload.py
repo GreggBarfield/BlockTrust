@@ -1,4 +1,7 @@
+from core.database.combinations import perform_feeder_packer_data_received_actions
 from core.utilities.zip_codes import get_lat_lon
+from core.sectors import SECTORS_NAME_TO_ID
+from core.match_types import MATCH_TYPES_NAME_TO_ID
 from ...exceptions import ExecutionException
 from ...all_to_unix import all_to_unix
 
@@ -28,10 +31,11 @@ def handle(db, insert):
     api_insert = insert["id"]
     visual_id = fields["VisualID"] if "VisualID" in fields and fields["VisualID"] != "" else None
 
-    account = db.accounts.get_account_by_id(insert["account"])
-    if account is not None:
-        account_link_id = account.account_links()[0].id()
-        zipcode = str(account.zip())
+    accounts = db.accounts.get_accounts(id=insert["account"])
+    if len(accounts) > 0:
+        account = accounts[0]
+        account_link_id = db.account_links.get_account_links(account_id=account["id"])[0]["id"]
+        zipcode = str(account["zip"])
         if len(zipcode) >= 5:
             f5 = zipcode[0:5]
             for d in f5:
