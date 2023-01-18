@@ -306,22 +306,22 @@ export class TableWidget extends Widget {
             }
         }
         if ('count_eid_distinct' in this) {
-            let interest1 = this.tableSectionSightingsRows[2].children[2];
-            let interest2 = this.tableSectionSightingsRows[3].children[2];
+            let totalCalvesSighted = this.tableSectionSightingsRows[2].children[2];
+            let percentageOfTotalCalvesSighted = this.tableSectionSightingsRows[3].children[2];
 
             if ('count_eid_distinct' in this && this.count_eid_distinct === null) {
-                interest1.innerHTML = "";
-                interest1.append(this.createNotAvailableYet());
-                interest2.innerHTML = "";
-                interest2.append(this.createNotAvailableYet());
+                totalCalvesSighted.innerHTML = "";
+                totalCalvesSighted.append(this.createNotAvailableYet());
+                percentageOfTotalCalvesSighted.innerHTML = "";
+                percentageOfTotalCalvesSighted.append(this.createNotAvailableYet());
             }
             else if ('count_eid_distinct' in this) {
-                interest1.textContent = this.count_eid_distinct_sighted;
+                totalCalvesSighted.textContent = this.count_eid_distinct_sighted;
                 let v = "n/a";
                 if (this.count_eid_distinct != 0) {
                     v = (100 * this.count_eid_distinct_sighted / this.count_eid_distinct).toFixed(2) + "%";
                 }
-                interest2.textContent = v;
+                percentageOfTotalCalvesSighted.textContent = v;
             }
         }
     }
