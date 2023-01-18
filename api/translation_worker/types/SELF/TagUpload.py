@@ -1,4 +1,3 @@
-from core.database.combinations import perform_feeder_packer_data_received_actions
 from core.utilities.zip_codes import get_lat_lon
 from core.sectors import SECTORS_NAME_TO_ID
 from core.match_types import MATCH_TYPES_NAME_TO_ID
