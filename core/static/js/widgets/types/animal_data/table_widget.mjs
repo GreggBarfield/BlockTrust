@@ -30,6 +30,7 @@ export class TableWidget extends Widget {
                 }
                 else {
                     this.account_total_distinct = data.result.count_eid_distinct;
+                    this.account_sighted_distinct = data.result.count_eid_distinct_sighted;
                 }
                 this.displayAccount();
             }),
@@ -130,6 +131,7 @@ export class TableWidget extends Widget {
                 }
                 else {
                     this.count_eid_distinct = data.result.count_eid_distinct;
+                    this.count_eid_distinct_sighted = data.result.count_eid_distinct_sighted;
                 }
                 this.displayGlobal();
             })
@@ -149,6 +151,16 @@ export class TableWidget extends Widget {
         let tableExport = [["Sightings Summary"], columnHeaders];
         tableExport.push(["Total Calves", this.account_total_distinct, this.count_eid_distinct]);
 
+        tableExport.push(["Total Available", this.account_sighted_distinct, this.count_eid_distinct_sighted ]);
+
+        if (this.account_total_distinct) {
+            tableExport.push(["% Available", (100 * this.account_sighted_distinct / this.account_total_distinct).toFixed(2) + "%", 
+                (100 * this.count_eid_distinct_sighted / this.count_eid_distinct).toFixed(2) + "%"]);
+        }
+        else
+            tableExport.push(["% Available", "n/a", (100 * this.count_eid_distinct_sighted / this.count_eid_distinct).toFixed(2) + "%"]);            
+
+        //Second table
         let accountDataAvailableTotal = 0, globalDataAvailableTotal = 0;
 
         let qualityGradeToCountAccount = {"Prime":0, "Choice":0, "Select or Lower":0,"Others":0};
@@ -169,16 +181,6 @@ export class TableWidget extends Widget {
             else
                 qualityGradeToCountGlobal["Others"] += dataItem.count
         }
-        tableExport.push(["Total Available", accountDataAvailableTotal,globalDataAvailableTotal ]);
-
-        if (this.account_total_distinct) {
-            tableExport.push(["% Available", (100 * accountDataAvailableTotal / this.account_total_distinct).toFixed(2) + "%", 
-                (100 * globalDataAvailableTotal / this.count_eid_distinct).toFixed(2) + "%"]);
-        }
-        else
-            tableExport.push(["% Available", "n/a", (100 * globalDataAvailableTotal / this.count_eid_distinct).toFixed(2) + "%"]);            
-
-        //Second table
         tableExport.push([""], ["Carcass Quality Grade(% of available)"], columnHeaders)
         for(let grade of Object.keys(qualityGradeToCountAccount)) {
             let row = [grade]
@@ -270,7 +272,6 @@ export class TableWidget extends Widget {
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[2].textContent = v;
                 }
-                this.global_total_available = total;
             }
         }
         if ('global_usda_quality_grade_distribution' in this) {
@@ -302,29 +303,25 @@ export class TableWidget extends Widget {
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[2].textContent = v;
                 }
-                this.global_total_available = total;
             }
         }
-        if ('global_total_available' in this || 'count_eid_distinct' in this) {
-            let interest1 = this.tableSectionSightingsRows[2].children[2];
-            let interest2 = this.tableSectionSightingsRows[3].children[2];
+        if ('count_eid_distinct' in this) {
+            let totalCalvesSighted = this.tableSectionSightingsRows[2].children[2];
+            let percentageOfTotalCalvesSighted = this.tableSectionSightingsRows[3].children[2];
 
-            if (
-                'global_total_available' in this && this.global_total_available === null ||
-                'count_eid_distinct' in this && this.count_eid_distinct === null
-            ) {
-                interest1.innerHTML = "";
-                interest1.append(this.createNotAvailableYet());
-                interest2.innerHTML = "";
-                interest2.append(this.createNotAvailableYet());
+            if ('count_eid_distinct' in this && this.count_eid_distinct === null) {
+                totalCalvesSighted.innerHTML = "";
+                totalCalvesSighted.append(this.createNotAvailableYet());
+                percentageOfTotalCalvesSighted.innerHTML = "";
+                percentageOfTotalCalvesSighted.append(this.createNotAvailableYet());
             }
-            else if ('global_total_available' in this && 'count_eid_distinct' in this) {
-                interest1.textContent = this.global_total_available;
+            else if ('count_eid_distinct' in this) {
+                totalCalvesSighted.textContent = this.count_eid_distinct_sighted;
                 let v = "n/a";
                 if (this.count_eid_distinct != 0) {
-                    v = (100 * this.global_total_available / this.count_eid_distinct).toFixed(2) + "%";
+                    v = (100 * this.count_eid_distinct_sighted / this.count_eid_distinct).toFixed(2) + "%";
                 }
-                interest2.textContent = v;
+                percentageOfTotalCalvesSighted.textContent = v;
             }
         }
     }
@@ -333,9 +330,6 @@ export class TableWidget extends Widget {
         if ('account_usda_yield_grade_distribution' in this) {
             if (this.account_usda_yield_grade_distribution === null) {
                 this.unavailableSection(this.tableSectionYieldRows, 1);
-                if (!('account_total_available' in this)) {
-                    this.account_total_available = null;
-                }
             }
             else {
                 let total = 0;
@@ -356,15 +350,11 @@ export class TableWidget extends Widget {
                     }
                     this.tableSectionYieldRows[1 + parseInt(i)].children[1].textContent = v;
                 }
-                this.account_total_available = total;
             }
         }
         if ('account_usda_quality_grade_distribution' in this) {
             if (this.account_usda_quality_grade_distribution === null) {
                 this.unavailableSection(this.tableSectionQualityRows, 1);
-                if (!('account_total_available' in this)) {
-                    this.account_total_available = null;
-                }
             }
             else {
                 let total = 0;
@@ -391,44 +381,39 @@ export class TableWidget extends Widget {
                     }
                     this.tableSectionQualityRows[1 + parseInt(i)].children[1].textContent = v;
                 }
-                this.account_total_available = total;
             }
         }
 
         if ('account_total_distinct' in this) {
-            let interest = this.tableSectionSightingsRows[1].children[1];
+            let totalCalvesForAccount = this.tableSectionSightingsRows[1].children[1];
             if (this.account_total_distinct === null) {
-                interest.innerHTML = "";
-                interest.append(this.createNotAvailableYet());
+                totalCalvesForAccount.innerHTML = "";
+                totalCalvesForAccount.append(this.createNotAvailableYet());
             }
             else {
-                interest.textContent = this.account_total_distinct;
+                totalCalvesForAccount.textContent = this.account_total_distinct;
             }
-        }
-        if ('account_total_available' in this) {
-            let interest = this.tableSectionSightingsRows[2].children[1];
-            if (this.account_total_available === null) {
-                interest.innerHTML = "";
-                interest.append(this.createNotAvailableYet());
+            let totalCalvesSightedForAccount = this.tableSectionSightingsRows[2].children[1];
+            if (this.account_sighted_distinct === null) {
+                totalCalvesSightedForAccount.innerHTML = "";
+                totalCalvesSightedForAccount.append(this.createNotAvailableYet());
             }
             else {
-                interest.textContent = this.account_total_available;
+                totalCalvesSightedForAccount.textContent = this.account_sighted_distinct;
             }
         }
-        if ('account_total_available' in this || 'account_total_distinct' in this) {
-            let interest = this.tableSectionSightingsRows[3].children[1];
-            if (
-                'account_total_available' in this && this.account_total_available === null ||
-                'account_total_distinct' in this && this.account_total_distinct === null) {
-                interest.innerHTML = "";
-                interest.append(this.createNotAvailableYet());
+        if ('account_total_distinct' in this) {
+            let percentOfCalvesSightedForAccount = this.tableSectionSightingsRows[3].children[1];
+            if ('account_total_distinct' in this && this.account_total_distinct === null) {
+                percentOfCalvesSightedForAccount.innerHTML = "";
+                percentOfCalvesSightedForAccount.append(this.createNotAvailableYet());
             }
-            else if ('account_total_available' in this && 'account_total_distinct' in this) {
+            else if ('account_total_distinct' in this) {
                 let v = "n/a";
                 if (this.account_total_distinct != 0) {
-                    v = (100 * this.account_total_available / this.account_total_distinct).toFixed(2) + "%";
+                    v = (100 * this.account_sighted_distinct / this.account_total_distinct).toFixed(2) + "%";
                 }
-                interest.textContent = v;
+                percentOfCalvesSightedForAccount.textContent = v;
             }
         }
     }

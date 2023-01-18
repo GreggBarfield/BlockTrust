@@ -5,6 +5,7 @@ from core.database.no_value import NoValue
 from ..frag import frag
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from ..objects.animal import Animal
+from core.sectors import SECTORS_NAME_TO_ID
 
 THREE_YEARS = 60 * 60 * 24 * 365 * 3
 NO_VALUE = NoValue()
@@ -83,59 +84,67 @@ class Matches:
             )
         ))
 
-    def get_sighted_matches_for_account(self, account_link_id):
+    def get_sighted_matches_for_account(self, account_link_id, as_count=False):
+        select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count" if as_count else "SELECT m3.*"
+        third_matches_clause = "LEFT JOIN matches m3 on m1.eid = m3.eid" if not as_count else ""
+        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
+                              {SECTORS_NAME_TO_ID['Packer']},{SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
         match_rows = self._db.execute_d(
-            """
-            SELECT m1.* FROM matches m1
+            f"""
+            {select_clause} FROM matches m1
             INNER JOIN matches m2 ON m1.eid = m2.eid
-            INNER JOIN matches m3 on m1.eid = m3.eid
-            WHERE m2.account_link = %(account_link_id)s AND m2.type = %(sighting_type)s AND m3.type = %(grade_type)s
+            INNER JOIN account_links al on al.id = m2.account_link
+            {third_matches_clause}
+            WHERE m1.account_link = %(account_link_id)s AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
+            AND al.sector IN {sectors_clause}
             ORDER BY m1.eid
             """,
             {
                 "account_link_id": account_link_id,
-                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"],
-                "grade_type": MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]
+                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
             }
         )
-        all_eid_data = {}
-        for row in match_rows:
-            if row["eid"] not in all_eid_data.keys():
-                current_eid_data = {"eid": row["eid"]}
-            else:
-                current_eid_data = all_eid_data[row["eid"]]
+        if as_count:
+            return match_rows[0]["count"]
+        else:
+            all_eid_data = {}
+            for row in match_rows:
+                if row["eid"] not in all_eid_data.keys():
+                    current_eid_data = {"eid": row["eid"]}
+                else:
+                    current_eid_data = all_eid_data[row["eid"]]
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["account_link"] == account_link_id:
-                current_eid_data["visual_id"] = row["visual_id"]
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["account_link"] == account_link_id:
+                    current_eid_data["visual_id"] = row["visual_id"]
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
-                current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
-                data = json.loads(row["data"]) if row["data"] is not None else {}
-                current_eid_data["creep_feed"] = data.get("creep_feed", None)
-                current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
-                current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
-                current_eid_data["weaning_strategy"] = data.get("at", None)
-                current_eid_data["wean_weight"] = data.get("wean_weight", None)
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
+                    current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
+                    data = json.loads(row["data"]) if row["data"] is not None else {}
+                    current_eid_data["creep_feed"] = data.get("creep_feed", None)
+                    current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
+                    current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
+                    current_eid_data["weaning_strategy"] = data.get("at", None)
+                    current_eid_data["wean_weight"] = data.get("wean_weight", None)
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
-                current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
-                data = json.loads(row["data"]) if row["data"] is not None else {}
-                current_eid_data["marketing_method_name"] = data.get("method", None)
-                current_eid_data["sale_location"] = data.get("location", None)
-                current_eid_data["number_of_calves"] = data.get("group_size", None)
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
+                    current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
+                    data = json.loads(row["data"]) if row["data"] is not None else {}
+                    current_eid_data["marketing_method_name"] = data.get("method", None)
+                    current_eid_data["sale_location"] = data.get("location", None)
+                    current_eid_data["number_of_calves"] = data.get("group_size", None)
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
-                current_eid_data["hot_weight"] = row['data']
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
+                    current_eid_data["hot_weight"] = row['data']
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
-                current_eid_data["quality_grade"] = row['data']
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                    current_eid_data["quality_grade"] = row['data']
 
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
-                current_eid_data["yield_grade"] = row['data']
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                    current_eid_data["yield_grade"] = row['data']
 
-            all_eid_data[row["eid"]] = current_eid_data
+                all_eid_data[row["eid"]] = current_eid_data
 
-        return [x for x in all_eid_data.values()]
+            return [x for x in all_eid_data.values()]
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
@@ -159,7 +168,7 @@ class Matches:
 
     def get_matched_accounts_for_account_link(self, account_link_id):
         """Gets all the accounts that were matched to account_link_id based on given type
-        
+
         Params:
             account_link_id: The user's account link ID
             type: Type based on 'match_types.py' file
@@ -196,7 +205,7 @@ class Matches:
         Returns:
             A list of account(s) record if found else []
         """
-        
+
         if len(selectColumns) > 0:
             incorrect_cols = [col for col in selectColumns if col not in self._match_cols]
             
@@ -420,6 +429,27 @@ class Matches:
             """
         )
         return self._db.fetch_all()[0]['count']
+
+    def get_count_eid_distinct_sighted(self):
+        """Count the number of distinct EIDs in the database which have been sighted at either feedlot, auction house,
+        packer, buyer, stocker/backgrounder.
+
+        Returns:
+            The value
+        """
+        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
+                              {SECTORS_NAME_TO_ID['Packer']}, {SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
+        rows = self._db.execute_d(
+            f"""
+            SELECT COUNT(DISTINCT m1.eid) AS count FROM matches m1
+            INNER JOIN matches m2 ON m1.eid = m2.eid
+            INNER JOIN account_links al1 on al1.id = m1.account_link
+            INNER JOIN account_links al2 on al2.id = m2.account_link
+            WHERE  m1.type = 1 AND (al1.sector = {SECTORS_NAME_TO_ID["Cow-Calf"]} OR al1.sector IS NULL)
+            AND m2.type = 1 AND al2.sector IN {sectors_clause}
+            """
+        )
+        return rows[0]['count']
 
     def get_ils_eids(self):
         """Get EIDs that ILS still needs to process in the database.
