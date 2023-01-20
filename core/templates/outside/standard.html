@@ -13,16 +13,6 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 <script src="/static/global/global.mjs" type="module"></script>
 {% endblock head_section %}
 
-{% block scripts %}
-<script src="/static/libs/popper/popper.min.js"></script>
-<script src="/static/libs/bootstrap/bootstrap.min.js"></script>
-<script src="/static/libs/appear/jquery.appear.js"></script>
-<script src="/static/js/custom.js"></script>
-<script src="/static/libs2/parallax.js-1.5.0/parallax.min.js"></script>
-<script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
-<script src="/static/build/build_outside_interactive.min.mjs"></script>
-{% endblock scripts %}
-
 {% set dashboard_standard_socialmedia_links_html %}
 <ul class="nav">
   <li class="nav-item">
@@ -399,7 +389,7 @@ Needs outside content
     </div>
     <div class="row footer-bottom">
       <div class="col-lg-8 text-center text-lg-right mb-2 align-self-center">
-        <p class="mb-0 text-muted">Copyright © 2021. All Rights Reserved. <a href="#">LedgerSpace, LLC</a></p>
+        <p class="mb-0 text-muted">Copyright © <span id="year"></span>. All Rights Reserved. <a href="#">LedgerSpace, LLC</a></p>
       </div>
     </div>
   </div>
@@ -412,3 +402,15 @@ Needs outside content
 </div>
 {% endblock features %}
 
+{% block scripts %}
+<script src="/static/libs/popper/popper.min.js"></script>
+<script src="/static/libs/bootstrap/bootstrap.min.js"></script>
+<script src="/static/libs/appear/jquery.appear.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/libs2/parallax.js-1.5.0/parallax.min.js"></script>
+<script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
+<script src="/static/build/build_outside_interactive.min.mjs"></script>
+<script>
+  document.getElementById("year").innerText = new Date().getFullYear()
+</script>
+{% endblock scripts %}
