@@ -36,6 +36,7 @@ import { SustainabilityTimelineV2Widget } from "./types/sustainability/sustainab
 import { SustainabilitySummaryWidget } from './types/sustainability/sustainability_summary.mjs';
 import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs';
 import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_retail_data_widget.mjs';
+import { AccountSustainabilityScores } from './types/sustainability/view_account_sustainability_scores.mjs';
 
 
 // Immediately invoked
@@ -88,6 +89,7 @@ import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_r
     attach("sustainability summary", SustainabilitySummaryWidget);
     attach("epd table", EPDTableWidget);
     attach("edit account retail data", EditAccountRetailDataWidget);
+    attach("account sustainability scores", AccountSustainabilityScores);
 
     // Find widgets
     $(".widget").each(function () {

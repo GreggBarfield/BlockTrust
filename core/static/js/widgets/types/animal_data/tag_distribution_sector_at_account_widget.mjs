@@ -125,6 +125,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
         this.mainTableBody = document.createElement("tbody");
         this.mainTable.appendChild(this.mainTableBody);
 
+        console.log(distributionData);
         for (const [accountName,data] of Object.entries(distributionData)) {
             let rowTag = document.createElement("tr");
             this.mainTableBody.appendChild(rowTag);

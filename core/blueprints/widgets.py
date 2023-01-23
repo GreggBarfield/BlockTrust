@@ -810,3 +810,24 @@ def serve_get_existing_sustainability_responses():
         "sustainability_responses": sustainability_responses,
         "sustainability_response_uploaded_files": sustainability_response_uploaded_files
     }
+
+
+@bp.route("/widgets/data/get_account_sustainability_scores", methods=["POST"])
+@crut.require_account
+def serve_get_account_sustainability_scores():
+    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=request.json["account_id"])
+    account_sustainability_section_and_score_averages = {
+        "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
+        "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
+        "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
+        "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
+        "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
+        "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
+        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
+        "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
+    }
+    account_data = g.db.accounts.get_accounts(id=request.json["account_id"])
+    return {
+        "account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages,
+        "account_sector_id": account_data[0]["sector"]
+        }
