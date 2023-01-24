@@ -19,16 +19,25 @@ from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
     new_connections = []
     supply_chain_links = Matches(db).get_matched_accounts_for_account_link(cow_calf_account_link_id)
-    for account_link in supply_chain_links:
-        if cow_calf_account_id != account_link["account"]:
-            new_connections.append((cow_calf_account_id, account_link["account"]))
+    for match_account_link in supply_chain_links:
+        if cow_calf_account_id != match_account_link["account"]:
             if not dry_run:
                 try:
-                    Connections(db).create_or_fail_connection(from_account_id=cow_calf_account_id, to_account_id=account_link["account"],
-                                                              status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
-                                                              connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
+                    Connections(db).create_or_fail_connection(
+                        from_account_id=cow_calf_account_id, to_account_id=match_account_link["account"],
+                        status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                        connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                        details={"created_by_operation": create_connections_for_supply_chain.__name__,
+                                 "eid": match_account_link["eid"]})
                 except ConnectionException:
                     pass
+                else:
+                    new_connections.append((cow_calf_account_id, match_account_link["account"], match_account_link["eid"]))
+            else:
+                # for dry_run
+                existing_connection = Connections(db).get_connection_between(cow_calf_account_id, match_account_link["account"])
+                if not existing_connection:
+                    new_connections.append((cow_calf_account_id, match_account_link["account"], match_account_link["eid"]))
     return new_connections
 
 
@@ -57,7 +66,7 @@ def schedule_match_found_email(db, owner_match_account_link):
                         )
 
 
-def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=None, packer_account_id=None):
+def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=None, packer_account_id=None, api_insert_id=None):
     """
     Performs actions when new data is received from a feeder/packer
     """
@@ -68,26 +77,35 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
         owner_match_account_link = sightings[0]
 
         debug_log = {"schedule_email": schedule_email, "owner_account_id": owner_match_account_link['account'],
-                     "feeder_account_id": feeder_account_id, "packer_account_id": packer_account_id}
+                     "feeder_account_id": feeder_account_id, "packer_account_id": packer_account_id, 
+                     "api_insert_id": api_insert_id, "eid": eid}
         DebugLogs(db).insert_debug_log(perform_feeder_packer_data_received_actions.__name__, "Function execution", None, debug_log)
 
         if schedule_email:
             schedule_match_found_email(db, owner_match_account_link)
         try:
             if feeder_account_id:
-                Connections(db).create_or_fail_connection(from_account_id=owner_match_account_link["account"],
-                                                          to_account_id=feeder_account_id,
-                                                          status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
-                                                          connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
+                Connections(db).create_or_fail_connection(
+                    from_account_id=owner_match_account_link["account"],
+                    to_account_id=feeder_account_id,
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                    details={"created_by_operation": perform_feeder_packer_data_received_actions.__name__,
+                             "eid": eid, "api_insert_id": api_insert_id}
+                )
         except ConnectionException:
             pass
 
         try:
             if packer_account_id:
-                Connections(db).create_or_fail_connection(from_account_id=owner_match_account_link["account"],
-                                                          to_account_id=packer_account_id,
-                                                          status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
-                                                          connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"])
+                Connections(db).create_or_fail_connection(
+                    from_account_id=owner_match_account_link["account"],
+                    to_account_id=packer_account_id,
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                    details={"created_by_operation": perform_feeder_packer_data_received_actions.__name__,
+                             "eid": eid,  "api_insert_id": api_insert_id}
+                )
         except ConnectionException:
             pass
 
@@ -122,3 +140,41 @@ def send_email_to_admin_users(db, account_id, subject, body):
         for admin_account_user in admin_account_users:
             if len(email_verified_user := Users(db).get_users(id=admin_account_user["user"], is_email_verified=1)) > 0:
                 send_email(subject, body, email_verified_user[0]["email"])
+
+
+def create_connection_with_eid_owner(db, eid, connecting_account_id, details=None):
+    if len(sightings := Matches(db).get_matches_with_account_links(
+        matches_eid=eid, matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
+        account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created"
+    )) > 0:
+        owner_match_account_link = sightings[0]
+        try:
+            if connecting_account_id:
+                Connections(db).create_or_fail_connection(
+                    from_account_id=connecting_account_id,
+                    to_account_id=owner_match_account_link["account"],
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                    details=details
+                )
+        except ConnectionException:
+            pass
+
+
+def create_connection_with_all_sighted_accounts_for_eid(db, eid, connecting_account_id, details):
+    sightings_match_als = Matches(db).get_matches_with_account_links(
+                            matches_eid=eid,
+                            matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"]
+                        )
+    for match_account_link in sightings_match_als:
+        if match_account_link["account"] != connecting_account_id:
+            try:
+                Connections(db).create_or_fail_connection(
+                    from_account_id=connecting_account_id,
+                    to_account_id=match_account_link["account"],
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
+                    details=details
+                )
+            except ConnectionException:
+                pass
