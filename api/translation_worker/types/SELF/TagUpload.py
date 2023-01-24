@@ -1,6 +1,8 @@
+from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
 from core.utilities.zip_codes import get_lat_lon
 from core.sectors import SECTORS_NAME_TO_ID
 from core.match_types import MATCH_TYPES_NAME_TO_ID
+from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID, ConnectionException
 from ...exceptions import ExecutionException
 from ...all_to_unix import all_to_unix
 
@@ -32,9 +34,9 @@ def handle(db, insert):
 
     accounts = db.accounts.get_accounts(id=insert["account"])
     if len(accounts) > 0:
-        account = accounts[0]
-        account_link_id = db.account_links.get_account_links(account_id=account["id"])[0]["id"]
-        zipcode = str(account["zip"])
+        uploader_account = accounts[0]
+        account_link_id = db.account_links.get_account_links(account_id=uploader_account["id"])[0]["id"]
+        zipcode = str(uploader_account["zip"])
         if len(zipcode) >= 5:
             f5 = zipcode[0:5]
             for d in f5:
@@ -53,3 +55,13 @@ def handle(db, insert):
                     api_insert=api_insert,
                     zip=zipcode
                 )
+
+                if uploader_account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
+                    create_connection_with_all_sighted_accounts_for_eid(
+                        db, eid, uploader_account["id"],
+                        details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert})
+                else:
+                    create_connection_with_eid_owner(
+                        db=db, eid=eid, connecting_account_id=uploader_account["id"],
+                        details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
+                    )

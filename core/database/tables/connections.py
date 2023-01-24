@@ -1,6 +1,7 @@
 from datetime import datetime
 from .accounts import Accounts
 from ..no_value import NoValue
+from json import dumps
 
 NO_VALUE = NoValue()
 
@@ -62,8 +63,8 @@ class Connections:
                 "to_account_id": to_account_id
             }
         )
-    
-    def create_or_fail_connection(self, from_account_id, to_account_id, status, connection_type_id):
+
+    def create_or_fail_connection(self, from_account_id, to_account_id, status, connection_type_id, details=None):
         """
         Params:
             from_account_id: Account ID of user
@@ -85,26 +86,32 @@ class Connections:
                 raise ConnectionException("Connection Invite already sent to " + to_account["name"])
             if existing_connection["connection_status_id"] == CONNECTION_STATUS_NAME_TO_ID["Blocked"]:
                 raise ConnectionException("Cannot send Connection Invite")
-        self.insert_connection(from_account_id, to_account_id, status, connection_type_id)
+        self.insert_connection(
+            from_account_id, to_account_id, status, connection_type_id, details
+        )
 
-    def insert_connection(self, from_account_id, to_account_id, status, connection_type_id):
+    def insert_connection(self, from_account_id, to_account_id, status, connection_type_id, details):
         """
         Returns:
             None
         """
+        accepted_date = datetime.utcnow() if status == CONNECTION_STATUS_NAME_TO_ID["Connected"] else None
 
         self._db.execute(
             """
                 INSERT INTO  connections
-                    (from_account_id, to_account_id, connection_status_id, connection_type_id)
+                    (from_account_id, to_account_id, connection_status_id, connection_type_id, accepted_date, details)
                     VALUES
-                        (%(from_account_id)s, %(to_account_id)s, %(status)s, %(connection_type_id)s)
+                        (%(from_account_id)s, %(to_account_id)s, %(status)s, %(connection_type_id)s, %(accepted_date)s,
+                         %(details)s)
             """,
             {
                 "from_account_id": from_account_id,
                 "to_account_id": to_account_id,
                 "status": status,
-                "connection_type_id": connection_type_id
+                "connection_type_id": connection_type_id,
+                "accepted_date": accepted_date,
+                "details": dumps(details) if details else details
             }
         )
 
@@ -175,7 +182,6 @@ class Connections:
             status: Connection status between accounts
             connection_type_id: Type of connection established
             blocked_by_account_id: Account ID which blocked the other account. (Only for "Blocked" status)
-            blocked_date_time: UTC time of blocking
 
         Returns:
             A list of connections or and empty list
@@ -230,7 +236,7 @@ class Connections:
             return []
 
     def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE,
-                          blocked_by_account_id=NO_VALUE):
+                          blocked_by_account_id=NO_VALUE, details=NO_VALUE):
         """
         Updates the connection based on the id specified
 
@@ -251,20 +257,30 @@ class Connections:
         if connection_status_id is not NO_VALUE:
             query_updated_columns.append("connection_status_id = %(connection_status_id)s")
             query_updated_values["connection_status_id"] = connection_status_id
+            existing_row = self.get_connections(id=id)[0]
+            # setting columns which depend on connection status
+            # status changed to Blocked
+            if connection_status_id == CONNECTION_STATUS_NAME_TO_ID["Blocked"] \
+                    and existing_row["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Blocked"]:
+                if blocked_by_account_id is not NO_VALUE:
+                    if blocked_by_account_id is not None:
+                        query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
+                        query_updated_values["blocked_by_account_id"] = blocked_by_account_id
+                        query_updated_columns.append("blocked_date = %(blocked_date)s")
+                        query_updated_values["blocked_date"] = datetime.utcnow()
+                else:
+                    raise ConnectionException("Blocked by account not provided")
+            # status changed to Connected
+            elif connection_status_id == CONNECTION_STATUS_NAME_TO_ID["Connected"] \
+                    and existing_row["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
+                query_updated_columns.append("accepted_date = %(accepted_date)s")
+                query_updated_values["accepted_date"] = datetime.utcnow()
         if connection_type_id is not NO_VALUE:
             query_updated_columns.append("connection_type_id = %(connection_type_id)s")
             query_updated_values["connection_type_id"] = connection_type_id
-        if blocked_by_account_id is not NO_VALUE:
-            if blocked_by_account_id is not None:
-                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
-                query_updated_values["blocked_by_account_id"] = blocked_by_account_id
-                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
-                query_updated_values["blocked_date_time"] = datetime.utcnow()
-            else:
-                query_updated_columns.append("blocked_by_account_id = %(blocked_by_account_id)s")
-                query_updated_values["blocked_by_account_id"] = None
-                query_updated_columns.append("blocked_date_time = %(blocked_date_time)s")
-                query_updated_values["blocked_date_time"] = None
+        if details is not NO_VALUE:
+            query_updated_columns.append("details = %(details)s")
+            query_updated_values["details"] = dumps(details) if details is not None else None
         if len(query_updated_columns) >= 1:
             combined_query_updated_values = " SET " + ", ".join(query_updated_columns) + " WHERE id=%(id)s"
             query = base_query + combined_query_updated_values
