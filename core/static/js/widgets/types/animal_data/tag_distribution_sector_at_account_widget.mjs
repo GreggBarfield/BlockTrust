@@ -158,7 +158,6 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             row.push(("4" in yieldDistribution? 100*yieldDistribution["4"]/count : 0).toFixed(2)+"%");
             row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/count : 0).toFixed(2)+"%");
 
-            //console.log(row);
             for (const value of row) {
                 let td = document.createElement("td");
                 if(typeof(value) === 'object'){

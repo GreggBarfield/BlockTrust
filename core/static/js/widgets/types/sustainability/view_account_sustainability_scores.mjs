@@ -50,10 +50,6 @@ export class AccountSustainabilityScores extends Widget{
 
         this.makeAverageScoreGaugeCharts(row, this.accountSectorID);
         this.makeSectionalGaugeCharts(this.accountSectorID);
-
-        console.log(this.accountAverages);
-        console.log(this.accountSectorID);
-        console.log(this.globalAverages);
     }
 
     makeAverageScoreGaugeCharts = (row, sectorID) => {
