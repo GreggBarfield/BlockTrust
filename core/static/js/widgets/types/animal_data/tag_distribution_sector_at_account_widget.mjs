@@ -114,7 +114,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["Ranch", "Sustainability Score", "Count", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
+        const headers = ["Ranch", "Count", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;
@@ -131,6 +131,10 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
             let row = [];
             row.push(accountName);
+            let qualityDistribution = data.quality_distribution;
+            let count = 0;
+            Object.values(qualityDistribution).forEach(total => count+=total);
+            row.push(count);
 
             let sustainabilityScoreLink = document.createElement('a');
             sustainabilityScoreLink.href = "/dashboard/view-account-sustainability-scores/" + data.account_id.toString();
@@ -138,10 +142,6 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             sustainabilityScoreLink.target = "_blank";
             row.push(sustainabilityScoreLink)
 
-            let qualityDistribution = data.quality_distribution;
-            let count = 0;
-            Object.values(qualityDistribution).forEach(total => count+=total);
-            row.push(count);
             row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/count : 0).toFixed(2)+"%");
             row.push(("Choice" in qualityDistribution? 100*qualityDistribution.Choice/count : 0).toFixed(2)+"%");
             if("Select" in qualityDistribution)
