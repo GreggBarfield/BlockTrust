@@ -26,7 +26,8 @@ export class TableWidget extends Widget {
                 }
             ).then((data) => {
                 if (data.result === null) {
-                    this.account_total_distinct = null
+                    this.account_total_distinct = null;
+                    this.account_sighted_distinct = null;
                 }
                 else {
                     this.account_total_distinct = data.result.count_eid_distinct;
@@ -128,6 +129,7 @@ export class TableWidget extends Widget {
             ).then((data) => {
                 if (data.result === null) {
                     this.count_eid_distinct = null;
+                    this.count_eid_distinct_sighted = null;
                 }
                 else {
                     this.count_eid_distinct = data.result.count_eid_distinct;
