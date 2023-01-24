@@ -143,19 +143,19 @@ export class BaseSummaryV2Widget extends Widget {
         chartHeader.append(chartHeaderRow);
         
         let chartHeaderLabelWrapper = document.createElement("div");
-        chartHeaderLabelWrapper.className = "col-sm-4";
+        chartHeaderLabelWrapper.className = "col-sm-9";
         chartHeaderRow.append(chartHeaderLabelWrapper);
         let chartHeaderLabel = document.createElement("h5");
         chartHeaderLabel.textContent = "Sustainability Score";
         chartHeaderLabelWrapper.append(chartHeaderLabel);
         
         let cardHeaderIconWrapper = document.createElement("div");
-        cardHeaderIconWrapper.className = "col-sm-8";
+        cardHeaderIconWrapper.className = "col-sm-3";
         chartHeaderRow.append(cardHeaderIconWrapper);
 
-        let cardHeaderIconText = document.createElement("h6");
+        let cardHeaderIconText = document.createElement("h4");
         cardHeaderIconText.className = "d-inline text-c-green";
-        cardHeaderIconText.textContent = "Your Score: "+parseFloat(accountSustainabilityScoreAverage).toFixed(2)+ " |Global Score: " + parseFloat(globalSustainabilityScoreAverageForSector).toFixed(2);
+        cardHeaderIconText.textContent = parseFloat(accountSustainabilityScoreAverage).toFixed(2);
         let cardHeaderIcon = document.createElement("i");
         cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
         cardHeaderIcon.style = "padding-right:10px";
@@ -193,36 +193,13 @@ export class BaseSummaryV2Widget extends Widget {
                 let chartCard = document.createElement("div");
                 chartCard.className = "card";
                 let chartCardBody = document.createElement("div");
-                chartCardBody.className = "card-body d-flex";
+                    chartCardBody.className = "card-body d-flex";
                 chartWrapper.append(chartCard);
                 row.append(chartWrapper);
 
                 let chartHeader = document.createElement("h5");
                 chartHeader.className = "card-header";
-                let chartHeaderRow = document.createElement("div");
-                chartHeaderRow.className = "row";
-                chartHeader.append(chartHeaderRow);
-                
-                let chartHeaderLabelWrapper = document.createElement("div");
-                chartHeaderLabelWrapper.className = "col-sm-9";
-                chartHeaderRow.append(chartHeaderLabelWrapper);
-                let chartHeaderLabel = document.createElement("h5");
-                chartHeaderLabel.textContent = section.header;
-                chartHeaderLabelWrapper.append(chartHeaderLabel);
-        
-                let cardHeaderIconWrapper = document.createElement("div");
-                cardHeaderIconWrapper.className = "col-sm-3";
-                chartHeaderRow.append(cardHeaderIconWrapper);
-
-                let cardHeaderIconText = document.createElement("h6");
-                cardHeaderIconText.className = "d-inline text-c-green";
-                cardHeaderIconText.textContent = "Your Score: "+parseFloat(this.accountAverages[section.name+"_average"]).toFixed(2)+ " |Global Score: " + parseFloat(this.globalAverages[sectorID][section.name+"_average"]).toFixed(2);
-                let cardHeaderIcon = document.createElement("i");
-                cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
-                cardHeaderIcon.style = "padding-right:10px";
-                cardHeaderIconWrapper.append(cardHeaderIcon);
-                cardHeaderIconWrapper.append(cardHeaderIconText);
-                
+                chartHeader.textContent = section.header;
                 chartCard.append(chartHeader);
                 chartCard.append(chartCardBody);
             
