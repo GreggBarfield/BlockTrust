@@ -724,6 +724,7 @@ class Matches:
                                                             MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"],
                                                             account_links[0]['id'],
                                                             account_detail["account_link_id"])}
+                account_result["account_id"] = account_detail["account_id"]
                 matched_result[account_detail["name"]] = account_result
 
                 account_result = {}
@@ -733,6 +734,7 @@ class Matches:
                 account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
                 yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_links=account_link)
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                account_result["account_id"] = account_detail["account_id"]
                 all_result[account_detail["name"]] = account_result
 
         result['matched_data'] = matched_result

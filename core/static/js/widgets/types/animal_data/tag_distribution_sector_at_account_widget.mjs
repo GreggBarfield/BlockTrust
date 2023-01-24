@@ -114,7 +114,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["Ranch", "Count", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
+        const headers = ["Ranch", "Sustainability Score", "Count", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;
@@ -125,14 +125,19 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
         this.mainTableBody = document.createElement("tbody");
         this.mainTable.appendChild(this.mainTableBody);
 
-        console.log(distributionData);
         for (const [accountName,data] of Object.entries(distributionData)) {
             let rowTag = document.createElement("tr");
             this.mainTableBody.appendChild(rowTag);
 
             let row = [];
             row.push(accountName);
-            
+
+            let sustainabilityScoreLink = document.createElement('a');
+            sustainabilityScoreLink.href = "/dashboard/view-account-sustainability-scores/" + data.account_id.toString();
+            sustainabilityScoreLink.text = "View Score";
+            sustainabilityScoreLink.target = "_blank";
+            row.push(sustainabilityScoreLink)
+
             let qualityDistribution = data.quality_distribution;
             let count = 0;
             Object.values(qualityDistribution).forEach(total => count+=total);
@@ -153,9 +158,15 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             row.push(("4" in yieldDistribution? 100*yieldDistribution["4"]/count : 0).toFixed(2)+"%");
             row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/count : 0).toFixed(2)+"%");
 
+            //console.log(row);
             for (const value of row) {
                 let td = document.createElement("td");
-                td.textContent = value;
+                if(typeof(value) === 'object'){
+                    td.append(value);
+                }
+                else{
+                    td.textContent = value;
+                }
                 rowTag.appendChild(td);
             }
         }
