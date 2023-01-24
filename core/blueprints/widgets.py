@@ -827,7 +827,8 @@ def serve_get_account_sustainability_scores():
         "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
     }
     account_data = g.db.accounts.get_accounts(id=request.json["account_id"])
+    account_sector = account_data[0]["sector"] if len(account_data) > 0 else SECTORS_NAME_TO_ID["Cow-Calf"]
     return {
         "account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages,
-        "account_sector_id": account_data[0]["sector"]
-        }
+        "account_sector_id": account_sector
+    }
