@@ -1,5 +1,4 @@
 from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
-from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID, ConnectionException
 from core.utilities.zip_codes import get_lat_lon
 from core.sectors import SECTORS_NAME_TO_ID
 from core.match_types import MATCH_TYPES_NAME_TO_ID
