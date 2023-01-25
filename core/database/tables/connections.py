@@ -235,8 +235,7 @@ class Connections:
         else:
             return []
 
-    def update_connection(self, id, connection_status_id=NO_VALUE, connection_type_id=NO_VALUE,
-                          blocked_by_account_id=NO_VALUE, details=NO_VALUE):
+    def update_connection(self, id, connection_status_id=NO_VALUE, blocked_by_account_id=NO_VALUE, details=NO_VALUE):
         """
         Updates the connection based on the id specified
 
@@ -275,9 +274,6 @@ class Connections:
                     and existing_row["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
                 query_updated_columns.append("accepted_date = %(accepted_date)s")
                 query_updated_values["accepted_date"] = datetime.utcnow()
-        if connection_type_id is not NO_VALUE:
-            query_updated_columns.append("connection_type_id = %(connection_type_id)s")
-            query_updated_values["connection_type_id"] = connection_type_id
         if details is not NO_VALUE:
             query_updated_columns.append("details = %(details)s")
             query_updated_values["details"] = dumps(details) if details is not None else None
