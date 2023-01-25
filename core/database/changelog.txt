@@ -1780,3 +1780,9 @@ UPDATE `products` SET `details`= 'USDA certified HDX 840 Cattle Tag;Colors: Whit
 ALTER TABLE `accounts` 
 ADD COLUMN `subscription_start_date` DATETIME NULL DEFAULT NULL AFTER `stripe_customer_id`,
 ADD COLUMN `subscription_end_date` DATETIME NULL DEFAULT NULL AFTER `subscription_start_date`;
+
+/* Rohan Sureshkumar 1/19/23 */
+ALTER TABLE `connections` 
+ADD COLUMN `accepted_date` DATETIME NULL DEFAULT NULL AFTER `connection_type_id`,
+ADD COLUMN `details` JSON NULL AFTER `blocked_date`,
+CHANGE COLUMN `blocked_date_time` `blocked_date` DATETIME NULL DEFAULT NULL ;

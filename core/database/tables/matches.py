@@ -113,8 +113,7 @@ class Matches:
                     current_eid_data = {"eid": row["eid"]}
                 else:
                     current_eid_data = all_eid_data[row["eid"]]
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["account_link"] == account_link_id:
+                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["visual_id"]:
                     current_eid_data["visual_id"] = row["visual_id"]
 
                 if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
@@ -176,15 +175,13 @@ class Matches:
         Returns:
             A list of all the accounts that were matched for an account with given type.
         """
-
         data = self._db.execute_d(
             """
-            SELECT al.account, min(m.created_timestamp) as date, al.sector as account_sector_id,
-            al.name as account_name FROM matches AS m
-            INNER JOIN account_links AS al ON m.account_link=al.id
-            WHERE eid IN(
-                SELECT eid FROM matches WHERE account_link=%(account_link_id)s AND type=%(type)s
-            )
+            SELECT al.account, min(m1.created_timestamp) as date, al.sector as account_sector_id,
+            min(m1.eid) AS eid, al.name as account_name FROM matches AS m1
+            INNER JOIN account_links AS al ON m1.account_link=al.id
+            INNER JOIN matches m2 ON m1.eid = m2.eid
+            WHERE m2.account_link = %(account_link_id)s and m2.type=%(type)s
             AND al.account IS NOT NULL
             GROUP BY al.account, al.sector, al.name
             ORDER BY al.sector, date
