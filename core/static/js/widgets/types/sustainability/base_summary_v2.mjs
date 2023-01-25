@@ -218,8 +218,7 @@ export class BaseSummaryV2Widget extends Widget {
                 cardHeaderIconText.className = "d-inline text-c-green";
                 cardHeaderIconText.textContent = "Your Score: "+parseFloat(this.accountAverages[section.name+"_average"]).toFixed(2)+ " |Global Score: " + parseFloat(this.globalAverages[sectorID][section.name+"_average"]).toFixed(2);
                 let cardHeaderIcon = document.createElement("i");
-                cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
-                cardHeaderIcon.style = "padding-right:10px";
+                cardHeaderIcon.className = "fas fa-leaf text-c-green f-15 pr-2";
                 cardHeaderIconWrapper.append(cardHeaderIcon);
                 cardHeaderIconWrapper.append(cardHeaderIconText);
 
