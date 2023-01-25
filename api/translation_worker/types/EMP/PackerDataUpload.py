@@ -1,3 +1,4 @@
+from core.database.combinations import perform_feeder_packer_data_received_actions
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
@@ -19,16 +20,15 @@ def handle(db: Database, insert):
     _check_format(insert)
 
     fields = insert['fields']
-
     partner_account = insert["account"]
     eid = int(fields["EID"])
-    api_insert = insert["id"]
+    api_insert_id = insert["id"]
 
     if "FeederCode" in fields and fields["FeederCode"] != "":
         feeder_account_link_id = 0
         feeder_zip = 0
-        feeder_account_links = db.account_links.get_by_affiliate_id(fields["FeederCode"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
-                                                                        sector=SECTORS_NAME_TO_ID["Feedlot"], insert=True)
+        feeder_account_links = db.account_links.get_by_affiliate_id(fields["FeederCode"].strip().upper(), partner_account=partner_account, api_insert=api_insert_id,
+                                                                    sector=SECTORS_NAME_TO_ID["Feedlot"], insert=True)
         if len(feeder_account_links) > 0:
             feeder_account_link = feeder_account_links[0]
             feeder_account_link_id = feeder_account_link.id()
@@ -41,7 +41,7 @@ def handle(db: Database, insert):
                 if feeder is not None:
                     db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.name(), feeder.id())
                     feeder_zip = feeder.zip()
-        
+
         # Retained in case needed for future use
         # else:
         #     feeders = db.accounts.get_accounts(company_like=fields["FeederCompany"].strip(), sector=SECTORS_NAME_TO_ID["Feedlot"])
@@ -56,7 +56,7 @@ def handle(db: Database, insert):
         #         else:
         #             feeder_account_link_id = feeder_account_links[0]["id"]
 
-        if feeder_zip != 0 and feeder_account_link_id != 0:      
+        if feeder_zip != 0 and feeder_account_link_id != 0:
             zipcode = str(feeder_zip)
             if len(zipcode) >= 5:
                 f5 = zipcode[0:5]
@@ -72,14 +72,16 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link_id,
-                        api_insert=api_insert
+                        api_insert=api_insert_id
                     )
 
+                    perform_feeder_packer_data_received_actions(db, eid, feeder_account_id=feeder.id(), api_insert_id=api_insert_id)
+
     if fields["PlantID"].isdigit():
-        fields["PlantID"] =  fields["PlantID"].lstrip("0")
+        fields["PlantID"] = fields["PlantID"].lstrip("0")
 
     packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=SECTORS_NAME_TO_ID["Packer"], 
-                                                                    api_insert=api_insert, insert=True)[0]
+                                                                    api_insert=api_insert_id, insert=True)[0]
     if packer_account_link.account_id() is not None:
         packer = db.accounts.get_account_by_id(packer_account_link.account_id())
     else:
@@ -103,8 +105,9 @@ def handle(db: Database, insert):
                     lon=lon,
                     partner_account=partner_account,
                     account_link=packer_account_link.id(),
-                    api_insert=api_insert
+                    api_insert=api_insert_id
                 )
+                perform_feeder_packer_data_received_actions(db, eid, packer_account_id=packer.id(), api_insert_id=api_insert_id)
 
     # USDAYieldGrade
     if "USDAYieldGrade" in fields and fields["USDAYieldGrade"] != "" and int(fields["USDAYieldGrade"]) != 0:
@@ -113,27 +116,28 @@ def handle(db: Database, insert):
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
 
     # USDAQualityGrade
     if "USDAQualityGrade" in fields and fields["USDAQualityGrade"] != "":
-        db.matches.types.insert_usda_quality_grade(
+        id = db.matches.types.insert_usda_quality_grade(
             fields["USDAQualityGrade"],
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
+        perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), api_insert_id=api_insert_id)
 
-    # Hot Weight
+    # # Hot Weight
     if "HotWeight" in fields and fields["HotWeight"] != "" and float(fields["HotWeight"]) != 0:
         db.matches.types.insert_hot_weight(
             weight=float(fields["HotWeight"]),
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
 
     packer_data = {}
@@ -145,13 +149,12 @@ def handle(db: Database, insert):
 
     if "FatThickness" in fields and fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
         packer_data["FatThickness"] = float(fields["FatThickness"])
-        
+
     if packer_data:
         db.matches.types.insert_packer(
-            packer_str = packer_data,
+            packer_str=packer_data,
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
-
