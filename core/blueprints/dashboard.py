@@ -450,7 +450,7 @@ def serve_connections():
     account_connections.extend(connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                                                                        get_full=True))
     requests = connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"], get_full=True)
-    blocked_connections = connections_data_access.get_connections(blocked_by_account_id=g.account.id(), get_full=True)
+    blocked_connections = connections_data_access.get_connections(status=CONNECTION_STATUS_NAME_TO_ID["Blocked"], blocked_by_account_id=g.account.id(), get_full=True)
     return dashboard_render("/dashboard/connections/connections.html", {
         "account_connections": account_connections,
         "requests": requests,
@@ -503,8 +503,7 @@ def serve_block_connection():
 def serve_unblock_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
-        connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Connected"],
-        blocked_by_account_id=None
+        connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Connected"]
     )
     return {}
 

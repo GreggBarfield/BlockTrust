@@ -44,12 +44,12 @@ def handle(db: Database, insert):
 
     partner_account = insert["account"]
     eid = int(fields["EIDNum"])
-    api_insert = insert["id"]
+    api_insert_id = insert["id"]
 
     feeder_account_link = None
     feeder = None
     if fields["Company"] != "":
-        feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
+        feeder_account_link = db.account_links.get_by_affiliate_id(fields["Company"].strip().upper(), partner_account=partner_account, api_insert=api_insert_id,
                                                                         sector=SECTORS_NAME_TO_ID["Feedlot"], insert=True)[0]
         if feeder_account_link.account_id() is not None:
             feeder = db.accounts.get_account_by_id(feeder_account_link.account_id())
@@ -90,7 +90,7 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert,
+                        api_insert=api_insert_id,
                         zip=zipcode
                     )
 
@@ -103,7 +103,7 @@ def handle(db: Database, insert):
             fields["PlantID"] = fields["PlantID"].lstrip("0")
 
         packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=SECTORS_NAME_TO_ID["Packer"], 
-                                                                        api_insert=api_insert, insert=True)[0]
+                                                                        api_insert=api_insert_id, insert=True)[0]
         if packer_account_link.account_id() is not None:
             packer = db.accounts.get_account_by_id(packer_account_link.account_id())
         else:
@@ -127,7 +127,7 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=packer_account_link.id(),
-                        api_insert=api_insert,
+                        api_insert=api_insert_id,
                         zip=zipcode
                     )
 
@@ -137,7 +137,7 @@ def handle(db: Database, insert):
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
 
         # USDAQualityGrade
@@ -146,11 +146,11 @@ def handle(db: Database, insert):
             eid=eid,
             partner_account=partner_account,
             account_link=packer_account_link.id(),
-            api_insert=api_insert
+            api_insert=api_insert_id
         )
 
         perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
-                                                    packer_account_id=packer.id() if packer is not None else None)
+                                                    packer_account_id=packer.id() if packer is not None else None, api_insert_id=api_insert_id)
 
         # Hot Weight
         if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
@@ -159,7 +159,7 @@ def handle(db: Database, insert):
                 eid=eid,
                 partner_account=partner_account,
                 account_link=packer_account_link.id(),
-                api_insert=api_insert
+                api_insert=api_insert_id
             )
 
         # Ribeye Area. These are commented out because we don't know the keys that packer will send us
@@ -202,8 +202,9 @@ def handle(db: Database, insert):
                         lon=lon,
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
-                        api_insert=api_insert,
+                        api_insert=api_insert_id,
                         zip=zipcode
                     )
 
-            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id())
+            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id(),
+                                                        api_insert_id=api_insert_id)
