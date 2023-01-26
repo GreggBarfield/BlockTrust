@@ -13,34 +13,17 @@ export class AccountSustainabilityScores extends Widget{
         this.getSustainabilityScoresForAccount();
     }
 
-    getSustainabilityScoresForAccount = () => {
-        const getAccountSustainabilityScores = this.getData(
-            "get_account_sustainability_scores",
-            {
-                account_id: this.accountID
-            }
-        ).then((data) => {
-            this.accountAverages = data.account_sustainability_section_and_score_averages;
-            this.accountSectorID = data.account_sector_id;
-        });
-        const getGlobalSustainabilityScores = this.getData(
-            "data_request",
-            {
-                request: {type: 'sustainability_response_averages', params: {} }
-            }
-        ).then((data) => {
-            this.globalAverages = data.result;
-        });
-        const getSectorsByName = this.getData(
-            "direct/sectors_name_to_id"
-        ).then((data) => {
-            this.sectorsNameToId = data.sectors_name_to_id
-        })
-        Promise.all([
-            getAccountSustainabilityScores, getGlobalSustainabilityScores, getSectorsByName
-        ]).then(()=> {
-            this.createScoreCharts();
-        })
+    getSustainabilityScoresForAccount = async() => {
+        let accountSustainabilityScores = await this.getData("get_account_sustainability_scores",{account_id: this.accountID});
+        this.accountAverages = accountSustainabilityScores.account_sustainability_section_and_score_averages;
+        this.accountSectorID = accountSustainabilityScores.account_sector_id;
+        
+        let globalSustainabilityScores = await this.getData("data_request",{request: {type: 'sustainability_response_averages', params: {} }});
+        this.globalAverages = globalSustainabilityScores.result;
+        
+        let sectorsByName = await this.getData("direct/sectors_name_to_id");
+        this.sectorsNameToId = sectorsByName.sectors_name_to_id;
+        this.createScoreCharts();
     }
 
     createScoreCharts = () => {
