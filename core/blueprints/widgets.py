@@ -745,7 +745,8 @@ def serve_save_sustainability_questionnaire():
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account
 def serve_get_sustainability_response_averages():
-    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=g.account.id())
+    account_id = request.json["account_id"] if request.json["sustainability_scores_only"] is True else g.account.id()
+    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_id)
     account_sustainability_section_and_score_averages = {
         "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
         "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
@@ -756,6 +757,10 @@ def serve_get_sustainability_response_averages():
         "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
         "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
     }
+    if request.json["sustainability_scores_only"] is True:
+        account_data = g.db.accounts.get_accounts(id=account_id)
+        account_sector = account_data[0]["sector"] if len(account_data) > 0 else SECTORS_NAME_TO_ID["Cow-Calf"]
+        return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sector_id": account_sector}
     account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
     return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sustainability_responses": account_sustainability_responses}
 
@@ -809,26 +814,4 @@ def serve_get_existing_sustainability_responses():
         "sustainability_response_id": sustainability_response_id,
         "sustainability_responses": sustainability_responses,
         "sustainability_response_uploaded_files": sustainability_response_uploaded_files
-    }
-
-
-@bp.route("/widgets/data/get_account_sustainability_scores", methods=["POST"])
-@crut.require_account
-def serve_get_account_sustainability_scores():
-    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=request.json["account_id"])
-    account_sustainability_section_and_score_averages = {
-        "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
-        "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
-        "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
-        "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
-        "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
-        "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
-        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
-        "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
-    }
-    account_data = g.db.accounts.get_accounts(id=request.json["account_id"])
-    account_sector = account_data[0]["sector"] if len(account_data) > 0 else SECTORS_NAME_TO_ID["Cow-Calf"]
-    return {
-        "account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages,
-        "account_sector_id": account_sector
     }
