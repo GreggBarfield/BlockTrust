@@ -13,7 +13,7 @@ export class AccountSustainabilityScores extends Widget{
     }
 
     getSustainabilityScoresForAccount = async() => {
-        let accountSustainabilityScores = await this.getData("get_account_sustainability_data",{account_id: this.accountID, sustainability_scores_only: true});
+        let accountSustainabilityScores = await this.getData("get_account_sustainability_data",{account_id: this.accountID, scores_only: true});
         this.accountAverages = accountSustainabilityScores.account_sustainability_section_and_score_averages;
         this.accountSectorID = accountSustainabilityScores.account_sector_id;
         
