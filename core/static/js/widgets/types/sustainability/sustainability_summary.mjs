@@ -1,4 +1,5 @@
 import { BaseSummaryV2Widget } from "./base_summary_v2.mjs";
+import { makeAverageScoreGaugeCharts, makeSectionalGaugeCharts } from "../../../core/sustainability_utilities.mjs";
 
 export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
     constructor(frame) {
@@ -16,8 +17,8 @@ export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
         row.className = "row";
         this.frame.appendChild(row);
 
-        this.makeAverageScoreGaugeCharts(row, this.currentSectorID);
+        makeAverageScoreGaugeCharts(row, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
         this.makeGraphOverTime(row);
-        this.makeSectionalGaugeCharts(this.currentSectorID);
+        makeSectionalGaugeCharts(this.frame, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
     }
 }
