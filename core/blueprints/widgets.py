@@ -745,7 +745,10 @@ def serve_save_sustainability_questionnaire():
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account
 def serve_get_sustainability_response_averages():
-    account_id = request.json["account_id"] if request.json["scores_only"] else g.account.id()
+    if request.get_data() and request.json["scores_only"]:
+        account_id = request.json["account_id"]
+    else:
+        account_id = g.account.id()
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_id)
     account_sustainability_section_and_score_averages = {
         "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
@@ -757,7 +760,7 @@ def serve_get_sustainability_response_averages():
         "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
         "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
     }
-    if request.json["scores_only"] is True:
+    if request.get_data() and request.json["scores_only"]:
         account_data = g.db.accounts.get_accounts(id=account_id)
         account_sector = account_data[0]["sector"] if len(account_data) > 0 else SECTORS_NAME_TO_ID["Cow-Calf"]
         return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sector_id": account_sector}
