@@ -10,7 +10,7 @@ export class BaseSummaryV2Widget extends Widget {
 
     getSustainabilityData = async() =>{
         let accountSustainabilityData = await this.getData("get_account_sustainability_data");
-        this.accountAverages = accountSustainabilityData.account_sustainability_section_and_score_averages;
+        this.accountScores = accountSustainabilityData.account_sustainability_section_and_scores;
         this.accountSustainabilityResponses = accountSustainabilityData.account_sustainability_responses;
         
         let globalSustainabilityData = await this.getData("data_request", {request: {type: 'sustainability_response_averages', params: {}}});

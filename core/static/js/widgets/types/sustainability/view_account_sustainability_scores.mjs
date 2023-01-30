@@ -14,7 +14,7 @@ export class AccountSustainabilityScores extends Widget{
 
     getSustainabilityScoresForAccount = async() => {
         let accountSustainabilityScores = await this.getData("get_account_sustainability_data",{account_id: this.accountID, scores_only: true});
-        this.accountAverages = accountSustainabilityScores.account_sustainability_section_and_score_averages;
+        this.accountScores = accountSustainabilityScores.account_sustainability_section_and_scores;
         this.accountSectorID = accountSustainabilityScores.account_sector_id;
         
         let globalSustainabilityScores = await this.getData("data_request",{request: {type: 'sustainability_response_averages', params: {} }});
@@ -30,7 +30,7 @@ export class AccountSustainabilityScores extends Widget{
         row.className = "row";
         this.frame.appendChild(row);
 
-        makeAverageScoreGaugeCharts(row, "Account Score: ", this.accountSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
-        makeSectionalGaugeCharts(this.frame, "Account Score: ", this.accountSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
+        makeAverageScoreGaugeCharts(row, "Account Score: ", this.accountSectorID, this.sectorsNameToId, this.accountScores, this.globalAverages);
+        makeSectionalGaugeCharts(this.frame, "Account Score: ", this.accountSectorID, this.sectorsNameToId, this.accountScores, this.globalAverages);
     }
 }
