@@ -745,7 +745,7 @@ def serve_save_sustainability_questionnaire():
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
 @crut.require_account
 def serve_get_sustainability_response_averages():
-    account_id = request.json["account_id"] if request.json.get("scores_only", None) else g.account.id()
+    account_id = request.json["account_id"] if request.json["scores_only"] else g.account.id()
     account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_id)
     account_sustainability_section_and_score_averages = {
         "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
