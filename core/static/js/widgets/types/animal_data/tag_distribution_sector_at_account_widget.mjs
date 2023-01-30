@@ -160,7 +160,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
             for (const value of row) {
                 let td = document.createElement("td");
-                if(value instanceof Object){
+                if(value instanceof HTMLElement){
                     td.append(value);
                 }
                 else{
