@@ -78,7 +78,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
 
             let textComponent = document.createElement("div");
             textComponent.className = "row";
-            cardHeader.append(textComponent);
 
             let title = document.createElement("h4");
             title.textContent = matchAccount.account_name + " [" + this.sectorsIdToName[matchAccount.account_sector_id] + "]";
@@ -91,6 +90,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             textComponent.append(title);
             textComponent.append(scoreIcon);
             textComponent.append(scoreText);
+            cardHeader.append(textComponent);
 
             let linkComponent = document.createElement("div");
             linkComponent.className = "row";
