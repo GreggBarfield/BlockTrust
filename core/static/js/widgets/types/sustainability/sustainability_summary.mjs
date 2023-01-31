@@ -17,8 +17,8 @@ export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
         row.className = "row";
         this.frame.appendChild(row);
 
-        makeAverageScoreGaugeCharts(row, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
+        makeAverageScoreGaugeCharts(row, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountScores, this.globalAverages);
         this.makeGraphOverTime(row);
-        makeSectionalGaugeCharts(this.frame, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountAverages, this.globalAverages);
+        makeSectionalGaugeCharts(this.frame, "Account Score: ", this.currentSectorID, this.sectorsNameToId, this.accountScores, this.globalAverages);
     }
 }

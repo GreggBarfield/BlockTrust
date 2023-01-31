@@ -751,23 +751,35 @@ def serve_get_sustainability_response_averages():
     else:
         account_id = g.account.id()
         scores_only = False
-    account_sustainability_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_id)
-    account_sustainability_section_and_score_averages = {
-        "air_average": float(account_sustainability_averages["air_average"]) if account_sustainability_averages["air_average"] else 0,
-        "land_average": float(account_sustainability_averages["land_average"]) if account_sustainability_averages["land_average"] else 0,
-        "water_average": float(account_sustainability_averages["water_average"]) if account_sustainability_averages["water_average"] else 0,
-        "animal_average": float(account_sustainability_averages["animal_average"]) if account_sustainability_averages["animal_average"] else 0,
-        "safety_average": float(account_sustainability_averages["safety_average"]) if account_sustainability_averages["safety_average"] else 0,
-        "efficiency_average": float(account_sustainability_averages["efficiency_average"]) if account_sustainability_averages["efficiency_average"] else 0,
-        "improvement_average": float(account_sustainability_averages["improvement_average"]) if account_sustainability_averages["improvement_average"] else 0,
-        "score_average": float(account_sustainability_averages["score_average"]) if account_sustainability_averages["score_average"] else 0
+    account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id, questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
+    account_sustainability_section_and_scores = {
+        "air_score": 0,
+        "land_score": 0,
+        "water_score": 0,
+        "animal_score": 0,
+        "safety_score": 0,
+        "efficiency_score": 0,
+        "improvement_score": 0,
+        "total_score": 0
     }
+    if len(account_sustainability_responses) > 0:
+        latest_account_sustainability_response = account_sustainability_responses[0]
+        account_sustainability_section_and_scores = {
+            "air_score": float(latest_account_sustainability_response["air_points"]) if latest_account_sustainability_response["air_points"] else 0,
+            "land_score": float(latest_account_sustainability_response["land_points"]) if latest_account_sustainability_response["land_points"] else 0,
+            "water_score": float(latest_account_sustainability_response["water_points"]) if latest_account_sustainability_response["water_points"] else 0,
+            "animal_score": float(latest_account_sustainability_response["animal_points"]) if latest_account_sustainability_response["animal_points"] else 0,
+            "safety_score": float(latest_account_sustainability_response["safety_points"]) if latest_account_sustainability_response["safety_points"] else 0,
+            "efficiency_score": float(latest_account_sustainability_response["efficiency_points"]) if latest_account_sustainability_response["efficiency_points"] else 0,
+            "improvement_score": float(latest_account_sustainability_response["improvement_points"]) if latest_account_sustainability_response["improvement_points"] else 0,
+            "total_score": float(latest_account_sustainability_response["score"]) if latest_account_sustainability_response["score"] else 0
+        }
     if scores_only:
         account_data = g.db.accounts.get_accounts(id=account_id)
         account_sector = account_data[0]["sector"] if len(account_data) > 0 else SECTORS_NAME_TO_ID["Cow-Calf"]
-        return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sector_id": account_sector}
-    account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=g.account.id())
-    return {"account_sustainability_section_and_score_averages": account_sustainability_section_and_score_averages, "account_sustainability_responses": account_sustainability_responses}
+        return {"account_sector_id": account_sector, "account_sustainability_section_and_scores": account_sustainability_section_and_scores}
+    account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id, questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
+    return {"account_sustainability_responses": account_sustainability_responses, "account_sustainability_section_and_scores": account_sustainability_section_and_scores}
 
 
 @bp.route('/widgets/data/get_sustainability_response_timeline_data', methods=['POST'])
