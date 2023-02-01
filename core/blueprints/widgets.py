@@ -791,8 +791,12 @@ def serve_get_sustainability_response_timeline_data():
     else:
         matched_accounts = g.db.matches.get_matched_accounts_for_account_link(account_link[0].id())
         for account_data in matched_accounts:
-            sustainability_response_averages = SustainabilityResponses(g.db).get_sustainability_response_averages(account_id=account_data["account"])
-            account_data["account_score_average"] = float(sustainability_response_averages["score_average"]) if sustainability_response_averages["score_average"] is not None else 0
+            account_sustainability_score = 0
+            account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_data["account"], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
+            if len(account_sustainability_responses) > 0:
+                latest_sustainability_response = account_sustainability_responses[0]
+                account_sustainability_score = float(latest_sustainability_response["score"])
+            account_data["account_sustainability_score"] = account_sustainability_score
 
         return {'timeline_data': matched_accounts}, 200
 
