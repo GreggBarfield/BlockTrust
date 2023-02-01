@@ -94,7 +94,7 @@ class SustainabilityResponses:
         sustainability_response_rows = self._db.execute_d(query, query_values)
         if len(sustainability_response_rows) > 0:
             for row in sustainability_response_rows:
-                row["response"] = json.loads(row["response"])
+                row["response"] = json.loads(row["response"]) if row["response"] else None
             return sustainability_response_rows
         else:
             return []
