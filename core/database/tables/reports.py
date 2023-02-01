@@ -158,7 +158,7 @@ class Reports:
                 count_eid_distinct_by_account.create(account_id)
             ]
 
-            if sector_id == SECTORS_NAME_TO_ID["Feedlot"]:
+            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"]):
                 queries.append(count_distribution_for_sector_at_account.create(account_id, SECTORS_NAME_TO_ID["Cow-Calf"]))
 
             for query in queries:

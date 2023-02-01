@@ -95,11 +95,9 @@ def serve_account_id(account_id):
         "pending_connection_requests_count": pending_connection_requests_count
     }
 
-    if account.sector_name() == "Auction House":
-        return dashboard_render("sectors/auction.html", account_params)
-    elif account.sector_name() == "Feedlot" or account.sector_name() == "Packer":
-        return dashboard_render("sectors/feedlot-packer.html", account_params)
-    elif account.sector_name() == "Buyer":
+    if account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
+        return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
+    elif account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
     else:
         return dashboard_render("sectors/generic.html", account_params)
