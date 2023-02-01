@@ -73,32 +73,41 @@ export class SustainabilityTimelineV2Widget extends Widget {
             timeE.className = "v-timeline__date-value"
             timeDiv.append(timeE);
 
+            let cardHeader = document.createElement("div");
+            cardHeader.className = "col card-header";
+
             let textComponent = document.createElement("div");
-            textComponent.className = "card-header d-flex justify-content-between";
-            itemDiv.append(textComponent);
+            textComponent.className = "row";
 
-            let title = document.createElement("h5");
+            let title = document.createElement("h4");
             title.textContent = matchAccount.account_name + " [" + this.sectorsIdToName[matchAccount.account_sector_id] + "]";
-            title.className = "h5";
-
-            let scoreText = document.createElement("h4");
-            scoreText.className = "d-inline text-c-green";
-            scoreText.textContent = parseFloat(matchAccount.account_score_average).toFixed(2);
+            title.className = "col-md-6";
+            let scoreText = document.createElement("h5");
+            scoreText.className = "col-md-4 text-c-green";
+            scoreText.textContent = "Account Score: " + parseFloat(matchAccount.account_sustainability_score).toFixed(2);
             let scoreIcon = document.createElement("i");
-            scoreIcon.className = "fas fa-leaf text-c-green f-15";
-            scoreIcon.style = "padding-right:10px";
-
-            
+            scoreIcon.className = "fas fa-leaf text-c-green f-15 col-md-1";
             textComponent.append(title);
-            if(matchAccount.account_score_average != 0){
-                textComponent.append(scoreIcon);
-                textComponent.append(scoreText);
-            }
+            textComponent.append(scoreIcon);
+            textComponent.append(scoreText);
+            cardHeader.append(textComponent);
+
+            let linkComponent = document.createElement("div");
+            linkComponent.className = "row";
+            let scoreLink = document.createElement("a");
+            scoreLink.href = "/dashboard/view-account-sustainability-scores/" + matchAccount.account.toString();
+            scoreLink.textContent = "View Scores";
+            scoreLink.target = "_blank";
+            scoreLink.className = "h6 col";
+            linkComponent.append(scoreLink);
+            cardHeader.append(linkComponent);
+        
+            itemDiv.append(cardHeader);
 
             let cardGraph = document.createElement("div");
             cardGraph.className = "card-body";
             itemDiv.append(cardGraph);
-            makeGaugeChart(cardGraph, matchAccount.account_score_average, "Average Score", 0 , 35);
+            makeGaugeChart(cardGraph, matchAccount.account_sustainability_score, "Account Score", 0 , 35);
 
             itemsGroup.append(itemDiv);
             section.append(itemsGroup);
