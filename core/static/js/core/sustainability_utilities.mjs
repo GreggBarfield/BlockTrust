@@ -82,7 +82,7 @@ const makeAverageScoreGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId,
 
     let cardHeaderIconText = document.createElement("h6");
     cardHeaderIconText.className = "d-inline text-c-green";
-    cardHeaderIconText.textContent = scoreLabel+parseFloat(accountSustainabilityScore).toFixed(2)+ " |Global Score: " + parseFloat(globalSustainabilityScoreAverageForSector).toFixed(2);
+    cardHeaderIconText.textContent = scoreLabel + accountSustainabilityScore.toFixed(2)+ " |Global Score: " + globalSustainabilityScoreAverageForSector.toFixed(2);
     let cardHeaderIcon = document.createElement("i");
     cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
     cardHeaderIcon.style = "padding-right:10px";
@@ -109,7 +109,7 @@ const makeSectionalGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId, ac
     sectionalScoresContainer.className = "row";
     row.appendChild(sectionalScoresContainer);
     let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(sectorsNameToId);
-    let sectionalTotals = sectorBasedSectionalTotals[sectorID]
+    let sectionalTotals = sectorBasedSectionalTotals[sectorID];
 
     // loop through all sections and create a graph for each section
     for(let section of Object.values(sections)) {
@@ -143,7 +143,7 @@ const makeSectionalGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId, ac
 
             let cardHeaderIconText = document.createElement("h6");
             cardHeaderIconText.className = "d-inline text-c-green";
-            cardHeaderIconText.textContent = scoreLabel+parseFloat(accountScores[section.name+"_score"]).toFixed(2)+ " |Global Score: " + parseFloat(globalAverages[sectorID][section.name+"_average"]).toFixed(2);
+            cardHeaderIconText.textContent = scoreLabel+parseFloat(accountScores[section.name+"_score"]).toFixed(2)+ " |Global Score: " + globalAverages[sectorID][section.name+"_average"].toFixed(2);
             let cardHeaderIcon = document.createElement("i");
             cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
             cardHeaderIcon.style = "padding-right:10px";
@@ -161,7 +161,7 @@ const makeSectionalGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId, ac
             globalChart.className = "col-md-6";
             chartCardBody.append(globalChart);
             
-            makeGaugeChart(accountChart, accountScores[section.name+"_score"], "Account Average Score", 0 , sectionalTotals[section.name]);
+            makeGaugeChart(accountChart, parseFloat(accountScores[section.name+"_score"]), "Account Average Score", 0 , sectionalTotals[section.name]);
             makeGaugeChart(globalChart, globalAverages[sectorID][section.name+"_average"], "Global Average Score", 0, sectionalTotals[section.name]);
         }
         
