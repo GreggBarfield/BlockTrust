@@ -165,7 +165,7 @@ class Matches:
         else:
             return []
 
-    def get_matched_accounts_for_account_link(self, account_link_id):
+    def get_sighted_match_accounts_for_account_link(self, account_link_id):
         """Gets all the accounts that were matched to account_link_id based on given type
 
         Params:
@@ -182,7 +182,7 @@ class Matches:
             INNER JOIN account_links AS al ON m1.account_link=al.id
             INNER JOIN matches m2 ON m1.eid = m2.eid
             WHERE m2.account_link = %(account_link_id)s and m2.type=%(type)s
-            AND al.account IS NOT NULL
+            AND m1.type=%(type)s AND al.account IS NOT NULL
             GROUP BY al.account, al.sector, al.name
             ORDER BY al.sector, date
             """,

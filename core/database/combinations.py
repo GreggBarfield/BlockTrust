@@ -18,7 +18,7 @@ from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
     new_connections = []
-    supply_chain_links = Matches(db).get_matched_accounts_for_account_link(cow_calf_account_link_id)
+    supply_chain_links = Matches(db).get_sighted_match_accounts_for_account_link(cow_calf_account_link_id)
     for match_account_link in supply_chain_links:
         if cow_calf_account_id != match_account_link["account"]:
             if not dry_run:
