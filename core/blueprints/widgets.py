@@ -789,7 +789,7 @@ def serve_get_sustainability_response_timeline_data():
     if account_link is None:
         return {"Account link not available"}, 400
     else:
-        matched_accounts = g.db.matches.get_matched_accounts_for_account_link(account_link[0].id())
+        matched_accounts = g.db.matches.get_sighted_match_accounts_for_account_link(account_link[0].id())
         for account_data in matched_accounts:
             account_sustainability_score = 0
             account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_data["account"], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
