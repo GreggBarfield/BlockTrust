@@ -228,11 +228,12 @@ class Accounts:
         )
         account = self.get_account_by_id(self._db.last_row_id())
 
-        # update account name
+        # Link the account appropriately in the database. TODO: below code can be refactored
+        self._db.account_links.update_account_link_with_account(
+            account.partner_account_id(), account.affiliate_id(), account.sector_id(), 
+            company, self.mask_company_name(account.id(), account.sector_id()), account.id()
+        )      
         self.update_account(account.id(), show_real_name=int(False))
-
-        # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
 
         return account
 
