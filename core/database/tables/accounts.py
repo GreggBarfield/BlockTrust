@@ -168,7 +168,7 @@ class Accounts:
             raise AccountsException("Sector number is not listed internally.")
 
         # Process phone
-        if phone!= None:
+        if phone != None:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:

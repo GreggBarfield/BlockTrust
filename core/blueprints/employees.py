@@ -225,7 +225,7 @@ def serve_edit_selected_account(account_id):
             address=format_field(request.form["address"]),
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
-            zip=format_field(request.form["zip_code"])           
+            zip=format_field(request.form["zip_code"])
         )
         return {"redirect": "/employee/dashboard"}
 
