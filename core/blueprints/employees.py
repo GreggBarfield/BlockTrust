@@ -220,8 +220,6 @@ def serve_edit_selected_account(account_id):
     if request.method == "POST":
         g.db.accounts.update_account(
             account_id=account_id,
-            partner_account=format_field(request.form["partner"]),
-            affiliate_id=format_field(request.form["affiliate_id"]),
             company=format_field(request.form["company"]),
             phone=format_field(request.form["phone"]),
             address=format_field(request.form["address"]),

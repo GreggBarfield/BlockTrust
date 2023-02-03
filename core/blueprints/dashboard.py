@@ -354,13 +354,14 @@ def serve_edit_account():
     if request.method == 'POST':
         try:
             g.db.accounts.update_account(
-                    account_id=g.account.id(),
-                    company=request.form["company"],
-                    address=request.form["address"],
-                    city=request.form["city"],
-                    state=request.form["state"],
-                    zip=request.form["zip"],
-                    phone=request.form["phone"]
+                account_id=g.account.id(),
+                company=request.form["company"],
+                address=request.form["address"],
+                city=request.form["city"],
+                state=request.form["state"],
+                zip=request.form["zip"],
+                phone=request.form["phone"],
+                show_real_name=int(request.form["show_real_name"])
             )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
@@ -632,6 +633,7 @@ def send_document(path):
 def serve_sustainability_questionnaire():
     return dashboard_render("sustainability/questionnaire_v2.html", {"sector": SECTORS_ID_TO_NAME[g.account.sector_id()]})
 
+
 @bp.route("/dashboard/data-views", methods=["GET"])
 @crut.require_account
 def serve_views():
@@ -640,6 +642,7 @@ def serve_views():
     return dashboard_render("privacy/view-logs.html",
                             {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
                              "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})
+
 
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account
