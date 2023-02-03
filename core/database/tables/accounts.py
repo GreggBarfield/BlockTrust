@@ -78,7 +78,6 @@ class Accounts:
             for partner_row in partner_rows
         ]
 
-
     def get_by_account_user(self, account_user):
         """Gets an account by an AccountUser object.
 
@@ -92,7 +91,6 @@ class Accounts:
             AccountsException
         """
         return self.get_account_by_id(account_user.account_id())
-    
 
     def get_by_user(self, user):
         """Gets a user's accounts.
@@ -118,7 +116,6 @@ class Accounts:
             for account_row in account_rows
         ]
 
-
     def get_by_partner_affiliate_id(self, partner_id, affiliate_id):
         """Gets an account using the partner and affiliate id.
 
@@ -140,7 +137,6 @@ class Accounts:
         if len(account_rows) == 0:
             return None
         return Account(self._db, account_rows[0])
-
 
     def validate_new_account(self, sector, partner, affiliate_id, phone):
         """validates input to create account
@@ -232,14 +228,12 @@ class Accounts:
         )
         account = self.get_account_by_id(self._db.last_row_id())
 
-        # update account name
-        name = company
-        if sector == SECTORS_NAME_TO_ID["Cow-Calf"]:
-            name = "Ranch " + str(account.id())
-        self.update_account(account.id(), name=name)
-
-        # Link the account appropriately in the database
-        self._db.account_links.update_account_link_with_account(account.partner_account_id(), account.affiliate_id(), account.sector_id(), company, name, account.id())
+        # Link the account appropriately in the database. TODO: below code can be refactored
+        self._db.account_links.update_account_link_with_account(
+            account.partner_account_id(), account.affiliate_id(), account.sector_id(), 
+            company, self.mask_company_name(account.id(), account.sector_id()), account.id()
+        )      
+        self.update_account(account.id(), show_real_name=int(False))
 
         return account
 
@@ -398,7 +392,7 @@ class Accounts:
         if token is not NO_VALUE:
             query_conditions.append("token = %(token)s")
             query_values["token"] = token
-        
+
         if stripe_customer_id is not NO_VALUE:
             query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
             query_values["stripe_customer_id"] = stripe_customer_id
@@ -518,12 +512,13 @@ class Accounts:
         else:
             raise Exception("Must give values for fields to update on Account")
 
-    def update_account(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
-                       address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
+
+    def update_account(self, account_id, company=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
+                       state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
-                       partner_account=NO_VALUE, stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
+                       stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
         """
         Updates an account.
 
@@ -544,23 +539,22 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
-        base_query = "UPDATE accounts "
+        base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
         query_values = {}
         query_values["id"] = account_id
-        if name is not NO_VALUE:
-            query_conditions.append("name = %(name)s")
-            query_values["name"] = name
+        existing_row = None
         if company is not NO_VALUE:
-            query_conditions.append("company = %(company)s")
-            query_values["company"] = company
-        if sector_id is not NO_VALUE:
-            query_conditions.append("sector = %(sector_id)s")
-            query_values["sector_id"] = sector_id
-        if affiliate_id is not NO_VALUE:
-            query_conditions.append("affiliate_id = %(affiliate_id)s")
-            query_values["affiliate_id"] = affiliate_id
+            query_conditions.append("a.company = %(a_company)s")
+            query_values["a_company"] = company
+            query_conditions.append("al.company = %(al_company)s")
+            query_values["al_company"] = company
+            # name needs to be updated if show_real_name is true
+            if show_real_name is NO_VALUE:
+                existing_row = self.get_accounts(id=account_id)[0]
+                if existing_row["show_real_name"]:
+                    show_real_name = existing_row["show_real_name"]
         if address is not NO_VALUE:
             query_conditions.append("address = %(address)s")
             query_values["address"] = address
@@ -588,9 +582,6 @@ class Accounts:
         if stripe_customer_id is not NO_VALUE:
             query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
             query_values["stripe_customer_id"] = stripe_customer_id
-        if partner_account is not NO_VALUE:
-            query_conditions.append("partner_account = %(partner_account)s")
-            query_values["partner_account"] = partner_account
         if stripe_account_id is not NO_VALUE:
             query_conditions.append("stripe_account_id = %(stripe_account_id)s")
             query_values["stripe_account_id"] = stripe_account_id
@@ -609,10 +600,36 @@ class Accounts:
         if subscription_end_date is not NO_VALUE:
             query_conditions.append("subscription_end_date = %(subscription_end_date)s")
             query_values["subscription_end_date"] = subscription_end_date
+        if show_real_name is not NO_VALUE:
+            query_conditions.append("show_real_name = %(show_real_name)s")
+            query_values["show_real_name"] = show_real_name
+            if show_real_name:
+                if company is not NO_VALUE:
+                    company = company
+                else:
+                    existing_row = self.get_accounts(id=account_id)[0] if not existing_row else existing_row
+                    company = existing_row["company"]
+                name = company
+            else:
+                existing_row = self.get_accounts(id=account_id)[0] if not existing_row else existing_row
+                name = self.mask_company_name(account_id, existing_row["sector"])
+            query_conditions.append("a.name = %(a_name)s")
+            query_values["a_name"] = name
+            query_conditions.append("al.name = %(al_name)s")
+            query_values["al_name"] = name
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
             query = base_query + combined_query_condition
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update on Account")
+
+    def mask_company_name(self, id, sector):
+        if sector == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            name = f"Ranch {id}"
+        elif sector == SECTORS_NAME_TO_ID["Stocker/Backgrounder"]:
+            name = f"Stocker {id}"
+        else:
+            name = f"{SECTORS_ID_TO_NAME[sector]} {id}"
+        return name
