@@ -21,7 +21,7 @@ Edit Account
         <div class="col-lg-8 mb-2">
             <form class="bg-white shadow p-3"  id="edit_account_form"  method="POST">
                 <div class="row">
-                    <div class="col-lg-3"> 
+                    <div class="col-lg-4"> 
                         <div class="form-group">
                             <label for="edit_account_company" style="font-weight: bold;padding-top: 10px;">Company Name</label>                       
                         </div>
@@ -30,6 +30,15 @@ Edit Account
                         <div class="form-group">                   
                             <input type="text" class="form-control" id="edit_account_company" value="{{dashboard_standard_account.company() if dashboard_standard_account.company() is not none}}">
                         </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <!-- Empty for checkbox -->
+                    </div>
+                    <div class="col-lg-6">               
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="edit_account_show_real_name" {{"checked" if dashboard_standard_account.show_real_name() else ""}}> 
+                            <label class="form-check-label" for="exampleCheck1">Show real name</label>
+                        </div>    
                     </div>
                     <div class="col-lg-8"> 
                         <div class="form-group">
