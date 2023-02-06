@@ -1,7 +1,7 @@
 from ..objects.user import User
 import bcrypt
 from ..no_value import NoValue
-from ..frag import frag
+from ...config import ADMIN_EMAIL
 
 NO_VALUE = NoValue()
 
@@ -245,97 +245,6 @@ class Users:
         user = self.get_by_username(username)
         return user
 
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE):
-        """Updates user information.
-
-        Params:
-            username: This is the user id, just the user can see it
-            email: email address of user,just the user can see it
-            password: This is corresponding password used to login
-            phone: phone number of user
-            first: first name of the user.
-            last: last name of the user.
-        Returns:
-            None
-
-        Raises:
-            UsersException
-
-        """
-        username = Users._format_field(username)
-
-        if password is not None:
-            password = Users._format_field(password)
-            if len(password) < 8:
-                raise UsersException("Password must be at least 8 characters.")
-
-            if len(password.encode("utf-8")) > 60:
-                raise UsersException("Your password is too long.")
-
-            if (password != confirm_password):
-                raise UsersException("Password and Confirm password are not the same!")
-
-        # Process phone number
-        if phone is not NO_VALUE:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-
-        set_frags = frag()
-        if first_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "first_name=:first_name,",
-                            first_name=first_name
-                        )
-        if last_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "last_name=:last_name,",
-                            last_name=last_name
-                        )
-        if phone is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "phone=:phone,",
-                            phone=phone
-                        )
-        #password should never be none
-        if password is not None:
-            set_frags = frag(
-                            set_frags,
-                            "password=:password,",
-                            password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-                        )
-        if is_email_verified is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "is_email_verified=:is_email_verified,",
-                            is_email_verified=is_email_verified
-                        )
-
-        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
-            # check if last character in SQL is , and remove it if so
-            if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1], set_frags[1])
-
-            self._db.exec_frag(
-                frag(
-                    "UPDATE users SET",
-                    set_frags,
-                    frag(
-                        "WHERE username=:username",
-                        username=username
-                    )
-                )
-            )
-
     def is_user_deletable(self, user):
         """This runs checks to find if a user record is deletable.
 
@@ -533,3 +442,208 @@ class Users:
             return result_rows
         else:
             return []
+
+    def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                    phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE, 
+                    website_admin_email=""):
+        """
+        Transform, validates and updates an user record.
+        """
+        # username = Users._format_field(username)
+ 
+        # # Email must exist and contain an '@'
+        if email is not NO_VALUE:
+            if len(email) == 0:
+                raise UsersException("Email is blank.")
+            if '@' not in email or '.' not in email or len(email) < 5:
+                raise UsersException("The email you entered is incomplete.")
+            if ' ' in email:
+                raise UsersException("Spaces cannot be in the email.")
+            user = self.get_users(id=id)[0]
+            if user["email"] != email:
+                if user["email"] != website_admin_email:
+                    raise UsersException("Email cannot be updated right now")
+                # Double-usage. 
+                user = self.get_users(email=email)
+                if len(user) > 0:
+                    raise UsersException("Email is already being used.")
+                else:
+                    # email will be updated 
+                    is_email_verified = 0
+            else:
+                #don't update since email is same
+                email = NO_VALUE
+
+        # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
+        # user = self.get_by_username(username)
+        # if user is not None:
+        #     raise UsersException("Username is already being used.")
+
+        if password is not None:
+            password = Users._format_field(password)
+            if len(password) < 8:
+                raise UsersException("Password must be at least 8 characters.")
+
+            if len(password.encode("utf-8")) > 60:
+                raise UsersException("Your password is too long.")
+
+            if (password != confirm_password):
+                raise UsersException("Password and Confirm password are not the same!")
+
+        # Process phone number
+        if phone is not NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        
+        self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
+
+    def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                       phone=NO_VALUE, password=None, is_email_verified=NO_VALUE):
+        """
+        Updates an user.
+
+        Params:
+            username: This is the user id, just the user can see it
+            email: email address of user,just the user can see it
+            password: This is corresponding password used to login
+            phone: phone number of user
+            first: first name of the user.
+            last: last name of the user.
+        """
+        base_query = "UPDATE users"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s")
+            query_values["email"] = email
+            query_conditions.append("username = %(username)s")
+            query_values["username"] = email
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s")
+            query_values["last_name"] = last_name
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        # password should never be none
+        if password is not None:
+            query_conditions.append("password = %(password)s")
+            query_values["password"] = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        if is_email_verified is not NO_VALUE:
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
+            query_values["is_email_verified"] = is_email_verified
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update user record")
+
+    # def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE):
+    #     """Updates user information.
+
+    #     Params:
+    #         username: This is the user id, just the user can see it
+    #         email: email address of user,just the user can see it
+    #         password: This is corresponding password used to login
+    #         phone: phone number of user
+    #         first: first name of the user.
+    #         last: last name of the user.
+    #     Returns:
+    #         None
+
+    #     Raises:
+    #         UsersException
+
+    #     """
+    #     username = Users._format_field(username)
+
+    #     if password is not None:
+    #         password = Users._format_field(password)
+    #         if len(password) < 8:
+    #             raise UsersException("Password must be at least 8 characters.")
+
+    #         if len(password.encode("utf-8")) > 60:
+    #             raise UsersException("Your password is too long.")
+
+    #         if (password != confirm_password):
+    #             raise UsersException("Password and Confirm password are not the same!")
+
+    #     # Process phone number
+    #     if phone is not NO_VALUE:
+    #         digits = ''.join(chr(ord('0') + i) for i in range(10))
+    #         temp_phone = ""
+    #         for c in phone:
+    #             if c in digits:
+    #                 temp_phone += c
+    #         phone = temp_phone
+    #         # If phone is empty it is NULL
+    #         if phone == "":
+    #             phone = None
+
+    #     set_frags = frag()
+    #     if first_name is not NO_VALUE:
+    #         set_frags = frag(
+    #                         set_frags,
+    #                         "first_name=:first_name,",
+    #                         first_name=first_name
+    #                     )
+    #     if last_name is not NO_VALUE:
+    #         set_frags = frag(
+    #                         set_frags,
+    #                         "last_name=:last_name,",
+    #                         last_name=last_name
+    #                     )
+    #     if phone is not NO_VALUE:
+    #         set_frags = frag(
+    #                         set_frags,
+    #                         "phone=:phone,",
+    #                         phone=phone
+    #                     )
+    #     #password should never be none
+    #     if password is not None:
+    #         set_frags = frag(
+    #                         set_frags,
+    #                         "password=:password,",
+    #                         password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    #                     )
+    #     if is_email_verified is not NO_VALUE:
+    #         set_frags = frag(
+    #                         set_frags,
+    #                         "is_email_verified=:is_email_verified,",
+    #                         is_email_verified=is_email_verified
+    #                     )
+
+    #     if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
+    #         # check if last character in SQL is , and remove it if so
+    #         if set_frags[0][-1] == ",":
+    #             set_frags = (set_frags[0][:-1], set_frags[1])
+
+    #         self._db.exec_frag(
+    #             frag(
+    #                 "UPDATE users SET",
+    #                 set_frags,
+    #                 frag(
+    #                     "WHERE username=:username",
+    #                     username=username
+    #                 )
+    #             )
+    #         )
