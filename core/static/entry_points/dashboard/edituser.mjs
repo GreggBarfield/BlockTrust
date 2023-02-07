@@ -21,7 +21,6 @@ let form = new AsyncForm({
     loadingMessage: "Hang on, we're updating your account...",
     getData: () => {
         return {
-            username: username.val(),
             password: password.val(),
             email: email.val(),
             confirm_password: confirm_password.val(),

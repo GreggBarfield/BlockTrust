@@ -218,7 +218,7 @@ def serve_edit_selected_account(account_id):
         )
         return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
     if request.method == "POST":
-        g.db.accounts.update_account(
+        g.db.accounts.modify_account(
             account_id=account_id,
             company=format_field(request.form["company"]),
             phone=format_field(request.form["phone"]),

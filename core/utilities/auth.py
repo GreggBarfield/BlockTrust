@@ -225,7 +225,7 @@ def logout():
     g.employee=None
 
 
-def change_user_password(email, new_password, confirm_password):
+def reset_user_password(email, new_password, confirm_password):
     """
     Changing the password in the user database
 
@@ -244,10 +244,10 @@ def change_user_password(email, new_password, confirm_password):
         # Check if password reset link is valid. As token.py returns false if link is Invalid
         if email is False:
             raise Exception("Password reset link is Invalid")
-        user = Users(g.db).get_by_email(email)
+        user = Users(g.db).get_users(email=email)[0]
         # Password should not be blank
-        Users(g.db).update_user(
-            username=user.username(),
+        Users(g.db).modify_user(
+            id=user["id"],
             password=new_password,
             confirm_password=confirm_password
         )
@@ -258,7 +258,7 @@ def change_user_password(email, new_password, confirm_password):
 def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
-    g.db.users.update_user(username=user_account["username"], is_email_verified=1)
+    g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
     EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
     partner_account_company = ""
     if user_account["partner_account"] is not None:
