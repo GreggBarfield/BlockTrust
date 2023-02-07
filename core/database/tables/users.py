@@ -1,7 +1,6 @@
 from ..objects.user import User
 import bcrypt
 from ..no_value import NoValue
-from ...config import ADMIN_EMAIL
 
 NO_VALUE = NoValue()
 
@@ -444,8 +443,7 @@ class Users:
             return []
 
     def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
-                    phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE, 
-                    website_admin_email=""):
+                    phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
         """
         Transform, validates and updates an user record.
         """
@@ -459,13 +457,11 @@ class Users:
                 raise UsersException("The email you entered is incomplete.")
             if ' ' in email:
                 raise UsersException("Spaces cannot be in the email.")
-            user = self.get_users(id=id)[0]
-            if user["email"] != email:
-                if user["email"] != website_admin_email:
-                    raise UsersException("Email cannot be updated right now")
+            existing_row = self.get_users(id=id)[0]
+            if existing_row["email"] != email:
                 # Double-usage. 
-                user = self.get_users(email=email)
-                if len(user) > 0:
+                existing_user = self.get_users(email=email)
+                if len(existing_user) > 0:
                     raise UsersException("Email is already being used.")
                 else:
                     # email will be updated 
@@ -474,21 +470,19 @@ class Users:
                 #don't update since email is same
                 email = NO_VALUE
 
-        # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
-        # user = self.get_by_username(username)
-        # if user is not None:
-        #     raise UsersException("Username is already being used.")
+        if password is not NO_VALUE:
+            if password is None:
+                password = NO_VALUE
+            else:
+                password = Users._format_field(password)
+                if len(password) < 8:
+                    raise UsersException("Password must be at least 8 characters.")
 
-        if password is not None:
-            password = Users._format_field(password)
-            if len(password) < 8:
-                raise UsersException("Password must be at least 8 characters.")
+                if len(password.encode("utf-8")) > 60:
+                    raise UsersException("Your password is too long.")
 
-            if len(password.encode("utf-8")) > 60:
-                raise UsersException("Your password is too long.")
-
-            if (password != confirm_password):
-                raise UsersException("Password and Confirm password are not the same!")
+                if (password != confirm_password):
+                    raise UsersException("Password and Confirm password are not the same!")
 
         # Process phone number
         if phone is not NO_VALUE:
@@ -505,7 +499,7 @@ class Users:
         self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
 
     def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
-                       phone=NO_VALUE, password=None, is_email_verified=NO_VALUE):
+                       phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
         """
         Updates an user.
 
@@ -540,8 +534,7 @@ class Users:
         if phone is not NO_VALUE:
             query_conditions.append("phone = %(phone)s")
             query_values["phone"] = phone
-        # password should never be none
-        if password is not None:
+        if password is not NO_VALUE:
             query_conditions.append("password = %(password)s")
             query_values["password"] = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
         if is_email_verified is not NO_VALUE:
