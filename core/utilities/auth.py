@@ -246,8 +246,8 @@ def change_user_password(email, new_password, confirm_password):
             raise Exception("Password reset link is Invalid")
         user = Users(g.db).get_by_email(email)
         # Password should not be blank
-        Users(g.db).update_user(
-            username=user.username(),
+        Users(g.db).modify_user(
+            id=user.id(),
             password=new_password,
             confirm_password=confirm_password
         )
@@ -258,7 +258,7 @@ def change_user_password(email, new_password, confirm_password):
 def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
-    g.db.users.update_user(username=user_account["username"], is_email_verified=1)
+    g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
     EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
     partner_account_company = ""
     if user_account["partner_account"] is not None:

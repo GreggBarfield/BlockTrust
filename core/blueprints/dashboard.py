@@ -2,7 +2,7 @@ from flask import (
     request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
-from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
@@ -353,7 +353,7 @@ def serve_edit_account():
     # Get account information
     if request.method == 'POST':
         try:
-            g.db.accounts.update_account(
+            g.db.accounts.modify_account(
                 account_id=g.account.id(),
                 company=request.form["company"],
                 address=request.form["address"],
@@ -390,8 +390,9 @@ def serve_edit_account():
 def serve_edit_edituser():
     if request.method == 'POST':
         try:
-            g.db.users.update_user(
-                username=g.user.username(),
+            g.db.users.modify_user(
+                id=g.user.id(),
+                email=request.form["email"] if g.user.email()==ADMIN_EMAIL else g.user.email(),
                 first_name=request.form["first"],
                 last_name=request.form["last"],
                 phone=request.form["phone"],
@@ -404,7 +405,9 @@ def serve_edit_edituser():
             return {"error": str(e)}, 400
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+        return dashboard_render("/dashboard/edit/edituser.html", {
+            "user": user, "is_website_admin": True if g.user.username() == ADMIN_EMAIL else False
+        })
 
 
 @bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])

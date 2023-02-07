@@ -210,9 +210,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s)
             """,
             {
                 "company": company,
@@ -223,17 +223,19 @@ class Accounts:
                 "city": city,
                 "state": state,
                 "zip": zip,
-                "phone": phone
+                "phone": phone,
+                "show_real_name": int(False)
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
 
-        # Link the account appropriately in the database. TODO: below code can be refactored
+        # Link the account appropriately in the database. 
+        name = self.mask_company_name(account.id(), account.sector_id())
         self._db.account_links.update_account_link_with_account(
             account.partner_account_id(), account.affiliate_id(), account.sector_id(), 
-            company, self.mask_company_name(account.id(), account.sector_id()), account.id()
+            company, name, account.id()
         )      
-        self.update_account(account.id(), show_real_name=int(False))
+        self.update_account(account.id(), name=name)
 
         return account
 
@@ -512,8 +514,56 @@ class Accounts:
         else:
             raise Exception("Must give values for fields to update on Account")
 
+    def process_phone(self, phone):
+        # Process phone
+        if phone != None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
-    def update_account(self, account_id, company=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        return phone
+
+    def modify_account(self, account_id, company=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
+                       state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
+                       stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
+                       stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
+                       retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+        """
+        Transform, validate and updates an account.
+        """
+
+        existing_row = self.get_accounts(id=account_id)[0]
+        name=NO_VALUE
+        if company is not NO_VALUE:
+            # name needs to be updated if show_real_name is true
+            if company != existing_row["company"]:
+                if show_real_name is NO_VALUE and existing_row["show_real_name"]:
+                    show_real_name = existing_row["show_real_name"] 
+        if show_real_name is not NO_VALUE:
+            if show_real_name:
+                name = company if company is not NO_VALUE else existing_row["company"]
+            else:
+                name = self.mask_company_name(account_id, existing_row["sector"])
+        if phone is not NO_VALUE:
+            phone=self.process_phone(phone)
+    
+        self.update_account(
+            account_id, company=company, name=name, address=address, city=city, state=state,
+            zip=zip, phone=phone, token=token, stripe_paid=stripe_paid, 
+            manual_paid=manual_paid, stripe_customer_id=stripe_customer_id, 
+            stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
+            retail_name=retail_name, retail_description=retail_description, subscription_start_date=subscription_start_date,
+            subscription_end_date=subscription_end_date, show_real_name=show_real_name
+        )
+
+    def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
                        state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
@@ -550,11 +600,11 @@ class Accounts:
             query_values["a_company"] = company
             query_conditions.append("al.company = %(al_company)s")
             query_values["al_company"] = company
-            # name needs to be updated if show_real_name is true
-            if show_real_name is NO_VALUE:
-                existing_row = self.get_accounts(id=account_id)[0]
-                if existing_row["show_real_name"]:
-                    show_real_name = existing_row["show_real_name"]
+        if name is not NO_VALUE:
+            query_conditions.append("a.name = %(a_name)s")
+            query_values["a_name"] = name
+            query_conditions.append("al.name = %(al_name)s")
+            query_values["al_name"] = name           
         if address is not NO_VALUE:
             query_conditions.append("address = %(address)s")
             query_values["address"] = address
@@ -603,20 +653,6 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
-            if show_real_name:
-                if company is not NO_VALUE:
-                    company = company
-                else:
-                    existing_row = self.get_accounts(id=account_id)[0] if not existing_row else existing_row
-                    company = existing_row["company"]
-                name = company
-            else:
-                existing_row = self.get_accounts(id=account_id)[0] if not existing_row else existing_row
-                name = self.mask_company_name(account_id, existing_row["sector"])
-            query_conditions.append("a.name = %(a_name)s")
-            query_values["a_name"] = name
-            query_conditions.append("al.name = %(al_name)s")
-            query_values["al_name"] = name
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
