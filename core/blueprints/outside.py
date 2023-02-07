@@ -306,7 +306,7 @@ def serve_reset_password_action(tok):
         # Getting the user eamil using the encrypted token
         email = token.confirmToken(tok)
         # Changing user password using email as an identifier
-        auth.change_user_password(email, new_password, confirm_password)
+        auth.reset_user_password(email, new_password, confirm_password)
         return jsonify({"redirect": "/login"})
     except Exception as e:
         return jsonify({"error": str(e)})
