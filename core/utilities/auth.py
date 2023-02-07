@@ -225,7 +225,7 @@ def logout():
     g.employee=None
 
 
-def change_user_password(email, new_password, confirm_password):
+def reset_user_password(email, new_password, confirm_password):
     """
     Changing the password in the user database
 
@@ -244,10 +244,10 @@ def change_user_password(email, new_password, confirm_password):
         # Check if password reset link is valid. As token.py returns false if link is Invalid
         if email is False:
             raise Exception("Password reset link is Invalid")
-        user = Users(g.db).get_by_email(email)
+        user = Users(g.db).get_users(email=email)[0]
         # Password should not be blank
         Users(g.db).modify_user(
-            id=user.id(),
+            id=user["id"],
             password=new_password,
             confirm_password=confirm_password
         )
