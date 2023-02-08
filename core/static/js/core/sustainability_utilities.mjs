@@ -42,13 +42,11 @@ const makeAverageScoreGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId,
     let globalSustainabilityScoreAverageForSector = 0;
     let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(sectorsNameToId);
     let sectionalTotals = sectorBasedSectionalTotals[sectorID];
-    console.log(globalAverages);
 
     for(let section of Object.values(sections)){
         // Ensuring that the sustainability section exists for the particular sector
         if(section.name in sectionalTotals){
             globalSustainabilityScoreAverageForSector+= globalAverages[sectorID][section.name+"_average"];
-            console.log(typeof(globalAverages[sectorID][section.name+"_average"]));
         }
     }
     let currentSectorTotalScore = sectorBasedSectionalTotals[sectorID]["total"];
