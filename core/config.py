@@ -1,6 +1,5 @@
 import json
 import os
-from urllib.parse import urljoin
 
 # config.py loads environment_config.json
 # create environment_config.json from tools/config/environment_config_template.json

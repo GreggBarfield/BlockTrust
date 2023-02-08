@@ -2,7 +2,7 @@ from flask import (
     request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
-from core.config import FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
@@ -353,14 +353,15 @@ def serve_edit_account():
     # Get account information
     if request.method == 'POST':
         try:
-            g.db.accounts.update_account(
-                    account_id=g.account.id(),
-                    company=request.form["company"],
-                    address=request.form["address"],
-                    city=request.form["city"],
-                    state=request.form["state"],
-                    zip=request.form["zip"],
-                    phone=request.form["phone"]
+            g.db.accounts.modify_account(
+                account_id=g.account.id(),
+                company=request.form["company"],
+                address=request.form["address"],
+                city=request.form["city"],
+                state=request.form["state"],
+                zip=request.form["zip"],
+                phone=request.form["phone"],
+                show_real_name=int(request.form["show_real_name"])
             )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
@@ -389,8 +390,9 @@ def serve_edit_account():
 def serve_edit_edituser():
     if request.method == 'POST':
         try:
-            g.db.users.update_user(
-                username=g.user.username(),
+            g.db.users.modify_user(
+                id=g.user.id(),
+                email=request.form["email"] if g.user.email()==ADMIN_EMAIL else g.user.email(),
                 first_name=request.form["first"],
                 last_name=request.form["last"],
                 phone=request.form["phone"],
@@ -403,7 +405,9 @@ def serve_edit_edituser():
             return {"error": str(e)}, 400
     elif request.method == 'GET':
         user = g.db.users.get_by_username(g.user.username())
-        return dashboard_render("/dashboard/edit/edituser.html", {"user": user})
+        return dashboard_render("/dashboard/edit/edituser.html", {
+            "user": user, "is_website_admin": True if g.user.username() == ADMIN_EMAIL else False
+        })
 
 
 @bp.route('/dashboard/inviteuser', methods=['GET', 'POST'])
@@ -632,6 +636,7 @@ def send_document(path):
 def serve_sustainability_questionnaire():
     return dashboard_render("sustainability/questionnaire_v2.html", {"sector": SECTORS_ID_TO_NAME[g.account.sector_id()]})
 
+
 @bp.route("/dashboard/data-views", methods=["GET"])
 @crut.require_account
 def serve_views():
@@ -640,6 +645,7 @@ def serve_views():
     return dashboard_render("privacy/view-logs.html",
                             {"view_logs": view_logs, "view_logs_count": len(view_logs), "data_type_id_to_name": DATA_TYPE_ID_TO_NAME,
                              "animal_url": url_for("dashboard_bp.serve_animal_eid", animal_eid='')})
+
 
 @bp.route("/dashboard/edit/edit-account-retail-data", methods=["GET"])
 @crut.require_account

@@ -36,6 +36,9 @@ class Account:
 
     def company(self):
         return self._row['company']
+    
+    def show_real_name(self):
+        return self._row["show_real_name"]
 
     def token(self):
         return self._row['token']
