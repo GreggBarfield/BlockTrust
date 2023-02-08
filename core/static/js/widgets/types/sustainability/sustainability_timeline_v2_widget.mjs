@@ -83,7 +83,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             title.className = "col-md-6";
             let scoreText = document.createElement("h5");
             scoreText.className = "col-md-4 text-c-green";
-            scoreText.textContent = "Account Score: " + matchAccount.account_sustainability_score.toFixed(2);
+            scoreText.textContent = "Account Score: " + parseFloat(matchAccount.account_sustainability_score).toFixed(2);
             let scoreIcon = document.createElement("i");
             scoreIcon.className = "fas fa-leaf text-c-green f-15 col-md-1";
             textComponent.append(title);

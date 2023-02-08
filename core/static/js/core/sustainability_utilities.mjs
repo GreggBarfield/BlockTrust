@@ -42,12 +42,13 @@ const makeAverageScoreGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId,
     let globalSustainabilityScoreAverageForSector = 0;
     let sectorBasedSectionalTotals = calculateSustainabilityQuestionnaireMaxScores(sectorsNameToId);
     let sectionalTotals = sectorBasedSectionalTotals[sectorID];
-    
+    console.log(globalAverages);
 
     for(let section of Object.values(sections)){
         // Ensuring that the sustainability section exists for the particular sector
         if(section.name in sectionalTotals){
             globalSustainabilityScoreAverageForSector+= globalAverages[sectorID][section.name+"_average"];
+            console.log(typeof(globalAverages[sectorID][section.name+"_average"]));
         }
     }
     let currentSectorTotalScore = sectorBasedSectionalTotals[sectorID]["total"];
@@ -82,7 +83,7 @@ const makeAverageScoreGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId,
 
     let cardHeaderIconText = document.createElement("h6");
     cardHeaderIconText.className = "d-inline text-c-green";
-    cardHeaderIconText.textContent = scoreLabel + accountSustainabilityScore.toFixed(2)+ " |Global Score: " + globalSustainabilityScoreAverageForSector.toFixed(2);
+    cardHeaderIconText.textContent = scoreLabel + parseFloat(accountSustainabilityScore).toFixed(2)+ " |Global Score: " + parseFloat(globalSustainabilityScoreAverageForSector).toFixed(2);
     let cardHeaderIcon = document.createElement("i");
     cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
     cardHeaderIcon.style = "padding-right:10px";
@@ -143,7 +144,7 @@ const makeSectionalGaugeCharts = (row, scoreLabel, sectorID, sectorsNameToId, ac
 
             let cardHeaderIconText = document.createElement("h6");
             cardHeaderIconText.className = "d-inline text-c-green";
-            cardHeaderIconText.textContent = scoreLabel + parseFloat(accountScores[section.name+"_score"]).toFixed(2) + " |Global Score: " + globalAverages[sectorID][section.name+"_average"].toFixed(2);
+            cardHeaderIconText.textContent = scoreLabel + parseFloat(accountScores[section.name+"_score"]).toFixed(2) + " |Global Score: " + parseFloat(globalAverages[sectorID][section.name+"_average"]).toFixed(2);
             let cardHeaderIcon = document.createElement("i");
             cardHeaderIcon.className = "fas fa-leaf text-c-green f-15";
             cardHeaderIcon.style = "padding-right:10px";
