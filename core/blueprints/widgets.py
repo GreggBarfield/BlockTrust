@@ -765,14 +765,14 @@ def serve_get_sustainability_response_averages():
     if len(account_sustainability_responses) > 0:
         latest_account_sustainability_response = account_sustainability_responses[0]
         account_sustainability_section_and_scores = {
-            "air_score": float(latest_account_sustainability_response["air_points"]) if latest_account_sustainability_response["air_points"] else 0,
-            "land_score": float(latest_account_sustainability_response["land_points"]) if latest_account_sustainability_response["land_points"] else 0,
-            "water_score": float(latest_account_sustainability_response["water_points"]) if latest_account_sustainability_response["water_points"] else 0,
-            "animal_score": float(latest_account_sustainability_response["animal_points"]) if latest_account_sustainability_response["animal_points"] else 0,
-            "safety_score": float(latest_account_sustainability_response["safety_points"]) if latest_account_sustainability_response["safety_points"] else 0,
-            "efficiency_score": float(latest_account_sustainability_response["efficiency_points"]) if latest_account_sustainability_response["efficiency_points"] else 0,
-            "improvement_score": float(latest_account_sustainability_response["improvement_points"]) if latest_account_sustainability_response["improvement_points"] else 0,
-            "total_score": float(latest_account_sustainability_response["score"]) if latest_account_sustainability_response["score"] else 0
+            "air_score": latest_account_sustainability_response["air_points"] if latest_account_sustainability_response["air_points"] else 0,
+            "land_score": latest_account_sustainability_response["land_points"] if latest_account_sustainability_response["land_points"] else 0,
+            "water_score": latest_account_sustainability_response["water_points"] if latest_account_sustainability_response["water_points"] else 0,
+            "animal_score": latest_account_sustainability_response["animal_points"] if latest_account_sustainability_response["animal_points"] else 0,
+            "safety_score": latest_account_sustainability_response["safety_points"] if latest_account_sustainability_response["safety_points"] else 0,
+            "efficiency_score": latest_account_sustainability_response["efficiency_points"] if latest_account_sustainability_response["efficiency_points"] else 0,
+            "improvement_score": latest_account_sustainability_response["improvement_points"] if latest_account_sustainability_response["improvement_points"] else 0,
+            "total_score": latest_account_sustainability_response["score"] if latest_account_sustainability_response["score"] else 0
         }
     if scores_only:
         account_data = g.db.accounts.get_accounts(id=account_id)
@@ -795,7 +795,7 @@ def serve_get_sustainability_response_timeline_data():
             account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_data["account"], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
             if len(account_sustainability_responses) > 0:
                 latest_sustainability_response = account_sustainability_responses[0]
-                account_sustainability_score = float(latest_sustainability_response["score"])
+                account_sustainability_score = latest_sustainability_response["score"]
             account_data["account_sustainability_score"] = account_sustainability_score
 
         return {'timeline_data': matched_accounts}, 200
