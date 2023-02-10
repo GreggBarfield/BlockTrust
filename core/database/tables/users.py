@@ -432,14 +432,13 @@ class Users:
         else:
             return []
 
-    def validate_user(self, email=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE):
-        if email is not NO_VALUE:
-            if len(email) == 0:
-                raise UsersException("Email is blank.")
-            if '@' not in email or '.' not in email or len(email) < 5:
-                raise UsersException("The email you entered is incomplete.")
-            if ' ' in email:
-                raise UsersException("Spaces cannot be in the email.")
+    def validate_user(self, email, password=NO_VALUE, confirm_password=NO_VALUE):
+        if len(email) == 0:
+            raise UsersException("Email is blank.")
+        if '@' not in email or '.' not in email or len(email) < 5:
+            raise UsersException("The email you entered is incomplete.")
+        if ' ' in email:
+            raise UsersException("Spaces cannot be in the email.")
 
         if password is not NO_VALUE:
             password = Users._format_field(password)
