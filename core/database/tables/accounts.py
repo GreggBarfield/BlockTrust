@@ -203,11 +203,6 @@ class Accounts:
             AccountsException
         """
 
-        # Validations
-        if affiliate_id and affiliate_id.isdigit():
-            affiliate_id = int(affiliate_id)
-        sector, phone = self.validate_new_account(sector, partner, affiliate_id, phone)
-
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)

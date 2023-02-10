@@ -63,13 +63,22 @@ def serve_employee_create_account_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+
+        phone = format_field(request.form['phone'])
+        partner = format_field(request.form['partner'])
+        affiliate_id = format_field(request.form['affiliate_id'])
+        sector = format_field(required['sector'])
+        if affiliate_id and affiliate_id.isdigit():
+            affiliate_id = int(affiliate_id)
+        sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+
         # Creating an account without an admin
         account_obj = g.db.accounts.create_account(
-                phone=format_field(request.form['phone']),
+                phone=phone,
                 company=format_field(required['company']),
-                partner=format_field(request.form['partner']),
-                affiliate_id=format_field(request.form['affiliate_id']),
-                sector=format_field(required['sector']),
+                partner=partner,
+                affiliate_id=affiliate_id,
+                sector=sector,
                 address=format_field(required['address']),
                 city=format_field(required['city']),
                 state=format_field(required['state']),

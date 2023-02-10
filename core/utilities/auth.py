@@ -183,6 +183,10 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     if password != confirm_password:
         raise SignupFailedException("The passwords you entered were not identical.")
 
+    if affiliate_id and affiliate_id.isdigit():
+        affiliate_id = int(affiliate_id)
+    sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+
     user = g.db.users.create_user(
         username=username,
         password=password,

@@ -442,13 +442,49 @@ class Users:
         else:
             return []
 
+    def validate_user(self, email, password, confirm_password):
+        if email is not NO_VALUE:
+            if len(email) == 0:
+                raise UsersException("Email is blank.")
+            if '@' not in email or '.' not in email or len(email) < 5:
+                raise UsersException("The email you entered is incomplete.")
+            if ' ' in email:
+                raise UsersException("Spaces cannot be in the email.")
+
+        if password is not NO_VALUE:
+            if password is None:
+                password = NO_VALUE
+            else:
+                password = Users._format_field(password)
+                if len(password) < 8:
+                    raise UsersException("Password must be at least 8 characters.")
+
+                if len(password.encode("utf-8")) > 60:
+                    raise UsersException("Your password is too long.")
+
+                if (password != confirm_password):
+                    raise UsersException("Password and Confirm password are not the same!")
+
+    def process_phone(self, phone):
+        # Process phone number
+        if phone is not NO_VALUE:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        return phone
+
     def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                     phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
         """
         Transform, validates and updates an user record.
         """
-        # username = Users._format_field(username)
- 
+
         # # Email must exist and contain an '@'
         if email is not NO_VALUE:
             if len(email) == 0:
@@ -459,15 +495,16 @@ class Users:
                 raise UsersException("Spaces cannot be in the email.")
             existing_row = self.get_users(id=id)[0]
             if existing_row["email"] != email:
-                # Double-usage. 
+                # Double-usage.
                 existing_user = self.get_users(email=email)
                 if len(existing_user) > 0:
                     raise UsersException("Email is already being used.")
                 else:
-                    # email will be updated 
-                    is_email_verified = 0
+                    # email will be updated
+                    # is_email_verified = 0
+                    pass
             else:
-                #don't update since email is same
+                # don't update since email is same
                 email = NO_VALUE
 
         if password is not NO_VALUE:
@@ -495,7 +532,7 @@ class Users:
             # If phone is empty it is NULL
             if phone == "":
                 phone = None
-        
+
         self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
 
     def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
