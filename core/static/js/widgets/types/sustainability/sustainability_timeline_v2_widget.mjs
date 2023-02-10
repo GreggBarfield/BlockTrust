@@ -45,7 +45,6 @@ export class SustainabilityTimelineV2Widget extends Widget {
         cdTimeline.className = "v-timeline v-timeline--icons js-v-timeline";
         cdTimeline.setAttribute("data-animation", "on");
         cdContainer.appendChild(cdTimeline);
-
         for(const matchAccount of this.timelineData){
 
             let section = document.createElement("section");
