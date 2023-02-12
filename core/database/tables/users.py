@@ -441,7 +441,6 @@ class Users:
             raise UsersException("Spaces cannot be in the email.")
 
         if password is not NO_VALUE:
-            password = Users._format_field(password)
             if len(password) < 8:
                 raise UsersException("Password must be at least 8 characters.")
 
@@ -453,28 +452,22 @@ class Users:
 
     def process_phone(self, phone):
         # Process phone number
-        if phone is not NO_VALUE:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
+        digits = ''.join(chr(ord('0') + i) for i in range(10))
+        temp_phone = ""
+        for c in phone:
+            if c in digits:
+                temp_phone += c
+        phone = temp_phone
+        # If phone is empty it is NULL
+        if phone == "":
+            phone = None
         return phone
 
     def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
-                    phone=NO_VALUE, password=NO_VALUE, confirm_password=NO_VALUE, is_email_verified=NO_VALUE):
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
         """
-        Validates, transforms and updates an user record.
+        Transforms and updates an user record.
         """
-
-        if password is None:
-            password = NO_VALUE
-
-        self.validate_user(email, password, confirm_password)
 
         if email is not NO_VALUE:
             existing_row = self.get_users(id=id)[0]
@@ -492,7 +485,8 @@ class Users:
                 email = NO_VALUE
 
         # Process phone number
-        phone = self.process_phone(phone)
+        if phone is not NO_VALUE:
+            phone = self.process_phone(phone)
 
         self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
 
