@@ -390,15 +390,21 @@ def serve_edit_account():
 def serve_edit_edituser():
     if request.method == 'POST':
         try:
-            g.db.users.modify_user(
-                id=g.user.id(),
-                email=request.form["email"] if g.user.email()==ADMIN_EMAIL else g.user.email(),
-                first_name=request.form["first"],
-                last_name=request.form["last"],
-                phone=request.form["phone"],
-                password=request.form["password"] if request.form["password"] != "" else None,
-                confirm_password=request.form["confirm_password"] if request.form["confirm_password"] != "" else None
-            )
+            email = request.form["email"] if g.user.email() == ADMIN_EMAIL else g.user.email()
+            if request.form["password"]:
+                password = request.form["password"]
+                confirm_password = request.form["confirm_password"]
+                g.db.users.validate_user(email, password, confirm_password)
+                g.db.users.modify_user(
+                    id=g.user.id(), email=email, first_name=request.form["first"],
+                    last_name=request.form["last"], phone=request.form["phone"], password=password
+                )
+            else:
+                g.db.users.validate_user(email)
+                g.db.users.modify_user(
+                    id=g.user.id(), email=email, first_name=request.form["first"],
+                    last_name=request.form["last"], phone=request.form["phone"]
+                )
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
