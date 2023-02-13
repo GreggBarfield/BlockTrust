@@ -250,8 +250,7 @@ def reset_user_password(email, new_password, confirm_password):
         Users(g.db).validate_user(email, new_password, confirm_password)
         Users(g.db).modify_user(
             id=user["id"],
-            password=new_password,
-            confirm_password=confirm_password
+            password=new_password
         )
     except Exception as e:
         raise e
