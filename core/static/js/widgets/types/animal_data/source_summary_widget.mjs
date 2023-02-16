@@ -53,7 +53,7 @@ export class SourceSummaryWidget extends Widget {
                 this.downloadButton.innerHTML = "<i class='fa fa-download'></i> Download";
                 
                 let exportTable = this.makeExportTable(matchRows);
-                this.downloadButton.onclick = () => {                
+                this.downloadButton.onclick = () => {
                     let csvContent = "data:text/csv;charset=utf-8," + exportTable.map(e => e.join(",")).join("\n");
                     let encodedUri = encodeURI(csvContent);
                     //Having text color issues on mouse hover when making this.downloadButton a hyperlink tag. So below workaround is used
