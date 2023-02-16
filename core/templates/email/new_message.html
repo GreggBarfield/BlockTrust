@@ -3,31 +3,16 @@
 {% block email_standard_center %}
 <table>
     <tr>
-        <td valign="top" style="text-align: center; padding: 60px 0 10px 20px;">
-            <h1 style="margin: 0; font-family: 'Montserrat', sans-serif; font-size: 30px; line-height: 36px; color: #ffffff; font-weight: bold;">NEW MESSAGE</h1>
-        </td>
-    </tr>
-    <tr>
         <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
-            <p style="margin: 0;">You've received a new message on {{ new_message['receiver'] | e }} from {{ new_message['sender'] | e }}!</p>
-        </td>
-    </tr>
-    <tr>
-        <td valign="top" align="center" style="text-align: center; padding: 15px 0px 60px 0px;">
-            <center>
-                <table role="presentation" align="center" cellspacing="0" cellpadding="0" border="0" class="center-on-narrow" style="text-align: center;">
-                    <tr>
-                        <td style="border-radius: 50px; background: #26a4d3; text-align: center;" class="button-td"> <a href="{{ new_message['link'] }}" style="background: #26a4d3; border: 15px solid #26a4d3; font-family: 'Montserrat', sans-serif; font-size: 14px; line-height: 1.1; text-align: center; text-decoration: none; display: block; border-radius: 50px; font-weight: bold;" class="button-a"> <span style="color:#ffffff;" class="button-link">&nbsp;&nbsp;&nbsp;&nbsp;OPEN MESSAGE&nbsp;&nbsp;&nbsp;&nbsp;</span> </a> </td>
-                    </tr>
-                </table>
-            </center>
+            <p style="margin: 0;">Secure Message</p>
         </td>
     </tr>
 </table>
 {% endblock email_standard_center %}
 
 {% block email_standard_subdescription %}
-You've received a new message on the BlockTrust Network website. 
-Click the above button to open the message, or use the following link: 
-<a href="{{ new_message['link'] }}">{{ new_message['link'] | e }}</a>
+<div class="card">
+    <p>You've received a secure message through the BlockTrust Network platform. Click the button below to access the message.</p>
+    <p><a target="_blank" href="{{ new_message['link'] }}" class="button-link-custom">Go To Message</a></p>
+</div>
 {% endblock email_standard_subdescription %}

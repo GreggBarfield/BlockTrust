@@ -3,17 +3,16 @@
 <table>
     <tr>
         <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
-            <p style="margin: 0;">Blocktrust network Connection Invite</p>
+            <p style="margin: 0;">Connection Request</p>
         </td>
     </tr>
 </table>
 {% endblock email_standard_center %}
 {% block email_standard_subdescription %}
 <br>
-<div style="border-left: 1px solid black;padding-left:20px;">
-    <p>You have received a connection request from {{account_company}}. Please sign up using the link below. </p>
-    <p><a href="https://ledgerspacedev.com/signup">Signup</a></p>
-    <br>
+<div class="card">
+    <p>You have received a connection request from {{account_company}}. Please click the button below to respond.</p>
+    <p><a href="https://ledgerspacedev.com/signup" class="button-link-custom">Signup</a></p>
     <p>Thank you!</p>
 </div>
 <br>

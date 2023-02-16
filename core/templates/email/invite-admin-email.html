@@ -4,25 +4,17 @@
 <table>
     <tr>
         <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
-            <p style="margin: 0;">Blocktrust Network Account Admin Invite</p>
+            <p style="margin: 0;">User Invitation</p>
         </td>
     </tr>
 </table>
 {% endblock email_standard_center %}
 
 {% block email_standard_subdescription %}
-
-
-<br>
-<div style="border-left: 1px solid black;padding-left:20px;">
-    <p>You have received an Account Admin Invite for {{account_name}} at BlockTrust Network</p>
-    <p>Please click the following link to go to accept the invitation and complete the signup process:</p>
-    <p><a href="{{ invite_url }}">{{ invite_url }}</a></p>
-    <p>This link is valid for 24 hours</p>
-    <br>
-    <p>Thank you!</p>
+<div class="card">
+    <p>This is an invitation to join the {{account_name}} account at BlockTrust Network. Please click the link below to complete the process.</p>
+    <p><a href="{{ invite_url }}" class="button-link-custom">Accept and Continue</a></p>
 </div>
-<br>
 
 <br><br>
 (Please don't respond to this email.)<br>

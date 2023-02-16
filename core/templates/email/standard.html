@@ -12,6 +12,7 @@
         html,
         body {
             margin: 0 auto !important;
+
             padding: 0 !important;
             height: 100% !important;
             width: 100% !important;
@@ -78,6 +79,21 @@
         /* What it does: Prevents underlining the button text in Windows 10 */
         .button-link {
             text-decoration: none !important;
+        }
+
+        .button-link-custom {
+            background: #0f7ebe;
+            border: 15px solid #0f7ebe;
+            width: 25%;
+            font-family: 'Montserrat',sans-serif;
+            font-size: 16px;
+            line-height: 1.1;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            border-radius: 10px;
+            font-weight: bold;
+            color: #F1F1F1;
         }
 
         @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
@@ -220,7 +236,8 @@
                 </tr>
             </table>
         </div>
-    </center>
+</center>
+<script src="/static/libs/bootstrap/bootstrap.min.js"></script>
 </body>
 
 </html>
