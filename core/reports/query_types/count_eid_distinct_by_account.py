@@ -7,7 +7,9 @@ def execute(db, query):
     account_link_id = db.account_links.get_account_links(account_id=params['account'])[0]["id"]
     return {
         'count_eid_distinct': db.matches.get_count_eid_distinct_by_account(params['account']),
-        'count_eid_distinct_sighted': db.matches.get_sighted_matches_for_account(account_link_id, as_count=True)
+        'count_eid_distinct_sighted': db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(
+            account_link_id, as_count=True
+        )
     }
 
 

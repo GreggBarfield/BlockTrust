@@ -6,7 +6,8 @@ from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
 from core.reports.query_types import (
-    count_distribution, count_distribution_for_sector_at_account, count_eid_distinct_by_account
+    count_distribution, count_distribution_for_sector_at_account, count_eid_distinct_by_account,
+    count_distribution_global, count_eid_distinct
 )
 import json
 
@@ -150,6 +151,16 @@ class Reports:
             )
         )
 
+    def get_accounts_with_no_reports(self):
+        for row in self._db.execute_d(
+            f"""
+            SELECT id,sector FROM accounts WHERE accounts.id NOT IN
+            (SELECT account_id FROM reports WHERE account_id IS NOT NULL)
+            AND is_partner=0 AND sector NOT IN ({SECTORS_NAME_TO_ID["Buyer"]})
+            """
+        ):
+            yield {"account_id": row['id'], "sector_id": row['sector']}
+
     def make_reports_for_account(self, account_id, sector_id):
         if sector_id != SECTORS_NAME_TO_ID["Buyer"]:
             queries = [
@@ -164,18 +175,28 @@ class Reports:
             for query in queries:
                 self.insert_query(account_id, query)
 
+    def make_global_reports(self):
+        queries = [
+            count_distribution_global.create("USDA Yield Grade"),
+            count_distribution_global.create("USDA Quality Grade"),
+            count_eid_distinct.create()
+        ]
+        for query in queries:
+            self.insert_query(None, query)
+
     def mark_account_reports_for_reprocessing(self):
         """Marking reports linked to accounts for reprocessing. Reports need to be in ready state to be marked.
 
         """
         self._db.execute(
             """
-                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s) AND account_id IS NOT NULL
-
+                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s, %(error_status)s)
+                AND account_id IS NOT NULL
             """,
             {
                 "status": REPORT_STATUS["Pending"],
-                "ready_status": REPORT_STATUS["Ready"]
+                "ready_status": REPORT_STATUS["Ready"],
+                "error_status": REPORT_STATUS["Error"]
             }
 
         )
