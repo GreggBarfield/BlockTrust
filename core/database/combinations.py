@@ -20,11 +20,11 @@ def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_a
     new_connections = []
     supply_chain_links = Matches(db).get_sighted_match_accounts_for_account_link(cow_calf_account_link_id)
     for match_account_link in supply_chain_links:
-        if cow_calf_account_id != match_account_link["account"]:
+        if cow_calf_account_id != match_account_link["account_id"]:
             if not dry_run:
                 try:
                     Connections(db).create_or_fail_connection(
-                        from_account_id=cow_calf_account_id, to_account_id=match_account_link["account"],
+                        from_account_id=cow_calf_account_id, to_account_id=match_account_link["account_id"],
                         status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                         connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Acquired"],
                         details={"created_by_operation": create_connections_for_supply_chain.__name__,
@@ -32,12 +32,12 @@ def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_a
                 except ConnectionException:
                     pass
                 else:
-                    new_connections.append((cow_calf_account_id, match_account_link["account"], match_account_link["eid"]))
+                    new_connections.append((cow_calf_account_id, match_account_link["account_id"], match_account_link["eid"]))
             else:
                 # for dry_run
                 existing_connection = Connections(db).get_connection_between(cow_calf_account_id, match_account_link["account"])
                 if not existing_connection:
-                    new_connections.append((cow_calf_account_id, match_account_link["account"], match_account_link["eid"]))
+                    new_connections.append((cow_calf_account_id, match_account_link["account_id"], match_account_link["eid"]))
     return new_connections
 
 
