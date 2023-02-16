@@ -20,7 +20,7 @@ def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_a
     new_connections = []
     supply_chain_links = Matches(db).get_sighted_match_accounts_for_account_link(cow_calf_account_link_id)
     for match_account_link in supply_chain_links:
-        if cow_calf_account_id != match_account_link["account"]:
+        if cow_calf_account_id != match_account_link["account_id"]:
             if not dry_run:
                 try:
                     Connections(db).create_or_fail_connection(
