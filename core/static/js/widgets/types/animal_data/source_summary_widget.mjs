@@ -1,18 +1,19 @@
 import { Widget } from '../../widget.mjs';
+import { spinner } from '../../../ui/spinner.mjs';
 
 export class SourceSummaryWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
 
-    initType() {
-
+    initType(accountId) {
         this.display = this.frame.getAttribute("data-widget-display");
         if(this.display == "animals-with-data") {
             this.request = {
                 type: "matches_by_account",
                 params: {
-                    sighted_animals: true
+                    sighted_animals: true,
+                    account_id: accountId
                 }
             }
             this.sightedAnimals = true;
@@ -22,7 +23,8 @@ export class SourceSummaryWidget extends Widget {
                 type: "matches_by_account",
                 params: {
                     all_matches: true,
-                    types: ["Sighting"]      
+                    types: ["Sighting"],
+                    account_id: accountId   
                 }
             }
         }
@@ -35,14 +37,23 @@ export class SourceSummaryWidget extends Widget {
         ).then((data) => {
             let matchRows = data.result.matches;
             this.frame.innerHTML = "";
+            this.refreshButton = document.createElement("button");
+            this.refreshButton.className = "btn btn-outline-primary btn-sm d-none";
+            this.refreshButton.id = this.frame.getAttribute("data-widget-refresh-id");
+            this.refreshButton.innerHTML = "Refresh";
+            this.refreshButton.onclick = () => {
+                this.frame.innerHTML = spinner;
+                this.initType(this.frame.getAttribute("data-widget-account-id"));
+            }
+            this.frame.appendChild(this.refreshButton)
+
             if (this.sightedAnimals && matchRows.length){
                 this.downloadButton = document.createElement("button");
                 this.downloadButton.className = "btn btn-outline-primary btn-sm float-right";
                 this.downloadButton.innerHTML = "<i class='fa fa-download'></i> Download";
                 
                 let exportTable = this.makeExportTable(matchRows);
-                this.downloadButton.onclick = () => {
-                    
+                this.downloadButton.onclick = () => {                
                     let csvContent = "data:text/csv;charset=utf-8," + exportTable.map(e => e.join(",")).join("\n");
                     let encodedUri = encodeURI(csvContent);
                     //Having text color issues on mouse hover when making this.downloadButton a hyperlink tag. So below workaround is used

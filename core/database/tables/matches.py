@@ -84,7 +84,7 @@ class Matches:
             )
         ))
 
-    def get_sighted_matches_for_account(self, account_link_id, as_count=False):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_id, as_count=False):
         select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count" if as_count else "SELECT m3.*"
         third_matches_clause = "LEFT JOIN matches m3 on m1.eid = m3.eid" if not as_count else ""
         sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
@@ -165,7 +165,7 @@ class Matches:
         else:
             return []
 
-    def get_sighted_match_accounts_for_account_link(self, account_link_id):
+    def get_sighted_match_accounts_for_account_link(self, account_link_id, sector_id_for_matches=NO_VALUE):
         """Gets all the accounts that were matched to account_link_id based on given type
 
         Params:
@@ -175,22 +175,30 @@ class Matches:
         Returns:
             A list of all the accounts that were matched for an account with given type.
         """
-        data = self._db.execute_d(
-            """
-            SELECT al.account, min(m1.created_timestamp) as date, al.sector as account_sector_id,
-            min(m1.eid) AS eid, al.name as account_name FROM matches AS m1
+        query_statements = ["""
+            SELECT al.account as account_id, al.id as account_link_id,
+            min(m1.created_timestamp) as date, al.sector as account_sector_id,
+            min(m1.eid) AS eid, al.name as account_name, count(m2.eid) as 'count' FROM matches AS m1
             INNER JOIN account_links AS al ON m1.account_link=al.id
             INNER JOIN matches m2 ON m1.eid = m2.eid
             WHERE m2.account_link = %(account_link_id)s and m2.type=%(type)s
             AND m1.type=%(type)s AND al.account IS NOT NULL
-            GROUP BY al.account, al.sector, al.name
-            ORDER BY al.sector, date
-            """,
-            {
+        """]
+        query_values = {
                 "type": MATCH_TYPES_NAME_TO_ID['Sighting'],
                 "account_link_id": account_link_id
-            }
-        )
+        }
+
+        if sector_id_for_matches is not NO_VALUE:
+            query_statements.append("AND al.sector=%(sector_id)s")
+            query_values["sector_id"] = sector_id_for_matches
+
+        query_statements.append("""
+            GROUP BY al.account, al.sector, al.name, al.id
+            ORDER BY al.sector, date
+        """)
+        query = " ".join(query_statements)
+        data = self._db.execute_d(query, query_values)
         return data
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
@@ -683,6 +691,7 @@ class Matches:
 
     def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
         """
+        Used by report
         Returns:
             A dictionary of dictionaries
                 Keys
@@ -693,21 +702,26 @@ class Matches:
         matched_result = {}
         all_result = {}
         if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
-            related_account_details = self._db.execute_d("""
-                                        SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
-                                        INNER JOIN matches m2 on m2.eid = m1.eid
-                                        INNER JOIN account_links al on m2.account_link = al.id
-                                        INNER JOIN accounts a on al.account = a.id
-                                        WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
-                                        AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
-                                        GROUP BY a.name, al.id
-                                    """,
-                                    {
-                                        "account_link_id": account_links[0]['id'],
-                                        "sector_id": sector_id,
-                                        "match_type_id": MATCH_TYPES_NAME_TO_ID["Sighting"]
-                                    }
-                                )
+            # related_account_details = self._db.execute_d(
+            #     """
+            #         SELECT a.id as account_id, a.name, al.id as account_link_id, count(m1.eid) as 'count' from matches m1
+            #         INNER JOIN matches m2 on m2.eid = m1.eid
+            #         INNER JOIN account_links al on m2.account_link = al.id
+            #         INNER JOIN accounts a on al.account = a.id
+            #         WHERE m1.account_link = %(account_link_id)s AND al.sector = %(sector_id)s
+            #         AND m1.type=%(match_type_id)s AND m2.type=%(match_type_id)s
+            #         GROUP BY a.name, al.id
+            #     """,
+            #     {
+            #         "account_link_id": account_links[0]['id'],
+            #         "sector_id": sector_id,
+            #         "match_type_id": MATCH_TYPES_NAME_TO_ID["Sighting"]
+            #     }
+            # )
+
+            related_account_details = self.get_sighted_match_accounts_for_account_link(
+                account_link_id=account_links[0]['id'], sector_id_for_matches=sector_id
+            )
 
             for account_detail in related_account_details:
                 account_result = {}
@@ -722,7 +736,8 @@ class Matches:
                                                             account_links[0]['id'],
                                                             account_detail["account_link_id"])}
                 account_result["account_id"] = account_detail["account_id"]
-                matched_result[account_detail["name"]] = account_result
+                account_result["sightings"] = account_detail["count"]
+                matched_result[account_detail["account_name"]] = account_result
 
                 account_result = {}
                 account = self._db.accounts.get_account_by_id(account_detail["account_id"])
@@ -731,8 +746,11 @@ class Matches:
                 account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
                 yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_links=account_link)
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
+                    account_detail["account_link_id"], True
+                )
                 account_result["account_id"] = account_detail["account_id"]
-                all_result[account_detail["name"]] = account_result
+                all_result[account_detail["account_name"]] = account_result
 
         result['matched_data'] = matched_result
         result['all_data'] = all_result

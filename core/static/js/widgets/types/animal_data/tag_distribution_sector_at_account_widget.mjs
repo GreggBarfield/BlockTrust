@@ -8,7 +8,6 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
     initType() {
 
         let companyName = this.frame.getAttribute("data-widget-account-company");
-
         this.getData(
             "direct/sectors_name_to_id",
             {}
@@ -114,7 +113,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["Ranch", "Count", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
+        const headers = ["Ranch", "Sightings", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;
@@ -130,33 +129,53 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             this.mainTableBody.appendChild(rowTag);
 
             let row = [];
-            row.push(accountName);
+            let accountNameButton = document.createElement("button");
+            accountNameButton.innerText = accountName;
+            accountNameButton.classList.add("btn", "btn-link");
+            accountNameButton.onclick = () => {
+                let widgets = document.querySelectorAll("[data-widget-type='source summary']");
+                for(let widget of widgets) {
+                    console.log(widget.getAttribute("data-widget-refresh-id"));
+                    widget.setAttribute("data-widget-account-id",data["account_id"]);
+                    document.getElementById(widget.getAttribute("data-widget-refresh-id")).click();
+                }
+                let tagDetailId = this.frame.getAttribute("data-widget-tag-detail");
+                let tagDetailContainer = document.getElementById(tagDetailId);
+                tagDetailContainer.getElementsByTagName("span")[0].innerText = `Tag Detail for ${accountName}`
+                tagDetailContainer.classList.remove('d-none');
+                document.getElementById(tagDetailId).focus();
+            };
+            row.push(accountNameButton);
+            row.push(data["sightings"]);
+            let dataCount = 0;
             let qualityDistribution = data.quality_distribution;
-            let count = 0;
-            Object.values(qualityDistribution).forEach(total => count+=total);
-            row.push(count);
-
+            Object.values(qualityDistribution).forEach(total => dataCount+=total);
             let sustainabilityScoreLink = document.createElement('a');
             sustainabilityScoreLink.href = "/dashboard/view-account-sustainability-scores/" + data.account_id.toString();
             sustainabilityScoreLink.text = "View Score";
             sustainabilityScoreLink.target = "_blank";
             row.push(sustainabilityScoreLink)
+            if (dataCount){
+                row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/dataCount : 0).toFixed(2)+"%");
+                row.push(("Choice" in qualityDistribution? 100*qualityDistribution.Choice/dataCount : 0).toFixed(2)+"%");
+                if("Select" in qualityDistribution)
+                    row.push((100*qualityDistribution.Select/dataCount).toFixed(2)+"%");
+                else if("Select or Lower" in qualityDistribution)
+                    row.push((100*qualityDistribution["Select or Lower"]/dataCount).toFixed(2)+"%");
+                else 
+                    row.push((0).toFixed(2)+"%")
 
-            row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/count : 0).toFixed(2)+"%");
-            row.push(("Choice" in qualityDistribution? 100*qualityDistribution.Choice/count : 0).toFixed(2)+"%");
-            if("Select" in qualityDistribution)
-                row.push((100*qualityDistribution.Select/count).toFixed(2)+"%");
-            else if("Select or Lower" in qualityDistribution)
-                row.push((100*qualityDistribution["Select or Lower"]/count).toFixed(2)+"%");
-            else 
-                row.push((0).toFixed(2)+"%")
-
-            let yieldDistribution = data.yield_distribution;
-            row.push(("1" in yieldDistribution? 100*yieldDistribution["1"]/count : 0).toFixed(2)+"%");
-            row.push(("2" in yieldDistribution? 100*yieldDistribution["2"]/count : 0).toFixed(2)+"%");
-            row.push(("3" in yieldDistribution? 100*yieldDistribution["3"]/count : 0).toFixed(2)+"%");
-            row.push(("4" in yieldDistribution? 100*yieldDistribution["4"]/count : 0).toFixed(2)+"%");
-            row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/count : 0).toFixed(2)+"%");
+                let yieldDistribution = data.yield_distribution;
+                row.push(("1" in yieldDistribution? 100*yieldDistribution["1"]/dataCount : 0).toFixed(2)+"%");
+                row.push(("2" in yieldDistribution? 100*yieldDistribution["2"]/dataCount : 0).toFixed(2)+"%");
+                row.push(("3" in yieldDistribution? 100*yieldDistribution["3"]/dataCount : 0).toFixed(2)+"%");
+                row.push(("4" in yieldDistribution? 100*yieldDistribution["4"]/dataCount : 0).toFixed(2)+"%");
+                row.push(("5" in yieldDistribution? 100*yieldDistribution["5"]/dataCount : 0).toFixed(2)+"%");
+            }
+            else {
+                for(let i=0; i<8; i++)
+                    row.push("n/a");
+            }
 
             for (const value of row) {
                 let td = document.createElement("td");

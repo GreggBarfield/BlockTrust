@@ -599,11 +599,11 @@ DROP INDEX `uid_must_be_unique` ;
 /* Insert packer accounts. Needs partner ILS entry in accounts */
 SELECT id FROM accounts WHERE company LIKE '%ILS%' AND is_partner=1 INTO @partner_id;
 INSERT INTO accounts(affiliate_id, company,sector,partner_account,city,state,zip)
-values('010','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
-('023','Tyson - Amarillo',7,@partner_id,'Amarillo','TX',79101),
-('025','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
-('005','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
-('021','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257);
+values('10','Tyson - Holcomb',7,@partner_id,'Holcomb','KS',67851),
+('23','Tyson - Amarillo',7,@partner_id,'Amarillo','TX',79101),
+('25','Tyson - Lexington',7,@partner_id,'Lexington','NE',68850),
+('5','Tyson - Dakota City',7,@partner_id,'Dakota City','SD',68731),
+('21','Tyson - Joslin',7,@partner_id,'Joslin','IL',61257);
 
 /* Rohan Sureshkumar 9/10/2021 */
 CREATE TABLE `employees` (
