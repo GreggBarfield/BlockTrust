@@ -1,4 +1,5 @@
 import { ajax, NetworkError } from '../core/network.mjs';
+import { spinner } from '../ui/spinner.mjs';
 
 // onAllDataLoaded removed and onSomeDataLoaded deprecated;
 // use https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/any
@@ -12,13 +13,7 @@ export class Widget {
         this.queuedDataRequests = [];
         this.instantProcessDataRequests = false;
         this.type = frame.getAttribute("data-widget-type");
-
-        this.frame.innerHTML = '\
-            <div class="d-flex justify-content-center">\
-                <div class="spinner-border" role="status">\
-                    <span class="sr-only">Loading...</span>\
-                </div>\
-            </div>';
+        this.frame.innerHTML = spinner;
     }
 
     init() {

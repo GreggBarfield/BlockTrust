@@ -190,12 +190,13 @@ class Reports:
         """
         self._db.execute(
             """
-                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s) AND account_id IS NOT NULL
-
+                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s, %(error_status)s)
+                AND account_id IS NOT NULL
             """,
             {
                 "status": REPORT_STATUS["Pending"],
-                "ready_status": REPORT_STATUS["Ready"]
+                "ready_status": REPORT_STATUS["Ready"],
+                "error_status": REPORT_STATUS["Error"]
             }
 
         )
