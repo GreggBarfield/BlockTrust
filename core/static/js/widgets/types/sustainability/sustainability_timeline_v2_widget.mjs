@@ -95,7 +95,7 @@ export class SustainabilityTimelineV2Widget extends Widget {
             let linkComponent = document.createElement("div");
             linkComponent.className = "row";
             let scoreLink = document.createElement("a");
-            scoreLink.href = "/dashboard/view-account-sustainability-scores/" + matchAccount.account.toString();
+            scoreLink.href = "/dashboard/view-account-sustainability-scores/" + matchAccount.account_id.toString();
             scoreLink.textContent = "View Scores";
             scoreLink.target = "_blank";
             scoreLink.className = "h6 col";
