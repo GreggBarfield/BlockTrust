@@ -279,7 +279,7 @@ def serve_password_request_action():
 
 @bp.route('/password-reset-message', methods=['GET'])
 def serve_password_reset_message():
-    return outside_render('password_reset_message.html')
+    return outside_render('password-reset-message.html')
 
 
 # Reset Password
@@ -322,12 +322,12 @@ def serve_confirm(tok):
     except auth.SignupFailedException as e:
         raise ExportException("User email could not be verified")
     # Redirect to user login page
-    return outside_render('email_verified.html')
+    return outside_render('email-verified.html')
 
 
 @bp.route('/email_not_verified', methods=['GET'])
 def serve_email_not_confirmed():
-    return outside_render('email_not_verified.html')
+    return outside_render('email-not-verified.html')
 
 
 @bp.route('/not-authorized-to-register', methods=['GET'])
