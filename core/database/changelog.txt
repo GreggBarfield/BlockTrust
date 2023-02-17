@@ -175,7 +175,7 @@ ALTER TABLE accounts AUTO_INCREMENT=602;
 
 /* Evan Krohn 2/19/2021 */
 ALTER TABLE `example_db_1`.`api_inserts` 
-ADD INDEX `get_next` (`status` ASC, `priority` DESC, `id` ASC) VISIBLE;
+ADD INDEX `get_next` (`status` ASC) VISIBLE;
 
 /* Rohan Sureshkumar 3/13/2021 */
 ALTER TABLE `example_db_1`.`accounts` 
