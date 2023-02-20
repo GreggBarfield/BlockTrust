@@ -1,6 +1,6 @@
 {% extends "outside/standard.html" %}
 
-{% set page_title = "Email Not Verified " + error_code | string %}
+{% set page_title = "Not Authorized to Register" + error_code | string %}
 
 {% block outside_banner %}
 <div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
@@ -21,20 +21,10 @@
 {% endblock outside_banner %}
 
 {% block outside_content %}
-<section style="background-color: white;">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6 mt-4 mt-sm-0 text-center">
-              <div id="notfound">
-                <div class="notfound">
-                  <div class="notfound-404">
-                  </div>
-                  <p><h6>You are not authorized to register</h6></p>
-                  <h6>If you think this is in error, please write to us <a class="btn btn-dark" href="/about-us/contact-us">here</a></h6>
-                </div>
-              </div>
-            </div>
-          </div>
-    </div>
-</section>
+<div class="card border-secondary rounded text-center col-md-5 m-auto">
+    <p>
+        <h4>You are not authorized to register</h4><br>
+        <h4>If you think this is in error, please write to us <a class="btn btn-dark" href="/about-us/contact-us">here</a></h4>
+    </p>
+</div>
 {% endblock outside_content %}
