@@ -166,7 +166,7 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"]),
                 'premise_id': premise_id
             }),
-            ["klangvardt@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["cgrund@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
         )
 
         return {"success": True}
