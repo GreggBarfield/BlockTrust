@@ -85,10 +85,16 @@ class Matches:
         ))
 
     def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_id, as_count=False):
-        select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count" if as_count else "SELECT m3.*"
-        third_matches_clause = "LEFT JOIN matches m3 on m1.eid = m3.eid" if not as_count else ""
+        if as_count:
+            select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count"
+            third_matches_clause = ""
+        else:
+            select_clause = "SELECT m3.*"
+            third_matches_clause = "LEFT JOIN matches m3 on m1.eid = m3.eid"
+
         sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
                               {SECTORS_NAME_TO_ID['Packer']},{SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
+
         match_rows = self._db.execute_d(
             f"""
             {select_clause} FROM matches m1
@@ -107,43 +113,7 @@ class Matches:
         if as_count:
             return match_rows[0]["count"]
         else:
-            all_eid_data = {}
-            for row in match_rows:
-                if row["eid"] not in all_eid_data.keys():
-                    current_eid_data = {"eid": row["eid"]}
-                else:
-                    current_eid_data = all_eid_data[row["eid"]]
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["visual_id"]:
-                    current_eid_data["visual_id"] = row["visual_id"]
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
-                    current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
-                    data = json.loads(row["data"]) if row["data"] is not None else {}
-                    current_eid_data["creep_feed"] = data.get("creep_feed", None)
-                    current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
-                    current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
-                    current_eid_data["weaning_strategy"] = data.get("at", None)
-                    current_eid_data["wean_weight"] = data.get("wean_weight", None)
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
-                    current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
-                    data = json.loads(row["data"]) if row["data"] is not None else {}
-                    current_eid_data["marketing_method_name"] = data.get("method", None)
-                    current_eid_data["sale_location"] = data.get("location", None)
-                    current_eid_data["number_of_calves"] = data.get("group_size", None)
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
-                    current_eid_data["hot_weight"] = row['data']
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
-                    current_eid_data["quality_grade"] = row['data']
-
-                if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
-                    current_eid_data["yield_grade"] = row['data']
-
-                all_eid_data[row["eid"]] = current_eid_data
-
-            return [x for x in all_eid_data.values()]
+            return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
@@ -151,7 +121,6 @@ class Matches:
                                 + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
                                 + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
             args = [account_link_id]
-            
             if len(restrict_types) > 0:
                 type_clause = "AND matches.type IN (%s)"
                 in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
@@ -198,8 +167,64 @@ class Matches:
             ORDER BY al.sector, date
         """)
         query = " ".join(query_statements)
-        data = self._db.execute_d(query, query_values)
-        return data
+        return self._db.execute_d(query, query_values)
+
+    def get_common_eid_data(self, first_account_link_id, second_account_link_id):
+        """Gets the EIDs sighted at two accounts
+
+        Params:
+            first_account_link_id: account link of 1st account
+            second_account_link_id: account link of 2nd account
+
+        Returns:
+            A list of dictionaries
+        """
+        # m3 will contain all match rows for the eids
+        match_rows = self._db.execute_d(
+            """
+            SELECT m3.* FROM matches m1 INNER JOIN matches m2 ON m1.eid = m2.eid
+            LEFT JOIN matches m3 ON m1.eid = m3.eid
+            WHERE m1.type = %(match_type_id)s AND m1.account_link = %(first_account_link_id)s
+            AND m2.account_link = %(second_account_link_id)s AND m2.type = %(match_type_id)s
+            """,
+            {
+                "match_type_id": MATCH_TYPES_NAME_TO_ID["Sighting"],
+                "first_account_link_id": first_account_link_id,
+                "second_account_link_id": second_account_link_id
+            }
+        )
+        return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
+
+    def get_count_distribution_two_accounts(self, match_type_id, first_account_link_id, second_account_link_id):
+        """Gets the count of each data type for eids sighted at two accounts
+
+        Params:
+            match_type_id: The type as an int
+            first_account_link_id: account link of 1st account
+            second_account_link_id: account link of 2nd account
+
+        Returns:
+            A list of dictionaries
+                Keys
+                    data: value of data
+                    count: The number of times data existed
+        """
+
+        return Matches._load_rows(self._db.execute_d(
+            """
+                SELECT m1.data, count(distinct m1.eid) as 'count' from matches m1
+                INNER JOIN matches m2 on m1.eid = m2.eid
+                INNER JOIN matches m3 on m1.eid = m3.eid
+                WHERE m1.type=%(match_type_id)s AND m2.account_link = %(first_account_link_id)s
+                AND m3.account_link = %(second_account_link_id)s
+                GROUP BY m1.data
+            """,
+            {
+                "match_type_id": match_type_id,
+                "first_account_link_id": first_account_link_id,
+                "second_account_link_id": second_account_link_id
+            }
+        ))
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
         account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
@@ -699,8 +724,8 @@ class Matches:
                     self: result for single account (can be empty)
         """
         result = {}
-        matched_result = {}
-        all_result = {}
+        sighted_eid_data = {}
+        all_eid_data = {}
         if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
             related_account_details = self.get_sighted_match_accounts_for_account_link(
                 account_link_id=account_links[0]['id'], sector_id=sector_id
@@ -720,7 +745,7 @@ class Matches:
                                                             account_detail["account_link_id"])}
                 account_result["account_id"] = account_detail["account_id"]
                 account_result["sightings"] = account_detail["count"]
-                matched_result[account_detail["account_name"]] = account_result
+                sighted_eid_data[account_detail["account_name"]] = account_result
 
                 account_result = {}
                 account = self._db.accounts.get_account_by_id(account_detail["account_id"])
@@ -733,49 +758,58 @@ class Matches:
                     account_detail["account_link_id"], True
                 )
                 account_result["account_id"] = account_detail["account_id"]
-                all_result[account_detail["account_name"]] = account_result
+                all_eid_data[account_detail["account_name"]] = account_result
 
-        result['matched_data'] = matched_result
-        result['all_data'] = all_result
+        result['matched_data'] = sighted_eid_data
+        result['all_data'] = all_eid_data
         return result
-
-    def get_count_distribution_two_accounts(self, match_type_id, account_link_1_id, account_link_2_id):
-        """Gets the count of each data type for eids sighted at two accounts
-
-        Params:
-            match_type_id: The type as an int
-            account_link_1_id: account link of 1st account
-            account_link_2_id: account link of 2nd account
-
-        Returns:
-            A list of dictionaries
-                Keys
-                    data: value of data
-                    count: The number of times data existed
-        """
-
-        return Matches._load_rows(self._db.execute_d(
-            """
-                SELECT m1.data, count(distinct m1.eid) as 'count' from matches m1
-                INNER JOIN matches m2 on m1.eid = m2.eid
-                INNER JOIN matches m3 on m1.eid = m3.eid
-                WHERE m1.type=%(match_type_id)s and m2.account_link = %(account_link_1_id)s and m3.account_link = %(account_link_2_id)s
-                GROUP BY m1.data
-            """,
-            {
-                "match_type_id": match_type_id,
-                "account_link_1_id": account_link_1_id,
-                "account_link_2_id": account_link_2_id
-            }
-        ))
 
     @staticmethod
     def _load_rows(rows):
-        """Parses returned JSON from mysql and applies booleans."""
+        """Parses returned JSON from mysql"""
         for row in rows:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
         return rows
+
+    @staticmethod
+    def _convert_eid_data_for_export(match_rows):
+        all_eid_data = {}
+        for row in match_rows:
+            if row["eid"] not in all_eid_data.keys():
+                current_eid_data = {"eid": row["eid"]}
+            else:
+                current_eid_data = all_eid_data[row["eid"]]
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["visual_id"]:
+                current_eid_data["visual_id"] = row["visual_id"]
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
+                current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["creep_feed"] = data.get("creep_feed", None)
+                current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
+                current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
+                current_eid_data["weaning_strategy"] = data.get("at", None)
+                current_eid_data["wean_weight"] = data.get("wean_weight", None)
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
+                current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["marketing_method_name"] = data.get("method", None)
+                current_eid_data["sale_location"] = data.get("location", None)
+                current_eid_data["number_of_calves"] = data.get("group_size", None)
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
+                current_eid_data["hot_weight"] = row['data']
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                current_eid_data["quality_grade"] = row['data']
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                current_eid_data["yield_grade"] = row['data']
+
+            all_eid_data[row["eid"]] = current_eid_data
+        return all_eid_data
 
 
 class MatchTypes:

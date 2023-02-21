@@ -7,7 +7,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
     initType() {
 
-        let companyName = this.frame.getAttribute("data-widget-account-company");
+        let accountName = this.frame.getAttribute("data-widget-account-name");
         this.getData(
             "direct/sectors_name_to_id",
             {}
@@ -29,7 +29,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
                 this.accountData = data.result !== null ? data.result.all_data: {};
             }).then(() => {
                 this.frame.innerHTML = "";
-                this.frame.appendChild(this.createTabs(companyName));
+                this.frame.appendChild(this.createTabs(accountName));
                 let tabDataContainer = this.createContainer();
                 tabDataContainer.appendChild(this.makeMatchedTabContents(this.feedyardData));
                 tabDataContainer.appendChild(this.makeAllDataTabContents(this.accountData));
@@ -135,8 +135,8 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             accountNameButton.onclick = () => {
                 let widgets = document.querySelectorAll("[data-widget-type='source summary']");
                 for(let widget of widgets) {
-                    console.log(widget.getAttribute("data-widget-refresh-id"));
                     widget.setAttribute("data-widget-account-id",data["account_id"]);
+                    widget.setAttribute("data-widget-account-name",accountName);
                     document.getElementById(widget.getAttribute("data-widget-refresh-id")).click();
                 }
                 let tagDetailId = this.frame.getAttribute("data-widget-tag-detail");
@@ -154,6 +154,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
             sustainabilityScoreLink.href = "/dashboard/view-account-sustainability-scores/" + data.account_id.toString();
             sustainabilityScoreLink.text = "View Score";
             sustainabilityScoreLink.target = "_blank";
+            sustainabilityScoreLink.classList.add("btn", "btn-link");
             row.push(sustainabilityScoreLink)
             if (dataCount){
                 row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/dataCount : 0).toFixed(2)+"%");
@@ -179,6 +180,7 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
 
             for (const value of row) {
                 let td = document.createElement("td");
+                td.classList.add("align-middle");
                 if(value instanceof HTMLElement){
                     td.append(value);
                 }

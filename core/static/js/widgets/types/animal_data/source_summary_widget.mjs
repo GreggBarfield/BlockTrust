@@ -37,15 +37,17 @@ export class SourceSummaryWidget extends Widget {
         ).then((data) => {
             let matchRows = data.result.matches;
             this.frame.innerHTML = "";
-            this.refreshButton = document.createElement("button");
-            this.refreshButton.className = "btn btn-outline-primary btn-sm d-none";
-            this.refreshButton.id = this.frame.getAttribute("data-widget-refresh-id");
-            this.refreshButton.innerHTML = "Refresh";
-            this.refreshButton.onclick = () => {
-                this.frame.innerHTML = spinner;
-                this.initType(this.frame.getAttribute("data-widget-account-id"));
+            if(this.frame.getAttribute("data-widget-refresh-id")) {
+                this.refreshButton = document.createElement("button");
+                this.refreshButton.className = "btn btn-outline-primary btn-sm d-none";
+                this.refreshButton.id = this.frame.getAttribute("data-widget-refresh-id");
+                this.refreshButton.innerHTML = "Refresh";
+                this.refreshButton.onclick = () => {
+                    this.frame.innerHTML = spinner;
+                    this.initType(this.frame.getAttribute("data-widget-account-id"));
+                }
+                this.frame.appendChild(this.refreshButton);
             }
-            this.frame.appendChild(this.refreshButton)
 
             if (this.sightedAnimals && matchRows.length){
                 this.downloadButton = document.createElement("button");
@@ -59,7 +61,10 @@ export class SourceSummaryWidget extends Widget {
                     //Having text color issues on mouse hover when making this.downloadButton a hyperlink tag. So below workaround is used
                     let temporaryLink = document.createElement("a");
                     temporaryLink.setAttribute("href", encodedUri);
-                    temporaryLink.setAttribute("download", "Sighted Calves.csv");
+                    let fileName = "Sighted Calves";
+                    let accountName = this.frame.getAttribute("data-widget-account-name");
+                    fileName = accountName? `${fileName} for ${accountName}.csv` : `${fileName}.csv`
+                    temporaryLink.setAttribute("download", fileName);
                     temporaryLink.click();
                 } 
                 this.frame.appendChild(this.downloadButton)
