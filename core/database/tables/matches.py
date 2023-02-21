@@ -84,45 +84,6 @@ class Matches:
             )
         ))
 
-    @staticmethod
-    def _convert_eid_data_for_export(match_rows):
-        all_eid_data = {}
-        for row in match_rows:
-            if row["eid"] not in all_eid_data.keys():
-                current_eid_data = {"eid": row["eid"]}
-            else:
-                current_eid_data = all_eid_data[row["eid"]]
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["visual_id"]:
-                current_eid_data["visual_id"] = row["visual_id"]
-
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
-                current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
-                data = json.loads(row["data"]) if row["data"] is not None else {}
-                current_eid_data["creep_feed"] = data.get("creep_feed", None)
-                current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
-                current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
-                current_eid_data["weaning_strategy"] = data.get("at", None)
-                current_eid_data["wean_weight"] = data.get("wean_weight", None)
-
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
-                current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
-                data = json.loads(row["data"]) if row["data"] is not None else {}
-                current_eid_data["marketing_method_name"] = data.get("method", None)
-                current_eid_data["sale_location"] = data.get("location", None)
-                current_eid_data["number_of_calves"] = data.get("group_size", None)
-
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
-                current_eid_data["hot_weight"] = row['data']
-
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
-                current_eid_data["quality_grade"] = row['data']
-
-            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
-                current_eid_data["yield_grade"] = row['data']
-
-            all_eid_data[row["eid"]] = current_eid_data
-        return all_eid_data
-
     def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_id, as_count=False):
         if as_count:
             select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count"
@@ -810,6 +771,45 @@ class Matches:
             if row['data'] is not None:
                 row['data'] = json.loads(row['data'])
         return rows
+
+    @staticmethod
+    def _convert_eid_data_for_export(match_rows):
+        all_eid_data = {}
+        for row in match_rows:
+            if row["eid"] not in all_eid_data.keys():
+                current_eid_data = {"eid": row["eid"]}
+            else:
+                current_eid_data = all_eid_data[row["eid"]]
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sighting"] and row["visual_id"]:
+                current_eid_data["visual_id"] = row["visual_id"]
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Weaned"]:
+                current_eid_data["wean_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S')
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["creep_feed"] = data.get("creep_feed", None)
+                current_eid_data["first_14_day_feed_method"] = data.get("first_14_method", None)
+                current_eid_data["second_31_day_feed_method"] = data.get("second_31_method", None)
+                current_eid_data["weaning_strategy"] = data.get("at", None)
+                current_eid_data["wean_weight"] = data.get("wean_weight", None)
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Sold"]:
+                current_eid_data["marketing_date"] = datetime.utcfromtimestamp(row['time']).strftime('%Y-%m-%d %H:%M:%S') if row["time"] is not None else ""
+                data = json.loads(row["data"]) if row["data"] is not None else {}
+                current_eid_data["marketing_method_name"] = data.get("method", None)
+                current_eid_data["sale_location"] = data.get("location", None)
+                current_eid_data["number_of_calves"] = data.get("group_size", None)
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["Hot Weight"]:
+                current_eid_data["hot_weight"] = row['data']
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                current_eid_data["quality_grade"] = row['data']
+
+            if row["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                current_eid_data["yield_grade"] = row['data']
+
+            all_eid_data[row["eid"]] = current_eid_data
+        return all_eid_data
 
 
 class MatchTypes:
