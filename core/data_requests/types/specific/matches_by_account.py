@@ -27,9 +27,7 @@ def auth(params):
             "matches": g.db.matches.get_common_eid_data(logged_in_account_link_id, account_link_id)
         }
     else:
-        account = g.db.accounts.get_account_by_id(g.account.id())
-        if len(account.account_links()) > 0:
-            account_link_id = account.account_links()[0].id()
+        account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
         if 'sighted_animals' in params:
             return {
                 "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(account_link_id)
