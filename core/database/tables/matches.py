@@ -85,7 +85,7 @@ class Matches:
         ))
 
     @staticmethod
-    def convert_eid_data_for_export(match_rows):
+    def _convert_eid_data_for_export(match_rows):
         all_eid_data = {}
         for row in match_rows:
             if row["eid"] not in all_eid_data.keys():
@@ -152,7 +152,7 @@ class Matches:
         if as_count:
             return match_rows[0]["count"]
         else:
-            return [x for x in self.convert_eid_data_for_export(match_rows).values()]
+            return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
     def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
         if account_link_id > 0:
@@ -232,7 +232,7 @@ class Matches:
                 "second_account_link_id": second_account_link_id
             }
         )
-        return [x for x in self.convert_eid_data_for_export(match_rows).values()]
+        return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
     def get_count_distribution_two_accounts(self, match_type_id, first_account_link_id, second_account_link_id):
         """Gets the count of each data type for eids sighted at two accounts
