@@ -403,7 +403,7 @@ class Accounts:
                     raise Exception("Incorrect value for auction_markets_sort_by")
                 order_by_clause += " " + accounts_sort_by
             query = query + order_by_clause
-        print(query, query_values)
+
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
             return account_rows
