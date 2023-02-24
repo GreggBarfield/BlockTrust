@@ -332,7 +332,7 @@ class Accounts:
 
         if sectors is not NO_VALUE:
             for sector in sectors:
-                if type(sector) != int:
+                if not isinstance(sector, int):
                     raise Exception("Each sector passed must be an integer")
             query_conditions.append("sector IN (" + ",".join(str(s) for s in sectors) + ")")
 
