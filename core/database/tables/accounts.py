@@ -53,31 +53,6 @@ class Accounts:
             return None
         return Account(self._db, account_rows[0])
 
-    def get_partners_by_sector_id(self, sector_id):
-        """Gets an partners in the accounts table using sector ID.
-
-        Params:
-            id: the sector id
-
-        Returns:
-            One or more partner Account() object
-
-        Raises:
-            AccountsException on ID not found
-        """
-        partner_rows = self._db.execute_d(
-            """SELECT * FROM accounts
-                WHERE sector=%(id)s AND is_partner=1
-            """,
-            {
-                "id": sector_id
-            }
-        )
-        return [
-            Account(self._db, partner_row)
-            for partner_row in partner_rows
-        ]
-
     def get_by_account_user(self, account_user):
         """Gets an account by an AccountUser object.
 
@@ -321,10 +296,11 @@ class Accounts:
         partner = self.get_account_by_id(self._db.last_row_id())
         return partner
 
-    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, is_partner=NO_VALUE,
-                     partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE, city=NO_VALUE, state=NO_VALUE,
-                     zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE, token=NO_VALUE, stripe_customer_id=NO_VALUE,
-                     stripe_account_id=NO_VALUE, accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
+    def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, sectors=NO_VALUE,
+                     is_partner=NO_VALUE, partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE,
+                     city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
+                     token=NO_VALUE, stripe_customer_id=NO_VALUE, stripe_account_id=NO_VALUE,
+                     accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
                      generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE):
         """
         Get an account by the values specified.
@@ -353,6 +329,11 @@ class Accounts:
         if sector is not NO_VALUE:
             query_conditions.append("sector = %(sector)s")
             query_values["sector"] = sector
+
+        if sectors is not NO_VALUE:
+            if not all(isinstance(sector, int) for sector in sectors):
+                raise Exception("Each sector passed must be an integer")
+            query_conditions.append(f"sector IN ({','.join(str(sector) for sector in sectors)})")
 
         if is_partner is not NO_VALUE:
             query_conditions.append("is_partner = %(is_partner)s")

@@ -85,15 +85,18 @@ def serve_login_action():
 
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
-    # Only add cowcalf partners
-    cow_calf_sector_id = SECTORS_NAME_TO_ID['Cow-Calf']
+    available_sectors = {
+        "Cow Calf Ranch": SECTORS_NAME_TO_ID["Cow-Calf"],
+        "Stocker/Backgrounder": SECTORS_NAME_TO_ID["Stocker/Backgrounder"]
+    }
     partners = g.db.accounts.get_accounts(
-        sector=cow_calf_sector_id,
+        sectors=[s for s in available_sectors.values()],
         is_partner=1,
         is_partner_used_for_signup=1
     )
     return outside_render('signup.html', {
-        "default_sector_id": cow_calf_sector_id,  # setting default sector_id to cowcalf
+        "available_sectors": available_sectors,
+        "SECTORS_NAME_TO_ID": SECTORS_NAME_TO_ID,
         "partners": partners,
         "site_key": RECAPTCHA_SITE_KEY,
         "ipinfo_access_token": IPINFO_TOKEN,

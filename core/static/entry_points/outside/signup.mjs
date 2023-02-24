@@ -10,6 +10,7 @@ let confirm_password = signupForm.find("#signup_form_confirm_password");
 let first_name = signupForm.find("#signup_form_first");
 let last_name = signupForm.find("#signup_form_last");
 let phone = signupForm.find("#signup_form_phone");
+let sector = signupForm.find("#signup_form_sector");
 let partner = signupForm.find("#signup_form_partner");
 let partner_id = signupForm.find("#signup_form_partner_id");
 let company = signupForm.find("#signup_form_company");
@@ -41,7 +42,7 @@ let form = new AsyncForm({
     reCaptchaSiteKey: siteKey,
     getData: () => {
         return {
-            username: email.val(), //the email will be stored here in the backend
+            username: email.val(),
             password: password.val(),
             email: email.val(),
             confirm_password: confirm_password.val(),
@@ -50,7 +51,7 @@ let form = new AsyncForm({
             phone: phone.val(),
             partner: partner.val(),
             affiliate_id: partner_id.val(),
-            sector: sectorId, //must be set in the parent page
+            sector: sector.val(), 
             company: company.val(),
             address: address.val(),
             city: city.val(),
