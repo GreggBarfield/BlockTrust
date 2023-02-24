@@ -334,7 +334,7 @@ class Accounts:
             for sector in sectors:
                 if not isinstance(sector, int):
                     raise Exception("Each sector passed must be an integer")
-            query_conditions.append("sector IN (" + ",".join(str(s) for s in sectors) + ")")
+            query_conditions.append("sector IN (" + ",".join(str(sector) for sector in sectors) + ")")
 
         if is_partner is not NO_VALUE:
             query_conditions.append("is_partner = %(is_partner)s")
