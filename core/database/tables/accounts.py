@@ -333,7 +333,7 @@ class Accounts:
         if sectors is not NO_VALUE:
             if not all(isinstance(sector, int) for sector in sectors):
                 raise Exception("Each sector passed must be an integer")
-            query_conditions.append("sector IN (" + ",".join(str(sector) for sector in sectors) + ")")
+            query_conditions.append(f"sector IN ({','.join(str(sector) for sector in sectors)})")
 
         if is_partner is not NO_VALUE:
             query_conditions.append("is_partner = %(is_partner)s")
@@ -403,7 +403,7 @@ class Accounts:
                     raise Exception("Incorrect value for auction_markets_sort_by")
                 order_by_clause += " " + accounts_sort_by
             query = query + order_by_clause
-
+        print(query, query_values)
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
             return account_rows
