@@ -42,7 +42,7 @@ let form = new AsyncForm({
     reCaptchaSiteKey: siteKey,
     getData: () => {
         return {
-            username: email.val(), //the email will be stored here in the backend
+            username: email.val(),
             password: password.val(),
             email: email.val(),
             confirm_password: confirm_password.val(),
