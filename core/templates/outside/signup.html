@@ -289,7 +289,9 @@
 <script type="text/javascript">
     document.getElementById("signup_form_sector").onchange = (event) => {
         let partnersDropDown = document.getElementById("signup_form_partner");
-        for(let i = 0; i<partnersDropDown.length; i++){
+        /* It is important to remove the options backwards as the remove() method rearranges the options collection.
+           This way, it's guaranteed that the element to be removed still exists */
+        for(let i = partnersDropDown.options.length - 1; i >= 0; i--){
             if(i != 0){
                 partnersDropDown.remove(i);
             }
