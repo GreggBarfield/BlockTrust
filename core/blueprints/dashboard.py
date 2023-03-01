@@ -37,44 +37,23 @@ import stripe
 bp = Blueprint('dashboard_bp', __name__)
 
 
-@bp.route('/dashboard', methods=['GET'])
-@crut.require_user
-def serve_dashboard():
-    account_users = g.db.account_users.get_by_user(g.user)
-
-    if len(account_users) == 0:
-        # No accounts
-        return dashboard_render("accounts/welcome.html")
-    elif g.account is not None:
-        return redirect('/dashboard/accounts/' + str(g.account.id()))
-    elif len(account_users) == 1:
-        auth.session_start_account(account_users[0].account_id())
-        return redirect('/dashboard/accounts/' + str(account_users[0].account_id()))
-    else:
-        return redirect('/dashboard/accounts')
-
-
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
 @crut.require_user
 def serve_select_account_id(account_id):
     auth.session_start_account(account_id)
+    return redirect(url_for("dashboard_bp.serve_dashboard"))
 
-    return redirect("/dashboard/accounts/" + str(g.account.id()))
 
-
-@bp.route('/dashboard/accounts/<int:account_id>', methods=['GET'])
+@bp.route('/dashboard', methods=['GET'])
 @crut.require_user
-def serve_account_id(account_id):
-    try:
-        account_user = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
-    except NoAccountUserFound as e:
-        return dashboard_render(
-            "accounts/account_not_found.html",
-            {"account_id": account_id}
-        )
+def serve_dashboard():
+    if g.account is None:
+        account_users = g.db.account_users.get_account_users(user=g.user.id())
+        if len(account_users) == 1:
+            auth.session_start_account(account_users[0]["account"])
+        else:
+            return redirect(url_for("dashboard_bp.serve_accounts"))
 
-    account = account_user.account()
-    account_links = account.account_links()
     # Indicator for unread notifications
     unread_notifications_count = 0
     # Checking if user has unread notifications
@@ -89,15 +68,14 @@ def serve_account_id(account_id):
     pending_connection_requests_count = len(Connections(g.db).get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"]))
 
     account_params = {
-        "account": account,
-        "account_links": account_links,
+        "account": g.account,
         "unread_notifications_count": unread_notifications_count,
         "pending_connection_requests_count": pending_connection_requests_count
     }
 
-    if account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
+    if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
-    elif account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
+    elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
     else:
         return dashboard_render("sectors/generic.html", account_params)
@@ -132,11 +110,13 @@ def serve_animal_eid(animal_eid):
     else:
         return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
 
+
 @bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
 @crut.require_user
 def serve_animal_cert(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
     return dashboard_render("animals/animal-certificate.html", {"animal": animal})
+
 
 @bp.route('/dashboard/accounts', methods=['GET'])
 @crut.require_user
@@ -442,7 +422,7 @@ def serve_invite_user():
                 }), user_email
             )
             InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
-            return {"redirect": "/dashboard"}
+            return {"redirect": url_for("dashboard_bp.serve_dashboard")}
         except ExportException as e:
             return {"error": str(e)}, 400
     elif request.method == 'GET':
@@ -547,7 +527,7 @@ def serve_support_response():
         }),
         SUPPORT_GENERAL_EMAIL
         )
-    return {"redirect": "/dashboard"}
+    return {"redirect": url_for("dashboard_bp.serve_dashboard")}
 
 
 @bp.route('/dashboard/notifications', methods=["GET"])
