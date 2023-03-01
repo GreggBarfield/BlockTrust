@@ -5,7 +5,7 @@
 
 
 {% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
+{% set dashboard_locations = [("/dashboard", account.name()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.name()|e }}
@@ -104,7 +104,7 @@
         </div>
     </div>
 </div>
-<div class="row" style="visibility: hidden;">
+<!-- <div class="row" style="visibility: hidden;">
     <div class="col">
         <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAccountDebug" style="float:right;margin-right:20px;">Debug Info</a>
         <div class="collapse" id="collapseAccountDebug" style="clear:both;">
@@ -129,6 +129,6 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 {% endblock dashboard_content %}

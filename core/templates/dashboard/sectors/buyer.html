@@ -4,7 +4,7 @@
 {% endblock head_section_per_dashboard_page %}
 
 {% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
+{% set dashboard_locations = [("/dashboard", account.name()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.name()|e }}
