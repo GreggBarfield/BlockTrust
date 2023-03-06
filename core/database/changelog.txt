@@ -1797,3 +1797,28 @@ UPDATE accounts SET name = CONCAT("Stocker ", id) WHERE sector = 10 AND (is_part
 UPDATE account_links al INNER JOIN accounts a ON al.account = a.id SET al.name = a.name;
 ALTER TABLE `accounts` 
 ADD COLUMN `show_real_name` TINYINT NULL DEFAULT 0 AFTER `company`;
+
+/* Rohan Sureshkumar 3/1/2023 */
+CREATE TABLE `animals` (
+  `eid` BIGINT NOT NULL,
+  `draft_id` INT NULL,
+  `visual_id` VARCHAR(16) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` VARCHAR(45) NOT NULL DEFAULT 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+  PRIMARY KEY (`eid`));
+
+CREATE TABLE `drafts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `animals` 
+ADD INDEX `animals_draft_id_drafts_idx` (`draft_id` ASC) VISIBLE;
+ALTER TABLE `animals` 
+ADD CONSTRAINT `animals_draft_id_id_drafts`
+  FOREIGN KEY (`draft_id`)
+  REFERENCES `drafts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
