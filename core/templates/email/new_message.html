@@ -1,18 +1,8 @@
 {% extends "email/standard.html" %}
 
-{% block email_standard_center %}
-<table>
-    <tr>
-        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
-            <p style="margin: 0;">Secure Message</p>
-        </td>
-    </tr>
-</table>
-{% endblock email_standard_center %}
-
 {% block email_standard_subdescription %}
 <div>
     <p>You've received a secure message through the BlockTrust Network platform. Click the button below to access the message.</p>
-    <p><a target="_blank" href="{{ new_message['link'] }}" class="button-link-custom">Go To Message</a></p>
+    <p><a target="_blank" href="{{ new_message['link'] }}" style="color:#ffffff;width:25%;font-size:16px;font-family:Helvetica,sans-serif;border-radius:6px;line-height:20px;display:block;font-weight:700;white-space:nowrap;background-color:#0d6efd;padding:12px;border:1px solid #0d6efd;text-align:center;">Go To Message</a></p>
 </div>
 {% endblock email_standard_subdescription %}
