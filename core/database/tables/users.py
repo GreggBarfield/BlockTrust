@@ -451,16 +451,17 @@ class Users:
                 raise UsersException("Password and Confirm password are not the same!")
 
     def process_phone(self, phone):
-        # Process phone number
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
-        # If phone is empty it is NULL
-        if phone == "":
-            phone = None
+        if phone is not None:
+            # Process phone number
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
         return phone
 
     def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
