@@ -1,4 +1,4 @@
-import { Widget } from '../../widget.mjs';
+import { Widget } from '../../../widget.mjs';
 
 export class PlansWidget extends Widget {
     constructor(frame) {

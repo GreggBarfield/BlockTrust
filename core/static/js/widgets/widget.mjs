@@ -71,7 +71,7 @@ export class Widget {
         this.queuedDataRequests = [];
     }
 
-    getData(action, params, suppressErrors=false) {
+    getData(action, params={}, suppressErrors=false) {
         this.totalDataRequested += 1;
         let promiseResolve, promiseError;
         let promise = new Promise((resolve, error)=>{

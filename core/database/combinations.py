@@ -1,4 +1,4 @@
-"""Reusable functions which perform actions using multiple table routines"""
+"""Reusable functions which perform actions using multiple table routines. Avoids circular errors"""
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
