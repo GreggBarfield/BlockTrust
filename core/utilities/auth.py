@@ -72,7 +72,7 @@ class SignupFailedException(AuthException):
 def session_open():
     """Load session into app context."""
     session_open_user()
-    if g.user is not None:
+    if "user" in g:
         session_open_account()
     else:
         session_open_employee()
@@ -97,7 +97,7 @@ def session_start_account(account_id):
     Raises:
         NoAccountUserFound on user not found
     """
-    g.account = None
+    # g.account = None
     session[SESSION_ACCOUNT_ID_VAR] = ""
     session[SESSION_IS_ADMIN_VAR] = ""
     attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
@@ -109,7 +109,7 @@ def session_start_account(account_id):
 
 def session_open_user():
     """Load user session into app context."""
-    g.user = None
+    # g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
         if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
@@ -123,7 +123,7 @@ def session_open_user():
 
 def session_open_account():
     """Load account session into app context."""
-    g.account = None
+    # g.account = None
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
         g.account = g.db.accounts.get_account_by_id(session[SESSION_ACCOUNT_ID_VAR])
         if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
@@ -223,10 +223,10 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 
 
 def logout():
-    """Clear session of user info and remove g user."""
+    """Clear session and remove g user"""
     session.clear()
-    g.user=None
-    g.employee=None
+    g.pop("user", None)
+    g.pop("employee", None)
 
 
 def reset_user_password(email, new_password, confirm_password):

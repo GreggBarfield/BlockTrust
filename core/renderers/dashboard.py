@@ -27,9 +27,9 @@ def dashboard_render(file, args={}):
         "dashboard_standard_user_first": g.user.first_name(),
         "dashboard_standard_user_last": g.user.last_name(),
         "dashboard_standard_user_username": g.user.username(),
-        "dashboard_standard_account": g.account,
-        "dashboard_standard_is_admin": g.is_admin,
-        "dashboard_is_employee_impersonating": g.is_employee_impersonating,
+        "dashboard_standard_account": g.account if "account" in g else None,
+        "dashboard_standard_is_admin": g.is_admin if "is_admin" in g else None,
+        "dashboard_is_employee_impersonating": g.is_employee_impersonating if "is_employee_impersonating" in g else None,
         "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False,
         "sectors_name_to_id": SECTORS_NAME_TO_ID
     }

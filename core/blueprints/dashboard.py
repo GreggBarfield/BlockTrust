@@ -41,19 +41,15 @@ bp = Blueprint('dashboard_bp', __name__)
 @crut.require_user
 def serve_select_account_id(account_id):
     auth.session_start_account(account_id)
-    return redirect(url_for("dashboard_bp.serve_dashboard"))
+    if g.account.is_partner():
+        return redirect(url_for("partner_bp.serve_dashboard"))
+    else:
+        return redirect(url_for("dashboard_bp.serve_dashboard"))
 
 
 @bp.route('/dashboard', methods=['GET'])
-@crut.require_user
+@crut.require_account
 def serve_dashboard():
-    if g.account is None:
-        account_users = g.db.account_users.get_account_users(user=g.user.id())
-        if len(account_users) == 1:
-            auth.session_start_account(account_users[0]["account"])
-        else:
-            return redirect(url_for("dashboard_bp.serve_accounts"))
-
     # Indicator for unread notifications
     unread_notifications_count = 0
     # Checking if user has unread notifications
@@ -83,7 +79,7 @@ def serve_dashboard():
 
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
-@crut.require_user
+@crut.require_account
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
     available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []

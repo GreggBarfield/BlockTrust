@@ -31,12 +31,12 @@ from ..utilities.general_utilities import format_field, validate_email
 from datetime import datetime
 import json
 
-bp = Blueprint('employees_bp', __name__)
+bp = Blueprint('employee_bp', __name__)
 
 
 @bp.route('/employee/dashboard', methods=['GET'])
 @crut.require_employee
-def serve_employee_dashboard():
+def serve_dashboard():
     return employee_render("/employee/homepage.html")
 
 

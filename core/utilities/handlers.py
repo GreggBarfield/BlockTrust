@@ -1,11 +1,18 @@
 from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
-from .crut.requirements import RequireAccountFailed, RequireAccountOrEmployeeFailed, RequireUserFailed, RequirePaidAccountFailed
+from .crut.requirements import (
+    RequireAccountFailed,
+    RequireAccountOrEmployeeFailed,
+    RequireUserFailed,
+    RequirePaidAccountFailed,
+    RequirePartnerFailed
+)
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
 from flask_wtf.csrf import CSRFError
+
 
 def respond(code, short, exception=None):
     """Generate a response.
@@ -47,6 +54,7 @@ def attach_handlers(app):
             return respond(401, 'Not logged in')
 
     @app.errorhandler(RequireAccountFailed)
+    @app.errorhandler(RequirePartnerFailed)
     def handle_require_account_failed(e):
         # If g.api is not set and the request method is GET, send them to account missing page
         if 'api' not in g and request.method == 'GET':

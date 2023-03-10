@@ -115,15 +115,8 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
               <div class="ml-auto">
                 <ul class="nav">
                   <li class="nav-item p-1 px-2 bg-black ">
-                    {% if outside_standard_user_logged_in %}
-                    <a class="btn btn-link text-white" href="/dashboard">
-                      Dashboard
-                    </a>&nbsp;|&nbsp;
-                    <a class="btn btn-link text-white" href="/logout">
-                      Logout
-                    </a>
-                    {% elif outside_standard_employee_logged_in %}
-                    <a class="btn btn-link text-white" href="/employee/dashboard">
+                    {% if outside_standard_logged_in %}
+                    <a class="btn btn-link text-white" href="{{outside_standard_dashboard_URL}}">
                       Dashboard
                     </a>&nbsp;|&nbsp;
                     <a class="btn btn-link text-white" href="/logout">
