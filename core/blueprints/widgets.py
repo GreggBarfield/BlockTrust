@@ -654,7 +654,7 @@ def serve_add_connection_request():
 def serve_employee_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
     rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
-    redirect_route = url_for('employees_bp.serve_animal_eid')
+    redirect_route = url_for('employee_bp.serve_animal_eid')
     if len(rows) > 0:
         return {
             "redirect_route": redirect_route,

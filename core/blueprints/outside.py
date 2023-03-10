@@ -36,7 +36,7 @@ def serve_landing():
 
 @bp.route('/logout', methods=['GET'])
 def serve_logout():
-    login_url = url_for('outside_bp.serve_employee_login') if g.employee else url_for('outside_bp.serve_login')
+    login_url = url_for('outside_bp.serve_employee_login') if "employee" in g else url_for('outside_bp.serve_login')
     auth.logout()
     return outside_render('logged-out.html', {"login_url": login_url})
 
@@ -65,14 +65,23 @@ def serve_login_action():
                 identifier=request.form['identifier'],
                 password=request.form['password']
             )
-            redirect_to = '/dashboard'
+            account_users = g.db.account_users.get_account_users(user=g.user.id())
+            if len(account_users) == 1:
+                auth.session_start_account(account_users[0]["account"])
+            else:
+                return {"redirect": url_for("dashboard_bp.serve_accounts")}
+
             if (
                 'requestRedirectTo' in request.form and
                 request.form['requestRedirectTo'] is not None and
                 request.form['requestRedirectTo'] != ''
             ):
                 redirect_to = request.form['requestRedirectTo']
-            return jsonify({"redirect": redirect_to})
+            elif g.account.is_partner():
+                redirect_to = url_for("partner_bp.serve_dashboard")
+            else:
+                redirect_to = url_for("dashboard_bp.serve_dashboard")
+            return {"redirect": redirect_to}
         except auth.LoginException as e:
             raise ExportException(str(e))
         except auth.EmailNotVerifiedException as e:

@@ -1,0 +1,16 @@
+{% extends "partner/standard.html" %}
+
+{% block head_section_per_partner_page %}
+{% endblock head_section_per_partner_page %}
+
+
+{% set page_title = partner.name()|e %}
+{% set partner_locations = [("/partner/dashboard", partner.sector_name() + " - " + partner.name()|e)] %}
+
+{% block partner_content_header %}
+{{ partner.name()|e }}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+{% endblock partner_content %}

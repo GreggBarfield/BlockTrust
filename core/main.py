@@ -22,7 +22,7 @@ from flask_qrcode import QRcode
 from .config import *
 from .database.database import Database
 
-from .blueprints import dashboard, outside, widgets, stripe, shop, employees
+from .blueprints import dashboard, outside, widgets, stripe, shop, employees, partners
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth, csrf
@@ -54,12 +54,8 @@ def before_request():
 
     if request.method == 'POST':
         g.api = True
-    
-    g.user = None
-    g.employee = None
-    g.account = None
-    g.is_admin = 0
-    g.is_employee_impersonating = 0
+
+    # g.attribute_list = ["user", "account", "is_admin", "is_employee_impersonating", "employee"]
     auth.session_open()
 
 
@@ -70,8 +66,6 @@ def teardown_request(err):
 
     - Clears user
     """
-    # Clear the current user (this should be done in before_request too for security reasons)
-    g.user = None
     db = g.pop("db", None)
     if db is not None:
         db.close()
@@ -83,6 +77,7 @@ app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
 app.register_blueprint(shop.bp)
 app.register_blueprint(employees.bp)
+app.register_blueprint(partners.bp)
 
 if debug_mode:
     app.run(
