@@ -646,28 +646,25 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(user_id, employee_id):
+def employee_login_as_user(account_id, user_id, employee_id):
     """
     Params:
+        account_id: Account's ID
         user_id: User Id of the user for logging in
+        employee_id: Employee Id using the user to log in
 
     Returns:
-        Nothing
+        Nothing.
+
+    Raises:
+        Exception
     """
-    id_results = g.db.execute_d(
-                """
-                    SELECT * FROM users
-                    WHERE
-                        id=%(id)s
-                """,
-                {
-                    "id": user_id
-                }
-            )
-    if len(id_results) == 1:
-        user_row = id_results[0]
-        session.clear()
-        session[SESSION_USER_ID_VAR] = user_row["id"]
+    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id)
+    if account_user:
+        logout()
+        session[SESSION_USER_ID_VAR] = user_id
         session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+        session[SESSION_ACCOUNT_ID_VAR] = account_id
+        session_open()
     else:
         raise Exception("No user found")

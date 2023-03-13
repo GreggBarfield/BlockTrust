@@ -30,7 +30,8 @@ def partner_render(file, args={}):
         "partner": g.account,
         "partner_is_admin": g.is_admin,
         "partner_is_employee_impersonating": g.is_employee_impersonating,
-        "partner_logout": url_for("outside_bp.serve_logout")
+        "partner_logout": url_for("outside_bp.serve_logout"),
+        "partner_edit_user": url_for("partner_bp.serve_edit_user")
     }
     for key in args:
         if key in partner_args:

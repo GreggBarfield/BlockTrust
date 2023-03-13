@@ -59,7 +59,7 @@
                     </td>
                     <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                     <td>
-                        <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}"><i class="feather icon-log-in" title="Login as Admin"></i></a>
+                        <a class="button" href= "/employee/dashboard/login-as-user/{{account.account_admin_user_id}}/{{account.id}}"><i class="feather icon-log-in" title="Login as Admin"></i></a>
                     </td>
                     <td>
                         <a href="/employee/dashboard/invite-admin/{{account.id}}"><i class="feather icon-user-plus" title="Invite Admin"></i></a>
