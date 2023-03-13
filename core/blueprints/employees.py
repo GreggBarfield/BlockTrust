@@ -139,12 +139,12 @@ def serve_add_new_employee_action():
 @crut.require_employee
 def serve_view_account():
     accounts_and_account_admins = []
-    accounts = Accounts(g.db).get_accounts()
+    accounts = Accounts(g.db).get_accounts(is_partner=0)
     for account in accounts:
         account['company'] = account['company'].upper()
         admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
         account["account_partner_name"] = g.db.accounts.get_accounts(id=account["partner_account"])[0]["company"] if account["partner_account"] is not None else ""
-        if(len(admin_user) > 0):
+        if len(admin_user) > 0:
             user = g.db.users.get_user_by_id(admin_user[0]['user'])
             if user is not None and (user.is_email_verified() == 1 or user.is_system_generated() == 1):
                 account["account_admin_name"] = user.first_name() + " " + user.last_name()
@@ -155,12 +155,11 @@ def serve_view_account():
     return employee_render("/employee/accounts/view-accounts.html", {"accounts_and_account_admins": accounts_and_account_admins, "sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
-@bp.route("/employee/dashboard/login-as-user/<int:user_id>", methods=["GET"])
+@bp.route("/employee/dashboard/login-as-user/<int:user_id>/<int:account_id>", methods=["GET"])
 @crut.require_employee
-def serve_login_as_user(user_id):
+def serve_login_as_user(user_id, account_id):
     employee_id = g.employee.id()
-    auth.logout()
-    auth.employee_login_as_user(user_id, employee_id)
+    auth.employee_login_as_user(account_id, user_id, employee_id)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     return redirect("/dashboard")
 
