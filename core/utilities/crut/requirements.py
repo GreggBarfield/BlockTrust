@@ -16,8 +16,8 @@ class RequireAccountFailed(Exception):
     pass
 
 
-def _require_account():
-    if 'account' in g and g.account is not None:
+def _require_non_partner_account():
+    if 'account' in g and not g.account.is_partner():
         return
     raise RequireAccountFailed()
 
@@ -59,7 +59,7 @@ class RequireAccountOrEmployeeFailed(Exception):
 def _require_account_or_employee():
     try:
         _require_user()
-        _require_account()
+        _require_non_partner_account()
     except (RequireUserFailed, RequireAccountFailed):
         pass
     else:
@@ -91,7 +91,7 @@ def require_account(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         _require_user()
-        _require_account()
+        _require_non_partner_account()
         return func(*args, **kwargs)
     return wrapper
 
@@ -102,7 +102,7 @@ def require_paid_account(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         _require_user()
-        _require_account()
+        _require_non_partner_account()
         _require_paid_account()
         return func(*args, **kwargs)
     return wrapper
