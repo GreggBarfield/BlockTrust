@@ -69,16 +69,23 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-def session_open():
-    """Load session into app context."""
-    session_open_user()
+def load_app_context_from_session():
+    """Load session into app context. Session variables must be set first"""
+    load_user_to_context()
     if "user" in g:
-        session_open_account()
+        load_account_to_context()
     else:
-        session_open_employee()
+        load_employee_to_context()
 
 
-def session_open_employee():
+def load_employee(employee_id):
+    """Load user to session and app context."""
+    session.clear()
+    session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+    load_employee_to_context()
+
+
+def load_employee_to_context():
     """"Load employee session into app context."""
     if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
         g.employee = Employees(g.db).get(session[SESSION_EMPLOYEE_ID_VAR])
@@ -86,7 +93,7 @@ def session_open_employee():
         session[SESSION_EMPLOYEE_ID_VAR] = ""
 
 
-def session_start_account(account_id):
+def load_account(account_id):
     """Start a session with this account.
 
     Note that g.user should already be set to allow this to work.
@@ -97,31 +104,35 @@ def session_start_account(account_id):
     Raises:
         NoAccountUserFound on user not found
     """
-    # g.account = None
     session[SESSION_ACCOUNT_ID_VAR] = ""
     session[SESSION_IS_ADMIN_VAR] = ""
     attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
     if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
         session[SESSION_ACCOUNT_ID_VAR] = account_id
         session[SESSION_IS_ADMIN_VAR] = attempt_login.is_admin()
-        session_open_account()
+        load_account_to_context()
 
 
-def session_open_user():
+def load_user(user_id, employee_id=0):
+    """Load user to session and app context."""
+    session.clear()
+    session[SESSION_USER_ID_VAR] = user_id
+    if employee_id:
+        session[SESSION_EMPLOYEE_ID_VAR]=employee_id        
+    load_user_to_context()
+
+
+def load_user_to_context():
     """Load user session into app context."""
-    # g.user = None
     if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
         if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
-            g.is_employee_impersonating = 1
-        else:
-            g.is_employee_impersonating = 0
+            g.employee_id = session[SESSION_EMPLOYEE_ID_VAR]
     else:
         session[SESSION_USER_ID_VAR] = ""
-        # TODO: if this fails, abort request and redirect to issue opening session screen
 
 
-def session_open_account():
+def load_account_to_context():
     """Load account session into app context."""
     # g.account = None
     if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
@@ -178,11 +189,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
 
-    # Password should equal confirm_password
-
-    if password != confirm_password:
-        raise SignupFailedException("The passwords you entered were not identical.")
-
     if affiliate_id and affiliate_id.isdigit():
         affiliate_id = int(affiliate_id)
     sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
@@ -190,6 +196,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     user = g.db.users.create_user(
         username=username,
         password=password,
+        confirm_password=confirm_password,
         email=email,
         first_name=first_name,
         last_name=last_name,
@@ -434,11 +441,8 @@ def login(identifier, password=""):
                     "id": user_row["id"],
                     "failed_attempts": 0
                 }
-            )      
-        g.user = User(g.db, user_row)
-        session.clear()
-        session[SESSION_USER_ID_VAR] = g.user.id()
-        return g.user
+            )
+        return user_row["id"]
     except LoginException as e:
         raise e
     except EmailNotVerifiedException as e:
@@ -517,9 +521,7 @@ def employee_login(identifier, password=""):
         if not bcrypt.checkpw(password.encode("utf-8"), employee_row["password"].encode("utf-8")):
             raise LoginException(generic_error)
 
-        g.employee = Employee(employee_row)
-        session.clear()
-        session[SESSION_EMPLOYEE_ID_VAR] = g.employee.id()
+        load_employee(employee_row["id"])
     except LoginException as e:
         raise e
     except Exception as e:
@@ -568,24 +570,25 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
     confirm_password = Users._format_field(confirm_password)
     email_validation = validate_email(email)
     if email_validation["success"]:
-        # Password should equal confirm_password
-        if password != confirm_password:
-            raise SignupFailedException("The passwords you entered were not identical.")
         user = g.db.users.create_user(
             username=username,
             password=password,
+            confirm_password=confirm_password,
             email=email,
             first_name=first_name,
             last_name=last_name,
             phone=None,
             email_verified=1
         )
+
         account = g.db.accounts.get_account_by_id(account_id)
         if is_admin == 0:
             g.db.account_users.add_user_to_account(user, account)
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
+
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
+
         user_accounts = g.db.users.get_users_and_accounts(user_email=email)
         if len(user_accounts) > 1:
             user_account = user_accounts[0]
@@ -593,6 +596,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
             if account.partner_account_id() is not None:
                 partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
                 partner_account_company = partner_account.company()
+
             send_email(
                 "BlockTrust Network New Invited User Registration Information",
                 render_email("new_account_info.html", {
@@ -659,12 +663,10 @@ def employee_login_as_user(account_id, user_id, employee_id):
     Raises:
         Exception
     """
-    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id)
+    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id, is_admin=1)
     if account_user:
         logout()
-        session[SESSION_USER_ID_VAR] = user_id
-        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
-        session[SESSION_ACCOUNT_ID_VAR] = account_id
-        session_open()
+        load_user(user_id, employee_id)
+        load_account(account_id)
     else:
         raise Exception("No user found")

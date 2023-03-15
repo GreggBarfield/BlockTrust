@@ -40,7 +40,7 @@ bp = Blueprint('dashboard_bp', __name__)
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
 @crut.require_user
 def serve_select_account_id(account_id):
-    auth.session_start_account(account_id)
+    auth.load_account(account_id)
     if g.account.is_partner():
         return redirect(url_for("partner_bp.serve_dashboard"))
     else:
@@ -96,9 +96,11 @@ def serve_animal_eid(animal_eid):
         owner_account_name = owner_account_match["name"]
         if owner_account_id in available_account_ids:
             if owner_account_id != g.account.id():
-                ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
-                                                viewer_user_id=g.user.id(),
-                                                data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
+                ViewLogs(g.db).insert_view_logs(
+                    owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
+                    viewer_user_id=g.user.id(),
+                    data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid
+                )
 
             return dashboard_render("animals/animal.html", {"animal": animal, "account_name": owner_account_name})
         else:
@@ -400,14 +402,8 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.name()
-            current_account_id = g.account.id()
-            invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
-            invite_string = str(invite_object)
-            # Generating token identifier with account and user email informatiom
-            userToken = token.generateConfirmationToken(invite_string)
-            # Creating URL for user to join an account
-            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', invite_token=userToken)
+
+            confirm_url = token.create_user_invitation_link(user_email, g.account.id(), int(False))
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",
@@ -417,7 +413,10 @@ def serve_invite_user():
                     'user_name': g.user.first_name() + " " + g.user.last_name()
                 }), user_email
             )
-            InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
+            employee_id = g.employee_id if "employee_id" in g else None
+            InvitedUsers(g.db).insert_invited_user(
+                email=user_email, invited_by_user_id=g.user.id(), invited_by_employee_id=employee_id
+            )
             return {"redirect": url_for("dashboard_bp.serve_dashboard")}
         except ExportException as e:
             return {"error": str(e)}, 400
