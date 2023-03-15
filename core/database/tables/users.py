@@ -160,8 +160,8 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
-        """Creates a new user
+    def create_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
+        """Runs validations and Creates a new user
 
         Params:
             username: username to login
@@ -179,13 +179,8 @@ class Users:
             UsersException
         """
 
-        # Email must exist and contain an '@'
-        if len(email) == 0:
-            raise UsersException("Email is blank.")
-        if '@' not in email or '.' not in email or len(email) < 5:
-            raise UsersException("The email you entered is incomplete.")
-        if ' ' in email:
-            raise UsersException("Spaces cannot be in the email.")
+        self.validate_user(email, password, confirm_password)
+
         # Double-usage
         user = self.get_by_email(email)
         if user is not None:
@@ -196,20 +191,16 @@ class Users:
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 8 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(password) < 8:
-            raise UsersException("Password must be at least 8 characters.")
-
-        if len(password.encode("utf-8")) > 60:
-            raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
         # Process phone number
         phone = self.process_phone(phone)
-
         # We don't really care whether or not the phone is being used more than once
+
+        self.insert_user(password, username, email,  email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country)
+        user = self.get_by_username(username)
+        return user
+
+    def insert_user(self, password, username, email, email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country):
+        """Inserts a new user record to the users table"""
 
         self._db.execute(
             """
@@ -231,8 +222,7 @@ class Users:
                 "ip_country": ip_country
             }
         )
-        user = self.get_by_username(username)
-        return user
+        return self._db.last_row_id()
 
     def is_user_deletable(self, user):
         """This runs checks to find if a user record is deletable.

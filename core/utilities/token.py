@@ -1,6 +1,8 @@
-import itsdangerous
+from flask import (
+    url_for
+)
 from itsdangerous import BadData, URLSafeTimedSerializer
-from ..config import EMAIL_TOKEN_SALT, EMAIL_SECRET_KEY
+from ..config import EMAIL_TOKEN_SALT, EMAIL_SECRET_KEY, ROOT
 from ..common_exceptions import ExportException
 
 """
@@ -33,3 +35,11 @@ def confirmToken(token, expiration=86400):
         raise Exception(str(e))
 
     return email
+
+
+def create_user_invitation_link(email, account_id, is_admin):
+    userToken = generateConfirmationToken(str(
+        {"user_email": email, "account_id": account_id, "is_admin": is_admin}
+    ))
+    invite_url = ROOT + url_for('outside_bp.serve_add_user', invite_token=userToken)
+    return invite_url

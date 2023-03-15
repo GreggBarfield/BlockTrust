@@ -16,13 +16,14 @@
                 </button>
             </div>
             <div class="card-body">
-                <table class="table" id="partnersTable">
+                <table class="table" id="partners">
                     <thead>
                         <tr>
                             <th>Partner Number</th>
                             <th>Partner Name</th>
                             <th>Sector</th>
                             <th>Partner city, state</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,6 +37,9 @@
                             </td>
                             <td>{{sectors_id_to_name[partner.sector]}}</td>
                             <td>{{partner.city}}, {{partner.state}}</td>
+                            <td>
+                                <a href="javascript:;" class="btn-link text-decoration-none" name="add-user-for-partner" id="{{partner.id}}" partner-name="{{partner.name}}"><i class="feather icon-user-plus" title="Invite User"></i></a>
+                            </td>
                         </tr>
                         {%endfor%}
                     </tbody>
@@ -44,7 +48,8 @@
         </div>
 <script type="text/javascript"> 
     document.addEventListener('DOMContentLoaded', function () {
-        $('#partnersTable').DataTable();
+        $('#partners').DataTable();
     });
 </script>
+<script type="module" src="/static/entry_points/employee/partners.mjs" ></script> 
 {% endblock employee_content %}
