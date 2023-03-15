@@ -402,12 +402,6 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            # invite_object = {"user_email": user_email, "account": g.account.name(), "account_id": g.account.id()}
-            # invite_string = str(invite_object)
-            # # Generating token identifier with account and user email informatiom
-            # userToken = token.generateConfirmationToken(invite_string)
-            # # Creating URL for user to join an account
-            # confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', invite_token=userToken)
 
             confirm_url = token.create_user_invitation_link(user_email, g.account.id(), int(False))
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
