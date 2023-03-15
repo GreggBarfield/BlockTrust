@@ -433,9 +433,9 @@ def serve_archive_notification():
 @bp.route("/employee/update-account-paid-status", methods=["POST"])
 @crut.require_employee
 def serve_update_account_paid_status():
-    request_data = json.loads(request.data) #json.loads converts JS true to Python True
+    request_data = json.loads(request.data)
     account_id = int(request_data["account_id"])
-    paid_status = bool(request_data["paid_status"])
+    paid_status = bool(request_data["paid_status"])  # json.loads converts JS true to Python True
     if paid_status:
         g.db.accounts.update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
     else:
