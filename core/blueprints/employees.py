@@ -159,9 +159,18 @@ def serve_view_account():
 @crut.require_employee
 def serve_login_as_user(user_id, account_id):
     employee_id = g.employee.id()
-    auth.employee_login_as_user(account_id, user_id, employee_id)
+    account = g.db.accounts.get_accounts(id=account_id)[0]
+    if account["is_partner"]:
+        # no admins for partner accounts
+        is_admin = int(False)
+    else:
+        is_admin = int(True)
+    auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
-    return redirect("/dashboard")
+    if account["is_partner"]:
+        return redirect(url_for("partner_bp.serve_dashboard"))
+    else:
+        return redirect(url_for("dashboard_bp.serve_dashboard"))
 
 
 @bp.route("/employee/dashboard/invite-admin/<int:account_id>", methods=["GET"])
@@ -288,10 +297,20 @@ def serve_edit_selected_partner(partner_id):
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
     partner_rows = g.db.accounts.get_accounts(is_partner=1)
+    partner_and_partner_users = []
+    for partner in partner_rows:
+        partner['company'] = partner['company'].upper()
+        partner_users = g.db.account_users.get_account_users(account=partner["id"])
+        if len(partner_users) > 0:
+            user = g.db.users.get_users(partner_users[0]['user'])[0]
+            if user["is_email_verified"] == int(True):
+                partner["user_name"] = user["first_name"] + " " + user["last_name"]
+                partner["user_id"] = user["id"]
+        partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
         {
-            "partner_rows": partner_rows,
+            "partner_and_partner_users": partner_and_partner_users,
             "sectors_id_to_name": SECTORS_ID_TO_NAME
         }
     )

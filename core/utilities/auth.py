@@ -87,10 +87,8 @@ def load_employee(employee_id):
 
 def load_employee_to_context():
     """"Load employee session into app context."""
-    if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
+    if SESSION_EMPLOYEE_ID_VAR in session:
         g.employee = Employees(g.db).get(session[SESSION_EMPLOYEE_ID_VAR])
-    else:
-        session[SESSION_EMPLOYEE_ID_VAR] = ""
 
 
 def load_account(account_id):
@@ -104,13 +102,10 @@ def load_account(account_id):
     Raises:
         NoAccountUserFound on user not found
     """
-    session[SESSION_ACCOUNT_ID_VAR] = ""
-    session[SESSION_IS_ADMIN_VAR] = ""
-    attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
-    if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
-        session[SESSION_ACCOUNT_ID_VAR] = account_id
-        session[SESSION_IS_ADMIN_VAR] = attempt_login.is_admin()
-        load_account_to_context()
+    account_user = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
+    session[SESSION_ACCOUNT_ID_VAR] = account_id
+    session[SESSION_IS_ADMIN_VAR] = account_user.is_admin()
+    load_account_to_context()
 
 
 def load_user(user_id, employee_id=0):
@@ -118,31 +113,27 @@ def load_user(user_id, employee_id=0):
     session.clear()
     session[SESSION_USER_ID_VAR] = user_id
     if employee_id:
-        session[SESSION_EMPLOYEE_ID_VAR]=employee_id        
+        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
     load_user_to_context()
 
 
 def load_user_to_context():
     """Load user session into app context."""
-    if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
+    if SESSION_USER_ID_VAR in session:
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
-        if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
+        if SESSION_EMPLOYEE_ID_VAR in session:
             g.employee_id = session[SESSION_EMPLOYEE_ID_VAR]
-    else:
-        session[SESSION_USER_ID_VAR] = ""
 
 
 def load_account_to_context():
     """Load account session into app context."""
     # g.account = None
-    if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
+    if SESSION_ACCOUNT_ID_VAR in session:
         g.account = g.db.accounts.get_account_by_id(session[SESSION_ACCOUNT_ID_VAR])
-        if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
+        if SESSION_IS_ADMIN_VAR in session:
             # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
             # role and therefore assuming is_admin will not change during an active session
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
-    else:
-        session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
@@ -650,7 +641,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(account_id, user_id, employee_id):
+def employee_login_as_user(account_id, user_id, employee_id, is_admin):
     """
     Params:
         account_id: Account's ID
@@ -663,7 +654,7 @@ def employee_login_as_user(account_id, user_id, employee_id):
     Raises:
         Exception
     """
-    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id, is_admin=1)
+    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id, is_admin=is_admin)
     if account_user:
         logout()
         load_user(user_id, employee_id)
