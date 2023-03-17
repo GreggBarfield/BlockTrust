@@ -23,11 +23,13 @@
                             <th>Partner Name</th>
                             <th>Sector</th>
                             <th>Partner city, state</th>
+                            <th>User</th>
+                            <th></th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {%for partner in partner_rows%}
+                        {% for partner in partner_and_partner_users %}
                         <tr>
                             <td>{{partner.id}}</td>
                             <td>
@@ -37,8 +39,18 @@
                             </td>
                             <td>{{sectors_id_to_name[partner.sector]}}</td>
                             <td>{{partner.city}}, {{partner.state}}</td>
+                            <td class="{{'text-muted' if not partner.user_name else ''}}">
+                                {{partner.user_name if partner.user_name else "No user"}}
+                            </td>
                             <td>
-                                <a href="javascript:;" class="btn-link text-decoration-none" name="add-user-for-partner" id="{{partner.id}}" partner-name="{{partner.name}}"><i class="feather icon-user-plus" title="Invite User"></i></a>
+                                <a class="button" href="javascript:;" name="add-user-for-partner" id="{{partner.id}}" partner-name="{{partner.name}}"><i class="feather icon-user-plus" title="Invite User"></i></a>
+                            </td>
+                            <td>
+                                {% if partner.user_id %}
+                                <a class="button" href= "/employee/dashboard/login-as-user/{{partner.user_id}}/{{partner.id}}">
+                                    <i class="feather icon-log-in" title="Login as user"></i>
+                                </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {%endfor%}
