@@ -29,7 +29,7 @@ def partner_render(file, args={}):
         "partner_user_username": g.user.username(),
         "partner": g.account,
         "partner_is_admin": g.is_admin,
-        "partner_is_employee_impersonating": g.is_employee_impersonating,
+        "partner_is_employee_impersonating": "employee_id" in g,
         "partner_logout": url_for("outside_bp.serve_logout"),
         "partner_edit_user": url_for("partner_bp.serve_edit_user")
     }

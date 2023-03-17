@@ -47,6 +47,9 @@ export class InfoModal extends CoreModal {
         this.modalFooter = modalFooter;
         modalFooter.className = "modal-footer";
 
+        this.actionButtonDiv = document.createElement("div");
+        modalFooter.append(this.actionButtonDiv);
+
         let closeButton = document.createElement("button");
         closeButton.className = "btn btn-secondary";
         closeButton.textContent = "Close";
@@ -60,6 +63,10 @@ export class InfoModal extends CoreModal {
 
     getBody() {
         return this.modalBody;
+    }
+
+    getActionButtonDiv() {
+        return this.actionButtonDiv;
     }
 
     getFooter() {

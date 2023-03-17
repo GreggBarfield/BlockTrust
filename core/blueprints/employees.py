@@ -27,7 +27,7 @@ from ..utilities import crut, auth, token
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
-from ..utilities.general_utilities import format_field, validate_email
+from ..utilities.general_utilities import format_field, str_to_bool, validate_email
 from datetime import datetime
 import json
 
@@ -159,16 +159,18 @@ def serve_view_account():
 @crut.require_employee
 def serve_login_as_user(user_id, account_id):
     employee_id = g.employee.id()
-    auth.employee_login_as_user(account_id, user_id, employee_id)
+    account = g.db.accounts.get_accounts(id=account_id)[0]
+    if account["is_partner"]:
+        # no admins for partner accounts
+        is_admin = int(False)
+    else:
+        is_admin = int(True)
+    auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
-    return redirect("/dashboard")
-
-
-@bp.route("/employee/dashboard/accounts-with-option-to-invite-admin", methods=["GET"])
-@crut.require_employee
-def serve_accounts_with_option_to_invite_admin():
-    accounts = Accounts(g.db).get_accounts()
-    return employee_render("/employee/accounts/accounts-with-option-to-invite-admin.html", {"accounts": accounts})
+    if account["is_partner"]:
+        return redirect(url_for("partner_bp.serve_dashboard"))
+    else:
+        return redirect(url_for("dashboard_bp.serve_dashboard"))
 
 
 @bp.route("/employee/dashboard/invite-admin/<int:account_id>", methods=["GET"])
@@ -184,27 +186,57 @@ def serve_invite_admin_action(account_id):
         email = request.form["email"]
         email_validation = validate_email(email)
         if email_validation["success"]:
+
             user = g.db.users.get_by_email(email)
             if user is not None:
                 return {"error": "Email is already being used."}, 400
-            account_row = g.db.accounts.get_account_by_id(account_id)
-            invite_object = {"admin_email": email, "account_id": account_id}
-            invite_string = str(invite_object)
-            adminToken = token.generateConfirmationToken(invite_string)
-            invite_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_admin_user', invite_token=adminToken)
+
+            account_obj = g.db.accounts.get_account_by_id(account_id)
+            invite_url = token.create_user_invitation_link(email, account_id, int(True))
             send_email(
                 "BlockTrust Network Account Invite",
-                render_email("invite-admin-email.html", {
+                render_email("employee-invite-user.html", {
                     'invite_url': invite_url,
-                    'account_name': account_row.name()
+                    'account_name': account_obj.name()
                 }), email
             )
-            InvitedUsers(g.db).insert_invited_user(email, g.employee.id(), 1, 1)
-            return {"redirect": "/employee/dashboard/accounts-with-option-to-invite-admin"}
+            InvitedUsers(g.db).insert_invited_user(
+                email=email, invited_by_employee_id=g.employee.id(), is_invited_as_admin=int(True)
+            )
+            return {"redirect": "/employee/dashboard"}
         else:
             raise Exception(email_validation["message"])
     except (Exception, AccountsException) as e:
         return {"error": str(e)}, 400
+
+
+@bp.route("/employee/dashboard/invite-user/<int:account_id>", methods=["POST"])
+@crut.require_employee
+def serve_invite_user(account_id):
+    try:
+        email = request.json["email"]
+        is_admin = str_to_bool(request.json.get("is_admin", "false"))
+        email_validation = validate_email(email)
+        if email_validation["success"]:
+            if g.db.users.get_by_email(email) is not None:
+                raise Exception("Email is already being used.")
+            account_row = g.db.accounts.get_accounts(id=account_id)[0]
+            invite_url = token.create_user_invitation_link(email, account_row["id"], int(False))
+            send_email(
+                "BlockTrust Network Account Invite",
+                render_email("employee-invite-user.html", {
+                    'invite_url': invite_url,
+                    'account_name': account_row["name"]
+                }), email
+            )
+            InvitedUsers(g.db).insert_invited_user(
+                email=email, invited_by_employee_id=g.employee.id(), is_invited_as_admin=int(is_admin)
+            )
+            return ('', 204)
+        else:
+            raise Exception(email_validation["message"])
+    except (Exception, AccountsException) as e:
+        return str(e), 400
 
 
 @bp.route("/employee/dashboard/edit-accounts", methods=["GET"])
@@ -265,7 +297,23 @@ def serve_edit_selected_partner(partner_id):
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
     partner_rows = g.db.accounts.get_accounts(is_partner=1)
-    return employee_render("/employee/accounts/partners.html", {"partner_rows": partner_rows, "sectors_id_to_name": SECTORS_ID_TO_NAME})
+    partner_and_partner_users = []
+    for partner in partner_rows:
+        partner['company'] = partner['company'].upper()
+        partner_users = g.db.account_users.get_account_users(account=partner["id"])
+        if len(partner_users) > 0:
+            user = g.db.users.get_users(partner_users[0]['user'])[0]
+            if user["is_email_verified"] == int(True):
+                partner["user_name"] = user["first_name"] + " " + user["last_name"]
+                partner["user_id"] = user["id"]
+        partner_and_partner_users.append(partner)
+    return employee_render(
+        "/employee/accounts/partners.html",
+        {
+            "partner_and_partner_users": partner_and_partner_users,
+            "sectors_id_to_name": SECTORS_ID_TO_NAME
+        }
+    )
 
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
@@ -406,7 +454,7 @@ def serve_archive_notification():
 def serve_update_account_paid_status():
     request_data = json.loads(request.data)
     account_id = int(request_data["account_id"])
-    paid_status = bool(request_data["paid_status"])
+    paid_status = bool(request_data["paid_status"])  # json.loads converts JS true to Python True
     if paid_status:
         g.db.accounts.update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
     else:
@@ -417,7 +465,6 @@ def serve_update_account_paid_status():
     return {}, 200
 
 
-@bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
