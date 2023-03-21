@@ -38,7 +38,7 @@ def add_default_user_for_partners(db, dry_run=False):
     if not dry_run:
         for partner in partners:
             try:
-                user_id = Users(db).create_pseudo_user(f"DefaultUserPartner#{partner['id']}", "Default", "User")
+                user_id = Users(db).create_pseudo_user(partner["id"], True)
                 AccountUsers(db).create_account_user(user_id, partner["id"])
             except Exception:
                 pass
