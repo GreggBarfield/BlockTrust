@@ -161,7 +161,7 @@ class Users:
         return field if field != '' else None
 
     def create_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
-        """Runs validations and Creates a new user
+        """Runs validations and creates a new user
 
         Params:
             username: username to login
@@ -195,22 +195,28 @@ class Users:
         phone = self.process_phone(phone)
         # We don't really care whether or not the phone is being used more than once
 
-        self.insert_user(password, username, email,  email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country)
+        password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        self.insert_user(username, password, email,  email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country)
         user = self.get_by_username(username)
         return user
 
-    def insert_user(self, password, username, email, email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country):
+    def insert_user(self, username, password=None, email=None, email_verified=int(False), phone=None, first_name=None,
+                    last_name=None, recaptcha_score=None, ip_address=None, ip_country=None,
+                    is_system_generated=int(False)):
         """Inserts a new user record to the users table"""
 
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score, ip_address, ip_country)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score,
+                     ip_address, ip_country, is_system_generated)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s)
+                    (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s,
+                        %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s, %(is_system_generated)s)
             """,
             {
-                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "password": password,
                 "username": username,
                 "phone": phone,
                 "email": email,
@@ -219,7 +225,8 @@ class Users:
                 "email_verified": email_verified,
                 "recaptcha_score": recaptcha_score,
                 "ip_address": ip_address,
-                "ip_country": ip_country
+                "ip_country": ip_country,
+                "is_system_generated": is_system_generated
             }
         )
         return self._db.last_row_id()
@@ -260,8 +267,8 @@ class Users:
                 }
             )
 
-    def create_pseudo_user(self, username, password, first_name, last_name):
-        """Inserts an entry to user table. Routine is created for system generated users 
+    def create_pseudo_user(self, username, first_name, last_name):
+        """Inserts an entry to user table. Routine is created for system generated users
 
         Params:
             username: username to login
@@ -270,7 +277,7 @@ class Users:
             last_name: last name of the user
 
         Returns:
-            An User object
+            User Id
 
         Raises:
             UsersException
@@ -279,33 +286,8 @@ class Users:
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 8 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(password) < 8:
-            raise UsersException("Password must be at least 8 characters.")
-
-        if len(password.encode("utf-8")) > 60:
-            raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
-        self._db.execute(
-            """
-                INSERT INTO users
-                    (password, username, first_name, last_name, is_system_generated)
-                    VALUES
-                        (%(password)s, %(username)s, %(first_name)s, %(last_name)s, %(is_system_generated)s)
-            """,
-            {
-                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "is_system_generated": 1
-            }
-        )
-        user = self.get_by_username(username)
-        return user
+        return self.insert_user(username=username, first_name=first_name, last_name=last_name,
+                                is_system_generated=int(True))
 
     def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                   is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
@@ -457,7 +439,7 @@ class Users:
     def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                     phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
         """
-        Transforms and updates an user record.
+        Transforms, validates and updates an user record.
         """
 
         if email is not NO_VALUE:

@@ -43,7 +43,7 @@ def serve_dashboard():
 @bp.route("/employee/dashboard/create-new-account", methods=["GET"])
 @crut.require_employee
 def serve_employee_create_account():
-    partners = Accounts(g.db).get_accounts(is_partner=1)
+    partners = Accounts(g.db).get_partners()
     return employee_render("/employee/accounts/create-new-account.html", {
         "sectors_name_to_id": SECTORS_NAME_TO_ID,
         "partners": partners
@@ -89,13 +89,14 @@ def serve_employee_create_account_action():
         username = "DefaultAdminAccount#" + str(account_obj.id())
         first_name = "Default"
         last_name = "Admin"
-        # password is a random 8 digit number
-        password = str(randint(10000000, 99999999))
-        user = g.db.users.create_pseudo_user(username, password, first_name, last_name)
+        user_id = g.db.users.create_pseudo_user(username, first_name, last_name)
         # Assigning user as admin
-        account_obj.add_user(user, 1)
+        g.db.account_users.insert_account_user(user_id, account_obj.id(), int(True))
 
-        perform_new_account_actions(g.db, account_obj.id(), user.id(), event_type_by_name["Account Created"], account_obj.sector_id(), g.employee.id())
+        perform_new_account_actions(
+            g.db, account_obj.id(), user_id, event_type_by_name["Account Created"],
+            account_obj.sector_id(), g.employee.id()
+        )
 
         return {"redirect": "/employee/dashboard"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
@@ -296,16 +297,15 @@ def serve_edit_selected_partner(partner_id):
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
-    partner_rows = g.db.accounts.get_accounts(is_partner=1)
+    partner_rows = g.db.accounts.get_partners()
     partner_and_partner_users = []
     for partner in partner_rows:
         partner['company'] = partner['company'].upper()
-        partner_users = g.db.account_users.get_account_users(account=partner["id"])
-        if len(partner_users) > 0:
-            user = g.db.users.get_users(partner_users[0]['user'])[0]
-            if user["is_email_verified"] == int(True):
-                partner["user_name"] = user["first_name"] + " " + user["last_name"]
-                partner["user_id"] = user["id"]
+        generated_user = g.db.account_users.get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
+        if generated_user:
+            user = g.db.users.get_users(generated_user['user'])[0]
+            partner["user_name"] = user["first_name"] + " " + user["last_name"]
+            partner["user_id"] = user["id"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
@@ -481,7 +481,7 @@ def serve_run_script(script):
         script_function = getattr(scripts, script)
         kwargs = {}
         kwargs["db"] = g.db
-        kwargs["dry_run"] = bool(request.args.get("dry_run")) if request.args.get("dry_run") else False
+        kwargs["dry_run"] = str_to_bool(request.args.get("dry_run")) if request.args.get("dry_run") else False
         if not (log := script_function(**kwargs)):
             log = {}
         log["runner"] = "Employee"
