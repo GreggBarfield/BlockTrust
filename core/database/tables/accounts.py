@@ -410,6 +410,36 @@ class Accounts:
         else:
             return []
 
+    def get_partners(self, id=NO_VALUE):
+        """
+        Get a partner by the values specified.
+
+        Returns:
+            A list of partner row(s) if found else []
+        """
+        # base query
+        base_query = "SELECT * FROM accounts WHERE is_partner = 1"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " AND " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        partner_rows = self._db.execute_d(query, query_values)
+        if len(partner_rows) > 0:
+            return partner_rows
+        else:
+            return []
+
     def update_partner(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
