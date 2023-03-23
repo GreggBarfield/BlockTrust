@@ -5,15 +5,16 @@ from flask import (
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from ..database.tables.accounts import Accounts
+from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
-from ..database.tables.debug_logs import DebugLogs
-from ..database.tables.invited_users import InvitedUsers
-from ..database.tables.users import Users, UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.employees import EmployeesException
+from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.orders import Orders
+from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database import scripts
@@ -70,10 +71,10 @@ def serve_employee_create_account_action():
         sector = format_field(required['sector'])
         if affiliate_id and affiliate_id.isdigit():
             affiliate_id = int(affiliate_id)
-        sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+        sector, phone = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
 
         # Creating an account without an admin
-        account_obj = g.db.accounts.create_account(
+        account_obj = Accounts(g.db).create_account(
                 phone=phone,
                 company=format_field(required['company']),
                 partner=partner,
@@ -86,12 +87,9 @@ def serve_employee_create_account_action():
         )
 
         # Creating a default pseudo admin user for created account
-        username = "DefaultAdminAccount#" + str(account_obj.id())
-        first_name = "Default"
-        last_name = "Admin"
-        user_id = g.db.users.create_pseudo_user(username, first_name, last_name)
+        user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
         # Assigning user as admin
-        g.db.account_users.insert_account_user(user_id, account_obj.id(), int(True))
+        AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
             g.db, account_obj.id(), user_id, event_type_by_name["Account Created"],
@@ -143,10 +141,10 @@ def serve_view_account():
     accounts = Accounts(g.db).get_accounts(is_partner=0)
     for account in accounts:
         account['company'] = account['company'].upper()
-        admin_user = g.db.account_users.get_account_users(account=account["id"], is_admin=1)
+        admin_user = AccountUsers(g.db).get_account_users(account=account["id"], is_admin=1)
         account["account_partner_name"] = g.db.accounts.get_accounts(id=account["partner_account"])[0]["company"] if account["partner_account"] is not None else ""
         if len(admin_user) > 0:
-            user = g.db.users.get_user_by_id(admin_user[0]['user'])
+            user = Users(g.db).get_user_by_id(admin_user[0]['user'])
             if user is not None and (user.is_email_verified() == 1 or user.is_system_generated() == 1):
                 account["account_admin_name"] = user.first_name() + " " + user.last_name()
                 account["account_admin_user_id"] = user.id()
@@ -160,7 +158,7 @@ def serve_view_account():
 @crut.require_employee
 def serve_login_as_user(user_id, account_id):
     employee_id = g.employee.id()
-    account = g.db.accounts.get_accounts(id=account_id)[0]
+    account = Accounts(g.db).get_accounts(id=account_id)[0]
     if account["is_partner"]:
         # no admins for partner accounts
         is_admin = int(False)
@@ -188,11 +186,11 @@ def serve_invite_admin_action(account_id):
         email_validation = validate_email(email)
         if email_validation["success"]:
 
-            user = g.db.users.get_by_email(email)
+            user = Users(g.db).get_by_email(email)
             if user is not None:
                 return {"error": "Email is already being used."}, 400
 
-            account_obj = g.db.accounts.get_account_by_id(account_id)
+            account_obj = Accounts(g.db).get_account_by_id(account_id)
             invite_url = token.create_user_invitation_link(email, account_id, int(True))
             send_email(
                 "BlockTrust Network Account Invite",
@@ -219,9 +217,9 @@ def serve_invite_user(account_id):
         is_admin = str_to_bool(request.json.get("is_admin", "false"))
         email_validation = validate_email(email)
         if email_validation["success"]:
-            if g.db.users.get_by_email(email) is not None:
+            if Users(g.db).get_by_email(email) is not None:
                 raise Exception("Email is already being used.")
-            account_row = g.db.accounts.get_accounts(id=account_id)[0]
+            account_row = Accounts(g.db).get_accounts(id=account_id)[0]
             invite_url = token.create_user_invitation_link(email, account_row["id"], int(False))
             send_email(
                 "BlockTrust Network Account Invite",
@@ -243,7 +241,7 @@ def serve_invite_user(account_id):
 @bp.route("/employee/dashboard/edit-accounts", methods=["GET"])
 @crut.require_employee
 def serve_edit_account():
-    accounts = g.db.accounts.get_accounts()
+    accounts = Accounts(g.db).get_accounts()
     return employee_render("/employee/accounts/select-account-to-edit.html", {"accounts": accounts})
 
 
@@ -251,15 +249,15 @@ def serve_edit_account():
 @crut.require_employee
 def serve_edit_selected_account(account_id):
     if request.method == "GET":
-        account_row = g.db.accounts.get_account_by_id(account_id)
-        partners = g.db.accounts.get_accounts(
+        account_row = Accounts(g.db).get_account_by_id(account_id)
+        partners = Accounts(g.db).get_accounts(
             sector=SECTORS_NAME_TO_ID["Cow-Calf"],
             is_partner=1,
             is_partner_used_for_signup=1
         )
         return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
     if request.method == "POST":
-        g.db.accounts.modify_account(
+        Accounts(g.db).modify_account(
             account_id=account_id,
             company=format_field(request.form["company"]),
             phone=format_field(request.form["phone"]),
@@ -282,7 +280,7 @@ def serve_edit_selected_partner(partner_id):
         is_partner_used_for_signup = 0
         if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
             is_partner_used_for_signup = 1
-        g.db.accounts.update_partner(
+        Accounts(g.db).update_partner(
             account_id=partner_id,
             company=format_field(request.form["company"]),
             phone=format_field(request.form["phone"]),
@@ -297,13 +295,13 @@ def serve_edit_selected_partner(partner_id):
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
 def serve_view_partners():
-    partner_rows = g.db.accounts.get_partners()
+    partner_rows = Accounts(g.db).get_partners()
     partner_and_partner_users = []
     for partner in partner_rows:
         partner['company'] = partner['company'].upper()
-        generated_user = g.db.account_users.get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
+        generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
         if generated_user:
-            user = g.db.users.get_users(generated_user['user'])[0]
+            user = Users(g.db).get_users(generated_user['user'])[0]
             partner["user_name"] = user["first_name"] + " " + user["last_name"]
             partner["user_id"] = user["id"]
         partner_and_partner_users.append(partner)
@@ -341,7 +339,7 @@ def serve_create_new_partner_action():
         is_partner_used_for_signup = 0
         if request.form["used_for_signup"] == "true":
             is_partner_used_for_signup = 1
-        account = g.db.accounts.create_partner(
+        account_id = Accounts(g.db).create_partner(
                 phone=format_field(request.form['phone']),
                 company=format_field(required['company']),
                 sector=format_field(required['sector']),
@@ -353,6 +351,8 @@ def serve_create_new_partner_action():
                 zip=format_field(required['zip_code']),
                 is_partner_used_for_signup=is_partner_used_for_signup
         )
+        user_id = Users(g.db).create_pseudo_user(account_id, True)
+        AccountUsers(g.db).insert_account_user(user_id, account_id, int(False))
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
@@ -362,8 +362,8 @@ def serve_create_new_partner_action():
 def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
-        #partner account is assumed to be ILS
-        partner_account = g.db.accounts.get_accounts(company_like="ILS", sector=SECTORS_NAME_TO_ID["Feedlot"], is_partner=1)
+        # partner account is assumed to be ILS
+        partner_account = Accounts(g.db).get_accounts(company_like="ILS", sector=SECTORS_NAME_TO_ID["Feedlot"], is_partner=1)
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(partner_account[0]["id"], "EMP", "PackerDataUpload", row)
@@ -406,7 +406,7 @@ def serve_create_global_notification_action():
 
 @bp.route("/employee/dashboard/create-new-notification/partner", methods=["GET"])
 def serve_create_partner_notification():
-    partners = g.db.accounts.get_accounts(is_partner=1)
+    partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/notifications/create-partner-notification.html", {"partners": partners})
 
 
@@ -456,9 +456,9 @@ def serve_update_account_paid_status():
     account_id = int(request_data["account_id"])
     paid_status = bool(request_data["paid_status"])  # json.loads converts JS true to Python True
     if paid_status:
-        g.db.accounts.update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
+        Accounts(g.db).update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
     else:
-        account = g.db.accounts.get_account_by_id(account_id)
+        account = Accounts(g.db).get_account_by_id(account_id)
         if account.stripe_paid() == 1:
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
         g.db.accounts.update_account(account_id, manual_paid=0,  subscription_end_date=datetime.now())
@@ -527,5 +527,3 @@ def serve_tag_store_reports():
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
     })
-
-
