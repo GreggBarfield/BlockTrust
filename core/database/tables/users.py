@@ -267,7 +267,7 @@ class Users:
                 }
             )
 
-    def create_pseudo_user(self, username, first_name, last_name):
+    def create_pseudo_user(self, account_id, is_partner=False):
         """Inserts an entry to user table. Routine is created for system generated users
 
         Params:
@@ -282,6 +282,16 @@ class Users:
         Raises:
             UsersException
         """
+
+        if is_partner:
+            username = f"DefaultUserPartner#{account_id}"
+            first_name = "Default"
+            last_name = "User"
+        else:
+            username = f"DefaultAdminAccount#{account_id}"
+            first_name = "Default"
+            last_name = "Admin"
+        
         user = self.get_by_username(username)
         if user is not None:
             raise UsersException("Username is already being used.")

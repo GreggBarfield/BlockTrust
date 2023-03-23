@@ -254,7 +254,7 @@ class Accounts:
             is_partner_used_for_signup: Show the partner name on signup page
 
         Returns:
-            An Account object
+            Id of the account created
 
         Raises:
             AccountsException
@@ -293,8 +293,7 @@ class Accounts:
                 "is_partner_used_for_signup": is_partner_used_for_signup
             }
         )
-        partner = self.get_account_by_id(self._db.last_row_id())
-        return partner
+        return self._db.last_row_id()
 
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, sectors=NO_VALUE,
                      is_partner=NO_VALUE, partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE,
