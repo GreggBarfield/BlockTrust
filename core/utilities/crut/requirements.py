@@ -12,14 +12,24 @@ def _require_user():
     raise RequireUserFailed()
 
 
-class RequireAccountFailed(Exception):
+class RequireNonPartnerAccountFailed(Exception):
     pass
 
 
 def _require_non_partner_account():
     if 'account' in g and not g.account.is_partner():
         return
-    raise RequireAccountFailed()
+    raise RequireNonPartnerAccountFailed()
+
+
+class RequireAnyAccountFailed(Exception):
+    pass
+
+
+def _require_any_account():
+    if 'account' in g:
+        return
+    raise RequireAnyAccountFailed()
 
 
 class RequirePaidAccountFailed(Exception):
@@ -59,8 +69,8 @@ class RequireAccountOrEmployeeFailed(Exception):
 def _require_account_or_employee():
     try:
         _require_user()
-        _require_non_partner_account()
-    except (RequireUserFailed, RequireAccountFailed):
+        _require_any_account()
+    except (RequireUserFailed, RequireNonPartnerAccountFailed):
         pass
     else:
         return

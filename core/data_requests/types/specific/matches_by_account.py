@@ -30,7 +30,7 @@ def auth(params):
         account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
         if 'sighted_animals' in params:
             return {
-                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(account_link_id)
+                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker((account_link_id,))
             }
         elif 'all_matches' in params:
             restrict_types = ()

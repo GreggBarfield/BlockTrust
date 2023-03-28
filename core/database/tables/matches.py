@@ -84,7 +84,11 @@ class Matches:
             )
         ))
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_id, as_count=False):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_ids, as_count=False):
+        if not all(isinstance(id, int) for id in account_link_ids):
+            raise Exception("Account link ids must be integers")
+        elif len(account_link_ids) == 0:
+            return 0
         if as_count:
             select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count"
             third_matches_clause = ""
@@ -101,12 +105,11 @@ class Matches:
             INNER JOIN matches m2 ON m1.eid = m2.eid
             INNER JOIN account_links al on al.id = m2.account_link
             {third_matches_clause}
-            WHERE m1.account_link = %(account_link_id)s AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
+            WHERE m1.account_link IN ({",".join(str(id) for id in account_link_ids)}) AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
             AND al.sector IN {sectors_clause}
             ORDER BY m1.eid
             """,
             {
-                "account_link_id": account_link_id,
                 "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
             }
         )
@@ -544,7 +547,7 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_by_account(self, account_id):
+    def get_count_eid_distinct_by_account(self, account_id, is_partner=False):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
@@ -553,29 +556,31 @@ class Matches:
         Returns:
             The value
         """
-        return self._db.exec_frag_d(
-            frag(
-                """
-                SELECT
-                    COUNT(DISTINCT eid) AS 'count'
-                FROM
-                    matches
-                WHERE account_link IN (
-                    SELECT id FROM account_links WHERE account=:account
-                )
-                """,
-                account=account_id
-            )
-        )[0]['count']
+        query = """
+            SELECT COUNT(DISTINCT eid) AS 'count'
+            FROM matches m INNER JOIN account_links al ON m.account_link = al.id
+        """
 
-    def get_count_distribution(self, type_int, account_links, eid_distinct=True):
+        if not is_partner:
+            condition = "al.account = %(account_id)s"
+        else:
+            condition = "al.partner_account = %(account_id)s"
+
+        return self._db.execute_d(
+            query + " WHERE " + condition,
+            {
+                "account_id": account_id
+            }
+        )[0]["count"]
+
+    def get_count_distribution(self, type_int, account_id, is_partner=False):
         """Gets the count of each data type for an account
 
         Params:
             type_int: The type as an int
             account_links: Query on only a set of account links (spread)
-            eid_distinct: Whether it should only count once per EID
-                (as long as duplicate entries per type per eid don't exist, this doesn't matter)
+            partner_id: partner id if any
+            is_partner: whether report is generated for a partner account
 
         Returns:
             A list of dictionaries
@@ -583,46 +588,30 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        # TODO: implement eid_distinct
+        if is_partner:
+            account_link_condition = "al.partner_account = %(account_id)s"
+        else:
+            account_link_condition = "al.account = %(account_id)s"
 
-        if len(account_links) == 0:
-            return []
-
-        account_links_clause = """AND eid IN
-                    (
-                        SELECT DISTINCT eid
-                        FROM matches
-                        WHERE
-                        account_link IN (""" + ','.join([
-            str(int(account_link.id())) for account_link in account_links
-        ]) + """))
-            """
-
-        full_sql = """
-                SELECT
-                    data, COUNT(*) as 'count'
-                FROM
-                    matches
-                WHERE
-                    type=%(type)s
-                    """ + account_links_clause + """
-                GROUP BY
-                    data
-            """
         return Matches._load_rows(self._db.execute_d(
-            full_sql,
+            """
+                SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
+                INNER JOIN matches m2 ON m1.eid = m2.eid
+                INNER JOIN account_links al ON m2.account_link = al.id
+                WHERE m1.type = %(type_id)s AND """ + account_link_condition + """
+                GROUP BY m1.data
+            """,
             {
-                "type": type_int
+                "type_id": type_int,
+                "account_id": account_id
             }
         ))
 
-    def get_count_distribution_global(self, type_int, eid_distinct=True):
+    def get_count_distribution_global(self, type_int):
         """Gets the count of each data type for global
 
         Params:
             type_int: The type as an int
-            eid_distinct: Whether it should only count once per EID
-                (as long as duplicate entries per type per eid don't exist, this doesn't matter)
 
         Returns:
             A list of dictionaries
@@ -630,7 +619,6 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        #TODO: implement eid_distinct
         return Matches._load_rows(self._db.exec_frag_d(
             frag(
                 """
@@ -748,14 +736,12 @@ class Matches:
                 sighted_eid_data[account_detail["account_name"]] = account_result
 
                 account_result = {}
-                account = self._db.accounts.get_account_by_id(account_detail["account_id"])
-                account_link = account.account_links()
-                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_links=account_link)
+                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_detail["account_id"])
                 account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
-                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_links=account_link)
+                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                 account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    account_detail["account_link_id"], True
+                    (account_detail["account_link_id"],), True
                 )
                 account_result["account_id"] = account_detail["account_id"]
                 all_eid_data[account_detail["account_name"]] = account_result

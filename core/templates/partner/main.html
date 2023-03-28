@@ -13,11 +13,19 @@
 
 {% block partner_content %}
 <div class="row">
-    <div class="col">
+    <div class="col-xl-6">
         <div class="card">
+            <h5 class="card-header">
+                Calf-Crop Summary
+                <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
+                </a>
+                <a class="btn btn-outline-primary btn-sm float-right d-none" id="downloadSummaryButton"><i class="fa fa-download"></i>Download</a>
+            </h5>
+    
             <div class="card-body">
-                <h5 class="card-title">Page is under construction</h5>
-                <p class="card-text">Coming soon....</p>
+                <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
+                    data-widget-company-name="{{ account.name() }}" data-widget-button-id="downloadSummaryButton"></p>
             </div>
         </div>
     </div>

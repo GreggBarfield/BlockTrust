@@ -2,7 +2,7 @@ from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
 from .crut.requirements import (
-    RequireAccountFailed,
+    RequireNonPartnerAccountFailed,
     RequireAccountOrEmployeeFailed,
     RequireUserFailed,
     RequirePaidAccountFailed,
@@ -53,7 +53,7 @@ def attach_handlers(app):
             # Else send a 401
             return respond(401, 'Not logged in')
 
-    @app.errorhandler(RequireAccountFailed)
+    @app.errorhandler(RequireNonPartnerAccountFailed)
     def handle_require_account_failed(e):
         if request.method == 'GET':
             if "account" in g and g.account.is_partner():

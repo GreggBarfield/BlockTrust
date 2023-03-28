@@ -142,7 +142,6 @@ export class TableWidget extends Widget {
                 this.createSummaryTableExport()
             }
         })
-
     }
 
     createSummaryTableExport() {

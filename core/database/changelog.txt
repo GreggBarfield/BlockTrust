@@ -1807,4 +1807,17 @@ CHANGE COLUMN `is_invited_as_admin` `is_invited_as_admin` TINYINT NOT NULL DEFAU
 
 /* Rohan Sureshkumar 3/17/23 */
 INSERT INTO account_links(account, partner_account, affiliate_id, company, name, sector)
-SELECT id, partner_account, affiliate_id, company, name, sector FROM accounts WHERE sector = 6 AND is_partner = 0 AND id NOT IN (select account FROM account_links WHERE account IS NOT NULL)
+SELECT id, partner_account, affiliate_id, company, name, sector FROM accounts WHERE sector = 6 AND is_partner = 0 AND id NOT IN (select account FROM account_links WHERE account IS NOT NULL);
+
+/* Rohan Sureshkumar 3/24/23 */
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_eid_distinct_by_account", "params": {"account": ',id,', "is_partner": true}}'), 0
+FROM accounts WHERE is_partner = 1;
+
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,', "match_type": "USDA Yield Grade", "is_partner": true}}'), 0
+FROM accounts WHERE is_partner = 1;
+
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,',  "match_type": "USDA Quality Grade", "is_partner": true}}'), 0
+FROM accounts WHERE is_partner = 1;
