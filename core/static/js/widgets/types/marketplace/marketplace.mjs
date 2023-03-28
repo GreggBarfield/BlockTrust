@@ -7,7 +7,8 @@ export class MarketPlaceWidget extends Widget {
     }
 
     initType = () => {
-        // The adCategories and adData variables have placeholder data for now. Once the tables and routines have been created the data will be asynchronously fetched using the getData() Widget method  
+        // The adCategories and adData variables have placeholder data for now. Once the tables and routines have been created the data will be asynchronously fetched using the getData() Widget method.
+        // Advertisement data objects will have additional key value pairs based on data to be displayed/stored.   
         let adCategories = {
             genetics: {name: "genetics", header: "Genetics"},
             feed: {name: "feed", header: "Feed"}
@@ -46,7 +47,6 @@ export class MarketPlaceWidget extends Widget {
         for(let adData of adDataObjects){
             let adCard = this.generateAdCard(adData);
             adContainerBody.append(adCard);
-            console.log(adData);
         }
         adContainer.append(adContainerBody);
 
@@ -66,9 +66,9 @@ export class MarketPlaceWidget extends Widget {
         adCardBody.className = "card-body";
 
         let adDescriptionText = document.createElement("p");
+        // This will include the description of an ad. 
         adDescriptionText.textContent = "Ad Description";
         adCardBody.append(adDescriptionText);
-        
         adCard.append(adCardBody);
 
         return adCard;
