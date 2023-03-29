@@ -70,7 +70,7 @@ def _require_account_or_employee():
     try:
         _require_user()
         _require_any_account()
-    except (RequireUserFailed, RequireNonPartnerAccountFailed):
+    except (RequireUserFailed, RequireAnyAccountFailed):
         pass
     else:
         return
