@@ -15,7 +15,8 @@ def auth(params):
     row = Reports(g.db).get_ready_by_query(
         count_distribution.create(
             g.account.id(),
-            params['match_type']
+            params['match_type'],
+            g.account.is_partner()
         )
     )
     if row is not None:
