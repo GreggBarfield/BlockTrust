@@ -84,11 +84,7 @@ class Matches:
             )
         ))
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_link_ids, as_count=False):
-        if not all(isinstance(id, int) for id in account_link_ids):
-            raise Exception("Account link ids must be integers")
-        elif len(account_link_ids) == 0:
-            return 0
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False):
         if as_count:
             select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count"
             third_matches_clause = ""
@@ -99,17 +95,24 @@ class Matches:
         sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
                               {SECTORS_NAME_TO_ID['Packer']},{SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
 
+        if is_partner:
+            first_account_link_clause = "al1.partner_account=%(account_id)s"
+        else:
+            first_account_link_clause = "al1.account=%(account_id)s"
+
         match_rows = self._db.execute_d(
             f"""
             {select_clause} FROM matches m1
+            INNER JOIN account_links al1 on al1.id = m1.account_link
             INNER JOIN matches m2 ON m1.eid = m2.eid
-            INNER JOIN account_links al on al.id = m2.account_link
+            INNER JOIN account_links al2 on al2.id = m2.account_link
             {third_matches_clause}
-            WHERE m1.account_link IN ({",".join(str(id) for id in account_link_ids)}) AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
-            AND al.sector IN {sectors_clause}
+            WHERE {first_account_link_clause} AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
+            AND al2.sector IN {sectors_clause}
             ORDER BY m1.eid
             """,
             {
+                "account_id": account_id,
                 "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
             }
         )
@@ -118,24 +121,33 @@ class Matches:
         else:
             return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
-    def get_distinct_match_locations_for_account(self, account_link_id=0, restrict_types=()): 
-        if account_link_id > 0:
-            query_statements = ["SELECT DISTINCT matches.lat, matches.lon, account_links.name AS 'account_links.name',"
-                                + " account_links.sector AS 'account_links.sector' FROM matches LEFT JOIN account_links ON matches.account_link = account_links.id" 
-                                + " WHERE eid in (SELECT DISTINCT eid FROM matches WHERE account_link = %s)"]
-            args = [account_link_id]
-            if len(restrict_types) > 0:
-                type_clause = "AND matches.type IN (%s)"
-                in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
-                type_clause = type_clause % in_clause
-                query_statements.append(type_clause)
-                args += restrict_types
+    def get_distinct_match_locations_for_account(self, account_id, restrict_types=(), is_partner=False):
+        query_statements = [
+            """
+            SELECT DISTINCT m1.lat, m1.lon, al1.name AS 'account_links.name',
+            al1.sector AS 'account_links.sector' FROM matches m1
+            INNER JOIN account_links al1 ON m1.account_link = al1.id
+            INNER JOIN matches m2 ON m1.eid=m2.eid
+            INNER JOIN account_links al2 ON m2.account_link=al2.id
+            """
+        ]
 
-            query = " ".join(query_statements)
-            matches = self._db.execute_d(query, args)
-            return matches
+        if is_partner:
+            account_link_clause = "WHERE al2.partner_account = %s"
         else:
-            return []
+            account_link_clause = "WHERE al2.account = %s"
+        query_statements.append(account_link_clause)
+        args = [account_id]
+
+        if len(restrict_types) > 0:
+            in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
+            type_clause = f"AND m1.type IN ({in_clause})"
+            query_statements.append(type_clause)
+            args += restrict_types
+
+        query = " ".join(query_statements)
+        matches = self._db.execute_d(query, args)
+        return matches
 
     def get_sighted_match_accounts_for_account_link(self, account_link_id, sector_id=NO_VALUE):
         """Gets all the accounts that were matched to account_link_id based on given type
@@ -702,7 +714,7 @@ class Matches:
                 )
         return matches
 
-    def get_count_distribution_for_account_across_sector(self, account_id, sector_id):
+    def get_count_distribution_for_sector_at_account(self, account_id, sector_id):
         """
         Used by report
         Returns:
@@ -741,7 +753,7 @@ class Matches:
                 yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                 account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    (account_detail["account_link_id"],), True
+                    account_detail["account_id"], False, True
                 )
                 account_result["account_id"] = account_detail["account_id"]
                 all_eid_data[account_detail["account_name"]] = account_result
