@@ -18,7 +18,6 @@ def execute(db, query):
     }
 
 
-
 def accessible(query, account_id):
     """Checks whether the query is accessible by an account.
 

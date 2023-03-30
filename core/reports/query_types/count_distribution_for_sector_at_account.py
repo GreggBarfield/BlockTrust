@@ -4,8 +4,8 @@ TYPE_NAME = "count_distribution_for_sector_at_account"
 def execute(db, query):
     """Execute the query."""
     account_id = query['params']['account_id']
-    result = db.matches.get_count_distribution_for_account_across_sector(account_id=account_id,
-                                                                         sector_id=int(query['params']['sector_id']))
+    result = db.matches.get_count_distribution_for_sector_at_account(account_id=account_id,
+                                                                     sector_id=int(query['params']['sector_id']))
     return result
 
 
