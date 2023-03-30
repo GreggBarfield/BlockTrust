@@ -30,7 +30,7 @@ export class MapWidget extends Widget {
     }
 
     initType() {
-        this.matchTypes = this.frame.getAttribute("data-widget-map-match-types").split(",");
+        this.matchTypes = this.frame.getAttribute("data-widget-match-types").split(",");
 
         let request_object = {
             params: {
@@ -39,8 +39,8 @@ export class MapWidget extends Widget {
             }
         };
         
-        if (this.frame.hasAttribute("data-widget-map-mode")) {
-            let mode = this.frame.getAttribute("data-widget-map-mode");
+        if (this.frame.hasAttribute("data-widget-mode")) {
+            let mode = this.frame.getAttribute("data-widget-mode");
             if (mode == "associated auction sale account") {
                 request_object.type = "matches_by_auction_account";
             }
@@ -49,13 +49,12 @@ export class MapWidget extends Widget {
             }
         }
         else {
-            // Support for older uses
-            if (this.frame.hasAttribute("data-widget-map-account")) {
+            if (this.frame.hasAttribute("data-widget-account")) {
                 request_object.type = "matches_by_account";
             }
             else {
                 request_object.type = "matches_by_eids";
-                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-map-animal"))];
+                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-animal"))];
             }
         }
 
