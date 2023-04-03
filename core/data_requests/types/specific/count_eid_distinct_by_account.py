@@ -9,7 +9,7 @@ def unauth(params):
 
 def auth(params):
     row = Reports(g.db).get_ready_by_query(
-        count_eid_distinct_by_account.create(g.account.id())
+        count_eid_distinct_by_account.create(g.account.id(), g.account.is_partner())
     )
     if row is not None:
         return row['result']

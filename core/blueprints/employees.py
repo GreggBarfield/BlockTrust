@@ -465,6 +465,7 @@ def serve_update_account_paid_status():
     return {}, 200
 
 
+@bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)

@@ -7,17 +7,13 @@ TYPE_NAME = "count_distribution"
 def execute(db, query):
     """Execute the query."""
     params = query['params']
-
-    account = db.accounts.get_account_by_id(params['account'])
-    account_links = account.account_links()
-
-    if len(account_links) == 0:
-        return {"count_distribution": []}
+    is_partner = params.get("is_partner", False)
 
     return {
         "count_distribution": db.matches.get_count_distribution(
             MATCH_TYPES_NAME_TO_ID[params["match_type"]],
-            account_links=account_links
+            account_id=params['account'],
+            is_partner=is_partner
         )
     }
 
@@ -38,7 +34,7 @@ def accessible(query, account_id):
     return account_id == query['params']['account']
 
 
-def create(account_id, match_type):
+def create(account_id, match_type, is_partner=False):
     """Creates a query.
 
     Params:
@@ -48,10 +44,10 @@ def create(account_id, match_type):
     Returns:
         The query dictionary
     """
+    params = {'account': account_id, 'match_type': match_type}
+    if is_partner:
+        params['is_partner'] = True
     return {
         'type': TYPE_NAME,
-        'params': {
-            'account': account_id,
-            'match_type': match_type
-        }
+        'params': params
     }

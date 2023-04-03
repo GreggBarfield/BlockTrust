@@ -19,7 +19,7 @@ def auth(params):
                 ljoin_account_links: Whether to LJOIN account links (boolean)
                     (results as account_links.column_name)
     """
-    if "account_id" in params and params["account_id"]:
+    if params.get("account_id", 0):
         account = g.db.accounts.get_accounts(id=params["account_id"])[0]
         account_link_id = g.db.account_links.get_account_links(account_id=account["id"])[0]["id"]
         logged_in_account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
@@ -27,12 +27,12 @@ def auth(params):
             "matches": g.db.matches.get_common_eid_data(logged_in_account_link_id, account_link_id)
         }
     else:
-        account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
         if 'sighted_animals' in params:
             return {
-                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(account_link_id)
+                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(g.account.id(), g.account.is_partner())
             }
         elif 'all_matches' in params:
+            account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
             restrict_types = ()
             if 'types' in params:
                 restrict_types = convert_match_type_names_to_ids(params['types'])
@@ -46,7 +46,6 @@ def auth(params):
 
             return {
                 "matches": g.db.matches.get_distinct_match_locations_for_account(
-                    account_link_id,
-                    restrict_types
+                    g.account.id(), restrict_types, g.account.is_partner()
                 )
             }
