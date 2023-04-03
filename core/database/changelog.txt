@@ -1821,3 +1821,24 @@ FROM accounts WHERE is_partner = 1;
 INSERT INTO reports(account_id, query, status)
 SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,',  "match_type": "USDA Quality Grade", "is_partner": true}}'), 0
 FROM accounts WHERE is_partner = 1;
+
+/* Nisheet Thakur 04/03/2023 */
+CREATE TABLE `advertisements` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `ad_account_name` VARCHAR(100) NULL,
+  `ad_account_email` VARCHAR(100) NULL,
+  `ad_account_contact_name` VARCHAR(100) NULL,
+  `ad_account_address` VARCHAR(127) DEFAULT NULL,
+  `ad_account_city` VARCHAR(50) DEFAULT NULL,
+  `ad_account_state` VARCHAR(2) DEFAULT NULL,
+  `ad_account_zip_code` VARCHAR(10) DEFAULT NULL,
+  `ad_account_phone` BIGINT NULL,
+  `ad_category` TINYINT NULL DEFAULT 0,
+  `ad_account_integrated_with_btn` TINYINT NULL DEFAULT 0,
+  `company_logo_file_id` INT NULL DEFAULT NULL,
+  `short_description` VARCHAR(100) NULL,
+  `long_description` VARCHAR(1000) NULL,
+  `is_archived` TINYINT NULL DEFAULT 0,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
