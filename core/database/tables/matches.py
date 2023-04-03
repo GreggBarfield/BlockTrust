@@ -600,24 +600,41 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        if is_partner:
-            account_link_condition = "al.partner_account = %(account_id)s"
-        else:
-            account_link_condition = "al.account = %(account_id)s"
+        if type_int:
+            if is_partner:
+                account_link_condition = "al.partner_account = %(account_id)s"
+            else:
+                account_link_condition = "al.account = %(account_id)s"
 
-        return Matches._load_rows(self._db.execute_d(
-            """
-                SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
-                INNER JOIN matches m2 ON m1.eid = m2.eid
-                INNER JOIN account_links al ON m2.account_link = al.id
-                WHERE m1.type = %(type_id)s AND """ + account_link_condition + """
-                GROUP BY m1.data
-            """,
-            {
-                "type_id": type_int,
-                "account_id": account_id
-            }
-        ))
+            return Matches._load_rows(self._db.execute_d(
+                """
+                    SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
+                    INNER JOIN matches m2 ON m1.eid = m2.eid
+                    INNER JOIN account_links al ON m2.account_link = al.id
+                    WHERE m1.type = %(type_id)s AND """ + account_link_condition + """
+                    GROUP BY m1.data
+                """,
+                {
+                    "type_id": type_int,
+                    "account_id": account_id
+                }
+            ))
+        else:
+            result = {'all_data': {}}
+            account_links = self._db.account_links.get_account_links(partner_account=account_id)
+            for account_link in account_links:
+                account_result = {}
+                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_link["account"])
+                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
+                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_link["account"])
+                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
+                    account_link["account"], False, True
+                )
+                account_result["account_id"] = account_link["account"]
+                result['all_data'][account_link["name"]] = account_result
+
+            return result
 
     def get_count_distribution_global(self, type_int):
         """Gets the count of each data type for global
