@@ -3,6 +3,18 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 
 
+class AnimalException(Exception):
+    """Animal exception."""
+
+    def __init__(self, reason="unspecified"):
+        """Constructor for AnimalException.
+
+        Params:
+            reason: The reason it failed.
+        """
+        super().__init__(reason)
+
+
 class Animals:
 
     def __init__(self, db):
@@ -10,13 +22,13 @@ class Animals:
 
     def create_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                       sire_registration_number=None, dam_registration_number=None,
-                      birth_weight=None, implants=None, sex=None):
+                      birth_weight=None, implants=None, sex=None, description=None):
         """
         Validates and inserts a new animal record
 
         Raises:
             Exception
-        
+
         Returns:
             id of row inserted
         """
@@ -27,12 +39,12 @@ class Animals:
         return self.insert_animal(
             eid, visual_id, breed, calf_registration_number,
             sire_registration_number, dam_registration_number,
-            birth_weight, implants, sex
+            birth_weight, implants, sex, description
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                       sire_registration_number=None, dam_registration_number=None,
-                      birth_weight=None, implants=None, sex=None):
+                      birth_weight=None, implants=None, sex=None, description=None):
         """
         Inserts a new animal record
 
@@ -43,9 +55,9 @@ class Animals:
         self._db.execute(
             """
                 INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
-                dam_registration_number, birth_weight, implants, sex)
+                dam_registration_number, birth_weight, implants, sex, description)
                 VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
-                %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s)
+                %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s)
             """,
             {
                 "eid": eid,
@@ -56,7 +68,8 @@ class Animals:
                 "dam_registration_number": dam_registration_number,
                 "birth_weight": birth_weight,
                 "implants": implants,
-                "sex": sex
+                "sex": sex,
+                "description": description
             }
         )
         return self._db.last_row_id()
@@ -88,8 +101,8 @@ class Animals:
 
         query = base_query + combined_query_condition
 
-        tip_rows = self._db.execute_d(query, query_values)
-        if len(tip_rows) > 0:
-            return tip_rows
+        animal_rows = self._db.execute_d(query, query_values)
+        if len(animal_rows) > 0:
+            return animal_rows
         else:
             return []
