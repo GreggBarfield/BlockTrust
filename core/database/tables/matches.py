@@ -54,7 +54,7 @@ class Matches:
         """
         return Animal(self._db, eid, self.get_matches_with_account_links(matches_eid=eid))
 
-    def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
+    def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False, ljoin_animals=False):
         """Gets matches by eids.
 
         Params:
@@ -65,24 +65,25 @@ class Matches:
         Returns:
             A list (possibly empty) of matches rows
         """
-        return Matches._load_rows(self._db.exec_frag_d(
-            frag(
-                "SELECT matches.*",
-                Matches._account_links_clause if ljoin_account_links else "",
-                "FROM matches",
-                frag(
-                    "LEFT JOIN account_links ON matches.account_link = account_links.id",
-                ) if ljoin_account_links else "",
-                frag(
-                    "WHERE matches.eid IN (:eid)",
-                    eid=eids
-                ),
-                frag(
-                    "AND matches.type IN :types",
-                    types=restrict_types
-                ) if restrict_types else ""
-            )
-        ))
+
+        if not all(isinstance(t, int) for t in restrict_types):
+            return MatchesException("Type should be integer")
+
+        if not all(isinstance(eid, int) for eid in eids):
+            return MatchesException("EID should be integer")
+
+        query = (
+            "SELECT matches.*" + (", animals.*" if ljoin_animals else "")
+            + (Matches._account_links_clause if ljoin_account_links else "")
+            + " FROM matches"
+            + (" LEFT JOIN animals ON matches.eid = animals.eid" if ljoin_animals else "")
+            + (" LEFT JOIN account_links on matches.account_link = account_links.id" if ljoin_account_links else "")
+            + f" WHERE matches.eid IN ({','.join(str(eid) for eid in eids)})"
+            + (f" AND matches.type IN ({','.join(str(t) for t in restrict_types)})" if restrict_types else "")
+        )
+
+        result = self._db.execute_d(query)
+        return Matches._load_rows(result)
 
     def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False):
         if as_count:
