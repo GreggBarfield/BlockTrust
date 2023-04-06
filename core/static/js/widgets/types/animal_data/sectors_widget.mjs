@@ -221,6 +221,12 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Market", "At", filterMatchType("Sold"), useDataJson("location"));
         addField("Cow-Calf", "Market", "Group Size", filterMatchType("Sold"), useDataJson("group_size"));
 
+        // Feedlot
+        addField("Feedlot", "Demographics", "Lot Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("lot_number"));
+        addField("Feedlot", "Demographics", "Pen Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("pen_number"));
+        addField("Feedlot", "Demographics", "Feeder Weight", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_weight"));
+        addField("Feedlot", "Demographics", "Feeder Account Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_account_number"));
+
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());

@@ -1826,7 +1826,7 @@ FROM accounts WHERE is_partner = 1;
 CREATE TABLE `animals` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `eid` BIGINT NOT NULL,
-  `visual_id` VARCHAR(15) NULL,
+  `visual_id` VARCHAR(30) NULL,
   `breed` VARCHAR(75) NULL,
   `calf_registration_number` BIGINT NULL,
   `sire_registration_number` BIGINT NULL,
@@ -1839,3 +1839,6 @@ CREATE TABLE `animals` (
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `eid_UNIQUE` (`eid` ASC) VISIBLE);
+
+ALTER TABLE `matches` 
+CHANGE COLUMN `visual_id` `visual_id` VARCHAR(30) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
