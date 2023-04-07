@@ -1,6 +1,7 @@
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
+from core.database.tables.accounts import ILS_PARTNER_COMPANY
 from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import SECTORS_NAME_TO_ID
@@ -36,13 +37,15 @@ def handle(db: Database, insert):
             "USDAYieldGrade": "5.0",
             "USDAQualityGrade": "Choice"
         }
-    but expecting all fields in _check_format
+    but expecting all fields in _check_format for ILS
     """
-    _check_format(insert)
+    partner_account = insert["account"]
+    ils = db.accounts.get_partners(company=ILS_PARTNER_COMPANY)[0]
+    if ils["id"] == partner_account:
+        _check_format(insert)
 
     fields = insert['fields']
 
-    partner_account = insert["account"]
     eid = int(fields["EIDNum"])
     api_insert_id = insert["id"]
 
@@ -58,6 +61,9 @@ def handle(db: Database, insert):
             feeder = db.accounts.get_by_partner_affiliate_id(feeder_account_link.partner_account_id(), feeder_account_link.affiliate_id())
             if feeder is not None:
                 db.account_links.update_account_link_with_account(feeder.partner_account_id(), feeder.affiliate_id(), feeder.sector_id(), feeder.company(), feeder.name(), feeder.id())
+    elif fields.get("FeederId", None):
+        feeder = db.accounts.get_account_by_id(fields["FeederId"])
+        feeder_account_link = db.account_links.get_by_account_id(fields["FeederId"])[0]
 
     # Born
     # EIDDate is not a birthday!
@@ -187,6 +193,19 @@ def handle(db: Database, insert):
     else:
         # Packer data not available and hence Add feed yard sighting
         if feeder is not None:
+            feeder_data = {}
+            if fields.get("LotNumber", None):
+                feeder_data["lot_number"] = fields["LotNumber"]
+            if fields.get("PenNumber", None):
+                feeder_data["pen_number"] = fields["PenNumber"]
+            if fields.get("FeederInternalAccountId", None):
+                feeder_data["feeder_account_number"] = fields["FeederInternalAccountId"]
+            if fields.get("FeederWeight", None):
+                feeder_data["feeder_weight"] = fields["FeederWeight"]
+
+            if not feeder_data:
+                feeder_data = None
+
             zipcode = str(feeder.zip())
             if len(zipcode) >= 5:
                 f5 = zipcode[0:5]
@@ -203,6 +222,7 @@ def handle(db: Database, insert):
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
                         api_insert=api_insert_id,
+                        data=feeder_data,
                         zip=zipcode
                     )
 
