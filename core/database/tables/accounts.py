@@ -5,6 +5,7 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
+ILS_PARTNER_COMPANY = "ILS, Inc."
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
