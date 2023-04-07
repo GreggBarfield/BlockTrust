@@ -4,10 +4,9 @@ from flask import (
 
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
-from ..database.tables.accounts import Accounts
 from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -469,10 +468,19 @@ def serve_update_account_paid_status():
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
+
+    display_certificate = False
+    owner_account_match = sorted(
+        list(filter(lambda row: row["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"], animal.matches)),
+        key=lambda row: row["id"]
+    )
+    health_track_partner = Accounts(g.db).get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
+    if owner_account_match and owner_account_match[0]["partner_account"] == health_track_partner["id"]:
+        display_certificate = True
     if len(animal.matches) == 0:
         return employee_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
-        return employee_render("animals/animal.html", {"animal": animal})
+        return employee_render("animals/animal.html", {"animal": animal, "display_certificate": display_certificate})
 
 
 @bp.route("/employee/run/<string:script>", methods=["POST"])
