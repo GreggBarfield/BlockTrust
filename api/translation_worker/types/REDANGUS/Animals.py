@@ -1,5 +1,5 @@
 from core.database.database import Database
-from core.database.tables.animals import Animals, AnimalException
+from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from api.translation_worker.remapper import remap
 from core.utilities.zip_codes import get_lat_lon
@@ -160,7 +160,7 @@ def handle(db: Database, insert):
             )
 
     try:
-        Animals(db).create_animal(
+        Animals(db).create_or_fail_animal(
             eid=eid,
             visual_id=visual_id,
             birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
@@ -169,5 +169,14 @@ def handle(db: Database, insert):
             description=fields["description"] if ("description" in fields and
                                                   fields["description"].strip() != "") else None
         )
-    except AnimalException as e:
-        print(f"{eid}: {e}")
+    except AnimalsException as e:
+        Animals.update_animal(
+            eid=eid,
+            visual_id=visual_id,
+            birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
+                                                  and int(fields["birthweigh"]) > 0) else None,
+            sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
+            description=fields["description"] if ("description" in fields and
+                                                  fields["description"].strip() != "") else None           
+        )
+        print(f"Animal exists and updated {eid}: {e}")
