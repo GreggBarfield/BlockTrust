@@ -160,7 +160,7 @@ def handle(db: Database, insert):
             )
 
     try:
-        Animals(db).validate_and_insert_animal(
+        Animals(db).create_or_fail_animal(
             eid=eid,
             visual_id=visual_id,
             birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""

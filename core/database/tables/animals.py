@@ -20,7 +20,7 @@ class Animals:
     def __init__(self, db):
         self._db = db
 
-    def validate_and_insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
+    def create_or_fail_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                                    sire_registration_number=None, dam_registration_number=None,
                                    birth_weight=None, implants=None, sex=None, description=None):
         """
