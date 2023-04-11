@@ -15,6 +15,9 @@ from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files
 from ..database.tables.messages import Messages
+from ..database.tables.product_categories import ProductCategories
+from ..database.tables.products import ProductTable
+from ..database.tables.product_vendors import ProductVendors
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
@@ -835,4 +838,21 @@ def serve_get_existing_sustainability_responses():
         "sustainability_response_id": sustainability_response_id,
         "sustainability_responses": sustainability_responses,
         "sustainability_response_uploaded_files": sustainability_response_uploaded_files
+    }
+
+
+@bp.route('/widgets/data/get_tag_store_data', methods=["POST"])
+@crut.require_account
+def serve_tag_store_data():
+    all_product_data = ProductTable(g.db).get_products(include_images=True)
+    productCategories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
+    
+    return {
+        "all_product_data": all_product_data,
+        "product_categories": productCategories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names
     }
