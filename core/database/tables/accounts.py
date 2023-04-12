@@ -5,6 +5,7 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
+ILS_PARTNER_COMPANY = "ILS, Inc."
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
@@ -409,7 +410,7 @@ class Accounts:
         else:
             return []
 
-    def get_partners(self, id=NO_VALUE):
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE):
         """
         Get a partner by the values specified.
 
@@ -425,6 +426,10 @@ class Accounts:
         if id is not NO_VALUE:
             query_conditions.append("id = %(id)s")
             query_values["id"] = id
+
+        if company is not NO_VALUE:
+            query_conditions.append("company = %(company)s")
+            query_values["company"] = company
 
         if len(query_conditions) >= 1:
             combined_query_condition = " AND " + " AND ".join(query_conditions)

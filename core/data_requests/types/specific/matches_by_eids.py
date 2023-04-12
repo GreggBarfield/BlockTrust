@@ -17,12 +17,16 @@ def auth(params):
             A dictionary of
                 eids: A list of EIDs to retrieve
                 types: Restrict types (optional list of strings)
-                ljoin_account_links: Whether to LJOIN account links (optional boolean)
-                    (results as account_links.column_name)
+                ljoin_account_links: Whether to LJOIN account links. If present in request, it will be joined
+                ljoin_animals: Whether to LJOIN animals. If present in request, it will be joined
     """
     ljoin_account_links = False
     if "ljoin_account_links" in params:
         ljoin_account_links = params["ljoin_account_links"]
+
+    ljoin_animals = False
+    if "ljoin_animals" in params:
+        ljoin_animals = params["ljoin_animals"]
 
     restrict_types = ()
     if 'types' in params:
@@ -32,6 +36,7 @@ def auth(params):
         "matches": g.db.matches.get_by_eids(
             params["eids"],
             restrict_types=restrict_types,
-            ljoin_account_links=ljoin_account_links
+            ljoin_account_links=ljoin_account_links,
+            ljoin_animals=ljoin_animals
         )
     }

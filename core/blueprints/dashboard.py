@@ -3,12 +3,12 @@ from flask import (
 )
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 
 from ..common_exceptions import ExportException
+from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
@@ -22,6 +22,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
+from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 
 from ..renderers.email import render_email
 
@@ -94,6 +95,9 @@ def serve_animal_eid(animal_eid):
         )[0]
         owner_account_id = owner_account_match["account"]
         owner_account_name = owner_account_match["name"]
+        healthtrack_partner = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
+        display_certificate = True if owner_account_match["partner_account"] == healthtrack_partner["id"] else False
+        
         if owner_account_id in available_account_ids:
             if owner_account_id != g.account.id():
                 ViewLogs(g.db).insert_view_logs(
@@ -102,7 +106,9 @@ def serve_animal_eid(animal_eid):
                     data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid
                 )
 
-            return dashboard_render("animals/animal.html", {"animal": animal, "account_name": owner_account_name})
+            return dashboard_render("animals/animal.html", {
+                "animal": animal, "account_name": owner_account_name, "display_certificate": display_certificate
+            })
         else:
             return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
