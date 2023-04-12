@@ -528,7 +528,7 @@ def serve_add_user(invite_token):
         if account_row:
             return outside_render("/outside/add-user-signup.html", {
                 "user_email": user_email,
-                "account_name": account_row["company"],
+                "account_name": account_row["name"],
                 "account_id": account_id,
                 "is_admin": is_admin
             })
