@@ -6,24 +6,13 @@ export class TagStoreWidget extends Widget {
         super(frame);
     }
 
-    initType() {
-        const getTagStoreData = this.getData(
-            "get_tag_store_data"
-        ).then((data) => {
-            this.allProductData = data.all_product_data;
-            this.productCategories = data.product_categories;
-            this.productVendorIdsToNames = data.product_vendor_ids_to_names;
-            // console.log(data);
-        });
-        Promise.all([
-            getTagStoreData
-        ]).then(()=> {
-            this.makeTagStore();
-        })
-
-    this.onSomeDataLoaded(function () {
+    initType = async() => {
+        let tagStoreData = await this.getData("get_tag_store_data")
+        this.allProductData = tagStoreData.all_product_data;
+        this.productCategories = tagStoreData.product_categories;
+        this.productVendorIdsToNames = tagStoreData.product_vendor_ids_to_names;
         this.frame.innerHTML = "";
-    });
+        this.makeTagStore();
     }
 
     makeTagStore = () => {
@@ -88,7 +77,6 @@ export class TagStoreWidget extends Widget {
                 addToCartButton.textContent = "Add to Cart";
                 addToCartButton.onclick = () =>{
                     this.generateProductInfoModal(product.id);
-                    // console.log(product.id);
                 }
                 productCardFooterModalButtonContainer.append(addToCartButton);
                 productCardFooter.append(productCardFooterModalButtonContainer);
@@ -106,10 +94,7 @@ export class TagStoreWidget extends Widget {
                 productData = product;
             }
         }
-        //console.log(productData);
         let infoModal = new InfoModal(productData.product, null, true);
-        //console.log(infoModal);
-        // console.log(localStorage);
         let modalBody = infoModal.getBody();
         
         let modalContainer = document.createElement("div");
@@ -187,9 +172,6 @@ export class TagStoreWidget extends Widget {
     }
 
     updateShoppingCart = (productID, productQuantity) => {
-        // console.log(productID);
-        // console.log(productQuantity);
-        // console.log(localStorage);
         let shoppingCartAge=localStorage.getItem('shoppingCartAge');
         if(shoppingCartAge===null){
             localStorage.setItem('shoppingCartAge', new Date().getTime())  
@@ -202,12 +184,12 @@ export class TagStoreWidget extends Widget {
             localStorage.setItem('shipping', 20.00)
             localStorage.setItem('totalPrice', 0);
             localStorage.setItem('discount', 0);
-            localStorage.setItem('discountPercentage', {});
+            localStorage.setItem('discountPercentage', JSON.stringify({}));
             localStorage.setItem('discountApplied', "N");
             localStorage.setItem('isPremiseIdRequired', 0);
         }
         this.updateShoppingCartDataInLocalStorage(productID, productQuantity);
-        this.updateShoppingCartTotalInLocalStorage();
+        this.updateShoppingCartTotalsInLocalStorage();
 
     }
 
@@ -241,14 +223,36 @@ export class TagStoreWidget extends Widget {
         }
     }
 
-    updateShoppingCartTotalInLocalStorage = () =>{
+    updateShoppingCartTotalsInLocalStorage = () =>{
         let shoppingCartString = localStorage.getItem("shoppingCart");
         let shoppingCart = JSON.parse(shoppingCartString);
         let totalPrice = 0;
         for(let productData of Object.values(shoppingCart)){
             totalPrice = totalPrice + productData.product_price * productData.product_quantity;
+            if(productData.is_premise_id_required == 1){
+                localStorage.setItem("isPremiseIdRequired", 1);
+            }
         }
         totalPrice=Math.round(totalPrice*100)/100;
         localStorage.setItem('totalPrice', totalPrice);
+
+        let totalDiscount = 0;
+        let discountApplied = localStorage.getItem("discountApplied");   
+        let discountPercentageString = localStorage.getItem("discountPercentage");
+        let discountPercentages = JSON.parse(discountPercentageString);
+        if(discountApplied === "Y"){
+            for(let productData of Object.values(shoppingCart)){
+                if(discountPercentages[productData.product_id] !== null){
+                    let productPrice = productData.product_price * productData.product_quantity;
+                    totalDiscount = totalDiscount + productPrice * discountPercentages[productData.product_id]/100;
+                }
+            }
+        }
+        totalDiscount = Math.round(totalDiscount*100)/100;
+        let totalTax = Math.round((totalPrice-totalDiscount)*0.065*100)/100;
+        let grandTotal = Math.round((totalPrice+totalTax-totalDiscount+20)*100)/100;
+        localStorage.setItem('discount', totalDiscount);
+        localStorage.setItem('totalTax', totalTax);
+        localStorage.setItem('grandTotal', grandTotal);
     }
 }
