@@ -1842,3 +1842,8 @@ CREATE TABLE `animals` (
 
 ALTER TABLE `matches` 
 CHANGE COLUMN `visual_id` `visual_id` VARCHAR(30) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/4/23 */
+INSERT INTO reports(account_id, query, status)
+SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,', "is_partner": true}}'), 0
+FROM accounts WHERE is_partner = 1;

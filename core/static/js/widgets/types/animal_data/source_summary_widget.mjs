@@ -6,7 +6,7 @@ export class SourceSummaryWidget extends Widget {
         super(frame);
     }
 
-    initType(accountId) {
+    initType(accountId=undefined) {
         this.display = this.frame.getAttribute("data-widget-display");
         if(this.display == "animals-with-data") {
             this.request = {

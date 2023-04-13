@@ -10,7 +10,7 @@ bp = Blueprint('partner_bp', __name__, url_prefix="/partner")
 @bp.route('/dashboard', methods=['GET'])
 @crut.require_partner
 def serve_dashboard():
-    return partner_render("main.html")
+    return partner_render("homepage.html")
 
 
 @bp.route('/edit-user', methods=['GET'])
