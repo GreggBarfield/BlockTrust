@@ -74,4 +74,30 @@
         </div>
     </div>
 </div>
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">
+                {{partner.sector_name()}} Summary
+                <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
+                </a>
+            </h5>
+            <div class="card-body">
+                <div class="mb-0 widget" data-widget-type="partner count distribution" data-widget-account-name="{{partner.name()}}"
+                    data-widget-tag-detail="tag-detail"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row d-none" id="tag-detail" tabindex="0">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header"><span></span></h5>
+            <div class="card-body">
+                <div class="mb-0 widget" data-widget-type="source summary" data-widget-refresh-id="refresh-sightings-button"></div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock partner_content %}
