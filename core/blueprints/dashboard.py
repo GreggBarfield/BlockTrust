@@ -415,8 +415,7 @@ def serve_invite_user():
                 "BlockTrust Network Account Invite",
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
-                    'account_company': g.account.company(),
-                    'user_name': g.user.first_name() + " " + g.user.last_name()
+                    'account_name': g.account.name()
                 }), user_email
             )
             employee_id = g.employee_id if "employee_id" in g else None
