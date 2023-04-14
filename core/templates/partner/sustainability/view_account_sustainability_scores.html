@@ -1,0 +1,18 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Sustainability Summary" %}
+{% set partner_locations = [("/partner/dashboard", "Dashboard")] %}
+
+{% block partner_content_header %}
+Sustainability Scores for {{account_name}}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+<div class="row">
+    <div class="col">
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="account sustainability scores" data-widget-account-id="{{account_id}}"></div>
+    </div>
+</div>
+
+{% endblock partner_content %}
