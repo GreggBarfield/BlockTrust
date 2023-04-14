@@ -67,11 +67,11 @@ def serve_dashboard():
     account_params = {
         "account": g.account,
         "unread_notifications_count": unread_notifications_count,
-        "pending_connection_requests_count": pending_connection_requests_count
+        "pending_connection_requests_count": pending_connection_requests_count,
+        "animal_URL": url_for('dashboard_bp.serve_animal_eid')
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
-        account_params["animal_URL"] = url_for('dashboard_bp.serve_animal_eid')
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
