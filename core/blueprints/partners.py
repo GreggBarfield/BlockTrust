@@ -34,7 +34,7 @@ def serve_edit_user():
 @crut.require_partner
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
-    if found := bool(len(animal.matches)):
+    if show_animal := bool(len(animal.matches)):
         display_certificate = False
         owner_account_match = sorted(
             list(filter(lambda row: row["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"], animal.matches)),
@@ -43,15 +43,15 @@ def serve_animal_eid(animal_eid):
 
         if owner_account_match:
             if owner_account_match[0]["partner_account"] != g.account.id():
-                found = False
+                show_animal = False
 
             health_track_partner = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
             if owner_account_match[0]["partner_account"] == health_track_partner["id"]:
                 display_certificate = True
         else:
-            found = False
+            show_animal = False
 
-        if found:
+        if show_animal:
             return partner_render("animals/animal.html", {"animal": animal, "display_certificate": display_certificate})            
 
     return partner_render("animals/animal_not_found.html", {"eid": animal_eid})
