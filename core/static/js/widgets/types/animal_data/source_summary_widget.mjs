@@ -159,7 +159,7 @@ export class SourceSummaryWidget extends Widget {
 
             let button = document.createElement("a");
             button.className = "btn btn-outline-secondary btn-sm";
-            button.setAttribute("href", "/dashboard/animals/" + eid);
+            button.setAttribute("href", this.frame.getAttribute("data-widget-animal-URL") + eid);
             button.textContent = "View";
             tdOptions.appendChild(button);
         }

@@ -21,7 +21,7 @@ def auth(params):
                     (results as account_links.column_name)
     """
     if params.get("account_id", 0):
-        if g.account.is_partner:
+        if g.account.is_partner():
             account = g.db.accounts.get_accounts(id=params["account_id"])[0]
             if account["partner_account"] == g.account.id():
                 return {

@@ -9,6 +9,6 @@ from .requirements import (
     require_account,
     require_employee,
     require_paid_account,
-    require_account_or_employee,
+    require_user_or_employee,
     require_partner
 )
