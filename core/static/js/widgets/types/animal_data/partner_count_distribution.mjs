@@ -77,7 +77,7 @@ export class PartnerCountDistributionWidget extends Widget {
             let qualityDistribution = data.quality_distribution;
             Object.values(qualityDistribution).forEach(total => dataCount+=total);
             let sustainabilityScoreLink = document.createElement('a');
-            sustainabilityScoreLink.href = "/dashboard/view-account-sustainability-scores/" + data.account_id.toString();
+            sustainabilityScoreLink.href = this.frame.getAttribute("data-widget-view-scores-URL") + data.account_id.toString();
             sustainabilityScoreLink.text = "View Score";
             sustainabilityScoreLink.target = "_blank";
             sustainabilityScoreLink.classList.add("btn", "btn-link");

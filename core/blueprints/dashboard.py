@@ -71,6 +71,7 @@ def serve_dashboard():
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
+        account_params["animal_URL"] = url_for('dashboard_bp.serve_animal_eid')
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
@@ -645,7 +646,7 @@ def serve_edit_account_retail_data():
     return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})
 
 @bp.route("/dashboard/view-account-sustainability-scores/<int:account_id>", methods=["GET"])
-@crut.require_account
+@crut.require_user_or_employee
 def serve_view_account_sustainability_data(account_id):
     account_data = g.db.accounts.get_accounts(id=account_id)
     account_name = account_data[0]["name"] if len(account_data) > 0 else "N/A"
