@@ -27,17 +27,22 @@ Animal {{ animal.eid|string }}
   </div>
   <div class="col-xl-6">
     <div class="card">
-      <div class="row" style="width: 100%; margin-left: 0px">
-        <h5 class="card-header" style="width: 80%">Certificates</h5>
+      {% if display_certificate %}
+      <div class="row ml-0 w-100">
+        <h5 class="card-header w-75">Certificates</h5>
         <div id="editor"></div>
-        <button id="cmd" style="width: 20%; height: inherit" onclick="generatePDF();">
+        <button id="cmd" class="w-25" onclick="generatePDF();">
           Print Certificate
         </button>
       </div>
-
       <div class="card-body">
         <p id="cert" class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid }}" data-widget-account_name="{{ account_name }}"></p>
       </div>
+      {% else %}
+      <div class="row ml-0">
+        <h5 class="card-header">No Certificate Available</h5>
+      </div>
+      {% endif %}
     </div>
    </div>
 </div>
