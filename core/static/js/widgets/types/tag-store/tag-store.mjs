@@ -7,10 +7,11 @@ export class TagStoreWidget extends Widget {
     }
 
     initType = async() => {
-        let tagStoreData = await this.getData("get_tag_store_data")
-        this.allProductData = tagStoreData.all_product_data;
-        this.productCategories = tagStoreData.product_categories;
-        this.productVendorIdsToNames = tagStoreData.product_vendor_ids_to_names;
+
+        this.allProductData = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
+        this.productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
+        this.productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
+
         this.frame.innerHTML = "";
         this.makeTagStore();
     }
@@ -26,9 +27,8 @@ export class TagStoreWidget extends Widget {
     makeCategoryContainer = (productCategory) => {
         let card = document.createElement("div");
         card.className = "card border rounded";
-        let createGroupName = document.createElement("h5");
+        let createGroupName = document.createElement("h3");
         createGroupName.className = "mt-2 p-1";
-        createGroupName.style = "font-size:25px;"
         createGroupName.textContent = productCategory.category_name;
     
         let cardHeader = document.createElement("div");
@@ -190,7 +190,6 @@ export class TagStoreWidget extends Widget {
         }
         this.updateShoppingCartDataInLocalStorage(productID, productQuantity);
         this.updateShoppingCartTotalsInLocalStorage();
-
     }
 
     updateShoppingCartDataInLocalStorage = (productID, productQuantity) =>{
