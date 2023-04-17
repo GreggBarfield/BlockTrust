@@ -1,0 +1,126 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Animal "+ animal.eid|string %}
+{% set partner_locations = [("/partner/dashboard","Animals"), ("/partner/animals/" + animal.eid |string, animal.eid|string)] %}
+
+{% block partner_content_header %}
+Animal {{ animal.eid|string }}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Sightings</h5>
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="map" data-widget-match-types="Sighting" data-widget-animal="{{ animal.eid }}" style="height: 400px"></p>
+              </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+          {% if display_certificate %}
+          <div class="row ml-0 w-100">
+            <h5 class="card-header w-75">Certificates</h5>
+            <div id="editor"></div>
+            <button id="cmd" class="w-25" onclick="generatePDF();">
+              Print Certificate
+            </button>
+          </div>
+          <div class="card-body">
+            <p id="cert" class="mb-0 widget" data-widget-type="certificates" data-widget-animal="{{ animal.eid }}" data-widget-account_name="{{ account_name }}"></p>
+          </div>
+          {% else %}
+          <div class="row ml-0">
+            <h5 class="card-header">No Certificate Available</h5>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row widget" data-widget-type="sectors" data-widget-animal="{{ animal.eid }}"></div>
+
+<div class="row">
+    <div class="col-md">
+      <div class="card">
+        <h5 class="card-header">Health Events</h5>
+        <div class="card-body">
+          <p class="mb-0 widget" data-widget-type="health table" data-widget-animal="{{ animal.eid }}"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md">
+      <div class="card">
+        <h5 class="card-header">Timeline</h5>
+        <div class="card-body">
+          <p class="mb-0 widget" data-widget-type="timeline" data-widget-animal="{{ animal.eid }}"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="visibility: hidden;">
+    <div class="col">
+        <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAnimalDebug" style="float:right;margin-right:20px;">Debug Info</a>
+        <div class="collapse" id="collapseAnimalDebug" style="clear:both;">
+            <div class="card" style="width:100%;">
+                <div class="card-body">
+                    <h5 class="card-title">Debug Info</h5>
+                    <p class="card-text">
+                        Animal EID: {{ animal.eid }}<br>
+                        <br>
+                        Matches: <br>
+                    </p>
+                    <div class="row">
+                      {% for match in animal.matches %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <h5 class="card-header">Match {{match['id']}}</h5>
+                                <div class="card-body">
+                                    Type: {{match['type']}}<br>
+                                    Lat: {{match['lat']}}<br>
+                                    Lon: {{match['lon']}}<br>
+                                    Time: {{match['time']}}<br>
+                                    Created: {{match['created']}}<br>
+                                    Account ID: {{match['account']}}<br>
+                                    Account Link ID: {{match['account_link']}}<br>
+                                    Data: {{match['data']}}<br>
+                                </div>
+                            </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+<!-- jsPDF library -->
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+<script src="/static/libs/html2pdf/html2pdf.bundle.min.js"></script>
+
+<script>
+    function generatePDF() {
+      var element=document.querySelector("#cert");
+      
+      var opt = {
+          margin: 1,
+          filename: 'myCertificate.pdf',
+          image: { type: 'png', quality: 1 },html2canvas: {
+          dpi: 192,
+          scale: 4,
+          letterRendering: true,
+          useCORS: true
+        },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+      };
+      
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+{% endblock partner_content %}

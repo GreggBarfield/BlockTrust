@@ -54,7 +54,7 @@ class Matches:
         """
         return Animal(self._db, eid, self.get_matches_with_account_links(matches_eid=eid))
 
-    def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False):
+    def get_by_eids(self, eids, restrict_types=(), ljoin_account_links=False, ljoin_animals=False):
         """Gets matches by eids.
 
         Params:
@@ -65,24 +65,25 @@ class Matches:
         Returns:
             A list (possibly empty) of matches rows
         """
-        return Matches._load_rows(self._db.exec_frag_d(
-            frag(
-                "SELECT matches.*",
-                Matches._account_links_clause if ljoin_account_links else "",
-                "FROM matches",
-                frag(
-                    "LEFT JOIN account_links ON matches.account_link = account_links.id",
-                ) if ljoin_account_links else "",
-                frag(
-                    "WHERE matches.eid IN (:eid)",
-                    eid=eids
-                ),
-                frag(
-                    "AND matches.type IN :types",
-                    types=restrict_types
-                ) if restrict_types else ""
-            )
-        ))
+
+        if not all(isinstance(t, int) for t in restrict_types):
+            return MatchesException("Type should be integer")
+
+        if not all(isinstance(eid, int) for eid in eids):
+            return MatchesException("EID should be integer")
+
+        query = (
+            "SELECT matches.*" + (", animals.*" if ljoin_animals else "")
+            + (Matches._account_links_clause if ljoin_account_links else "")
+            + " FROM matches"
+            + (" LEFT JOIN animals ON matches.eid = animals.eid" if ljoin_animals else "")
+            + (" LEFT JOIN account_links on matches.account_link = account_links.id" if ljoin_account_links else "")
+            + f" WHERE matches.eid IN ({','.join(str(eid) for eid in eids)})"
+            + (f" AND matches.type IN ({','.join(str(t) for t in restrict_types)})" if restrict_types else "")
+        )
+
+        result = self._db.execute_d(query)
+        return Matches._load_rows(result)
 
     def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False):
         if as_count:
@@ -579,13 +580,14 @@ class Matches:
             condition = "al.partner_account = %(account_id)s"
 
         return self._db.execute_d(
-            query + " WHERE " + condition,
+            query + " WHERE m.type= %(sighting_type)s AND " + condition,
             {
+                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"],
                 "account_id": account_id
             }
         )[0]["count"]
 
-    def get_count_distribution(self, type_int, account_id, is_partner=False):
+    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, partner_account_links=()):
         """Gets the count of each data type for an account
 
         Params:
@@ -593,6 +595,7 @@ class Matches:
             account_links: Query on only a set of account links (spread)
             partner_id: partner id if any
             is_partner: whether report is generated for a partner account
+            account_links: list of affiliated account_links for partner
 
         Returns:
             A list of dictionaries
@@ -600,24 +603,41 @@ class Matches:
                     data: Int value of data or string if join_str is set
                     count: The number of times data existed
         """
-        if is_partner:
-            account_link_condition = "al.partner_account = %(account_id)s"
-        else:
-            account_link_condition = "al.account = %(account_id)s"
+        if type_int:
+            if is_partner:
+                account_link_condition = "al.partner_account = %(account_id)s"
+            else:
+                account_link_condition = "al.account = %(account_id)s"
 
-        return Matches._load_rows(self._db.execute_d(
-            """
+            return Matches._load_rows(self._db.execute_d(
+                """
                 SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
                 INNER JOIN matches m2 ON m1.eid = m2.eid
                 INNER JOIN account_links al ON m2.account_link = al.id
                 WHERE m1.type = %(type_id)s AND """ + account_link_condition + """
                 GROUP BY m1.data
-            """,
-            {
-                "type_id": type_int,
-                "account_id": account_id
-            }
-        ))
+                """,
+                {
+                    "type_id": type_int,
+                    "account_id": account_id
+                }
+            ))
+        else:
+            if is_partner:
+                # get yield, quality and sightings
+                result = {}
+                for account_link in partner_account_links:
+                    account_result = {}
+                    quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_link["account"])
+                    account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
+                    yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_link["account"])
+                    account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
+                    account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
+                        account_link["account"], False, True
+                    )
+                    account_result["account_id"] = account_link["account"]
+                    result[account_link["name"]] = account_result
+                return result
 
     def get_count_distribution_global(self, type_int):
         """Gets the count of each data type for global
