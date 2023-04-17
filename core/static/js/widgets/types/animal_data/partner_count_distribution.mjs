@@ -17,14 +17,14 @@ export class PartnerCountDistributionWidget extends Widget {
             ).then((data) => {
                 let accountSummaryData = data.result.count_distribution !== null ? data.result.count_distribution: {};
                 this.frame.innerHTML = "";
-                let table = this.makeTable(accountSummaryData);
-                this.frame.appendChild(table);
+                let container = this.makeTableContainer(accountSummaryData);
+                this.frame.appendChild(container);
             })
         
 
     }
 
-    makeTable = (distributionData) => {
+    makeTableContainer = (distributionData) => {
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
 
@@ -49,7 +49,6 @@ export class PartnerCountDistributionWidget extends Widget {
         // Body
         this.mainTableBody = document.createElement("tbody");
         this.mainTable.appendChild(this.mainTableBody);
-
         for (const [accountName,data] of Object.entries(distributionData)) {
             let rowTag = document.createElement("tr");
             this.mainTableBody.appendChild(rowTag);
@@ -118,6 +117,6 @@ export class PartnerCountDistributionWidget extends Widget {
         }
 
         $(this.mainTable).DataTable();
-        return this.mainTable;
+        return this.divTableResponsive;
     }
 }
