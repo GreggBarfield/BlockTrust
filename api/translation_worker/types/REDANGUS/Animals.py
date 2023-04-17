@@ -1,4 +1,5 @@
 from core.database.database import Database
+from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from api.translation_worker.remapper import remap
 from core.utilities.zip_codes import get_lat_lon
@@ -137,23 +138,6 @@ def handle(db: Database, insert):
             api_insert=api_insert
         )
 
-
-    animal_details = {}
-    animal_object_tags = [
-        ("sex", "sex"),
-        ("description", "calfdescri")
-    ]
-
-    for tag in animal_object_tags:
-        if tag[1] in fields and fields[tag[1]].strip() != "":
-            animal_details[tag[0]] = fields[tag[1]].strip()
-
-    if "birthweigh" in fields and fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
-        animal_details["birth_weight"] = int(fields["birthweigh"])
-
-    if animal_details == {}:
-        animal_details = None
-
     if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
         f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
@@ -172,6 +156,27 @@ def handle(db: Database, insert):
                 account_link=account_link,
                 grouping_id=grouping_id,
                 zip=zipcode,
-                api_insert=api_insert,
-                data=animal_details
+                api_insert=api_insert
             )
+
+    try:
+        Animals(db).create_or_fail_animal(
+            eid=eid,
+            visual_id=visual_id,
+            birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
+                                                  and int(fields["birthweigh"]) > 0) else None,
+            sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
+            description=fields["description"] if ("description" in fields and
+                                                  fields["description"].strip() != "") else None
+        )
+    except AnimalsException as e:
+        Animals.update_animal(
+            eid=eid,
+            visual_id=visual_id,
+            birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
+                                                  and int(fields["birthweigh"]) > 0) else None,
+            sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
+            description=fields["description"] if ("description" in fields and
+                                                  fields["description"].strip() != "") else None           
+        )
+        print(f"Animal exists and updated {eid}: {e}")

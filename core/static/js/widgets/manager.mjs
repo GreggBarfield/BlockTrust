@@ -38,6 +38,7 @@ import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs';
 import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_retail_data_widget.mjs';
 import { AccountSustainabilityScores } from './types/sustainability/view_account_sustainability_scores.mjs';
 import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
+import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 
 
 // Immediately invoked
@@ -92,6 +93,7 @@ import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
     attach("edit account retail data", EditAccountRetailDataWidget);
     attach("account sustainability scores", AccountSustainabilityScores);
     attach("marketplace", MarketPlaceWidget);
+    attach("partner count distribution", PartnerCountDistributionWidget);
 
     // Find widgets
     $(".widget").each(function () {

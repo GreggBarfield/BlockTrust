@@ -1,5 +1,5 @@
 def format_data(
-    product=None, method=None, location=None, symptom=None, fatal=None, category=None
+    product=None, method=None, location=None, symptom=None, fatal=None, category=None, diagnosis=None
 ):
 
     data = {}
@@ -21,5 +21,7 @@ def format_data(
         data["fatal"] = fatal
     if is_something(category):
         data["category"] = category
+    if is_something(diagnosis):
+        data["diagnosis"] = diagnosis
 
     return data

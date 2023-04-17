@@ -22,16 +22,6 @@ def _require_non_partner_account():
     raise RequireNonPartnerAccountFailed()
 
 
-class RequireAnyAccountFailed(Exception):
-    pass
-
-
-def _require_any_account():
-    if 'account' in g:
-        return
-    raise RequireAnyAccountFailed()
-
-
 class RequirePaidAccountFailed(Exception):
     pass
 
@@ -62,15 +52,14 @@ def _require_employee():
     raise RequireEmployeeFailed()
 
 
-class RequireAccountOrEmployeeFailed(Exception):
+class RequireUserOrEmployeeFailed(Exception):
     pass
 
 
-def _require_account_or_employee():
+def _require_user_or_employee():
     try:
         _require_user()
-        _require_any_account()
-    except (RequireUserFailed, RequireAnyAccountFailed):
+    except (RequireUserFailed):
         pass
     else:
         return
@@ -81,7 +70,7 @@ def _require_account_or_employee():
         pass
     else:
         return
-    raise RequireAccountOrEmployeeFailed()
+    raise RequireUserOrEmployeeFailed()
 
 
 def require_user(func):
@@ -140,12 +129,12 @@ def require_employee(func):
     return wrapper
 
 
-def require_account_or_employee(func):
+def require_user_or_employee(func):
     """Decorator to ensure an employee or a user with a non partner account is logged in."""
 
     @wraps(func)
     def wrapper(*args, **kwargs):
-        _require_account_or_employee()
+        _require_user_or_employee()
         return func(*args, **kwargs)
 
     return wrapper

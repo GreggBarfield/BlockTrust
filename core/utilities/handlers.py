@@ -3,7 +3,7 @@ from werkzeug.urls import url_encode
 
 from .crut.requirements import (
     RequireNonPartnerAccountFailed,
-    RequireAccountOrEmployeeFailed,
+    RequireUserOrEmployeeFailed,
     RequireUserFailed,
     RequirePaidAccountFailed,
     RequirePartnerFailed
@@ -72,7 +72,7 @@ def attach_handlers(app):
             # Else send a 401
             return respond(401, 'No active subscription', e)
 
-    @app.errorhandler(RequireAccountOrEmployeeFailed)
+    @app.errorhandler(RequireUserOrEmployeeFailed)
     def handle_require_account_or_employee_failed(e):
         return respond(401, "Not authorized", e)
 
