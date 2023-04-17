@@ -15,9 +15,6 @@ from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files
 from ..database.tables.messages import Messages
-from ..database.tables.product_categories import ProductCategories
-from ..database.tables.products import ProductTable
-from ..database.tables.product_vendors import ProductVendors
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS

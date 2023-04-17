@@ -18,13 +18,13 @@ export class TagStoreWidget extends Widget {
 
     makeTagStore = () => {
         for(let productCategory of this.productCategories){
-            let sectionalContainer = this.makeCategoryContainer(productCategory);
-            this.appendProductsToCategoryContainer(sectionalContainer, productCategory);
-            this.frame.append(sectionalContainer);
+            let productCategoryContainer = this.makeProductCategoryContainer(productCategory);
+            this.appendProductsToCategoryContainer(productCategoryContainer, productCategory);
+            this.frame.append(productCategoryContainer);
         }
     }
 
-    makeCategoryContainer = (productCategory) => {
+    makeProductCategoryContainer = (productCategory) => {
         let card = document.createElement("div");
         card.className = "card border rounded";
         let createGroupName = document.createElement("h3");
@@ -38,10 +38,10 @@ export class TagStoreWidget extends Widget {
         return card;
     }
 
-    appendProductsToCategoryContainer = (sectionalContainer, productCategory) =>{
+    appendProductsToCategoryContainer = (productCategoryContainer, productCategory) =>{
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
-        sectionalContainer.append(cardBody);
+        productCategoryContainer.append(cardBody);
         for(let product of this.allProductData){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
                 let productCard = document.createElement("div");
