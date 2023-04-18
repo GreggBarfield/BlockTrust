@@ -229,7 +229,7 @@ def serve_tag_store():
     for product_vendor in product_vendors:
         product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
     return dashboard_render("tag-store/homepage.html", {
-        "all_product_data": json.dumps(all_product_data, default=str),
-        "product_categories": json.dumps(product_categories),
-        "product_vendor_ids_to_names": json.dumps(product_vendor_ids_to_names)
+        "all_product_data": all_product_data,
+        "product_categories": product_categories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names
     })
