@@ -173,13 +173,13 @@ def handle(db: Database, insert):
                                                   fields["description"].strip() != "") else None
         )
     except AnimalsException as e:
-        Animals.update_animal(
+        Animals(db).update_animal(
             eid=eid,
             visual_id=visual_id,
             birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
                                                   and int(fields["birthweigh"]) > 0) else None,
             sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
             description=fields["description"] if ("description" in fields and
-                                                  fields["description"].strip() != "") else None           
+                                                  fields["description"].strip() != "") else None
         )
         print(f"Animal exists and updated {eid}: {e}")
