@@ -37,7 +37,6 @@ import { SustainabilitySummaryWidget } from './types/sustainability/sustainabili
 import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs';
 import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_retail_data_widget.mjs';
 import { AccountSustainabilityScores } from './types/sustainability/view_account_sustainability_scores.mjs';
-import { TagStoreWidget } from './types/tag-store/tag-store.mjs';
 import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 
@@ -93,7 +92,6 @@ import { PartnerCountDistributionWidget } from './types/animal_data/partner_coun
     attach("epd table", EPDTableWidget);
     attach("edit account retail data", EditAccountRetailDataWidget);
     attach("account sustainability scores", AccountSustainabilityScores);
-    attach("tag store", TagStoreWidget);
     attach("marketplace", MarketPlaceWidget);
     attach("partner count distribution", PartnerCountDistributionWidget);
 
