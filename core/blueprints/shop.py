@@ -2,6 +2,7 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect, url_for
 )
 from ..renderers.outside import outside_render
+from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
@@ -9,6 +10,7 @@ from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
 from ..database.tables.product_vendors import ProductVendors
+from ..utilities import crut
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 
@@ -215,3 +217,19 @@ def serve_external_paymentinfo(partner_id):
 @bp.route('/external/invoice/<partner_id>', methods=['GET'])
 def serve_external_invoice(partner_id):
     return outside_render('shop-iframe/invoice.html', {'partner_id': partner_id})
+
+
+@bp.route("/shop/tag-store", methods=["GET"])
+@crut.require_account
+def serve_tag_store():
+    all_product_data = ProductTable(g.db).get_products(include_images=True)
+    product_categories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
+    return dashboard_render("tag-store/homepage.html", {
+        "all_product_data": all_product_data,
+        "product_categories": product_categories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names
+    })
