@@ -15,11 +15,7 @@ export class MarketPlaceWidget extends Widget {
         }
         let adData = {"genetics": [{"header": "Partner 1"}, {"header": "Partner 2"}, {"header": "Partner 3"}], "feed": [{"header": "Partner 1"}, {"header": "Partner 2"}, {"header": "Partner 3"}]};
         this.frame.innerHTML = "";
-        this.makeAdBanners(adCategories, adData);
-        
-        this.onSomeDataLoaded(function () {
-            this.frame.innerHTML = "";
-        });
+        this.frame.append(this.makeAdBanners(adCategories, adData));
     }
 
     
@@ -29,7 +25,7 @@ export class MarketPlaceWidget extends Widget {
             let sectionalAdContainer = this.makeSectionalAdBanners(category.header, adData[category.name]);
             adsContainer.append(sectionalAdContainer);
         }
-        this.frame.append(adsContainer);
+        return adsContainer;
     }
 
     makeSectionalAdBanners = (headerText, adDataObjects) => {
