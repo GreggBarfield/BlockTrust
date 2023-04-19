@@ -106,8 +106,6 @@ export class MapWidget extends Widget {
 
         const jvmLineColor = 'rgb(255,0,0)';
         const jvmMapMainName = "us_lcc";
-        const jvmMarkerInitialRadius = 10 / ((2) ** (1 / 2));
-        const jvmMarkerHoverRadius = jvmMarkerInitialRadius;
         const jvmImagePreload = true;
         const jvmMapCountyDirectory = "/static/jvm/jquery-jvectormap-us-counties/";
         function jvmMarkerDescription(event, tip, marker_index) {
@@ -310,6 +308,13 @@ export class MapWidget extends Widget {
 
         // Uses the configuration above to configure a map
         function generateMapConfig(name) {
+            let [initialRadius, hoverRadius] = [7,7];
+            if (jvmMarkers.length > 50) {
+                initialRadius = 3.5;
+            }
+            else if (jvmMarkers.length > 10) {
+                initialRadius = 5.5;
+            }
             return {
                 map: name,
                 markers: jvmMarkers,
@@ -317,10 +322,10 @@ export class MapWidget extends Widget {
                 onViewportChange: jvmViewportChange,
                 markerStyle: {
                     initial: {
-                        r: jvmMarkerInitialRadius
+                        r: initialRadius
                     },
                     hover: {
-                        r: jvmMarkerHoverRadius
+                        r: hoverRadius
                     },
                     selected: {
 
