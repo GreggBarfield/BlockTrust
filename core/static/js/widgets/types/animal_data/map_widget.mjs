@@ -310,10 +310,10 @@ export class MapWidget extends Widget {
         function generateMapConfig(name) {
             let [initialRadius, hoverRadius] = [7,7];
             if (jvmMarkers.length > 50) {
-                initialRadius = 3.5;
+                initialRadius = initialRadius/2;
             }
             else if (jvmMarkers.length > 10) {
-                initialRadius = 5.5;
+                initialRadius = initialRadius/1.28;
             }
             return {
                 map: name,
