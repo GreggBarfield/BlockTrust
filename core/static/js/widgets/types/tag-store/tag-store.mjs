@@ -1,5 +1,6 @@
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { Widget } from '../../widget.mjs';
+import { updateShoppingCartTotalsInLocalStorage, generateButtonLink } from '../../../core/tag_store_utilities.mjs';
 
 export class TagStoreWidget extends Widget {
     constructor(frame) {
@@ -17,9 +18,14 @@ export class TagStoreWidget extends Widget {
     }
 
     makeTagStore = () => {
+        let viewShoppingCartLinkContainer = document.createElement("div");
+        viewShoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
+        let viewShoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        viewShoppingCartLinkContainer.append(viewShoppingCartLinkButton);
+        this.frame.append(viewShoppingCartLinkContainer);
+
         for(let productCategory of this.productCategories){
             let productCategoryContainer = this.makeProductCategoryContainer(productCategory);
-            this.appendProductsToCategoryContainer(productCategoryContainer, productCategory);
             this.frame.append(productCategoryContainer);
         }
     }
@@ -35,13 +41,9 @@ export class TagStoreWidget extends Widget {
         cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
         cardHeader.append(createGroupName);
         card.append(cardHeader);
-        return card;
-    }
 
-    appendProductsToCategoryContainer = (productCategoryContainer, productCategory) =>{
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
-        productCategoryContainer.append(cardBody);
         for(let product of this.allProductData){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
                 let productCard = document.createElement("div");
@@ -85,6 +87,8 @@ export class TagStoreWidget extends Widget {
                 cardBody.append(productCard);
             }
         }
+        card.append(cardBody);
+        return card;
     }
 
     generateProductInfoModal = (productID) =>{
@@ -189,7 +193,7 @@ export class TagStoreWidget extends Widget {
             localStorage.setItem('isPremiseIdRequired', 0);
         }
         this.updateShoppingCartDataInLocalStorage(productID, productQuantity);
-        this.updateShoppingCartTotalsInLocalStorage();
+        updateShoppingCartTotalsInLocalStorage();
     }
 
     updateShoppingCartDataInLocalStorage = (productID, productQuantity) =>{
@@ -220,38 +224,5 @@ export class TagStoreWidget extends Widget {
             shoppingCart[productID] = productDataToBeStored;
             localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
         }
-    }
-
-    updateShoppingCartTotalsInLocalStorage = () =>{
-        let shoppingCartString = localStorage.getItem("shoppingCart");
-        let shoppingCart = JSON.parse(shoppingCartString);
-        let totalPrice = 0;
-        for(let productData of Object.values(shoppingCart)){
-            totalPrice = totalPrice + productData.product_price * productData.product_quantity;
-            if(productData.is_premise_id_required == 1){
-                localStorage.setItem("isPremiseIdRequired", 1);
-            }
-        }
-        totalPrice=Math.round(totalPrice*100)/100;
-        localStorage.setItem('totalPrice', totalPrice);
-
-        let totalDiscount = 0;
-        let discountApplied = localStorage.getItem("discountApplied");   
-        let discountPercentageString = localStorage.getItem("discountPercentage");
-        let discountPercentages = JSON.parse(discountPercentageString);
-        if(discountApplied === "Y"){
-            for(let productData of Object.values(shoppingCart)){
-                if(discountPercentages[productData.product_id] !== null){
-                    let productPrice = productData.product_price * productData.product_quantity;
-                    totalDiscount = totalDiscount + productPrice * discountPercentages[productData.product_id]/100;
-                }
-            }
-        }
-        totalDiscount = Math.round(totalDiscount*100)/100;
-        let totalTax = Math.round((totalPrice-totalDiscount)*0.065*100)/100;
-        let grandTotal = Math.round((totalPrice+totalTax-totalDiscount+20)*100)/100;
-        localStorage.setItem('discount', totalDiscount);
-        localStorage.setItem('totalTax', totalTax);
-        localStorage.setItem('grandTotal', grandTotal);
     }
 }

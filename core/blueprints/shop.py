@@ -233,3 +233,9 @@ def serve_tag_store():
         "product_categories": product_categories,
         "product_vendor_ids_to_names": product_vendor_ids_to_names
     })
+
+
+@bp.route("/shop/shopping-cart", methods=["GET"])
+@crut.require_account
+def serve_shopping_cart():
+    return dashboard_render("tag-store/shopping-cart.html")
