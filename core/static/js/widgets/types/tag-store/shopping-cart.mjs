@@ -100,7 +100,7 @@ export class ShoppingCartWidget extends Widget {
 
         let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", "/shop/tag-store", true, "fas fa-shopping-cart");
         linksContainer.append(continueShoppingButton);
-        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", "/shop/tag-store");
+        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", "/shop/tag-store", true, "fas fa-credit-card");
         linksContainer.append(proceedToCheckoutButton);
         return linksContainer;
     }
