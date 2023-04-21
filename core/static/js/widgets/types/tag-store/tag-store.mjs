@@ -44,7 +44,6 @@ export class TagStoreWidget extends Widget {
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
-        //console.log(allProductData)
         for(let product of allProductData){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
                 let productCard = document.createElement("div");
