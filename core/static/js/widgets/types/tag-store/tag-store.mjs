@@ -9,28 +9,28 @@ export class TagStoreWidget extends Widget {
 
     initType = async() => {
 
-        this.allProductData = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
-        this.productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
-        this.productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
+        let allProductData = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
+        let productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
+        let productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
 
         this.frame.innerHTML = "";
-        this.makeTagStore();
+        this.makeTagStore(allProductData, productCategories, productVendorIdsToNames);
     }
 
-    makeTagStore = () => {
+    makeTagStore = (allProductData, productCategories, productVendorIdsToNames) => {
         let viewShoppingCartLinkContainer = document.createElement("div");
         viewShoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
         let viewShoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
         viewShoppingCartLinkContainer.append(viewShoppingCartLinkButton);
         this.frame.append(viewShoppingCartLinkContainer);
 
-        for(let productCategory of this.productCategories){
-            let productCategoryContainer = this.makeProductCategoryContainer(productCategory);
+        for(let productCategory of productCategories){
+            let productCategoryContainer = this.makeProductCategoryContainer(productCategory, allProductData, productVendorIdsToNames);
             this.frame.append(productCategoryContainer);
         }
     }
 
-    makeProductCategoryContainer = (productCategory) => {
+    makeProductCategoryContainer = (productCategory, allProductData, productVendorIdsToNames) => {
         let card = document.createElement("div");
         card.className = "card border rounded";
         let createGroupName = document.createElement("h3");
@@ -44,7 +44,8 @@ export class TagStoreWidget extends Widget {
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
-        for(let product of this.allProductData){
+        //console.log(allProductData)
+        for(let product of allProductData){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
                 let productCard = document.createElement("div");
                 productCard.className = "card col-md-4 border border-dark rounded";
@@ -66,7 +67,7 @@ export class TagStoreWidget extends Widget {
                 let productCardFooterProductName = document.createElement("h4");
                 productCardFooterProductName.textContent = product.product;
                 let productCardFooterVendor = document.createElement("h6");
-                productCardFooterVendor.textContent = "Offered by " + this.productVendorIdsToNames[product.product_vendor_id];
+                productCardFooterVendor.textContent = "Offered by " + productVendorIdsToNames[product.product_vendor_id];
                 productCardFooterDetails.append(productCardFooterProductName);
                 productCardFooterDetails.append(productCardFooterVendor);
                 productCardFooter.append(productCardFooterDetails);
@@ -78,7 +79,7 @@ export class TagStoreWidget extends Widget {
                 addToCartButton.className = "btn btn-outline-primary m-0 p-1";
                 addToCartButton.textContent = "Add to Cart";
                 addToCartButton.onclick = () =>{
-                    this.generateProductInfoModal(product.id);
+                    this.generateProductInfoModal(product);
                 }
                 productCardFooterModalButtonContainer.append(addToCartButton);
                 productCardFooter.append(productCardFooterModalButtonContainer);
@@ -91,13 +92,7 @@ export class TagStoreWidget extends Widget {
         return card;
     }
 
-    generateProductInfoModal = (productID) =>{
-        let productData = {};
-        for(let product of this.allProductData){
-            if(product.id === productID){
-                productData = product;
-            }
-        }
+    generateProductInfoModal = (productData) =>{
         let infoModal = new InfoModal(productData.product, null, true);
         let modalBody = infoModal.getBody();
         
@@ -168,14 +163,14 @@ export class TagStoreWidget extends Widget {
         productQuantityText.textContent = "Select Quantity: ";
         modalFooter.prepend(productQuantityText);
         addProductToCartButton.onclick = () => {
-            this.updateShoppingCart(productData.id, parseInt(productQuantityInput.value));
+            this.updateShoppingCart(productData, parseInt(productQuantityInput.value));
             infoModal.close();
         } 
 
         modalBody.append(modalContainer);
     }
 
-    updateShoppingCart = (productID, productQuantity) => {
+    updateShoppingCart = (productData, productQuantity) => {
         let shoppingCartAge=localStorage.getItem('shoppingCartAge');
         if(shoppingCartAge===null){
             localStorage.setItem('shoppingCartAge', new Date().getTime())  
@@ -192,36 +187,30 @@ export class TagStoreWidget extends Widget {
             localStorage.setItem('discountApplied', "N");
             localStorage.setItem('isPremiseIdRequired', 0);
         }
-        this.updateShoppingCartDataInLocalStorage(productID, productQuantity);
+        this.updateShoppingCartDataInLocalStorage(productData, productQuantity);
         updateShoppingCartTotalsInLocalStorage();
     }
 
-    updateShoppingCartDataInLocalStorage = (productID, productQuantity) =>{
+    updateShoppingCartDataInLocalStorage = (productData, productQuantity) =>{
         let shoppingCartString = localStorage.getItem("shoppingCart");
         let shoppingCart = JSON.parse(shoppingCartString);
-        let selectedProductData = {};
-        for(let productData of this.allProductData){
-            if(productData.id === productID){
-                selectedProductData = productData;
-            }
-        }
         let productDataToBeStored = {
-            product_id: productID,
-            product_price: parseFloat(selectedProductData.price),
-            product_name: selectedProductData.product,
+            product_id: productData.id,
+            product_price: parseFloat(productData.price),
+            product_name: productData.product,
             product_quantity: parseInt(productQuantity),
-            is_premise_id_required_for_product: parseInt(selectedProductData.is_premise_id_required),
-            product_units: selectedProductData.unit
+            is_premise_id_required_for_product: parseInt(productData.is_premise_id_required),
+            product_units: productData.unit
         }
-        if(!(productID in shoppingCart)){
-            shoppingCart[productID] = productDataToBeStored;
+        if(!(productData.id in shoppingCart)){
+            shoppingCart[productData.id] = productDataToBeStored;
             localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
         }
         else{
-            let previousProductData = shoppingCart[productID];
+            let previousProductData = shoppingCart[productData.id];
             let previousQuantity = parseInt(previousProductData.product_quantity);
             productDataToBeStored.product_quantity = productQuantity + previousQuantity;
-            shoppingCart[productID] = productDataToBeStored;
+            shoppingCart[productData.id] = productDataToBeStored;
             localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
         }
     }
