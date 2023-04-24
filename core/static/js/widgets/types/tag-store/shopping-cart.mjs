@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { updateShoppingCartTotalsInLocalStorage, makeShoppingCartTotalsContainer, generateButtonLink, generateRemoveProductButton } from '../../../core/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateButtonLink, generateRemoveProductButton } from '../../utilities/tag_store_utilities.mjs';
 
 export class ShoppingCartWidget extends Widget {
     constructor(frame) {
@@ -8,7 +8,8 @@ export class ShoppingCartWidget extends Widget {
 
     initType = () =>{
         this.frame.innerHTML = "";
-        this.makeShoppingCart();
+        let shoppingCart = this.makeShoppingCart();
+        this.frame.append(shoppingCart);
     }
 
     makeShoppingCart = () =>{
@@ -35,7 +36,7 @@ export class ShoppingCartWidget extends Widget {
         cardBody.append(shoppingCartPageLinks);
 
         card.append(cardBody);
-        this.frame.append(card);
+        return card;
     }
 
     makeShoppingCartTable = () =>{

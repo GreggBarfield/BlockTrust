@@ -1,6 +1,6 @@
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { Widget } from '../../widget.mjs';
-import { updateShoppingCartTotalsInLocalStorage, generateButtonLink } from '../../../core/tag_store_utilities.mjs';
+import { updateShoppingCartTotalsInLocalStorage, generateButtonLink } from '../../utilities/tag_store_utilities.mjs';
 
 export class TagStoreWidget extends Widget {
     constructor(frame) {
@@ -9,15 +9,15 @@ export class TagStoreWidget extends Widget {
 
     initType = async() => {
 
-        let allProductData = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
+        let products = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
         let productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
         let productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
 
         this.frame.innerHTML = "";
-        this.makeTagStore(allProductData, productCategories, productVendorIdsToNames);
+        this.makeTagStore(products, productCategories, productVendorIdsToNames);
     }
 
-    makeTagStore = (allProductData, productCategories, productVendorIdsToNames) => {
+    makeTagStore = (products, productCategories, productVendorIdsToNames) => {
         let viewShoppingCartLinkContainer = document.createElement("div");
         viewShoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
         let viewShoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
@@ -25,12 +25,12 @@ export class TagStoreWidget extends Widget {
         this.frame.append(viewShoppingCartLinkContainer);
 
         for(let productCategory of productCategories){
-            let productCategoryContainer = this.makeProductCategoryContainer(productCategory, allProductData, productVendorIdsToNames);
+            let productCategoryContainer = this.makeProductCategoryContainer(productCategory, products, productVendorIdsToNames);
             this.frame.append(productCategoryContainer);
         }
     }
 
-    makeProductCategoryContainer = (productCategory, allProductData, productVendorIdsToNames) => {
+    makeProductCategoryContainer = (productCategory, products, productVendorIdsToNames) => {
         let card = document.createElement("div");
         card.className = "card border rounded";
         let createGroupName = document.createElement("h3");
@@ -44,7 +44,7 @@ export class TagStoreWidget extends Widget {
 
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
-        for(let product of allProductData){
+        for(let product of products){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
                 let productCard = document.createElement("div");
                 productCard.className = "card col-md-4 border border-dark rounded";
