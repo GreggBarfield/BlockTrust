@@ -233,3 +233,8 @@ def serve_tag_store():
         "product_categories": product_categories,
         "product_vendor_ids_to_names": product_vendor_ids_to_names
     })
+
+
+@bp.route("/shop/checkout", methods=["GET"])
+def serve_checkout():
+    return dashboard_render("tag-store/checkout.html")

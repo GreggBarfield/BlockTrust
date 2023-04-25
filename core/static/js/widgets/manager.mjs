@@ -40,6 +40,7 @@ import { AccountSustainabilityScores } from './types/sustainability/view_account
 import { TagStoreWidget } from './types/tag-store/tag-store.mjs';
 import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
+import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 
 
 // Immediately invoked
@@ -96,6 +97,7 @@ import { PartnerCountDistributionWidget } from './types/animal_data/partner_coun
     attach("tag store", TagStoreWidget);
     attach("marketplace", MarketPlaceWidget);
     attach("partner count distribution", PartnerCountDistributionWidget);
+    attach("checkout", CheckoutWidget);
 
     // Find widgets
     $(".widget").each(function () {
