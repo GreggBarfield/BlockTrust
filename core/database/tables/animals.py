@@ -59,11 +59,15 @@ class Animals:
         self._db.execute(
             """
                 INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
-                dam_registration_number, birth_weight, implants, sex, description, lot_number, pen_number)
+                    dam_registration_number, birth_weight, implants, sex, description, 
+                    lot_number, pen_number, feeder_account_number, feeder_weight,
+                    terminal_reimplant_weight, terminal_reimplant_date
+                )
                 VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
-                %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
-                %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
-                %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s)
+                    %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
+                    %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
+                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s
+                )
             """,
             {
                 "eid": eid,
