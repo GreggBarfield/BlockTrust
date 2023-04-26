@@ -1,3 +1,4 @@
+from core.database.tables.animals import Animals, AnimalsException
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
@@ -202,9 +203,17 @@ def handle(db: Database, insert):
                 feeder_data["feeder_account_number"] = fields["FeederInternalAccountId"]
             if fields.get("FeederWeight", None):
                 feeder_data["feeder_weight"] = fields["FeederWeight"]
+            if fields.get("TerminalReImplantWeight", None):
+                feeder_data["terminal_reimplant_weight"] = fields["TerminalReImplantWeight"]
+            if fields.get("TerminalReImplantDate", None):
+                feeder_data["terminal_reimplant_date"] = fields["TerminalReImplantDate"]
 
-            if not feeder_data:
-                feeder_data = None
+            if feeder_data:
+                try:
+                    Animals(db).create_or_fail_animal(eid=eid, **feeder_data)
+                except AnimalsException as e:
+                    Animals(db).update_animal(eid=eid, **feeder_data)
+                    print(f"{e}. It has been updated")
 
             zipcode = str(feeder.zip())
             if len(zipcode) >= 5:
@@ -222,7 +231,6 @@ def handle(db: Database, insert):
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
                         api_insert=api_insert_id,
-                        data=feeder_data,
                         zip=zipcode
                     )
 

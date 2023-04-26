@@ -222,10 +222,18 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Market", "Group Size", filterMatchType("Sold"), useDataJson("group_size"));
 
         // Feedlot
-        addField("Feedlot", "Demographics", "Lot Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("lot_number"));
-        addField("Feedlot", "Demographics", "Pen Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("pen_number"));
-        addField("Feedlot", "Demographics", "Feeder Weight", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_weight"));
-        addField("Feedlot", "Demographics", "Feeder Account Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_account_number"));
+        // addField("Feedlot", "Demographics", "Lot Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("lot_number"));
+        // addField("Feedlot", "Demographics", "Pen Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("pen_number"));
+        // addField("Feedlot", "Demographics", "Feeder Weight", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_weight"));
+        // addField("Feedlot", "Demographics", "Feeder Account Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_account_number"));
+        // addField("Feedlot", "Demographics", "Terminal Re-implant Weight", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_weight"));
+        // addField("Feedlot", "Demographics", "Terminal Re-implant Date", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_account_number"));
+        addField("Feedlot", "Demographics", "Lot Number", null, null, null, "lot_number");
+        addField("Feedlot", "Demographics", "Pen Number", null, null, null, "pen_number");
+        addField("Feedlot", "Demographics", "Feeder Weight", null, null, null, "feeder_weight");
+        addField("Feedlot", "Demographics", "Feeder Account Number", null, null, null, "feeder_account_number");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Weight", null, null, null, "terminal_reimplant_weight");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Date", null, null, null, "terminal_reimplant_date");
 
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
