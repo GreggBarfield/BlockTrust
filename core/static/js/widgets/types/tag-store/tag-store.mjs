@@ -14,20 +14,20 @@ export class TagStoreWidget extends Widget {
         let productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
 
         this.frame.innerHTML = "";
-        this.makeTagStore(products, productCategories, productVendorIdsToNames);
-    }
-
-    makeTagStore = (products, productCategories, productVendorIdsToNames) => {
-        let viewShoppingCartLinkContainer = document.createElement("div");
-        viewShoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
-        let viewShoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
-        viewShoppingCartLinkContainer.append(viewShoppingCartLinkButton);
-        this.frame.append(viewShoppingCartLinkContainer);
-
+        let shoppingCartLinkContainer = this.makeShoppingCartLinkContainer();
+        this.frame.append(shoppingCartLinkContainer);
         for(let productCategory of productCategories){
             let productCategoryContainer = this.makeProductCategoryContainer(productCategory, products, productVendorIdsToNames);
             this.frame.append(productCategoryContainer);
         }
+    }
+
+    makeShoppingCartLinkContainer = () =>{
+        let shoppingCartLinkContainer = document.createElement("div");
+        shoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
+        let shoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        shoppingCartLinkContainer.append(shoppingCartLinkButton);
+        return shoppingCartLinkContainer;
     }
 
     makeProductCategoryContainer = (productCategory, products, productVendorIdsToNames) => {
