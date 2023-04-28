@@ -41,6 +41,7 @@ import { TagStoreWidget } from './types/tag-store/tag-store.mjs';
 import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 import { CheckoutWidget } from './types/tag-store/checkout.mjs';
+import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
 
 
 // Immediately invoked
@@ -98,6 +99,7 @@ import { CheckoutWidget } from './types/tag-store/checkout.mjs';
     attach("marketplace", MarketPlaceWidget);
     attach("partner count distribution", PartnerCountDistributionWidget);
     attach("checkout", CheckoutWidget);
+    attach("shopping cart", ShoppingCartWidget);
 
     // Find widgets
     $(".widget").each(function () {

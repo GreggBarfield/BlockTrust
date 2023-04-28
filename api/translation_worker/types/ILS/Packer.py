@@ -1,3 +1,4 @@
+from core.database.tables.animals import Animals, AnimalsException
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
@@ -195,19 +196,27 @@ def handle(db: Database, insert):
         if feeder is not None:
             feeder_data = {}
             if fields.get("LotNumber", None):
-                feeder_data["lot_number"] = fields["LotNumber"]
+                feeder_data["lot_number"] = int(fields["LotNumber"])
             if fields.get("PenNumber", None):
-                feeder_data["pen_number"] = fields["PenNumber"]
+                feeder_data["pen_number"] = int(fields["PenNumber"])
             if fields.get("FeederInternalAccountId", None):
-                feeder_data["feeder_account_number"] = fields["FeederInternalAccountId"]
+                feeder_data["feeder_account_number"] = int(fields["FeederInternalAccountId"])
             if fields.get("FeederWeight", None):
-                feeder_data["feeder_weight"] = fields["FeederWeight"]
+                feeder_data["feeder_weight"] = int(fields["FeederWeight"])
+            if fields.get("TerminalReImplantWeight", None):
+                feeder_data["terminal_reimplant_weight"] = int(fields["TerminalReImplantWeight"])
+            if fields.get("TerminalReImplantDate", None):
+                feeder_data["terminal_reimplant_date"] = all_to_unix(fields["TerminalReImplantDate"])
 
-            if not feeder_data:
-                feeder_data = None
+            if feeder_data:
+                try:
+                    Animals(db).create_or_fail_animal(eid=eid, **feeder_data)
+                except AnimalsException as e:
+                    Animals(db).update_animal(eid=eid, **feeder_data)
+                    print(f"{e}. It has been updated")
 
             zipcode = str(feeder.zip())
-            if len(zipcode) >= 5:
+            if len(zipcode) >= 5 and fields.get('EIDDate', None):
                 f5 = zipcode[0:5]
                 for d in f5:
                     if d not in "0123456789":
@@ -222,7 +231,6 @@ def handle(db: Database, insert):
                         partner_account=partner_account,
                         account_link=feeder_account_link.id(),
                         api_insert=api_insert_id,
-                        data=feeder_data,
                         zip=zipcode
                     )
 

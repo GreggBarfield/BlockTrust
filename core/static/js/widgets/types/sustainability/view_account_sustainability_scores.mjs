@@ -1,5 +1,5 @@
 import { Widget } from "../../widget.mjs";
-import {  makeAverageScoreGaugeCharts, makeSectionalGaugeCharts } from "../../../core/sustainability_utilities.mjs";
+import { makeAverageScoreGaugeCharts, makeSectionalGaugeCharts } from "../../utilities/sustainability_utilities.mjs";
 
 export class AccountSustainabilityScores extends Widget{
      constructor(frame){

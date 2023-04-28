@@ -1,13 +1,14 @@
+from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
 from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
 from core.utilities.zip_codes import get_lat_lon
 from core.sectors import SECTORS_NAME_TO_ID
-from core.match_types import MATCH_TYPES_NAME_TO_ID
 from ...exceptions import ExecutionException
 from ...all_to_unix import all_to_unix
 
-def _check_format(insert):
+
+def _check_required(insert):
     keys = [
-        "EID"
+        "eid"
     ]
     for key in keys:
         if key not in insert['fields']:
@@ -19,17 +20,28 @@ def handle(db, insert):
 
     Currently processing fields like
         {
-            "EID": "982000423956846"
+            "eid": "982000423956846",
+            "visual_id": "ABCDE",
+            "breed": "Red Baldy",
+            "birth_date": "12/1/2022",
+            "birth_weight": "55",
+            "calf_reg_no": "812311",
+            "sire_reg_no": "534311",
+            "wean_date": "12/30/2022",
+            "wean_weight": "300",
+            "creep_feed": "Yes",
+            "sex": "S",
+            "implants": "Yes"
         }
     """
-    _check_format(insert)
+    _check_required(insert)
 
     fields = insert['fields']
     date_created = str(insert['created'])
 
-    eid = int(fields["EID"])
+    eid = int(fields["eid"])
     api_insert = insert["id"]
-    visual_id = fields["VisualID"] if "VisualID" in fields and fields["VisualID"] != "" else None
+    visual_id = fields["visual_id"] if "visual_id" in fields and fields["visual_id"] != "" else None
 
     accounts = db.accounts.get_accounts(id=insert["account"])
     if len(accounts) > 0:
@@ -54,6 +66,10 @@ def handle(db, insert):
                     api_insert=api_insert,
                     zip=zipcode
                 )
+
+                process_weaning_data(db, fields, eid, visual_id, insert["account"], account_link_id, None, api_insert)
+                process_birth_date(db, fields, eid, visual_id, insert["account"], account_link_id, None, api_insert)
+                process_animal_characteristics(db, fields, eid, visual_id, api_insert)
 
                 if uploader_account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
                     create_connection_with_all_sighted_accounts_for_eid(

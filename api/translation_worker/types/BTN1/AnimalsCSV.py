@@ -1,10 +1,7 @@
+from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
 from core.database.database import Database
-from api.database.inserts_model import InsertsModel
-from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from core.utilities.zip_codes import get_lat_lon
-from .medical_helper import format_data
-from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
 from .remapper import remap
 
@@ -22,22 +19,22 @@ def handle(db: Database, insert):
         "ZipCode": "zipcode",
         "PatronID": "patronid",
         "VisualID": "visualid",
-        "WeanDate": "weandate",
-        "CreepFeed": "creepfeed",
+        "WeanDate": "wean_date",
+        "CreepFeed": "creep_feed",
         "SequenceID": "sequence",
         "SysEndTime": "end_time",
-        "WeanWeight": "weanweight",
-        "BirthWeight": "birthweigh",
+        "WeanWeight": "wean_weight",
+        "BirthWeight": "birth_weight",
         "ElectronicID": "electronic",
         "SysStartTime": "st_time",
         "ApplicationID": "applicatio",
         "CalfBirthDate": "calfbirthd",
         "MarketingDate": "marketingd",
-        "FirstBirthDate": "firstbirth",
+        "FirstBirthDate": "birth_date",
         "IsVetProcessed": "isvetproce",
         "NumberOfCalves": "numberofca",
         "ApplicationDate": "appdate",
-        "CalfDescription": "calfdescri",
+        "CalfDescription": "description",
         "First14DateFeed": "first14day",
         "Second31DayFeed": "second31da",
         "WeaningStrategy": "weaningstr",
@@ -48,9 +45,8 @@ def handle(db: Database, insert):
         "First14DayFeedMethod": "first14da1",
         "Second31DayFeedMethod": "second31d1",
     })
-
     try:
-        patronid =  int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
+        patronid = int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
@@ -71,54 +67,9 @@ def handle(db: Database, insert):
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
 
-    weaned_object = {}
+    process_weaning_data(db, fields, eid, visual_id, partner_account, account_link, grouping_id, api_insert)
 
-    weaned_object_tags = [
-        ("at", "weaningstr"),
-        ("creep_feed", "creepfeed"),
-        ("first_14_feed", "first14day"),
-        ("first_14_method", "first14da1"),
-        ("second_31_feed", "second31da"),
-        ("second_31_method", "second31d1")
-    ]
-
-    for tag in weaned_object_tags:
-        if tag[1] in fields and fields[tag[1]].strip() != "":
-            weaned_object[tag[0]] = fields[tag[1]].strip()
-
-    if "weaningstr" in fields and fields["weaningstr"].strip() != "":
-        weaned_object["at"] = fields["weaningstr"].strip()
-
-    if "weanweight" in fields and fields["weanweight"].strip() != "" and int(fields["weanweight"]) > 0:
-        weaned_object["wean_weight"] = int(fields["weanweight"])
-
-    if weaned_object == {}:
-        weaned_object = None
-
-    wean_date = all_to_unix(fields["weandate"]) if "weandate" in fields else None
-    if wean_date is not None:
-        db.matches.types.insert_weaned(
-            time=wean_date,
-            partner_account=partner_account,
-            account_link=account_link,
-            data=weaned_object,
-            eid=eid,
-            visual_id=visual_id,
-            grouping_id=grouping_id,
-            api_insert=api_insert
-        )
-
-    birth_date = all_to_unix(fields["firstbirth"]) if "firstbirth" in fields else None
-    if birth_date is not None:
-        db.matches.types.insert_born(
-            time=birth_date,
-            partner_account=partner_account,
-            account_link=account_link,
-            eid=eid,
-            visual_id=visual_id,
-            grouping_id=grouping_id,
-            api_insert=api_insert
-        )
+    process_birth_date(db, fields, eid, visual_id, partner_account, account_link, grouping_id, api_insert)
 
     sold_object = {}
     if "marketingm" in fields and fields['marketingm'].strip().lower() not in ('', "unknown"):
@@ -162,24 +113,4 @@ def handle(db: Database, insert):
                 api_insert=api_insert
             )
 
-    try:
-        Animals(db).create_or_fail_animal(
-            eid=eid,
-            visual_id=visual_id,
-            birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
-                                                  and int(fields["birthweigh"]) > 0) else None,
-            sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
-            description=fields["description"] if ("description" in fields and
-                                                  fields["description"].strip() != "") else None
-        )
-    except AnimalsException as e:
-        Animals(db).update_animal(
-            eid=eid,
-            visual_id=visual_id,
-            birth_weight=fields["birthweigh"] if ("birthweigh" in fields and fields["birthweigh"].strip() != ""
-                                                  and int(fields["birthweigh"]) > 0) else None,
-            sex=fields["sex"] if ("sex" in fields and fields["sex"].strip() != "") else None,
-            description=fields["description"] if ("description" in fields and
-                                                  fields["description"].strip() != "") else None
-        )
-        print(f"Animal exists and updated {eid}: {e}")
+    process_animal_characteristics(db, fields, eid, visual_id, api_insert)

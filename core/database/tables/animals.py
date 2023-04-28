@@ -21,8 +21,10 @@ class Animals:
         self._db = db
 
     def create_or_fail_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
-                                   sire_registration_number=None, dam_registration_number=None,
-                                   birth_weight=None, implants=None, sex=None, description=None):
+                              sire_registration_number=None, dam_registration_number=None,
+                              birth_weight=None, implants=None, sex=None, description=None,
+                              lot_number=None, pen_number=None, feeder_account_number=None, feeder_weight=None,
+                              terminal_reimplant_weight=None, terminal_reimplant_date=None, api_insert_id=None):
         """
         Validates and inserts a new animal record
 
@@ -37,14 +39,16 @@ class Animals:
             raise AnimalsException(f"Animal with {eid} already exists")
 
         return self.insert_animal(
-            eid, visual_id, breed, calf_registration_number,
-            sire_registration_number, dam_registration_number,
-            birth_weight, implants, sex, description
+            eid, visual_id, breed, calf_registration_number, sire_registration_number, dam_registration_number,
+            birth_weight, implants, sex, description, lot_number, pen_number, feeder_account_number, feeder_weight,
+            terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                       sire_registration_number=None, dam_registration_number=None,
-                      birth_weight=None, implants=None, sex=None, description=None):
+                      birth_weight=None, implants=None, sex=None, description=None, lot_number=None,
+                      pen_number=None, feeder_account_number=None, feeder_weight=None, terminal_reimplant_weight=None,
+                      terminal_reimplant_date=None, api_insert_id=None):
         """
         Inserts a new animal record
 
@@ -55,9 +59,15 @@ class Animals:
         self._db.execute(
             """
                 INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
-                dam_registration_number, birth_weight, implants, sex, description)
+                    dam_registration_number, birth_weight, implants, sex, description, 
+                    lot_number, pen_number, feeder_account_number, feeder_weight,
+                    terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
+                )
                 VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
-                %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s)
+                    %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
+                    %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
+                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s, %(api_insert_id)s
+                )
             """,
             {
                 "eid": eid,
@@ -69,7 +79,14 @@ class Animals:
                 "birth_weight": birth_weight,
                 "implants": implants,
                 "sex": sex,
-                "description": description
+                "description": description,
+                "lot_number": lot_number,
+                "pen_number": pen_number,
+                "feeder_account_number": feeder_account_number,
+                "feeder_weight": feeder_weight,
+                "terminal_reimplant_weight": terminal_reimplant_weight,
+                "terminal_reimplant_date": terminal_reimplant_date,
+                "api_insert_id": api_insert_id
             }
         )
         return self._db.last_row_id()
@@ -109,7 +126,9 @@ class Animals:
 
     def update_animal(self, eid, visual_id=NO_VALUE, breed=NO_VALUE, calf_registration_number=NO_VALUE,
                       sire_registration_number=NO_VALUE, dam_registration_number=NO_VALUE,
-                      birth_weight=NO_VALUE, implants=NO_VALUE, sex=NO_VALUE, description=NO_VALUE):
+                      birth_weight=NO_VALUE, implants=NO_VALUE, sex=NO_VALUE, description=NO_VALUE,
+                      lot_number=NO_VALUE, pen_number=NO_VALUE, feeder_account_number=NO_VALUE, feeder_weight=NO_VALUE, 
+                      terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE):
         """
         Updates an animal.
         """
@@ -146,6 +165,24 @@ class Animals:
         if description is not NO_VALUE:
             query_conditions.append("description = %(description)s")
             query_values["description"] = description
+        if lot_number is not NO_VALUE:
+            query_conditions.append("lot_number = %(lot_number)s")
+            query_values["lot_number"] = lot_number
+        if pen_number is not NO_VALUE:
+            query_conditions.append("pen_number = %(pen_number)s")
+            query_values["pen_number"] = pen_number
+        if feeder_account_number is not NO_VALUE:
+            query_conditions.append("feeder_account_number = %(feeder_account_number)s")
+            query_values["feeder_account_number"] = feeder_account_number
+        if feeder_weight is not NO_VALUE:
+            query_conditions.append("feeder_weight = %(feeder_weight)s")
+            query_values["feeder_weight"] = feeder_weight
+        if terminal_reimplant_weight is not NO_VALUE:
+            query_conditions.append("terminal_reimplant_weight = %(terminal_reimplant_weight)s")
+            query_values["terminal_reimplant_weight"] = terminal_reimplant_weight
+        if terminal_reimplant_date is not NO_VALUE:
+            query_conditions.append("terminal_reimplant_date = %(terminal_reimplant_date)s")
+            query_values["terminal_reimplant_date"] = terminal_reimplant_date
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"
