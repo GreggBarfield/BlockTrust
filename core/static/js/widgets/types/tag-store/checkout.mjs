@@ -1,5 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { states } from '../../../core/common_constants.mjs';
+import { generateButtonLink, makeShoppingCartTotalsContainer } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutWidget extends Widget {
     constructor(frame) {
@@ -27,8 +28,19 @@ export class CheckoutWidget extends Widget {
         let checkoutPageCardBody = document.createElement("div");
         checkoutPageCardBody.className = "card-body row";
 
+        let checkoutFormContainer = document.createElement("div");
+        checkoutFormContainer.className = "col-md-9";
         let checkoutForm = this.makeCheckoutForm();
-        checkoutPageCardBody.append(checkoutForm);
+        checkoutFormContainer.append(checkoutForm);
+        checkoutPageCardBody.append(checkoutFormContainer);
+
+        let checkoutPageTotalsAndLinksContainer = document.createElement("div");
+        checkoutPageTotalsAndLinksContainer.className = "col-md-3 col";
+        let shoppingCartTotals = makeShoppingCartTotalsContainer();
+        checkoutPageTotalsAndLinksContainer.append(shoppingCartTotals);
+        let checkoutPageLinksContainer = this.makeCheckoutPageLinksContainer();
+        checkoutPageTotalsAndLinksContainer.append(checkoutPageLinksContainer);
+        checkoutPageCardBody.append(checkoutPageTotalsAndLinksContainer);
         
         checkoutPageCard.append(checkoutPageCardBody);
         return checkoutPageCard;
@@ -36,10 +48,9 @@ export class CheckoutWidget extends Widget {
 
     makeCheckoutForm = () =>{
         let checkoutFormContainer = document.createElement("div");
-        checkoutFormContainer.className = "card col-md-9";
 
         let checkoutFormContainerHeader = document.createElement("h4");
-        checkoutFormContainerHeader.className = "card-header";
+        checkoutFormContainerHeader.className = "card-header p-3";
         checkoutFormContainerHeader.textContent = "SHIPPING INFORMATION";
         checkoutFormContainer.append(checkoutFormContainerHeader);
 
@@ -92,6 +103,15 @@ export class CheckoutWidget extends Widget {
         checkoutFormContainerBody.append(checkoutForm);
         checkoutFormContainer.append(checkoutFormContainerBody);
         return checkoutFormContainer;
+    }
+
+    makeCheckoutPageLinksContainer = () =>{
+        let linksContainer = document.createElement("div");
+        let backToCartButton = generateButtonLink("BACK TO CART  ", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        linksContainer.append(backToCartButton);
+        let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", "/shop/tag-store", true, "fas fa-shopping-cart");
+        linksContainer.append(continueShoppingButton);
+        return linksContainer;
     }
 
     generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequired) =>{
@@ -168,7 +188,6 @@ export class CheckoutWidget extends Widget {
             shipping: localStorage.getItem("shipping"),
             grand_total: localStorage.getItem("grandTotal")
         }
-        console.log(orderDetails);
         localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
     }
 

@@ -30,8 +30,11 @@ export class ShoppingCartWidget extends Widget {
 
         let shoppingCartTable = this.makeShoppingCartTable();
         cardBody.append(shoppingCartTable);
+        let shoppingCartTotalsContainer = document.createElement("div");
+        shoppingCartTotalsContainer.className = "col-md-6";
         let shoppingCartTotals = makeShoppingCartTotalsContainer();
-        cardBody.append(shoppingCartTotals);
+        shoppingCartTotalsContainer.append(shoppingCartTotals);
+        cardBody.append(shoppingCartTotalsContainer);
         let shoppingCartPageLinks = this.makeShoppingCartPageLinksContainer();
         cardBody.append(shoppingCartPageLinks);
 
@@ -101,7 +104,7 @@ export class ShoppingCartWidget extends Widget {
 
         let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", "/shop/tag-store", true, "fas fa-shopping-cart");
         linksContainer.append(continueShoppingButton);
-        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", "/shop/tag-store", true, "fas fa-credit-card");
+        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", "/shop/checkout", true, "fas fa-credit-card");
         linksContainer.append(proceedToCheckoutButton);
         return linksContainer;
     }
