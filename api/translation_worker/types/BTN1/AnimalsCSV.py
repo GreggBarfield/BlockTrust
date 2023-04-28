@@ -20,7 +20,6 @@ def handle(db: Database, insert):
         "PatronID": "patronid",
         "VisualID": "visualid",
         "WeanDate": "wean_date",
-        "weandate": "wean_date",
         "CreepFeed": "creep_feed",
         "SequenceID": "sequence",
         "SysEndTime": "end_time",
