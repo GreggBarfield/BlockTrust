@@ -24,7 +24,7 @@ class Animals:
                               sire_registration_number=None, dam_registration_number=None,
                               birth_weight=None, implants=None, sex=None, description=None,
                               lot_number=None, pen_number=None, feeder_account_number=None, feeder_weight=None,
-                              terminal_reimplant_weight=None, terminal_reimplant_date=None):
+                              terminal_reimplant_weight=None, terminal_reimplant_date=None, api_insert_id=None):
         """
         Validates and inserts a new animal record
 
@@ -41,14 +41,14 @@ class Animals:
         return self.insert_animal(
             eid, visual_id, breed, calf_registration_number, sire_registration_number, dam_registration_number,
             birth_weight, implants, sex, description, lot_number, pen_number, feeder_account_number, feeder_weight,
-            terminal_reimplant_weight, terminal_reimplant_date
+            terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                       sire_registration_number=None, dam_registration_number=None,
                       birth_weight=None, implants=None, sex=None, description=None, lot_number=None,
                       pen_number=None, feeder_account_number=None, feeder_weight=None, terminal_reimplant_weight=None,
-                      terminal_reimplant_date=None):
+                      terminal_reimplant_date=None, api_insert_id=None):
         """
         Inserts a new animal record
 
@@ -61,12 +61,12 @@ class Animals:
                 INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
                     dam_registration_number, birth_weight, implants, sex, description, 
                     lot_number, pen_number, feeder_account_number, feeder_weight,
-                    terminal_reimplant_weight, terminal_reimplant_date
+                    terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
                 )
                 VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
                     %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
                     %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
-                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s
+                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s, %(api_insert_id)s
                 )
             """,
             {
@@ -85,7 +85,8 @@ class Animals:
                 "feeder_account_number": feeder_account_number,
                 "feeder_weight": feeder_weight,
                 "terminal_reimplant_weight": terminal_reimplant_weight,
-                "terminal_reimplant_date": terminal_reimplant_date
+                "terminal_reimplant_date": terminal_reimplant_date,
+                "api_insert_id": api_insert_id
             }
         )
         return self._db.last_row_id()

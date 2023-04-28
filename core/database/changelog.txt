@@ -1856,3 +1856,7 @@ ADD COLUMN `feeder_account_number` INT NULL AFTER `pen_number`,
 ADD COLUMN `feeder_weight` INT NULL AFTER `feeder_account_number`,
 ADD COLUMN `terminal_reimplant_weight` INT NULL AFTER `feeder_weight`,
 ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
+
+/* Rohan Sureshkumar 27/4/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
