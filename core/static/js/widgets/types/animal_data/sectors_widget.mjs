@@ -200,6 +200,7 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Demographics", "Visual Tag", null, null, null, "visual_id");
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
+        addField("Cow-Calf", "Demographics", "Weaned Weight", filterMatchType("Weaned"), useDataJson("wean_weight"));
         addField("Cow-Calf", "Demographics", "Birth Weight", null, null, null, "birth_weight");
         addField("Cow-Calf", "Demographics", "Breed", null, null, null, "breed");
         addField("Cow-Calf", "Demographics", "Sex", null, null, null, "sex");

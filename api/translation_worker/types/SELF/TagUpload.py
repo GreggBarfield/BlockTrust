@@ -37,7 +37,6 @@ def handle(db, insert):
     _check_required(insert)
 
     fields = insert['fields']
-    print(fields)
     date_created = str(insert['created'])
 
     eid = int(fields["eid"])

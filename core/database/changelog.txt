@@ -1831,7 +1831,7 @@ CREATE TABLE `animals` (
   `calf_registration_number` BIGINT NULL,
   `sire_registration_number` BIGINT NULL,
   `dam_registration_number` BIGINT NULL,
-  `birth_weight` DECIMAL(6,2) NULL,
+  `birth_weight` INT NULL,
   `implants` VARCHAR(45),
   `sex` VARCHAR(10) NULL,
   `description` VARCHAR(200) NULL,

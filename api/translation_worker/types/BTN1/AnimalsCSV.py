@@ -1,11 +1,7 @@
 from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
 from core.database.database import Database
-from api.database.inserts_model import InsertsModel
-from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from core.utilities.zip_codes import get_lat_lon
-from .medical_helper import format_data
-from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
 from .remapper import remap
 
@@ -24,6 +20,7 @@ def handle(db: Database, insert):
         "PatronID": "patronid",
         "VisualID": "visualid",
         "WeanDate": "wean_date",
+        "weandate": "wean_date",
         "CreepFeed": "creep_feed",
         "SequenceID": "sequence",
         "SysEndTime": "end_time",
@@ -49,9 +46,8 @@ def handle(db: Database, insert):
         "First14DayFeedMethod": "first14da1",
         "Second31DayFeedMethod": "second31d1",
     })
-
     try:
-        patronid =  int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
+        patronid = int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
