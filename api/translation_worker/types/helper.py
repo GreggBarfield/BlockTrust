@@ -5,7 +5,6 @@ from api.translation_worker.all_to_unix import all_to_unix
 
 def process_birth_date(db, fields, eid, visual_id, partner_account, account_link, grouping_id=None, api_insert=None):
     birth_date = all_to_unix(fields["birth_date"]) if "birth_date" in fields else None
-    print("birth", birth_date)
     if birth_date is not None:
         db.matches.types.insert_born(
             time=birth_date,
@@ -39,7 +38,6 @@ def process_weaning_data(db, fields, eid, visual_id, partner_account, account_li
 
     if weaned_object == {}:
         weaned_object = None
-    print("wean data", weaned_object)
     wean_date = all_to_unix(fields["wean_date"]) if "wean_date" in fields else None
     if wean_date is not None:
         db.matches.types.insert_weaned(
@@ -76,7 +74,6 @@ def process_animal_characteristics(db, fields, eid, visual_id, api_insert_id):
         if "description" in fields and fields["description"].strip() != "":
             kwargs["description"] = fields["description"]
 
-        print("animal", kwargs)
         Animals(db).create_or_fail_animal(**kwargs)
     except AnimalsException as e:
         Animals(db).update_animal(**kwargs)
