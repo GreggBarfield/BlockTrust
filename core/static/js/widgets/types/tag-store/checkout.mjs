@@ -140,10 +140,10 @@ export class CheckoutWidget extends Widget {
         defaultDisabledOption.disabled = true;
         defaultDisabledOption.textContent = defaultOptionText;
         selectInput.appendChild(defaultDisabledOption);
-        for(let inputOption of inputOptions){
+        for(let [optionValue, optionTextContent] of Object.entries(inputOptions)){
             let option = document.createElement("option");
-            option.value = inputOption.value;
-            option.textContent = inputOption.name;
+            option.value = optionValue;
+            option.textContent = optionTextContent;
             selectInput.appendChild(option);
         }
         inputContainer.append(selectInput);
