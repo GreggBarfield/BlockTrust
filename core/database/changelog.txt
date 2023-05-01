@@ -1825,6 +1825,17 @@ FROM accounts WHERE is_partner = 1;
 /* Nisheet Thakur 04/03/2023 */
 CREATE TABLE `advertisements` (
   `id` INT NOT NULL AUTO_INCREMENT,
+  `ad_company_id` INT NOT NULL,
+  `ad_category_id` TINYINT NULL DEFAULT 0,
+  `short_description` VARCHAR(100) NULL,
+  `long_description` VARCHAR(1000) NULL,
+  `is_archived` TINYINT NULL DEFAULT 0,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+CREATE TABLE `advertisement_companies` (
+  `id` INT NOT NULL AUTO_INCREMENT,
   `ad_company_name` VARCHAR(100) NULL,
   `ad_company_email` VARCHAR(100) NULL,
   `ad_company_contact_name` VARCHAR(100) NULL,
@@ -1833,12 +1844,8 @@ CREATE TABLE `advertisements` (
   `ad_company_state` VARCHAR(2) DEFAULT NULL,
   `ad_company_zip_code` VARCHAR(10) DEFAULT NULL,
   `ad_company_phone` BIGINT NULL,
-  `ad_category` TINYINT NULL DEFAULT 0,
-  `ad_account_integrated_with_btn` TINYINT NULL DEFAULT 0,
-  `company_logo_file_id` INT NULL DEFAULT NULL,
-  `short_description` VARCHAR(100) NULL,
-  `long_description` VARCHAR(1000) NULL,
-  `is_archived` TINYINT NULL DEFAULT 0,
+  `ad_company_integrated_with_blocktrust` TINYINT NULL DEFAULT 0,
+  `ad_company_logo_file_id` INT NULL DEFAULT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
