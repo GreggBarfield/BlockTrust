@@ -152,14 +152,14 @@ export class SectorsWidget extends Widget {
             }
         }
 
-        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null) {
+        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null, isTime=null) {
             let numAdded = 0;
             if (combined === null) {
                 combined = [[__filter, __use]];
             }
             for (const match_row of match_rows) {
                 if (matchColumn != null) {
-                    let res = match_row[matchColumn];
+                    let res = isTime? formatDate(match_row[matchColumn]): match_row[matchColumn];
                     if(res != null) {
                         addData(sectorName, tabName, dataLabel, res);
                         numAdded +=1;
@@ -200,6 +200,7 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Demographics", "Visual Tag", null, null, null, "visual_id");
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
+        addField("Cow-Calf", "Demographics", "Weaned Weight", filterMatchType("Weaned"), useDataJson("wean_weight"));
         addField("Cow-Calf", "Demographics", "Birth Weight", null, null, null, "birth_weight");
         addField("Cow-Calf", "Demographics", "Breed", null, null, null, "breed");
         addField("Cow-Calf", "Demographics", "Sex", null, null, null, "sex");
@@ -222,10 +223,12 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Market", "Group Size", filterMatchType("Sold"), useDataJson("group_size"));
 
         // Feedlot
-        addField("Feedlot", "Demographics", "Lot Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("lot_number"));
-        addField("Feedlot", "Demographics", "Pen Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("pen_number"));
-        addField("Feedlot", "Demographics", "Feeder Weight", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_weight"));
-        addField("Feedlot", "Demographics", "Feeder Account Number", filterMatchTypeAccountLinkSector("Sighting", "Feedlot"), useDataJson("feeder_account_number"));
+        addField("Feedlot", "Demographics", "Lot Number", null, null, null, "lot_number");
+        addField("Feedlot", "Demographics", "Pen Number", null, null, null, "pen_number");
+        addField("Feedlot", "Demographics", "Feeder Weight", null, null, null, "feeder_weight");
+        addField("Feedlot", "Demographics", "Feeder Account Number", null, null, null, "feeder_account_number");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Weight", null, null, null, "terminal_reimplant_weight");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Date", null, null, null, "terminal_reimplant_date", true);
 
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());

@@ -1,5 +1,5 @@
 import { BaseSummaryV2Widget } from "./base_summary_v2.mjs";
-import { makeAverageScoreGaugeCharts, makeSectionalGaugeCharts } from "../../../core/sustainability_utilities.mjs";
+import { makeAverageScoreGaugeCharts, makeSectionalGaugeCharts } from "../../utilities/sustainability_utilities.mjs";
 
 export class SustainabilitySummaryWidget extends BaseSummaryV2Widget {
     constructor(frame) {

@@ -1,6 +1,6 @@
 import { Widget } from "../../widget.mjs";
 import { icons } from "../../../core/icons.mjs";
-import { makeGaugeChart } from "../../../core/sustainability_utilities.mjs";
+import { makeGaugeChart } from "../../utilities/sustainability_utilities.mjs";
 
 export class SustainabilityTimelineV2Widget extends Widget {
     constructor(frame) {

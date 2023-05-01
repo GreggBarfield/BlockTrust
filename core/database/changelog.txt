@@ -1852,7 +1852,7 @@ CREATE TABLE `animals` (
   `calf_registration_number` BIGINT NULL,
   `sire_registration_number` BIGINT NULL,
   `dam_registration_number` BIGINT NULL,
-  `birth_weight` DECIMAL(6,2) NULL,
+  `birth_weight` INT NULL,
   `implants` VARCHAR(45),
   `sex` VARCHAR(10) NULL,
   `description` VARCHAR(200) NULL,
@@ -1868,3 +1868,16 @@ CHANGE COLUMN `visual_id` `visual_id` VARCHAR(30) CHARACTER SET 'utf8mb4' COLLAT
 INSERT INTO reports(account_id, query, status)
 SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,', "is_partner": true}}'), 0
 FROM accounts WHERE is_partner = 1;
+
+/* Rohan Sureshkumar 26/4/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `lot_number` INT NULL AFTER `description`,
+ADD COLUMN `pen_number` INT NULL AFTER `lot_number`,
+ADD COLUMN `feeder_account_number` INT NULL AFTER `pen_number`,
+ADD COLUMN `feeder_weight` INT NULL AFTER `feeder_account_number`,
+ADD COLUMN `terminal_reimplant_weight` INT NULL AFTER `feeder_weight`,
+ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
+
+/* Rohan Sureshkumar 27/4/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;

@@ -650,3 +650,8 @@ def serve_view_account_sustainability_data(account_id):
     account_data = g.db.accounts.get_accounts(id=account_id)
     account_name = account_data[0]["name"] if len(account_data) > 0 else "N/A"
     return dashboard_render("sustainability/view_account_sustainability_scores.html", {"account_id": account_id, "account_name": account_name})
+
+@bp.route("/dashboard/marketplace", methods=["GET"])
+@crut.require_account
+def serve_marketplace():
+    return dashboard_render("marketplace/marketplace.html")

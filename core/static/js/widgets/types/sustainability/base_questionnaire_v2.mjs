@@ -1,7 +1,7 @@
 import { Widget } from '../../widget.mjs';
 import { CommonQuestionnaireMethods } from './common_questionnaire_methods.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
-import { sections, scoringCriteria, questionType } from '../../../core/sustainability_constants.mjs'
+import { sections, scoringCriteria, questionType } from '../../utilities/sustainability_constants.mjs';
 import { ProgressBar } from '../../../core/progress_bar.mjs';
 
 export class BaseQuestionnaireV2Widget extends Widget{
