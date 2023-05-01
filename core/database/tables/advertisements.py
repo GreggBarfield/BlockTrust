@@ -2,12 +2,12 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-ADVERTISEMENT_CATEGORIES_NAME_TO_ID = {
+ADVERTISEMENT_CATEGORY_NAMES_TO_IDS = {
     "Genetics": 0,
     "Feed": 1
 }
-ADVERTISEMENT_CATEGORIES_ID_TO_NAME = {
-    value: key for key, value in ADVERTISEMENT_CATEGORIES_NAME_TO_ID.items()
+ADVERTISEMENT_CATEGORY_IDS_TO_NAMES = {
+    value: key for key, value in ADVERTISEMENT_CATEGORY_NAMES_TO_IDS.items()
 }
 
 class Advertisements:
