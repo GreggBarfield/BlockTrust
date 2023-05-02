@@ -239,3 +239,8 @@ def serve_tag_store():
 @crut.require_account
 def serve_shopping_cart():
     return dashboard_render("tag-store/shopping-cart.html")
+
+
+@bp.route("/shop/checkout", methods=["GET"])
+def serve_checkout():
+    return dashboard_render("tag-store/checkout.html")
