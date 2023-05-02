@@ -15,7 +15,7 @@ class Advertisements:
     def __init__(self, db):
         self._db = db
 
-    def insert_advertisement(self, ad_company_id=None, ad_category_id=None, short_description=None, long_description=None, is_archived=None):
+    def insert(self, ad_company_id=None, ad_category_id=None, short_description=None, long_description=None, is_archived=None):
         """
         Inserts an advertisement
 
@@ -40,7 +40,7 @@ class Advertisements:
             })
 
 
-    def get_advertisements(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE):
+    def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE):
         """
         Gets the advertisements based on the attributes provided
 
@@ -84,7 +84,7 @@ class Advertisements:
         else:
             return []
 
-    def update_advertisement(self, id, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, short_description=NO_VALUE, long_description=NO_VALUE, is_archived=NO_VALUE):
+    def update(self, id, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, short_description=NO_VALUE, long_description=NO_VALUE, is_archived=NO_VALUE):
         """
         Updates the advertisement based on the ID provided
 
