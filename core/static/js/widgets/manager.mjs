@@ -42,6 +42,7 @@ import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
+import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 
 
 // Immediately invoked
@@ -100,6 +101,7 @@ import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
     attach("partner count distribution", PartnerCountDistributionWidget);
     attach("checkout", CheckoutWidget);
     attach("shopping cart", ShoppingCartWidget);
+    attach("invoice", InvoiceWidget);
 
     // Find widgets
     $(".widget").each(function () {

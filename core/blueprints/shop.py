@@ -220,7 +220,6 @@ def serve_external_invoice(partner_id):
 
 
 @bp.route("/shop/tag-store", methods=["GET"])
-@crut.require_account
 def serve_tag_store():
     all_product_data = ProductTable(g.db).get_products(include_images=True)
     product_categories = ProductCategories(g.db).get_product_categories()
@@ -236,7 +235,6 @@ def serve_tag_store():
 
 
 @bp.route("/shop/shopping-cart", methods=["GET"])
-@crut.require_account
 def serve_shopping_cart():
     return dashboard_render("tag-store/shopping-cart.html")
 
@@ -244,3 +242,8 @@ def serve_shopping_cart():
 @bp.route("/shop/checkout", methods=["GET"])
 def serve_checkout():
     return dashboard_render("tag-store/checkout.html")
+
+
+@bp.route("/shop/invoice", methods=["GET"])
+def serve_invoice():
+    return dashboard_render("tag-store/invoice.html")
