@@ -8,13 +8,24 @@ export class InvoiceWidget extends Widget {
 
     initType = () =>{
         this.frame.innerHTML = "";
-        let invoiceConatiner = this.makeInvoiceContainer();
-        this.frame.append(invoiceConatiner);
+        if(localStorage.shoppingCart == null || localStorage.orderDetails == null){
+            window.location.href = "/shop/tag-store";
+        }
+        else{
+            let invoiceContainer = this.makeInvoiceContainer();
+            this.frame.append(invoiceContainer);
+            let returnToShopButton = this.generateReturnToShopButton();
+            this.frame.append(returnToShopButton);
+        }
+        window.addEventListener('beforeunload', ()=>{
+            localStorage.clear();
+        });
     }
 
     makeInvoiceContainer = () =>{
         let card = document.createElement("div");
         card.className = "card border rounded";
+        card.id = "invoicePage";
         
         let cardHeader = document.createElement("div");
         cardHeader.className = "card-header d-flex justify-content-center p-1";
@@ -28,30 +39,32 @@ export class InvoiceWidget extends Widget {
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
 
-        let horizontalRule = document.createElement("hr");
-
         let orderConfirmationContainer = this.generateOrderConfirmationContainer();
         cardBody.append(orderConfirmationContainer);
-        cardBody.append(horizontalRule);
+        cardBody.append(this.generateHorizontalRule());
 
         let addressAndPrintButtonContainer = this.generateAddressAndPrintButtonContainer();
         cardBody.append(addressAndPrintButtonContainer);
+        cardBody.append(this.generateHorizontalRule());
 
         let dateContainer = this.generateDateContainer();
         cardBody.append(dateContainer);
+        cardBody.append(this.generateHorizontalRule());
 
         let accountAndShippingInformationContainer = this.generateAccountAndShippingInformationContainer();
         cardBody.append(accountAndShippingInformationContainer);
+        cardBody.append(this.generateHorizontalRule());
 
         let shoppingCartTableContainer = document.createElement("div");
         shoppingCartTableContainer.className = "col-md-12 m-2";
         let shoppingCartTable = makeShoppingCartTable(false);
         shoppingCartTableContainer.append(shoppingCartTable);
         cardBody.append(shoppingCartTableContainer);
+        cardBody.append(this.generateHorizontalRule());
 
         let shoppingCartTotalsContainer = document.createElement("div");
         shoppingCartTotalsContainer.className = "col-md-6 m-2";
-        let shoppingCartTotals = makeShoppingCartTotalsContainer()
+        let shoppingCartTotals = makeShoppingCartTotalsContainer();
         shoppingCartTotalsContainer.append(shoppingCartTotals);
         cardBody.append(shoppingCartTotalsContainer);
 
@@ -77,7 +90,7 @@ export class InvoiceWidget extends Widget {
 
     generateAddressAndPrintButtonContainer = () =>{
         let addressAndPrintButtonContainer = document.createElement("div");
-        addressAndPrintButtonContainer.className = "col-md-12 d-flex m-2";
+        addressAndPrintButtonContainer.className = "col-md-12 d-inline-flex m-2";
         let addressContainer = document.createElement("div");
         addressContainer.className = "col-md-6 p-0 m-0";
         let nameLine = this.generateFormattedTextLine("U.S. CattleTrace", "h6", "font-weight-bold text-secondary");
@@ -106,7 +119,7 @@ export class InvoiceWidget extends Widget {
         dateContainer.className = "col-md-12 m-2";
         let currentDate = new Date();
         let date = String(currentDate.getDate()).padStart(2, '0');
-        let month = String(currentDate.getMonth() + 1).padStart(2, '0'); //January is 0!
+        let month = String(currentDate.getMonth() + 1).padStart(2, '0');
         let year = currentDate.getFullYear();
         currentDate = month + "/" + date + "/" + year;
         let dateTextLine = this.generateFormattedTextLine("Date:  " + currentDate, "h6", "font-weight-bold text-secondary");
@@ -159,8 +172,41 @@ export class InvoiceWidget extends Widget {
 
     generatePrintInvoiceButton = () =>{ 
         let button = document.createElement("button");
+        button.className = "btn btn-outline-primary h-25 rounded p-2";
+        button.textContent = "PRINT";
+        button.onclick = () =>{
+            let invoicePage = document.getElementById("invoicePage");
+            let printWindow = window.open('', '', 'width=1100,height=900');
+            printWindow.document.write('<html><head><title>Print Invoice</title><link rel="stylesheet" href="/static/build/build_dashboard_main.min.css" /></head><body>');
+            printWindow.document.write(invoicePage.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.focus();
+            setTimeout(function() {
+                printWindow.print();
+                printWindow.close();
+            }, 1000);
+        }
+        return button;
+    }
+
+    generateHorizontalRule = () =>{
+        let horizontalRule = document.createElement("div");
+        horizontalRule.className = "d-inline-block w-100 border-top";
+        return horizontalRule;
+    }
+
+    generateReturnToShopButton = () =>{
+        let button = document.createElement("button");
         button.className = "btn btn-outline-primary rounded";
-        button.textContent = "PRINT"; 
+        button.textContent = "RETURN TO SHOP";
+        let icon = document.createElement("i");
+        icon.className = "fas fa-shopping-cart";
+        button.appendChild(icon);
+        button.onclick = () =>{
+            localStorage.clear();
+            window.location.href = "/shop/tag-store";
+        }
         return button;
     }
 }
