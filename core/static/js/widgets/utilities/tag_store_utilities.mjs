@@ -33,7 +33,6 @@ const updateShoppingCartTotalsInLocalStorage = () =>{
 
 const makeShoppingCartTotalsContainer = () =>{
     let totalsContainer = document.createElement("div");
-    totalsContainer.className = "col-md-6";
 
     let totalsCardHeader = document.createElement("div");
     totalsCardHeader.className = "card-header d-flex justify-content-center p-1";
@@ -95,7 +94,7 @@ const getShoppingCartTotalsData = () =>{
 
 const generateButtonLink = (buttonText, link, addIcon=false, iconType="") =>{
     let button = document.createElement("button");
-    button.className = "btn w-25 btn-outline-primary rounded";
+    button.className = "btn btn-outline-primary rounded";
     button.textContent = buttonText;
     if(addIcon==true){
         let icon = document.createElement("i");
