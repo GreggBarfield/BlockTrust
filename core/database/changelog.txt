@@ -1822,6 +1822,34 @@ INSERT INTO reports(account_id, query, status)
 SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,',  "match_type": "USDA Quality Grade", "is_partner": true}}'), 0
 FROM accounts WHERE is_partner = 1;
 
+/* Nisheet Thakur 04/03/2023 */
+CREATE TABLE `advertisements` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `ad_company_id` INT NOT NULL,
+  `ad_category_id` TINYINT NULL DEFAULT 0,
+  `short_description` VARCHAR(100) NULL,
+  `long_description` VARCHAR(1000) NULL,
+  `is_archived` TINYINT NULL DEFAULT 0,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+CREATE TABLE `advertisement_companies` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100) NULL,
+  `email` VARCHAR(100) NULL,
+  `contact_name` VARCHAR(100) NULL,
+  `address` VARCHAR(127) DEFAULT NULL,
+  `city` VARCHAR(50) DEFAULT NULL,
+  `state` VARCHAR(2) DEFAULT NULL,
+  `zip_code` VARCHAR(10) DEFAULT NULL,
+  `phone` BIGINT NULL,
+  `integrated_with_blocktrust` TINYINT NULL DEFAULT 0,
+  `logo_file_id` INT NULL DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
 /* Rohan Sureshkumar 4/3/23 */
 CREATE TABLE `animals` (
   `id` INT NOT NULL AUTO_INCREMENT,
