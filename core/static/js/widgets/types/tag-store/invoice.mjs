@@ -144,8 +144,6 @@ export class InvoiceWidget extends Widget {
         let cityLine = this.generateFormattedTextLine(orderDetails.city + ", " + orderDetails.state + " " +orderDetails.zip_code,"h6", "font-weight-bold text-primary");
         accountInformationContainer.append(cityLine);
         accountAndShippingInformationContainer.append(accountInformationContainer);
-
-        
         let shippingInformationContainer = document.createElement("div");
         shippingInformationContainer.className = "col-md-6 m-0 p-0";
         let shippingHeaderLine = this.generateFormattedTextLine("Shipping Information", "h6", "font-weight-bold text-secondary");
