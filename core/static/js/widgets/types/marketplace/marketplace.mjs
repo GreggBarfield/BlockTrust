@@ -6,67 +6,79 @@ export class MarketPlaceWidget extends Widget {
         super(frame);
     }
 
-    initType = () => {
-        // The adCategories and adData variables have placeholder data for now. Once the tables and routines have been created the data will be asynchronously fetched using the getData() Widget method.
-        // Advertisement data objects will have additional key value pairs based on data to be displayed/stored.   
-        let adCategories = {
-            genetics: {name: "genetics", header: "Genetics"},
-            feed: {name: "feed", header: "Feed"}
-        }
-        let adData = {"genetics": [{"header": "Partner 1"}, {"header": "Partner 2"}, {"header": "Partner 3"}], "feed": [{"header": "Partner 1"}, {"header": "Partner 2"}, {"header": "Partner 3"}]};
+    initType = async() => {
+        let advertisementData = await this.getData("get_advertisements");
+        let advertisementCategoryIdsToNames = advertisementData.ad_category_ids_to_names;
+        let advertisementCompanies = this.formatAdvertisementCompaniesData(advertisementData.advertisement_companies);
+        let advertisements = advertisementData.advertisements;
+
         this.frame.innerHTML = "";
-        this.frame.append(this.makeAdBanners(adCategories, adData));
+        let advertisementContainer = this.makeAdvertisementContainer(advertisementCategoryIdsToNames, advertisementCompanies, advertisements);
+        this.frame.append(advertisementContainer);
     }
 
-    
-    makeAdBanners = (adCategories, adData) =>{
-        let adsContainer = document.createElement("div");
-        for(let category of Object.values(adCategories)){
-            let sectionalAdContainer = this.makeSectionalAdBanners(category.header, adData[category.name]);
-            adsContainer.append(sectionalAdContainer);
+    formatAdvertisementCompaniesData = (advertisementCompaniesData) =>{
+        let advertisementCompanies = {};
+        for(let advertisementCompany of advertisementCompaniesData){
+            advertisementCompanies[advertisementCompany.id] = advertisementCompany;
         }
-        return adsContainer;
+        return advertisementCompanies;
     }
 
-    makeSectionalAdBanners = (headerText, adDataObjects) => {
-        let adContainer = document.createElement("div");
-        adContainer.className = "card col-md-12";
-
-        let adContainerHeader = document.createElement("h5");
-        adContainerHeader.className = "card-header";
-        adContainerHeader.textContent = headerText;
-        adContainer.append(adContainerHeader);
-
-        let adContainerBody = document.createElement("div");
-        adContainerBody.className = "card-body row p-2"
-
-        for(let adData of adDataObjects){
-            let adCard = this.generateAdCard(adData);
-            adContainerBody.append(adCard);
+    makeAdvertisementContainer = (advertisementCategoryIdsToNames, advertisementCompanies, advertisements) =>{
+        let advertisementsContainer = document.createElement("div");
+        for(let [advertisementCategoryId, advertisementCategoryName] of Object.entries(advertisementCategoryIdsToNames)){
+            let sectionalAdvertisementsContainer = this.makeSectionalAdvertisementContainer(advertisementCategoryId, advertisementCategoryName, advertisementCompanies, advertisements);
+            advertisementsContainer.append(sectionalAdvertisementsContainer);
         }
-        adContainer.append(adContainerBody);
-
-        return adContainer;
+        return advertisementsContainer;
     }
 
-    generateAdCard = (adData) =>{
-        let adCard = document.createElement("div")
-        adCard.className = "card col-md-4 border border-dark rounded p-2";
+    makeSectionalAdvertisementContainer = (advertisementCategoryId, advertisementCategoryName, advertisementCompanies, advertisements) =>{
+        let sectionalAdvertisementContainer = document.createElement("div");
+        sectionalAdvertisementContainer.className = "card col-md-12";
 
-        let adCardHeader = document.createElement("h5");
-        adCardHeader.className = "card-header";
-        adCardHeader.textContent = adData.header;
-        adCard.append(adCardHeader);
+        let sectionalAdvertisementContainerHeader = document.createElement("h5");
+        sectionalAdvertisementContainerHeader.className = "card-header";
+        sectionalAdvertisementContainerHeader.textContent = advertisementCategoryName;
+        sectionalAdvertisementContainer.append(sectionalAdvertisementContainerHeader);
 
-        let adCardBody = document.createElement("div");
-        adCardBody.className = "card-body";
+        let sectionalAdvertisementContainerBody = document.createElement("div");
+        sectionalAdvertisementContainerBody.className = "card-body row p-2";
+
+        for(let advertisement of advertisements){
+            if(advertisement.ad_category_id == advertisementCategoryId){
+                let advertisementCard = this.generateAdvertisementCard(advertisement, advertisementCompanies);
+                sectionalAdvertisementContainerBody.append(advertisementCard);
+            }
+        }
+        sectionalAdvertisementContainer.append(sectionalAdvertisementContainerBody);
+
+        return sectionalAdvertisementContainer;
+    }
+
+    generateAdvertisementCard = (advertisement, advertisementCompanies) =>{
+        let advertisementCardContainer = document.createElement("div");
+        advertisementCardContainer.className = "col-md-4";
+        let advertisementCard = document.createElement("div")
+        advertisementCard.className = "card border border-dark rounded p-2";
+
+        let advertisementCardHeader = document.createElement("h5");
+        advertisementCardHeader.className = "card-header";
+        advertisementCardHeader.textContent = advertisement.short_description;
+        advertisementCard.append(advertisementCardHeader);
+
+        let advertisementCardBody = document.createElement("div");
+        advertisementCardBody.className = "card-body";
 
         let adDescriptionText = document.createElement("p");
         // This will include the description of an ad. 
-        adDescriptionText.textContent = "Ad Description";
-        adCardBody.append(adDescriptionText);
-        adCard.append(adCardBody);
+        adDescriptionText.textContent = advertisement.long_description;
+        advertisementCardBody.append(adDescriptionText);
+        advertisementCard.append(advertisementCardBody);
 
-        return adCard;
+        advertisementCardContainer.append(advertisementCard);
+        return advertisementCardContainer;
     }
+
 }
