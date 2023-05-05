@@ -604,7 +604,6 @@ class Accounts:
         query_conditions = []
         query_values = {}
         query_values["id"] = account_id
-        existing_row = None
         if company is not NO_VALUE:
             query_conditions.append("a.company = %(a_company)s")
             query_values["a_company"] = company

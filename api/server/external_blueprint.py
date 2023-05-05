@@ -133,7 +133,7 @@ def serve_get_animal_data():
                 owner_account_link_and_match = match_wean_row[0]
                 wean_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = json.loads(owner_account_link_and_match["data"])
+                    data = owner_account_link_and_match["data"]
                     creep_feed = data.get("creep_feed", None)
                     first_14_day_feed_method = data.get("first_14_method", None)
                     second_31_day_feed_method = data.get("second_31_method", None)
@@ -146,7 +146,7 @@ def serve_get_animal_data():
                 if owner_account_link_and_match['time'] is not None:
                     marketing_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = json.loads(owner_account_link_and_match["data"])
+                    data = owner_account_link_and_match["data"]
                     marketing_method_name = data.get("method", None)
                     sale_location = data.get("location", None)
                     number_of_calves = data.get("group_size", None)
