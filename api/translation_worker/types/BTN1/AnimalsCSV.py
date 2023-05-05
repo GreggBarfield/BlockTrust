@@ -1,4 +1,4 @@
-from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
+from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
 from core.database.database import Database
 from api.translation_worker.all_to_unix import all_to_unix
 from core.utilities.zip_codes import get_lat_lon
@@ -67,9 +67,9 @@ def handle(db: Database, insert):
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
 
-    process_weaning_data(db, fields, eid, visual_id, partner_account, account_link, grouping_id, api_insert)
+    process_weaning_data(db, fields, eid, partner_account, account_link, api_insert)
 
-    process_birth_date(db, fields, eid, visual_id, partner_account, account_link, grouping_id, api_insert)
+    process_birth_date(db, fields, eid, partner_account, account_link, api_insert)
 
     sold_object = {}
     if "marketingm" in fields and fields['marketingm'].strip().lower() not in ('', "unknown"):
@@ -94,23 +94,6 @@ def handle(db: Database, insert):
 
     if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
-        f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
-        for d in f5:
-            if d not in "0123456789":
-                break
-        else:
-            lat, lon = get_lat_lon(int(f5))
-            db.matches.types.insert_sighting(
-                eid=eid,
-                visual_id=visual_id,
-                time=all_to_unix(fields['appdate']),
-                lat=lat,
-                lon=lon,
-                partner_account=partner_account,
-                account_link=account_link,
-                grouping_id=grouping_id,
-                zip=zipcode,
-                api_insert=api_insert
-            )
+        process_sighting(db, eid, account_link, api_insert, zipcode, fields['appdate'], partner_account, visual_id, grouping_id)
 
-    process_animal_characteristics(db, fields, eid, visual_id, api_insert)
+    process_animal_characteristics(db, fields, eid, api_insert, visual_id)
