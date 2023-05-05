@@ -1,4 +1,4 @@
-from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
+from api.translation_worker.types.helper import process_animal_characteristics, process_sighting
 from core.database.database import Database
 from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
@@ -66,22 +66,6 @@ def handle(db: Database, insert):
 
     if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
-        f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
-        for d in f5:
-            if d not in "0123456789":
-                break
-        else:
-            lat, lon = get_lat_lon(int(f5))
-            db.matches.types.insert_sighting(
-                eid=eid,
-                visual_id=visual_id,
-                time=all_to_unix(fields['appdate']),
-                lat=lat,
-                lon=lon,
-                partner_account=partner_account,
-                account_link=account_link,
-                zip=zipcode,
-                api_insert=api_insert
-            )
+        process_sighting(db, eid, account_link, api_insert, zipcode, fields['appdate'], partner_account, visual_id)
 
-    process_animal_characteristics(db, fields, eid, visual_id, api_insert)
+    process_animal_characteristics(db, fields, eid, api_insert, visual_id)

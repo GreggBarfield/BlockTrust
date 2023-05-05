@@ -127,8 +127,8 @@ class Animals:
     def update_animal(self, eid, visual_id=NO_VALUE, breed=NO_VALUE, calf_registration_number=NO_VALUE,
                       sire_registration_number=NO_VALUE, dam_registration_number=NO_VALUE,
                       birth_weight=NO_VALUE, implants=NO_VALUE, sex=NO_VALUE, description=NO_VALUE,
-                      lot_number=NO_VALUE, pen_number=NO_VALUE, feeder_account_number=NO_VALUE, feeder_weight=NO_VALUE, 
-                      terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE):
+                      lot_number=NO_VALUE, pen_number=NO_VALUE, feeder_account_number=NO_VALUE, feeder_weight=NO_VALUE,
+                      terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE, api_insert_id=NO_VALUE):
         """
         Updates an animal.
         """
@@ -183,6 +183,9 @@ class Animals:
         if terminal_reimplant_date is not NO_VALUE:
             query_conditions.append("terminal_reimplant_date = %(terminal_reimplant_date)s")
             query_values["terminal_reimplant_date"] = terminal_reimplant_date
+        if api_insert_id is not NO_VALUE:
+            query_conditions.append("api_insert_id = %(api_insert_id)s")
+            query_values["api_insert_id"] = api_insert_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"

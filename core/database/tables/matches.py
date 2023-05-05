@@ -244,7 +244,7 @@ class Matches:
 
     def get_matches(self, eid=NO_VALUE, visual_id=NO_VALUE, restrict_type=NO_VALUE, grouping_id=NO_VALUE, partner_account=NO_VALUE,
         account_link=NO_VALUE, lat=NO_VALUE, lon=NO_VALUE, visual_id_has_value=NO_VALUE, data=NO_VALUE, time=NO_VALUE, use_distinct=False,
-        selectColumns=[]):
+        selectColumns=()):
         """
         Get an account by the values specified.
 
@@ -322,6 +322,11 @@ class Matches:
         query = base_query + combined_query_condition
         match_rows = self._db.execute_d(query, query_values)
         if len(match_rows) > 0:
+            for row in match_rows:
+                if "data" in row:
+                    row["data"] = json.loads(row["data"]) if row["data"] else None
+                if "debug" in row:
+                    row["debug"] = json.loads(row["debug"]) if row["debug"] else None
             return match_rows
         else:
             return []
@@ -459,6 +464,55 @@ class Matches:
         )
 
         return self._db.last_row_id()
+
+    def update_match(self, id, visual_id=NO_VALUE, grouping_id=NO_VALUE, data=NO_VALUE, zip_code=NO_VALUE,
+                     lat=NO_VALUE, lon=NO_VALUE, partner_account=NO_VALUE, time=NO_VALUE, debug=NO_VALUE,
+                     api_insert=NO_VALUE):
+        """
+        Updates an match.
+        """
+        base_query = "UPDATE matches"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+        if visual_id is not NO_VALUE:
+            query_conditions.append("visual_id = %(visual_id)s")
+            query_values["visual_id"] = visual_id
+        if grouping_id is not NO_VALUE:
+            query_conditions.append("grouping_id = %(grouping_id)s")
+            query_values["grouping_id"] = grouping_id
+        if data is not NO_VALUE:
+            query_conditions.append("data = %(data)s")
+            query_values["data"] = json.dumps(data) if data is not None else None
+        if partner_account is not NO_VALUE:
+            query_conditions.append("partner_account = %(partner_account_id)s")
+            query_values["partner_account_id"] = partner_account
+        if time is not NO_VALUE:
+            query_conditions.append("time = %(time)s")
+            query_values["time"] = time
+        if debug is not NO_VALUE:
+            query_conditions.append("debug = %(debug)s")
+            query_values["debug"] = json.dumps(debug) if debug is not None else None
+        if api_insert is not NO_VALUE:
+            query_conditions.append("api_insert = %(api_insert)s")
+            query_values["api_insert"] = api_insert
+        if zip_code is not NO_VALUE:
+            query_conditions.append("zip = %(zip_code)s")
+            query_values["zip_code"] = zip_code
+        if lat is not NO_VALUE:
+            query_conditions.append("lat = %(lat)s")
+            query_values["lat"] = lat
+        if lon is not NO_VALUE:
+            query_conditions.append("lon = %(lon)s")
+            query_values["lon"] = lon
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = f" SET {', '.join(query_conditions)}  WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Account")
 
     def get_count_eid_distinct(self):
         """Count the number of distinct EIDs in the database.
@@ -834,7 +888,7 @@ class MatchTypes:
     """Helpers for handling matches, specifically relating to various types.
 
     In general, **kwargs indicates:
-        account, eid, lat, lon, 
+        account, eid, lat, lon,
 
     """
 
