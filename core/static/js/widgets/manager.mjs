@@ -13,7 +13,6 @@ import { SearchSalesGroupsWidget } from './types/sales_groups/search_sales_group
 import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_sales_widget.mjs';
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
-import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match_visibility_settings_widget.mjs';
 import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
@@ -72,7 +71,6 @@ import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
     attach("messages list", MessagesListWidget);
     attach("manage auction sales", ManageAuctionSalesWidget);
     attach("view upcoming auction sales", ViewUpcomingAuctionsWidget);
-    attach("match visibility settings", MatchVisibilitySettingsWidget);
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
