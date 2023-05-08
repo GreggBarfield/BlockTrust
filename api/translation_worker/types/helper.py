@@ -1,23 +1,81 @@
 
 from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
+from core.match_types import MATCH_TYPES_NAME_TO_ID
+from core.utilities.zip_codes import get_lat_lon
 
 
-def process_birth_date(db, fields, eid, visual_id, partner_account, account_link, grouping_id=None, api_insert=None):
-    birth_date = all_to_unix(fields["birth_date"]) if "birth_date" in fields else None
-    if birth_date is not None:
-        db.matches.types.insert_born(
-            time=birth_date,
+def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_time,
+                     partner_account, visual_id=None, grouping_id=None):
+    f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
+    for d in f5:
+        if d not in "0123456789":
+            raise Exception(f"Incorrect zipcode: {f5}")
+    lat, lon = get_lat_lon(int(f5))
+    matches = db.matches.get_matches(eid=eid, account_link=account_link_id,
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"])
+    if matches:
+        # update visual_id, time, zip code (lat and lon as well), partner_account, api_insert
+        sighting_data = {}
+        if visual_id:
+            sighting_data["visual_id"] = visual_id
+        if grouping_id:
+            sighting_data["grouping_id"] = grouping_id
+        previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
+        previous_api_inserts.append(matches[0]["api_insert"])
+
+        db.matches.update_match(
+            id=matches[0]["id"],
+            time=all_to_unix(sighting_time),
+            lat=lat,
+            lon=lon,
             partner_account=partner_account,
-            account_link=account_link,
+            debug={"previous_api_inserts": previous_api_inserts},
+            api_insert=api_insert_id,
+            zip_code=zipcode,
+            **sighting_data
+        )
+    else:
+        db.matches.types.insert_sighting(
             eid=eid,
             visual_id=visual_id,
+            time=all_to_unix(sighting_time),
+            lat=lat,
+            lon=lon,
+            partner_account=partner_account,
+            account_link=account_link_id,
             grouping_id=grouping_id,
-            api_insert=api_insert
+            api_insert=api_insert_id,
+            zip=zipcode
         )
 
 
-def process_weaning_data(db, fields, eid, visual_id, partner_account, account_link, grouping_id=None, api_insert=None):
+def process_birth_date(db, input_data, eid, partner_account, account_link, api_insert=None):
+    birth_date = all_to_unix(input_data["birth_date"]) if "birth_date" in input_data else None
+    if birth_date is not None:
+        matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Born"])
+        if matches:
+            # update birth_date, partner_account, api_insert id
+            previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
+            previous_api_inserts.append(matches[0]["api_insert"])
+            db.matches.update_match(
+                id=matches[0]["id"],
+                time=birth_date,
+                partner_account=partner_account,
+                api_insert=api_insert,
+                debug={"previous_api_inserts": previous_api_inserts}
+            )
+        else:
+            db.matches.types.insert_born(
+                time=birth_date,
+                partner_account=partner_account,
+                account_link=account_link,
+                eid=eid,
+                api_insert=api_insert
+            )
+
+
+def process_weaning_data(db, input_data, eid, partner_account, account_link, api_insert=None):
     weaned_object = {}
 
     weaned_object_tags = [
@@ -30,51 +88,65 @@ def process_weaning_data(db, fields, eid, visual_id, partner_account, account_li
     ]
 
     for tag in weaned_object_tags:
-        if tag[1] in fields and fields[tag[1]].strip() != "":
-            weaned_object[tag[0]] = fields[tag[1]].strip()
+        if tag[1] in input_data and input_data[tag[1]].strip() != "":
+            weaned_object[tag[0]] = input_data[tag[1]].strip()
 
-    if "wean_weight" in fields and fields["wean_weight"].strip() != "" and int(fields["wean_weight"]) > 0:
-        weaned_object["wean_weight"] = int(fields["wean_weight"])
+    if "wean_weight" in input_data and input_data["wean_weight"].strip() != "" and int(input_data["wean_weight"]) > 0:
+        weaned_object["wean_weight"] = int(input_data["wean_weight"])
 
     if weaned_object == {}:
         weaned_object = None
-    wean_date = all_to_unix(fields["wean_date"]) if "wean_date" in fields else None
+    wean_date = all_to_unix(input_data["wean_date"]) if "wean_date" in input_data else None
     if wean_date is not None:
-        db.matches.types.insert_weaned(
-            time=wean_date,
-            partner_account=partner_account,
-            account_link=account_link,
-            data=weaned_object,
-            eid=eid,
-            visual_id=visual_id,
-            grouping_id=grouping_id,
-            api_insert=api_insert
-        )
+        matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Weaned"])
+        if matches:
+            # update weaned obj, weaned date, partner_account and api_insert
+            previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
+            previous_api_inserts.append(matches[0]["api_insert"])
+            db.matches.update_match(
+                id=matches[0]["id"],
+                time=wean_date,
+                partner_account=partner_account,
+                data=weaned_object,
+                api_insert=api_insert,
+                debug={"previous_api_inserts": previous_api_inserts}
+            )
+        else:
+            db.matches.types.insert_weaned(
+                time=wean_date,
+                partner_account=partner_account,
+                account_link=account_link,
+                data=weaned_object,
+                eid=eid,
+                api_insert=api_insert
+            )
 
 
-def process_animal_characteristics(db, fields, eid, visual_id, api_insert_id):
+def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None):
     try:
-        kwargs = {"eid": eid, "visual_id": visual_id, "api_insert_id": api_insert_id}
-        if "birth_weight" in fields and fields["birth_weight"].strip() != "" and int(fields["birth_weight"]) > 0:
-            kwargs["birth_weight"] = int(fields["birth_weight"])
-        if "breed" in fields and fields["breed"].strip() != "":
-            kwargs["breed"] = fields["breed"]
-        if "implants" in fields and fields["implants"].strip() != "":
-            kwargs["implants"] = fields["implants"]
-        if "calf_reg_no" in fields and fields["calf_reg_no"].strip() != "" and int(fields["calf_reg_no"]) > 0:
-            kwargs["calf_registration_number"] = int(fields["calf_reg_no"])
-        if "sire_reg_no" in fields and fields["sire_reg_no"].strip() != "" and int(fields["sire_reg_no"]) > 0:
-            kwargs["sire_registration_number"] = int(fields["sire_reg_no"])
-        if "dam_reg_no" in fields and fields["dam_reg_no"].strip() != "" and int(fields["dam_reg_no"]) > 0:
-            kwargs["dam_registration_number"] = int(fields["dam_reg_no"])
-        if "implants" in fields and fields["implants"].strip() != "":
-            kwargs["implants"] = fields["implants"]
-        if "sex" in fields and fields["sex"].strip() != "":
-            kwargs["sex"] = fields["sex"]
-        if "description" in fields and fields["description"].strip() != "":
-            kwargs["description"] = fields["description"]
+        characteristics = {"eid": eid, "api_insert_id": api_insert_id}
+        if visual_id:
+            characteristics["visual_id"] = visual_id
+        if "birth_weight" in input_data and input_data["birth_weight"].strip() != "" and int(input_data["birth_weight"]) > 0:
+            characteristics["birth_weight"] = int(input_data["birth_weight"])
+        if "breed" in input_data and input_data["breed"].strip() != "":
+            characteristics["breed"] = input_data["breed"]
+        if "implants" in input_data and input_data["implants"].strip() != "":
+            characteristics["implants"] = input_data["implants"]
+        if "calf_reg_no" in input_data and input_data["calf_reg_no"].strip() != "" and int(input_data["calf_reg_no"]) > 0:
+            characteristics["calf_registration_number"] = int(input_data["calf_reg_no"])
+        if "sire_reg_no" in input_data and input_data["sire_reg_no"].strip() != "" and int(input_data["sire_reg_no"]) > 0:
+            characteristics["sire_registration_number"] = int(input_data["sire_reg_no"])
+        if "dam_reg_no" in input_data and input_data["dam_reg_no"].strip() != "" and int(input_data["dam_reg_no"]) > 0:
+            characteristics["dam_registration_number"] = int(input_data["dam_reg_no"])
+        if "implants" in input_data and input_data["implants"].strip() != "":
+            characteristics["implants"] = input_data["implants"]
+        if "sex" in input_data and input_data["sex"].strip() != "":
+            characteristics["sex"] = input_data["sex"]
+        if "description" in input_data and input_data["description"].strip() != "":
+            characteristics["description"] = input_data["description"]
 
-        Animals(db).create_or_fail_animal(**kwargs)
+        Animals(db).create_or_fail_animal(**characteristics)
     except AnimalsException as e:
-        Animals(db).update_animal(**kwargs)
+        Animals(db).update_animal(**characteristics)
         print(f"Animal exists and updated {eid}: {e}")

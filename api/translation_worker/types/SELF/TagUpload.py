@@ -1,4 +1,4 @@
-from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_weaning_data
+from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
 from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
 from core.utilities.zip_codes import get_lat_lon
 from core.sectors import SECTORS_NAME_TO_ID
@@ -48,35 +48,17 @@ def handle(db, insert):
         uploader_account = accounts[0]
         account_link_id = db.account_links.get_account_links(account_id=uploader_account["id"])[0]["id"]
         zipcode = str(uploader_account["zip"])
-        if len(zipcode) >= 5:
-            f5 = zipcode[0:5]
-            for d in f5:
-                if d not in "0123456789":
-                    break
-            else:
-                lat, lon = get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
-                    eid=eid,
-                    visual_id=visual_id,
-                    time=all_to_unix(date_created),
-                    lat=lat,
-                    lon=lon,
-                    partner_account=insert["account"],
-                    account_link=account_link_id,
-                    api_insert=api_insert,
-                    zip=zipcode
-                )
+        process_sighting(db, eid, account_link_id, api_insert, zipcode, date_created, insert["account"], visual_id)
+        process_weaning_data(db, fields, eid, insert["account"], account_link_id, api_insert)
+        process_birth_date(db, fields, eid, insert["account"], account_link_id, api_insert)
+        process_animal_characteristics(db, fields, eid, api_insert, visual_id)
 
-                process_weaning_data(db, fields, eid, visual_id, insert["account"], account_link_id, None, api_insert)
-                process_birth_date(db, fields, eid, visual_id, insert["account"], account_link_id, None, api_insert)
-                process_animal_characteristics(db, fields, eid, visual_id, api_insert)
-
-                if uploader_account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
-                    create_connection_with_all_sighted_accounts_for_eid(
-                        db, eid, uploader_account["id"],
-                        details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert})
-                else:
-                    create_connection_with_eid_owner(
-                        db=db, eid=eid, connecting_account_id=uploader_account["id"],
-                        details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
-                    )
+        if uploader_account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            create_connection_with_all_sighted_accounts_for_eid(
+                db, eid, uploader_account["id"],
+                details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert})
+        else:
+            create_connection_with_eid_owner(
+                db=db, eid=eid, connecting_account_id=uploader_account["id"],
+                details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
+            )
