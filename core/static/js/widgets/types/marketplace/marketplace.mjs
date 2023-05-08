@@ -10,10 +10,10 @@ export class MarketPlaceWidget extends Widget {
         let advertisementData = await this.getData("get_advertisements");
         let advertisementCategoryIdsToNames = advertisementData.ad_category_ids_to_names;
         let advertisementCompanies = this.formatAdvertisementCompaniesData(advertisementData.advertisement_companies);
-        let advertisements = advertisementData.advertisements;
+        let advertisements = this.formatAdvertisementsData(advertisementData.advertisements, advertisementCategoryIdsToNames, advertisementCompanies);
 
         this.frame.innerHTML = "";
-        let advertisementContainer = this.makeAdvertisementContainer(advertisementCategoryIdsToNames, advertisementCompanies, advertisements);
+        let advertisementContainer = this.makeAdvertisementContainer(advertisements);
         this.frame.append(advertisementContainer);
     }
 
@@ -25,60 +25,86 @@ export class MarketPlaceWidget extends Widget {
         return advertisementCompanies;
     }
 
-    makeAdvertisementContainer = (advertisementCategoryIdsToNames, advertisementCompanies, advertisements) =>{
-        let advertisementsContainer = document.createElement("div");
-        for(let [advertisementCategoryId, advertisementCategoryName] of Object.entries(advertisementCategoryIdsToNames)){
-            let sectionalAdvertisementsContainer = this.makeSectionalAdvertisementContainer(advertisementCategoryId, advertisementCategoryName, advertisementCompanies, advertisements);
-            advertisementsContainer.append(sectionalAdvertisementsContainer);
+    formatAdvertisementsData = (advertisements, advertisementCategoryIdsToNames, advertisementCompanies) =>{
+        for(let advertisement of advertisements){
+            advertisement.advertisementCategoryName = advertisementCategoryIdsToNames[advertisement.ad_category_id];
+            advertisement.advertisingCompany = advertisementCompanies[advertisement.ad_company_id];
         }
+        advertisements.sort((a, b) => (a.advertisementCategoryName > b.advertisementCategoryName) ? 1: (a.advertisementCategoryName === b.advertisementCategoryName)? ((a.advertisingCompany.name > b.advertisingCompany.name) ? 1: -1): -1);
+        return advertisements;
+    }
+
+    makeAdvertisementContainer = (advertisements) =>{
+        let advertisementsContainer = document.createElement("div");
+        advertisementsContainer.className = "card col-md-12";
+        
+        let advertisementsContainerBody = document.createElement("div");
+        advertisementsContainerBody.className = "card-body row p-2";
+
+        for(let advertisement of advertisements){
+            let advertisementCard = this.generateAdvertisementCard(advertisement); 
+            advertisementsContainerBody.append(advertisementCard);
+        }
+        advertisementsContainer.append(advertisementsContainerBody);
         return advertisementsContainer;
     }
 
-    makeSectionalAdvertisementContainer = (advertisementCategoryId, advertisementCategoryName, advertisementCompanies, advertisements) =>{
-        let sectionalAdvertisementContainer = document.createElement("div");
-        sectionalAdvertisementContainer.className = "card col-md-12";
-
-        let sectionalAdvertisementContainerHeader = document.createElement("h5");
-        sectionalAdvertisementContainerHeader.className = "card-header";
-        sectionalAdvertisementContainerHeader.textContent = advertisementCategoryName;
-        sectionalAdvertisementContainer.append(sectionalAdvertisementContainerHeader);
-
-        let sectionalAdvertisementContainerBody = document.createElement("div");
-        sectionalAdvertisementContainerBody.className = "card-body row p-2";
-
-        for(let advertisement of advertisements){
-            if(advertisement.ad_category_id == advertisementCategoryId){
-                let advertisementCard = this.generateAdvertisementCard(advertisement, advertisementCompanies);
-                sectionalAdvertisementContainerBody.append(advertisementCard);
-            }
-        }
-        sectionalAdvertisementContainer.append(sectionalAdvertisementContainerBody);
-
-        return sectionalAdvertisementContainer;
-    }
-
-    generateAdvertisementCard = (advertisement, advertisementCompanies) =>{
+    generateAdvertisementCard = (advertisement) =>{
         let advertisementCardContainer = document.createElement("div");
         advertisementCardContainer.className = "col-md-4";
         let advertisementCard = document.createElement("div")
         advertisementCard.className = "card border border-dark rounded p-2";
 
-        let advertisementCardHeader = document.createElement("h5");
-        advertisementCardHeader.className = "card-header";
-        advertisementCardHeader.textContent = advertisement.short_description;
+        let advertisementCardHeader = document.createElement("div");
+        advertisementCardHeader.className = "card-header d-flex justify-content-center p-3";
+        let advertisementCardHeaderText = document.createElement("h4");
+        advertisementCardHeaderText.textContent = advertisement.short_description + " (" + advertisement.advertisementCategoryName + ")";
+        advertisementCardHeader.append(advertisementCardHeaderText);
         advertisementCard.append(advertisementCardHeader);
 
         let advertisementCardBody = document.createElement("div");
         advertisementCardBody.className = "card-body";
 
-        let adDescriptionText = document.createElement("p");
-        // This will include the description of an ad. 
-        adDescriptionText.textContent = advertisement.long_description;
-        advertisementCardBody.append(adDescriptionText);
-        advertisementCard.append(advertisementCardBody);
+        let advertisementDescriptionContainer = document.createElement("div");
+        let advertisementDescriptionText = document.createElement("h5");
+        advertisementDescriptionText.textContent = advertisement.long_description;
+        advertisementDescriptionContainer.append(advertisementDescriptionText);
+        advertisementCardBody.append(advertisementDescriptionContainer);
 
+        let companyInformationContainer = this.generateCompanyInformationContainer(advertisement.advertisingCompany)
+        advertisementCardBody.append(companyInformationContainer);
+
+        advertisementCard.append(advertisementCardBody);
         advertisementCardContainer.append(advertisementCard);
         return advertisementCardContainer;
+    }
+
+    generateCompanyInformationContainer = (adCompany) =>{
+        let companyInformationContainer = document.createElement("div");
+        let nameLine = this.generateFormattedTextLine(adCompany.name, "h4", "font-weight-bold text-primary");
+        companyInformationContainer.append(nameLine);
+        let addressLine = this.generateFormattedTextLine(adCompany.address, "h6", "font-weight-bold text-secondary");
+        companyInformationContainer.append(addressLine);
+        let cityLine = this.generateFormattedTextLine(adCompany.city + ", " + adCompany.state + " " +adCompany.zip_code, "h6", "font-weight-bold text-secondary");
+        companyInformationContainer.append(cityLine);
+        let contactNameLine = this.generateFormattedTextLine(adCompany.contact_name, "h6", "font-weight-bold text-secondary");
+        companyInformationContainer.append(contactNameLine);
+        let phoneLine = this.generateFormattedTextLine(adCompany.phone, "h6", "font-weight-bold text-secondary");
+        companyInformationContainer.append(phoneLine);
+        let emailLine = this.generateFormattedTextLine(adCompany.email, "h6", "font-weight-bold text-secondary");
+        companyInformationContainer.append(emailLine);
+
+        return companyInformationContainer;
+
+    }
+
+    generateFormattedTextLine = (textContent, textSize, textClassName) =>{
+        let customText = document.createElement(textSize);
+        customText.textContent = textContent;
+        customText.className = textClassName;
+        let lineBreak = document.createElement("br");
+        customText.appendChild(lineBreak);
+        return customText;
     }
 
 }
