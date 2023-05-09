@@ -14,9 +14,7 @@ let form = new AsyncForm({
     loadingMessage: "Hang on, we're sending an invite...",
     getData: () => {
         return {
-            email: email.val(),
-            current_account : current_account,
-            current_account_id: current_account_id
+            email: email.val()
         }
     }
 });

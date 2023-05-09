@@ -4,11 +4,11 @@ TYPE_NAME = "count_eid_distinct_by_account"
 def execute(db, query):
     """Execute the query."""
     params = query['params']
-    account_link_id = db.account_links.get_account_links(account_id=params['account'])[0]["id"]
+    is_partner = params.get("is_partner", False)
     return {
-        'count_eid_distinct': db.matches.get_count_eid_distinct_by_account(params['account']),
+        'count_eid_distinct': db.matches.get_count_eid_distinct_by_account(params['account'], is_partner),
         'count_eid_distinct_sighted': db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(
-            account_link_id, as_count=True
+            params['account'], is_partner, as_count=True
         )
     }
 
@@ -28,7 +28,7 @@ def accessible(query, account_id):
     return query['account'] == account_id
 
 
-def create(account_id):
+def create(account_id, is_partner=False):
     """Creates a query.
 
     Params:
@@ -37,9 +37,8 @@ def create(account_id):
     Returns:
         A dictionary of the query
     """
+    params = {'account': account_id, 'is_partner': True} if is_partner else {'account': account_id}
     return {
         'type': TYPE_NAME,
-        'params': {
-            'account': account_id
-        }
+        'params': params
     }

@@ -1,11 +1,19 @@
 from flask import g, request, render_template, redirect
 from werkzeug.urls import url_encode
 
-from .crut.requirements import RequireAccountFailed, RequireAccountOrEmployeeFailed, RequireUserFailed, RequirePaidAccountFailed
+from .crut.requirements import (
+    RequireNonPartnerAccountFailed,
+    RequireUserOrEmployeeFailed,
+    RequireUserFailed,
+    RequirePaidAccountFailed,
+    RequirePartnerFailed
+)
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
 from ..renderers.dashboard import dashboard_render
+from ..renderers.partner import partner_render
 from flask_wtf.csrf import CSRFError
+
 
 def respond(code, short, exception=None):
     """Generate a response.
@@ -35,8 +43,7 @@ def attach_handlers(app):
 
     @app.errorhandler(RequireUserFailed)
     def handle_require_user_failed(e):
-        # If g.api is not set and the request method is GET, redirect and have them sign in
-        if 'api' not in g and request.method == 'GET':
+        if request.method == 'GET':
             return redirect(
                 "/login?" + url_encode({
                     'redirect': request.url
@@ -46,27 +53,35 @@ def attach_handlers(app):
             # Else send a 401
             return respond(401, 'Not logged in')
 
-    @app.errorhandler(RequireAccountFailed)
+    @app.errorhandler(RequireNonPartnerAccountFailed)
     def handle_require_account_failed(e):
-        # If g.api is not set and the request method is GET, send them to account missing page
-        if 'api' not in g and request.method == 'GET':
-            return dashboard_render("errors/no-account.html")
+        if request.method == 'GET':
+            if "account" in g and g.account.is_partner():
+                return partner_render("errors/no-access.html")
+            else:
+                return dashboard_render("errors/no-account.html")
         else:
             # Else send a 401
             return respond(401, 'No account selected', e)
 
     @app.errorhandler(RequirePaidAccountFailed)
     def handle_require_paid_account_failed(e):
-        # If g.api is not set and the request method is GET, send them to account missing page
-        if 'api' not in g and request.method == 'GET':
+        if request.method == 'GET':
             return dashboard_render("errors/no-paid-account.html")
         else:
             # Else send a 401
             return respond(401, 'No active subscription', e)
 
-    @app.errorhandler(RequireAccountOrEmployeeFailed)
+    @app.errorhandler(RequireUserOrEmployeeFailed)
     def handle_require_account_or_employee_failed(e):
         return respond(401, "Not authorized", e)
+
+    @app.errorhandler(RequirePartnerFailed)
+    def handle_require_partner_failed(e):
+        if request.method == 'GET':
+            return dashboard_render("errors/no-access.html")
+        else:
+            return respond(401, 'No access', e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):

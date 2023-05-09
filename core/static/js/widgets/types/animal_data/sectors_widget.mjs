@@ -17,7 +17,8 @@ export class SectorsWidget extends Widget {
                         type: 'matches_by_eids',
                         params: {
                             eids: [this.animal],
-                            ljoin_account_links: true
+                            ljoin_account_links: true,
+                            ljoin_animals: true
                         }
                     }
                 }
@@ -151,21 +152,23 @@ export class SectorsWidget extends Widget {
             }
         }
 
-        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null) {
+        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null, isTime=null) {
             let numAdded = 0;
             if (combined === null) {
                 combined = [[__filter, __use]];
             }
             for (const match_row of match_rows) {
                 if (matchColumn != null) {
-                    let res = match_row[matchColumn];
+                    let res = isTime? formatDate(match_row[matchColumn]): match_row[matchColumn];
                     if(res != null) {
                         addData(sectorName, tabName, dataLabel, res);
                         numAdded +=1;
                         break
                     }
-                    else
+                    else{
+                        //some fields like visual_id are not null only on some match rows and hence continue check
                         continue;
+                    }
                 }
                 for (const pair of combined) {
                     const filter = pair[0];
@@ -181,7 +184,7 @@ export class SectorsWidget extends Widget {
                 }
             } 
             if (numAdded == 0) {
-                addData(sectorName, tabName, dataLabel, "");
+                addData(sectorName, tabName, dataLabel, "--");
             }
         }
 
@@ -197,6 +200,14 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Demographics", "Visual Tag", null, null, null, "visual_id");
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
+        addField("Cow-Calf", "Demographics", "Weaned Weight", filterMatchType("Weaned"), useDataJson("wean_weight"));
+        addField("Cow-Calf", "Demographics", "Birth Weight", null, null, null, "birth_weight");
+        addField("Cow-Calf", "Demographics", "Breed", null, null, null, "breed");
+        addField("Cow-Calf", "Demographics", "Sex", null, null, null, "sex");
+        addField("Cow-Calf", "Demographics", "Implants", null, null, null, "implants");
+        addField("Cow-Calf", "Demographics", "Calf Registration Number", null, null, null, "calf_registration_number");
+        addField("Cow-Calf", "Demographics", "Sire Registration Number", null, null, null, "sire_registration_number");
+        addField("Cow-Calf", "Demographics", "Dam Registration Number", null, null, null, "dam_registration_number");
 
         // Cow-Calf Feed
         addField("Cow-Calf", "Feed", "Creepfeed", filterMatchType("Weaned"), useDataJson("creep_feed"));
@@ -210,6 +221,14 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Market", "Method", filterMatchType("Sold"), useDataJson("method"));
         addField("Cow-Calf", "Market", "At", filterMatchType("Sold"), useDataJson("location"));
         addField("Cow-Calf", "Market", "Group Size", filterMatchType("Sold"), useDataJson("group_size"));
+
+        // Feedlot
+        addField("Feedlot", "Demographics", "Lot Number", null, null, null, "lot_number");
+        addField("Feedlot", "Demographics", "Pen Number", null, null, null, "pen_number");
+        addField("Feedlot", "Demographics", "Feeder Weight", null, null, null, "feeder_weight");
+        addField("Feedlot", "Demographics", "Feeder Account Number", null, null, null, "feeder_account_number");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Weight", null, null, null, "terminal_reimplant_weight");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Date", null, null, null, "terminal_reimplant_date", true);
 
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());

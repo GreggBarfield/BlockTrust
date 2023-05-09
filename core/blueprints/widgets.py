@@ -42,7 +42,7 @@ bp = Blueprint('widgets_bp', __name__)
 
 
 @bp.route('/widgets/data/direct/<name>', methods=['POST'])
-@crut.require_account_or_employee
+@crut.require_user_or_employee
 def serve_direct(name):
     direct_export = {
         "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
@@ -551,7 +551,7 @@ def serve_send_message():
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
-@crut.require_account_or_employee
+@crut.require_user_or_employee
 def serve_data_request():
     return unauth_route(request.json['request']), 200
 
@@ -654,7 +654,7 @@ def serve_add_connection_request():
 def serve_employee_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
     rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
-    redirect_route = url_for('employees_bp.serve_animal_eid')
+    redirect_route = url_for('employee_bp.serve_animal_eid')
     if len(rows) > 0:
         return {
             "redirect_route": redirect_route,
@@ -742,8 +742,9 @@ def serve_save_sustainability_questionnaire():
             Files(g.db).update_multiple_files(uploaded_file_ids, sustainability_response_id=sustainability_response_id)
     return {"redirect": "/dashboard/sustainability"}
 
+
 @bp.route('/widgets/data/get_account_sustainability_data', methods=["POST"])
-@crut.require_account
+@crut.require_user
 def serve_get_sustainability_response_averages():
     if request.get_data() and request.json["scores_only"]:
         account_id = request.json["account_id"]
@@ -752,6 +753,7 @@ def serve_get_sustainability_response_averages():
         account_id = g.account.id()
         scores_only = False
     account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id, questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
+    # default all 0s
     account_sustainability_section_and_scores = {
         "air_score": 0,
         "land_score": 0,

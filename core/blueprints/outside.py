@@ -36,7 +36,7 @@ def serve_landing():
 
 @bp.route('/logout', methods=['GET'])
 def serve_logout():
-    login_url = url_for('outside_bp.serve_employee_login') if g.employee else url_for('outside_bp.serve_login')
+    login_url = url_for('outside_bp.serve_employee_login') if "employee" in g else url_for('outside_bp.serve_login')
     auth.logout()
     return outside_render('logged-out.html', {"login_url": login_url})
 
@@ -61,18 +61,28 @@ def serve_login_action():
         if 'password' not in request.form:
             raise ExportException("internal error, password missing from form")
         try:
-            auth.login(
+            user_id = auth.login(
                 identifier=request.form['identifier'],
                 password=request.form['password']
             )
-            redirect_to = '/dashboard'
+            auth.load_user(user_id)
+            account_users = g.db.account_users.get_account_users(user=g.user.id())
+            if len(account_users) == 1:
+                auth.load_account(account_users[0]["account"])
+            else:
+                return {"redirect": url_for("dashboard_bp.serve_accounts")}
+
             if (
                 'requestRedirectTo' in request.form and
                 request.form['requestRedirectTo'] is not None and
                 request.form['requestRedirectTo'] != ''
             ):
                 redirect_to = request.form['requestRedirectTo']
-            return jsonify({"redirect": redirect_to})
+            elif g.account.is_partner():
+                redirect_to = url_for("partner_bp.serve_dashboard")
+            else:
+                redirect_to = url_for("dashboard_bp.serve_dashboard")
+            return {"redirect": redirect_to}
         except auth.LoginException as e:
             raise ExportException(str(e))
         except auth.EmailNotVerifiedException as e:
@@ -465,42 +475,6 @@ def serve_contact_email():
 #     return outside_render('shop/invoice.html')
 
 
-@bp.route('/add-user/<string:invite_token>', methods=['GET'])
-def serve_add_user(invite_token):
-    try:
-        invite_string = token.confirmToken(invite_token)
-        invite_object = eval(invite_string)
-        user_email = invite_object["user_email"]
-        account_name = invite_object["current_account"]
-        account_id = invite_object["current_account_id"]
-        return outside_render("/outside/add-user-signup.html", {
-            "user_email": user_email,
-            "account_name": account_name,
-            "account_id": account_id,
-            "is_admin": 0
-            })
-    except Exception as e:
-        return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
-
-
-@bp.route('/add-user/action', methods=['POST'])
-def serve_add_invited_user():
-    try:
-        auth.invited_signup(
-            username=request.form['username'],
-            email=request.form['user_email'],
-            first_name=request.form['first_name'],
-            last_name=request.form['last_name'],
-            password=request.form['password'],
-            confirm_password=request.form['confirm_password'],
-            account_id=int(request.form["account_id"]),
-            is_admin=int(request.form["is_admin"])
-        )
-        return {"redirect": "/login"}
-    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
-        return {"error": str(e)}, 400
-
-
 @bp.route('/rfid-tags', methods=["GET"])
 def serve_rfid_tags():
     return outside_render("/outside/rfid_tags.html")
@@ -542,24 +516,44 @@ def send_file(path):
     return send_from_directory('static/images', path)
 
 
-@bp.route('/add-admin/<string:invite_token>', methods=["GET"])
-def serve_add_admin_user(invite_token):
+@bp.route('/add-user/<string:invite_token>', methods=['GET'])
+def serve_add_user(invite_token):
     try:
         invite_string = token.confirmToken(invite_token)
         invite_object = eval(invite_string)
+        user_email = invite_object["user_email"]
+        is_admin = invite_object["is_admin"]
         account_id = invite_object["account_id"]
-        admin_email = invite_object["admin_email"]
-        account_row = g.db.accounts.get_account_by_id(account_id)
-        if account_row is None:
-            raise Exception("Account not found.")
-        return outside_render("/outside/add-user-signup.html", {
-            "user_email": admin_email,
-            "account_name": account_row.name(),
-            "account_id": account_id,
-            "is_admin": 1
+        account_row = g.db.accounts.get_accounts(id=account_id)[0]
+        if account_row:
+            return outside_render("/outside/add-user-signup.html", {
+                "user_email": user_email,
+                "account_name": account_row["name"],
+                "account_id": account_id,
+                "is_admin": is_admin
             })
+        else:
+            raise Exception("Account not found")
     except Exception as e:
-        return outside_render("/outside/error.html", {"error_reason": "The Invite link is Invalid or Expired"})
+        return outside_render("/outside/error.html", {"error_reason": "The Invite link is invalid or expired"})
+
+
+@bp.route('/add-user/action', methods=['POST'])
+def serve_add_invited_user():
+    try:
+        auth.invited_signup(
+            username=request.form['username'],
+            email=request.form['user_email'],
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            password=request.form['password'],
+            confirm_password=request.form['confirm_password'],
+            account_id=int(request.form["account_id"]),
+            is_admin=int(request.form["is_admin"])
+        )
+        return {"redirect": "/login"}
+    except (auth.SignupFailedException, AccountsException, UsersException, ExportException) as e:
+        return {"error": str(e)}, 400
 
 
 @bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])

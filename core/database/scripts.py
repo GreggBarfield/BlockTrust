@@ -1,6 +1,8 @@
 """Routines which can be run individually to perform specific changes to the database."""
 from .tables.accounts import Accounts
 from .tables.account_links import AccountLinks
+from core.database.tables.account_users import AccountUsers
+from core.database.tables.users import Users
 from ..sectors import SECTORS_NAME_TO_ID
 from .combinations import create_connections_for_supply_chain
 import inspect
@@ -25,6 +27,26 @@ def add_connections_for_supply_chain(db, dry_run=False):
         "dry_run": dry_run,
         "new_connections": ",".join(str(i) for i in new_connections),
         "no_account_links_found": ",".join(str(i) for i in no_account_link_ranchers)
+    }
+    return log
+
+
+def add_default_user_for_partners(db, dry_run=False):
+    partners = Accounts(db).get_partners()
+    log = {}
+    partners_users = []
+    if not dry_run:
+        for partner in partners:
+            try:
+                user_id = Users(db).create_pseudo_user(partner["id"], True)
+                AccountUsers(db).create_account_user(user_id, partner["id"])
+            except Exception:
+                pass
+            else:
+                partners_users.append((partner["id"], user_id))
+    log = {
+        "dry_run": dry_run,
+        "partner_ids_to_user_ids": ",".join(str(i) for i in partners_users)
     }
     return log
 

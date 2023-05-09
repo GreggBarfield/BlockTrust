@@ -32,9 +32,10 @@ def handle(db: Database, insert):
         raise ExecutionException("Time is none")
 
     medical_data = format_data(
-        product=fields["prod_name"],
-        method=fields["admin_rt"],
-        location=fields["loc_name"]
+        product=fields.get("prod_name", None),
+        method=fields.get("admin_rt", None),
+        location=fields.get("loc_name", None),
+        diagnosis=fields.get("diagnosis", None)
     )
 
     if medical_data is None or medical_data == {}:

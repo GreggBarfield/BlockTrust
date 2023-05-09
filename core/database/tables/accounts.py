@@ -5,6 +5,7 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
+ILS_PARTNER_COMPANY = "ILS, Inc."
 
 account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contact_name", "partner_contact_email",
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
@@ -254,7 +255,7 @@ class Accounts:
             is_partner_used_for_signup: Show the partner name on signup page
 
         Returns:
-            An Account object
+            Id of the account created
 
         Raises:
             AccountsException
@@ -293,8 +294,7 @@ class Accounts:
                 "is_partner_used_for_signup": is_partner_used_for_signup
             }
         )
-        partner = self.get_account_by_id(self._db.last_row_id())
-        return partner
+        return self._db.last_row_id()
 
     def get_accounts(self, id=NO_VALUE, company=NO_VALUE, company_like=NO_VALUE, sector=NO_VALUE, sectors=NO_VALUE,
                      is_partner=NO_VALUE, partner_account=NO_VALUE, affiliate_id=NO_VALUE, address=NO_VALUE,
@@ -407,6 +407,40 @@ class Accounts:
         account_rows = self._db.execute_d(query, query_values)
         if len(account_rows) > 0:
             return account_rows
+        else:
+            return []
+
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE):
+        """
+        Get a partner by the values specified.
+
+        Returns:
+            A list of partner row(s) if found else []
+        """
+        # base query
+        base_query = "SELECT * FROM accounts WHERE is_partner = 1"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+
+        if company is not NO_VALUE:
+            query_conditions.append("company = %(company)s")
+            query_values["company"] = company
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " AND " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        partner_rows = self._db.execute_d(query, query_values)
+        if len(partner_rows) > 0:
+            return partner_rows
         else:
             return []
 
@@ -570,7 +604,6 @@ class Accounts:
         query_conditions = []
         query_values = {}
         query_values["id"] = account_id
-        existing_row = None
         if company is not NO_VALUE:
             query_conditions.append("a.company = %(a_company)s")
             query_values["a_company"] = company

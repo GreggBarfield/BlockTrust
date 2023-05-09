@@ -13,7 +13,6 @@ import { SearchSalesGroupsWidget } from './types/sales_groups/search_sales_group
 import { MessagesListWidget } from './types/messages/messages_list_widget.mjs';
 import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_sales_widget.mjs';
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
-import { MatchVisibilitySettingsWidget } from './types/manage_matches_data/match_visibility_settings_widget.mjs';
 import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
 import { PlansWidget } from './types/stripe/plans.mjs';
@@ -37,6 +36,12 @@ import { SustainabilitySummaryWidget } from './types/sustainability/sustainabili
 import { EPDTableWidget } from './types/animal_data/epd_table_widget.mjs';
 import { EditAccountRetailDataWidget } from './types/edit_account/edit_account_retail_data_widget.mjs';
 import { AccountSustainabilityScores } from './types/sustainability/view_account_sustainability_scores.mjs';
+import { TagStoreWidget } from './types/tag-store/tag-store.mjs';
+import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
+import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
+import { CheckoutWidget } from './types/tag-store/checkout.mjs';
+import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
+import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 
 
 // Immediately invoked
@@ -67,7 +72,6 @@ import { AccountSustainabilityScores } from './types/sustainability/view_account
     attach("messages list", MessagesListWidget);
     attach("manage auction sales", ManageAuctionSalesWidget);
     attach("view upcoming auction sales", ViewUpcomingAuctionsWidget);
-    attach("match visibility settings", MatchVisibilitySettingsWidget);
     attach("source summary", SourceSummaryWidget);
     attach("plans", PlansWidget);
     attach("subscribe", SubscribeWidget);
@@ -90,6 +94,12 @@ import { AccountSustainabilityScores } from './types/sustainability/view_account
     attach("epd table", EPDTableWidget);
     attach("edit account retail data", EditAccountRetailDataWidget);
     attach("account sustainability scores", AccountSustainabilityScores);
+    attach("tag store", TagStoreWidget);
+    attach("marketplace", MarketPlaceWidget);
+    attach("partner count distribution", PartnerCountDistributionWidget);
+    attach("checkout", CheckoutWidget);
+    attach("shopping cart", ShoppingCartWidget);
+    attach("invoice", InvoiceWidget);
 
     // Find widgets
     $(".widget").each(function () {

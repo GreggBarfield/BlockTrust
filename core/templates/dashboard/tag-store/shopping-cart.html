@@ -1,0 +1,16 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Shopping Cart" %}
+{% set dashboard_locations = [("/shop/tag-store", "Tag Store"), ("/shop/shopping-cart", "Shopping Cart")] %}
+{% block dashboard_content_header %}
+Shopping Cart
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class = "col-sm-12 mb-0 widget" data-widget-type = "shopping cart"></div>
+    </div>
+</div>
+{% endblock dashboard_content %}

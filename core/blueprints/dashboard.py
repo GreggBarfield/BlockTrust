@@ -3,12 +3,12 @@ from flask import (
 )
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
-from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 
 from ..common_exceptions import ExportException
+from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
@@ -22,6 +22,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
+from core.database.tables.view_logs import DATA_TYPE_ID_TO_NAME, DATA_TYPE_NAME_TO_ID, DATA_TYPE_NAME_TO_ID, ViewLogs
 
 from ..renderers.email import render_email
 
@@ -40,20 +41,16 @@ bp = Blueprint('dashboard_bp', __name__)
 @bp.route('/dashboard/accounts/select/<int:account_id>', methods=['GET'])
 @crut.require_user
 def serve_select_account_id(account_id):
-    auth.session_start_account(account_id)
-    return redirect(url_for("dashboard_bp.serve_dashboard"))
+    auth.load_account(account_id)
+    if g.account.is_partner():
+        return redirect(url_for("partner_bp.serve_dashboard"))
+    else:
+        return redirect(url_for("dashboard_bp.serve_dashboard"))
 
 
 @bp.route('/dashboard', methods=['GET'])
-@crut.require_user
+@crut.require_account
 def serve_dashboard():
-    if g.account is None:
-        account_users = g.db.account_users.get_account_users(user=g.user.id())
-        if len(account_users) == 1:
-            auth.session_start_account(account_users[0]["account"])
-        else:
-            return redirect(url_for("dashboard_bp.serve_accounts"))
-
     # Indicator for unread notifications
     unread_notifications_count = 0
     # Checking if user has unread notifications
@@ -70,7 +67,8 @@ def serve_dashboard():
     account_params = {
         "account": g.account,
         "unread_notifications_count": unread_notifications_count,
-        "pending_connection_requests_count": pending_connection_requests_count
+        "pending_connection_requests_count": pending_connection_requests_count,
+        "animal_URL": url_for('dashboard_bp.serve_animal_eid')
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction House"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
@@ -83,7 +81,7 @@ def serve_dashboard():
 
 @bp.route('/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
-@crut.require_user
+@crut.require_account
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
     available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
@@ -98,13 +96,20 @@ def serve_animal_eid(animal_eid):
         )[0]
         owner_account_id = owner_account_match["account"]
         owner_account_name = owner_account_match["name"]
+        healthtrack_partner = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
+        display_certificate = True if owner_account_match["partner_account"] == healthtrack_partner["id"] else False
+        
         if owner_account_id in available_account_ids:
             if owner_account_id != g.account.id():
-                ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
-                                                viewer_user_id=g.user.id(),
-                                                data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid)
+                ViewLogs(g.db).insert_view_logs(
+                    owner_account_id=owner_account_id, viewer_account_id=g.account.id(),
+                    viewer_user_id=g.user.id(),
+                    data_type_id=DATA_TYPE_NAME_TO_ID["EID"], eid=animal_eid
+                )
 
-            return dashboard_render("animals/animal.html", {"animal": animal, "account_name": owner_account_name})
+            return dashboard_render("animals/animal.html", {
+                "animal": animal, "account_name": owner_account_name, "display_certificate": display_certificate
+            })
         else:
             return dashboard_render("animals/animal_not_found.html", {"eid": animal_eid})
     else:
@@ -404,24 +409,20 @@ def serve_invite_user():
             user_email = request.form["email"]
             if g.db.users.get_by_email(user_email) is not None:
                 raise ExportException("A user with that email already exists!")
-            current_account = g.account.name()
-            current_account_id = g.account.id()
-            invite_object = {"user_email": user_email, "current_account": current_account, "current_account_id": current_account_id}
-            invite_string = str(invite_object)
-            # Generating token identifier with account and user email informatiom
-            userToken = token.generateConfirmationToken(invite_string)
-            # Creating URL for user to join an account
-            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_add_user', invite_token=userToken)
+
+            confirm_url = token.create_user_invitation_link(user_email, g.account.id(), int(False))
             # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
             send_email(
                 "BlockTrust Network Account Invite",
                 render_email("invite_user.html", {
                     'confirm_url': confirm_url,
-                    'account_company': g.account.company(),
-                    'user_name': g.user.first_name() + " " + g.user.last_name()
+                    'account_name': g.account.name()
                 }), user_email
             )
-            InvitedUsers(g.db).insert_invited_user(user_email, g.user.id(), 0, 0)
+            employee_id = g.employee_id if "employee_id" in g else None
+            InvitedUsers(g.db).insert_invited_user(
+                email=user_email, invited_by_user_id=g.user.id(), invited_by_employee_id=employee_id
+            )
             return {"redirect": url_for("dashboard_bp.serve_dashboard")}
         except ExportException as e:
             return {"error": str(e)}, 400
@@ -649,3 +650,8 @@ def serve_view_account_sustainability_data(account_id):
     account_data = g.db.accounts.get_accounts(id=account_id)
     account_name = account_data[0]["name"] if len(account_data) > 0 else "N/A"
     return dashboard_render("sustainability/view_account_sustainability_scores.html", {"account_id": account_id, "account_name": account_name})
+
+@bp.route("/dashboard/marketplace", methods=["GET"])
+@crut.require_account
+def serve_marketplace():
+    return dashboard_render("marketplace/marketplace.html")

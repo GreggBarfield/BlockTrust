@@ -3,6 +3,7 @@ from flask import (
 )
 from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
+from core.database.tables.animals import Animals
 from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
@@ -12,6 +13,7 @@ from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
+from core.utilities.general_utilities import str_to_bool
 import json
 from datetime import datetime
 from traceback import format_exc
@@ -36,7 +38,7 @@ def serve_get_animal_data():
             raise ExportException("Bad request")
         eid = request_data["eid"]
         token = request_data["token"]
-        dry_run = bool(request_data.get("dry_run"))
+        dry_run = str_to_bool(request_data.get("dry_run", False))
 
         requesting_account_list = g.db.accounts.get_accounts(token=token)
         if len(requesting_account_list) == 0:
@@ -50,12 +52,9 @@ def serve_get_animal_data():
 
         birth_date = None
         visual_id = None
-        birth_weight = None
-        description = None
         hot_weight = None
         yield_grade = None
         quality_grade = None
-        sex = None
         creep_feed = None
         first_14_day_feed_method = None
         marketing_date = None
@@ -86,11 +85,12 @@ def serve_get_animal_data():
                             from_account_id=authenticated_account["id"],
                             to_account_id=owner_account_id,
                             status=CONNECTION_STATUS_NAME_TO_ID["Pending"],
-                            connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
+                            connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"],
+                            details={"eid": eid, "created_by_operation": serve_get_animal_data.__name__}
                     )
                     send_connection_request_email_to_admin_users(g.db, owner_account_id, authenticated_account["id"])
                 else:
-                    return {"dry_run": f"Connection doesn't exist between {authenticated_account['id']} and {owner_account_id}"}
+                    return {"dry_run": f"Connection doesn't exist between {authenticated_account['name']} and {owner_account_link_and_match['name']}"}
                 return {"error": unauthorized_message}, 401
             elif existing_connection["connection_status_id"] != CONNECTION_STATUS_NAME_TO_ID["Connected"]:
                 return {"error": unauthorized_message}, 401
@@ -99,14 +99,22 @@ def serve_get_animal_data():
             if len(match_birth_date_row) > 0:
                 birth_date = datetime.utcfromtimestamp(match_birth_date_row[0]['time']).strftime('%Y-%m-%d %H:%M:%S')
 
-            if owner_account_link_and_match["data"] is not None:
-                data = json.loads(owner_account_link_and_match["data"])
-                birth_weight = data.get("birth_weight", None)
-                description = data.get("description", None)
-                sex = data.get("sex", None)
             visual_id = owner_account_link_and_match["visual_id"]
             if owner_account_link_and_match["debug"] is not None:
                 zip_code = json.loads(owner_account_link_and_match["debug"]).get("zip", None)
+
+            if len(animal := Animals(g.db).get_animals(eid=eid)) > 0:
+                animal = animal[0]
+                animal_table_data = {
+                    ''.join((k if i == 0 else k.capitalize()) for i, k in enumerate(key.split('_'))): value
+                    for key, value in animal.items() if ("id" not in key and "timestamp" not in key)
+                }
+            else:
+                animal = Animals(g.db).get_animals()[0]
+                animal_table_data = {
+                    ''.join((k if i == 0 else k.capitalize()) for i, k in enumerate(key.split('_'))): None
+                    for key in animal if ("id" not in key and "timestamp" not in key)
+                }
 
             sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=owner_account_id)
             if len(sustainability_responses) > 0:
@@ -125,7 +133,7 @@ def serve_get_animal_data():
                 owner_account_link_and_match = match_wean_row[0]
                 wean_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = json.loads(owner_account_link_and_match["data"])
+                    data = owner_account_link_and_match["data"]
                     creep_feed = data.get("creep_feed", None)
                     first_14_day_feed_method = data.get("first_14_method", None)
                     second_31_day_feed_method = data.get("second_31_method", None)
@@ -133,12 +141,12 @@ def serve_get_animal_data():
                     wean_weight = data.get("wean_weight", None)
 
             match_sold_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Sold"])
-            if len(match_sold_row) > 0:        
+            if len(match_sold_row) > 0:
                 owner_account_link_and_match = match_sold_row[0]
                 if owner_account_link_and_match['time'] is not None:
                     marketing_date = datetime.utcfromtimestamp(owner_account_link_and_match['time']).strftime('%Y-%m-%d %H:%M:%S')
                 if owner_account_link_and_match["data"] is not None:
-                    data = json.loads(owner_account_link_and_match["data"])
+                    data = owner_account_link_and_match["data"]
                     marketing_method_name = data.get("method", None)
                     sale_location = data.get("location", None)
                     number_of_calves = data.get("group_size", None)
@@ -149,16 +157,14 @@ def serve_get_animal_data():
 
             match_quality_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"])
             if len(match_quality_row) > 0:
-                quality_grade = match_quality_row[0]['data']
+                quality_grade = match_quality_row[0]['data'].strip('"')
 
             match_yield_row = g.db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])
             if len(match_yield_row) > 0:
                 yield_grade = match_yield_row[0]['data']
 
-            animal_data = {
+            result = {
                 "birthDate": birth_date,
-                "birthWeight": birth_weight,
-                "calfDescription": description,
                 "creepFeed": creep_feed,
                 "electronicID": eid,
                 "first14DayFeedMethod": first_14_day_feed_method,
@@ -169,7 +175,6 @@ def serve_get_animal_data():
                 "numberOfCalves": number_of_calves,
                 "saleLocation": sale_location,
                 "second31DayFeedMethod": second_31_day_feed_method,
-                "sex": sex,
                 "visualID": visual_id,
                 "weanDate": wean_date,
                 "weanWeight": wean_weight,
@@ -178,6 +183,7 @@ def serve_get_animal_data():
                 "zipCode": zip_code,
                 "sustainabilityScores": sustainability if sustainability != {} else None
             }
+            result.update(animal_table_data)
 
             if not dry_run:
                 ViewLogs(g.db).insert_view_logs(owner_account_id=owner_account_id, viewer_account_id=authenticated_account["id"],
@@ -188,7 +194,7 @@ def serve_get_animal_data():
                                                     data_type_id=DATA_TYPE_NAME_TO_ID["Sustainability Score"],
                                                     sustainability_response_id=latest_response["id"])
 
-                return animal_data
+                return result
             else:
                 return {"dry_run": "Data fetched successfully"}
     except ExportException as e:

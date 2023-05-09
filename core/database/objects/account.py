@@ -66,6 +66,9 @@ class Account:
 
     def zip(self):
         return self._row['zip']
+    
+    def is_partner(self):
+        return self._row['is_partner']
 
     def phone(self):
         return self._row['phone']

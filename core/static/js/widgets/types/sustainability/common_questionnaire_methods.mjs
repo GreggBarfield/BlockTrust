@@ -1,5 +1,5 @@
 import { FileUploader } from "../../../files/file_uploader.mjs";
-import { resourcesLink } from "../../../core/sustainability_constants.mjs";
+import { resourcesLink } from "../../utilities/sustainability_constants.mjs";
 
 export class CommonQuestionnaireMethods{
     /**
