@@ -1893,22 +1893,22 @@ ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
 CREATE TABLE `transactions` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `transaction_type_id` INT NULL,
-  `purchasing_partner_id` INT NULL,
-  `subscription_credits_purchased` INT NULL,
+  `account_id` INT NULL,
+  `subscription_credits` INT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
 ALTER TABLE `transactions` 
-ADD INDEX `fk_transactions_purchasing_partner_id_id_accounts_idx` (`purchasing_partner_id` ASC) VISIBLE;
+ADD INDEX `fk_transactions_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
 ALTER TABLE `transactions` 
-ADD CONSTRAINT `fk_transactions_purchasing_partner_id_id_accounts`
-  FOREIGN KEY (`purchasing_partner_id`)
+ADD CONSTRAINT `fk_transactions_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
 ALTER TABLE `accounts` 
 ADD COLUMN `partner_paid` TINYINT(1) NULL DEFAULT 0 AFTER `manual_paid`,
-ADD COLUMN `partner_remaining_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`,
+ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`,
 CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid` + `partner_paid`),1,0)) VIRTUAL ;
