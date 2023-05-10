@@ -1888,3 +1888,6 @@ ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
 /* Rohan Sureshkumar 27/4/23 */
 ALTER TABLE `animals` 
 ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
+
+/* Nisheet Thakur 05/10/2023 */
+ALTER TABLE `advertisements` ALTER COLUMN `is_archived` SET DEFAULT 0;
