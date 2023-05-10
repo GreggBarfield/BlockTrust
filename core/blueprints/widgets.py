@@ -842,7 +842,7 @@ def serve_get_existing_sustainability_responses():
     }
 
 
-@bp.route('/widgets/data/get_advertisements', methods=["POSt"])
+@bp.route('/widgets/data/get_advertisements', methods=["POST"])
 @crut.require_account
 def serve_get_advertisements():
     advertisements = Advertisements(g.db).get(is_archived=0)
