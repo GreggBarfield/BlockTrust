@@ -3,7 +3,7 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 
 
-class Advertisements:
+class AdvertisementComapnies:
 
     def __init__(self, db):
         self._db = db
@@ -27,7 +27,7 @@ class Advertisements:
         """
         self._db.execute(
             """
-            INSERT INTO advertisements (name, email, contact_name, address, city,
+            INSERT INTO advertisement_companies (name, email, contact_name, address, city,
             state, zip_code, phone, integrated_with_blocktrust, logo_file_id)
             VALUES (%(name)s, %(email)s, %(contact_name)s, %(address)s, %(city)s,%(state)s,
             %(zip_code)s, %(phone)s, %(integrated_with_blocktrust)s, %(logo_file_id)s)
@@ -136,7 +136,7 @@ class Advertisements:
             integrated_with_blocktrust: Flag indicating if account is integrated with BlockTrust Network
             logo_file_id: File ID of uploaded company logo file
         """
-        base_query = "UPDATE advertisement_company"
+        base_query = "UPDATE advertisement_companies"
 
         query_conditions = []
         query_values = {}

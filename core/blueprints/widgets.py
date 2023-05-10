@@ -10,6 +10,8 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import send_connection_request_email_to_admin_users
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from ..database.tables.advertisement_companies import AdvertisementComapnies
+from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
@@ -838,3 +840,42 @@ def serve_get_existing_sustainability_responses():
         "sustainability_responses": sustainability_responses,
         "sustainability_response_uploaded_files": sustainability_response_uploaded_files
     }
+
+
+@bp.route('/widgets/data/get_advertisement_companies_and_categories', methods=["POST"])
+@crut.require_employee
+def serve_get_advertising_companies():
+    advertisement_companies = AdvertisementComapnies(g.db).get()
+    return {
+        "advertisement_companies": advertisement_companies,
+        "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+    }
+
+
+@bp.route('/widgets/data/save_new_advertisement', methods=["POST"])
+@crut.require_employee
+def serve_save_new_advertisement():
+    Advertisements(g.db).insert(
+        ad_company_id=request.form["ad_company_id"],
+        ad_category_id=request.form["ad_category_id"],
+        short_description=request.form["short_description"],
+        long_description=request.form["long_description"]
+    )
+    return {"redirect": "/employee/dashboard"}
+
+
+@bp.route('/widgets/data/save_new_advertisement_company', methods=["POST"])
+@crut.require_employee
+def serve_save_new_advertisement_company():
+    AdvertisementComapnies(g.db).insert(
+        name=request.form["name"],
+        email=request.form["email"],
+        contact_name=request.form["contact_name"],
+        address=request.form["address"],
+        city=request.form["city"],
+        state=request.form["state"],
+        zip_code=request.form["zip_code"],
+        phone=request.form["phone"],
+        integrated_with_blocktrust=request.form["integrated_with_blocktrust"]
+    )
+    return {"redirect": "/employee/dashboard"}

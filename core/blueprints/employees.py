@@ -536,3 +536,13 @@ def serve_tag_store_reports():
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
     })
+
+
+@bp.route("/employee/dashboard/add-advertisement", methods=["GET"])
+def serve_add_advertisement():
+    return employee_render("/employee/marketplace/add-advertisement.html")
+
+
+@bp.route("/employee/dashboard/add-advertisement-company", methods=["GET"])
+def serve_add_advertising_company():
+    return employee_render("/employee/marketplace/add-advertisement-company.html")
