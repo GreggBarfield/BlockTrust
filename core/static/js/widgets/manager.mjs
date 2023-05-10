@@ -43,6 +43,7 @@ import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
 import { AddAdvertisementWidget } from './types/employee/marketplace/add-advertisement.mjs';
 import { AddAdvertisementCompanyWidget } from './types/employee/marketplace/add-advertisement-company.mjs';
+import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 
 
 // Immediately invoked
@@ -102,6 +103,7 @@ import { AddAdvertisementCompanyWidget } from './types/employee/marketplace/add-
     attach("shopping cart", ShoppingCartWidget);
     attach("add advertisement", AddAdvertisementWidget);
     attach("add advertisement company", AddAdvertisementCompanyWidget);
+    attach("invoice", InvoiceWidget);
 
     // Find widgets
     $(".widget").each(function () {

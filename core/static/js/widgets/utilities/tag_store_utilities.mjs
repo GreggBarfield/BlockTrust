@@ -122,10 +122,71 @@ const generateRemoveProductButton = (product_id) =>{
     return removeButton;
 }
 
+const makeShoppingCartTable = (includeRemoveProductButton) =>{
+    let shoppingCartTable = document.createElement("table");
+    shoppingCartTable.className = "table table-striped";
+    let shoppingCartTableHead = document.createElement("thead");
+    shoppingCartTableHead.className = "thead thead-primary";
+    let shoppingCartTableHeadRow = document.createElement("tr");
+    let shoppingCartHeaderElements = ["PRODUCT", "QUANTITY", "PRICE", "TOTAL"];
+    if(includeRemoveProductButton){
+        shoppingCartHeaderElements = ["PRODUCT", "QUANTITY", "PRICE", "TOTAL", ""];
+    }  
+    for(let headerElement of shoppingCartHeaderElements){
+        let headerCell = generateTableCell(headerElement, "th", "h5");
+        shoppingCartTableHeadRow.appendChild(headerCell);
+    }
+    shoppingCartTableHead.append(shoppingCartTableHeadRow);
+    shoppingCartTable.append(shoppingCartTableHead);
+
+    let shoppingCartTableBody = document.createElement("tbody"); 
+    let shoppingCartString = localStorage.getItem("shoppingCart");
+    let shoppingCart = JSON.parse(shoppingCartString);
+    if(shoppingCart == null){
+        window.location.href = "/shop/tag-store";
+        return;
+    }
+    for(let productData of Object.values(shoppingCart)){
+        let shoppingCartTableProductRow = makeShoppingCartTableProductRow(productData, includeRemoveProductButton);
+        shoppingCartTableBody.append(shoppingCartTableProductRow);
+    }
+    shoppingCartTable.append(shoppingCartTableBody);
+    return shoppingCartTable;
+}
+
+const makeShoppingCartTableProductRow = (productData, includeRemoveProductButton) =>{
+    let tableProductRow = document.createElement("tr");
+
+    let productNameCell = generateTableCell(productData.product_name, "td", "h6");
+    tableProductRow.append(productNameCell);
+    let productQuantityCell = generateTableCell(productData.product_quantity+" "+productData.product_units, "td", "h6");
+    tableProductRow.append(productQuantityCell);
+    let productPriceCell = generateTableCell("$" + productData.product_price, "td", "h6");
+    tableProductRow.append(productPriceCell);
+    let productTotalCell = generateTableCell("$" + productData.product_price * productData.product_quantity, "td", "h6");
+    tableProductRow.append(productTotalCell);
+    if(includeRemoveProductButton){
+        let removeProductButtonCell = document.createElement("td");
+        let removeProductButton = generateRemoveProductButton(productData.product_id);
+        removeProductButtonCell.append(removeProductButton);
+        tableProductRow.append(removeProductButtonCell);
+    }
+    return tableProductRow;
+}
+
+const generateTableCell = (cellText, cellType, textSize) =>{
+    let tableCell = document.createElement(cellType);
+    let tableCellText = document.createElement(textSize);
+    tableCellText.textContent = cellText;
+    tableCell.appendChild(tableCellText);
+    return tableCell;
+}
+
 export {
     updateShoppingCartTotalsInLocalStorage,
     makeShoppingCartTotalsContainer,
     getShoppingCartTotalsData,
     generateButtonLink,
-    generateRemoveProductButton
+    generateRemoveProductButton,
+    makeShoppingCartTable
 };
