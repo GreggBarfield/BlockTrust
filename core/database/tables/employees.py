@@ -151,8 +151,8 @@ class Employees:
         # and be no more than 60 characters in UTF-8
         # and can't contain the null byte when in UTF-8
 
-        if len(password) < 10:
-            raise EmployeesException("Password must be at least 10 characters.")
+        if len(password) < 8:
+            raise EmployeesException("Password must be at least 8 characters.")
 
         if len(password.encode("utf-8")) > 60:
             raise EmployeesException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
