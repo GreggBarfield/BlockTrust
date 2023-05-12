@@ -298,11 +298,12 @@ def serve_view_partners():
     partner_and_partner_users = []
     for partner in partner_rows:
         partner['company'] = partner['company'].upper()
-        generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
-        if generated_user:
-            user = Users(g.db).get_users(generated_user['user'])[0]
-            partner["user_name"] = user["first_name"] + " " + user["last_name"]
-            partner["user_id"] = user["id"]
+        if len(AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))) > 0:
+            generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
+            if generated_user:
+                user = Users(g.db).get_users(generated_user['user'])[0]
+                partner["user_name"] = user["first_name"] + " " + user["last_name"]
+                partner["user_id"] = user["id"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
@@ -536,3 +537,8 @@ def serve_tag_store_reports():
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
     })
+
+
+@bp.route("/employee/dashboard/edit-partner/upload-ranch-saccounts/<int:partner_id>", methods=["GET"])
+def serve_upload_ranch_accounts(partner_id):
+    return employee_render("/employee/accounts/upload-ranch-accounts.html", {"partner_id": partner_id})
