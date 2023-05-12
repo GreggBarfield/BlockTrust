@@ -5,26 +5,26 @@ export class PartnerCountDistributionWidget extends Widget {
         super(frame);
     }
 
-    initType() {
-            this.getData(
-                "data_request",
-                {
-                    request: { 
-                        type: "count_distribution",
-                        params: {}
-                    }
-                }
-            ).then((data) => {
-                let accountSummaryData = data.result.count_distribution !== null ? data.result.count_distribution: {};
-                this.frame.innerHTML = "";
-                let container = this.makeTableContainer(accountSummaryData);
-                this.frame.appendChild(container);
-            })
-        
-
+    initType = async() =>{
+        let accountSummaryDataResult = await this.getData("data_request", {request: {type: "count_distribution", params: {}}});
+        let accountSummaryData = accountSummaryDataResult.result.count_distribution !== null ? accountSummaryDataResult.result.count_distribution: {};
+        let ranchAccountIds = this.formatDataToGetRanchAccountIds(accountSummaryData);
+        let sustainabilitySurveyStatusForAccountsData = await this.getData("get_sustainability_survey_status_for_accounts", {"account_ids": ranchAccountIds});
+        let sustainabilitySurveyStatusForAccounts = sustainabilitySurveyStatusForAccountsData.sustainability_survey_completion_status_for_accounts;
+        this.frame.innerHTML = "";
+        let container = this.makeTableContainer(accountSummaryData, sustainabilitySurveyStatusForAccounts);
+        this.frame.appendChild(container);
     }
 
-    makeTableContainer = (distributionData) => {
+    formatDataToGetRanchAccountIds = (accountSummaryData) =>{
+        let accountIds = []
+        for(let accountData of Object.values(accountSummaryData)){
+            accountIds.push(accountData.account_id);
+        }
+        return accountIds;
+    }
+
+    makeTableContainer = (distributionData, sustainabilitySurveyStatusForAccounts) => {
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
 
@@ -77,9 +77,14 @@ export class PartnerCountDistributionWidget extends Widget {
             Object.values(qualityDistribution).forEach(total => dataCount+=total);
             let sustainabilityScoreLink = document.createElement('a');
             sustainabilityScoreLink.href = this.frame.getAttribute("data-widget-view-scores-URL") + data.account_id.toString();
-            sustainabilityScoreLink.text = "View Score";
+            sustainabilityScoreLink.text = "View Score  ";
             sustainabilityScoreLink.target = "_blank";
             sustainabilityScoreLink.classList.add("btn", "btn-link");
+            if(sustainabilitySurveyStatusForAccounts[data["account_id"]] == true){
+                let surveyCompletionIcon = document.createElement("i");
+                surveyCompletionIcon.className = "fas fa-check text-success";
+                sustainabilityScoreLink.appendChild(surveyCompletionIcon);
+            }
             row.push(sustainabilityScoreLink)
             if (dataCount){
                 row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/dataCount : 0).toFixed(2)+"%");

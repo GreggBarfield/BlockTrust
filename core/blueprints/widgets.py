@@ -838,3 +838,12 @@ def serve_get_existing_sustainability_responses():
         "sustainability_responses": sustainability_responses,
         "sustainability_response_uploaded_files": sustainability_response_uploaded_files
     }
+
+
+@bp.route('/widgets/data/get_sustainability_survey_status_for_accounts', methods=["POST"])
+def serve_get_susatainability_survey_status_for_accounts():
+    sustainability_survey_completion_status_for_accounts = {}
+    for account_id in request.json["account_ids"]:
+        completed_sustainability_surveys = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_id, questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
+        sustainability_survey_completion_status_for_accounts[account_id] = True if len(completed_sustainability_surveys) > 0 else False
+    return {"sustainability_survey_completion_status_for_accounts": sustainability_survey_completion_status_for_accounts}
