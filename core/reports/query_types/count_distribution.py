@@ -1,3 +1,4 @@
+from ...database.tables.sustainability_responses import QUESTIONNAIRE_STATUS_NAMES_TO_IDS, SustainabilityResponses
 from ...match_types import MATCH_TYPES_NAME_TO_ID
 
 
@@ -20,11 +21,19 @@ def execute(db, query):
     else:
         partner_account_links = db.account_links.get_account_links(partner_account=params['account'],
                                                                    account_is_not_null=True)
-        return {
-            "count_distribution": db.matches.get_count_distribution(
+        count_distribution = db.matches.get_count_distribution(
                 is_partner=True,
                 partner_account_links=partner_account_links
+        )
+
+        for result in count_distribution.values():
+            completed_sustainability_surveys = SustainabilityResponses(db).get_sustainability_responses(
+                account_id=result['account_id'], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
             )
+            result["survey_completed"] = True if len(completed_sustainability_surveys) > 0 else False
+
+        return {
+            "count_distribution": count_distribution
         }
 
 
