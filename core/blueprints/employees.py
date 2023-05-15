@@ -24,6 +24,7 @@ from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
+from ..utilities.aws_utilities import download_file
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -539,6 +540,14 @@ def serve_tag_store_reports():
     })
 
 
-@bp.route("/employee/dashboard/edit-partner/upload-ranch-saccounts/<int:partner_id>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET"])
+@crut.require_employee
 def serve_upload_ranch_accounts(partner_id):
     return employee_render("/employee/accounts/upload-ranch-accounts.html", {"partner_id": partner_id})
+
+
+@bp.route("/employee/upload-accounts-for-partner", methods=["POST"])
+@crut.require_employee
+def serve_upload_ranch_accounts_test():
+    print(request.form)
+    return {}
