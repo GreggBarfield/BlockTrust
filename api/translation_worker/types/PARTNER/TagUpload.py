@@ -6,7 +6,7 @@ from ...exceptions import ExecutionException
 
 def _check_required(insert):
     keys = [
-        "eid"
+        "eid", "affiliate_id"
     ]
     for key in keys:
         if key not in insert['fields']:
@@ -14,23 +14,8 @@ def _check_required(insert):
 
 
 def handle(db, insert):
-    """Handle a individual insert from the owner of an account (rancher).
-
-    Currently processing fields like
-        {
-            "eid": "982000423956846",
-            "visual_id": "ABCDE",
-            "breed": "Red Baldy",
-            "birth_date": "12/1/2022",
-            "birth_weight": "55",
-            "calf_reg_no": "812311",
-            "sire_reg_no": "534311",
-            "wean_date": "12/30/2022",
-            "wean_weight": "300",
-            "creep_feed": "Yes",
-            "sex": "S",
-            "implants": "Yes"
-        }
+    """
+    Handle a individual insert from a partner.
     """
     _check_required(insert)
 
