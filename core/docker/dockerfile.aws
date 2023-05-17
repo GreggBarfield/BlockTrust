@@ -16,7 +16,11 @@ RUN python3 -m pip install -r requirements.txt
 
 WORKDIR /home/ubuntu/blocktrust
 RUN apt-get update
-RUN apt install nodejs npm -y
+RUN apt-get -y install curl gnupg
+RUN curl -sL https://deb.nodesource.com/setup_12.x  | bash -
+RUN apt-get -y install nodejs
+RUN node -v
+RUN npm -v
 COPY core/docker/webpack/package.json .
 RUN npm install
 
