@@ -80,6 +80,11 @@ export class PartnerCountDistributionWidget extends Widget {
             sustainabilityScoreLink.text = "View Score";
             sustainabilityScoreLink.target = "_blank";
             sustainabilityScoreLink.classList.add("btn", "btn-link");
+            if(data["survey_completed"]){
+                let surveyCompletionIcon = document.createElement("i");
+                surveyCompletionIcon.className = "fas fa-check text-success ml-2";
+                sustainabilityScoreLink.appendChild(surveyCompletionIcon);
+            }
             row.push(sustainabilityScoreLink)
             if (dataCount){
                 row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/dataCount : 0).toFixed(2)+"%");
