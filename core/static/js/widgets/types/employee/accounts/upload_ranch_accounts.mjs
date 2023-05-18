@@ -21,7 +21,7 @@ export class UploadRanchAccountsWidget extends Widget {
         cardHeader.className = "card-header p-1";
         let cardHeaderText = document.createElement("h5");
         cardHeaderText.className = "mt-2 p-2";
-        cardHeaderText.textContent = "UPLOAD RANCH ACCOUNTS FOR ACCOUNT " + partnerId;
+        cardHeaderText.textContent = "UPLOAD RANCH ACCOUNTS FOR ACCOUNT " + partnerId + " (CSV format only)";
         cardHeader.append(cardHeaderText);
         uploadRanchAccountsContainer.append(cardHeader);
 
@@ -36,7 +36,6 @@ export class UploadRanchAccountsWidget extends Widget {
         uploadInput.type = "file";
         uploadInput.multiple = false;
         uploadInput.required = true;
-        uploadInput.name = "upload_input";
         uploadInputContainer.append(uploadInput);
         form.append(uploadInputContainer);
         

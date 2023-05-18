@@ -568,7 +568,7 @@ def serve_upload_ranch_accounts_test():
             if affiliate_id and affiliate_id.isdigit():
                 affiliate_id = int(affiliate_id)
             sector, phone = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
-            user = Users(g.db).create_user(
+            user = Users(g.db).validate_and_insert_user(
                 username=required["email"],
                 password=DEFAULT_USER_PASSWORD,
                 confirm_password=DEFAULT_USER_PASSWORD,
