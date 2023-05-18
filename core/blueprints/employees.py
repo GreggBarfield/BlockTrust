@@ -110,8 +110,8 @@ def serve_add_new_employee():
 def serve_add_new_employee_action():
     try:
         required = {
-            'first_name': None, 'last_name': None, 'phone': None, 'username': None,
-            'email': None, 'password': None, 'confirm_password': None
+            'first_name': None, 'last_name': None, 'email': None,
+            'username': None, 'password': None, 'confirm_password': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -124,7 +124,7 @@ def serve_add_new_employee_action():
                 last_name=required['last_name'],
                 username=required['username'],
                 email=required['email'],
-                phone=required['phone'],
+                phone=request.form.get('phone', None),
                 password=required['password'],
                 confirm_password=required['confirm_password']
             )

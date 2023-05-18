@@ -23,7 +23,7 @@ def respond(code, short, exception=None):
         short: the short reason
     """
 
-    if 'api' in g:
+    if request.method == 'POST':
         # Return as an api response
         return {
             'error': short,

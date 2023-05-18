@@ -127,6 +127,11 @@ select.form-control-lg:not([size]):not([multiple]) {
     }
 }
 
+.form-group.required label:after { 
+    content:" *";
+    color:red;
+}
+
 /*.form-group.d-inline {
     +.form-group.d-inline{
         .radio:not(.radio-fill) input[type=radio] + .cr:after{
