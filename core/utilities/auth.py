@@ -184,7 +184,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         affiliate_id = int(affiliate_id)
     sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
-    user = g.db.users.create_user(
+    user = g.db.users.validate_and_insert_user(
         username=username,
         password=password,
         confirm_password=confirm_password,
@@ -561,7 +561,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
     confirm_password = Users._format_field(confirm_password)
     email_validation = validate_email(email)
     if email_validation["success"]:
-        user = g.db.users.create_user(
+        user = g.db.users.validate_and_insert_user(
             username=username,
             password=password,
             confirm_password=confirm_password,
