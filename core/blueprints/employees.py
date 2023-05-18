@@ -3,10 +3,11 @@ from flask import (
 )
 
 from ..blueprints.stripe import serve_stripe_price
-from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE, DEFAULT_USER_PASSWORD
 from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
+from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -24,7 +25,6 @@ from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
-from ..utilities.aws_utilities import download_file
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -549,5 +549,52 @@ def serve_upload_ranch_accounts(partner_id):
 @bp.route("/employee/upload-accounts-for-partner", methods=["POST"])
 @crut.require_employee
 def serve_upload_ranch_accounts_test():
-    print(request.form)
-    return {}
+    try:
+        partner_id = request.json["partner_id"]
+        accounts_data = request.json["accounts_data"]
+        for account_data in accounts_data:
+            required = {"ranch_name": None, "first_name": None, "last_name": None, "sector": None, "phone": None, 
+                        "address": None, "city": None, "state": None, "affiliate_id": None, "zip_code": None, "email": None}
+            for required_field in required:
+                if required_field not in account_data:
+                    raise ExportException("internal error, {} missing from form".format(required_field))
+                required[required_field] = account_data[required_field]
+                if len(required[required_field].strip()) == 0:
+                    raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+            phone = format_field(account_data['phone'])
+            partner = format_field(partner_id)
+            affiliate_id = format_field(account_data["affiliate_id"])
+            sector = SECTORS_NAME_TO_ID[format_field(required["sector"])]
+            if affiliate_id and affiliate_id.isdigit():
+                affiliate_id = int(affiliate_id)
+            sector, phone = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
+            user = Users(g.db).create_user(
+                username=required["email"],
+                password=DEFAULT_USER_PASSWORD,
+                confirm_password=DEFAULT_USER_PASSWORD,
+                email=required["email"],
+                first_name=required["first_name"],
+                last_name=required["last_name"],
+                phone=required["phone"],
+                email_verified=1
+            )
+            account_object = Accounts(g.db).create_account_with_admin(
+                user=user,
+                company=required["ranch_name"],
+                sector=sector,
+                partner=partner,
+                affiliate_id=affiliate_id,
+                address=required["address"],
+                city=required["city"],
+                state=required["state"],
+                zip=required["zip_code"],
+                phone=required["phone"]
+            )
+            Accounts(g.db).update_account(account_id=account_object.id(), manual_paid=1)
+            ConnectionInvites(g.db).convert_invites_to_connections(required["email"], account_object)
+
+            perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
+                                        event_type_id=event_type_by_name["Signup By Employee"], sector_id=account_object.sector_id())
+        return {"redirect": "/employee/dashboard/view-partners"}
+    except (ExportException, AccountsException, UsersException, ValueError) as e:
+        return {"error": str(e)}, 400

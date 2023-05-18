@@ -28,14 +28,15 @@ export class UploadRanchAccountsWidget extends Widget {
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row d-block";
 
-        let form = document.createElement("form");
+        let form  = document.createElement("form");
 
         let uploadInputContainer  = document.createElement("div");
         uploadInputContainer.className = "col-md-6 m-3 p-3";
         let uploadInput = document.createElement("input");
         uploadInput.type = "file";
         uploadInput.multiple = false;
-        uploadInput.size = "60";
+        uploadInput.required = true;
+        uploadInput.name = "upload_input";
         uploadInputContainer.append(uploadInput);
         form.append(uploadInputContainer);
         
@@ -45,32 +46,60 @@ export class UploadRanchAccountsWidget extends Widget {
         form.append(uploadAccountsButton);
 
         let statusMessage = document.createElement("p");
+        statusMessage.className = "mt-2 mb-0";
         form.append(statusMessage);
         let errorMessage = document.createElement("p");
+        errorMessage.className = "mt-2 mb-0";
         form.append(errorMessage);
 
-        uploadAccountsButton.onclick = async() =>{
-            let uploadAccountsForm = new AsyncForm({
-                action: "/employee/upload-accounts-for-partner",
-                form: form,
-                status: statusMessage,
-                error: errorMessage,
-                redirectMessage: "Saved!",
-                loadingMessage: "Saving...",
-                getData: () => {
-                    return {
-                        partner_id: partnerId,
-                        file: uploadInput.files[0]
-                    };
-                }
-            });
-            if(uploadInput.files.length() > 0){
-                uploadAccountsForm.submit();
+        let uploadAccountsForm = new AsyncForm({
+            action: "/employee/upload-accounts-for-partner",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            asJSON: true,
+            getData: () => {
+                return {
+                    partner_id: partnerId,
+                    accounts_data: accountsData
+                };
             }
-        }
-
+        });
         cardBody.append(form);
         uploadRanchAccountsContainer.append(cardBody);
+
+        let accountsData = [];
+        uploadAccountsButton.onclick = (e) =>{
+            e.preventDefault();
+            let uploadedFiles = uploadInput.files;
+            if(Object.entries(uploadedFiles).length > 0){
+                let uploadedFile = uploadedFiles[0];
+                
+                var reader = new FileReader();
+                reader.readAsText(uploadedFile);
+                reader.onload = (event) =>{
+
+                    let textData = event.target.result;
+                    let allTextLines = textData.split(/\r\n|\n/);
+                    let headers = allTextLines[0].split(',');
+
+                    for(let i=1; i<allTextLines.length; i++){
+                        let textLine = allTextLines[i];
+                        let data = textLine.split(',');
+                        if(data.length === headers.length){
+                            let accountObject = {};
+                            for(let j=0; j<headers.length; j++){
+                                accountObject[headers[j]] = data[j];
+                            }
+                            accountsData.push(accountObject);
+                        }
+                    }
+                    uploadAccountsForm.submit();
+                }
+            }
+        }
         return uploadRanchAccountsContainer;
     }
 }
