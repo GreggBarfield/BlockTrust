@@ -103,6 +103,10 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
             # update weaned obj, weaned date, partner_account and api_insert
             previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
             previous_api_inserts.append(matches[0]["api_insert"])
+            if existing_weaned_obj := matches[0]["data"]:
+                for k, v in existing_weaned_obj.items():
+                    if k not in weaned_object:
+                        weaned_object[k] = v
             db.matches.update_match(
                 id=matches[0]["id"],
                 time=wean_date,

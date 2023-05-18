@@ -3,7 +3,7 @@ from flask import (
 )
 from itsdangerous import BadData, URLSafeTimedSerializer
 from ..config import EMAIL_TOKEN_SALT, EMAIL_SECRET_KEY, ROOT
-from ..common_exceptions import ExportException
+from ..utilities.constants import SECONDS_IN_ONE_DAY
 
 """
 EMAIL_TOKEN_SALT and EMAIL_SECRET_KEY can be changed in core/environment_config.json
@@ -21,20 +21,16 @@ Confirming if the token is valid and setting an expiration of 1 hour
 """
 
 
-def confirmToken(token, expiration=86400):
+def confirmToken(token, expiration=SECONDS_IN_ONE_DAY):
     try:
         serializer = URLSafeTimedSerializer(EMAIL_SECRET_KEY)
-        email = serializer.loads(
-                token,
-                salt=EMAIL_TOKEN_SALT,
-                max_age=expiration
-            )
-    except ExportException as e:
-        return False
+        if expiration:
+            data = serializer.loads(token, salt=EMAIL_TOKEN_SALT, max_age=expiration)
+        else:
+            data = serializer.loads(token, salt=EMAIL_TOKEN_SALT)
+        return data
     except BadData as e:
-        raise Exception(str(e))
-
-    return email
+        raise Exception("The Invite link is invalid or expired")
 
 
 def create_user_invitation_link(email, account_id, is_admin):

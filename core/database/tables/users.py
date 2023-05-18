@@ -160,7 +160,7 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
+    def validate_and_insert_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
         """Runs validations and creates a new user
 
         Params:
