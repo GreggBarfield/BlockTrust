@@ -303,7 +303,7 @@ def serve_reset_password(tok):
     # Redirecting to password change page
     redirect_to = tok
     try:
-        email = token.confirmToken(tok)
+        token.confirmToken(tok)
         return outside_render('reset_password.html', {"redirect_to": redirect_to})
     except ExportException as e:
         return outside_render('login.html')
@@ -519,9 +519,11 @@ def send_file(path):
 @bp.route('/add-user/<string:invite_token>', methods=['GET'])
 def serve_add_user(invite_token):
     try:
-        invite_string = token.confirmToken(invite_token)
+        invite_string = token.confirmToken(invite_token, expiration=0)
         invite_object = eval(invite_string)
         user_email = invite_object["user_email"]
+        if g.db.users.get_users(email=user_email):
+            raise Exception("An account with that email already exists")
         is_admin = invite_object["is_admin"]
         account_id = invite_object["account_id"]
         account_row = g.db.accounts.get_accounts(id=account_id)[0]
@@ -535,7 +537,7 @@ def serve_add_user(invite_token):
         else:
             raise Exception("Account not found")
     except Exception as e:
-        return outside_render("/outside/error.html", {"error_reason": "The Invite link is invalid or expired"})
+        return outside_render("/outside/error.html", {"error_reason": str(e)})
 
 
 @bp.route('/add-user/action', methods=['POST'])

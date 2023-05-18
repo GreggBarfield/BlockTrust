@@ -6,6 +6,8 @@ from .types.REDANGUS import (
     Animals
 )
 from .types.SELF import TagUpload
+from .types.PARTNER import TagUpload as PartnerTagUpload
+
 from .types.EMP import PackerDataUpload
 
 
@@ -29,6 +31,9 @@ types = {
     },
     "EMP": {
         "PackerDataUpload": PackerDataUpload
+    },
+    "PARTNER": {
+        "TagUpload": PartnerTagUpload
     }
 }
 
