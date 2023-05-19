@@ -69,6 +69,5 @@
     },
     "run_jobs": {
         "notify_admin_if_no_data_received_from_partner": false
-    },
-    "default_user_password": "BlockTru$t"
+    }
 }

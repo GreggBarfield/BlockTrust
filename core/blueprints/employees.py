@@ -3,7 +3,7 @@ from flask import (
 )
 
 from ..blueprints.stripe import serve_stripe_price
-from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE, DEFAULT_USER_PASSWORD
+from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
@@ -25,6 +25,7 @@ from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
+from ..utilities.constants import DEFAULT_PASSWORD
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -69,9 +70,7 @@ def serve_employee_create_account_action():
         partner = format_field(request.form['partner'])
         affiliate_id = format_field(request.form['affiliate_id'])
         sector = format_field(required['sector'])
-        if affiliate_id and affiliate_id.isdigit():
-            affiliate_id = int(affiliate_id)
-        sector, phone = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
+        sector, phone, affiliate_id = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -565,13 +564,11 @@ def serve_upload_ranch_accounts_test():
             partner = format_field(partner_id)
             affiliate_id = format_field(account_data["affiliate_id"])
             sector = SECTORS_NAME_TO_ID[format_field(required["sector"])]
-            if affiliate_id and affiliate_id.isdigit():
-                affiliate_id = int(affiliate_id)
-            sector, phone = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
+            sector, phone, affiliate_id = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
             user = Users(g.db).validate_and_insert_user(
                 username=required["email"],
-                password=DEFAULT_USER_PASSWORD,
-                confirm_password=DEFAULT_USER_PASSWORD,
+                password=DEFAULT_PASSWORD,
+                confirm_password=DEFAULT_PASSWORD,
                 email=required["email"],
                 first_name=required["first_name"],
                 last_name=required["last_name"],
@@ -588,13 +585,14 @@ def serve_upload_ranch_accounts_test():
                 city=required["city"],
                 state=required["state"],
                 zip=required["zip_code"],
-                phone=required["phone"]
+                phone=required["phone"],
+                manual_paid=1
             )
-            Accounts(g.db).update_account(account_id=account_object.id(), manual_paid=1)
-            ConnectionInvites(g.db).convert_invites_to_connections(required["email"], account_object)
+            # Accounts(g.db).update_account(account_id=account_object.id(), manual_paid=1)
+            # ConnectionInvites(g.db).convert_invites_to_connections(required["email"], account_object)
 
             perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
-                                        event_type_id=event_type_by_name["Signup By Employee"], sector_id=account_object.sector_id())
+                                        event_type_id=event_type_by_name["Signup By Employee"], sector_id=account_object.sector_id(), email=required["email"])
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}, 400
