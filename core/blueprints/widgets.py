@@ -10,8 +10,7 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import send_connection_request_email_to_admin_users
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
-from ..database.tables.advertisement_companies import AdvertisementCompanies
-from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+from ..database.tables.advertisements import Advertisements
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
