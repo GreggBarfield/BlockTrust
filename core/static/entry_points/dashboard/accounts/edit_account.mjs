@@ -50,7 +50,6 @@ document.getElementsByName("reset-password-user").forEach((element) => {
         infoModal.getBody().classList.add("d-none");
         infoModal.getHeader().classList.add("text-center", "p-4")
     })
-}
-)
+});
 
 
