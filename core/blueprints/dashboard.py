@@ -365,6 +365,7 @@ def serve_edit_account():
             is_stripe_payouts_enabled = bool(g.account.is_stripe_payouts_enabled())
 
         users = g.db.users.get_users(account_users__account=g.account.id(), is_email_verified=int(True))
+        users = list(filter(lambda user: user['id'] != g.user.id(), users))
         return dashboard_render(
             "/dashboard/accounts/edit_account.html", {
                 "sectors": SECTORS_NAME_TO_ID,
