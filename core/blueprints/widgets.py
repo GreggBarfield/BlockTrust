@@ -845,10 +845,5 @@ def serve_get_existing_sustainability_responses():
 @bp.route('/widgets/data/get_advertisements', methods=["POST"])
 @crut.require_account
 def serve_get_advertisements():
-    advertisements = Advertisements(g.db).get(is_archived=0)
-    advertisement_companies = AdvertisementCompanies(g.db).get()
-    return {
-        "ad_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES,
-        "advertisement_companies": advertisement_companies,
-        "advertisements": advertisements
-    }
+    advertisements = Advertisements(g.db).get(is_archived=0, advertisements_order_by="advertisements.ad_category_name, advertisement_companies.name", get_related_advertising_company=True)
+    return {"advertisements": advertisements}

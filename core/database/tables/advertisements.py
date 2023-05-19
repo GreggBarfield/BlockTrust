@@ -28,19 +28,20 @@ class Advertisements:
         """
         self._db.execute(
             """
-            INSERT INTO advertisements (ad_company_id, ad_category_id, short_description, long_description, is_archived)
-            VALUES (%(ad_company_id)s, %(ad_category_id)s, %(short_description)s, %(long_description)s, %(is_archived)s)
+            INSERT INTO advertisements (ad_company_id, ad_category_id, short_description, long_description, is_archived, ad_category_name)
+            VALUES (%(ad_company_id)s, %(ad_category_id)s, %(short_description)s, %(long_description)s, %(is_archived)s, %(ad_category_name)s)
             """, 
             {
                 "ad_company_id": ad_company_id,
                 "ad_category_id": ad_category_id,
                 "short_description": short_description,
                 "long_description": long_description,
-                "is_archived": is_archived
+                "is_archived": is_archived,
+                "ad_category_name": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES[ad_category_id]
             })
 
 
-    def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE):
+    def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE, advertisements_order_by=NO_VALUE, get_related_advertising_company=False):
         """
         Gets the advertisements based on the attributes provided
 
@@ -54,6 +55,8 @@ class Advertisements:
             A list of advertisement rows or an empty list
         """
         base_query = "SELECT * FROM advertisements"
+        if get_related_advertising_company :
+            base_query = base_query + " LEFT JOIN advertisement_companies ON advertisements.ad_company_id = advertisement_companies.id "
 
         query_conditions = []
         query_values = {}
@@ -77,6 +80,10 @@ class Advertisements:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
+
+        if advertisements_order_by is not NO_VALUE:
+            advertisements_order_by_clause = " ORDER BY "+ advertisements_order_by
+            query = query + advertisements_order_by_clause
 
         advertisement_rows = self._db.execute_d(query, query_values)
         if len(advertisement_rows) > 0:
@@ -108,6 +115,8 @@ class Advertisements:
         if ad_category_id is not NO_VALUE:
             query_conditions.append(" ad_category_id = %(ad_category_id)s")
             query_values["ad_category_id"] = ad_category_id
+            query_conditions.append(" ad_category_name = %(ad_category_name)s")
+            query_values["ad_category_name"] = ADVERTISEMENT_CATEGORY_IDS_TO_NAMES[ad_category_id]
         if short_description is not NO_VALUE:
             query_conditions.append(" short_description = %(short_description)s")
             query_values["short_description"] = short_description
