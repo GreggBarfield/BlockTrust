@@ -1,5 +1,4 @@
 import { Widget } from '../../widget.mjs';
-import { AsyncForm } from '../../../../global/async_form.mjs';
 
 export class MarketPlaceWidget extends Widget {
     constructor(frame) {
@@ -8,11 +7,22 @@ export class MarketPlaceWidget extends Widget {
 
     initType = async() => {
         let advertisementData = await this.getData("get_advertisements");
-        let advertisements = advertisementData.advertisements;
+        let advertisements = this.formatAdvertisementData(advertisementData.advertisements, advertisementData.advertisement_category_ids_to_names);
 
         this.frame.innerHTML = "";
         let advertisementContainer = this.makeAdvertisementContainer(advertisements);
         this.frame.append(advertisementContainer);
+    }
+
+    formatAdvertisementData = (advertisements, advertisementCategoryIdsToNames) =>{
+        for(let advertisement of advertisements){
+            advertisement.advertisementCategoryName = advertisementCategoryIdsToNames[advertisement.ad_category_id];
+        }
+        // Sorting the advertisment data by advertisement category name and by advertisement company name.
+        advertisements.sort((a, b) => 
+        (a.advertisementCategoryName > b.advertisementCategoryName) ? 1: (a.advertisementCategoryName === b.advertisementCategoryName)? 
+        ((a.name > b.name) ? 1: -1): -1);
+        return advertisements;
     }
 
     makeAdvertisementContainer = (advertisements) =>{
@@ -39,7 +49,7 @@ export class MarketPlaceWidget extends Widget {
         let advertisementCardHeader = document.createElement("div");
         advertisementCardHeader.className = "card-header d-flex justify-content-center p-3";
         let advertisementCardHeaderText = document.createElement("h4");
-        advertisementCardHeaderText.textContent = advertisement.short_description + " (" + advertisement.ad_category_name + ")";
+        advertisementCardHeaderText.textContent = advertisement.short_description + " (" + advertisement.advertisementCategoryName + ")";
         advertisementCardHeader.append(advertisementCardHeaderText);
         advertisementCard.append(advertisementCardHeader);
 
