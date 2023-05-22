@@ -301,7 +301,7 @@ class Users:
 
     def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                   is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
-                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE):
+                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE):
         """
         Returns the users based on provided attributes
 
@@ -321,7 +321,7 @@ class Users:
             A list of users or None
 
         """
-        base_query = "SELECT * FROM users"
+        base_query = "SELECT u.* FROM users u INNER JOIN account_users au ON u.id = au.user"
 
         query_conditions = []
         query_values = {}
@@ -362,6 +362,9 @@ class Users:
         if recaptcha_score is not NO_VALUE:
             query_conditions.append("recaptcha_score = %(recaptcha_score)s")
             query_values["recaptcha_score"] = recaptcha_score
+        if account_users__account is not NO_VALUE:
+            query_conditions.append("au.account = %(account_users__account)s")
+            query_values["account_users__account"] = account_users__account
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
@@ -524,3 +527,4 @@ class Users:
             self._db.execute(query, query_values)
         else:
             raise Exception("Must give values for fields to update user record")
+        return self._db.row_count()

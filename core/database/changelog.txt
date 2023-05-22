@@ -1871,12 +1871,12 @@ CREATE TABLE `animals` (
 ALTER TABLE `matches` 
 CHANGE COLUMN `visual_id` `visual_id` VARCHAR(30) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
 
-/* Rohan Sureshkumar 10/4/23 */
+/* Rohan Sureshkumar 4/10/23 */
 INSERT INTO reports(account_id, query, status)
 SELECT id, CONCAT('{"type": "count_distribution", "params": {"account": ',id,', "is_partner": true}}'), 0
 FROM accounts WHERE is_partner = 1;
 
-/* Rohan Sureshkumar 26/4/23 */
+/* Rohan Sureshkumar 4/26/23 */
 ALTER TABLE `animals` 
 ADD COLUMN `lot_number` INT NULL AFTER `description`,
 ADD COLUMN `pen_number` INT NULL AFTER `lot_number`,
@@ -1885,9 +1885,21 @@ ADD COLUMN `feeder_weight` INT NULL AFTER `feeder_account_number`,
 ADD COLUMN `terminal_reimplant_weight` INT NULL AFTER `feeder_weight`,
 ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
 
-/* Rohan Sureshkumar 27/4/23 */
+/* Rohan Sureshkumar 4/27/23 */
 ALTER TABLE `animals` 
 ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
 
 /* Nisheet Thakur 05/10/2023 */
 ALTER TABLE `advertisements` ALTER COLUMN `is_archived` SET DEFAULT 0;
+
+/* Rohan Sureshkumar 5/22/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `seller_id` VARCHAR(30) NULL AFTER `terminal_reimplant_date`,
+ADD COLUMN `vaccination_date` INT NULL AFTER `seller_id`,
+ADD COLUMN `vaccination_summary` VARCHAR(30) NULL AFTER `vaccination_date`,
+ADD COLUMN `herd_sire` VARCHAR(30) NULL AFTER `vaccination_summary`,
+ADD COLUMN `ranch_source_county` VARCHAR(30) NULL AFTER `herd_sire`,
+ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
+ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
+ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`,
+CHANGE COLUMN `api_insert_id` `api_insert_id` INT NULL DEFAULT NULL AFTER `visual_id`;

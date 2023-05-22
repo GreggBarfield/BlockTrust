@@ -129,6 +129,48 @@ Edit Account
                 <button type="submit" class="btn btn-primary">Update</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
+
+                <div class="card mt-5" >
+                    <div class="card-body">
+                        <h5 class="card-title">Other Account Users</h5>
+                        <p class="card-text">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if users %}
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{user.first_name + " " + user.last_name}}</td>
+                                        <td>{{user.email}}</td>
+                                        <td>
+                                            <a href="javascript:;" user-id="{{user.id}}" user-name="{{user.first_name + ' ' + user.last_name}}" name="reset-password-user">Reset Password</a>
+                                            <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                                            title="Password will be reset to BlockTru$t">
+                                            <div class="justify-content-center ml-2 d-none" id="spinner-{{user.id}}">
+                                                <div class="spinner-border spinner-border-sm" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr class="text-center">
+                                        <td colspan="3">No other users</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </p>
+                    </div>
+                </div>
                 {% if dashboard_standard_account.sector_id() == sectors["Cow-Calf"] %}
                 <div class="row justify-content-center mt-5" id="divStripeSetup">
                     <div class="col-lg-10 text-center">
@@ -157,7 +199,6 @@ Edit Account
     </div>
 </div>
 <script>
-
     $("#edit_account_state").val("{{dashboard_standard_account.state()}}");
 
     let setupButton = document.querySelector("#btnSetupPayout");
