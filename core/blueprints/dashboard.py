@@ -1,5 +1,5 @@
 from flask import (
-    request, Blueprint, g, redirect, url_for, send_from_directory
+    Response, request, Blueprint, g, redirect, url_for, send_from_directory
 )
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
@@ -28,7 +28,7 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth, csrf
 from ..utilities import token
-from ..utilities.constants import HTTP_BAD_REQUEST
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_NOT_FOUND
 from ..utilities.email import send_email
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
@@ -363,8 +363,15 @@ def serve_edit_account():
                 is_stripe_payouts_enabled = True
         else:
             is_stripe_payouts_enabled = bool(g.account.is_stripe_payouts_enabled())
+
+        users = g.db.users.get_users(account_users__account=g.account.id(), is_email_verified=int(True))
+        users = list(filter(lambda user: user['id'] != g.user.id(), users))
         return dashboard_render(
-            "/dashboard/accounts/edit_account.html", {"sectors": SECTORS_NAME_TO_ID, "is_stripe_payouts_enabled": is_stripe_payouts_enabled}
+            "/dashboard/accounts/edit_account.html", {
+                "sectors": SECTORS_NAME_TO_ID,
+                "is_stripe_payouts_enabled": is_stripe_payouts_enabled,
+                "users": users
+            }
         )
 
 
@@ -644,6 +651,7 @@ def serve_edit_account_retail_data():
     # json.dumps() helps to convert uploaded_retail_image_files into a JSON string which can be converted back in the widget without any errors.
     return dashboard_render("accounts/edit_account_retail_data.html", {"uploaded_retail_image_files": json.dumps(uploaded_retail_image_files)})
 
+
 @bp.route("/dashboard/view-account-sustainability-scores/<int:account_id>", methods=["GET"])
 @crut.require_account
 def serve_view_account_sustainability_data(account_id):
@@ -651,7 +659,22 @@ def serve_view_account_sustainability_data(account_id):
     account_name = account_data[0]["name"] if len(account_data) > 0 else "N/A"
     return dashboard_render("sustainability/view_account_sustainability_scores.html", {"account_id": account_id, "account_name": account_name})
 
+
 @bp.route("/dashboard/marketplace", methods=["GET"])
 @crut.require_account
 def serve_marketplace():
     return dashboard_render("marketplace/marketplace.html")
+
+
+@bp.route("/dashboard/user/<int:user_id>", methods=["PUT"])
+@crut.require_account
+def update_user(user_id):
+    request_data = json.loads(request.data)
+    allowed_keys = {'reset_password'}
+    if all(key in allowed_keys for key in request_data):
+        if g.db.users.update_user(id=user_id, password=DEFAULT_PASSWORD):
+            return Response(status=HTTP_NO_CONTENT)
+        else:
+            return Response(status=HTTP_NOT_FOUND)
+    else:
+        return Response(status=HTTP_BAD_REQUEST)
