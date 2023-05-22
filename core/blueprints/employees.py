@@ -298,12 +298,11 @@ def serve_view_partners():
     partner_and_partner_users = []
     for partner in partner_rows:
         partner['company'] = partner['company'].upper()
-        if len(AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))) > 0:
-            generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
-            if generated_user:
-                user = Users(g.db).get_users(generated_user['user'])[0]
-                partner["user_name"] = user["first_name"] + " " + user["last_name"]
-                partner["user_id"] = user["id"]
+        generated_user = AccountUsers(g.db).get_account_users(account=partner["id"], users__is_system_generated=int(True))[0]
+        if generated_user:
+            user = Users(g.db).get_users(generated_user['user'])[0]
+            partner["user_name"] = user["first_name"] + " " + user["last_name"]
+            partner["user_id"] = user["id"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
@@ -590,7 +589,7 @@ def serve_upload_ranch_accounts_test():
             )
 
             perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
-                                        event_type_id=event_type_by_name["Signup By Employee"], sector_id=account_object.sector_id(), email=required["email"])
+                                        event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"], sector_id=account_object.sector_id(), email=required["email"])
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}, 400
