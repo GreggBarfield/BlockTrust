@@ -24,7 +24,9 @@ class Animals:
                               sire_registration_number=None, dam_registration_number=None,
                               birth_weight=None, implants=None, sex=None, description=None,
                               lot_number=None, pen_number=None, feeder_account_number=None, feeder_weight=None,
-                              terminal_reimplant_weight=None, terminal_reimplant_date=None, api_insert_id=None):
+                              terminal_reimplant_weight=None, terminal_reimplant_date=None, api_insert_id=None,
+                              seller_id=None, vaccination_date=None, vaccination_summary=None, herd_sire=None,
+                              ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None):
         """
         Validates and inserts a new animal record
 
@@ -41,14 +43,17 @@ class Animals:
         return self.insert_animal(
             eid, visual_id, breed, calf_registration_number, sire_registration_number, dam_registration_number,
             birth_weight, implants, sex, description, lot_number, pen_number, feeder_account_number, feeder_weight,
-            terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
+            terminal_reimplant_weight, terminal_reimplant_date, api_insert_id, seller_id, vaccination_date,
+            vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
                       sire_registration_number=None, dam_registration_number=None,
                       birth_weight=None, implants=None, sex=None, description=None, lot_number=None,
                       pen_number=None, feeder_account_number=None, feeder_weight=None, terminal_reimplant_weight=None,
-                      terminal_reimplant_date=None, api_insert_id=None):
+                      terminal_reimplant_date=None, api_insert_id=None, seller_id=None, vaccination_date=None,
+                      vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
+                      home_raised=None, family_farm_or_ranch=None):
         """
         Inserts a new animal record
 
@@ -59,14 +64,17 @@ class Animals:
         self._db.execute(
             """
                 INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
-                    dam_registration_number, birth_weight, implants, sex, description, 
+                    dam_registration_number, birth_weight, implants, sex, description,
                     lot_number, pen_number, feeder_account_number, feeder_weight,
-                    terminal_reimplant_weight, terminal_reimplant_date, api_insert_id
+                    terminal_reimplant_weight, terminal_reimplant_date, api_insert_id, seller_id, vaccination_date,
+                    vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch
                 )
                 VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
                     %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
                     %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
-                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s, %(api_insert_id)s
+                    %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s, %(api_insert_id)s, %(seller_id)s,
+                    %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
+                    %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s
                 )
             """,
             {
@@ -86,7 +94,15 @@ class Animals:
                 "feeder_weight": feeder_weight,
                 "terminal_reimplant_weight": terminal_reimplant_weight,
                 "terminal_reimplant_date": terminal_reimplant_date,
-                "api_insert_id": api_insert_id
+                "api_insert_id": api_insert_id,
+                "seller_id": seller_id,
+                "vaccination_date": vaccination_date,
+                "vaccination_summary": vaccination_summary,
+                "herd_sire": herd_sire,
+                "ranch_source_county": ranch_source_county,
+                "ranch_size": ranch_size,
+                "home_raised": home_raised,
+                "family_farm_or_ranch": family_farm_or_ranch
             }
         )
         return self._db.last_row_id()
@@ -128,7 +144,10 @@ class Animals:
                       sire_registration_number=NO_VALUE, dam_registration_number=NO_VALUE,
                       birth_weight=NO_VALUE, implants=NO_VALUE, sex=NO_VALUE, description=NO_VALUE,
                       lot_number=NO_VALUE, pen_number=NO_VALUE, feeder_account_number=NO_VALUE, feeder_weight=NO_VALUE,
-                      terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE, api_insert_id=NO_VALUE):
+                      terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE, api_insert_id=NO_VALUE,
+                      seller_id=NO_VALUE, vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE, herd_sire=NO_VALUE,
+                      ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
+                      family_farm_or_ranch=NO_VALUE):
         """
         Updates an animal.
         """
@@ -186,6 +205,30 @@ class Animals:
         if api_insert_id is not NO_VALUE:
             query_conditions.append("api_insert_id = %(api_insert_id)s")
             query_values["api_insert_id"] = api_insert_id
+        if seller_id is not NO_VALUE:
+            query_conditions.append("seller_id = %(seller_id)s")
+            query_values["seller_id"] = seller_id
+        if vaccination_date is not NO_VALUE:
+            query_conditions.append("vaccination_date = %(vaccination_date)s")
+            query_values["vaccination_date"] = vaccination_date
+        if vaccination_summary is not NO_VALUE:
+            query_conditions.append("vaccination_summary = %(vaccination_summary)s")
+            query_values["vaccination_summary"] = vaccination_summary
+        if herd_sire is not NO_VALUE:
+            query_conditions.append("herd_sire = %(herd_sire)s")
+            query_values["herd_sire"] = herd_sire
+        if ranch_source_county is not NO_VALUE:
+            query_conditions.append("ranch_source_county = %(ranch_source_county)s")
+            query_values["ranch_source_county"] = ranch_source_county
+        if ranch_size is not NO_VALUE:
+            query_conditions.append("ranch_size = %(ranch_size)s")
+            query_values["ranch_size"] = ranch_size
+        if home_raised is not NO_VALUE:
+            query_conditions.append("home_raised = %(home_raised)s")
+            query_values["home_raised"] = home_raised
+        if family_farm_or_ranch is not NO_VALUE:
+            query_conditions.append("family_farm_or_ranch = %(family_farm_or_ranch)s")
+            query_values["family_farm_or_ranch"] = family_farm_or_ranch
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"
