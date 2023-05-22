@@ -588,8 +588,6 @@ def serve_upload_ranch_accounts_test():
                 phone=required["phone"],
                 manual_paid=1
             )
-            # Accounts(g.db).update_account(account_id=account_object.id(), manual_paid=1)
-            # ConnectionInvites(g.db).convert_invites_to_connections(required["email"], account_object)
 
             perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
                                         event_type_id=event_type_by_name["Signup By Employee"], sector_id=account_object.sector_id(), email=required["email"])

@@ -11,8 +11,8 @@ event_type_by_name = {
     "Email Verified": 5,
     "Invited Signup": 6,
     "Sales Group Purchase": 7,
-    "Account Created": 8,
-    "Signup By Employee": 9
+    "Account Created By Employee": 8,
+    "Bulk Account And User Signup By Employee": 9
 }
 event_type_by_id = {
     value: key
