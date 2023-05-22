@@ -134,38 +134,40 @@ Edit Account
                     <div class="card-body">
                         <h5 class="card-title">Other Account Users</h5>
                         <p class="card-text">
-                            {% if users|length == 0 %}
-                            (No other users were found associated with this account.)
-                            {% else %}
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th scope="col">User</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Options</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in users %}
-                                <tr>
-                                    <td>{{user.first_name + " " + user.last_name}}</td>
-                                    <td>{{user.email}}</td>
-                                    <td>
-                                        <a href="javascript:;" user-id="{{user.id}}" user-name="{{user.first_name + ' ' + user.last_name}}" name="reset-password-user">Reset Password</a>
-                                        <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
-                                         title="Password will be reset to BlockTru$t">
-                                        <div class="justify-content-center ml-2 d-none" id="spinner-{{user.id}}">
-                                            <div class="spinner-border spinner-border-sm" role="status">
-                                                <span class="sr-only">Loading...</span>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if users %}
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{user.first_name + " " + user.last_name}}</td>
+                                        <td>{{user.email}}</td>
+                                        <td>
+                                            <a href="javascript:;" user-id="{{user.id}}" user-name="{{user.first_name + ' ' + user.last_name}}" name="reset-password-user">Reset Password</a>
+                                            <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                                            title="Password will be reset to BlockTru$t">
+                                            <div class="justify-content-center ml-2 d-none" id="spinner-{{user.id}}">
+                                                <div class="spinner-border spinner-border-sm" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        {% endif %}
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr class="text-center">
+                                        <td colspan="3">No other users</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
                         </p>
                     </div>
                 </div>
