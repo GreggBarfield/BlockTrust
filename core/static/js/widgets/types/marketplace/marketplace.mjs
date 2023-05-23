@@ -20,8 +20,10 @@ export class MarketPlaceWidget extends Widget {
         }
         // Sorting the advertisment data by advertisement category name and by advertisement company name.
         advertisements.sort((a, b) => 
-        (a.advertisementCategoryName > b.advertisementCategoryName) ? 1: (a.advertisementCategoryName === b.advertisementCategoryName)? 
-        ((a.name > b.name) ? 1: -1): -1);
+        (a.advertisementCategoryName > b.advertisementCategoryName) ? 1
+            : (a.advertisementCategoryName === b.advertisementCategoryName)? ((a.name > b.name) ? 1: -1)
+            : -1
+        );
         return advertisements;
     }
 

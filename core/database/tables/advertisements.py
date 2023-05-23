@@ -10,6 +10,8 @@ ADVERTISEMENT_CATEGORY_IDS_TO_NAMES = {
     value: key for key, value in ADVERTISEMENT_CATEGORY_NAMES_TO_IDS.items()
 }
 
+cols = ("id", "ad_company_id", "ad_category_id", "short_description", "long_description", "is_archived")
+
 class Advertisements:
 
     def __init__(self, db):
@@ -40,7 +42,8 @@ class Advertisements:
             })
 
 
-    def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE, get_related_advertising_company=False):
+    def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE,
+            get_related_advertising_company=False, order_by=NO_VALUE, sort_by=NO_VALUE):
         """
         Gets the advertisements based on the attributes provided
 
@@ -54,7 +57,7 @@ class Advertisements:
             A list of advertisement rows or an empty list
         """
         base_query = "SELECT * FROM advertisements"
-        if get_related_advertising_company :
+        if get_related_advertising_company:
             base_query = base_query + " LEFT JOIN advertisement_companies ON advertisements.ad_company_id = advertisement_companies.id "
 
         query_conditions = []
@@ -79,6 +82,17 @@ class Advertisements:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
+
+        if order_by is not NO_VALUE:
+            if order_by not in cols:
+                raise Exception("Advertisements order_by column doesn't exist")
+            order_by_clause = " ORDER BY " + order_by
+            if sort_by is not NO_VALUE:
+                if sort_by not in ("ASC", "DESC"):
+                    raise Exception("Incorrect value for Advertisements sort_by")
+                order_by_clause += " " + sort_by
+            query = query + order_by_clause
+
 
         advertisement_rows = self._db.execute_d(query, query_values)
         if len(advertisement_rows) > 0:

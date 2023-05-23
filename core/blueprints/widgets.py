@@ -845,4 +845,7 @@ def serve_get_existing_sustainability_responses():
 @crut.require_account
 def serve_get_advertisements():
     advertisements = Advertisements(g.db).get(is_archived=0, get_related_advertising_company=True)
-    return {"advertisements": advertisements , "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES}
+    return {
+        "advertisements": advertisements,
+        "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+    }
