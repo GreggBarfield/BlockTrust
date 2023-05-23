@@ -17,7 +17,8 @@ class Advertisements:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, ad_company_id=None, ad_category_id=None, short_description=None, long_description=None, is_archived=None):
+    def insert(self, ad_company_id=None, ad_category_id=None, short_description=None, long_description=None,
+               is_archived=None):
         """
         Inserts an advertisement
 
@@ -58,7 +59,7 @@ class Advertisements:
         """
         base_query = "SELECT * FROM advertisements"
         if get_related_advertising_company:
-            base_query = base_query + " LEFT JOIN advertisement_companies ON advertisements.ad_company_id = advertisement_companies.id "
+            base_query = base_query + " LEFT JOIN advertisement_companies ON advertisements.ad_company_id=advertisement_companies.id"
 
         query_conditions = []
         query_values = {}
@@ -100,7 +101,8 @@ class Advertisements:
         else:
             return []
 
-    def update(self, id, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, short_description=NO_VALUE, long_description=NO_VALUE, is_archived=NO_VALUE):
+    def update(self, id, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, short_description=NO_VALUE,
+               long_description=NO_VALUE, is_archived=NO_VALUE):
         """
         Updates the advertisement based on the ID provided
 
