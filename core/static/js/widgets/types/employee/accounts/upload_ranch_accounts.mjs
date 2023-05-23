@@ -71,6 +71,7 @@ export class UploadRanchAccountsWidget extends Widget {
 
         let accountsData = [];
         uploadAccountsButton.onclick = (e) =>{
+            // Prevent the form from performing default action and handling it explicitly
             e.preventDefault();
             let uploadedFiles = uploadInput.files;
             if(Object.entries(uploadedFiles).length > 0){
@@ -81,6 +82,7 @@ export class UploadRanchAccountsWidget extends Widget {
                 reader.onload = (event) =>{
 
                     let textData = event.target.result;
+                    // Splitting the text data obtained from the CSV file into an array of strings with comma separated values
                     let allTextLines = textData.split(/\r\n|\n/);
                     let headers = allTextLines[0].split(',');
 

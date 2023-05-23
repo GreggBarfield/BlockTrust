@@ -330,37 +330,37 @@ class Users:
             query_conditions.append("u.id = %(id)s")
             query_values["id"] = id
         if username is not NO_VALUE:
-            query_conditions.append("u.username = %(username)s")
+            query_conditions.append("username = %(username)s")
             query_values["username"] = username
         if email is not NO_VALUE:
-            query_conditions.append("u.email = %(email)s")
+            query_conditions.append("email = %(email)s")
             query_values["email"] = email
         if phone is not NO_VALUE:
-            query_conditions.append("u.phone = %(phone)s")
+            query_conditions.append("phone = %(phone)s")
             query_values["phone"] = phone
         if first_name is not NO_VALUE:
-            query_conditions.append("u.first_name = %(first_name)s")
+            query_conditions.append("first_name = %(first_name)s")
             query_values["first_name"] = first_name
         if last_name is not NO_VALUE:
-            query_conditions.append("u.last_name = %(last_name)s")
+            query_conditions.append("last_name = %(last_name)s")
             query_values["last_name"] = last_name
         if is_email_verified is not NO_VALUE:
-            query_conditions.append("u.is_email_verified = %(is_email_verified)s")
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
             query_values["is_email_verified"] = is_email_verified
         if failed_attempts is not NO_VALUE:
-            query_conditions.append("u.failed_attempts = %(failed_attempts)s")
+            query_conditions.append("failed_attempts = %(failed_attempts)s")
             query_values["failed_attempts"] = failed_attempts
         if is_user_locked is not NO_VALUE:
-            query_conditions.append("u.is_user_locked = %(is_user_locked)s")
+            query_conditions.append("is_user_locked = %(is_user_locked)s")
             query_values["is_user_locked"] = is_user_locked
         if locked_time is not NO_VALUE:
-            query_conditions.append("u.locked_time = %(locked_time)s")
+            query_conditions.append("locked_time = %(locked_time)s")
             query_values["locked_time"] = locked_time
         if is_system_generated is not NO_VALUE:
-            query_conditions.append("u.is_system_generated = %(is_system_generated)s")
+            query_conditions.append("is_system_generated = %(is_system_generated)s")
             query_values["is_system_generated"] = is_system_generated
         if recaptcha_score is not NO_VALUE:
-            query_conditions.append("u.recaptcha_score = %(recaptcha_score)s")
+            query_conditions.append("recaptcha_score = %(recaptcha_score)s")
             query_values["recaptcha_score"] = recaptcha_score
         if account_users__account is not NO_VALUE:
             query_conditions.append("au.account = %(account_users__account)s")
