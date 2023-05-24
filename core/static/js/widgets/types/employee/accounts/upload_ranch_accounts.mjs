@@ -52,7 +52,7 @@ export class UploadRanchAccountsWidget extends Widget {
         form.append(errorMessage);
 
         let uploadAccountsForm = new AsyncForm({
-            action: "/employee/upload-accounts-for-partner",
+            action: window.location.href,
             form: form,
             status: statusMessage,
             error: errorMessage,
@@ -87,12 +87,12 @@ export class UploadRanchAccountsWidget extends Widget {
                     let headers = allTextLines[0].split(',');
 
                     for(let i=1; i<allTextLines.length; i++){
-                        let textLine = allTextLines[i];
-                        let data = textLine.split(',');
-                        if(data.length === headers.length){
+                        let row = allTextLines[i];
+                        let columns = row.split(',');
+                        if(columns.length === headers.length){
                             let accountObject = {};
                             for(let j=0; j<headers.length; j++){
-                                accountObject[headers[j]] = data[j];
+                                accountObject[headers[j]] = columns[j];
                             }
                             accountsData.push(accountObject);
                         }

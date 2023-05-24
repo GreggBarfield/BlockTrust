@@ -538,61 +538,58 @@ def serve_tag_store_reports():
     })
 
 
-@bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET"])
+@bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET", "POST"])
 @crut.require_employee
-def serve_upload_ranch_accounts(partner_id):
-    return employee_render("/employee/accounts/upload-ranch-accounts.html", {"partner_id": partner_id})
+def serve_upload_ranch_accounts_test(partner_id):
+    if request.method == "GET":
+        return employee_render("/employee/accounts/upload-ranch-accounts.html", {"partner_id": partner_id})
+    if request.method == "POST":
+        try:
+            partner_id = format_field(request.json["partner_id"])
+            accounts_data = request.json["accounts_data"]
+            for account_data in accounts_data:
+                required_data = {"ranch_name": None, "first_name": None, "last_name": None, "sector": None, "phone": None, 
+                            "address": None, "city": None, "state": None, "affiliate_id": None, "zip_code": None, "email": None}
+                for required_field in required_data:
+                    if required_field not in account_data:
+                        raise ExportException("internal error, {} missing from form".format(required_field))
+                    if len(account_data[required_field].strip()) == 0:
+                        raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+                    required_data[required_field] = format_field(account_data[required_field])
+                sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
+                    SECTORS_NAME_TO_ID[required_data["sector"]],
+                    partner_id, 
+                    required_data["affiliate_id"], 
+                    required_data["phone"]
+                )
 
+                user = Users(g.db).validate_and_insert_user(
+                    username=required_data["email"],
+                    password=DEFAULT_PASSWORD,
+                    confirm_password=DEFAULT_PASSWORD,
+                    email=required_data["email"],
+                    first_name=required_data["first_name"],
+                    last_name=required_data["last_name"],
+                    phone=required_data["phone"],
+                    email_verified=1
+                )
+                account_object = Accounts(g.db).create_account_with_admin(
+                    user=user,
+                    company=required_data["ranch_name"],
+                    sector=sector,
+                    partner=partner_id,
+                    affiliate_id=affiliate_id,
+                    address=required_data["address"],
+                    city=required_data["city"],
+                    state=required_data["state"],
+                    zip=required_data["zip_code"],
+                    phone=phone,
+                    manual_paid=1
+                )
 
-@bp.route("/employee/upload-accounts-for-partner", methods=["POST"])
-@crut.require_employee
-def serve_upload_ranch_accounts_test():
-    try:
-        partner_id = format_field(request.json["partner_id"])
-        accounts_data = request.json["accounts_data"]
-        for account_data in accounts_data:
-            required_data = {"ranch_name": None, "first_name": None, "last_name": None, "sector": None, "phone": None, 
-                        "address": None, "city": None, "state": None, "affiliate_id": None, "zip_code": None, "email": None}
-            for required_field in required_data:
-                if required_field not in account_data:
-                    raise ExportException("internal error, {} missing from form".format(required_field))
-                if len(account_data[required_field].strip()) == 0:
-                    raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-                required_data[required_field] = format_field(account_data[required_field])
-            sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
-                SECTORS_NAME_TO_ID[required_data["sector"]],
-                partner_id, 
-                required_data["affiliate_id"], 
-                required_data["phone"]
-            )
-
-            user = Users(g.db).validate_and_insert_user(
-                username=required_data["email"],
-                password=DEFAULT_PASSWORD,
-                confirm_password=DEFAULT_PASSWORD,
-                email=required_data["email"],
-                first_name=required_data["first_name"],
-                last_name=required_data["last_name"],
-                phone=required_data["phone"],
-                email_verified=1
-            )
-            account_object = Accounts(g.db).create_account_with_admin(
-                user=user,
-                company=required_data["ranch_name"],
-                sector=sector,
-                partner=partner_id,
-                affiliate_id=affiliate_id,
-                address=required_data["address"],
-                city=required_data["city"],
-                state=required_data["state"],
-                zip=required_data["zip_code"],
-                phone=phone,
-                manual_paid=1
-            )
-
-            perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
-                                        event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"], 
-                                        sector_id=account_object.sector_id(), email=required_data["email"])
-        return {"redirect": "/employee/dashboard/view-partners"}
-    except (ExportException, AccountsException, UsersException, ValueError) as e:
-        return {"error": str(e)}, 400
+                perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
+                                            event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"], 
+                                            sector_id=account_object.sector_id(), email=required_data["email"])
+            return {"redirect": "/employee/dashboard/view-partners"}
+        except (ExportException, AccountsException, UsersException, ValueError) as e:
+            return {"error": str(e)}, 400
