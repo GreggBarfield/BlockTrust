@@ -262,7 +262,7 @@ def serve_create_sales_group():
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
-    sales_group_id = SalesGroups(g.db).insert_new_sales_group(
+    sales_group_id = SalesGroups(g.db).insert_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
         published=request.json["published"],
