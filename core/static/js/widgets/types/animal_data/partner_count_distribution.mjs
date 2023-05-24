@@ -5,23 +5,12 @@ export class PartnerCountDistributionWidget extends Widget {
         super(frame);
     }
 
-    initType() {
-            this.getData(
-                "data_request",
-                {
-                    request: { 
-                        type: "count_distribution",
-                        params: {}
-                    }
-                }
-            ).then((data) => {
-                let accountSummaryData = data.result.count_distribution !== null ? data.result.count_distribution: {};
-                this.frame.innerHTML = "";
-                let container = this.makeTableContainer(accountSummaryData);
-                this.frame.appendChild(container);
-            })
-        
-
+    initType = async() =>{
+        let accountSummaryDataResult = await this.getData("data_request", {request: {type: "count_distribution", params: {}}});
+        let accountSummaryData = accountSummaryDataResult.result.count_distribution !== null ? accountSummaryDataResult.result.count_distribution: {};
+        this.frame.innerHTML = "";
+        let container = this.makeTableContainer(accountSummaryData);
+        this.frame.appendChild(container);
     }
 
     makeTableContainer = (distributionData) => {
