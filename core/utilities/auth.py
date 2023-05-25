@@ -180,9 +180,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
 
-    if affiliate_id and affiliate_id.isdigit():
-        affiliate_id = int(affiliate_id)
-    sector, phone = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+    sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
     user = g.db.users.validate_and_insert_user(
         username=username,
@@ -211,10 +209,9 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
-        ConnectionInvites(g.db).convert_invites_to_connections(email, account_obj)
 
         perform_new_account_actions(db=g.db, account_id=account_obj.id(), user_id=user.id(),
-                                    event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id())
+                                    event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id(), email=email)
 
     except Exception as e:
         raise e

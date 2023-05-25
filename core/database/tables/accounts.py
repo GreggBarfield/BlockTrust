@@ -134,6 +134,8 @@ class Accounts:
             accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
             if len(accounts) > 0:
                 raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+            if affiliate_id and affiliate_id.isdigit():
+                affiliate_id = int(affiliate_id)
 
         try:
             sector = int(sector)
@@ -156,9 +158,9 @@ class Accounts:
             if phone == "":
                 phone = None
 
-        return sector, phone
+        return sector, phone, affiliate_id
 
-    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid=None):
         """Creates a new account without a user.
 
         Params:
@@ -181,9 +183,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name, manual_paid)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s, %(manual_paid)s)
             """,
             {
                 "company": company,
@@ -195,7 +197,8 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "show_real_name": int(False)
+                "show_real_name": int(False),
+                "manual_paid": manual_paid
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -210,7 +213,7 @@ class Accounts:
 
         return account
 
-    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid=None):
         """Creates a new account with the user automatically added as the admin.
 
         Params:
@@ -232,7 +235,7 @@ class Accounts:
             AccountsException
         """
 
-        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone)
+        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid)
 
         # make the first user the account admin
         account.add_user(user, 1)
