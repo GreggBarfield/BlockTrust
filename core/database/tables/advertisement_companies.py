@@ -3,7 +3,7 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 
 
-class AdvertisementComapnies:
+class AdvertisementCompanies:
 
     def __init__(self, db):
         self._db = db

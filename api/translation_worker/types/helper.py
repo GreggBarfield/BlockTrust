@@ -22,7 +22,8 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         if grouping_id:
             sighting_data["grouping_id"] = grouping_id
         previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-        previous_api_inserts.append(matches[0]["api_insert"])
+        if matches[0]["api_insert"]:
+            previous_api_inserts.append(matches[0]["api_insert"])
 
         db.matches.update_match(
             id=matches[0]["id"],
@@ -57,7 +58,8 @@ def process_birth_date(db, input_data, eid, partner_account, account_link, api_i
         if matches:
             # update birth_date, partner_account, api_insert id
             previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-            previous_api_inserts.append(matches[0]["api_insert"])
+            if matches[0]["api_insert"]:
+                previous_api_inserts.append(matches[0]["api_insert"])
             db.matches.update_match(
                 id=matches[0]["id"],
                 time=birth_date,
@@ -102,7 +104,8 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
         if matches:
             # update weaned obj, weaned date, partner_account and api_insert
             previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-            previous_api_inserts.append(matches[0]["api_insert"])
+            if matches[0]["api_insert"]:
+                previous_api_inserts.append(matches[0]["api_insert"])
             if existing_weaned_obj := matches[0]["data"]:
                 for k, v in existing_weaned_obj.items():
                     if k not in weaned_object:

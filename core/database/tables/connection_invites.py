@@ -42,13 +42,14 @@ class ConnectionInvites:
             }
         )
 
-    def convert_invites_to_connections(self, email, account):
+    def convert_invites_to_connections(self, email, account_id):
         """
         Adds invites in the connection_invites table to connections table once a user signs up
         Removes row from the connection_invites table
 
         Params:
             email: Email of the user who has signed up
+            account_id: ID of the invited account
 
         Returns:
             None
@@ -58,7 +59,7 @@ class ConnectionInvites:
             for invite in invites:
                 Connections(self._db).create_or_fail_connection(
                     from_account_id=invite["from_account"],
-                    to_account_id=account.id(),
+                    to_account_id=account_id,
                     status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
                     connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
                 )

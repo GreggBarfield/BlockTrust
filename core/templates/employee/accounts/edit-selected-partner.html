@@ -10,7 +10,14 @@
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Edit Partner Account</h5>
+            <div class="card-header d-flex">
+                <div class="col-md-3">
+                    <h5>Edit Partner Account</h5>
+                </div> 
+                <div class="col-md-9 d-flex justify-content-end">
+                    <a class="btn btn-primary" href="/employee/dashboard/edit-partner/upload-ranch-accounts/{{partner_row.id}}">Upload Ranch Accounts</a>
+                </div>
+            </div>
             <div class="card-body col-lg-6 mb-2">
                 <form class="bg-white"  id="edit_partner_account_form"  method="POST"> 
                     <div class="row">

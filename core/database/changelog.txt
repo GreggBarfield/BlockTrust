@@ -1903,3 +1903,18 @@ ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
 ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
 ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`,
 CHANGE COLUMN `api_insert_id` `api_insert_id` INT NULL DEFAULT NULL AFTER `visual_id`;
+
+/* Rohan Sureshkumar 5/23/23 */
+ALTER TABLE `sales_groups` 
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `are_annual_cattle_herd_vaccinations_given`,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+ALTER TABLE `sales_groups` 
+ADD COLUMN `seller_id` VARCHAR(30) NULL AFTER `are_annual_cattle_herd_vaccinations_given`,
+ADD COLUMN `vaccination_date` INT NULL AFTER `seller_id`,
+ADD COLUMN `vaccination_summary` VARCHAR(30) NULL AFTER `vaccination_date`,
+ADD COLUMN `herd_sire` VARCHAR(30) NULL AFTER `vaccination_summary`,
+ADD COLUMN `ranch_source_county` VARCHAR(30) NULL AFTER `herd_sire`,
+ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
+ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
+ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`;

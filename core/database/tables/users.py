@@ -327,7 +327,7 @@ class Users:
         query_values = {}
 
         if id is not NO_VALUE:
-            query_conditions.append("id = %(id)s")
+            query_conditions.append("u.id = %(id)s")
             query_values["id"] = id
         if username is not NO_VALUE:
             query_conditions.append("username = %(username)s")
