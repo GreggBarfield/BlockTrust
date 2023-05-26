@@ -845,7 +845,7 @@ def serve_get_existing_sustainability_responses():
 @bp.route('/widgets/data/get_advertisement_companies_and_categories', methods=["POST"])
 @crut.require_employee
 def serve_get_advertising_companies():
-    advertisement_companies = AdvertisementComapnies(g.db).get()
+    advertisement_companies = AdvertisementCompanies(g.db).get()
     return {
         "advertisement_companies": advertisement_companies,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
@@ -867,7 +867,7 @@ def serve_save_new_advertisement():
 @bp.route('/widgets/data/save_new_advertisement_company', methods=["POST"])
 @crut.require_employee
 def serve_save_new_advertisement_company():
-    AdvertisementComapnies(g.db).insert(
+    AdvertisementCompanies(g.db).insert(
         name=request.form["name"],
         email=request.form["email"],
         contact_name=request.form["contact_name"],
