@@ -12,7 +12,12 @@ event_type_by_name = {
     "Invited Signup": 6,
     "Sales Group Purchase": 7,
     "Account Created By Employee": 8,
-    "Bulk Account And User Signup By Employee": 9
+    "Bulk Account And User Signup By Employee": 9,
+    "Signup Failed By User": 10,
+    "Login Failed": 11,
+    "Password Reset Requested": 12,
+    "Password Reset Completed": 13,
+    "Password Reset Failed": 14
 }
 event_type_by_id = {
     value: key

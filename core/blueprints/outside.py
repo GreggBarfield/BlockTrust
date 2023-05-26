@@ -4,6 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.combinations import send_email_to_admin_users
+from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
@@ -161,6 +162,10 @@ def serve_signup_action():
                         ip_country=request.form['ip_country']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
+                    EventLogs(g.db).insert_event_log(
+                        event_type_id=event_type_by_name["Signup Failed By User"],
+                        details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
+                    )
                     raise ExportException("Signup failed: " + str(e))
 
                 # Generating token identifier for user for email verification
@@ -284,6 +289,11 @@ def serve_password_request_action():
                 render_email("forgot_password.html", {
                     'password_reset_url': password_reset_url
                 }), request.form['email']
+        )
+        EventLogs(g.db).insert_event_log(
+            event_type_id=event_type_by_name["Password Reset Requested"],
+            user_id=user.id(),
+            details={"user_email": request.form["email"]}
         )
         return {"redirect": "/password-reset-message"}
 

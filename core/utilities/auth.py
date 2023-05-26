@@ -247,7 +247,15 @@ def reset_user_password(email, new_password, confirm_password):
             id=user["id"],
             password=new_password
         )
+        EventLogs(g.db).insert_event_log(
+            event_type_id=event_type_by_name["Password Reset Completed"],
+            user_id=user["id"]
+        )
     except Exception as e:
+        EventLogs(g.db).insert_event_log(
+            event_type_id=event_type_by_name["Password Reset Failed"],
+            details={"error_message": str(e)}
+        )
         raise e
 
 
@@ -351,11 +359,20 @@ def login(identifier, password=""):
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
 
         if user_row is None:
+            EventLogs(g.db).insert_event_log(
+                event_type_id=event_type_by_name["Login Failed"],
+                details={"error_message": "User account not found for " + identifier}
+            )
             raise LoginException(generic_error)
 
         # To check if the user profile being accessed has a verified email
         if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
+            EventLogs(g.db).insert_event_log(
+                event_type_id=event_type_by_name["Login Failed"],
+                user_id=user_row["id"],
+                details={"error_message": email_not_verified_error}
+            )
             raise EmailNotVerifiedException(email_not_verified_error)
 
         locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
@@ -364,6 +381,11 @@ def login(identifier, password=""):
             # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
             
             if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+                EventLogs(g.db).insert_event_log(
+                    event_type_id=event_type_by_name["Login Failed"],
+                    user_id=user_row["id"],
+                    details={"error_message": locked_account_error}
+                )
                 raise LoginException(locked_account_error)
             else:
                 g.db.execute(
@@ -412,8 +434,17 @@ def login(identifier, password=""):
                         "locked_time": int(round(time.time()))
                     }
                 )
+                EventLogs(g.db).insert_event_log(
+                    event_type_id=event_type_by_name["Login Failed"],
+                    user_id=user_row["id"],
+                    details={"error_message": locked_account_error}
+                )
                 raise LoginException(locked_account_error)
-         
+            EventLogs(g.db).insert_event_log(
+                    event_type_id=event_type_by_name["Login Failed"],
+                    user_id=user_row["id"],
+                    details={"error_message": "Wrong Password"}
+                )
             raise LoginException(generic_error)
 
 
