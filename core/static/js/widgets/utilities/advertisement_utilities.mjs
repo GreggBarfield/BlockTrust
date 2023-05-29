@@ -29,6 +29,7 @@ const generateDropDownInput = (inputId, inputOptions, defaultOptionText, inputRe
     defaultDisabledOption.selected = true;
     defaultDisabledOption.disabled = true;
     defaultDisabledOption.textContent = defaultOptionText;
+    defaultDisabledOption.value = -1;
     selectInput.appendChild(defaultDisabledOption);
     for(let [optionValue, optionTextContent] of Object.entries(inputOptions)){
         let option = document.createElement("option");
@@ -40,7 +41,25 @@ const generateDropDownInput = (inputId, inputOptions, defaultOptionText, inputRe
     return inputContainer;
 }
 
+const advertisementFormFields = ["ad_company", "ad_category", "short_description", "long_description"];
+
+const advertisementCompanyFormFields = ["name", "email", "contact_name", "address", "city", "state", "zip_code", "phone"];
+
+const validateFormCompletion = (formFieldIds) =>{
+    let formCompletionStatus = true;
+    for(let fieldId of formFieldIds){
+        let fieldValue = document.getElementById(fieldId).value;
+        if(fieldValue == "" || fieldValue == -1){
+            formCompletionStatus = false;
+        }
+    }
+    return formCompletionStatus;
+}
+
 export {
     generateTextInput,
-    generateDropDownInput
+    generateDropDownInput,
+    validateFormCompletion,
+    advertisementFormFields,
+    advertisementCompanyFormFields
 }

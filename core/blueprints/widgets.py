@@ -852,35 +852,6 @@ def serve_get_advertising_companies():
     }
 
 
-@bp.route('/widgets/data/save_new_advertisement', methods=["POST"])
-@crut.require_employee
-def serve_save_new_advertisement():
-    Advertisements(g.db).insert(
-        ad_company_id=request.form["ad_company_id"],
-        ad_category_id=request.form["ad_category_id"],
-        short_description=request.form["short_description"],
-        long_description=request.form["long_description"]
-    )
-    return {"redirect": "/employee/dashboard"}
-
-
-@bp.route('/widgets/data/save_new_advertisement_company', methods=["POST"])
-@crut.require_employee
-def serve_save_new_advertisement_company():
-    AdvertisementCompanies(g.db).insert(
-        name=request.form["name"],
-        email=request.form["email"],
-        contact_name=request.form["contact_name"],
-        address=request.form["address"],
-        city=request.form["city"],
-        state=request.form["state"],
-        zip_code=request.form["zip_code"],
-        phone=request.form["phone"],
-        integrated_with_blocktrust=request.form["integrated_with_blocktrust"]
-    )
-    return {"redirect": "/employee/dashboard"}
-
-
 @bp.route('/widgets/data/get_advertisements', methods=["POST"])
 @crut.require_account
 def serve_get_advertisements():

@@ -1,6 +1,6 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, validateFormCompletion, advertisementFormFields } from "../../../utilities/advertisement_utilities.mjs";
 
 export class AddAdvertisementWidget extends Widget {
     constructor(frame) {
@@ -65,19 +65,14 @@ export class AddAdvertisementWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = () =>{
-            let allQuestionsAnswered = true;
-            let ad_company_id = document.getElementById("ad_company").value;
-            let ad_category_id = document.getElementById("ad_category").value;
-            let short_description = document.getElementById("short_description").value;
-            let long_description = document.getElementById("long_description").value;
-            if(ad_company_id == "-Please select Company-"){ allQuestionsAnswered=false; }
-            if(ad_category_id == "-Please select Advertisement Category-"){ allQuestionsAnswered=false; }
-            if(short_description == ""){ allQuestionsAnswered=false; }
-            if(long_description == ""){ allQuestionsAnswered=false; }
-            if(allQuestionsAnswered){
+        submitButton.onclick = (e) =>{
+            // Prevent the form from performing default action and handling it explicitly
+            e.preventDefault();
+            let formCompletionStatus = validateFormCompletion(advertisementFormFields);
+            if(formCompletionStatus){
+                errorMessage.className = "d-none";
                 let newAdvertisementAsyncForm = new AsyncForm({
-                    action: "/widgets/data/save_new_advertisement",
+                    action: window.location.href,
                     form: form,
                     status: statusMessage,
                     error: errorMessage,
@@ -85,10 +80,10 @@ export class AddAdvertisementWidget extends Widget {
                     loadingMessage: "Saving...",
                     getData: () => {
                         return {
-                            ad_company_id: ad_company_id,
-                            ad_category_id: ad_category_id,
-                            short_description: short_description,
-                            long_description: long_description
+                            ad_company_id: document.getElementById("ad_company").value,
+                            ad_category_id: document.getElementById("ad_category").value,
+                            short_description: document.getElementById("short_description").value,
+                            long_description: document.getElementById("long_description").value
                         };
                     }
                 });
@@ -99,27 +94,6 @@ export class AddAdvertisementWidget extends Widget {
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-        return form;
-    }
-
-    submitAdvertisementForm = (form) =>{
-        let asyncForm = new AsyncForm({
-            action: "/widgets/data/save_new_advertisement",
-            form: form,
-            status: statusMessage,
-            error: errorMessage,
-            redirectMessage: "Saved!",
-            loadingMessage: "Saving...",
-            getData: () => {
-                return {
-                    scores: this.scores,
-                    uploaded_file_ids: this.uploadedFileIDList,
-                    total_score: this.totalScore,
-                    responses: this.responses,
-                    is_partial_response: this.isPartialResponse,
-                    sustainability_response_id: sustainabilityResponseId
-                };
-            }
-        });
+        return form;s
     }
 }

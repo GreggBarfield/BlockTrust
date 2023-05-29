@@ -1,6 +1,6 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, validateFormCompletion, advertisementCompanyFormFields } from "../../../utilities/advertisement_utilities.mjs";
 import { states } from '../../../../core/common_constants.mjs';
 
 export class AddAdvertisementCompanyWidget extends Widget {
@@ -62,28 +62,14 @@ export class AddAdvertisementCompanyWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = () =>{
-            let allQuestionsAnswered = true;
-            let name = document.getElementById("name").value;
-            let email = document.getElementById("email").value;
-            let contact_name = document.getElementById("contact_name").value;
-            let address = document.getElementById("address").value;
-            let city = document.getElementById("city").value;
-            let state = document.getElementById("state").value;
-            let zip_code = document.getElementById("zip_code").value;
-            let phone = document.getElementById("phone").value;
-            let integrated_with_blocktrust = document.getElementById("integrated_with_blocktrust").checked;
-            if(name == ""){ allQuestionsAnswered=false; }
-            if(email == ""){ allQuestionsAnswered=false; }
-            if(contact_name == ""){ allQuestionsAnswered=false; }
-            if(address == ""){ allQuestionsAnswered=false; }
-            if(city == ""){ allQuestionsAnswered=false; }
-            if(state == "-Please select State-"){ allQuestionsAnswered=false; }
-            if(zip_code == ""){ allQuestionsAnswered=false; }
-            if(phone == ""){ allQuestionsAnswered=false; }
-            if(allQuestionsAnswered){
+        submitButton.onclick = (e) =>{
+            // Prevent the form from performing default action and handling it explicitly
+            e.preventDefault();
+            let formCompletionStatus = validateFormCompletion(advertisementCompanyFormFields);
+            if(formCompletionStatus){
+                errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
-                    action: "/widgets/data/save_new_advertisement_company",
+                    action: window.location.href,
                     form: form,
                     status: statusMessage,
                     error: errorMessage,
@@ -91,15 +77,15 @@ export class AddAdvertisementCompanyWidget extends Widget {
                     loadingMessage: "Saving...",
                     getData: () => {
                         return {
-                            name: name,
-                            email: email,
-                            contact_name: contact_name,
-                            address: address,
-                            city: city,
-                            state: state,
-                            zip_code: zip_code,
-                            phone: phone,
-                            integrated_with_blocktrust: integrated_with_blocktrust ? 1: 0
+                            name: document.getElementById("name").value,
+                            email: document.getElementById("email").value,
+                            contact_name: document.getElementById("contact_name").value,
+                            address: document.getElementById("address").value,
+                            city: document.getElementById("city").value,
+                            state: document.getElementById("state").value,
+                            zip_code: document.getElementById("zip_code").value,
+                            phone: document.getElementById("phone").value,
+                            integrated_with_blocktrust: document.getElementById("integrated_with_blocktrust").checked ? 1: 0
                         };
                     }
                 });
@@ -110,7 +96,6 @@ export class AddAdvertisementCompanyWidget extends Widget {
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-
         return form;
     }
 }
