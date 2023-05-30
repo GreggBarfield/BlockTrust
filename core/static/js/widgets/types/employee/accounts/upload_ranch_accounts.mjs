@@ -18,11 +18,17 @@ export class UploadRanchAccountsWidget extends Widget {
         uploadRanchAccountsContainer.className = "card";
 
         let cardHeader = document.createElement("div");
-        cardHeader.className = "card-header p-1";
+        cardHeader.className = "card-header p-1 d-flex";
         let cardHeaderText = document.createElement("h5");
-        cardHeaderText.className = "mt-2 p-2";
+        cardHeaderText.className = "mt-2 p-2 col-md-6";
         cardHeaderText.textContent = "UPLOAD RANCH ACCOUNTS FOR ACCOUNT " + partnerId + " (CSV format only)";
         cardHeader.append(cardHeaderText);
+
+        let downloadCSVTemplateButtonContainer = document.createElement("div");
+        downloadCSVTemplateButtonContainer.className = "col-md-6 d-flex justify-content-end"
+        let downloadCSVTemplateButton = this.generateDownloadCSVTemplateButton();
+        downloadCSVTemplateButtonContainer.append(downloadCSVTemplateButton);
+        cardHeader.append(downloadCSVTemplateButtonContainer);
         uploadRanchAccountsContainer.append(cardHeader);
 
         let cardBody = document.createElement("div");
@@ -102,5 +108,18 @@ export class UploadRanchAccountsWidget extends Widget {
             }
         }
         return uploadRanchAccountsContainer;
+    }
+
+    generateDownloadCSVTemplateButton = () =>{
+        let downloadLink = document.createElement("a");
+        downloadLink.textContent = "Download CSV Template";
+        downloadLink.className = "btn btn-primary";
+        let headers = ["ranch_name", "first_name", "last_name", "sector", "phone", "address", "city", "state", "affiliate_id", "zip_code", "email"];
+        let tableData = [headers];
+        let csvContent = "data:text/csv;charset=utf-8," + tableData.map(e => e.join(",")).join("\n");
+        let encodedUri = encodeURI(csvContent);
+        downloadLink.href = encodedUri;
+        downloadLink.download = "Upload_Ranch_Accounts_Template.csv"
+        return downloadLink;
     }
 }
