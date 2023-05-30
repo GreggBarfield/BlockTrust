@@ -1,6 +1,6 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput, validateFormCompletion, advertisementCompanyFormFields } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
 import { states } from '../../../../core/common_constants.mjs';
 
 export class AddAdvertisementCompanyWidget extends Widget {
@@ -65,7 +65,25 @@ export class AddAdvertisementCompanyWidget extends Widget {
         submitButton.onclick = (e) =>{
             // Prevent the form from performing default action and handling it explicitly
             e.preventDefault();
-            let formCompletionStatus = validateFormCompletion(advertisementCompanyFormFields);
+            let formResponseValues = [];
+            let name = document.getElementById("name").value;
+            formResponseValues.push(name);
+            let email = document.getElementById("email").value;
+            formResponseValues.push(email);
+            let contactName = document.getElementById("contact_name").value;
+            formResponseValues.push(contactName);
+            let address = document.getElementById("address").value;
+            formResponseValues.push(address);
+            let city = document.getElementById("city").value;
+            formResponseValues.push(city);
+            let state = document.getElementById("state").value;
+            formResponseValues.push(state);
+            let zipCode = document.getElementById("zip_code").value;
+            formResponseValues.push(zipCode);
+            let phone = document.getElementById("phone").value;
+            formResponseValues.push(phone);
+            let integratedWithBlockTrust = document.getElementById("integrated_with_blocktrust").checked;
+            let formCompletionStatus = validateFormCompletion(formResponseValues);
             if(formCompletionStatus){
                 errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
@@ -77,15 +95,15 @@ export class AddAdvertisementCompanyWidget extends Widget {
                     loadingMessage: "Saving...",
                     getData: () => {
                         return {
-                            name: document.getElementById("name").value,
-                            email: document.getElementById("email").value,
-                            contact_name: document.getElementById("contact_name").value,
-                            address: document.getElementById("address").value,
-                            city: document.getElementById("city").value,
-                            state: document.getElementById("state").value,
-                            zip_code: document.getElementById("zip_code").value,
-                            phone: document.getElementById("phone").value,
-                            integrated_with_blocktrust: document.getElementById("integrated_with_blocktrust").checked ? 1: 0
+                            name: name,
+                            email: email,
+                            contact_name: contactName,
+                            address: address,
+                            city: city,
+                            state: state,
+                            zip_code: zipCode,
+                            phone: phone,
+                            integrated_with_blocktrust: integratedWithBlockTrust ? 1: 0
                         };
                     }
                 });

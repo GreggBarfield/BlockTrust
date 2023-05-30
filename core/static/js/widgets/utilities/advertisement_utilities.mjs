@@ -41,15 +41,10 @@ const generateDropDownInput = (inputId, inputOptions, defaultOptionText, inputRe
     return inputContainer;
 }
 
-const advertisementFormFields = ["ad_company", "ad_category", "short_description", "long_description"];
-
-const advertisementCompanyFormFields = ["name", "email", "contact_name", "address", "city", "state", "zip_code", "phone"];
-
-const validateFormCompletion = (formFieldIds) =>{
+const validateFormCompletion = (formResponseValues) =>{
     let formCompletionStatus = true;
-    for(let fieldId of formFieldIds){
-        let fieldValue = document.getElementById(fieldId).value;
-        if(fieldValue == "" || fieldValue == -1){
+    for(let value of formResponseValues){
+        if(value == "" || value == -1){
             formCompletionStatus = false;
         }
     }
@@ -59,7 +54,5 @@ const validateFormCompletion = (formFieldIds) =>{
 export {
     generateTextInput,
     generateDropDownInput,
-    validateFormCompletion,
-    advertisementFormFields,
-    advertisementCompanyFormFields
+    validateFormCompletion
 }

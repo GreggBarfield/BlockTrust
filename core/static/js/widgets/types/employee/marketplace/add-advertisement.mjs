@@ -1,6 +1,6 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput, validateFormCompletion, advertisementFormFields } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
 
 export class AddAdvertisementWidget extends Widget {
     constructor(frame) {
@@ -68,7 +68,16 @@ export class AddAdvertisementWidget extends Widget {
         submitButton.onclick = (e) =>{
             // Prevent the form from performing default action and handling it explicitly
             e.preventDefault();
-            let formCompletionStatus = validateFormCompletion(advertisementFormFields);
+            let formResponseValues = [];
+            let adCompanyId = document.getElementById("ad_company").value;
+            formResponseValues.push(adCompanyId);
+            let adCategoryId = document.getElementById("ad_category").value;
+            formResponseValues.push(adCategoryId);
+            let shortDescription = document.getElementById("short_description").value;
+            formResponseValues.push(shortDescription);
+            let longDescription = document.getElementById("long_description").value;
+            formResponseValues.push(longDescription);
+            let formCompletionStatus = validateFormCompletion(formResponseValues);
             if(formCompletionStatus){
                 errorMessage.className = "d-none";
                 let newAdvertisementAsyncForm = new AsyncForm({
@@ -80,10 +89,10 @@ export class AddAdvertisementWidget extends Widget {
                     loadingMessage: "Saving...",
                     getData: () => {
                         return {
-                            ad_company_id: document.getElementById("ad_company").value,
-                            ad_category_id: document.getElementById("ad_category").value,
-                            short_description: document.getElementById("short_description").value,
-                            long_description: document.getElementById("long_description").value
+                            ad_company_id: adCompanyId,
+                            ad_category_id: adCategoryId,
+                            short_description: shortDescription,
+                            long_description: longDescription
                         };
                     }
                 });
