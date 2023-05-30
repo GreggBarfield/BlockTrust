@@ -348,7 +348,7 @@ def login(identifier, password=""):
                 user_row = email_results[0]
 
         # End of tries
-        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues"
 
         if user_row is None:
             raise LoginException(generic_error)
@@ -358,76 +358,72 @@ def login(identifier, password=""):
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
-        locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
-        if int(user_row["is_user_locked"]) == 1:
-            
-            # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
-            
-            if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
-                raise LoginException(locked_account_error)
-            else:
-                g.db.execute(
-                """
-                    UPDATE users
-                    SET failed_attempts =  %(failed_attempts)s, 
-                    is_user_locked = %(is_user_locked)s, 
-                    locked_time = %(locked_time)s
-                    WHERE
-                        users.id=%(id)s
-                """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts": 0,
-                        "is_user_locked": 0,
-                        "locked_time": None
-                    }
-                )
+        # Retained for future 5/30/23
+        # locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
+        # if int(user_row["is_user_locked"]) == 1:
+        #     # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
+        #     if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+        #         raise LoginException(locked_account_error)
+        #     else:
+        #         g.db.execute(
+        #         """
+        #             UPDATE users
+        #             SET failed_attempts =  %(failed_attempts)s,
+        #             is_user_locked = %(is_user_locked)s,
+        #             locked_time = %(locked_time)s
+        #             WHERE
+        #                 users.id=%(id)s
+        #         """,
+        #             {
+        #                 "id": user_row["id"],
+        #                 "failed_attempts": 0,
+        #                 "is_user_locked": 0,
+        #                 "locked_time": None
+        #             }
+        #         )
 
         if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
-            failed_attempts = user_row["failed_attempts"] + 1
             g.db.execute_d(
-                    """
-                        UPDATE users
-                        SET failed_attempts =  %(failed_attempts)s
-                        WHERE
-                            users.id=%(id)s
-                    """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts":  failed_attempts
-                    }
-            )
- 
-            if failed_attempts == 3:
-                g.db.execute(
                 """
                     UPDATE users
-                    SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+                    SET failed_attempts =  failed_attempts + 1
                     WHERE
                         users.id=%(id)s
                 """,
-                    {
-                        "id": user_row["id"],
-                        "is_user_locked": 1,
-                        "locked_time": int(round(time.time()))
-                    }
-                )
-                raise LoginException(locked_account_error)
-         
+                {
+                    "id": user_row["id"]
+                }
+            )
+
+            # Retained for future 5/30/23
+            # if failed_attempts == 3:
+            #     g.db.execute(
+            #     """
+            #         UPDATE users
+            #         SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+            #         WHERE
+            #             users.id=%(id)s
+            #     """,
+            #         {
+            #             "id": user_row["id"],
+            #             "is_user_locked": 1,
+            #             "locked_time": int(round(time.time()))
+            #         }
+            #     )
+            #     raise LoginException(locked_account_error)
+
             raise LoginException(generic_error)
 
-
-        if  user_row["failed_attempts"] > 0:
+        if user_row["failed_attempts"] > 0:
             g.db.execute(
-            """
-                UPDATE users
-                SET failed_attempts =  %(failed_attempts)s
-                WHERE
-                    users.id=%(id)s
-            """,
+                """
+                    UPDATE users
+                    SET failed_attempts =  0
+                    WHERE
+                        users.id=%(id)s
+                """,
                 {
-                    "id": user_row["id"],
-                    "failed_attempts": 0
+                    "id": user_row["id"]
                 }
             )
         return user_row["id"]
