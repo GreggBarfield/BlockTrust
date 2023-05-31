@@ -45,12 +45,13 @@ export class Widget {
             const promiseResolve = dataRequest.promiseResolve;
             const promiseError = dataRequest.promiseError;
             const suppressErrors = dataRequest.suppressErrors;
+            const method = dataRequest.method;
             let that = this;
             ajax({
                 url: "/widgets/data/" + action,
                 data: JSON.stringify(params),
                 contentType: 'application/json',
-                method: "POST"
+                method: method
             })
                 .then((networkResult) => {
                     if ('onSomeDataLoaded_bind' in that && that.onSomeDataLoaded_bind) {
@@ -71,7 +72,7 @@ export class Widget {
         this.queuedDataRequests = [];
     }
 
-    getData(action, params={}, suppressErrors=false) {
+    getData(action, params={}, suppressErrors=false, method="POST") {
         this.totalDataRequested += 1;
         let promiseResolve, promiseError;
         let promise = new Promise((resolve, error)=>{
@@ -83,7 +84,8 @@ export class Widget {
             params: params,
             promiseResolve: promiseResolve,
             promiseError: promiseError,
-            suppressErrors: suppressErrors
+            suppressErrors: suppressErrors,
+            method: method
         });
         if (this.instantProcessDataRequests) {
             this.processQueuedDataRequests();
