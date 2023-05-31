@@ -42,6 +42,7 @@ import { PartnerCountDistributionWidget } from './types/animal_data/partner_coun
 import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
 import { InvoiceWidget } from './types/tag-store/invoice.mjs';
+import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
 
 
 // Immediately invoked
@@ -100,6 +101,7 @@ import { InvoiceWidget } from './types/tag-store/invoice.mjs';
     attach("checkout", CheckoutWidget);
     attach("shopping cart", ShoppingCartWidget);
     attach("invoice", InvoiceWidget);
+    attach("upload ranch accounts", UploadRanchAccountsWidget);
 
     // Find widgets
     $(".widget").each(function () {

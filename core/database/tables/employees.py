@@ -111,7 +111,7 @@ class Employees:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_employee(self, username, password, email, first_name, last_name, phone):
+    def create_employee(self, username, password, email, first_name, last_name, phone=None):
         """Creates a new employee
 
         Params:
@@ -151,26 +151,24 @@ class Employees:
         # and be no more than 60 characters in UTF-8
         # and can't contain the null byte when in UTF-8
 
-        if len(password) < 10:
-            raise EmployeesException("Password must be at least 10 characters.")
+        if len(password) < 8:
+            raise EmployeesException("Password must be at least 8 characters.")
 
         if len(password.encode("utf-8")) > 60:
             raise EmployeesException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
 
         # Process phone number
-
-        digits = ''.join(chr(ord('0') + i) for i in range(10))
-        temp_phone = ""
-        for c in phone:
-            if c in digits:
-                temp_phone += c
-        phone = temp_phone
+        if phone is not None:
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
 
         # If phone is empty it is NULL
         if phone == "":
             phone = None
-
-        # We don't really care whether or not the phone is being used more than once
 
         self._db.execute(
             """

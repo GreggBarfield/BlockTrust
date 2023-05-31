@@ -12,13 +12,13 @@ export class InfoModal extends CoreModal {
         super(wide);
         let that = this;
 
-        let modalHeader = document.createElement("div");
-        modalHeader.className = "modal-header";
+        this.modalHeader = document.createElement("div");
+        this.modalHeader.className = "modal-header";
         
         let modalHeaderH5 = document.createElement("h5");
         modalHeaderH5.className = "modal-title";
         modalHeaderH5.innerHTML = headerText;
-        modalHeader.append(modalHeaderH5);
+        this.modalHeader.append(modalHeaderH5);
 
         let modalHeaderX = document.createElement("button");
         modalHeaderX.className = "close";
@@ -26,9 +26,9 @@ export class InfoModal extends CoreModal {
             that.close();
         });
         modalHeaderX.textContent = "x";
-        modalHeader.append(modalHeaderX);
+        this.modalHeader.append(modalHeaderX);
         
-        this.modalContent.append(modalHeader);
+        this.modalContent.append(this.modalHeader);
 
         let modalBody = document.createElement("div");
         this.modalBody = modalBody;
@@ -59,6 +59,10 @@ export class InfoModal extends CoreModal {
         modalFooter.append(closeButton);
 
         this.modalContent.append(modalFooter);
+    }
+
+    getHeader() {
+        return this.modalHeader;
     }
 
     getBody() {

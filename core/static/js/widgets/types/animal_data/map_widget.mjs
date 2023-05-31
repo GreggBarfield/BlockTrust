@@ -312,7 +312,7 @@ export class MapWidget extends Widget {
                 initialRadius = initialRadius/2;
             }
             else if (jvmMarkers.length > 10) {
-                initialRadius = intialRadius/1.27;
+                initialRadius = initialRadius/1.27;
             }
             return {
                 map: name,

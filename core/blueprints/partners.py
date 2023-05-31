@@ -1,10 +1,15 @@
 from flask import (
     Blueprint, g, request, url_for
 )
+from core.common_exceptions import ExportException
+from core.config import FLATFILE_LICENSE
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from core.database.tables.api_inserts import ApiInserts
+from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.sectors import SECTORS_NAME_TO_ID
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
+from json import loads
 
 bp = Blueprint('partner_bp', __name__, url_prefix="/partner")
 
@@ -66,3 +71,23 @@ def serve_view_account_sustainability_data(account_id):
     return partner_render("sustainability/view_account_sustainability_scores.html", {
         "account_id": account_id, "account_name": account_name
     })
+
+
+@bp.route('/upload-tags', methods=['GET', 'POST'])
+@crut.require_partner
+def serve_upload_tags():
+    if request.method == 'POST':
+        data = loads(request.data)
+        try:
+            for row in data["eids"]:
+                ApiInserts(g.db).insert(g.account.id(), "PARTNER", "TagUpload", row)
+            EventLogs(g.db).insert_event_log(
+                account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"]
+            )
+            return "", 200
+        except Exception as e:
+            raise ExportException(e)
+    elif request.method == 'GET':
+        return partner_render("upload-tags.html",  {
+            "account": g.account, "user": g.user, "license": FLATFILE_LICENSE
+        })

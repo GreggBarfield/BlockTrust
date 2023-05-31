@@ -1885,7 +1885,7 @@ ADD COLUMN `feeder_weight` INT NULL AFTER `feeder_account_number`,
 ADD COLUMN `terminal_reimplant_weight` INT NULL AFTER `feeder_weight`,
 ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
 
-/* Rohan Sureshkumar 27/4/23 */
+/* Rohan Sureshkumar 4/27/23 */
 ALTER TABLE `animals` 
 ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
 
@@ -1912,3 +1912,30 @@ ALTER TABLE `accounts`
 ADD COLUMN `partner_paid` TINYINT(1) NULL DEFAULT 0 AFTER `manual_paid`,
 ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`,
 CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid` + `partner_paid`),1,0)) VIRTUAL ;
+
+/* Rohan Sureshkumar 5/22/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `seller_id` VARCHAR(30) NULL AFTER `terminal_reimplant_date`,
+ADD COLUMN `vaccination_date` INT NULL AFTER `seller_id`,
+ADD COLUMN `vaccination_summary` VARCHAR(30) NULL AFTER `vaccination_date`,
+ADD COLUMN `herd_sire` VARCHAR(30) NULL AFTER `vaccination_summary`,
+ADD COLUMN `ranch_source_county` VARCHAR(30) NULL AFTER `herd_sire`,
+ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
+ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
+ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`,
+CHANGE COLUMN `api_insert_id` `api_insert_id` INT NULL DEFAULT NULL AFTER `visual_id`;
+
+/* Rohan Sureshkumar 5/23/23 */
+ALTER TABLE `sales_groups` 
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `are_annual_cattle_herd_vaccinations_given`,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+
+ALTER TABLE `sales_groups` 
+ADD COLUMN `seller_id` VARCHAR(30) NULL AFTER `are_annual_cattle_herd_vaccinations_given`,
+ADD COLUMN `vaccination_date` INT NULL AFTER `seller_id`,
+ADD COLUMN `vaccination_summary` VARCHAR(30) NULL AFTER `vaccination_date`,
+ADD COLUMN `herd_sire` VARCHAR(30) NULL AFTER `vaccination_summary`,
+ADD COLUMN `ranch_source_county` VARCHAR(30) NULL AFTER `herd_sire`,
+ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
+ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
+ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`;

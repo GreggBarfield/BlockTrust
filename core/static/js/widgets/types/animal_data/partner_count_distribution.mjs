@@ -5,23 +5,12 @@ export class PartnerCountDistributionWidget extends Widget {
         super(frame);
     }
 
-    initType() {
-            this.getData(
-                "data_request",
-                {
-                    request: { 
-                        type: "count_distribution",
-                        params: {}
-                    }
-                }
-            ).then((data) => {
-                let accountSummaryData = data.result.count_distribution !== null ? data.result.count_distribution: {};
-                this.frame.innerHTML = "";
-                let container = this.makeTableContainer(accountSummaryData);
-                this.frame.appendChild(container);
-            })
-        
-
+    initType = async() =>{
+        let accountSummaryDataResult = await this.getData("data_request", {request: {type: "count_distribution", params: {}}});
+        let accountSummaryData = accountSummaryDataResult.result.count_distribution !== null ? accountSummaryDataResult.result.count_distribution: {};
+        this.frame.innerHTML = "";
+        let container = this.makeTableContainer(accountSummaryData);
+        this.frame.appendChild(container);
     }
 
     makeTableContainer = (distributionData) => {
@@ -80,6 +69,11 @@ export class PartnerCountDistributionWidget extends Widget {
             sustainabilityScoreLink.text = "View Score";
             sustainabilityScoreLink.target = "_blank";
             sustainabilityScoreLink.classList.add("btn", "btn-link");
+            if(data["survey_completed"]){
+                let surveyCompletionIcon = document.createElement("i");
+                surveyCompletionIcon.className = "fas fa-check text-success ml-2";
+                sustainabilityScoreLink.appendChild(surveyCompletionIcon);
+            }
             row.push(sustainabilityScoreLink)
             if (dataCount){
                 row.push(("Prime" in qualityDistribution? 100*qualityDistribution.Prime/dataCount : 0).toFixed(2)+"%");
