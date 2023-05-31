@@ -552,8 +552,7 @@ def serve_add_advertisement():
             short_description=request.form["short_description"],
             long_description=request.form["long_description"]
         )
-        return {"redirect": "/employee/dashboard"}
-
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
 
 @bp.route("/employee/dashboard/add-advertisement-company", methods=["GET", "POST"])
 @crut.require_employee
@@ -570,9 +569,9 @@ def serve_add_advertising_company():
             state=request.form["state"],
             zip_code=request.form["zip_code"],
             phone=request.form["phone"],
-            integrated_with_blocktrust=request.form["integrated_with_blocktrust"]
+            is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
         )
-        return {"redirect": "/employee/dashboard"}
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
 
 
 @bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET", "POST"])

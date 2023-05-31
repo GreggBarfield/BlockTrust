@@ -44,7 +44,7 @@ export class AddAdvertisementWidget extends Widget {
         let inputsRow = document.createElement("div");
         inputsRow.className = "row";
 
-        let companiesInput = generateDropDownInput("ad_company", advertisementCompanies, "-Please select Company-", true);
+        let companiesInput = generateDrop DownInput("ad_company", advertisementCompanies, "-Please select Company-", true);
         inputsRow.append(companiesInput);
         let categoryInput = generateDropDownInput("ad_category", advertisementCategoryIdsToNames, "-Please select Advertisement Category-", true);
         inputsRow.append(categoryInput);
@@ -65,9 +65,7 @@ export class AddAdvertisementWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = (e) =>{
-            // Prevent the form from performing default action and handling it explicitly
-            e.preventDefault();
+        submitButton.onclick = () =>{
             let formResponseValues = [];
             let adCompanyId = document.getElementById("ad_company").value;
             formResponseValues.push(adCompanyId);
@@ -103,6 +101,6 @@ export class AddAdvertisementWidget extends Widget {
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-        return form;s
+        return form;
     }
 }

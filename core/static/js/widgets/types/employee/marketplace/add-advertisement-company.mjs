@@ -48,7 +48,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
         inputsRow.append(zipInput);
         let phoneInput = generateTextInput("*Phone", "text", "phone", true, "col-md-6");
         inputsRow.append(phoneInput);
-        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "integrated_with_blocktrust", true, "col-md-6 d-flex m-1");
+        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", true, "col-md-6 d-flex m-1");
         inputsRow.append(integratedWithBlockTrustInput);
         form.append(inputsRow);
 
@@ -62,9 +62,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = (e) =>{
-            // Prevent the form from performing default action and handling it explicitly
-            e.preventDefault();
+        submitButton.onclick = () =>{
             let formResponseValues = [];
             let name = document.getElementById("name").value;
             formResponseValues.push(name);
@@ -82,7 +80,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
             formResponseValues.push(zipCode);
             let phone = document.getElementById("phone").value;
             formResponseValues.push(phone);
-            let integratedWithBlockTrust = document.getElementById("integrated_with_blocktrust").checked;
+            let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
             if(formCompletionStatus){
                 errorMessage.className = "d-none";
@@ -103,7 +101,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                             state: state,
                             zip_code: zipCode,
                             phone: phone,
-                            integrated_with_blocktrust: integratedWithBlockTrust ? 1: 0
+                            is_integrated_with_blocktrust: isIntegratedWithBlockTrust
                         };
                     }
                 });
