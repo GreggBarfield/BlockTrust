@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import re  # Note that it automatically caches up to MAXCACHE
 
 
-def all_to_unix(d):
+def all_to_unix(d, tz=timezone.utc):
     """Converts a date time string to Unix timestamp.
 
     Assumed to be UTC/GMT unless otherwise stated.
@@ -49,7 +49,7 @@ def all_to_unix(d):
         raise ExecutionException("Dateutil failed to parse date: " + d)
 
     if result.tzinfo is None:
-        result = result.replace(tzinfo=timezone.utc)
+        result = result.replace(tzinfo=tz)
 
     # These checks shouldn't return None as we should have already validated
     # that it is a good date.
