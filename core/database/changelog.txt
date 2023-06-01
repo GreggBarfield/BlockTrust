@@ -1889,6 +1889,10 @@ ADD COLUMN `terminal_reimplant_date` INT NULL AFTER `terminal_reimplant_weight`;
 ALTER TABLE `animals` 
 ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
 
+/* Nisheet Thakur 05/10/2023 */
+ALTER TABLE `advertisements` ALTER COLUMN `is_archived` SET DEFAULT 0;
+ALTER TABLE `advertisement_companies` RENAME COLUMN `integrated_with_blocktrust` TO `is_integrated_with_blocktrust`;
+
 /* Rohan Sureshkumar 5/9/23 */
 CREATE TABLE `transactions` (
   `id` INT NOT NULL AUTO_INCREMENT,

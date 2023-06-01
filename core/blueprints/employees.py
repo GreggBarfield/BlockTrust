@@ -7,6 +7,8 @@ from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
+from ..database.tables.advertisement_companies import AdvertisementCompanies
+from ..database.tables.advertisements import Advertisements
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
@@ -545,6 +547,40 @@ def serve_tag_store_reports():
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
     })
+
+
+@bp.route("/employee/dashboard/add-advertisement", methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_advertisement():
+    if request.method == "GET":
+        return employee_render("/employee/marketplace/add-advertisement.html")
+    if request.method == "POST":
+        Advertisements(g.db).insert(
+            ad_company_id=request.form["ad_company_id"],
+            ad_category_id=request.form["ad_category_id"],
+            short_description=request.form["short_description"],
+            long_description=request.form["long_description"]
+        )
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
+
+@bp.route("/employee/dashboard/add-advertisement-company", methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_advertising_company():
+    if request.method == "GET":
+        return employee_render("/employee/marketplace/add-advertisement-company.html")
+    if request.method == "POST":
+        AdvertisementCompanies(g.db).insert(
+            name=request.form["name"],
+            email=request.form["email"],
+            contact_name=request.form["contact_name"],
+            address=request.form["address"],
+            city=request.form["city"],
+            state=request.form["state"],
+            zip_code=request.form["zip_code"],
+            phone=request.form["phone"],
+            is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
+        )
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
 
 
 @bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET", "POST"])
