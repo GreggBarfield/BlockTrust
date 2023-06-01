@@ -2,9 +2,6 @@ from ..no_value import NoValue
 
 NO_VALUE = NoValue()
 
-# TABLE_COLUMNS = ("id", "owner_account_id", "viewer_account_id", "viewer_user_id", "data_type_id",
-#                  "created_timestamp", "last_updated_timestamp")
-
 TRANSACTION_TYPE_NAMES_TO_IDS = {
     "Subscription Credits": 1
 }
