@@ -1920,8 +1920,11 @@ ADD CONSTRAINT `fk_transactions_employee_id_id_employees`
 
 ALTER TABLE `accounts` 
 ADD COLUMN `partner_paid` TINYINT(1) NULL DEFAULT 0 AFTER `manual_paid`,
-ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`,
-CHANGE COLUMN `generated_paid` `generated_paid` TINYINT(1) GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid` + `partner_paid`),1,0)) VIRTUAL ;
+ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`;
+ALTER TABLE `accounts` 
+DROP COLUMN `generated_paid`;
+ALTER TABLE `accounts`
+ADD COLUMN `generated_paid` TINYINT GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid` + `partner_paid`),1,0)) VIRTUAL AFTER `partner_paid`;
 
 /* Rohan Sureshkumar 5/22/23 */
 ALTER TABLE `animals` 
