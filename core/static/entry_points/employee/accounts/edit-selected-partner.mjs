@@ -16,6 +16,7 @@ let city = editPartnerAccountForm.find("#edit_city");
 let state = editPartnerAccountForm.find("#edit_state");
 let zip_code = editPartnerAccountForm.find("#edit_zip");
 let is_partner_used_for_signup = document.getElementById("is_partner_used_for_signup");
+let subscription_credits = editPartnerAccountForm.find("#subscription_credits");
 let action_route = "/employee/dashboard/edit-partner/"+partner_id;
 
 let form = new AsyncForm({
@@ -34,7 +35,8 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
-            is_partner_used_for_signup: is_partner_used_for_signup.checked
+            is_partner_used_for_signup: is_partner_used_for_signup.checked,
+            subscription_credits:subscription_credits.val()
         }
     }
 });

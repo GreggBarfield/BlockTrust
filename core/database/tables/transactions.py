@@ -6,7 +6,7 @@ NO_VALUE = NoValue()
 #                  "created_timestamp", "last_updated_timestamp")
 
 TRANSACTION_TYPE_NAMES_TO_IDS = {
-    "Subscription": 1
+    "Subscription Credits": 1
 }
 
 TRANSACTION_TYPE_IDS_TO_NAMES = {value: key for key, value in TRANSACTION_TYPE_NAMES_TO_IDS.items()}
@@ -17,7 +17,7 @@ class Transactions:
     def __init__(self, db):
         self._db = db
 
-    def insert_transaction(self, transaction_type_id, purchasing_account_id, account_credits_purchased):
+    def insert_transaction(self, transaction_type_id, partner_id, subscription_credits):
         """
         Inserts a new transaction record
 
@@ -27,13 +27,13 @@ class Transactions:
 
         self._db.execute(
             """
-                INSERT INTO transactions (transaction_type_id, purchasing_account_id, account_credits_purchased)
-                VALUES (%(transaction_type_id)s, %(purchasing_account_id)s, %(account_credits_purchased)s)
+                INSERT INTO transactions (transaction_type_id, partner_id, subscription_credits)
+                VALUES (%(transaction_type_id)s, %(partner_id)s, %(subscription_credits)s)
             """,
             {
                 "transaction_type_id": transaction_type_id,
-                "purchasing_account_id": purchasing_account_id,
-                "account_credits_purchased": account_credits_purchased
+                "partner_id": partner_id,
+                "subscription_credits": subscription_credits
             }
         )
         return self._db.last_row_id()
