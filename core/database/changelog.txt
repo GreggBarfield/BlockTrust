@@ -1893,6 +1893,43 @@ ADD COLUMN `api_insert_id` INT NULL AFTER `terminal_reimplant_date`;
 ALTER TABLE `advertisements` ALTER COLUMN `is_archived` SET DEFAULT 0;
 ALTER TABLE `advertisement_companies` RENAME COLUMN `integrated_with_blocktrust` TO `is_integrated_with_blocktrust`;
 
+/* Rohan Sureshkumar 5/9/23 */
+CREATE TABLE `transactions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `transaction_type_id` INT NULL,
+  `partner_id` INT NULL,
+  `subscription_credits` INT NULL,
+  `employee_id` INT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `transactions` 
+ADD INDEX `fk_transactions_partner_id_id_accounts_idx` (`partner_id` ASC) VISIBLE;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_partner_id_id_accounts`
+  FOREIGN KEY (`partner_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `transactions` 
+ADD INDEX `fk_transactions_employee_id_id_employees_idx` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `accounts` 
+ADD COLUMN `partner_paid` TINYINT(1) NULL DEFAULT 0 AFTER `manual_paid`,
+ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`;
+ALTER TABLE `accounts` 
+DROP COLUMN `generated_paid`;
+ALTER TABLE `accounts`
+ADD COLUMN `generated_paid` TINYINT GENERATED ALWAYS AS (if((`stripe_paid` + `manual_paid` + `partner_paid`),1,0)) VIRTUAL AFTER `partner_paid`;
+
 /* Rohan Sureshkumar 5/22/23 */
 ALTER TABLE `animals` 
 ADD COLUMN `seller_id` VARCHAR(30) NULL AFTER `terminal_reimplant_date`,

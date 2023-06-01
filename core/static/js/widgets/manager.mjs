@@ -15,8 +15,8 @@ import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_s
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
 import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
-import { PlansWidget } from './types/stripe/plans.mjs';
-import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { PlansWidget } from './types/finance/stripe/plans.mjs';
+import { SubscribeWidget } from './types/finance/stripe/subscribe.mjs';
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
@@ -85,7 +85,7 @@ import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranc
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("summary graphs", SummaryGraphWidget);
     attach("tag distribution sector at account", TagDistributionSectorAtAccountWidget);
-    attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
+    attach("select eids by grouping id", SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
     attach("cow-calf questionnaire v2", CowCalfQuestionnaireV2Widget);
     attach("auction house questionnaire v2", AuctionHouseQuestionnaireV2Widget);
