@@ -285,7 +285,7 @@ def serve_edit_selected_partner(partner_id):
         if credits_diff:
             Transactions(g.db).insert_transaction(
                 TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
-                partner["id"], credits_diff
+                partner["id"], credits_diff, g.employee.id()
             )
         Accounts(g.db).update_partner(
             account_id=partner_id,

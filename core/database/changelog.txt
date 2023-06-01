@@ -1895,6 +1895,7 @@ CREATE TABLE `transactions` (
   `transaction_type_id` INT NULL,
   `partner_id` INT NULL,
   `subscription_credits` INT NULL,
+  `employee_id` INT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
@@ -1905,6 +1906,15 @@ ALTER TABLE `transactions`
 ADD CONSTRAINT `fk_transactions_partner_id_id_accounts`
   FOREIGN KEY (`partner_id`)
   REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `transactions` 
+ADD INDEX `fk_transactions_employee_id_id_employees_idx` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
