@@ -660,14 +660,14 @@ def serve_view_advertisement_companies():
 @bp.route("/employee/archive-advertisement", methods=["POST"])
 @crut.require_employee
 def serve_archive_advertisement():
-    Advertisements(g.db).update(id=int(request.json["advertisement_id"]), is_archived=1)
+    Advertisements(g.db).update(id=request.json["advertisement_id"], is_archived=1)
     return {}
 
 
 @bp.route("/employee/archive-advertisement-company-and-advertisements", methods=["POST"])
 @crut.require_employee
 def serve_archive_advertisement_company_and_advertisements():
-    AdvertisementCompanies(g.db).update(id=int(request.json["advertisement_company_id"]), is_archived=1)
+    AdvertisementCompanies(g.db).update(id=request.json["advertisement_company_id"], is_archived=1)
     advertisements = Advertisements(g.db).get(ad_company_id=int(request.json["advertisement_company_id"]), is_archived=0)
     for advertisement in advertisements:
         Advertisements(g.db).update(id=advertisement["id"], is_archived=1)
