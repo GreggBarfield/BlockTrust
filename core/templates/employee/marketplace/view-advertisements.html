@@ -1,0 +1,126 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Advertisements" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+Manage Advertisements
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="row">
+    <div class="col-md-12 d-flex justify-content-end">
+        <a class="btn btn-primary" href="/employee/dashboard/add-advertisement">Create New Advertisement</a>
+    </div>
+    {% for advertisement in advertisements %}
+        {% if advertisement.advertisement_is_archived == 0 %}
+        <div class="card col-md-12 m-2 p-2">
+            <div class="card-header d-flex">
+                <div class="col-md-3">
+                    <h5>{{advertisement.short_description}} ({{advertisement_category_ids_to_names[advertisement.ad_category_id]}})</h5>
+                </div>
+                <div class="col-md-9 d-flex justify-content-end">
+                    <button class="btn btn-danger" onclick="archiveAdvertisement('{{advertisement.advertisement_id}}')">Archive</button>
+                </div>
+            </div>
+            <div class="card-body m-1 p-1">
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Advertisement ID: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.advertisement_id}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Long Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.long_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Advertisement Company: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Created Timestamp: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.created_timestamp}}</h6></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="m-2 p-2">
+        <h5>Archived Advertisements</h5>
+    </div>
+    {% for advertisement in advertisements %}
+        {% if advertisement.advertisement_is_archived == 1 %}
+        <div class="card col-md-12 m-2 p-2">
+            <div class="card-header d-flex">
+                    <h5>{{advertisement.short_description}} ({{advertisement_category_ids_to_names[advertisement.ad_category_id]}})</h5>
+            </div>
+            <div class="card-body m-1 p-1">
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Advertisement ID: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.advertisement_id}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Long Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.long_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Advertisement Company: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Created Timestamp: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement.created_timestamp}}</h6></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<script type="text/javascript">
+    let archiveAdvertisement = async(id) =>{
+        const response = await fetch(
+            "/employee/archive-advertisement",{
+                method: "POST",
+                body: JSON.stringify({"advertisement_id": id}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+</script>
+{% endblock employee_content %}

@@ -57,7 +57,10 @@ class Advertisements:
         """
         base_query = "SELECT * FROM advertisements"
         if get_related_advertising_company:
-            base_query = base_query + " LEFT JOIN advertisement_companies ON advertisements.ad_company_id=advertisement_companies.id"
+            base_query = """SELECT *, advertisements.id as advertisement_id, advertisement_companies.id as
+                            advertisement_company_id, advertisements.is_archived as advertisement_is_archived
+                            FROM advertisements LEFT JOIN advertisement_companies ON 
+                            advertisements.ad_company_id=advertisement_companies.id"""
 
         query_conditions = []
         query_values = {}

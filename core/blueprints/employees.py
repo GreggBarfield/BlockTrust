@@ -8,7 +8,7 @@ from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
-from ..database.tables.advertisements import Advertisements
+from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
@@ -638,3 +638,37 @@ def serve_upload_ranch_accounts_test(partner_id):
             return {"redirect": "/employee/dashboard/view-partners"}
         except (ExportException, AccountsException, UsersException, ValueError) as e:
             return {"error": str(e)}, 400
+
+
+@bp.route("/employee/dashboard/view-advertisements", methods=["GET"])
+@crut.require_employee
+def serve_view_advertisements():
+    advertisements = Advertisements(g.db).get(get_related_advertising_company=True)
+    return employee_render("/employee/marketplace/view-advertisements.html", {
+        "advertisements": advertisements,
+        "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+    })
+
+
+@bp.route("/employee/dashboard/view-advertisement-companies", methods=["GET"])
+@crut.require_employee
+def serve_view_advertisement_companies():
+    advertisement_companies = AdvertisementCompanies(g.db).get()
+    return employee_render("/employee/marketplace/view-advertisement-companies.html", {"advertisement_companies": advertisement_companies})
+
+
+@bp.route("/employee/archive-advertisement", methods=["POST"])
+@crut.require_employee
+def serve_archive_advertisement():
+    Advertisements(g.db).update(id=int(request.json["advertisement_id"]), is_archived=1)
+    return {}
+
+
+@bp.route("/employee/archive-advertisement-company-and-advertisements", methods=["POST"])
+@crut.require_employee
+def serve_archive_advertisement_company_and_advertisements():
+    AdvertisementCompanies(g.db).update(id=int(request.json["advertisement_company_id"]), is_archived=1)
+    advertisements = Advertisements(g.db).get(ad_company_id=int(request.json["advertisement_company_id"]), is_archived=0)
+    for advertisement in advertisements:
+        Advertisements(g.db).update(id=advertisement["id"], is_archived=1)
+    return {}

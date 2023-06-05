@@ -44,7 +44,7 @@ export class AddAdvertisementWidget extends Widget {
         let inputsRow = document.createElement("div");
         inputsRow.className = "row";
 
-        let companiesInput = generateDrop DownInput("ad_company", advertisementCompanies, "-Please select Company-", true);
+        let companiesInput = generateDropDownInput("ad_company", advertisementCompanies, "-Please select Company-", true);
         inputsRow.append(companiesInput);
         let categoryInput = generateDropDownInput("ad_category", advertisementCategoryIdsToNames, "-Please select Advertisement Category-", true);
         inputsRow.append(categoryInput);
