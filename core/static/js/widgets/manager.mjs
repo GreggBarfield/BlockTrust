@@ -15,8 +15,8 @@ import { ManageAuctionSalesWidget } from './types/auction_sales/manage_auction_s
 import { ViewUpcomingAuctionsWidget } from './types/auction_sales/view_upcoming_auctions_widget.mjs';
 import { SearchEIDsWidget } from './types/animal_data/search_eids_widget.mjs';
 import { InfoModal } from '../core/info_modal.mjs';
-import { PlansWidget } from './types/stripe/plans.mjs';
-import { SubscribeWidget } from './types/stripe/subscribe.mjs';
+import { PlansWidget } from './types/finance/stripe/plans.mjs';
+import { SubscribeWidget } from './types/finance/stripe/subscribe.mjs';
 import { CertificatesWidget } from "./types/animal_data/certificates_widget.mjs";
 import { MarketDataTableWidget } from './types/animal_data/market_data_table_widget.mjs';
 import { MarketDataFilterWidget } from './types/animal_data/market_data_filter_widget.mjs';
@@ -41,6 +41,8 @@ import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
+import { AddAdvertisementWidget } from './types/employee/marketplace/add-advertisement.mjs';
+import { AddAdvertisementCompanyWidget } from './types/employee/marketplace/add-advertisement-company.mjs';
 import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
 
@@ -83,7 +85,7 @@ import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranc
     attach("archive sales group", ArchivedSalesGroupWidget);
     attach("summary graphs", SummaryGraphWidget);
     attach("tag distribution sector at account", TagDistributionSectorAtAccountWidget);
-    attach("select eids by grouping id",SelectEIDsByGroupingIDWidget)
+    attach("select eids by grouping id", SelectEIDsByGroupingIDWidget)
     attach("add connections", AddConnectionsWidget);
     attach("cow-calf questionnaire v2", CowCalfQuestionnaireV2Widget);
     attach("auction house questionnaire v2", AuctionHouseQuestionnaireV2Widget);
@@ -100,6 +102,8 @@ import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranc
     attach("partner count distribution", PartnerCountDistributionWidget);
     attach("checkout", CheckoutWidget);
     attach("shopping cart", ShoppingCartWidget);
+    attach("add advertisement", AddAdvertisementWidget);
+    attach("add advertisement company", AddAdvertisementCompanyWidget);
     attach("invoice", InvoiceWidget);
     attach("upload ranch accounts", UploadRanchAccountsWidget);
 

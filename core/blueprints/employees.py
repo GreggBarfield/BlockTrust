@@ -7,6 +7,8 @@ from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
+from ..database.tables.advertisement_companies import AdvertisementCompanies
+from ..database.tables.advertisements import Advertisements
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
@@ -17,6 +19,7 @@ from ..database.tables.orders import Orders
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
+from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
 from ..database.combinations import perform_new_account_actions
 from ..database.tables.event_logs import event_type_by_name
@@ -276,9 +279,16 @@ def serve_edit_selected_partner(partner_id):
         partner_row = partner_rows[0] if len(partner_rows) > 0 else {}
         return employee_render("/employee/accounts/edit-selected-partner.html", {"partner_row": partner_row})
     if request.method == "POST":
-        is_partner_used_for_signup = 0
-        if(format_field(request.form["is_partner_used_for_signup"]) == 'true'):
-            is_partner_used_for_signup = 1
+        partner = Accounts(g.db).get_partners(id=partner_id)[0]
+        subscription_credits = (
+            int(request.form["subscription_credits"]) if int(request.form["subscription_credits"]) > 0 else 0
+        )
+        credits_diff = subscription_credits - partner["partner_subscription_credits"]
+        if credits_diff:
+            Transactions(g.db).insert_transaction(
+                TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
+                partner["id"], credits_diff, g.employee.id()
+            )
         Accounts(g.db).update_partner(
             account_id=partner_id,
             company=format_field(request.form["company"]),
@@ -287,9 +297,10 @@ def serve_edit_selected_partner(partner_id):
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
-            is_partner_used_for_signup=is_partner_used_for_signup
+            is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
+            partner_subscription_credits=subscription_credits
         )
-        return {"redirect": "/employee/dashboard"}
+        return {"redirect": request.path}
 
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
@@ -536,6 +547,40 @@ def serve_tag_store_reports():
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
     })
+
+
+@bp.route("/employee/dashboard/add-advertisement", methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_advertisement():
+    if request.method == "GET":
+        return employee_render("/employee/marketplace/add-advertisement.html")
+    if request.method == "POST":
+        Advertisements(g.db).insert(
+            ad_company_id=request.form["ad_company_id"],
+            ad_category_id=request.form["ad_category_id"],
+            short_description=request.form["short_description"],
+            long_description=request.form["long_description"]
+        )
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
+
+@bp.route("/employee/dashboard/add-advertisement-company", methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_advertising_company():
+    if request.method == "GET":
+        return employee_render("/employee/marketplace/add-advertisement-company.html")
+    if request.method == "POST":
+        AdvertisementCompanies(g.db).insert(
+            name=request.form["name"],
+            email=request.form["email"],
+            contact_name=request.form["contact_name"],
+            address=request.form["address"],
+            city=request.form["city"],
+            state=request.form["state"],
+            zip_code=request.form["zip_code"],
+            phone=request.form["phone"],
+            is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
+        )
+        return {"redirect": url_for("employee_bp.serve_dashboard")}
 
 
 @bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET", "POST"])

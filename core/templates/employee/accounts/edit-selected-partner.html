@@ -122,6 +122,14 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="subscription_credits">Subscription Credits</label>
+                                <input type="number" class="form-control" id="subscription_credits" value="{{partner_row.partner_subscription_credits}}">
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
                                 <input type="checkbox" id="is_partner_used_for_signup" {{'checked' if partner_row.is_partner_used_for_signup else ''}}>
@@ -129,7 +137,7 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                    </div>  
+                    </div>
                     <button type="submit" class="btn btn-primary">Apply Changes</button>
                 <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, saving your changes...</p>
                 <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Internal error...</p>

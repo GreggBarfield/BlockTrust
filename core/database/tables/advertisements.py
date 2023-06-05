@@ -27,19 +27,17 @@ class Advertisements:
             ad_category_id: Category of advertisement
             short_description: Subheader for the ad
             long_description: Long description for the ad
-            is_archived: Indicates if the ad is archived
         """
         self._db.execute(
             """
-            INSERT INTO advertisements (ad_company_id, ad_category_id, short_description, long_description, is_archived)
-            VALUES (%(ad_company_id)s, %(ad_category_id)s, %(short_description)s, %(long_description)s, %(is_archived)s)
+            INSERT INTO advertisements (ad_company_id, ad_category_id, short_description, long_description)
+            VALUES (%(ad_company_id)s, %(ad_category_id)s, %(short_description)s, %(long_description)s)
             """, 
             {
                 "ad_company_id": ad_company_id,
                 "ad_category_id": ad_category_id,
                 "short_description": short_description,
-                "long_description": long_description,
-                "is_archived": is_archived
+                "long_description": long_description
             })
 
 

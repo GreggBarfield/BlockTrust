@@ -6,7 +6,7 @@ from core.utilities.zip_codes import get_lat_lon
 
 
 def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_time,
-                     partner_account, visual_id=None, grouping_id=None):
+                     partner_account, visual_id=None, grouping_id=None, timezone=None):
     f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
     for d in f5:
         if d not in "0123456789":
@@ -22,11 +22,12 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         if grouping_id:
             sighting_data["grouping_id"] = grouping_id
         previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-        previous_api_inserts.append(matches[0]["api_insert"])
+        if matches[0]["api_insert"]:
+            previous_api_inserts.append(matches[0]["api_insert"])
 
         db.matches.update_match(
             id=matches[0]["id"],
-            time=all_to_unix(sighting_time),
+            time=all_to_unix(sighting_time, timezone) if timezone else all_to_unix(sighting_time),
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -39,7 +40,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         db.matches.types.insert_sighting(
             eid=eid,
             visual_id=visual_id,
-            time=all_to_unix(sighting_time),
+            time=all_to_unix(sighting_time, timezone) if timezone else all_to_unix(sighting_time),
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -50,80 +51,86 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         )
 
 
-def process_birth_date(db, input_data, eid, partner_account, account_link, api_insert=None):
-    birth_date = all_to_unix(input_data["birth_date"]) if "birth_date" in input_data else None
-    if birth_date is not None:
-        matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Born"])
-        if matches:
-            # update birth_date, partner_account, api_insert id
-            previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-            previous_api_inserts.append(matches[0]["api_insert"])
-            db.matches.update_match(
-                id=matches[0]["id"],
-                time=birth_date,
-                partner_account=partner_account,
-                api_insert=api_insert,
-                debug={"previous_api_inserts": previous_api_inserts}
-            )
-        else:
-            db.matches.types.insert_born(
-                time=birth_date,
-                partner_account=partner_account,
-                account_link=account_link,
-                eid=eid,
-                api_insert=api_insert
-            )
+def process_birth_date(db, input_data, eid, partner_account, account_link, api_insert=None, timezone=None):
+    if "birth_date" in input_data:
+        if birth_date := (
+            all_to_unix(input_data["birth_date"], timezone) if timezone else all_to_unix(input_data["birth_date"])
+        ):
+            matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Born"])
+            if matches:
+                # update birth_date, partner_account, api_insert id
+                previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
+                if matches[0]["api_insert"]:
+                    previous_api_inserts.append(matches[0]["api_insert"])
+                db.matches.update_match(
+                    id=matches[0]["id"],
+                    time=birth_date,
+                    partner_account=partner_account,
+                    api_insert=api_insert,
+                    debug={"previous_api_inserts": previous_api_inserts}
+                )
+            else:
+                db.matches.types.insert_born(
+                    time=birth_date,
+                    partner_account=partner_account,
+                    account_link=account_link,
+                    eid=eid,
+                    api_insert=api_insert
+                )
 
 
-def process_weaning_data(db, input_data, eid, partner_account, account_link, api_insert=None):
-    weaned_object = {}
+def process_weaning_data(db, input_data, eid, partner_account, account_link, api_insert=None, timezone=None):
+    if "wean_date" in input_data:
+        if wean_date := (
+            all_to_unix(input_data["wean_date"], timezone) if timezone else all_to_unix(input_data["wean_date"])
+        ):
+            weaned_object = {}
 
-    weaned_object_tags = [
-        ("at", "weaningstr"),
-        ("creep_feed", "creep_feed"),
-        ("first_14_feed", "first14day"),
-        ("first_14_method", "first14da1"),
-        ("second_31_feed", "second31da"),
-        ("second_31_method", "second31d1")
-    ]
+            weaned_object_tags = [
+                ("at", "weaningstr"),
+                ("creep_feed", "creep_feed"),
+                ("first_14_feed", "first14day"),
+                ("first_14_method", "first14da1"),
+                ("second_31_feed", "second31da"),
+                ("second_31_method", "second31d1")
+            ]
 
-    for tag in weaned_object_tags:
-        if tag[1] in input_data and input_data[tag[1]].strip() != "":
-            weaned_object[tag[0]] = input_data[tag[1]].strip()
+            for tag in weaned_object_tags:
+                if tag[1] in input_data and input_data[tag[1]].strip() != "":
+                    weaned_object[tag[0]] = input_data[tag[1]].strip()
 
-    if "wean_weight" in input_data and input_data["wean_weight"].strip() != "" and int(input_data["wean_weight"]) > 0:
-        weaned_object["wean_weight"] = int(input_data["wean_weight"])
+            if "wean_weight" in input_data and input_data["wean_weight"].strip() != "" and int(input_data["wean_weight"]) > 0:
+                weaned_object["wean_weight"] = int(input_data["wean_weight"])
 
-    if weaned_object == {}:
-        weaned_object = None
-    wean_date = all_to_unix(input_data["wean_date"]) if "wean_date" in input_data else None
-    if wean_date is not None:
-        matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Weaned"])
-        if matches:
-            # update weaned obj, weaned date, partner_account and api_insert
-            previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
-            previous_api_inserts.append(matches[0]["api_insert"])
-            if existing_weaned_obj := matches[0]["data"]:
-                for k, v in existing_weaned_obj.items():
-                    if k not in weaned_object:
-                        weaned_object[k] = v
-            db.matches.update_match(
-                id=matches[0]["id"],
-                time=wean_date,
-                partner_account=partner_account,
-                data=weaned_object,
-                api_insert=api_insert,
-                debug={"previous_api_inserts": previous_api_inserts}
-            )
-        else:
-            db.matches.types.insert_weaned(
-                time=wean_date,
-                partner_account=partner_account,
-                account_link=account_link,
-                data=weaned_object,
-                eid=eid,
-                api_insert=api_insert
-            )
+            if weaned_object == {}:
+                weaned_object = None
+            matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Weaned"])
+            if matches:
+                # update weaned obj, weaned date, partner_account and api_insert
+                previous_api_inserts = matches[0]["debug"].get("previous_api_inserts", []) if matches[0]["debug"] else []
+                if matches[0]["api_insert"]:
+                    previous_api_inserts.append(matches[0]["api_insert"])
+                if existing_weaned_obj := matches[0]["data"]:
+                    for k, v in existing_weaned_obj.items():
+                        if k not in weaned_object:
+                            weaned_object[k] = v
+                db.matches.update_match(
+                    id=matches[0]["id"],
+                    time=wean_date,
+                    partner_account=partner_account,
+                    data=weaned_object,
+                    api_insert=api_insert,
+                    debug={"previous_api_inserts": previous_api_inserts}
+                )
+            else:
+                db.matches.types.insert_weaned(
+                    time=wean_date,
+                    partner_account=partner_account,
+                    account_link=account_link,
+                    data=weaned_object,
+                    eid=eid,
+                    api_insert=api_insert
+                )
 
 
 def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None):
