@@ -41,6 +41,8 @@ import { MarketPlaceWidget } from './types/marketplace/marketplace.mjs';
 import { PartnerCountDistributionWidget } from './types/animal_data/partner_count_distribution.mjs';
 import { CheckoutWidget } from './types/tag-store/checkout.mjs';
 import { ShoppingCartWidget } from './types/tag-store/shopping-cart.mjs';
+import { AddAdvertisementWidget } from './types/employee/marketplace/add-advertisement.mjs';
+import { AddAdvertisementCompanyWidget } from './types/employee/marketplace/add-advertisement-company.mjs';
 import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
 
@@ -100,6 +102,8 @@ import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranc
     attach("partner count distribution", PartnerCountDistributionWidget);
     attach("checkout", CheckoutWidget);
     attach("shopping cart", ShoppingCartWidget);
+    attach("add advertisement", AddAdvertisementWidget);
+    attach("add advertisement company", AddAdvertisementCompanyWidget);
     attach("invoice", InvoiceWidget);
     attach("upload ranch accounts", UploadRanchAccountsWidget);
 
