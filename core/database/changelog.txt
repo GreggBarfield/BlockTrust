@@ -1923,8 +1923,8 @@ ADD CONSTRAINT `fk_transactions_employee_id_id_employees`
   ON UPDATE RESTRICT;
 
 ALTER TABLE `accounts` 
-ADD COLUMN `partner_paid` TINYINT(1) NULL DEFAULT 0 AFTER `manual_paid`,
-ADD COLUMN `partner_subscription_credits` INT NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`;
+ADD COLUMN `partner_paid` TINYINT NULL DEFAULT 0 AFTER `manual_paid`,
+ADD COLUMN `partner_subscription_credits` INT UNSIGNED NULL DEFAULT 0 AFTER `is_stripe_payouts_enabled`;
 ALTER TABLE `accounts` 
 DROP COLUMN `generated_paid`;
 ALTER TABLE `accounts`
