@@ -12,7 +12,7 @@ from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
-from ..database.tables.event_logs import EventLogs, event_type_by_name
+from ..database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from ..database.tables.files import Files
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -271,7 +271,7 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(g.account.id(), "SELF", "TagUpload", row)
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Tag Upload"])
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
@@ -348,7 +348,7 @@ def serve_edit_account():
                 phone=request.form["phone"],
                 show_real_name=int(request.form["show_real_name"])
             )
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
             return {"error": str(e)}, HTTP_BAD_REQUEST
@@ -397,7 +397,7 @@ def serve_edit_edituser():
                     id=g.user.id(), email=email, first_name=request.form["first"],
                     last_name=request.form["last"], phone=request.form["phone"]
                 )
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
+            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
             return {"error": str(e)}, 400
@@ -593,7 +593,7 @@ def serve_sales_group_transaction(sales_group_id):
             EventLogs(g.db).insert_event_log(
                 account_id=g.account.id(),
                 user_id=g.user.id(),
-                event_type_id=event_type_by_name["Sales Group Purchase"],
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Sales Group Purchase"],
                 details={
                     'sales_group_id': sales_group_id,
                     'transaction_amount': request_data['amount'],

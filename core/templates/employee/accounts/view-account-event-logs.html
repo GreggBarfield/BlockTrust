@@ -1,0 +1,81 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "View Account & User Event Logs" %}
+{% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card">
+    <div class="card-header">
+        <h5>Account & User Event Logs</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="eventsTable">
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Account ID</th>
+                    <th>User ID</th>
+                    <th>Event Type</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in event_logs %}
+                <tr>
+                    <td>{{event.id}}</td>
+                    <td>
+                        {% if event.account_id != None %}
+                        {{event.account_id}}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if event.user_id != None %}
+                        {{event.user_id}}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>{{event_type_ids_to_names[event.event_type_id]}}</td>
+                    <td>{{event.created_timestamp}}</td>
+                    <td>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventDetailsModal">
+                            Details
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="eventDetailsModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Task Output</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>
+
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#eventsTable').DataTable({pageLength:50});
+    });
+</script>
+{% endblock employee_content %}

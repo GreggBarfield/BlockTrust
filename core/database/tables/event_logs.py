@@ -3,7 +3,7 @@ from json import dumps
 
 NO_VALUE = NoValue()
 
-event_type_by_name = {
+EVENT_TYPE_NAMES_TO_IDS = {
     "Signup": 1,
     "Tag Upload": 2,
     "Account Info Edit": 3,
@@ -14,9 +14,9 @@ event_type_by_name = {
     "Account Created By Employee": 8,
     "Bulk Account And User Signup By Employee": 9
 }
-event_type_by_id = {
+EVENT_TYPE_IDS_TO_NAMES = {
     value: key
-    for key, value in event_type_by_name.items()
+    for key, value in EVENT_TYPE_NAMES_TO_IDS.items()
 }
 
 

@@ -11,7 +11,7 @@ from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
-from ..database.tables.event_logs import EventLogs
+from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -23,7 +23,7 @@ from ..database.tables.notifications import notification_type_name_to_id, notifi
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
 from ..database.combinations import perform_new_account_actions
-from ..database.tables.event_logs import event_type_by_name
+from ..database.tables.event_logs import EVENT_TYPE_NAMES_TO_IDS
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
@@ -95,7 +95,7 @@ def serve_employee_create_account_action():
         AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
-            g.db, account_obj.id(), user_id, event_type_by_name["Account Created"],
+            g.db, account_obj.id(), user_id, EVENT_TYPE_NAMES_TO_IDS["Account Created"],
             account_obj.sector_id(), g.employee.id()
         )
 
@@ -634,7 +634,7 @@ def serve_upload_ranch_accounts_test(partner_id):
                 )
 
                 perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
-                                            event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"], 
+                                            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Bulk Account And User Signup By Employee"], 
                                             sector_id=account_object.sector_id(), email=required_data["email"])
             return {"redirect": "/employee/dashboard/view-partners"}
         except (ExportException, AccountsException, UsersException, ValueError) as e:
@@ -645,4 +645,7 @@ def serve_upload_ranch_accounts_test(partner_id):
 @crut.require_employee
 def serve_view_account_event_logs():
     event_logs = EventLogs(g.db).get()
-    return employee_render("/employee/accounts/view-account-event-logs.html", {"event_logs": event_logs})
+    return employee_render("/employee/accounts/view-account-event-logs.html", {
+        "event_logs": event_logs,
+        "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES
+    })
