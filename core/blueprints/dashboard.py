@@ -679,6 +679,12 @@ def update_user(user_id):
     allowed_keys = {'reset_password'}
     if all(key in allowed_keys for key in request_data):
         if g.db.users.update_user(id=user_id, password=DEFAULT_PASSWORD):
+            EventLogs(g.db).insert_event_log(
+                event_type_id=event_type_by_name["Password Reset By Admin"],
+                account_id=g.account.id(),
+                user_id=g.user.id(),
+                details={"password_reset_for_user_id": user_id}
+            )
             return Response(status=HTTP_NO_CONTENT)
         else:
             return Response(status=HTTP_NOT_FOUND)
