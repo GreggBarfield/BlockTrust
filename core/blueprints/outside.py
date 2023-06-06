@@ -4,7 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.combinations import send_email_to_admin_users
-from ..database.tables.event_logs import EventLogs, event_type_by_name
+from ..database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
@@ -163,7 +163,7 @@ def serve_signup_action():
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     EventLogs(g.db).insert(
-                        event_type_id=event_type_by_name["Signup Failed By User"],
+                        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup Failed By User"],
                         details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
                     )
                     raise ExportException("Signup failed: " + str(e))
@@ -291,7 +291,7 @@ def serve_password_request_action():
                 }), request.form['email']
         )
         EventLogs(g.db).insert(
-            event_type_id=event_type_by_name["Password Reset Requested"],
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Password Reset Requested"],
             user_id=user.id(),
             details={"user_email": request.form["email"]}
         )

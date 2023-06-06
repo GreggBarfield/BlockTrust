@@ -5,7 +5,7 @@ from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
-from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.sectors import SECTORS_NAME_TO_ID
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
@@ -82,7 +82,7 @@ def serve_upload_tags():
             for row in data["eids"]:
                 ApiInserts(g.db).insert(g.account.id(), "PARTNER", "TagUpload", row)
             EventLogs(g.db).insert(
-                account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"]
+                account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Tag Upload"]
             )
             return "", 200
         except Exception as e:
