@@ -430,6 +430,12 @@ def serve_invite_user():
             InvitedUsers(g.db).insert_invited_user(
                 email=user_email, invited_by_user_id=g.user.id(), invited_by_employee_id=employee_id
             )
+            EventLogs(g.db).insert_event_log(
+                event_type_id=event_type_by_name["User Invited By Account"],
+                account_id=g.account.id(),
+                user_id=g.user.id(),
+                details={"invited_user_email": user_email}
+            )
             return {"redirect": url_for("dashboard_bp.serve_dashboard")}
         except ExportException as e:
             return {"error": str(e)}, 400

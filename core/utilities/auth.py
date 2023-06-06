@@ -612,6 +612,10 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                 }), SUPPORT_GENERAL_EMAIL
             )
     else:
+        EventLogs(g.db).insert_event_log(
+            event_type_id=event_type_by_name["Invited Signup Failed"],
+            details={"error_message": email_validation["message"]}
+        )
         raise Exception(email_validation["message"])
 
 

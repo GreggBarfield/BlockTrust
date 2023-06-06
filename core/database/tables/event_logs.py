@@ -17,7 +17,9 @@ event_type_by_name = {
     "Login Failed": 11,
     "Password Reset Requested": 12,
     "Password Reset Completed": 13,
-    "Password Reset Failed": 14
+    "Password Reset Failed": 14,
+    "User Invited By Account": 15,
+    "Invited Signup Failed": 16
 }
 event_type_by_id = {
     value: key
