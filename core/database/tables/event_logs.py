@@ -25,7 +25,7 @@ class EventLogs:
     def __init__(self, db):
         self._db = db
 
-    def get_event_logs(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, event_type_id=NO_VALUE,
+    def get(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, event_type_id=NO_VALUE,
                        details=NO_VALUE):
         """
         Gets the event logs based on provided parameters

@@ -11,6 +11,7 @@ from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
+from ..database.tables.event_logs import EventLogs
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -638,3 +639,10 @@ def serve_upload_ranch_accounts_test(partner_id):
             return {"redirect": "/employee/dashboard/view-partners"}
         except (ExportException, AccountsException, UsersException, ValueError) as e:
             return {"error": str(e)}, 400
+
+
+@bp.route("/employee/dashboard/view-account-event-logs", methods=["GET"])
+@crut.require_employee
+def serve_view_account_event_logs():
+    event_logs = EventLogs(g.db).get()
+    return employee_render("/employee/accounts/view-account-event-logs.html", {"event_logs": event_logs})
