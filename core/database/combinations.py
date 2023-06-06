@@ -121,7 +121,7 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
     event_details = {"connections": ",".join(str(n) for n in new_connections)}
     if employee_id:
         event_details["employee_id"] = employee_id
-    EventLogs(db).insert_event_log(account_id=account_id, user_id=user_id, event_type_id=event_type_id,
+    EventLogs(db).insert(account_id=account_id, user_id=user_id, event_type_id=event_type_id,
                                    details=event_details)
 
 

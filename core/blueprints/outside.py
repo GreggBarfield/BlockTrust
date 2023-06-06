@@ -162,7 +162,7 @@ def serve_signup_action():
                         ip_country=request.form['ip_country']
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
-                    EventLogs(g.db).insert_event_log(
+                    EventLogs(g.db).insert(
                         event_type_id=event_type_by_name["Signup Failed By User"],
                         details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
                     )
@@ -290,7 +290,7 @@ def serve_password_request_action():
                     'password_reset_url': password_reset_url
                 }), request.form['email']
         )
-        EventLogs(g.db).insert_event_log(
+        EventLogs(g.db).insert(
             event_type_id=event_type_by_name["Password Reset Requested"],
             user_id=user.id(),
             details={"user_email": request.form["email"]}

@@ -271,7 +271,7 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(g.account.id(), "SELF", "TagUpload", row)
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
+            EventLogs(g.db).insert(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:
             return {'error':{'message': str(e)}}, 400
@@ -348,7 +348,7 @@ def serve_edit_account():
                 phone=request.form["phone"],
                 show_real_name=int(request.form["show_real_name"])
             )
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
+            EventLogs(g.db).insert(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}
         except UsersException as e:
             return {"error": str(e)}, HTTP_BAD_REQUEST
@@ -397,7 +397,7 @@ def serve_edit_edituser():
                     id=g.user.id(), email=email, first_name=request.form["first"],
                     last_name=request.form["last"], phone=request.form["phone"]
                 )
-            EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
+            EventLogs(g.db).insert(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["User Info Edit"])
             return {"redirect": "/dashboard/edit/edituser"}
         except UsersException as e:
             return {"error": str(e)}, 400
@@ -430,7 +430,7 @@ def serve_invite_user():
             InvitedUsers(g.db).insert_invited_user(
                 email=user_email, invited_by_user_id=g.user.id(), invited_by_employee_id=employee_id
             )
-            EventLogs(g.db).insert_event_log(
+            EventLogs(g.db).insert(
                 event_type_id=event_type_by_name["User Invited By Account"],
                 account_id=g.account.id(),
                 user_id=g.user.id(),
@@ -596,7 +596,7 @@ def serve_sales_group_transaction(sales_group_id):
             request_data = json.loads(request.data)
 
             SalesGroups(g.db).update_sales_group(id=sales_group_id, is_sold=1, buyer_account_id=g.account.id())
-            EventLogs(g.db).insert_event_log(
+            EventLogs(g.db).insert(
                 account_id=g.account.id(),
                 user_id=g.user.id(),
                 event_type_id=event_type_by_name["Sales Group Purchase"],
@@ -679,7 +679,7 @@ def update_user(user_id):
     allowed_keys = {'reset_password'}
     if all(key in allowed_keys for key in request_data):
         if g.db.users.update_user(id=user_id, password=DEFAULT_PASSWORD):
-            EventLogs(g.db).insert_event_log(
+            EventLogs(g.db).insert(
                 event_type_id=event_type_by_name["Password Reset By Admin"],
                 account_id=g.account.id(),
                 user_id=g.user.id(),
