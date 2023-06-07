@@ -12,7 +12,15 @@ EVENT_TYPE_NAMES_TO_IDS = {
     "Invited Signup": 6,
     "Sales Group Purchase": 7,
     "Account Created By Employee": 8,
-    "Bulk Account And User Signup By Employee": 9
+    "Bulk Account And User Signup By Employee": 9,
+    "Signup Failed By User": 10,
+    "Login Failed": 11,
+    "Password Reset Requested": 12,
+    "Password Reset Completed": 13,
+    "Password Reset Failed": 14,
+    "User Invited By Account": 15,
+    "Invited Signup Failed": 16,
+    "Password Reset By Admin": 17
 }
 EVENT_TYPE_IDS_TO_NAMES = {
     value: key

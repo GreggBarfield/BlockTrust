@@ -645,6 +645,9 @@ def serve_upload_ranch_accounts_test(partner_id):
 @crut.require_employee
 def serve_view_account_event_logs():
     event_logs = EventLogs(g.db).get()
+    for event in event_logs:
+        if event["details"] is not None:
+            event["details"] = json.loads(event["details"])
     return employee_render("/employee/accounts/view-account-event-logs.html", {
         "event_logs": event_logs,
         "event_type_ids_to_names": EVENT_TYPE_IDS_TO_NAMES

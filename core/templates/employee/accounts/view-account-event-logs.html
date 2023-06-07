@@ -42,35 +42,18 @@
                         {% endif %}
                     </td>
                     <td>{{event_type_ids_to_names[event.event_type_id]}}</td>
-                    <td>{{event.created_timestamp}}</td>
+                    <td>{{event.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                     <td>
-                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventDetailsModal">
-                            Details
-                        </button>
+                        {% if event.details != None and event.details|length > 0 %}
+                            {% for detail_title,detail_data in event.details.items() %}
+                                <p>{{detail_title.replace("_", " ").title()}}: {{detail_data}}</p>
+                            {% endfor %}
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-</div>
-<div class="modal fade" id="eventDetailsModal" role="dialog">
-    <div class="modal-dialog modal-lg">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Task Output</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>
-
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
     </div>
 </div>
 <script type="text/javascript">
