@@ -9,7 +9,7 @@ export class BaseSummaryV2Widget extends Widget {
     createCharts() {}
 
     getSustainabilityData = async() =>{
-        let accountSustainabilityData = await this.getData("get_account_sustainability_data");
+        let accountSustainabilityData = await this.getData("get_account_sustainability_data", {scores_only: false});
         this.accountScores = accountSustainabilityData.account_sustainability_section_and_scores;
         this.accountSustainabilityResponses = accountSustainabilityData.account_sustainability_responses;
         
