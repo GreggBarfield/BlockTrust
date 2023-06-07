@@ -156,6 +156,10 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
             characteristics["sex"] = input_data["sex"]
         if "description" in input_data and input_data["description"].strip() != "":
             characteristics["description"] = input_data["description"]
+        if "terminal_reimplant_weight" in input_data and input_data["terminal_reimplant_weight"].strip():
+            characteristics["terminal_reimplant_weight"] = int(input_data["terminal_reimplant_weight"])
+        if "terminal_reimplant_date" in input_data and input_data["terminal_reimplant_date"].strip():
+            characteristics["terminal_reimplant_date"] = all_to_unix(input_data["terminal_reimplant_date"])
 
         Animals(db).create_or_fail_animal(**characteristics)
     except AnimalsException as e:
