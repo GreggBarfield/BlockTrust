@@ -75,7 +75,7 @@ class Advertisements:
             query_conditions.append(" ad_category_id = %(ad_category_id)s")
             query_values["ad_category_id"] = ad_category_id
         if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
+            query_conditions.append(" advertisements.is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
