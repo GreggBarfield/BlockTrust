@@ -47,6 +47,8 @@ Upload Tag Data
                     <li>Creep Feed</li>
                     <li>Sex</li>
                     <li>Implants</li>
+                    <li>Terminal Re-Implant Weight</li>
+                    <li>Terminal Re-implant Date</li>
                   </ul>
                 </details>
                 <p>If there are other data points you want to add, please Contact Us</p>
@@ -213,7 +215,21 @@ const importer = new FlatfileImporter('{{license}}', {
         key: "implants", label: "Implants",
         validators: [
 
-      ]}
+      ]},
+      { 
+        key: "terminal_reimplant_weight", label: "Terminal Re-implant Weight",
+        validators: [
+          {
+            validate: 'regex_matches',
+            regex: '^([0-9]*[.])?[0-9]+$',
+            error: 'Only can be a number and/or decimal.'
+          }
+        ]
+      },
+      { 
+        key: "terminal_reimplant_date", label: "Terminal Re-implant Date",
+        validators: []
+      },
     ],
   i18nOverrides: {
     en: {
