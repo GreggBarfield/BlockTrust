@@ -569,7 +569,6 @@ def serve_add_advertising_company():
     if request.method == "GET":
         return employee_render("/employee/marketplace/add-advertisement-company.html")
     if request.method == "POST":
-        print(request.form)
         AdvertisementCompanies(g.db).insert(
             name=request.form["name"],
             email=request.form["email"],

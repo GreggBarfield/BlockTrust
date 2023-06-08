@@ -440,8 +440,6 @@ def serve_save_eids_for_sales_group():
 @bp.route('/widgets/data/save_file_and_get_upload_config', methods=['POST'])
 @crut.require_user_or_employee
 def serve_save_file_get_upload_config():
-    print("In config---------------------------------------")
-    print(request.json)
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
     employee_owns = request.json["employee_owns"] is True

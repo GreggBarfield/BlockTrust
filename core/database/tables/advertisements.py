@@ -99,7 +99,6 @@ class Advertisements:
         if len(advertisement_rows) > 0:
             if include_logo_images is True:
                 for advertisement in advertisement_rows:
-                    print(advertisement["logo_file_id"])
                     if advertisement["logo_file_id"] is not None:
                         advertisement["logo_url"] = aws.get_s3_client().generate_presigned_url(
                             ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": "files/" + str(advertisement["logo_file_id"])}
