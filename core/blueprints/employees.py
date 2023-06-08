@@ -466,10 +466,9 @@ def serve_archive_notification():
 @crut.require_employee
 def serve_update_account_paid_status():
     request_data = json.loads(request.data)
-    account_id = int(request_data["account_id"])
-    paid_status = bool(request_data["paid_status"])  # json.loads converts JS true to Python True
+    account_id = request_data["account_id"]
     account = Accounts(g.db).get_accounts(id=account_id)[0]
-    if paid_status:
+    if request_data["paid_status"]:
         if account["partner_account"]:
             partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
             if partner["partner_subscription_credits"]:
