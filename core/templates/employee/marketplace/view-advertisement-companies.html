@@ -11,7 +11,7 @@ Manage Advertisement Companies
 
 <div class="row">
     <div class="col-md-12 d-flex justify-content-end">
-        <a class="btn btn-primary" href="/employee/dashboard/add-advertisement-company">Create New Advertisement Company</a>
+        <a class="btn btn-primary" href="{{add_advertisement_company_url}}">Create New Advertisement Company</a>
     </div>
     {% for advertisement_company in advertisement_companies %}
         {% if advertisement_company.is_archived == 0 %}

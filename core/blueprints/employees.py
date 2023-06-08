@@ -9,7 +9,6 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
-from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -28,7 +27,7 @@ from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
-from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -583,7 +582,7 @@ def serve_add_advertisement():
 
 @bp.route("/employee/dashboard/add-advertisement-company", methods=["GET", "POST"])
 @crut.require_employee
-def serve_add_advertising_company():
+def serve_add_advertisement_company():
     if request.method == "GET":
         return employee_render("/employee/marketplace/add-advertisement-company.html")
     if request.method == "POST":
@@ -665,6 +664,7 @@ def serve_upload_ranch_accounts_test(partner_id):
 def serve_view_advertisements():
     advertisements = Advertisements(g.db).get(get_related_advertising_company=True)
     return employee_render("/employee/marketplace/view-advertisements.html", {
+        "add_advertisement_url": url_for("employee_bp.serve_add_advertisement"),
         "advertisements": advertisements,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
     })
@@ -674,14 +674,17 @@ def serve_view_advertisements():
 @crut.require_employee
 def serve_view_advertisement_companies():
     advertisement_companies = AdvertisementCompanies(g.db).get()
-    return employee_render("/employee/marketplace/view-advertisement-companies.html", {"advertisement_companies": advertisement_companies})
+    return employee_render("/employee/marketplace/view-advertisement-companies.html", {
+        "add_advertisement_company_url": url_for("employee_bp.serve_add_advertisement_company"),
+        "advertisement_companies": advertisement_companies
+    })
 
 
 @bp.route("/employee/archive-advertisement", methods=["POST"])
 @crut.require_employee
 def serve_archive_advertisement():
     Advertisements(g.db).update(id=request.json["advertisement_id"], is_archived=1)
-    return {}
+    return Response(status=HTTP_OK)
 
 
 @bp.route("/employee/archive-advertisement-company-and-advertisements", methods=["POST"])
@@ -691,4 +694,4 @@ def serve_archive_advertisement_company_and_advertisements():
     advertisements = Advertisements(g.db).get(ad_company_id=int(request.json["advertisement_company_id"]), is_archived=0)
     for advertisement in advertisements:
         Advertisements(g.db).update(id=advertisement["id"], is_archived=1)
-    return {}
+    return Response(status=HTTP_OK)

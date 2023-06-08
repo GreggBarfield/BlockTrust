@@ -10,7 +10,7 @@ Manage Advertisements
 {% block employee_content %}
 <div class="row">
     <div class="col-md-12 d-flex justify-content-end">
-        <a class="btn btn-primary" href="/employee/dashboard/add-advertisement">Create New Advertisement</a>
+        <a class="btn btn-primary" href="{{add_advertisement_url}}">Create New Advertisement</a>
     </div>
     {% for advertisement in advertisements %}
         {% if advertisement.advertisement_is_archived == 0 %}
