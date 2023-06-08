@@ -1,4 +1,6 @@
 from ..no_value import NoValue
+from ... import config
+from ...utilities.aws import aws
 
 NO_VALUE = NoValue()
 
@@ -42,7 +44,7 @@ class Advertisements:
 
 
     def get(self, id=NO_VALUE, ad_company_id=NO_VALUE, ad_category_id=NO_VALUE, is_archived=NO_VALUE,
-            get_related_advertising_company=False, order_by=NO_VALUE, sort_by=NO_VALUE):
+            get_related_advertising_company=False, include_logo_images=False, order_by=NO_VALUE, sort_by=NO_VALUE):
         """
         Gets the advertisements based on the attributes provided
 
@@ -72,7 +74,7 @@ class Advertisements:
             query_conditions.append(" ad_category_id = %(ad_category_id)s")
             query_values["ad_category_id"] = ad_category_id
         if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
+            query_conditions.append(" advertisements.is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
@@ -95,6 +97,15 @@ class Advertisements:
 
         advertisement_rows = self._db.execute_d(query, query_values)
         if len(advertisement_rows) > 0:
+            if include_logo_images is True:
+                for advertisement in advertisement_rows:
+                    print(advertisement["logo_file_id"])
+                    if advertisement["logo_file_id"] is not None:
+                        advertisement["logo_url"] = aws.get_s3_client().generate_presigned_url(
+                            ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": "files/" + str(advertisement["logo_file_id"])}
+                        )
+                    else:
+                        advertisement["logo_url"] = None
             return advertisement_rows
         else:
             return []

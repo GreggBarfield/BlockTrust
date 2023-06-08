@@ -569,6 +569,7 @@ def serve_add_advertising_company():
     if request.method == "GET":
         return employee_render("/employee/marketplace/add-advertisement-company.html")
     if request.method == "POST":
+        print(request.form)
         AdvertisementCompanies(g.db).insert(
             name=request.form["name"],
             email=request.form["email"],
@@ -578,6 +579,7 @@ def serve_add_advertising_company():
             state=request.form["state"],
             zip_code=request.form["zip_code"],
             phone=request.form["phone"],
+            logo_file_id=request.form["logo_file_id"],
             is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
         )
         return {"redirect": url_for("employee_bp.serve_dashboard")}

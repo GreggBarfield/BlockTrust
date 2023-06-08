@@ -438,12 +438,15 @@ def serve_save_eids_for_sales_group():
 
 
 @bp.route('/widgets/data/save_file_and_get_upload_config', methods=['POST'])
-@crut.require_account
+@crut.require_user_or_employee
 def serve_save_file_get_upload_config():
+    print("In config---------------------------------------")
+    print(request.json)
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
+    employee_owns = request.json["employee_owns"] is True
     question_id = request.json.get("question_id", None)
-    if not user_owns and not account_owns:
+    if not user_owns and not account_owns and not employee_owns:
         raise ExportException("Someone must own the file.")
 
     file_id, file_config = Files(g.db).insert_file_and_get_post_configuration(
@@ -855,7 +858,7 @@ def serve_get_advertising_companies():
 @bp.route('/widgets/data/get_advertisements', methods=["POST"])
 @crut.require_account
 def serve_get_advertisements():
-    advertisements = Advertisements(g.db).get(is_archived=0, get_related_advertising_company=True)
+    advertisements = Advertisements(g.db).get(is_archived=0, get_related_advertising_company=True, include_logo_images=True)
     return {
         "advertisements": advertisements,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES

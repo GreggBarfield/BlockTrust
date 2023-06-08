@@ -1,7 +1,8 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
-import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput,generateUploadInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
+import { saveAndUploadFile } from '../../../../files/files.mjs';
 import { states } from '../../../../core/common_constants.mjs';
+import { Widget } from "../../../widget.mjs";
 
 export class AddAdvertisementCompanyWidget extends Widget {
     constructor(frame) {
@@ -48,8 +49,11 @@ export class AddAdvertisementCompanyWidget extends Widget {
         inputsRow.append(zipInput);
         let phoneInput = generateTextInput("*Phone", "text", "phone", true, "col-md-6");
         inputsRow.append(phoneInput);
-        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", true, "col-md-6 d-flex m-1");
+        let {uploadInputContainer, uploadInput} = generateUploadInput("Upload Logo: ");
+        inputsRow.append(uploadInputContainer);
+        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", false, "col-md-6 d-flex m-1");
         inputsRow.append(integratedWithBlockTrustInput);
+
         form.append(inputsRow);
 
         let submitButton = document.createElement("button");
@@ -62,7 +66,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = () =>{
+        submitButton.onclick = async() =>{
             let formResponseValues = [];
             let name = document.getElementById("name").value;
             formResponseValues.push(name);
@@ -82,6 +86,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
             formResponseValues.push(phone);
             let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
+            let logoFileID = 0;
             if(formCompletionStatus){
                 errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
@@ -101,10 +106,16 @@ export class AddAdvertisementCompanyWidget extends Widget {
                             state: state,
                             zip_code: zipCode,
                             phone: phone,
+                            logo_file_id: logoFileID,
                             is_integrated_with_blocktrust: isIntegratedWithBlockTrust
                         };
                     }
                 });
+                let uploadedFiles = uploadInput.files;
+                if(Object.entries(uploadedFiles).length > 0){
+                    let uploadedLogoFile = uploadedFiles[0];
+                    logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true);
+                }
                 newAdvertisementCompanyAsyncForm.submit();
             }
             else{
