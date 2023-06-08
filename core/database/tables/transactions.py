@@ -14,7 +14,8 @@ class Transactions:
     def __init__(self, db):
         self._db = db
 
-    def insert_transaction(self, transaction_type_id, partner_id, subscription_credits, employee_id):
+    def insert_transaction(self, transaction_type_id, partner_id, account_id=None,
+                           subscription_credits=None, employee_id=None):
         """
         Inserts a new transaction record
 
@@ -24,12 +25,15 @@ class Transactions:
 
         self._db.execute(
             """
-                INSERT INTO transactions (transaction_type_id, partner_id, subscription_credits, employee_id)
-                VALUES (%(transaction_type_id)s, %(partner_id)s, %(subscription_credits)s, %(employee_id)s)
+                INSERT INTO transactions (transaction_type_id, partner_id, account_id,  subscription_credits, 
+                employee_id)
+                VALUES (%(transaction_type_id)s, %(partner_id)s, %(account_id)s, %(subscription_credits)s, 
+                %(employee_id)s)
             """,
             {
                 "transaction_type_id": transaction_type_id,
                 "partner_id": partner_id,
+                "account_id": account_id,
                 "subscription_credits": subscription_credits,
                 "employee_id": employee_id
             }

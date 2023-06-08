@@ -12,7 +12,8 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_payouts_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description",
-                "subscription_start_date", "subscription_end_date", "show_real_name")
+                "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
+                "partner_paid")
 
 
 class AccountsException(Exception):
@@ -160,7 +161,7 @@ class Accounts:
 
         return sector, phone, affiliate_id
 
-    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid=None):
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account without a user.
 
         Params:
@@ -183,9 +184,9 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name, manual_paid)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s, %(manual_paid)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s)
             """,
             {
                 "company": company,
@@ -197,13 +198,12 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "show_real_name": int(False),
-                "manual_paid": manual_paid
+                "show_real_name": int(False)
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
 
-        # Link the account appropriately in the database. 
+        # Link the account appropriately in the database.
         name = self.mask_company_name(account.id(), account.sector_id())
         self._db.account_links.update_account_link_with_account(
             account.partner_account_id(), account.affiliate_id(), account.sector_id(), 
@@ -213,7 +213,7 @@ class Accounts:
 
         return account
 
-    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid=None):
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
         """Creates a new account with the user automatically added as the admin.
 
         Params:
@@ -235,7 +235,7 @@ class Accounts:
             AccountsException
         """
 
-        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone, manual_paid)
+        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone)
 
         # make the first user the account admin
         account.add_user(user, 1)
@@ -447,7 +447,7 @@ class Accounts:
         else:
             return []
 
-    def update_partner(self, account_id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
+    def update_partner(self, id, name=NO_VALUE, company=NO_VALUE, sector_id=NO_VALUE, affiliate_id=NO_VALUE,
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
@@ -475,7 +475,7 @@ class Accounts:
 
         query_conditions = []
         query_values = {}
-        query_values["id"] = account_id
+        query_values["id"] = id
         if name is not NO_VALUE:
             query_conditions.append(" name = %(name)s")
             query_values["name"] = name
@@ -580,9 +580,9 @@ class Accounts:
             subscription_end_date=subscription_end_date, show_real_name=show_real_name
         )
 
-    def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE, 
+    def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
                        state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
-                       stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
+                       stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
                        subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
@@ -645,6 +645,9 @@ class Accounts:
         if manual_paid is not NO_VALUE:
             query_conditions.append("manual_paid = %(manual_paid)s")
             query_values["manual_paid"] = manual_paid
+        if partner_paid is not NO_VALUE:
+            query_conditions.append("partner_paid = %(partner_paid)s")
+            query_values["partner_paid"] = partner_paid
         if stripe_customer_id is not NO_VALUE:
             query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
             query_values["stripe_customer_id"] = stripe_customer_id

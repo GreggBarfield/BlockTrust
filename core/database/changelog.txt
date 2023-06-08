@@ -1960,3 +1960,15 @@ ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`;
 /* Nisheet Thakur 06/05/2023 */
 ALTER TABLE `advertisement_companies`
 ADD COLUMN `is_archived` TINYINT DEFAULT 0;
+
+/* Rohan Sureshkumar 6/7/23 */
+ALTER TABLE `transactions` 
+ADD COLUMN `account_id` INT NULL AFTER `partner_id`;
+ALTER TABLE `transactions` 
+ADD INDEX `fk_transactions_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
