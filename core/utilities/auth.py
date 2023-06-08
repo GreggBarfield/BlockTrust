@@ -210,8 +210,11 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             phone=phone
         )
 
-        perform_new_account_actions(db=g.db, account_id=account_obj.id(), user_id=user.id(),
-                                    event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup"], sector_id=account_obj.sector_id(), email=email)
+        perform_new_account_actions(
+            db=g.db, account_id=account_obj.id(), user_id=user.id(),
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup"], sector_id=account_obj.sector_id(),
+            partner_id=partner, email=email
+        )
 
     except Exception as e:
         raise e

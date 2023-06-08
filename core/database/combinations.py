@@ -5,16 +5,20 @@ from core.database.tables.accounts import Accounts
 from core.database.tables.connection_invites import ConnectionInvites
 from core.database.tables.event_logs import EventLogs
 from core.database.tables.reports import Reports
+from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from core.database.tables.users import Users
 from core.renderers.email import render_email
 from core.utilities.email import send_email
 from .tables.matches import Matches
-from .tables.connections import Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
+from .tables.connections import (
+    Connections, ConnectionException, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
+)
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from .tables.debug_logs import DebugLogs
 from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
+from datetime import datetime
 
 
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
@@ -111,7 +115,8 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
             pass
 
 
-def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, email=None, employee_id=None):
+def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, partner_id=None, email=None,
+                                employee_id=None):
     if email:
         ConnectionInvites(db).convert_invites_to_connections(email, account_id)
     Reports(db).make_reports_for_account(account_id, sector_id)
@@ -121,8 +126,39 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
     event_details = {"connections": ",".join(str(n) for n in new_connections)}
     if employee_id:
         event_details["employee_id"] = employee_id
-    EventLogs(db).insert(account_id=account_id, user_id=user_id, event_type_id=event_type_id,
-                                   details=event_details)
+    EventLogs(db).insert(
+        account_id=account_id, user_id=user_id, event_type_id=event_type_id, details=event_details
+    )
+
+    if partner_id:
+        partner = Accounts(db).get_partners(id=partner_id)[0]
+        if partner["partner_subscription_credits"]:
+            update_partner_payment_of_account(db, partner, account_id, True, employee_id)
+
+
+def update_partner_payment_of_account(db, partner, account_id, paid_by_partner, employee_id=None):
+    change_in_credits = -1 if paid_by_partner else 1
+    Accounts(db).update_partner(
+        partner["id"],
+        partner_subscription_credits=partner["partner_subscription_credits"] + change_in_credits
+    )
+    Transactions(db).insert_transaction(
+        transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
+        partner_id=partner["id"],
+        account_id=account_id,
+        subscription_credits=change_in_credits,
+        employee_id=employee_id
+    )
+    if paid_by_partner:
+        Accounts(db).update_account(
+            account_id=account_id, partner_paid=int(paid_by_partner),
+            subscription_start_date=datetime.utcnow(), subscription_end_date=None
+        )
+    else:
+        Accounts(db).update_account(
+            account_id=account_id, partner_paid=int(paid_by_partner),
+            subscription_end_date=datetime.utcnow()
+        )
 
 
 def send_connection_request_email_to_admin_users(db, to_account_id, from_account_id):
