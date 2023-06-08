@@ -1956,3 +1956,15 @@ ADD COLUMN `ranch_source_county` VARCHAR(30) NULL AFTER `herd_sire`,
 ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
 ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
 ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`;
+
+/* Rohan Sureshkumar 6/7/23 */
+ALTER TABLE `transactions` 
+ADD COLUMN `account_id` INT NULL AFTER `partner_id`;
+ALTER TABLE `transactions` 
+ADD INDEX `fk_transactions_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `transactions` 
+ADD CONSTRAINT `fk_transactions_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
