@@ -595,7 +595,7 @@ def serve_add_advertising_company():
             state=request.form["state"],
             zip_code=request.form["zip_code"],
             phone=request.form["phone"],
-            logo_file_id=request.form["logo_file_id"],
+            logo_file_id=int(request.form["logo_file_id"]) if int(request.form["logo_file_id"]) != 0 else None,
             is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
         )
         return {"redirect": url_for("employee_bp.serve_dashboard")}
