@@ -23,6 +23,7 @@
                             <th>Partner Name</th>
                             <th>Sector</th>
                             <th>Partner city, state</th>
+                            <th>Subscription Credits</th> 
                             <th>User</th>
                             <th></th>
                             <th></th>
@@ -39,6 +40,7 @@
                             </td>
                             <td>{{sectors_id_to_name[partner.sector]}}</td>
                             <td>{{partner.city}}, {{partner.state}}</td>
+                            <td>{{partner.partner_subscription_credits}}</td>
                             <td class="{{'text-muted' if not partner.user_name else ''}}">
                                 {{partner.user_name if partner.user_name else "No user"}}
                             </td>

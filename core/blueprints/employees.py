@@ -1,5 +1,5 @@
 from flask import (
-    request, Blueprint, g, redirect, url_for
+    Response, request, Blueprint, g, redirect, url_for
 )
 
 from ..blueprints.stripe import serve_stripe_price
@@ -9,7 +9,6 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements
-from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -21,14 +20,14 @@ from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
-from ..database.combinations import perform_new_account_actions
+from ..database.combinations import perform_new_account_actions, update_partner_payment_of_account
 from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
-from ..utilities.constants import DEFAULT_PASSWORD
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -94,8 +93,10 @@ def serve_employee_create_account_action():
         AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
-            g.db, account_obj.id(), user_id, event_type_by_name["Account Created"],
-            account_obj.sector_id(), g.employee.id()
+            db=g.db, account_id=account_obj.id(), user_id=user_id,
+            event_type_id=event_type_by_name["Account Created"],
+            sector_id=account_obj.sector_id(), partner_id=partner,
+            employee_id=g.employee.id()
         )
 
         return {"redirect": "/employee/dashboard"}
@@ -286,11 +287,13 @@ def serve_edit_selected_partner(partner_id):
         credits_diff = subscription_credits - partner["partner_subscription_credits"]
         if credits_diff:
             Transactions(g.db).insert_transaction(
-                TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
-                partner["id"], credits_diff, g.employee.id()
+                transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
+                partner_id=partner["id"],
+                subscription_credits=credits_diff,
+                employee_id=g.employee.id()
             )
         Accounts(g.db).update_partner(
-            account_id=partner_id,
+            id=partner_id,
             company=format_field(request.form["company"]),
             phone=format_field(request.form["phone"]),
             address=format_field(request.form["address"]),
@@ -459,20 +462,34 @@ def serve_archive_notification():
     return {}
 
 
-@bp.route("/employee/update-account-paid-status", methods=["POST"])
+@bp.route("/employee/update-account-paid-status", methods=["PUT"])
 @crut.require_employee
 def serve_update_account_paid_status():
     request_data = json.loads(request.data)
-    account_id = int(request_data["account_id"])
-    paid_status = bool(request_data["paid_status"])  # json.loads converts JS true to Python True
-    if paid_status:
-        Accounts(g.db).update_account(account_id, manual_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
+    account_id = request_data["account_id"]
+    account = Accounts(g.db).get_accounts(id=account_id)[0]
+    if request_data["paid_status"]:
+        if account["partner_account"]:
+            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+            if partner["partner_subscription_credits"]:
+                update_partner_payment_of_account(g.db, partner, account_id, True, g.employee.id())
+            else:
+                Accounts(g.db).update_account(
+                    account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
+                )
+        else:
+            Accounts(g.db).update_account(
+                account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
+            )
     else:
-        account = Accounts(g.db).get_account_by_id(account_id)
-        if account.stripe_paid() == 1:
+        if account["stripe_paid"]:
             raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
-        g.db.accounts.update_account(account_id, manual_paid=0,  subscription_end_date=datetime.now())
-    return {}, 200
+        elif account["partner_paid"]:
+            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+            update_partner_payment_of_account(g.db, partner, account_id, False, g.employee.id())
+        else:
+            g.db.accounts.update_account(account_id, manual_paid=0, subscription_end_date=datetime.utcnow())
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
@@ -629,13 +646,15 @@ def serve_upload_ranch_accounts_test(partner_id):
                     city=required_data["city"],
                     state=required_data["state"],
                     zip=required_data["zip_code"],
-                    phone=phone,
-                    manual_paid=1
+                    phone=phone
                 )
 
-                perform_new_account_actions(db=g.db, account_id=account_object.id(), user_id=user.id(),
-                                            event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"], 
-                                            sector_id=account_object.sector_id(), email=required_data["email"])
+                perform_new_account_actions(
+                    db=g.db, account_id=account_object.id(), user_id=user.id(),
+                    event_type_id=event_type_by_name["Bulk Account And User Signup By Employee"],
+                    sector_id=account_object.sector_id(), partner_id=partner_id,
+                    email=required_data["email"], employee_id=g.employee.id(),
+                )
             return {"redirect": "/employee/dashboard/view-partners"}
         except (ExportException, AccountsException, UsersException, ValueError) as e:
             return {"error": str(e)}, 400
