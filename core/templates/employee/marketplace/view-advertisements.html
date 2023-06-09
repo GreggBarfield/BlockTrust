@@ -13,7 +13,7 @@ Manage Advertisements
         <a class="btn btn-primary" href="{{add_advertisement_url}}">Create New Advertisement</a>
     </div>
     {% for advertisement in advertisements %}
-        {% if advertisement.advertisement_is_archived == 0 %}
+        {% if advertisement.is_archived == 0 %}
         <div class="card col-md-12 m-2 p-2">
             <div class="card-header d-flex">
                 <div class="col-md-3">
@@ -66,7 +66,7 @@ Manage Advertisements
         <h5>Archived Advertisements</h5>
     </div>
     {% for advertisement in advertisements %}
-        {% if advertisement.advertisement_is_archived == 1 %}
+        {% if advertisement.is_archived == 1 %}
         <div class="card col-md-12 m-2 p-2">
             <div class="card-header d-flex">
                     <h5>{{advertisement.short_description}} ({{advertisement_category_ids_to_names[advertisement.ad_category_id]}})</h5>

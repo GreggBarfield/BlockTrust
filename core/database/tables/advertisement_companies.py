@@ -46,8 +46,7 @@ class AdvertisementCompanies:
             })
 
     def get(self, id=NO_VALUE, name=NO_VALUE, email=NO_VALUE, contact_name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
-            state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE,
-            is_archived=NO_VALUE):
+            state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE):
         """
         Gets the advertisement company based on the attributes provided
 
@@ -105,9 +104,6 @@ class AdvertisementCompanies:
         if logo_file_id is not NO_VALUE:
             query_conditions.append(" logo_file_id = %(logo_file_id)s")
             query_values["logo_file_id"] = logo_file_id
-        if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
-            query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -123,8 +119,7 @@ class AdvertisementCompanies:
             return []
 
     def update(self, id, name=NO_VALUE, email=NO_VALUE, contact_name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
-               state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE,
-               is_archived=NO_VALUE):
+               state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE):
         """
         Updates the advertisement company based on the ID provided
 
@@ -177,9 +172,6 @@ class AdvertisementCompanies:
         if logo_file_id is not NO_VALUE:
             query_conditions.append(" logo_file_id = %(logo_file_id)s")
             query_values["logo_file_id"] = logo_file_id
-        if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
-            query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

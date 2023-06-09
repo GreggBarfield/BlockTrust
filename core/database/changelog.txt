@@ -1957,10 +1957,6 @@ ADD COLUMN `ranch_size` VARCHAR(30) NULL AFTER `ranch_source_county`,
 ADD COLUMN `home_raised` VARCHAR(30) NULL AFTER `ranch_size`,
 ADD COLUMN `family_farm_or_ranch` VARCHAR(30) NULL AFTER `home_raised`;
 
-/* Nisheet Thakur 06/05/2023 */
-ALTER TABLE `advertisement_companies`
-ADD COLUMN `is_archived` TINYINT DEFAULT 0;
-
 /* Rohan Sureshkumar 6/7/23 */
 ALTER TABLE `transactions` 
 ADD COLUMN `account_id` INT NULL AFTER `partner_id`;

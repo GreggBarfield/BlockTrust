@@ -58,8 +58,7 @@ class Advertisements:
         base_query = "SELECT * FROM advertisements"
         if get_related_advertising_company:
             base_query = """SELECT *, advertisements.id as advertisement_id, advertisement_companies.id as
-                            advertisement_company_id, advertisements.is_archived as advertisement_is_archived
-                            FROM advertisements LEFT JOIN advertisement_companies ON 
+                            advertisement_company_id FROM advertisements LEFT JOIN advertisement_companies ON 
                             advertisements.ad_company_id=advertisement_companies.id"""
 
         query_conditions = []
@@ -75,7 +74,7 @@ class Advertisements:
             query_conditions.append(" ad_category_id = %(ad_category_id)s")
             query_values["ad_category_id"] = ad_category_id
         if is_archived is not NO_VALUE:
-            query_conditions.append(" advertisements.is_archived = %(is_archived)s")
+            query_conditions.append(" is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
