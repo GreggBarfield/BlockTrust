@@ -66,7 +66,8 @@ export class AddAdvertisementCompanyWidget extends Widget {
         let errorMessage = document.createElement("p");
         form.append(errorMessage);
 
-        submitButton.onclick = async() =>{
+        submitButton.onclick = async(e) =>{
+            e.preventDefault();
             let formResponseValues = [];
             let name = document.getElementById("name").value;
             formResponseValues.push(name);
@@ -116,7 +117,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                     let uploadedLogoFile = uploadedFiles[0];
                     logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true);
                 }
-                newAdvertisementCompanyAsyncForm.submit();
+                    newAdvertisementCompanyAsyncForm.submit();
             }
             else{
                 errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
