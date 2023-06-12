@@ -36,13 +36,13 @@ def handle(db, insert):
             zipcode = str(account["zip"])
             process_sighting(
                 db, eid, account_link["id"], api_insert, zipcode, date_created,
-                insert["account"], visual_id, timezone=timezone('Etc/GMT+11')
+                insert["account"], visual_id
             )
             process_weaning_data(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
             process_birth_date(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
             process_animal_characteristics(db, fields, eid, api_insert, visual_id)
 
