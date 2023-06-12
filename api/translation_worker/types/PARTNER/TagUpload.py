@@ -2,7 +2,6 @@ from api.translation_worker.types.helper import process_animal_characteristics, 
 from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
 from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
-from pytz import timezone
 
 
 def _check_required(insert):
