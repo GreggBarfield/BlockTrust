@@ -2,7 +2,6 @@ from api.translation_worker.types.helper import process_animal_characteristics, 
 from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
 from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
-from pytz import timezone
 
 
 def _check_required(insert):
@@ -36,13 +35,13 @@ def handle(db, insert):
             zipcode = str(account["zip"])
             process_sighting(
                 db, eid, account_link["id"], api_insert, zipcode, date_created,
-                insert["account"], visual_id, timezone=timezone('Etc/GMT+11')
+                insert["account"], visual_id
             )
             process_weaning_data(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
             process_birth_date(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
             process_animal_characteristics(db, fields, eid, api_insert, visual_id)
 

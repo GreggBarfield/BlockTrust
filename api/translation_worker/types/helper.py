@@ -133,7 +133,7 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
                 )
 
 
-def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None):
+def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None, timezone=None):
     try:
         characteristics = {"eid": eid, "api_insert_id": api_insert_id}
         if visual_id:
@@ -144,9 +144,11 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
             characteristics["breed"] = input_data["breed"]
         if "implants" in input_data and input_data["implants"].strip() != "":
             characteristics["implants"] = input_data["implants"]
-        if "calf_reg_no" in input_data and input_data["calf_reg_no"].strip() != "" and int(input_data["calf_reg_no"]) > 0:
+        if ("calf_reg_no" in input_data and input_data["calf_reg_no"].strip() != ""
+                and int(input_data["calf_reg_no"]) > 0):
             characteristics["calf_registration_number"] = int(input_data["calf_reg_no"])
-        if "sire_reg_no" in input_data and input_data["sire_reg_no"].strip() != "" and int(input_data["sire_reg_no"]) > 0:
+        if ("sire_reg_no" in input_data and input_data["sire_reg_no"].strip() != ""
+                and int(input_data["sire_reg_no"]) > 0):
             characteristics["sire_registration_number"] = int(input_data["sire_reg_no"])
         if "dam_reg_no" in input_data and input_data["dam_reg_no"].strip() != "" and int(input_data["dam_reg_no"]) > 0:
             characteristics["dam_registration_number"] = int(input_data["dam_reg_no"])
@@ -159,7 +161,10 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
         if "terminal_reimplant_weight" in input_data and input_data["terminal_reimplant_weight"].strip():
             characteristics["terminal_reimplant_weight"] = int(input_data["terminal_reimplant_weight"])
         if "terminal_reimplant_date" in input_data and input_data["terminal_reimplant_date"].strip():
-            characteristics["terminal_reimplant_date"] = all_to_unix(input_data["terminal_reimplant_date"])
+            characteristics["terminal_reimplant_date"] = (
+                all_to_unix(input_data["terminal_reimplant_date"], timezone)
+                if timezone else all_to_unix(input_data["terminal_reimplant_date"])
+            )
 
         Animals(db).create_or_fail_animal(**characteristics)
     except AnimalsException as e:
