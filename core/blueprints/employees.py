@@ -8,7 +8,7 @@ from core.database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
-from ..database.tables.advertisements import Advertisements
+from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.employees import EmployeesException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -27,7 +27,7 @@ from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
-from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from random import randint
 from ..utilities.constants import StripePrices
@@ -578,11 +578,11 @@ def serve_add_advertisement():
             short_description=request.form["short_description"],
             long_description=request.form["long_description"]
         )
-        return {"redirect": url_for("employee_bp.serve_dashboard")}
+        return {"redirect": url_for("employee_bp.serve_view_advertisements")}
 
 @bp.route("/employee/dashboard/add-advertisement-company", methods=["GET", "POST"])
 @crut.require_employee
-def serve_add_advertising_company():
+def serve_add_advertisement_company():
     if request.method == "GET":
         return employee_render("/employee/marketplace/add-advertisement-company.html")
     if request.method == "POST":
@@ -598,7 +598,7 @@ def serve_add_advertising_company():
             logo_file_id=int(request.form["logo_file_id"]) if int(request.form["logo_file_id"]) != 0 else None,
             is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
         )
-        return {"redirect": url_for("employee_bp.serve_dashboard")}
+        return {"redirect": url_for("employee_bp.serve_view_advertisement_companies")}
 
 
 @bp.route("/employee/dashboard/edit-partner/upload-ranch-accounts/<int:partner_id>", methods=["GET", "POST"])
@@ -658,3 +658,31 @@ def serve_upload_ranch_accounts_test(partner_id):
             return {"redirect": "/employee/dashboard/view-partners"}
         except (ExportException, AccountsException, UsersException, ValueError) as e:
             return {"error": str(e)}, 400
+
+
+@bp.route("/employee/dashboard/view-advertisements", methods=["GET"])
+@crut.require_employee
+def serve_view_advertisements():
+    advertisements = Advertisements(g.db).get(get_related_advertising_company=True)
+    return employee_render("/employee/marketplace/view-advertisements.html", {
+        "add_advertisement_url": url_for("employee_bp.serve_add_advertisement"),
+        "advertisements": advertisements,
+        "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+    })
+
+
+@bp.route("/employee/dashboard/view-advertisement-companies", methods=["GET"])
+@crut.require_employee
+def serve_view_advertisement_companies():
+    advertisement_companies = AdvertisementCompanies(g.db).get()
+    return employee_render("/employee/marketplace/view-advertisement-companies.html", {
+        "add_advertisement_company_url": url_for("employee_bp.serve_add_advertisement_company"),
+        "advertisement_companies": advertisement_companies
+    })
+
+
+@bp.route("/employee/archive-advertisement", methods=["POST"])
+@crut.require_employee
+def serve_archive_advertisement():
+    Advertisements(g.db).update(id=request.json["advertisement_id"], is_archived=1)
+    return Response(status=HTTP_OK)
