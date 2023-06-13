@@ -73,13 +73,13 @@ export class MapV2Widget extends Widget {
         let matchRows = matchRowsData.result.matches;
         let sectorsIdToNameData = await this.getData("direct/sectors_id_to_name", {});
         let sectorsIDToName = sectorsIdToNameData.sectors_id_to_name;
-        console.log(matchRows);
+        //console.log(matchRows);
         this.generateMap(map, matchRows, sectorsIDToName, Marker, InfoWindow);
     }
 
     generateMap = (map, matchRows, sectorsIDToName, Marker, InfoWindow) =>{
         for(const matchRow of matchRows){
-            let accountInformationContainer = this.generateAccountInformationContainer(matchRow);
+            let accountInformationContainer = this.generateAccountInformationContainer(matchRow, sectorsIDToName);
             // let infoWindow = new InfoWindow({
             //    content: accountInformationContainer,
             //    ariaLabel: "Testing"
@@ -99,7 +99,7 @@ export class MapV2Widget extends Widget {
         }
     }
 
-    generateAccountInformationContainer = (matchRow) =>{
+    generateAccountInformationContainer = (matchRow, sectorsIDToName) =>{
         let accountInformationContainer = document.createElement("div");
         accountInformationContainer.className = "p-1 m-1";
         let table = document.createElement("table");
@@ -118,15 +118,26 @@ export class MapV2Widget extends Widget {
         if("account_links.name" in matchRow){
             let accountName = matchRow["account_links.name"];
             if(accountName in imageMap){
-                let img = document.createElement("img");
-                img.src = "/static/images/map_logos/" + imageMap[accountName];
-                img.className = "img img-fluid";
+                let img = this.generateImageElement(imageMap[accountName]);
                 left.append(img);
+            }
+            else{
+                if("account_links.sector" in matchRow){
+                    let sectorID = matchRow["account_links.sector"];
+                    let sectorName = sectorsIDToName[sectorID];
+                    if(sectorName in imageMap){
+                        let img = this.generateImageElement(imageMap[sectorName]);
+                        left.append(img);
+                    }
+                }
             }
             let companyName = document.createElement("p");
             companyName.className = "font-weight-bold";
             companyName.textContent = accountName;
             right.append(companyName);
+        }
+        if("account_links.sector" in matchRow){
+            
         }
         if("time" in matchRow){
             let sightedContainer = document.createElement("p");
@@ -137,4 +148,10 @@ export class MapV2Widget extends Widget {
         return accountInformationContainer;
     }
 
+    generateImageElement = (imageName) =>{  
+        let img = document.createElement("img");
+        img.src = "/static/images/map_logos/" + imageName;
+        img.className = "img img-fluid";
+        return img;
+    }
 }
