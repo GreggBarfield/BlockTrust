@@ -234,9 +234,16 @@ export class SectorsWidget extends Widget {
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
-        addField("Packer", "Quality", "Ribeye Area", filterMatchType("Packer"), useDataJson("RibeyeArea"));
-        addField("Packer", "Quality", "Marbling Score", filterMatchType("Packer"), useDataJson("MarblingScore"));
-        addField("Packer", "Quality", "Fat Thickness", filterMatchType("Packer"), useDataJson("FatThickness"));
+        addField("Packer", "Quality", "Harvest Date", null, null, null, "harvest_date", true);
+        addField("Packer", "Quality", "Program Certification", null, null, null, "program_certification");
+        addField("Packer", "Quality", "Ribeye Area", null, null, null, "ribeye_area");
+        addField("Packer", "Quality", "Marbling Score", null, null, null, "marbling_score");
+        addField("Packer", "Quality", "Marbling Score Code", null, null, null, "marbling_score_code");
+        addField("Packer", "Quality", "Fat Thickness", null, null, null, "fat_thickness");
+        addField("Packer", "Performance", "Calculated Live Weight", null, null, null, "calculated_live_weight");
+        addField("Packer", "Performance", "Total Gain", null, null, null, "total_gain");
+        addField("Packer", "Performance", "Days On Test", null, null, null, "days_on_test");
+        addField("Packer", "Performance", "Average Daily Gain", null, null, null, "average_daily_gain");
     }
 
     selectTab(tab, sector) {
