@@ -1968,3 +1968,18 @@ ADD CONSTRAINT `fk_transactions_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 6/13/23 */
+ALTER TABLE `animals` 
+ADD COLUMN `harvest_date` INT NULL AFTER `family_farm_or_ranch`,
+ADD COLUMN `program_certification` VARCHAR(30) NULL AFTER `harvest_date`,
+ADD COLUMN `marbling_score` INT NULL AFTER `program_certification`,
+ADD COLUMN `marbling_score_code` INT NULL AFTER `marbling_score`,
+ADD COLUMN `ribeye_area` INT NULL AFTER `marbling_score_code`,
+ADD COLUMN `fat_thickness` INT NULL AFTER `ribeye_area`,
+ADD COLUMN `calculated_live_weight` INT NULL AFTER `fat_thickness`,
+ADD COLUMN `total_gain` INT NULL AFTER `calculated_live_weight`,
+ADD COLUMN `days_on_test` INT NULL AFTER `total_gain`,
+ADD COLUMN `average_daily_gain` DECIMAL(5,2) NULL AFTER `days_on_test`
+ADD COLUMN `packer_api_insert_id` INT NULL AFTER `api_insert_id`,
+ADD COLUMN `feeder_api_insert_id` INT NULL AFTER `packer_api_insert_id`;
