@@ -234,7 +234,7 @@ export class SectorsWidget extends Widget {
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
-        addField("Packer", "Quality", "Harvest Date", null, null, null, "harvest_date");
+        addField("Packer", "Quality", "Harvest Date", null, null, null, "harvest_date", true);
         addField("Packer", "Quality", "Program Certification", null, null, null, "program_certification");
         addField("Packer", "Quality", "Ribeye Area", null, null, null, "ribeye_area");
         addField("Packer", "Quality", "Marbling Score", null, null, null, "marbling_score");
