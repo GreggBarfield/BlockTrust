@@ -26,8 +26,12 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentCard.append(checkoutPaymentCardHeader);
 
         let checkoutPaymentCardbody = document.createElement("div");
-        checkoutPaymentCardbody.className = "card-body";
-        checkoutPaymentCardbody.id = "checkout-card-element";
+        checkoutPaymentCardbody.className = "card-body row";
+
+        let checkoutPaymentCardElement = document.createElement("div");
+        checkoutPaymentCardElement.className = "col-md-6";
+        checkoutPaymentCardElement.id = "checkout-card-element";
+        checkoutPaymentCardbody.append(checkoutPaymentCardElement);
         checkoutPaymentCard.append(checkoutPaymentCardbody);
 
         return checkoutPaymentCard;
