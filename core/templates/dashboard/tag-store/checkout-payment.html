@@ -1,0 +1,20 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Checkout Payment" %}
+{% set dashboard_locations = [("/shop/tag-store", "Tag Store"), ("/shop/shopping-cart", "Shopping Cart"), ("/shop/checkout", "Checkout")] %}
+{% block dashboard_content_header %}
+Checkout Payment
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col">
+        <div class="col-sm-12 mb-0 widget" data-widget-type="checkout payment" data-widget-stripe-key="{{stripe_key}}">
+        </div>
+    </div>
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+    const publishableKey = '{{stripe_key}}'
+</script>
+{% endblock dashboard_content %}

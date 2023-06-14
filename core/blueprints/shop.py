@@ -4,6 +4,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
+from ..config import STRIPE_PUBLISHABLE_KEY
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable
@@ -222,7 +223,7 @@ def serve_external_invoice(partner_id):
 @bp.route("/shop/tag-store", methods=["GET"])
 @crut.require_account
 def serve_tag_store():
-    all_product_data = ProductTable(g.db).get_products(include_images=True)
+    all_product_data = ProductTable(g.db).get_products(product_vendor_id=4, include_images=True)
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
@@ -251,3 +252,9 @@ def serve_checkout():
 @crut.require_account
 def serve_invoice():
     return dashboard_render("tag-store/invoice.html")
+
+
+@bp.route("/shop/checkout-payment", methods=["GET"])
+@crut.require_account
+def serve_checkout_payment():
+    return dashboard_render("tag-store/checkout-payment.html", {"stripe_key": STRIPE_PUBLISHABLE_KEY})
