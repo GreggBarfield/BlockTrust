@@ -451,6 +451,7 @@ def serve_save_file_get_upload_config():
         request.json["file_name"],
         g.user.id() if user_owns else None,
         g.account.id() if account_owns else None,
+        g.employee.id() if employee_owns else None,
         question_id
     )
 

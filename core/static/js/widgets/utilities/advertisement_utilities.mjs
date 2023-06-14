@@ -54,7 +54,7 @@ const generateUploadInput = (inputText) =>{
     uploadInput.className = "m-2 p-1";
     uploadInputContainer.append(uploadInputText);
     uploadInputContainer.append(uploadInput);
-    return {uploadInputContainer, uploadInput};
+    return uploadInputContainer;
 }
 
 const validateFormCompletion = (formResponseValues) =>{

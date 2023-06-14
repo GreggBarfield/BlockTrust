@@ -49,8 +49,8 @@ export class AddAdvertisementCompanyWidget extends Widget {
         inputsRow.append(zipInput);
         let phoneInput = generateTextInput("*Phone", "text", "phone", true, "col-md-6");
         inputsRow.append(phoneInput);
-        let {uploadInputContainer, uploadInput} = generateUploadInput("Upload Logo: ");
-        inputsRow.append(uploadInputContainer);
+        let logoUploadContainer = generateUploadInput("Upload Logo: ");
+        inputsRow.append(logoUploadContainer);
         let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", false, "col-md-6 d-flex m-1");
         inputsRow.append(integratedWithBlockTrustInput);
 
@@ -85,6 +85,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
             formResponseValues.push(zipCode);
             let phone = document.getElementById("phone").value;
             formResponseValues.push(phone);
+            let logoInput = logoUploadContainer.getElementsByTagName("input");
             let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
             let logoFileID = 0;
@@ -112,7 +113,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                         };
                     }
                 });
-                let uploadedFiles = uploadInput.files;
+                let uploadedFiles = logoInput[0].files;
                 if(Object.entries(uploadedFiles).length > 0){
                     let uploadedLogoFile = uploadedFiles[0];
                     logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true);
