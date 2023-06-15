@@ -1,4 +1,5 @@
 
+from core.database.combinations import perform_feeder_packer_data_received_actions
 from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from core.match_types import MATCH_TYPES_NAME_TO_ID
@@ -170,3 +171,143 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
     except AnimalsException as e:
         Animals(db).update_animal(**characteristics)
         print(f"Animal exists and updated {eid}: {e}")
+
+
+def process_feeder_data(db, input_data, eid, api_insert_id, timezone=None):
+    feeder_data = {}
+    print("input_data", input_data)
+    if input_data.get("LotNumber", "").strip():
+        feeder_data["lot_number"] = int(input_data["LotNumber"])
+    if input_data.get("PenNumber", "").strip():
+        feeder_data["pen_number"] = int(input_data["PenNumber"])
+    if input_data.get("FeederInternalAccountId", "").strip():
+        feeder_data["feeder_account_number"] = int(input_data["FeederInternalAccountId"])
+    if input_data.get("FeederWeight", "").strip():
+        feeder_data["feeder_weight"] = int(input_data["FeederWeight"])
+    if input_data.get("TerminalReImplantWeight", "").strip():
+        feeder_data["terminal_reimplant_weight"] = int(input_data["TerminalReImplantWeight"])
+    if input_data.get("TerminalReImplantDate", "").strip():
+        feeder_data["terminal_reimplant_date"] = (
+            all_to_unix(input_data["terminal_reimplant_date"], timezone)
+            if timezone else all_to_unix(input_data["terminal_reimplant_date"])
+        )
+
+    if feeder_data:
+        try:
+            Animals(db).create_or_fail_animal(eid=eid, **feeder_data)
+        except AnimalsException as e:
+            Animals(db).update_animal(eid=eid, **feeder_data)
+            print(f"{e}. It has been updated")
+
+
+def process_packer_data(db, input_data, eid, api_insert_id, timezone=None):
+    packer_data = {}
+    if input_data.get("HarvestDate", "").strip():
+        packer_data["harvest_date"] = all_to_unix(input_data["HarvestDate"])
+    if input_data.get("ProgramCertification", "").strip():
+        packer_data["program_certification"] = input_data["ProgramCertification"]
+    if input_data.get("MarblingScore", "").strip():
+        packer_data["marbling_score"] = int(input_data["MarblingScore"])
+    if input_data.get("MarblingScoreCode", "").strip():
+        packer_data["marbling_score_code"] = int(input_data["MarblingScoreCode"])
+    if input_data.get("RibeyeArea", "").strip():
+        packer_data["ribeye_area"] = int(input_data["RibeyeArea"])
+    if input_data.get("FatThickness", "").strip():
+        packer_data["fat_thickness"] = int(input_data["FatThickness"])
+    if input_data.get("CalculatedLiveWeight", "").strip():
+        packer_data["calculated_live_weight"] = int(input_data["CalculatedLiveWeight"])
+    if input_data.get("TotalGain", "").strip():
+        packer_data["total_gain"] = int(input_data["TotalGain"])
+    if input_data.get("DaysOnTest", "").strip():
+        packer_data["days_on_test"] = int(input_data["DaysOnTest"])
+    if input_data.get("AverageDailyGain", "").strip():
+        packer_data["average_daily_gain"] = float(input_data["AverageDailyGain"])
+
+    if packer_data:
+        try:
+            Animals(db).create_or_fail_animal(eid=eid, packer_api_insert_id=api_insert_id, **packer_data)
+        except AnimalsException as e:
+            Animals(db).update_animal(eid=eid, **packer_data)
+            print(f"{e}. It has been updated")
+
+
+def process_grades_and_weight(db, input_data, eid, partner_account, api_insert_id, packer_account_link_id, 
+                              packer_account_id=None, feeder_account_id=None):
+
+    matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])    
+    if matches:
+        db.matches.update_match(
+            id=matches[0]["id"],
+            partner_account=partner_account,
+            data=int(float(input_data["USDAYieldGrade"])),
+            api_insert=api_insert_id
+        )
+    else:
+        db.matches.types.insert_usda_yield_grade(
+            int(float(input_data["USDAYieldGrade"])),
+            eid=eid,
+            partner_account=partner_account,
+            account_link=packer_account_link_id,
+            api_insert=api_insert_id
+        )
+        perform_feeder_packer_data_received_actions(
+            db, eid, schedule_email=True, feeder_account_id=feeder_account_id,
+            packer_account_id=packer_account_id, api_insert_id=api_insert_id
+        )
+
+    matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"])
+    if matches:
+        db.matches.update_match(
+            id=matches[0]["id"],
+            partner_account=partner_account,
+            data=input_data["USDAQualityGrade"],
+            api_insert=api_insert_id
+        )
+    else:
+        db.matches.types.insert_usda_quality_grade(
+            input_data["USDAQualityGrade"],
+            eid=eid,
+            partner_account=partner_account,
+            account_link=packer_account_link_id,
+            api_insert=api_insert_id
+        )
+
+    # # USDAQualityGrade
+    # id = db.matches.types.insert_usda_quality_grade(
+    #     input_data["USDAQualityGrade"],
+    #     eid=eid,
+    #     partner_account=partner_account,
+    #     account_link=packer_account_link_id,
+    #     api_insert=api_insert_id
+    # )
+
+
+    matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["Hot Weight"])    
+    if matches:
+        db.matches.update_match(
+            id=matches[0]["id"],
+            partner_account=partner_account,
+            data=float(input_data["CarcassWeight"]),
+            api_insert=api_insert_id
+        )
+    else:
+        if input_data.get("CarcassWeight", "").strip():
+            db.matches.types.insert_hot_weight(
+                weight=float(input_data["CarcassWeight"]),
+                eid=eid,
+                partner_account=partner_account,
+                account_link=packer_account_link_id,
+                api_insert=api_insert_id
+            )
+
+    # if input_data["CarcassWeight"] != "" and float(input_data["CarcassWeight"]) != 0:
+    #     db.matches.types.insert_hot_weight(
+    #         weight=float(input_data["CarcassWeight"]),
+    #         eid=eid,
+    #         partner_account=partner_account,
+    #         account_link=packer_account_link_id,
+    #         api_insert=api_insert_id
+    #     )
