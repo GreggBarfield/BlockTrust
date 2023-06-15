@@ -258,3 +258,31 @@ def serve_invoice():
 @crut.require_account
 def serve_checkout_payment():
     return dashboard_render("tag-store/checkout-payment.html", {"stripe_key": STRIPE_PUBLISHABLE_KEY})
+
+
+@bp.route("/shop/create-order", methods=["POST"])
+@crut.require_account
+def serve_create_order():
+    try:
+        data = json.loads(request.data)
+        order_details = eval(data["orderDetails"])
+        order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
+                                          order_details["state"], order_details["zip_code"])
+        shopping_cart = eval(order_details['shopping_cart'])
+        for product_id, product_details in shopping_cart.items():
+            OrderProducts(g.db).add_order_product(order_id, product_id, product_details["product_quantity"])
+        return {"orderId": order_id}
+    except Exception as e:
+        return {"error": str(e)}, 400
+
+
+@bp.route("/shop/update-order", methods=["POST"])
+@crut.require_account
+def serve_update_order():
+    try:
+        data = json.loads(request.data)
+        Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+
+        return {"success": True}
+    except Exception as e:
+        return{"error": str(e)}, 400

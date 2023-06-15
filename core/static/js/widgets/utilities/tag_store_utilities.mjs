@@ -182,11 +182,25 @@ const generateTableCell = (cellText, cellType, textSize) =>{
     return tableCell;
 }
 
+const generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequired) =>{
+    let inputContainer = document.createElement("div");
+    inputContainer.className = "col-md-6";
+    let input = document.createElement("input");
+    input.placeholder = inputText;
+    input.type = inputType;
+    input.id = inputId;
+    input.className = "form-control m-1";
+    input.required = inputRequired;
+    inputContainer.append(input);
+    return inputContainer;
+}
+
 export {
     updateShoppingCartTotalsInLocalStorage,
     makeShoppingCartTotalsContainer,
     getShoppingCartTotalsData,
     generateButtonLink,
     generateRemoveProductButton,
-    makeShoppingCartTable
+    makeShoppingCartTable,
+    generateCheckoutFormTextInput
 };
