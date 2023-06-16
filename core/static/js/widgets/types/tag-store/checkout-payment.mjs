@@ -9,8 +9,8 @@ export class CheckoutPaymentWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
-        let checkoutPaymentPage = this.makeCheckoutPaymentCard();
-        this.frame.append(checkoutPaymentPage);
+        let checkoutPaymentCard = this.makeCheckoutPaymentCard();
+        this.frame.append(checkoutPaymentCard);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
 
@@ -151,6 +151,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         if(error){
             this.updatePaymentStatusMessage(error, "text-danger");
+            this.updatePaymentButton("Pay", false);
         }
         this.updatePaymentButton("Success! Redirecting...", true);
         window.location.href = '/shop/invoice';

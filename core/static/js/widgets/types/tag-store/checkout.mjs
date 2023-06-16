@@ -98,7 +98,6 @@ export class CheckoutWidget extends Widget {
         }
 
         let proceedToPaymentButton = this.generateProceedToPaymentButton();
-        // checkoutForm.append(proceedToPaymentButton);
         
         checkoutFormContainerBody.append(checkoutForm);
         checkoutFormContainerBody.append(proceedToPaymentButton);
@@ -160,7 +159,6 @@ export class CheckoutWidget extends Widget {
         proceedToPaymentButton.appendChild(icon);
         proceedToPaymentButton.onclick = () =>{
             this.updateOrderDetailsInLocalStorage();
-            // window.location.href = "/shop/checkout-payment";
         }
         return proceedToPaymentButton;
     }
