@@ -11,6 +11,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
 
     initType = async() => {
         this.frame.innerHTML = "";
+        let marketplaceFilesS3Path = this.frame.getAttribute("data-widget-marketplace-files-s3-path");
         let addAdvertisementCompanyContainer = document.createElement("div");
         addAdvertisementCompanyContainer.className = "card";
 
@@ -19,16 +20,15 @@ export class AddAdvertisementCompanyWidget extends Widget {
         addAdvertisementCompanyContainerHeader.textContent = "Add Advertisement Company";
         addAdvertisementCompanyContainer.append(addAdvertisementCompanyContainerHeader);
 
-        let addAdvertisementCompanyContainerBody = document.createElement("div");
-        addAdvertisementCompanyContainerBody.className = "card-body";
-        let addAdvertisementCompanyForm = this.makeAddAdvertisementCompanyForm();
-        addAdvertisementCompanyContainerBody.append(addAdvertisementCompanyForm);
+        let addAdvertisementCompanyContainerBody =  this.makeAddAdvertisementCompanyContainerBody(marketplaceFilesS3Path);
         addAdvertisementCompanyContainer.append(addAdvertisementCompanyContainerBody);
 
         this.frame.append(addAdvertisementCompanyContainer);
     }
 
-    makeAddAdvertisementCompanyForm = () =>{
+    makeAddAdvertisementCompanyContainerBody = (marketplaceFilesS3Path) =>{
+        let addAdvertisementCompanyContainerBody = document.createElement("div");
+        addAdvertisementCompanyContainerBody.className = "card-body";
         let form = document.createElement("form");
 
         let inputsRow = document.createElement("div");
@@ -55,19 +55,19 @@ export class AddAdvertisementCompanyWidget extends Widget {
         inputsRow.append(integratedWithBlockTrustInput);
 
         form.append(inputsRow);
+        addAdvertisementCompanyContainerBody.append(form);
 
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-outline-primary rounded m-1";
         submitButton.textContent = "SAVE";
-        form.append(submitButton);
+        addAdvertisementCompanyContainerBody.append(submitButton);
 
         let statusMessage = document.createElement("p");
-        form.append(statusMessage);
+        addAdvertisementCompanyContainerBody.append(statusMessage);
         let errorMessage = document.createElement("p");
-        form.append(errorMessage);
+        addAdvertisementCompanyContainerBody.append(errorMessage);
 
-        submitButton.onclick = async(e) =>{
-            e.preventDefault();
+        submitButton.onclick = async() =>{
             let formResponseValues = [];
             let name = document.getElementById("name").value;
             formResponseValues.push(name);
@@ -116,7 +116,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                 let uploadedFiles = logoInput[0].files;
                 if(Object.entries(uploadedFiles).length > 0){
                     let uploadedLogoFile = uploadedFiles[0];
-                    logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true);
+                    logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, marketplaceFilesS3Path);
                 }
                     newAdvertisementCompanyAsyncForm.submit();
             }
@@ -125,6 +125,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-        return form;
+
+        return addAdvertisementCompanyContainerBody;
     }
 }

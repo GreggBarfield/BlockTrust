@@ -46,7 +46,7 @@ function uploadFileToS3(config, file, progress=null) {
     });
 }
 
-export function saveAndUploadFile(userOwns, accountOwns, file, progress=null, questionId=null, employeeOwns=false) {
+export function saveAndUploadFile(userOwns, accountOwns, file, progress=null, questionId=null, employeeOwns=false, file_s3_path=null) {
     let dataResult = null;
     return $.ajax({
         url: "/widgets/data/save_file_and_get_upload_config",
@@ -55,7 +55,8 @@ export function saveAndUploadFile(userOwns, accountOwns, file, progress=null, qu
             "account_owns": accountOwns === true,
             "file_name": file.name,
             "question_id": questionId,
-            "employee_owns": employeeOwns
+            "employee_owns": employeeOwns,
+            "file_s3_path": file_s3_path
         }),
         contentType: 'application/json',
         method: "POST"

@@ -10,6 +10,7 @@ from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_C
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.employees import EmployeesException
+from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -584,7 +585,9 @@ def serve_add_advertisement():
 @crut.require_employee
 def serve_add_advertisement_company():
     if request.method == "GET":
-        return employee_render("/employee/marketplace/add-advertisement-company.html")
+        return employee_render("/employee/marketplace/add-advertisement-company.html", {
+            "marketplace_files_s3_path": MARKETPLACE_FILES_S3_PATH
+        })
     if request.method == "POST":
         AdvertisementCompanies(g.db).insert(
             name=request.form["name"],

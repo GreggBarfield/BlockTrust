@@ -2,9 +2,9 @@ from ... import config
 from ...utilities.aws import aws
 from ..no_value import NoValue
 
-DEFAULT_FILES_S3_ROUTE = "files/"
-PRODUCT_FILES_S3_ROUTE = "products/"
-MARKETPLACE_FILES_S3_ROUTE = "marketplace/"
+DEFAULT_FILES_S3_PATH = "files/"
+PRODUCT_FILES_S3_PATH = "products/"
+MARKETPLACE_FILES_S3_PATH = "marketplace/"
 
 NO_VALUE = NoValue()
 
@@ -76,7 +76,7 @@ class Files:
         return False
 
     def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, employee_id, question_id=None,
-                                               limit=10000000, expires_in=480, file_s3_route=DEFAULT_FILES_S3_ROUTE):
+                                               limit=10000000, expires_in=480, file_s3_path=DEFAULT_FILES_S3_PATH):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -114,7 +114,7 @@ class Files:
         file_id = self._db.last_row_id()
         return file_id, aws.get_s3_client().generate_presigned_post(
             Bucket=config.AWS_S3_BUCKET,
-            Key=file_s3_route + str(file_id),
+            Key=file_s3_path + str(file_id),
             Fields={
                 
             },

@@ -15,7 +15,7 @@ from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.files import Files
+from ..database.tables.files import Files, DEFAULT_FILES_S3_PATH
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
@@ -444,6 +444,7 @@ def serve_save_file_get_upload_config():
     account_owns = request.json["account_owns"] is True
     employee_owns = request.json["employee_owns"] is True
     question_id = request.json.get("question_id", None)
+    file_s3_path = request.json["file_s3_path"] if request.json["file_s3_path"] is not None else DEFAULT_FILES_S3_PATH
     if not user_owns and not account_owns and not employee_owns:
         raise ExportException("Someone must own the file.")
 
@@ -452,7 +453,8 @@ def serve_save_file_get_upload_config():
         g.user.id() if user_owns else None,
         g.account.id() if account_owns else None,
         g.employee.id() if employee_owns else None,
-        question_id
+        question_id,
+        file_s3_path=file_s3_path
     )
 
     return {

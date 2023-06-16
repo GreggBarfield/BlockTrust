@@ -1,6 +1,7 @@
 from ..no_value import NoValue
 from ... import config
 from ...utilities.aws import aws
+from .files import MARKETPLACE_FILES_S3_PATH
 
 NO_VALUE = NoValue()
 
@@ -103,7 +104,11 @@ class Advertisements:
                 for advertisement in advertisement_rows:
                     if advertisement["logo_file_id"] is not None:
                         advertisement["logo_url"] = aws.get_s3_client().generate_presigned_url(
-                            ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": "files/" + str(advertisement["logo_file_id"])}
+                            ClientMethod="get_object", 
+                            Params={
+                                "Bucket": config.AWS_S3_BUCKET, 
+                                "Key": MARKETPLACE_FILES_S3_PATH + str(advertisement["logo_file_id"])
+                            }
                         )
                     else:
                         advertisement["logo_url"] = None
