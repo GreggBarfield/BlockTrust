@@ -87,6 +87,9 @@ export class TagStoreWidget extends Widget {
                 cardBody.append(productCard);
             }
         }
+        if(cardBody.getElementsByTagName("div").length == 0){
+            card.className = "d-none";
+        }
         card.append(cardBody);
         return card;
     }

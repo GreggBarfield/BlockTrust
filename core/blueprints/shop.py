@@ -223,7 +223,10 @@ def serve_external_invoice(partner_id):
 @bp.route("/shop/tag-store", methods=["GET"])
 @crut.require_account
 def serve_tag_store():
-    all_product_data = ProductTable(g.db).get_products(product_vendor_id=4, include_images=True)
+    all_product_data = []
+    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
+    if len(herd_whistle_data) > 0:
+        all_product_data = ProductTable(g.db).get_products(product_vendor_id=herd_whistle_data[0]["id"], include_images=True)
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
@@ -282,7 +285,85 @@ def serve_update_order():
     try:
         data = json.loads(request.data)
         Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+        
+        order_details = eval(data["orderDetails"])
+        shopping_cart = eval(order_details["shopping_cart"])   
+        for product_id, product_details in shopping_cart.items():
+            product_details["quantity"] = product_details["product_quantity"]
+            product_details["price"] = product_details["product_price"]
+        # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if order_details["premise_id"] != "":
+            premise_id = order_details["premise_id"]
+        send_tag_store_email(
+            "Tag Store Purchase Summary",
+            render_email("purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            order_details["email"]
+        )
+        vendor_oriented_cart = {}
+        for product_id, product_details in shopping_cart.items():
+            product_row = ProductTable(g.db).get_products(id=product_id)
+            if len(product_row) > 0:
+                product_vendor_id = product_row[0]["product_vendor_id"]
+                if product_vendor_id in vendor_oriented_cart:
+                    vendor_oriented_cart[product_vendor_id].append(product_details)
+                else:
+                    vendor_oriented_cart[product_vendor_id] = [product_details]
 
+        for vendor_id, products_list in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=vendor_id)
+            if len(vendor_row) > 0:
+                vendor_email = vendor_row[0]["vendor_email"]
+                send_tag_store_email(
+                    "New order summary",
+                    render_email("purchase_summary_vendor.html", {
+                        'order_id': data["orderId"],
+                        'first': order_details["first_name"],
+                        'last': order_details["last_name"],
+                        'shipping_address_line': order_details["address_line"],
+                        'shipping_city': order_details["city"],
+                        'shipping_state': order_details["state"],
+                        'shipping_zip_code': order_details["zip_code"],
+                        'cart': products_list,
+                        'premise_id': premise_id
+                        }),
+                    vendor_email
+                    )
+
+        send_multiple_tag_store_email(
+            "New order summary",
+            render_email("purchase_summary_seller.html", {
+                'order_id': data["orderId"],
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            ["cgrund@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+        )
         return {"success": True}
     except Exception as e:
         return{"error": str(e)}, 400

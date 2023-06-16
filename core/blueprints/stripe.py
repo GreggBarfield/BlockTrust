@@ -348,3 +348,22 @@ def serve_stripe_account():
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
     return {}
+
+
+@bp.route('/stripe/create-payment-intent/tag-store', methods=['POST'])
+def create_payment_intent_for_tag_store():
+    request_data = json.loads(request.data)
+    try:
+        stripe.api_key = STRIPE_SECRET_KEY
+        params = {
+            'payment_method_types': [request_data['paymentMethodType']],
+            'amount': int(float(request_data['amount'])*100),
+            'currency': request_data['currency'],
+            'metadata': {'order_id':request_data['orderId']}
+        }
+        intent = stripe.PaymentIntent.create(**params)
+        return {'clientSecret': intent.client_secret}
+    except stripe.error.StripeError as e:
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400

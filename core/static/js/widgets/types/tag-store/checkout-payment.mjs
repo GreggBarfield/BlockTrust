@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { generateCheckoutFormTextInput } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateCheckoutFormTextInput } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutPaymentWidget extends Widget {
     constructor(frame) {
@@ -8,8 +8,7 @@ export class CheckoutPaymentWidget extends Widget {
 
     initType = async() => {
         this.frame.innerHTML = "";
-        this.partner_id = 739;
-        let  {publishableKey} = await fetch('/stripe/config/'+this.partner_id).then((r) => r.json());
+        let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
         let checkoutPaymentPage = this.makeCheckoutPaymentCard();
         this.frame.append(checkoutPaymentPage);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
@@ -28,21 +27,30 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentCard.append(checkoutPaymentCardHeader);
 
         let checkoutPaymentCardBody = document.createElement("div");
-        checkoutPaymentCardBody.className = "card-body col-md-6";
+        checkoutPaymentCardBody.className = "card-body d-flex";
+
+        let paymentContainer = document.createElement("div");
+        paymentContainer.className = "col-md-6 p-0 m-0";
+        
+        let totalsContainer = document.createElement("div");
+        totalsContainer.className = "col-md-6 p-0 m-0";
+
+        let cartTotalsContainer = makeShoppingCartTotalsContainer();
+        totalsContainer.append(cartTotalsContainer);
 
         let checkoutPaymentNameInputContainer = generateCheckoutFormTextInput("*Name", "text", "name", true);
-        checkoutPaymentCardBody.append(checkoutPaymentNameInputContainer);
+        paymentContainer.append(checkoutPaymentNameInputContainer);
 
         let checkoutPaymentCardElement = document.createElement("div");
         checkoutPaymentCardElement.id = "checkout-card-element";
         checkoutPaymentCardElement.className = "p-3 m-3 border rounded";
-        checkoutPaymentCardBody.append(checkoutPaymentCardElement);
+        paymentContainer.append(checkoutPaymentCardElement);
 
         let checkoutPaymentSubmitButton = document.createElement("button");
-        checkoutPaymentSubmitButton.className = "btn btn-primary";
+        checkoutPaymentSubmitButton.className = "btn btn-primary m-3";
         checkoutPaymentSubmitButton.id = "checkout-payment-submit-button"
         checkoutPaymentSubmitButton.textContent = "SUBMIT";
-        checkoutPaymentCardBody.append(checkoutPaymentSubmitButton);
+        paymentContainer.append(checkoutPaymentSubmitButton);
         checkoutPaymentSubmitButton.onclick = () =>{
             this.performStripePaymentActions();
         }
@@ -50,7 +58,9 @@ export class CheckoutPaymentWidget extends Widget {
         let checkoutPaymentStatusMessage = document.createElement("div");
         checkoutPaymentStatusMessage.className = "d-none";
         checkoutPaymentStatusMessage.id = "checkout-payment-status-message";
-        checkoutPaymentCardBody.append(checkoutPaymentStatusMessage);
+        paymentContainer.append(checkoutPaymentStatusMessage);
+        checkoutPaymentCardBody.append(paymentContainer);
+        checkoutPaymentCardBody.append(totalsContainer);
 
         checkoutPaymentCard.append(checkoutPaymentCardBody);
         return checkoutPaymentCard;
@@ -70,7 +80,6 @@ export class CheckoutPaymentWidget extends Widget {
     }
 
     performStripePaymentActions = async () =>{
-        let submitButton = document.getElementById("checkout-payment-submit-button");
         this.updatePaymentButton("Processing...", true);
         // Creating a new order
         let {error, orderId} = await fetch(
@@ -89,7 +98,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         // Creating payment intent
         let {error: backendError, clientSecret} = await fetch(
-            '/stripe/create-payment-intent/' + this.partner_id,{
+            '/stripe/create-payment-intent/tag-store',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -139,6 +148,9 @@ export class CheckoutPaymentWidget extends Widget {
                     })
                 }
             ).then((r) => r.json());
+        }
+        if(error){
+            this.updatePaymentStatusMessage(error, "text-danger");
         }
         this.updatePaymentButton("Success! Redirecting...", true);
         window.location.href = '/shop/invoice';
