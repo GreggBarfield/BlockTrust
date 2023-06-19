@@ -95,7 +95,7 @@ def serve_employee_create_account_action():
 
         perform_new_account_actions(
             db=g.db, account_id=account_obj.id(), user_id=user_id,
-            event_type_id=event_type_by_name["Account Created"],
+            event_type_id=event_type_by_name["Account Created By Employee"],
             sector_id=account_obj.sector_id(), partner_id=partner,
             employee_id=g.employee.id()
         )
