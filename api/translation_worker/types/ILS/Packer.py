@@ -1,12 +1,11 @@
 from api.translation_worker.types.helper import (
-    process_feeder_data, process_packer_data, process_grades_and_weight
+    process_grades_and_weight
 )
 from core.database.tables.animals import Animals, AnimalsException
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from core.database.tables.accounts import ILS_PARTNER_COMPANY
-from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import SECTORS_NAME_TO_ID
 from core.database.combinations import perform_feeder_packer_data_received_actions
@@ -143,19 +142,18 @@ def handle(db: Database, insert):
                     )
 
         process_grades_and_weight(
-            db=db, input_data=fields, eid=eid, partner_account=partner_account, api_insert_id=api_insert_id,
-            packer_account_link_id=packer_account_link.id(), packer_account_id=packer.id() if packer else None,
+            db=db, eid=eid, partner_account=partner_account, api_insert_id=api_insert_id,
+            packer_account_link_id=packer_account_link.id(),
+            quality_grade=fields["USDAQualityGrade"],
+            yield_grade=fields["USDAYieldGrade"],
+            carcass_weight=fields["CarcassWeight"],
+            packer_account_id=packer.id() if packer else None,
             feeder_account_id=feeder.id() if feeder else None
         )
-
-        process_packer_data(db, fields, eid, api_insert_id)
-        process_feeder_data(db, fields, eid, api_insert_id)
 
     else:
         # Packer data not available and hence Add feed yard sighting
         if feeder is not None:
-            process_feeder_data(db, fields, eid, api_insert_id)
-
             zipcode = str(feeder.zip())
             if len(zipcode) >= 5 and fields.get('EIDDate', None):
                 f5 = zipcode[0:5]

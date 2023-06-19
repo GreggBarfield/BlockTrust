@@ -6,7 +6,7 @@ from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.utilities.zip_codes import get_lat_lon
 
 
-def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_time,
+def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_date,
                      partner_account, visual_id=None, grouping_id=None, timezone=None):
     f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
     for d in f5:
@@ -28,7 +28,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
 
         db.matches.update_match(
             id=matches[0]["id"],
-            time=all_to_unix(sighting_time, timezone) if timezone else all_to_unix(sighting_time),
+            time=all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date),
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -41,7 +41,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         db.matches.types.insert_sighting(
             eid=eid,
             visual_id=visual_id,
-            time=all_to_unix(sighting_time, timezone) if timezone else all_to_unix(sighting_time),
+            time=all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date),
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -194,63 +194,72 @@ def process_feeder_data(db, input_data, eid, api_insert_id, timezone=None):
 
     if feeder_data:
         try:
-            Animals(db).create_or_fail_animal(eid=eid, **feeder_data)
+            Animals(db).create_or_fail_animal(eid=eid, feeder_api_insert_id=api_insert_id, **feeder_data)
         except AnimalsException as e:
-            Animals(db).update_animal(eid=eid, **feeder_data)
+            Animals(db).update_animal(eid=eid, feeder_api_insert_id=api_insert_id, **feeder_data)
             print(f"{e}. It has been updated")
 
 
-def process_packer_data(db, input_data, eid, api_insert_id, timezone=None):
+def process_packer_data(db, eid, api_insert_id, harvest_date=None, program_certification=None,
+                        marbling_score=None, marbling_score_code=None, ribeye_area=None, fat_thickness=None,
+                        calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
+                        timezone=None):
     packer_data = {}
-    if input_data.get("HarvestDate", "").strip():
-        packer_data["harvest_date"] = all_to_unix(input_data["HarvestDate"])
-    if input_data.get("ProgramCertification", "").strip():
-        packer_data["program_certification"] = input_data["ProgramCertification"]
-    if input_data.get("MarblingScore", "").strip():
-        packer_data["marbling_score"] = int(input_data["MarblingScore"])
-    if input_data.get("MarblingScoreCode", "").strip():
-        packer_data["marbling_score_code"] = int(input_data["MarblingScoreCode"])
-    if input_data.get("RibeyeArea", "").strip():
-        packer_data["ribeye_area"] = int(input_data["RibeyeArea"])
-    if input_data.get("FatThickness", "").strip():
-        packer_data["fat_thickness"] = int(input_data["FatThickness"])
-    if input_data.get("CalculatedLiveWeight", "").strip():
-        packer_data["calculated_live_weight"] = int(input_data["CalculatedLiveWeight"])
-    if input_data.get("TotalGain", "").strip():
-        packer_data["total_gain"] = int(input_data["TotalGain"])
-    if input_data.get("DaysOnTest", "").strip():
-        packer_data["days_on_test"] = int(input_data["DaysOnTest"])
-    if input_data.get("AverageDailyGain", "").strip():
-        packer_data["average_daily_gain"] = float(input_data["AverageDailyGain"])
+    if harvest_date and harvest_date.strip():
+        packer_data["harvest_date"] = (
+            all_to_unix(harvest_date, timezone)
+            if timezone else all_to_unix(harvest_date)
+        )
+    if program_certification and program_certification.strip():
+        packer_data["program_certification"] = program_certification
+    if marbling_score and marbling_score.strip():
+        packer_data["marbling_score"] = int(marbling_score)
+    if marbling_score_code and marbling_score_code.strip():
+        packer_data["marbling_score_code"] = int(marbling_score_code)
+    if ribeye_area and ribeye_area.strip():
+        packer_data["ribeye_area"] = int(ribeye_area)
+    if fat_thickness and fat_thickness.strip():
+        packer_data["fat_thickness"] = int(fat_thickness)
+    if calculated_live_weight and calculated_live_weight.strip():
+        packer_data["calculated_live_weight"] = int(calculated_live_weight)
+    if total_gain and total_gain.strip():
+        packer_data["total_gain"] = int(total_gain)
+    if days_on_test and days_on_test.strip():
+        packer_data["days_on_test"] = int(days_on_test)
+    if average_daily_gain and average_daily_gain.strip():
+        packer_data["average_daily_gain"] = float(average_daily_gain)
 
     if packer_data:
         try:
             Animals(db).create_or_fail_animal(eid=eid, packer_api_insert_id=api_insert_id, **packer_data)
         except AnimalsException as e:
-            Animals(db).update_animal(eid=eid, **packer_data)
+            Animals(db).update_animal(eid=eid, packer_api_insert_id=api_insert_id, **packer_data)
             print(f"{e}. It has been updated")
 
 
-def process_grades_and_weight(db, input_data, eid, partner_account, api_insert_id, packer_account_link_id, 
-                              packer_account_id=None, feeder_account_id=None):
+def process_grades_and_weight(
+        db, eid, partner_account, api_insert_id, packer_account_link_id,
+        yield_grade, quality_grade, carcass_weight, packer_account_id=None, feeder_account_id=None
+):
 
     matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
-                                     restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])    
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])
     if matches:
         db.matches.update_match(
             id=matches[0]["id"],
             partner_account=partner_account,
-            data=int(float(input_data["USDAYieldGrade"])),
+            data=int(float(yield_grade)),
             api_insert=api_insert_id
         )
     else:
-        db.matches.types.insert_usda_yield_grade(
-            int(float(input_data["USDAYieldGrade"])),
-            eid=eid,
-            partner_account=partner_account,
-            account_link=packer_account_link_id,
-            api_insert=api_insert_id
-        )
+        if yield_grade and yield_grade.strip():
+            db.matches.types.insert_usda_yield_grade(
+                int(float(yield_grade)),
+                eid=eid,
+                partner_account=partner_account,
+                account_link=packer_account_link_id,
+                api_insert=api_insert_id
+            )
         perform_feeder_packer_data_received_actions(
             db, eid, schedule_email=True, feeder_account_id=feeder_account_id,
             packer_account_id=packer_account_id, api_insert_id=api_insert_id
@@ -262,52 +271,34 @@ def process_grades_and_weight(db, input_data, eid, partner_account, api_insert_i
         db.matches.update_match(
             id=matches[0]["id"],
             partner_account=partner_account,
-            data=input_data["USDAQualityGrade"],
+            data=quality_grade,
             api_insert=api_insert_id
         )
     else:
-        db.matches.types.insert_usda_quality_grade(
-            input_data["USDAQualityGrade"],
-            eid=eid,
-            partner_account=partner_account,
-            account_link=packer_account_link_id,
-            api_insert=api_insert_id
-        )
-
-    # # USDAQualityGrade
-    # id = db.matches.types.insert_usda_quality_grade(
-    #     input_data["USDAQualityGrade"],
-    #     eid=eid,
-    #     partner_account=partner_account,
-    #     account_link=packer_account_link_id,
-    #     api_insert=api_insert_id
-    # )
-
-
-    matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
-                                     restrict_type=MATCH_TYPES_NAME_TO_ID["Hot Weight"])    
-    if matches:
-        db.matches.update_match(
-            id=matches[0]["id"],
-            partner_account=partner_account,
-            data=float(input_data["CarcassWeight"]),
-            api_insert=api_insert_id
-        )
-    else:
-        if input_data.get("CarcassWeight", "").strip():
-            db.matches.types.insert_hot_weight(
-                weight=float(input_data["CarcassWeight"]),
+        if quality_grade and quality_grade.strip():
+            db.matches.types.insert_usda_quality_grade(
+                quality_grade,
                 eid=eid,
                 partner_account=partner_account,
                 account_link=packer_account_link_id,
                 api_insert=api_insert_id
             )
 
-    # if input_data["CarcassWeight"] != "" and float(input_data["CarcassWeight"]) != 0:
-    #     db.matches.types.insert_hot_weight(
-    #         weight=float(input_data["CarcassWeight"]),
-    #         eid=eid,
-    #         partner_account=partner_account,
-    #         account_link=packer_account_link_id,
-    #         api_insert=api_insert_id
-    #     )
+    matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
+                                     restrict_type=MATCH_TYPES_NAME_TO_ID["Hot Weight"])
+    if matches:
+        db.matches.update_match(
+            id=matches[0]["id"],
+            partner_account=partner_account,
+            data=float(carcass_weight),
+            api_insert=api_insert_id
+        )
+    else:
+        if carcass_weight and carcass_weight.strip():
+            db.matches.types.insert_hot_weight(
+                weight=float(carcass_weight),
+                eid=eid,
+                partner_account=partner_account,
+                account_link=packer_account_link_id,
+                api_insert=api_insert_id
+            )
