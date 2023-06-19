@@ -1,12 +1,15 @@
+from api.translation_worker.types.helper import (
+    process_grades_and_weight
+)
 from core.database.tables.animals import Animals, AnimalsException
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from core.database.tables.accounts import ILS_PARTNER_COMPANY
-from api.database.inserts_model import InsertsModel
 from ...all_to_unix import all_to_unix
 from core.sectors import SECTORS_NAME_TO_ID
 from core.database.combinations import perform_feeder_packer_data_received_actions
+
 
 def _check_format(insert):
     keys = [
@@ -138,83 +141,19 @@ def handle(db: Database, insert):
                         zip=zipcode
                     )
 
-        # USDAYieldGrade
-        db.matches.types.insert_usda_yield_grade(
-            int(float(fields["USDAYieldGrade"])),
-            eid=eid,
-            partner_account=partner_account,
-            account_link=packer_account_link.id(),
-            api_insert=api_insert_id
+        process_grades_and_weight(
+            db=db, eid=eid, partner_account=partner_account, api_insert_id=api_insert_id,
+            packer_account_link_id=packer_account_link.id(),
+            quality_grade=fields["USDAQualityGrade"],
+            yield_grade=fields["USDAYieldGrade"],
+            carcass_weight=fields["CarcassWeight"],
+            packer_account_id=packer.id() if packer else None,
+            feeder_account_id=feeder.id() if feeder else None
         )
-
-        # USDAQualityGrade
-        id = db.matches.types.insert_usda_quality_grade(
-            fields["USDAQualityGrade"],
-            eid=eid,
-            partner_account=partner_account,
-            account_link=packer_account_link.id(),
-            api_insert=api_insert_id
-        )
-
-        perform_feeder_packer_data_received_actions(db, eid, schedule_email=bool(id), feeder_account_id=feeder.id() if feeder is not None else None,
-                                                    packer_account_id=packer.id() if packer is not None else None, api_insert_id=api_insert_id)
-
-        # Hot Weight
-        if fields["CarcassWeight"] != "" and float(fields["CarcassWeight"]) != 0:
-            db.matches.types.insert_hot_weight(
-                weight=float(fields["CarcassWeight"]),
-                eid=eid,
-                partner_account=partner_account,
-                account_link=packer_account_link.id(),
-                api_insert=api_insert_id
-            )
-
-        # Ribeye Area. These are commented out because we don't know the keys that packer will send us
-        # packer_data = {}
-        # if fields["RibEyeArea"] != "" and float(fields["RibEyeArea"]) != 0:
-        #     packer_data["RibEyeArea"] = float(fields["RibEyeArea"])
-
-        # Marbling Score
-        # if fields["MarblingScore"] != "" and int(fields["MarblingScore"]) != 0:
-        #     packer_data["MarblingScore"] = int(fields["MarblingScore"])
-
-        # Fat Thickness
-        # if fields["FatThickness"] != "" and float(fields["FatThickness"]) != 0:   
-        #     packer_data["FatThickness"] = float(fields["FatThickness"])
-            
-        # if packer_data:
-        #     db.matches.types.insert_packer(
-        #         packer_str = packer_data,
-            # eid=eid,
-            # partner_account=partner_account,
-            # account_link=packer_account_link.id(),
-            # api_insert=api_insert
-        #     )
 
     else:
         # Packer data not available and hence Add feed yard sighting
         if feeder is not None:
-            feeder_data = {}
-            if fields.get("LotNumber", None):
-                feeder_data["lot_number"] = int(fields["LotNumber"])
-            if fields.get("PenNumber", None):
-                feeder_data["pen_number"] = int(fields["PenNumber"])
-            if fields.get("FeederInternalAccountId", None):
-                feeder_data["feeder_account_number"] = int(fields["FeederInternalAccountId"])
-            if fields.get("FeederWeight", None):
-                feeder_data["feeder_weight"] = int(fields["FeederWeight"])
-            if fields.get("TerminalReImplantWeight", None):
-                feeder_data["terminal_reimplant_weight"] = int(fields["TerminalReImplantWeight"])
-            if fields.get("TerminalReImplantDate", None):
-                feeder_data["terminal_reimplant_date"] = all_to_unix(fields["TerminalReImplantDate"])
-
-            if feeder_data:
-                try:
-                    Animals(db).create_or_fail_animal(eid=eid, **feeder_data)
-                except AnimalsException as e:
-                    Animals(db).update_animal(eid=eid, **feeder_data)
-                    print(f"{e}. It has been updated")
-
             zipcode = str(feeder.zip())
             if len(zipcode) >= 5 and fields.get('EIDDate', None):
                 f5 = zipcode[0:5]
@@ -234,5 +173,6 @@ def handle(db: Database, insert):
                         zip=zipcode
                     )
 
-            perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, feeder_account_id=feeder.id(),
-                                                        api_insert_id=api_insert_id)
+            perform_feeder_packer_data_received_actions(
+                db, eid, schedule_email=False, feeder_account_id=feeder.id(), api_insert_id=api_insert_id
+            )
