@@ -26,7 +26,11 @@ class Animals:
                               lot_number=None, pen_number=None, feeder_account_number=None, feeder_weight=None,
                               terminal_reimplant_weight=None, terminal_reimplant_date=None, api_insert_id=None,
                               seller_id=None, vaccination_date=None, vaccination_summary=None, herd_sire=None,
-                              ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None):
+                              ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None,
+                              harvest_date=None, program_certification=None, marbling_score=None,
+                              marbling_score_code=None, ribeye_area=None, fat_thickness=None,
+                              calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
+                              packer_api_insert_id=None, feeder_api_insert_id=None):
         """
         Validates and inserts a new animal record
 
@@ -44,7 +48,10 @@ class Animals:
             eid, visual_id, breed, calf_registration_number, sire_registration_number, dam_registration_number,
             birth_weight, implants, sex, description, lot_number, pen_number, feeder_account_number, feeder_weight,
             terminal_reimplant_weight, terminal_reimplant_date, api_insert_id, seller_id, vaccination_date,
-            vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch
+            vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
+            harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area, fat_thickness,
+            calculated_live_weight, total_gain, days_on_test, average_daily_gain, packer_api_insert_id,
+            feeder_api_insert_id
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
@@ -53,7 +60,10 @@ class Animals:
                       pen_number=None, feeder_account_number=None, feeder_weight=None, terminal_reimplant_weight=None,
                       terminal_reimplant_date=None, api_insert_id=None, seller_id=None, vaccination_date=None,
                       vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
-                      home_raised=None, family_farm_or_ranch=None):
+                      home_raised=None, family_farm_or_ranch=None, harvest_date=None, program_certification=None,
+                      marbling_score=None, marbling_score_code=None, ribeye_area=None, fat_thickness=None,
+                      calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
+                      packer_api_insert_id=None, feeder_api_insert_id=None):
         """
         Inserts a new animal record
 
@@ -63,18 +73,26 @@ class Animals:
 
         self._db.execute(
             """
-                INSERT INTO animals(eid, visual_id, breed, calf_registration_number, sire_registration_number,
+                INSERT INTO animals(
+                    eid, visual_id, breed, calf_registration_number, sire_registration_number,
                     dam_registration_number, birth_weight, implants, sex, description,
                     lot_number, pen_number, feeder_account_number, feeder_weight,
                     terminal_reimplant_weight, terminal_reimplant_date, api_insert_id, seller_id, vaccination_date,
-                    vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch
+                    vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
+                    harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area,
+                    fat_thickness, calculated_live_weight, total_gain, days_on_test, average_daily_gain,
+                    packer_api_insert_id, feeder_api_insert_id
                 )
-                VALUES (%(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
+                VALUES (
+                    %(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
                     %(dam_registration_number)s, %(birth_weight)s, %(implants)s, %(sex)s, %(description)s,
                     %(lot_number)s, %(pen_number)s, %(feeder_account_number)s, %(feeder_weight)s,
                     %(terminal_reimplant_weight)s, %(terminal_reimplant_date)s, %(api_insert_id)s, %(seller_id)s,
                     %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
-                    %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s
+                    %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(harvest_date)s,
+                    %(program_certification)s, %(marbling_score)s, %(marbling_score_code)s, %(ribeye_area)s,
+                    %(fat_thickness)s, %(calculated_live_weight)s, %(total_gain)s, %(days_on_test)s,
+                    %(average_daily_gain)s, %(packer_api_insert_id)s, %(feeder_api_insert_id)s
                 )
             """,
             {
@@ -102,7 +120,19 @@ class Animals:
                 "ranch_source_county": ranch_source_county,
                 "ranch_size": ranch_size,
                 "home_raised": home_raised,
-                "family_farm_or_ranch": family_farm_or_ranch
+                "family_farm_or_ranch": family_farm_or_ranch, 
+                "harvest_date": harvest_date,
+                "program_certification": program_certification,
+                "marbling_score": marbling_score,
+                "marbling_score_code": marbling_score_code,
+                "ribeye_area": ribeye_area,
+                "fat_thickness": fat_thickness,
+                "calculated_live_weight": calculated_live_weight,
+                "total_gain": total_gain,
+                "days_on_test": days_on_test,
+                "average_daily_gain": average_daily_gain,
+                "packer_api_insert_id": packer_api_insert_id,
+                "feeder_api_insert_id": feeder_api_insert_id
             }
         )
         return self._db.last_row_id()
@@ -147,7 +177,11 @@ class Animals:
                       terminal_reimplant_weight=NO_VALUE, terminal_reimplant_date=NO_VALUE, api_insert_id=NO_VALUE,
                       seller_id=NO_VALUE, vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE, herd_sire=NO_VALUE,
                       ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
-                      family_farm_or_ranch=NO_VALUE):
+                      family_farm_or_ranch=NO_VALUE, harvest_date=NO_VALUE, program_certification=NO_VALUE,
+                      marbling_score=NO_VALUE, marbling_score_code=NO_VALUE, ribeye_area=NO_VALUE,
+                      fat_thickness=NO_VALUE, calculated_live_weight=NO_VALUE, total_gain=NO_VALUE,
+                      days_on_test=NO_VALUE, average_daily_gain=NO_VALUE, packer_api_insert_id=NO_VALUE,
+                      feeder_api_insert_id=NO_VALUE):
         """
         Updates an animal.
         """
@@ -229,10 +263,46 @@ class Animals:
         if family_farm_or_ranch is not NO_VALUE:
             query_conditions.append("family_farm_or_ranch = %(family_farm_or_ranch)s")
             query_values["family_farm_or_ranch"] = family_farm_or_ranch
+        if harvest_date is not NO_VALUE:
+            query_conditions.append("harvest_date = %(harvest_date)s")
+            query_values["harvest_date"] = harvest_date
+        if program_certification is not NO_VALUE:
+            query_conditions.append("program_certification = %(program_certification)s")
+            query_values["program_certification"] = program_certification
+        if marbling_score is not NO_VALUE:
+            query_conditions.append("marbling_score = %(marbling_score)s")
+            query_values["marbling_score"] = marbling_score
+        if marbling_score_code is not NO_VALUE:
+            query_conditions.append("marbling_score_code = %(marbling_score_code)s")
+            query_values["marbling_score_code"] = marbling_score_code
+        if ribeye_area is not NO_VALUE:
+            query_conditions.append("ribeye_area = %(ribeye_area)s")
+            query_values["ribeye_area"] = ribeye_area
+        if fat_thickness is not NO_VALUE:
+            query_conditions.append("fat_thickness = %(fat_thickness)s")
+            query_values["fat_thickness"] = fat_thickness
+        if calculated_live_weight is not NO_VALUE:
+            query_conditions.append("calculated_live_weight = %(calculated_live_weight)s")
+            query_values["calculated_live_weight"] = calculated_live_weight
+        if total_gain is not NO_VALUE:
+            query_conditions.append("total_gain = %(total_gain)s")
+            query_values["total_gain"] = total_gain
+        if days_on_test is not NO_VALUE:
+            query_conditions.append("days_on_test = %(days_on_test)s")
+            query_values["days_on_test"] = days_on_test
+        if average_daily_gain is not NO_VALUE:
+            query_conditions.append("average_daily_gain = %(average_daily_gain)s")
+            query_values["average_daily_gain"] = average_daily_gain
+        if packer_api_insert_id is not NO_VALUE:
+            query_conditions.append("packer_api_insert_id = %(packer_api_insert_id)s")
+            query_values["packer_api_insert_id"] = packer_api_insert_id
+        if feeder_api_insert_id is not NO_VALUE:
+            query_conditions.append("feeder_api_insert_id = %(feeder_api_insert_id)s")
+            query_values["feeder_api_insert_id"] = feeder_api_insert_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"
             query = base_query + combined_query_condition
             self._db.execute(query, query_values)
         else:
-            raise Exception("Must give values for fields to update on Account")
+            raise Exception("No values set to update Animal")
