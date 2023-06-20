@@ -1,5 +1,5 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
-import { generateDropDownInput, generateTextInput,generateUploadInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, generateUploadInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
 import { saveAndUploadFile } from '../../../../files/files.mjs';
 import { states } from '../../../../core/common_constants.mjs';
 import { Widget } from "../../../widget.mjs";
@@ -88,7 +88,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
             let logoInput = logoUploadContainer.getElementsByTagName("input");
             let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
-            let logoFileID = 0;
+            let logoFileID = null;
             if(formCompletionStatus){
                 errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
@@ -98,6 +98,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
                     error: errorMessage,
                     redirectMessage: "Saved!",
                     loadingMessage: "Saving...",
+                    asJSON: true,
                     getData: () => {
                         return {
                             name: name,

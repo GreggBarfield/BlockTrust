@@ -590,16 +590,16 @@ def serve_add_advertisement_company():
         })
     if request.method == "POST":
         AdvertisementCompanies(g.db).insert(
-            name=request.form["name"],
-            email=request.form["email"],
-            contact_name=request.form["contact_name"],
-            address=request.form["address"],
-            city=request.form["city"],
-            state=request.form["state"],
-            zip_code=request.form["zip_code"],
-            phone=request.form["phone"],
-            logo_file_id=int(request.form["logo_file_id"]) if int(request.form["logo_file_id"]) != 0 else None,
-            is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
+            name=request.json["name"],
+            email=request.json["email"],
+            contact_name=request.json["contact_name"],
+            address=request.json["address"],
+            city=request.json["city"],
+            state=request.json["state"],
+            zip_code=request.json["zip_code"],
+            phone=request.json["phone"],
+            logo_file_id=request.json["logo_file_id"],
+            is_integrated_with_blocktrust=int(str_to_bool(request.json["is_integrated_with_blocktrust"]))
         )
         return {"redirect": url_for("employee_bp.serve_view_advertisement_companies")}
 
