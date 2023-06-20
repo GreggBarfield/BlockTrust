@@ -1,26 +1,6 @@
 import { Widget } from '../../widget.mjs';
+import { generateAccountInformationContainer, closeOtherInfoWindows } from '../../utilities/map_utlilities.mjs';
 
-const imageMap = {
-    "Bounty County Feeders": "barton_county_map_logo.png",
-    "Dillwyn Feedyard": "dillwyn_map_logo.png",
-    "Great Bend Feeding": "great_bend_map_logo.png",
-    "Knight Feedlot": "knight_map_logo.png",
-    "Lewis Feedlot": "lewis_map_logo.png",
-    "McClymot Feedlot": "mcclymont_map_logo.png",
-    "Mid America Feeding": "mid_america_map_logo.png",
-    "Roberts Cattle Co.": "roberts_map_logo.png",
-    "Tyson": "tyson_map_logo.png",
-    "Tyson Meats": "tyson_map_logo.png",
-    "Ward Feedyard": "ward_map_logo.png",
-    "Cow-Calf": "cowcalf_map_logo.png",
-    "Feedlot": "generic_feedyard_map_logo.png"
-};
-const colorMap = {
-    "Cow-Calf": "#900C3F",
-    "Packer": "#117A65",
-    "Feedlot": "#FFFF00",
-    "Stocker": "#FF9800"
-};
 export class MapV2Widget extends Widget {
     constructor(frame) {
         super(frame);
@@ -39,7 +19,7 @@ export class MapV2Widget extends Widget {
         const position = { lat: 39.5, lng: -98.35 };
 
         let map = new Map(document.getElementById("map_container"), {
-            zoom: 4,
+            zoom: 3.6,
             center: position,
             mapId: "DEMO_MAP_ID",
             mapTypeId: 'roadmap',
@@ -79,79 +59,27 @@ export class MapV2Widget extends Widget {
 
     generateMap = (map, matchRows, sectorsIDToName, Marker, InfoWindow) =>{
         for(const matchRow of matchRows){
-            let accountInformationContainer = this.generateAccountInformationContainer(matchRow, sectorsIDToName);
-            // let infoWindow = new InfoWindow({
-            //    content: accountInformationContainer,
-            //    ariaLabel: "Testing"
-            //});
+            let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
             let infoWindow = new InfoWindow();
+            let infoWindowElementsList = [];
             let marker = new Marker({
                 map: map,
                 position: {lat:matchRow["lat"], lng:matchRow["lon"]},
                 title: matchRow["account_links.name"] !== null ? matchRow["account_links.name"] : ""
             });
-            marker.addListener("click", () => {
+            marker.addListener("mouseover", () => {
                 // infoWindow.open({anchor: marker, map,});
-                infoWindow.close();
+                infoWindowElementsList = closeOtherInfoWindows(infoWindowElementsList);
+                // infoWindow.close();
                 infoWindow.setContent(accountInformationContainer);
+                infoWindowElementsList[0] = infoWindow;
                 infoWindow.open(marker.getMap(), marker);
             });
+            marker.addListener("mouseout", () =>{
+                infoWindowElementsList = closeOtherInfoWindows(infoWindowElementsList);
+                infoWindow.close();
+                infoWindowElementsList[0] = infoWindow;
+            });
         }
-    }
-
-    generateAccountInformationContainer = (matchRow, sectorsIDToName) =>{
-        let accountInformationContainer = document.createElement("div");
-        accountInformationContainer.className = "p-1 m-1";
-        let table = document.createElement("table");
-        let tableBody = document.createElement("tbody");
-        table.append(tableBody);
-
-        let tableRow = document.createElement("tr");
-        tableBody.append(tableRow);
-        let left = document.createElement("td");
-        left.className = "p-0";
-        tableRow.append(left);
-        let right = document.createElement("td");
-        right.className = "p-0";
-        tableRow.append(right);
-
-        if("account_links.name" in matchRow){
-            let accountName = matchRow["account_links.name"];
-            if(accountName in imageMap){
-                let img = this.generateImageElement(imageMap[accountName]);
-                left.append(img);
-            }
-            else{
-                if("account_links.sector" in matchRow){
-                    let sectorID = matchRow["account_links.sector"];
-                    let sectorName = sectorsIDToName[sectorID];
-                    if(sectorName in imageMap){
-                        let img = this.generateImageElement(imageMap[sectorName]);
-                        left.append(img);
-                    }
-                }
-            }
-            let companyName = document.createElement("p");
-            companyName.className = "font-weight-bold";
-            companyName.textContent = accountName;
-            right.append(companyName);
-        }
-        if("account_links.sector" in matchRow){
-            
-        }
-        if("time" in matchRow){
-            let sightedContainer = document.createElement("p");
-            sightedContainer.textContent = "Sighted on " + matchRow.time;
-        }
-
-        accountInformationContainer.append(table);
-        return accountInformationContainer;
-    }
-
-    generateImageElement = (imageName) =>{  
-        let img = document.createElement("img");
-        img.src = "/static/images/map_logos/" + imageName;
-        img.className = "img img-fluid";
-        return img;
     }
 }
