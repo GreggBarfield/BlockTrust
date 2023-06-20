@@ -244,15 +244,15 @@ def process_grades_and_weight(
 
     matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
                                      restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"])
-    if matches:
-        db.matches.update_match(
-            id=matches[0]["id"],
-            partner_account=partner_account,
-            data=int(float(yield_grade)),
-            api_insert=api_insert_id
-        )
-    else:
-        if yield_grade and yield_grade.strip():
+    if yield_grade and yield_grade.strip():
+        if matches:
+            db.matches.update_match(
+                id=matches[0]["id"],
+                partner_account=partner_account,
+                data=int(float(yield_grade)),
+                api_insert=api_insert_id
+            )
+        else:
             db.matches.types.insert_usda_yield_grade(
                 int(float(yield_grade)),
                 eid=eid,
@@ -260,45 +260,47 @@ def process_grades_and_weight(
                 account_link=packer_account_link_id,
                 api_insert=api_insert_id
             )
-        perform_feeder_packer_data_received_actions(
-            db, eid, schedule_email=True, feeder_account_id=feeder_account_id,
-            packer_account_id=packer_account_id, api_insert_id=api_insert_id
-        )
+            perform_feeder_packer_data_received_actions(
+                db, eid, schedule_email=True, feeder_account_id=feeder_account_id,
+                packer_account_id=packer_account_id, api_insert_id=api_insert_id
+            )
 
     matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
                                      restrict_type=MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"])
-    if matches:
-        db.matches.update_match(
-            id=matches[0]["id"],
-            partner_account=partner_account,
-            data=quality_grade,
-            api_insert=api_insert_id
-        )
-    else:
-        if quality_grade and quality_grade.strip():
-            db.matches.types.insert_usda_quality_grade(
-                quality_grade,
-                eid=eid,
+    if quality_grade and quality_grade.strip():
+        if matches:
+            db.matches.update_match(
+                id=matches[0]["id"],
                 partner_account=partner_account,
-                account_link=packer_account_link_id,
+                data=quality_grade,
                 api_insert=api_insert_id
             )
+        else:
+            if quality_grade and quality_grade.strip():
+                db.matches.types.insert_usda_quality_grade(
+                    quality_grade,
+                    eid=eid,
+                    partner_account=partner_account,
+                    account_link=packer_account_link_id,
+                    api_insert=api_insert_id
+                )
 
     matches = db.matches.get_matches(eid=eid, account_link=packer_account_link_id,
                                      restrict_type=MATCH_TYPES_NAME_TO_ID["Hot Weight"])
-    if matches:
-        db.matches.update_match(
-            id=matches[0]["id"],
-            partner_account=partner_account,
-            data=float(carcass_weight),
-            api_insert=api_insert_id
-        )
-    else:
-        if carcass_weight and carcass_weight.strip():
-            db.matches.types.insert_hot_weight(
-                weight=float(carcass_weight),
-                eid=eid,
+    if carcass_weight and carcass_weight.strip():
+        if matches:
+            db.matches.update_match(
+                id=matches[0]["id"],
                 partner_account=partner_account,
-                account_link=packer_account_link_id,
+                data=float(carcass_weight),
                 api_insert=api_insert_id
             )
+        else:
+            if carcass_weight and carcass_weight.strip():
+                db.matches.types.insert_hot_weight(
+                    weight=float(carcass_weight),
+                    eid=eid,
+                    partner_account=partner_account,
+                    account_link=packer_account_link_id,
+                    api_insert=api_insert_id
+                )
