@@ -1,5 +1,9 @@
-from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
-from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
+from api.translation_worker.types.helper import (
+    process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
+)
+from core.database.combinations import (
+    create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
+)
 from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
 
