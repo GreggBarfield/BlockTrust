@@ -19,7 +19,7 @@ export class MapV2Widget extends Widget {
         const position = { lat: 39.5, lng: -98.35 };
 
         let map = new Map(document.getElementById("map_container"), {
-            zoom: 3.6,
+            zoom: 3.9,
             center: position,
             mapId: "DEMO_MAP_ID",
             mapTypeId: 'roadmap',
