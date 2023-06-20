@@ -1,6 +1,7 @@
 from ..no_value import NoValue
 from ... import config
 from ...utilities.aws import aws
+from .files import PRODUCT_FILES_S3_PATH
 
 NO_VALUE = NoValue()
 
@@ -104,10 +105,10 @@ class ProductTable:
             if include_images is True:
                 for product_row in product_rows:
                     product_row["pic_1_url"] = aws.get_s3_client().generate_presigned_url(
-                        ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": "products/" + product_row["pic_1"]}
+                        ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": PRODUCT_FILES_S3_PATH + product_row["pic_1"]}
                     )
                     product_row["pic_2_url"] = aws.get_s3_client().generate_presigned_url(
-                        ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": "products/" + product_row["pic_2"]}
+                        ClientMethod="get_object", Params={"Bucket": config.AWS_S3_BUCKET, "Key": PRODUCT_FILES_S3_PATH + product_row["pic_2"]}
                     )
             return product_rows
         else:
