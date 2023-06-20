@@ -35,7 +35,7 @@ def handle(db, insert):
     _check_required(insert)
 
     fields = insert['fields']
-    date_created = str(insert['created'])
+    date_created = fields['sighting_date'] if fields.get('sighting_date', None) else str(insert['created'])
 
     eid = int(fields["eid"])
     api_insert = insert["id"]
