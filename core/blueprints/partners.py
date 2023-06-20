@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, g, request, url_for
+    Response, Blueprint, g, request, url_for
 )
 from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
@@ -7,6 +7,7 @@ from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.sectors import SECTORS_NAME_TO_ID
+from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
 from json import loads
@@ -91,3 +92,26 @@ def serve_upload_tags():
         return partner_render("upload-tags.html",  {
             "account": g.account, "user": g.user, "license": FLATFILE_LICENSE
         })
+
+
+@bp.route('/upload-packer-data', methods=['GET', 'POST'])
+@crut.require_partner
+def serve_upload_packer_data():
+    # hard coded for now should be changed later
+    eligible_packers = g.db.accounts.get_accounts(company_like="National Beef")
+    if request.method == 'POST':
+        data = loads(request.data)
+        try:
+            packer_account_numbers = {packer["id"] for packer in eligible_packers}
+            for row in data["eids"]:
+                if int(row["packer_account_number"]) not in packer_account_numbers:
+                    raise Exception("Packer account number is incorrect")
+                ApiInserts(g.db).insert(g.account.id(), "PARTNER", "PackerDataUpload", row)
+
+            return Response(status=HTTP_OK)
+        except Exception as e:
+            raise ExportException(e)
+
+    return partner_render("upload-packer-data.html",  {
+        "account": g.account, "user": g.user, "license": FLATFILE_LICENSE, "eligible_packers": eligible_packers
+    })

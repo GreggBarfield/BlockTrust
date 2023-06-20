@@ -31,6 +31,7 @@ Upload Tag Data
                 <ul class="mb-0">
                   <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
                   <li>Visual Tag Number</li>
+                  <li>Sighting Date (if not present, upload date will be used)</li>
                   <li>Date of Birth</li>
                   <li>Birth Weight</li>
                   <li>Breed</li>
@@ -108,6 +109,10 @@ const importer = new FlatfileImporter('{{license}}', {
           error: 'Only can be a unique number and must be 15 digits in length.'
         }
       ]},
+      { 
+        key: "sighting_date", label: "Sighting Date",
+        validators: []
+      },
       { 
         key: "birth_date", label: "Date of Birth",
         validators: [

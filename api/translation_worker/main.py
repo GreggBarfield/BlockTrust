@@ -15,8 +15,6 @@ try:
     __name__ = "api.translation_worker.main"
 
     from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG  # noqa
-    from core.database.database import Database  # noqa
-    from core.database.tables.error_logs import ErrorLogs
     from .logistics import run  # noqa
     from ..database.inserts_model import InsertsModel  # noqa
 
@@ -27,12 +25,10 @@ try:
     parser.add_argument('-t', '--threads', help='Number of threads', type=int, default=1)
 
     args = parser.parse_args()
-    db = Database(MYSQL_CONFIG)
 
     def threaded_function():
         try:
             run(
-                db,
                 InsertsModel(API_MYSQL_CONFIG),
                 verbose=args.verbose,
                 insert_id=args.id
@@ -57,6 +53,3 @@ try:
         thread.join()
 except Exception as e:
     print("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
-    ErrorLogs(db).insert_error_log("Translation worker", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
-finally:
-    db.close()
