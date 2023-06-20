@@ -42,9 +42,9 @@ def handle(db: Database, insert):
     process_grades_and_weight(
         db, eid=eid, partner_account=partner_account, api_insert_id=api_insert,
         packer_account_link_id=packer_account_link_id,
-        yield_grade=fields["yield_grade"],
-        quality_grade=fields["quality_grade"],
-        carcass_weight=fields["carcass_weight"],
+        yield_grade=fields.get("yield_grade", None),
+        quality_grade=fields.get("quality_grade", None),
+        carcass_weight=fields.get("carcass_weight", None),
         packer_account_id=packer["id"] if packer else None
     )
 
