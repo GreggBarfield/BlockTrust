@@ -24,7 +24,7 @@ def handle(db, insert):
     _check_required(insert)
 
     fields = insert['fields']
-    date_created = str(insert['created'])
+    sighting_date = fields["birth_date"] if fields.get("birth_date", None) else str(insert['created'])
 
     eid = int(fields["eid"])
     api_insert = insert["id"]
@@ -38,7 +38,7 @@ def handle(db, insert):
             account = account[0]
             zipcode = str(account["zip"])
             process_sighting(
-                db, eid, account_link["id"], api_insert, zipcode, date_created,
+                db, eid, account_link["id"], api_insert, zipcode, sighting_date,
                 insert["account"], visual_id
             )
             process_weaning_data(
