@@ -1,5 +1,5 @@
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect, url_for
+    Flask, jsonify, request, session, Blueprint, g, redirect, url_for, Response
 )
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
@@ -12,6 +12,7 @@ from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
 from ..database.tables.product_vendors import ProductVendors
 from ..utilities import crut
+from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 from ..renderers.email import render_email
 
@@ -273,10 +274,10 @@ def serve_create_order():
                                           order_details["state"], order_details["zip_code"])
         shopping_cart = eval(order_details['shopping_cart'])
         for product_id, product_details in shopping_cart.items():
-            OrderProducts(g.db).add_order_product(order_id, product_id, product_details["product_quantity"])
+            OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
         return {"orderId": order_id}
     except Exception as e:
-        return {"error": str(e)}, 400
+        return {"error": str(e)}, HTTP_BAD_REQUEST
 
 
 @bp.route("/shop/update-order", methods=["POST"])
@@ -287,10 +288,7 @@ def serve_update_order():
         Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
         
         order_details = eval(data["orderDetails"])
-        shopping_cart = eval(order_details["shopping_cart"])   
-        for product_id, product_details in shopping_cart.items():
-            product_details["quantity"] = product_details["product_quantity"]
-            product_details["price"] = product_details["product_price"]
+        shopping_cart = eval(order_details["shopping_cart"])
         # Once payment goes through sending email to confirm order to buyer
         premise_id = "N/A"
         if order_details["premise_id"] != "":
@@ -362,8 +360,8 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            ["cgrund@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["gregg.barfield@ledgerspace.net"]
         )
-        return {"success": True}
+        return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
         return{"error": str(e)}, 400

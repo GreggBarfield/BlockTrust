@@ -98,7 +98,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         // Creating payment intent
         let {error: backendError, clientSecret} = await fetch(
-            '/stripe/create-payment-intent/tag-store',{
+            '/stripe/create-payment-intent',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,7 +135,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         // Updating order as paid
         if(paymentIntent.status === 'succeeded'){
-            let {error, success} = await fetch(
+            let response = await fetch(
                 '/shop/update-order',{
                     method: 'POST',
                     header: {
@@ -147,13 +147,11 @@ export class CheckoutPaymentWidget extends Widget {
                         orderDetails: localStorage.getItem("orderDetails")
                     })
                 }
-            ).then((r) => r.json());
+            );
+            if(response.ok){
+                this.updatePaymentButton("Success! Redirecting...", true);
+            }
         }
-        if(error){
-            this.updatePaymentStatusMessage(error, "text-danger");
-            this.updatePaymentButton("Pay", false);
-        }
-        this.updatePaymentButton("Success! Redirecting...", true);
         window.location.href = '/shop/invoice';
     }
 
