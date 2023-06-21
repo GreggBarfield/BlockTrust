@@ -98,7 +98,7 @@ def serve_upload_tags():
 @crut.require_partner
 def serve_upload_packer_data():
     # hard coded for now should be changed later
-    eligible_packers = g.db.accounts.get_accounts(company_like="National Beef")
+    eligible_packers = g.db.accounts.get_accounts(company_like="National Beef", is_partner=int(False))
     if request.method == 'POST':
         data = loads(request.data)
         try:
