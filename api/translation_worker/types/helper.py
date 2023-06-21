@@ -211,15 +211,15 @@ def process_packer_data(db, eid, api_insert_id, harvest_date=None, program_certi
             if timezone else all_to_unix(harvest_date)
         )
     if program_certification and program_certification.strip():
-        packer_data["program_certification"] = program_certification
+        packer_data["program_certification"] = program_certification.strip()
     if marbling_score and marbling_score.strip():
-        packer_data["marbling_score"] = int(marbling_score)
+        packer_data["marbling_score"] = marbling_score.strip()
     if marbling_score_code and marbling_score_code.strip():
         packer_data["marbling_score_code"] = int(marbling_score_code)
     if ribeye_area and ribeye_area.strip():
-        packer_data["ribeye_area"] = int(ribeye_area)
+        packer_data["ribeye_area"] = float(ribeye_area)
     if fat_thickness and fat_thickness.strip():
-        packer_data["fat_thickness"] = int(fat_thickness)
+        packer_data["fat_thickness"] = float(fat_thickness)
     if calculated_live_weight and calculated_live_weight.strip():
         packer_data["calculated_live_weight"] = int(calculated_live_weight)
     if total_gain and total_gain.strip():

@@ -1987,3 +1987,9 @@ ADD COLUMN `feeder_api_insert_id` INT NULL AFTER `packer_api_insert_id`;
 /* Nisheet Thakur 06/14/2023 */
 ALTER TABLE `files`
 ADD COLUMN `employee_id` INT DEFAULT NULL;
+
+/* Rohan Sureshkumar 6/21/23 */
+ALTER TABLE `animals` 
+CHANGE COLUMN `marbling_score` `marbling_score` VARCHAR(10) NULL DEFAULT NULL,
+CHANGE COLUMN `ribeye_area` `ribeye_area` DECIMAL(5,2) NULL DEFAULT NULL ,
+CHANGE COLUMN `fat_thickness` `fat_thickness` DECIMAL(4,2) NULL DEFAULT NULL ;
