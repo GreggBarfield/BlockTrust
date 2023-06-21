@@ -140,8 +140,12 @@ const importer = new FlatfileImporter('{{license}}', {
         ]
       },
       { 
-        key: "quality_grade", label: "USDA Quality Grade",
-        validators: []
+        key: "quality_grade", label: "USDA Quality Grade", type:"select",
+        options: [
+          {value:"Choice", label:"Choice"},
+          {value:"Prime", label:"Prime"},
+          {value:"Select", label:"Select"}
+        ]
       },
       { 
         key: "yield_grade", label: "USDA Yield Grade",
@@ -158,21 +162,15 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: []
       },
       { 
-        key: "marbling_score", label: "Marbling Score",
-        validators: [
-          {
-            validate: 'regex_matches',
-            regex: '^[0-9]+$',
-            error: 'Only can be a number.'
-          }  
-      ]},
+        key: "marbling_score", label: "Marbling Score"
+      },
       { 
         key: "marbling_score_code", label: "Marbling Score Code",
         validators: [
             {
                 validate: 'regex_matches',
                 regex: '^[0-9]+$',
-                error: 'Only can be a number.'
+                error: 'Only can be a integer'
             }  
         ]
       },
@@ -181,8 +179,8 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
             {
                 validate: 'regex_matches',
-                regex: '^[0-9]+$',
-                error: 'Only can be a number.'
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
             }  
         ]
       },
@@ -191,18 +189,18 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
             {
                 validate: 'regex_matches',
-                regex: '^[0-9]+$',
-                error: 'Only can be a number.'
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
             }  
         ]
       },
       { 
-        key: "calculated_weight", label: "Calculated Live Weight",
+        key: "calculated_live_weight", label: "Calculated Live Weight",
         validators: [
             {
                 validate: 'regex_matches',
                 regex: '^[0-9]+$',
-                error: 'Only can be a number and/or decimal.'
+                error: 'Has to be an integer'
             }
         ]
       },
@@ -212,7 +210,7 @@ const importer = new FlatfileImporter('{{license}}', {
             {
                 validate: 'regex_matches',
                 regex: '^[0-9]+$',
-                error: 'Only can be a number and/or decimal.'
+                error: 'Has to be an integer'
             }
         ]
       },
@@ -222,7 +220,7 @@ const importer = new FlatfileImporter('{{license}}', {
             {
                 validate: 'regex_matches',
                 regex: '^[0-9]+$',
-                error: 'Only can be a number and/or decimal.'
+                error: 'Has to be an integer'
             }
         ]
       },
@@ -231,8 +229,8 @@ const importer = new FlatfileImporter('{{license}}', {
         validators: [
             {
                 validate: 'regex_matches',
-                regex: '^([0-9]*[.])?[0-9]+$',
-                error: 'Only can be a number and/or decimal.'
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
             }
         ]
       }
