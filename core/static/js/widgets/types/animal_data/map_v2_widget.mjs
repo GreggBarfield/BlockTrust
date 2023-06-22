@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { generateAccountInformationContainer, closeOtherInfoWindows } from '../../utilities/map_utlilities.mjs';
+import { generateAccountInformationContainer, closeOtherInfoWindows, colorMap } from '../../utilities/map_utlilities.mjs';
 
 export class MapV2Widget extends Widget {
     constructor(frame) {
@@ -9,7 +9,7 @@ export class MapV2Widget extends Widget {
     initType = async () =>{
         this.frame.innerHTML = "";
         const { Map } = await google.maps.importLibrary("maps");
-        const { Marker } = await google.maps.importLibrary("marker");
+        const { Marker, PinElement } = await google.maps.importLibrary("marker");
         const { InfoWindow } = await google.maps.importLibrary("streetView");
 
         let mapContainer = document.createElement("div");
@@ -53,24 +53,28 @@ export class MapV2Widget extends Widget {
         let matchRows = matchRowsData.result.matches;
         let sectorsIdToNameData = await this.getData("direct/sectors_id_to_name", {});
         let sectorsIDToName = sectorsIdToNameData.sectors_id_to_name;
-        //console.log(matchRows);
-        this.generateMap(map, matchRows, sectorsIDToName, Marker, InfoWindow);
+        console.log(matchRows);
+        this.generateMap(map, matchRows, sectorsIDToName, Marker, PinElement, InfoWindow);
     }
 
-    generateMap = (map, matchRows, sectorsIDToName, Marker, InfoWindow) =>{
+    generateMap = (map, matchRows, sectorsIDToName, Marker, PinElement, InfoWindow) =>{
         for(const matchRow of matchRows){
             let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
+            let accountSectorID = matchRow["account_links.sector"];
+            let accountSectorName = sectorsIDToName[accountSectorID];
+            let markerBackground = new PinElement({
+                background: colorMap[accountSectorName],
+            });
             let infoWindow = new InfoWindow();
             let infoWindowElementsList = [];
             let marker = new Marker({
                 map: map,
                 position: {lat:matchRow["lat"], lng:matchRow["lon"]},
-                title: matchRow["account_links.name"] !== null ? matchRow["account_links.name"] : ""
+                title: matchRow["account_links.name"] !== null ? matchRow["account_links.name"] : "",
+                content: markerBackground
             });
             marker.addListener("mouseover", () => {
-                // infoWindow.open({anchor: marker, map,});
                 infoWindowElementsList = closeOtherInfoWindows(infoWindowElementsList);
-                // infoWindow.close();
                 infoWindow.setContent(accountInformationContainer);
                 infoWindowElementsList[0] = infoWindow;
                 infoWindow.open(marker.getMap(), marker);

@@ -101,5 +101,6 @@ const formatDate = (epoch) =>{
 export {
     generateAccountInformationContainer,
     closeOtherInfoWindows,
-    generateMap
+    generateMap,
+    colorMap
 }
