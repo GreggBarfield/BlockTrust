@@ -3,7 +3,7 @@ const updateShoppingCartTotalsInLocalStorage = () =>{
     let shoppingCart = JSON.parse(shoppingCartString);
     let totalPrice = 0;
     for(let productData of Object.values(shoppingCart)){
-        totalPrice = totalPrice + productData.product_price * productData.product_quantity;
+        totalPrice = totalPrice + productData.price * productData.quantity;
         if(productData.is_premise_id_required == 1){
             localStorage.setItem("isPremiseIdRequired", 1);
         }
@@ -18,7 +18,7 @@ const updateShoppingCartTotalsInLocalStorage = () =>{
     if(discountApplied === "Y"){
         for(let productData of Object.values(shoppingCart)){
             if(discountPercentages[productData.product_id] !== null){
-                let productPrice = productData.product_price * productData.product_quantity;
+                let productPrice = productData.price * productData.quantity;
                 totalDiscount = totalDiscount + productPrice * discountPercentages[productData.product_id]/100;
             }
         }
@@ -159,11 +159,11 @@ const makeShoppingCartTableProductRow = (productData, includeRemoveProductButton
 
     let productNameCell = generateTableCell(productData.product_name, "td", "h6");
     tableProductRow.append(productNameCell);
-    let productQuantityCell = generateTableCell(productData.product_quantity+" "+productData.product_units, "td", "h6");
+    let productQuantityCell = generateTableCell(productData.quantity+" "+productData.product_units, "td", "h6");
     tableProductRow.append(productQuantityCell);
-    let productPriceCell = generateTableCell("$" + productData.product_price, "td", "h6");
+    let productPriceCell = generateTableCell("$" + productData.price, "td", "h6");
     tableProductRow.append(productPriceCell);
-    let productTotalCell = generateTableCell("$" + productData.product_price * productData.product_quantity, "td", "h6");
+    let productTotalCell = generateTableCell("$" + productData.price * productData.quantity, "td", "h6");
     tableProductRow.append(productTotalCell);
     if(includeRemoveProductButton){
         let removeProductButtonCell = document.createElement("td");
@@ -182,11 +182,25 @@ const generateTableCell = (cellText, cellType, textSize) =>{
     return tableCell;
 }
 
+const generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequired) =>{
+    let inputContainer = document.createElement("div");
+    inputContainer.className = "col-md-6";
+    let input = document.createElement("input");
+    input.placeholder = inputText;
+    input.type = inputType;
+    input.id = inputId;
+    input.className = "form-control m-1";
+    input.required = inputRequired;
+    inputContainer.append(input);
+    return inputContainer;
+}
+
 export {
     updateShoppingCartTotalsInLocalStorage,
     makeShoppingCartTotalsContainer,
     getShoppingCartTotalsData,
     generateButtonLink,
     generateRemoveProductButton,
-    makeShoppingCartTable
+    makeShoppingCartTable,
+    generateCheckoutFormTextInput
 };
