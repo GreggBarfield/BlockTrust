@@ -28,7 +28,7 @@ class ProductTable:
         self._db = db
 
     def get_products(self, id=NO_VALUE, product=NO_VALUE, pic_1=NO_VALUE, pic_2=NO_VALUE, price=NO_VALUE, post=NO_VALUE,
-                     subheader=NO_VALUE, details=NO_VALUE, unit=NO_VALUE, partner=NO_VALUE,
+                     subheader=NO_VALUE, details=NO_VALUE, unit=NO_VALUE, partner=NO_VALUE, product_vendor_id=NO_VALUE,
                      is_premise_id_required=NO_VALUE, product_type=NO_VALUE, include_images=False):
         """
         Gets the product based on the attributes provided
@@ -92,6 +92,9 @@ class ProductTable:
         if product_type is not NO_VALUE:
             query_conditions.append("product_type = %(product_type)s")
             query_values["product_type"] = product_type
+        if product_vendor_id is not NO_VALUE:
+            query_conditions.append("product_vendor_id = %(product_vendor_id)s")
+            query_values["product_vendor_id"] = product_vendor_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

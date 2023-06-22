@@ -45,6 +45,7 @@ import { AddAdvertisementWidget } from './types/employee/marketplace/add-adverti
 import { AddAdvertisementCompanyWidget } from './types/employee/marketplace/add-advertisement-company.mjs';
 import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
+import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
 
 
 // Immediately invoked
@@ -106,6 +107,7 @@ import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranc
     attach("add advertisement company", AddAdvertisementCompanyWidget);
     attach("invoice", InvoiceWidget);
     attach("upload ranch accounts", UploadRanchAccountsWidget);
+    attach("checkout payment", CheckoutPaymentWidget);
 
     // Find widgets
     $(".widget").each(function () {

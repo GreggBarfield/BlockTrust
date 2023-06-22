@@ -87,6 +87,10 @@ export class TagStoreWidget extends Widget {
                 cardBody.append(productCard);
             }
         }
+        // Hide Product category cards that have no products
+        if(cardBody.innerHTML.trim() == ""){
+            card.className = "d-none";
+        }
         card.append(cardBody);
         return card;
     }
@@ -195,9 +199,9 @@ export class TagStoreWidget extends Widget {
         let shoppingCart = JSON.parse(shoppingCartString);
         let productDataToBeStored = {
             product_id: productData.id,
-            product_price: parseFloat(productData.price),
+            price: parseFloat(productData.price),
             product_name: productData.product,
-            product_quantity: parseInt(productQuantity),
+            quantity: parseInt(productQuantity),
             is_premise_id_required_for_product: parseInt(productData.is_premise_id_required),
             product_units: productData.unit
         }
@@ -207,8 +211,8 @@ export class TagStoreWidget extends Widget {
         }
         else{
             let previousProductData = shoppingCart[productData.id];
-            let previousQuantity = parseInt(previousProductData.product_quantity);
-            productDataToBeStored.product_quantity = productQuantity + previousQuantity;
+            let previousQuantity = parseInt(previousProductData.quantity);
+            productDataToBeStored.quantity = productQuantity + previousQuantity;
             shoppingCart[productData.id] = productDataToBeStored;
             localStorage.setItem("shoppingCart", JSON.stringify(shoppingCart));
         }
