@@ -4,7 +4,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
-from ..config import STRIPE_PUBLISHABLE_KEY
+from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable
@@ -122,18 +122,17 @@ def update_order():
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
-        # TODO: Name iterating variables explicitly. So here I think key should really be product_id. I am not sure what value stands for.
-        for key, value in shopping_cart.items():
-            product_row = ProductTable(g.db).get_products(id=key)
+        for product_id, product_details in shopping_cart.items():
+            product_row = ProductTable(g.db).get_products(id=product_id)
             if len(product_row) > 0:
                 product_vendor_id = product_row[0]["product_vendor_id"]
                 if product_vendor_id in vendor_oriented_cart:
-                    vendor_oriented_cart[product_vendor_id].append(value)
+                    vendor_oriented_cart[product_vendor_id].append(product_details)
                 else:
-                    vendor_oriented_cart[product_vendor_id] = [value]
-        # TODO: Same comment as on line 109
-        for key, value in vendor_oriented_cart.items():
-            vendor_row = ProductVendors(g.db).get_product_vendors(id=key)
+                    vendor_oriented_cart[product_vendor_id] = [product_details]
+
+        for vendor_id, product_list in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=vendor_id)
             if len(vendor_row) > 0:
                 vendor_email = vendor_row[0]["vendor_email"]
                 send_tag_store_email(
@@ -146,7 +145,7 @@ def update_order():
                         'shipping_city': order_details["city"],
                         'shipping_state': order_details["state"],
                         'shipping_zip_code': order_details["zip_code"],
-                        'cart': value,
+                        'cart': product_list,
                         'premise_id': premise_id
                         }),
                     vendor_email
@@ -170,7 +169,7 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"]),
                 'premise_id': premise_id
             }),
-            ["cgrund@uscattletrace.org", "gregg.barfield@ledgerspace.net"]
+            ["cgrund@uscattletrace.org", ADMIN_EMAIL]
         )
 
         return {"success": True}
@@ -286,7 +285,7 @@ def serve_update_order():
     try:
         data = json.loads(request.data)
         Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
-        
+
         order_details = eval(data["orderDetails"])
         shopping_cart = eval(order_details["shopping_cart"])
         # Once payment goes through sending email to confirm order to buyer
@@ -315,32 +314,30 @@ def serve_update_order():
         vendor_oriented_cart = {}
         for product_id, product_details in shopping_cart.items():
             product_row = ProductTable(g.db).get_products(id=product_id)
-            if len(product_row) > 0:
-                product_vendor_id = product_row[0]["product_vendor_id"]
-                if product_vendor_id in vendor_oriented_cart:
-                    vendor_oriented_cart[product_vendor_id].append(product_details)
-                else:
-                    vendor_oriented_cart[product_vendor_id] = [product_details]
+            product_vendor_id = product_row[0]["product_vendor_id"]
+            if product_vendor_id in vendor_oriented_cart:
+                vendor_oriented_cart[product_vendor_id].append(product_details)
+            else:
+                vendor_oriented_cart[product_vendor_id] = [product_details]
 
         for vendor_id, products_list in vendor_oriented_cart.items():
             vendor_row = ProductVendors(g.db).get_product_vendors(id=vendor_id)
-            if len(vendor_row) > 0:
-                vendor_email = vendor_row[0]["vendor_email"]
-                send_tag_store_email(
-                    "New order summary",
-                    render_email("purchase_summary_vendor.html", {
-                        'order_id': data["orderId"],
-                        'first': order_details["first_name"],
-                        'last': order_details["last_name"],
-                        'shipping_address_line': order_details["address_line"],
-                        'shipping_city': order_details["city"],
-                        'shipping_state': order_details["state"],
-                        'shipping_zip_code': order_details["zip_code"],
-                        'cart': products_list,
-                        'premise_id': premise_id
-                        }),
-                    vendor_email
-                    )
+            vendor_email = vendor_row[0]["vendor_email"]
+            send_tag_store_email(
+                "New order summary",
+                render_email("purchase_summary_vendor.html", {
+                    'order_id': data["orderId"],
+                    'first': order_details["first_name"],
+                    'last': order_details["last_name"],
+                    'shipping_address_line': order_details["address_line"],
+                    'shipping_city': order_details["city"],
+                    'shipping_state': order_details["state"],
+                    'shipping_zip_code': order_details["zip_code"],
+                    'cart': products_list,
+                    'premise_id': premise_id
+                }),
+                vendor_email
+            )
 
         send_multiple_tag_store_email(
             "New order summary",
@@ -360,8 +357,8 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            ["gregg.barfield@ledgerspace.net"]
+            [ADMIN_EMAIL]
         )
         return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
-        return{"error": str(e)}, 400
+        return {"error": str(e)}, HTTP_BAD_REQUEST
