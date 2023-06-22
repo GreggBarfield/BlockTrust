@@ -88,7 +88,7 @@ export class TagStoreWidget extends Widget {
             }
         }
         // Hide Product category cards that have no products
-        if(cardBody.getElementsByTagName("div").length == 0){
+        if(cardBody.innerHTML.trim() == ""){
             card.className = "d-none";
         }
         card.append(cardBody);
