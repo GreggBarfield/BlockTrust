@@ -88,8 +88,9 @@ export class AddAdvertisementCompanyWidget extends Widget {
             let logoInput = logoUploadContainer.getElementsByTagName("input");
             let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
-            let logoFileID = null;
             if(formCompletionStatus){
+                let logoFileID = undefined;
+                let uploadedFiles = logoInput[0].files;
                 errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
                     action: window.location.href,
@@ -98,7 +99,6 @@ export class AddAdvertisementCompanyWidget extends Widget {
                     error: errorMessage,
                     redirectMessage: "Saved!",
                     loadingMessage: "Saving...",
-                    asJSON: true,
                     getData: () => {
                         return {
                             name: name,
@@ -114,7 +114,6 @@ export class AddAdvertisementCompanyWidget extends Widget {
                         };
                     }
                 });
-                let uploadedFiles = logoInput[0].files;
                 if(Object.entries(uploadedFiles).length > 0){
                     let uploadedLogoFile = uploadedFiles[0];
                     logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, marketplaceFilesS3Path);
