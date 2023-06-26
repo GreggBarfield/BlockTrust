@@ -1,0 +1,269 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Upload Packer Data" %}
+{% set partner_locations = [(url_for(request.endpoint), "Upload Packer Data")] %}
+
+{% block partner_content_header %}
+Upload Packer Data
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+<div class="row">
+    <div class="col">
+      <div id="popup" class="alert alert-success d-none justify-content-between">
+        <p id="popupText" class="m-0"></p>
+        <button type="button" class="close ml-3" onclick="{
+            $('#popup').removeClass('d-flex');
+            $('#popup').addClass('d-none');
+          }">x</button>
+      </div>
+        <div class="card" style="width:100%;">
+            <h5 class="card-header">Tag Data Update From Packer</h5>
+            <div class="card-body">
+                <div class="text-danger">
+                    <p>
+                        NOTE: Uploads are supported for following Packers:
+                        <ul>
+                            {% for packer in eligible_packers %}
+                            <li><strong>{{packer.company}}</strong> (Account Number: <strong>{{packer.id}}</strong>)</li>
+                            {% endfor %}
+                        </ul>
+                        Please add the required account number to each row in your file.
+                    </p>  
+                </div>
+                <p>Currently, we are accepting the following data fields automatically:</p>
+                <ul class="mb-0">
+                  <li>Packer Account Number <span class="text-danger">(Required)</span></li>
+                  <li>Electronic Tag Number (15 digit EID associated with the tag) <span class="text-danger">(Required)</span></li>
+                  <li>Harvest Date</li>
+                  <li>Hot Carcass Weight (lbs.)</li>
+                  <li>USDA Quality Grade</li>
+                  <li>USDA Yield Grade</li>
+                </ul>
+                <details class="mb-3">
+                  <summary>See Complete List</summary>
+                  <ul>
+                    <li>Program Certification</li>
+                    <li>Marbling Score</li>
+                    <li>Marbling Score Code</li>
+                    <li>Ribeye Area (in<sup>2</sup>)</li>
+                    <li>Fat Thickness (in.)</li>
+                    <li>Calculated Live Weight</li>
+                    <li>Total Gain</li>
+                    <li>Days on Test</li>
+                    <li>Average Daily Gain</li>
+                  </ul>
+                </details>
+                <p>If there are other data points you want to add, please Contact Us</p>
+                <p>
+                    To begin, you must have your data in a data file (Excel Spreadsheet 
+                    or Comma Delimited file). Field names must be at the top of each 
+                    column. Remember where you have it stored on your computer.
+                </p>
+                <p>
+                    Once ready, push the button below and follow the instructions.
+                </p>
+                <button class="btn btn-primary" onclick="postData()">Start Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+    
+<script>
+function postData()
+{
+  importer.requestDataFromUser().then(function(results) { 
+    console.log(results)
+      $('#popup').removeClass('d-none');
+      $('#popup').addClass('d-flex');
+      $('#popupText').html('You successfully uploaded ' + results.data.length + ' tag(s) on ' + 
+                            new Date().toLocaleString() + '. ' + 
+                            'Some supply chain data may be processed overnight. Once processed, it will be reflected ' + 
+                            '<a href="/dashboard"><u>on your dashboard. </u></a>' +
+                            'If you have any questions, please contact us.'
+                          );
+
+      importer.displaySuccess('Thanks for uploading your data!');
+      fetch(window.location.href, {
+          method: 'POST',
+          body: JSON.stringify(
+            {
+                eids: results.data
+            }
+          ),
+      });
+  })
+}
+const importer = new FlatfileImporter('{{license}}', {
+  type: "EID import",
+  title: "EID import",
+  managed: true,
+  fields: [
+      { 
+        key: "packer_account_number", label: "Packer Account Number",
+        validators: [
+          { validate: "required" },
+          {
+              validate: 'regex_matches',
+              regex: '^[0-9]+$',
+              error: 'Only can be a number.'
+          }  
+        ]
+      },
+      { 
+        key: "eid", label: "Electronic ID (EID)",
+        validators: [
+            { validate: "required" },
+            { validate: "unique" },
+            {
+              validate: 'regex_matches',
+              regex: '^[0-9]{15}$',
+              error: 'Only can be a unique number and must be 15 digits in length.'
+            }
+        ]
+      },
+      { 
+        key: "harvest_date", label: "Harvest Date",
+        validators: []
+      },
+      { 
+        key: "carcass_weight", label: "Hot Carcass Weight (lbs.)",
+        validators: [
+        {
+            validate: 'regex_matches',
+            regex: '^[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+        ]
+      },
+      { 
+        key: "quality_grade", label: "USDA Quality Grade", type:"select",
+        options: [
+          {value:"Choice", label:"Choice"},
+          {value:"Prime", label:"Prime"},
+          {value:"Select", label:"Select"}
+        ]
+      },
+      { 
+        key: "yield_grade", label: "USDA Yield Grade",
+        validators: [
+          {
+            validate: 'regex_matches',
+            regex: '^[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+        ]
+      },
+      { 
+        key: "program_certification", label: "Program Certification",
+        validators: []
+      },
+      { 
+        key: "marbling_score", label: "Marbling Score"
+      },
+      { 
+        key: "marbling_score_code", label: "Marbling Score Code",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^[0-9]+$',
+                error: 'Only can be a integer'
+            }  
+        ]
+      },
+      { 
+        key: "ribeye_area", label: "Ribeye Area",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
+            }  
+        ]
+      },
+      { 
+        key: "fat_thickness", label: "Fat Thickness (in.)",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
+            }  
+        ]
+      },
+      { 
+        key: "calculated_live_weight", label: "Calculated Live Weight",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^[0-9]+$',
+                error: 'Has to be an integer'
+            }
+        ]
+      },
+      { 
+        key: "total_gain", label: "Total Gain",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^[0-9]+$',
+                error: 'Has to be an integer'
+            }
+        ]
+      },
+      { 
+        key: "days_on_test", label: "Days on Test",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^[0-9]+$',
+                error: 'Has to be an integer'
+            }
+        ]
+      },
+      { 
+        key: "average_daily_gain", label: "Average Daily Gain",
+        validators: [
+            {
+                validate: 'regex_matches',
+                regex: '^([0-9]*[.]*)?[0-9]{0,2}$',
+                error: 'Has to be number with max 2 decimals'
+            }
+        ]
+      }
+    ],
+  i18nOverrides: {
+    en: {
+      otherLocales: ["en-US", "en-CA", "en-GB"],
+      overrides: {
+        fileTypes:
+          "<p style=\"padding-bottom: 1em;\">Here you can upload your tag numbers (both electronic or visual) and any other data associated with them, " +
+          "like birthdates or weight. On the left there is a list of all the acceptable data types. Please remember " +
+          "that there can only be one record per row.</p>" +
+          "<p style=\"padding-bottom: 1em;\">The next step will allow you to match your spreadsheet columns to the right data points within our system. " +
+          "You'll be able to clean up or remove any corrupted data before it is uploaded.</p>" +
+          "<p><a href=\"#\">CLICK HERE</a> for more information about how to upload data.</p>", // TODO: Need to fill out href on a tag when link is ready.
+      }
+    }
+  },
+  theme: {
+      buttons: {
+          primary: {
+              backgroundColor: "#8b4513",
+              border: "1px solid #8b4513",
+              ":hover": {
+                  backgroundColor: "#722C00",
+                  border: "1px solid #722C00"
+              }
+          }
+      },
+    }
+});
+
+importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email:'{{user.email()}}'});
+</script>
+
+{% endblock partner_content %}

@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Make a call to the server to create a new payment intent and store its client_secret.
       const {error: backendError, clientSecret} = await fetch(
-        '/stripe/create-payment-intent/'+partner_id,
+        '/stripe/create-payment-intent',
         {
           method: 'POST',
           headers: {
@@ -95,7 +95,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             currency: 'usd',
             paymentMethodType: 'card',
             amount: localStorage.getItem('grandTotal'),
-            orderId: orderId
+            orderId: orderId,
+            partner_id: partner_id
           }),
         }
       ).then((r) => r.json());

@@ -153,32 +153,35 @@ def create_subscription():
         return {'error':{'message': str(e)}}, 400
 
 
-@bp.route('/stripe/create-payment-intent/<partner_id>', methods=['POST'])
-def create_payment(partner_id):
+@bp.route('/stripe/create-payment-intent', methods=['POST'])
+def create_payment():
     data = json.loads(request.data)
     try:
-        account = g.db.accounts.get_account_by_id(partner_id)
-        if account is not None:
-            stripe.api_key = account.partner_stripe_secret_key()
-            # Some example payment method types include `card`, `ideal`, and `alipay`.
-            payment_method_type = data['paymentMethodType']
-            currency = data['currency']
-            order_id = data['orderId']
-            amount = float(data['amount'])*100
-            amount = int(amount)
-            # Create a PaymentIntent with the amount, currency, and a payment method type.
-            params = {
-                'payment_method_types': [payment_method_type],
-                'amount': amount,
-                'currency': currency,
-                'metadata': {'order_id':order_id}
-            }
-            intent = stripe.PaymentIntent.create(**params)
-
-            # Send PaymentIntent details to the front end.
-            return {'clientSecret': intent.client_secret}
+        if 'partner_id' in data:
+            account = g.db.accounts.get_account_by_id(data['partner_id'])
+            if account is not None:
+                stripe.api_key = account.partner_stripe_secret_key()
+            else:
+                raise Exception("Incorrect partner id.")
         else:
-            raise Exception("Incorrect partner id.")
+            stripe.api_key = STRIPE_SECRET_KEY
+        # Some example payment method types include `card`, `ideal`, and `alipay`.
+        payment_method_type = data['paymentMethodType']
+        currency = data['currency']
+        order_id = data['orderId']
+        amount = float(data['amount'])*100
+        amount = int(amount)
+        # Create a PaymentIntent with the amount, currency, and a payment method type.
+        params = {
+            'payment_method_types': [payment_method_type],
+            'amount': amount,
+            'currency': currency,
+            'metadata': {'order_id':order_id}
+        }
+        intent = stripe.PaymentIntent.create(**params)
+
+        # Send PaymentIntent details to the front end.
+        return {'clientSecret': intent.client_secret}
     except stripe.error.StripeError as e:
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
