@@ -82,15 +82,6 @@ const generateImageElement = (imageName) =>{
     return img;
 }
 
-const closeOtherInfoWindows = (infoWindowElementsList) =>{
-    if(infoWindowElementsList.length > 0){
-        infoWindowElementsList[0].set("marker", null);
-        infoWindowElementsList[0].close();
-        infoWindowElementsList.length = 0;
-    }
-    return infoWindowElementsList;
-}
-
 const formatDate = (epoch) =>{
     if (epoch == null || epoch <= 0)
         return "--";
@@ -100,7 +91,6 @@ const formatDate = (epoch) =>{
 
 export {
     generateAccountInformationContainer,
-    closeOtherInfoWindows,
     generateMap,
     colorMap
 }

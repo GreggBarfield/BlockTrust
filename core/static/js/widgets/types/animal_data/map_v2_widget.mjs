@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { generateAccountInformationContainer, closeOtherInfoWindows, colorMap } from '../../utilities/map_utlilities.mjs';
+import { generateAccountInformationContainer, colorMap } from '../../utilities/map_utlilities.mjs';
 
 export class MapV2Widget extends Widget {
     constructor(frame) {
@@ -9,8 +9,9 @@ export class MapV2Widget extends Widget {
     initType = async () =>{
         this.frame.innerHTML = "";
         const { Map } = await google.maps.importLibrary("maps");
-        const { Marker, PinElement } = await google.maps.importLibrary("marker");
+        const { Marker, AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
         const { InfoWindow } = await google.maps.importLibrary("streetView");
+        const { Polyline } = await google.maps.importLibrary("geometry");
 
         let mapContainer = document.createElement("div");
         mapContainer.id = "map_container";
@@ -19,7 +20,7 @@ export class MapV2Widget extends Widget {
         const position = { lat: 39.5, lng: -98.35 };
 
         let map = new Map(document.getElementById("map_container"), {
-            zoom: 3.9,
+            zoom: 3.75,
             center: position,
             mapId: "DEMO_MAP_ID",
             mapTypeId: 'roadmap',
@@ -53,37 +54,41 @@ export class MapV2Widget extends Widget {
         let matchRows = matchRowsData.result.matches;
         let sectorsIdToNameData = await this.getData("direct/sectors_id_to_name", {});
         let sectorsIDToName = sectorsIdToNameData.sectors_id_to_name;
-        console.log(matchRows);
-        this.generateMap(map, matchRows, sectorsIDToName, Marker, PinElement, InfoWindow);
+        this.generateMap(map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow, Polyline);
     }
 
-    generateMap = (map, matchRows, sectorsIDToName, Marker, PinElement, InfoWindow) =>{
+    generateMap = (map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow, Polyline) =>{
+        let coordinates = [];
+        let infoWindow = new InfoWindow();
+        // Generate location markers and info windows on click
         for(const matchRow of matchRows){
             let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
             let accountSectorID = matchRow["account_links.sector"];
             let accountSectorName = sectorsIDToName[accountSectorID];
             let markerBackground = new PinElement({
                 background: colorMap[accountSectorName],
+                borderColor: "#137333",
+                glyph: ""
             });
-            let infoWindow = new InfoWindow();
-            let infoWindowElementsList = [];
-            let marker = new Marker({
-                map: map,
+            let marker = new AdvancedMarkerElement({
+                map,
                 position: {lat:matchRow["lat"], lng:matchRow["lon"]},
-                title: matchRow["account_links.name"] !== null ? matchRow["account_links.name"] : "",
-                content: markerBackground
+                content: markerBackground.element
             });
-            marker.addListener("mouseover", () => {
-                infoWindowElementsList = closeOtherInfoWindows(infoWindowElementsList);
+            google.maps.event.addListener(marker, 'click', function(){
                 infoWindow.setContent(accountInformationContainer);
-                infoWindowElementsList[0] = infoWindow;
-                infoWindow.open(marker.getMap(), marker);
-            });
-            marker.addListener("mouseout", () =>{
-                infoWindowElementsList = closeOtherInfoWindows(infoWindowElementsList);
-                infoWindow.close();
-                infoWindowElementsList[0] = infoWindow;
-            });
+                infoWindow.open(marker.map, this);
+            })
+            coordinates.push({lat:matchRow["lat"], lng:matchRow["lon"]});
         }
+        // Generate lines between locations
+        let line = new google.maps.Polyline({
+            path: coordinates,
+            geodesic: true,
+            strokeColor: '#000000',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+        });
+        line.setMap(map);
     }
 }
