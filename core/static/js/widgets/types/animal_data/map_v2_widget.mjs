@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { generateAccountInformationContainer, colorMap } from '../../utilities/map_utlilities.mjs';
-
+ 
 export class MapV2Widget extends Widget {
     constructor(frame) {
         super(frame);
@@ -66,6 +66,7 @@ export class MapV2Widget extends Widget {
             let accountSectorID = matchRow["account_links.sector"];
             let accountSectorName = sectorsIDToName[accountSectorID];
             let markerBackground = new PinElement({
+                scale: 0.6,
                 background: colorMap[accountSectorName],
                 borderColor: "#137333",
                 glyph: ""

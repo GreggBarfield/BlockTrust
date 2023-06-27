@@ -48,6 +48,7 @@ CSP = {
         'https://ipinfo.io/',
         'https://maps.googleapis.com',
         'https://maps.gstatic.com',
+        'https://unpkg.com/@googlemaps/js-api-loader@1.x/dist/index.min.js',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
