@@ -1,7 +1,8 @@
 import { AsyncForm } from '../../../../../global/async_form.mjs';
-import { Widget } from "../../../widget.mjs";
-import { generateDropDownInput, generateTextInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
+import { generateDropDownInput, generateTextInput, generateUploadInput, validateFormCompletion } from "../../../utilities/advertisement_utilities.mjs";
+import { saveAndUploadFile } from '../../../../files/files.mjs';
 import { states } from '../../../../core/common_constants.mjs';
+import { Widget } from "../../../widget.mjs";
 
 export class AddAdvertisementCompanyWidget extends Widget {
     constructor(frame) {
@@ -10,6 +11,7 @@ export class AddAdvertisementCompanyWidget extends Widget {
 
     initType = async() => {
         this.frame.innerHTML = "";
+        let marketplaceFilesS3Path = this.frame.getAttribute("data-widget-marketplace-files-s3-path");
         let addAdvertisementCompanyContainer = document.createElement("div");
         addAdvertisementCompanyContainer.className = "card";
 
@@ -18,16 +20,15 @@ export class AddAdvertisementCompanyWidget extends Widget {
         addAdvertisementCompanyContainerHeader.textContent = "Add Advertisement Company";
         addAdvertisementCompanyContainer.append(addAdvertisementCompanyContainerHeader);
 
-        let addAdvertisementCompanyContainerBody = document.createElement("div");
-        addAdvertisementCompanyContainerBody.className = "card-body";
-        let addAdvertisementCompanyForm = this.makeAddAdvertisementCompanyForm();
-        addAdvertisementCompanyContainerBody.append(addAdvertisementCompanyForm);
+        let addAdvertisementCompanyContainerBody =  this.makeAddAdvertisementCompanyContainerBody(marketplaceFilesS3Path);
         addAdvertisementCompanyContainer.append(addAdvertisementCompanyContainerBody);
 
         this.frame.append(addAdvertisementCompanyContainer);
     }
 
-    makeAddAdvertisementCompanyForm = () =>{
+    makeAddAdvertisementCompanyContainerBody = (marketplaceFilesS3Path) =>{
+        let addAdvertisementCompanyContainerBody = document.createElement("div");
+        addAdvertisementCompanyContainerBody.className = "card-body";
         let form = document.createElement("form");
 
         let inputsRow = document.createElement("div");
@@ -48,21 +49,25 @@ export class AddAdvertisementCompanyWidget extends Widget {
         inputsRow.append(zipInput);
         let phoneInput = generateTextInput("*Phone", "text", "phone", true, "col-md-6");
         inputsRow.append(phoneInput);
-        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", true, "col-md-6 d-flex m-1");
+        let logoUploadContainer = generateUploadInput("Upload Logo: ");
+        inputsRow.append(logoUploadContainer);
+        let integratedWithBlockTrustInput = generateTextInput("*Integrated With BlockTrust", "checkbox", "is_integrated_with_blocktrust", false, "col-md-6 d-flex m-1");
         inputsRow.append(integratedWithBlockTrustInput);
+
         form.append(inputsRow);
+        addAdvertisementCompanyContainerBody.append(form);
 
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-outline-primary rounded m-1";
         submitButton.textContent = "SAVE";
-        form.append(submitButton);
+        addAdvertisementCompanyContainerBody.append(submitButton);
 
         let statusMessage = document.createElement("p");
-        form.append(statusMessage);
+        addAdvertisementCompanyContainerBody.append(statusMessage);
         let errorMessage = document.createElement("p");
-        form.append(errorMessage);
+        addAdvertisementCompanyContainerBody.append(errorMessage);
 
-        submitButton.onclick = () =>{
+        submitButton.onclick = async() =>{
             let formResponseValues = [];
             let name = document.getElementById("name").value;
             formResponseValues.push(name);
@@ -80,9 +85,12 @@ export class AddAdvertisementCompanyWidget extends Widget {
             formResponseValues.push(zipCode);
             let phone = document.getElementById("phone").value;
             formResponseValues.push(phone);
+            let logoInput = logoUploadContainer.getElementsByTagName("input");
             let isIntegratedWithBlockTrust = document.getElementById("is_integrated_with_blocktrust").checked;
             let formCompletionStatus = validateFormCompletion(formResponseValues);
             if(formCompletionStatus){
+                let logoFileID = undefined;
+                let uploadedFiles = logoInput[0].files;
                 errorMessage.className = "d-none";
                 let newAdvertisementCompanyAsyncForm = new AsyncForm({
                     action: window.location.href,
@@ -101,17 +109,23 @@ export class AddAdvertisementCompanyWidget extends Widget {
                             state: state,
                             zip_code: zipCode,
                             phone: phone,
+                            logo_file_id: logoFileID,
                             is_integrated_with_blocktrust: isIntegratedWithBlockTrust
                         };
                     }
                 });
-                newAdvertisementCompanyAsyncForm.submit();
+                if(Object.entries(uploadedFiles).length > 0){
+                    let uploadedLogoFile = uploadedFiles[0];
+                    logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, marketplaceFilesS3Path);
+                }
+                    newAdvertisementCompanyAsyncForm.submit();
             }
             else{
                 errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-        return form;
+
+        return addAdvertisementCompanyContainerBody;
     }
 }

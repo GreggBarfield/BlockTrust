@@ -1984,6 +1984,10 @@ ADD COLUMN `average_daily_gain` DECIMAL(5,2) NULL AFTER `days_on_test`,
 ADD COLUMN `packer_api_insert_id` INT NULL AFTER `api_insert_id`,
 ADD COLUMN `feeder_api_insert_id` INT NULL AFTER `packer_api_insert_id`;
 
+/* Nisheet Thakur 06/14/2023 */
+ALTER TABLE `files`
+ADD COLUMN `employee_id` INT DEFAULT NULL;
+
 /* Rohan Sureshkumar 6/21/23 */
 ALTER TABLE `animals` 
 CHANGE COLUMN `marbling_score` `marbling_score` VARCHAR(10) NULL DEFAULT NULL,
