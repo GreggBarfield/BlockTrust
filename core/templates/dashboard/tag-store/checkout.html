@@ -9,8 +9,17 @@ Checkout
 {% block dashboard_content %}
 <div class="row">
     <div class="col">
-        <div class = "col-sm-12 mb-0 widget" data-widget-type = "checkout">
-        </div>
+        <div class = "col-sm-12 mb-0 widget" data-widget-type = "checkout"></div>
     </div>
 </div>
+<script type="text/javascript">
+    let first_name = '{{dashboard_standard_user_first}}';
+    let last_name = '{{dashboard_standard_user_last}}';
+    let company_name = '{{dashboard_standard_account.company()}}';
+    let address = '{{dashboard_standard_account.address()}}';
+    let city = '{{dashboard_standard_account.city()}}';
+    let state = '{{dashboard_standard_account.state()}}';
+    let zip = '{{dashboard_standard_account.zip()}}';
+    let phone = '{{dashboard_standard_account.phone()}}';
+</script>
 {% endblock dashboard_content %}

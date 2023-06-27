@@ -195,6 +195,16 @@ const generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequi
     return inputContainer;
 }
 
+const validateFormCompletion = (formResponseValues) =>{
+    let formCompletionStatus = true;
+    for(let value of formResponseValues){
+        if(value == "" || value == -1){
+            formCompletionStatus = false;
+        }
+    }
+    return formCompletionStatus;
+}
+
 export {
     updateShoppingCartTotalsInLocalStorage,
     makeShoppingCartTotalsContainer,
@@ -202,5 +212,6 @@ export {
     generateButtonLink,
     generateRemoveProductButton,
     makeShoppingCartTable,
-    generateCheckoutFormTextInput
+    generateCheckoutFormTextInput,
+    validateFormCompletion
 };

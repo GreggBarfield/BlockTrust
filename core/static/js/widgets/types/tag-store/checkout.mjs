@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { states } from '../../../core/common_constants.mjs';
-import { generateButtonLink, makeShoppingCartTotalsContainer } from '../../utilities/tag_store_utilities.mjs';
+import { generateButtonLink, makeShoppingCartTotalsContainer, validateFormCompletion } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutWidget extends Widget {
     constructor(frame) {
@@ -61,29 +61,29 @@ export class CheckoutWidget extends Widget {
         
         let personalDetailsInputsRow = document.createElement("div");
         personalDetailsInputsRow.className = "row";
-        let firstNameInput = this.generateCheckoutFormTextInput("*First Name", "text", "first_name", true);
+        let firstNameInput = this.generateCheckoutFormTextInput("*First Name", "text", "first_name", true, first_name);
         personalDetailsInputsRow.append(firstNameInput);
-        let lastNameInput = this.generateCheckoutFormTextInput("*Last Name", "text", "last_name", true);
+        let lastNameInput = this.generateCheckoutFormTextInput("*Last Name", "text", "last_name", true, last_name);
         personalDetailsInputsRow.append(lastNameInput);
-        let companyInput = this.generateCheckoutFormTextInput("*Company", "text", "company", true);
+        let companyInput = this.generateCheckoutFormTextInput("*Company", "text", "company", true, company_name);
         personalDetailsInputsRow.append(companyInput);
         checkoutForm.append(personalDetailsInputsRow);
 
         let shippingAddressDetailsInputsRow = document.createElement("div");
         shippingAddressDetailsInputsRow.className = "row";
-        let addressInput = this.generateCheckoutFormTextInput("*Address", "text", "address", true);
+        let addressInput = this.generateCheckoutFormTextInput("*Address", "text", "address", true, address);
         shippingAddressDetailsInputsRow.append(addressInput);
-        let cityInput = this.generateCheckoutFormTextInput("*City", "text", "city", true);
+        let cityInput = this.generateCheckoutFormTextInput("*City", "text", "city", true, city);
         shippingAddressDetailsInputsRow.append(cityInput);
-        let stateInput = this.generateCheckoutFormDropDownInput("state", states, "---Please select shipping state---", true);
+        let stateInput = this.generateCheckoutFormDropDownInput("state", states, "---Please select shipping state---", true, state);
         shippingAddressDetailsInputsRow.append(stateInput);
-        let zipCodeInput = this.generateCheckoutFormTextInput("*Zip Code", "text", "zip_code", true);
+        let zipCodeInput = this.generateCheckoutFormTextInput("*Zip Code", "text", "zip_code", true, zip);
         shippingAddressDetailsInputsRow.append(zipCodeInput);
         checkoutForm.append(shippingAddressDetailsInputsRow);
 
         let contactDetailsInputsRow = document.createElement("div");
         contactDetailsInputsRow.className = "row";
-        let phoneInput = this.generateCheckoutFormTextInput("*Phone", "text", "phone", true);
+        let phoneInput = this.generateCheckoutFormTextInput("*Phone", "text", "phone", true, phone);
         contactDetailsInputsRow.append(phoneInput);
         let emailInput = this.generateCheckoutFormTextInput("*Email", "email", "email", true);
         contactDetailsInputsRow.append(emailInput);
@@ -96,11 +96,13 @@ export class CheckoutWidget extends Widget {
             premiseIdInputRow.append(premiseIdInput);
             checkoutForm.append(premiseIdInputRow);
         }
-
-        let proceedToPaymentButton = this.generateProceedToPaymentButton();
-        
         checkoutFormContainerBody.append(checkoutForm);
+
+        let errorMessage = document.createElement("p");
+        let proceedToPaymentButton = this.generateProceedToPaymentButton(errorMessage);
         checkoutFormContainerBody.append(proceedToPaymentButton);
+        checkoutFormContainerBody.append(errorMessage);
+
         checkoutFormContainer.append(checkoutFormContainerBody);
         return checkoutFormContainer;
     }
@@ -114,20 +116,21 @@ export class CheckoutWidget extends Widget {
         return linksContainer;
     }
 
-    generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequired) =>{
+    generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequired, inputValue="") =>{
         let inputContainer = document.createElement("div");
         inputContainer.className = "col-md-6";
         let input = document.createElement("input");
         input.placeholder = inputText;
         input.type = inputType;
         input.id = inputId;
+        input.value = inputValue;
         input.className = "form-control m-1";
         input.required = inputRequired;
         inputContainer.append(input);
         return inputContainer;
     }
 
-    generateCheckoutFormDropDownInput = (inputId, inputOptions, defaultOptionText, inputRequired) =>{
+    generateCheckoutFormDropDownInput = (inputId, inputOptions, defaultOptionText, inputRequired, selectedInputValue="") =>{
         let inputContainer = document.createElement("div");
         inputContainer.className = "col-md-6";
         let selectInput = document.createElement("select");
@@ -146,11 +149,12 @@ export class CheckoutWidget extends Widget {
             option.textContent = optionTextContent;
             selectInput.appendChild(option);
         }
+        selectInput.value = selectedInputValue;
         inputContainer.append(selectInput);
         return inputContainer;
     }
 
-    generateProceedToPaymentButton = () =>{
+    generateProceedToPaymentButton = (errorMessage) =>{
         let proceedToPaymentButton = document.createElement("button");
         proceedToPaymentButton.className = "btn btn-outline-primary rounded m-1";
         proceedToPaymentButton.textContent = "PROCEED TO PAYMENT  ";
@@ -158,7 +162,16 @@ export class CheckoutWidget extends Widget {
         icon.className = "fas fa-credit-card";
         proceedToPaymentButton.appendChild(icon);
         proceedToPaymentButton.onclick = () =>{
-            this.updateOrderDetailsInLocalStorage();
+            let checkoutFormCompletionStatus = this.validateCheckoutFormInputs();
+            if(checkoutFormCompletionStatus){
+                errorMessage.className = "d-none";
+                this.updateOrderDetailsInLocalStorage();
+            }
+            else{
+                errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
+                errorMessage.textContent = "Please fill in all required fields";
+            }
+                
         }
         return proceedToPaymentButton;
     }
@@ -192,4 +205,17 @@ export class CheckoutWidget extends Widget {
         window.location.href = "/shop/checkout-payment";
     }
 
+    validateCheckoutFormInputs = () =>{
+        let checkoutFormResponseValues = [];
+        checkoutFormResponseValues.push(document.getElementById("first_name").value);
+        checkoutFormResponseValues.push(document.getElementById("last_name").value);
+        checkoutFormResponseValues.push(document.getElementById("company").value);
+        checkoutFormResponseValues.push(document.getElementById("address").value);
+        checkoutFormResponseValues.push(document.getElementById("city").value);
+        checkoutFormResponseValues.push(document.getElementById("state").value);
+        checkoutFormResponseValues.push(document.getElementById("zip_code").value);
+        checkoutFormResponseValues.push(document.getElementById("phone").value);
+        checkoutFormResponseValues.push(document.getElementById("email").value);
+        return validateFormCompletion(checkoutFormResponseValues);
+    }
 }
