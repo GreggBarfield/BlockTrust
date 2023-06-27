@@ -15,7 +15,7 @@ from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
-from ..database.tables.files import Files
+from ..database.tables.files import Files, DEFAULT_FILES_S3_PATH
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
@@ -438,19 +438,23 @@ def serve_save_eids_for_sales_group():
 
 
 @bp.route('/widgets/data/save_file_and_get_upload_config', methods=['POST'])
-@crut.require_account
+@crut.require_user_or_employee
 def serve_save_file_get_upload_config():
     user_owns = request.json["user_owns"] is True
     account_owns = request.json["account_owns"] is True
+    employee_owns = request.json["employee_owns"] is True
     question_id = request.json.get("question_id", None)
-    if not user_owns and not account_owns:
+    file_s3_path = request.json["file_s3_path"] if request.json["file_s3_path"] is not None else DEFAULT_FILES_S3_PATH
+    if not user_owns and not account_owns and not employee_owns:
         raise ExportException("Someone must own the file.")
 
     file_id, file_config = Files(g.db).insert_file_and_get_post_configuration(
         request.json["file_name"],
         g.user.id() if user_owns else None,
         g.account.id() if account_owns else None,
-        question_id
+        g.employee.id() if employee_owns else None,
+        question_id,
+        file_s3_path=file_s3_path
     )
 
     return {
@@ -855,7 +859,7 @@ def serve_get_advertising_companies():
 @bp.route('/widgets/data/get_advertisements', methods=["POST"])
 @crut.require_account
 def serve_get_advertisements():
-    advertisements = Advertisements(g.db).get(is_archived=0, get_related_advertising_company=True)
+    advertisements = Advertisements(g.db).get(is_archived=0, get_related_advertising_company=True, include_logo_images=True)
     return {
         "advertisements": advertisements,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
