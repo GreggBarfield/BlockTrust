@@ -49,10 +49,31 @@ export class MarketPlaceWidget extends Widget {
         advertisementCard.className = "card border border-dark rounded p-2";
 
         let advertisementCardHeader = document.createElement("div");
-        advertisementCardHeader.className = "card-header d-flex justify-content-center p-3";
+        advertisementCardHeader.className = "card-header row p-0";
+
+        if(advertisement.logo_url !== null){
+            let advertisementCardHeaderLogoContainer = document.createElement("div");
+            advertisementCardHeaderLogoContainer.className = "col-md-3";
+            let advertisementLogo = document.createElement("img");
+            advertisementLogo.className = "img img-fluid";
+            advertisementLogo.src = advertisement.logo_url;
+            advertisementCardHeaderLogoContainer.append(advertisementLogo);
+            advertisementCardHeader.append(advertisementCardHeaderLogoContainer);
+        }
+
+        let advertisementCardHeaderTextContainer = document.createElement("div");
+        advertisementCardHeaderTextContainer.className = "col-md-9";
         let advertisementCardHeaderText = document.createElement("h4");
-        advertisementCardHeaderText.textContent = advertisement.short_description + " (" + advertisement.advertisementCategoryName + ")";
-        advertisementCardHeader.append(advertisementCardHeaderText);
+        advertisementCardHeaderText.className = "row m-1 p-1";
+        advertisementCardHeaderText.textContent = advertisement.name + " (" + advertisement.advertisementCategoryName + ")";
+        advertisementCardHeaderTextContainer.append(advertisementCardHeaderText);
+
+        let advertismentCardHeaderSecondaryText = document.createElement("h5");
+        advertismentCardHeaderSecondaryText.className = "row m-1 p-1";
+        advertismentCardHeaderSecondaryText.textContent = advertisement.short_description;
+        advertisementCardHeaderTextContainer.append(advertismentCardHeaderSecondaryText);
+
+        advertisementCardHeader.append(advertisementCardHeaderTextContainer);
         advertisementCard.append(advertisementCardHeader);
 
         let advertisementCardBody = document.createElement("div");
@@ -60,11 +81,15 @@ export class MarketPlaceWidget extends Widget {
 
         let advertisementDescriptionContainer = document.createElement("div");
         let advertisementDescriptionText = document.createElement("h5");
+        advertisementDescriptionText.className = "font-weight-normal";
         advertisementDescriptionText.textContent = advertisement.long_description;
         advertisementDescriptionContainer.append(advertisementDescriptionText);
         advertisementCardBody.append(advertisementDescriptionContainer);
 
-        let companyInformationContainer = this.generateCompanyInformationContainer(advertisement)
+        let horizontalRule = document.createElement("hr");
+        advertisementCardBody.append(horizontalRule);
+
+        let companyInformationContainer = this.generateCompanyInformationContainer(advertisement);
         advertisementCardBody.append(companyInformationContainer);
 
         advertisementCard.append(advertisementCardBody);
@@ -74,17 +99,15 @@ export class MarketPlaceWidget extends Widget {
 
     generateCompanyInformationContainer = (advertisement) =>{
         let companyInformationContainer = document.createElement("div");
-        let nameLine = this.generateFormattedTextLine(advertisement.name, "h4", "font-weight-bold text-primary");
-        companyInformationContainer.append(nameLine);
-        let addressLine = this.generateFormattedTextLine(advertisement.address, "h6", "font-weight-bold text-secondary");
+        let addressLine = this.generateFormattedTextLine(advertisement.address, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(addressLine);
-        let cityLine = this.generateFormattedTextLine(advertisement.city + ", " + advertisement.state + " " +advertisement.zip_code, "h6", "font-weight-bold text-secondary");
+        let cityLine = this.generateFormattedTextLine(advertisement.city + ", " + advertisement.state + " " +advertisement.zip_code, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(cityLine);
-        let contactNameLine = this.generateFormattedTextLine(advertisement.contact_name, "h6", "font-weight-bold text-secondary");
+        let contactNameLine = this.generateFormattedTextLine(advertisement.contact_name, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(contactNameLine);
-        let phoneLine = this.generateFormattedTextLine(advertisement.phone, "h6", "font-weight-bold text-secondary");
+        let phoneLine = this.generateFormattedTextLine(advertisement.phone, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(phoneLine);
-        let emailLine = this.generateFormattedTextLine(advertisement.email, "h6", "font-weight-bold text-secondary");
+        let emailLine = this.generateFormattedTextLine(advertisement.email, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(emailLine);
 
         return companyInformationContainer;

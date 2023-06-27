@@ -2,6 +2,10 @@ from ... import config
 from ...utilities.aws import aws
 from ..no_value import NoValue
 
+DEFAULT_FILES_S3_PATH = "files/"
+PRODUCT_FILES_S3_PATH = "products/"
+MARKETPLACE_FILES_S3_PATH = "marketplace/"
+
 NO_VALUE = NoValue()
 
 class FilesException(Exception):
@@ -71,7 +75,8 @@ class Files:
         
         return False
 
-    def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, question_id=None, limit=10000000, expires_in=480):
+    def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, employee_id, question_id=None,
+                                               limit=10000000, expires_in=480, file_s3_path=DEFAULT_FILES_S3_PATH):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -93,13 +98,14 @@ class Files:
         """
         self._db.execute(
             """INSERT INTO files
-                (name, user_id, account_id, question_id)
+                (name, user_id, account_id, employee_id, question_id)
                 VALUES
-                    (%(name)s, %(user_id)s, %(account_id)s, %(question_id)s)
+                    (%(name)s, %(user_id)s, %(account_id)s, %(employee_id)s, %(question_id)s)
             """,
             {
                 "name": file_name,
                 "account_id": account_id,
+                "employee_id": employee_id,
                 "user_id": user_id,
                 "question_id": question_id
             }
@@ -108,7 +114,7 @@ class Files:
         file_id = self._db.last_row_id()
         return file_id, aws.get_s3_client().generate_presigned_post(
             Bucket=config.AWS_S3_BUCKET,
-            Key="files/" + str(file_id),
+            Key=file_s3_path + str(file_id),
             Fields={
                 
             },
@@ -160,7 +166,7 @@ class Files:
             }
         return auths
 
-    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE,
+    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, employee_id=NO_VALUE,
                   retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE,
                   get_url=False, select_columns=[]):
         """
@@ -199,6 +205,9 @@ class Files:
         if account_id is not NO_VALUE:
             query_conditions.append("account_id = %(account_id)s")
             query_values["account_id"] = account_id
+        if employee_id is not NO_VALUE:
+            query_conditions.append("employee_id = %(employee_id)s")
+            query_values["employee_id"] = employee_id
         if user_id is not NO_VALUE:
             query_conditions.append("user_id = %(user_id)s")
             query_values["user_id"] = user_id
