@@ -41,6 +41,22 @@ const generateDropDownInput = (inputId, inputOptions, defaultOptionText, inputRe
     return inputContainer;
 }
 
+const generateUploadInput = (inputText) =>{
+    let uploadInputContainer  = document.createElement("div");
+    uploadInputContainer.className = "col-md-6 d-flex";
+    let uploadInputText = document.createElement("h6");
+    uploadInputText.textContent = inputText;
+    uploadInputText.className = "m-2 p-1";
+    let uploadInput = document.createElement("input");
+    uploadInput.type = "file";
+    uploadInput.multiple = false;
+    uploadInput.required = false;
+    uploadInput.className = "m-2 p-1";
+    uploadInputContainer.append(uploadInputText);
+    uploadInputContainer.append(uploadInput);
+    return uploadInputContainer;
+}
+
 const validateFormCompletion = (formResponseValues) =>{
     let formCompletionStatus = true;
     for(let value of formResponseValues){
@@ -54,5 +70,6 @@ const validateFormCompletion = (formResponseValues) =>{
 export {
     generateTextInput,
     generateDropDownInput,
+    generateUploadInput,
     validateFormCompletion
 }
