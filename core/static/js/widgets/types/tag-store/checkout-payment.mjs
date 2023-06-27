@@ -149,6 +149,7 @@ export class CheckoutPaymentWidget extends Widget {
                 }
             );
             if(response.ok){
+                this.updatePaymentStatusMessage("", "d-none");
                 this.updatePaymentButton("Success! Redirecting...", true);
             }
         }
@@ -157,7 +158,6 @@ export class CheckoutPaymentWidget extends Widget {
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{
         let paymentStatusMessage = document.getElementById("checkout-payment-status-message");
-        paymentStatusMessage.style.display = 'block';
         paymentStatusMessage.className = statusClassName;
         paymentStatusMessage.textContent = statusTextContent;
     }
