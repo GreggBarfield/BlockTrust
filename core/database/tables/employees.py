@@ -24,7 +24,7 @@ class Employees:
     def __init__(self, db: 'database.Database'):
         self._db = db
 
-    def get(self, user_id):
+    def get_by_id(self, user_id):
         """Gets a employee by their ID.
 
         Params:
@@ -188,3 +188,49 @@ class Employees:
         )
         employee = self.get_by_username(username)
         return employee
+
+    def get(self, id=NO_VALUE):
+        """
+        Returns the employee based on provided attributes
+        """
+        base_query = "SELECT * FROM employees"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        employee_rows = self._db.execute_d(query, query_values)
+        if len(employee_rows) > 0:
+            return employee_rows
+        else:
+            return []
+
+    def update(self, id, impersonating_as_user_id=NO_VALUE):
+        """
+        Updates an employee.
+        """
+        base_query = "UPDATE employees"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if impersonating_as_user_id is not NO_VALUE:
+            query_conditions.append("impersonating_as_user_id = %(impersonating_as_user_id)s")
+            query_values["impersonating_as_user_id"] = impersonating_as_user_id
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Values for fields to update employee record not given")
+        return self._db.row_count()
