@@ -187,10 +187,16 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                        {% if partner_is_employee_impersonating == 0 %}
+                        {% if not partner_is_employee %}
                             <li>
                             <a href="{{partner_edit_user}}">
                                     <i class="feather icon-edit"></i> Edit User
+                                </a>
+                            </li>
+                            {% else %}
+                            <li>
+                                <a href="/employee/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to staff portal
                                 </a>
                             </li>
                         {% endif %}
