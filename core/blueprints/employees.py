@@ -705,4 +705,4 @@ def serve_log_back_in():
         else:
             raise ExportException("Not authorized")
     else:
-        ExportException("Not authorized")
+        raise ExportException("Not authorized")

@@ -68,7 +68,7 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-def load_app_context_from_session():
+def load_app_context():
     load_user_to_context()
     if "user" in g:
         load_account_to_context()
@@ -653,12 +653,8 @@ def login_as_employee(employee_id):
     """
     Params:
         employee_id: Employee Id to log in
-
     Returns:
         Nothing.
-
     """
     logout()
     load_employee(employee_id)
-
-    print("--------------employee_id--------------", g.get("employee_id", None))

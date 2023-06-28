@@ -52,7 +52,7 @@ def before_request():
     if getattr(g, "db", None) is None:
         g.db = Database(MYSQL_CONFIG)
 
-    auth.load_app_context_from_session()
+    auth.load_app_context()
 
 
 @app.teardown_request
