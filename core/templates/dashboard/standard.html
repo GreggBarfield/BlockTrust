@@ -250,10 +250,16 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                        {% if dashboard_is_employee_impersonating == 0 %}
+                        {% if not dashboard_is_employee %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="/employee/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to staff portal
                                 </a>
                             </li>
                         {% endif %}

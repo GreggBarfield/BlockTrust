@@ -1994,6 +1994,10 @@ CHANGE COLUMN `marbling_score` `marbling_score` VARCHAR(10) NULL DEFAULT NULL,
 CHANGE COLUMN `ribeye_area` `ribeye_area` DECIMAL(5,2) NULL DEFAULT NULL ,
 CHANGE COLUMN `fat_thickness` `fat_thickness` DECIMAL(4,2) NULL DEFAULT NULL ;
 
+/* Rohan Sureshkumar 6/26/23 */
+ALTER TABLE `employees` 
+ADD COLUMN `impersonating_as_user_id` INT NULL AFTER `last_name`;
+
 /* Nisheet Thakur 06/27/2023 */
 /* Only for PRODUCTION */
 INSERT INTO `sustainability_responses`(account_id, user_id, air_points, land_points, water_points, animal_points, safety_points, efficiency_points, improvement_points, score, response, sector_id, questionnaire_status_id)

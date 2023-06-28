@@ -9,7 +9,7 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
-from ..database.tables.employees import EmployeesException
+from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
@@ -168,6 +168,7 @@ def serve_login_as_user(user_id, account_id):
         is_admin = int(False)
     else:
         is_admin = int(True)
+    Employees(g.db).update(id=g.employee.id(), impersonating_as_user_id=user_id)
     auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     if account["is_partner"]:
@@ -690,3 +691,18 @@ def serve_view_advertisement_companies():
 def serve_archive_advertisement():
     Advertisements(g.db).update(id=request.json["advertisement_id"], is_archived=1)
     return Response(status=HTTP_OK)
+
+
+@bp.route("/employee/log-back-in", methods=["GET"])
+@crut.require_user
+def serve_log_back_in():
+    if g.employee_id:
+        employee = Employees(g.db).get(id=g.employee_id)[0]
+        if employee["impersonating_as_user_id"] == g.user.id():
+            Employees(g.db).update(id=employee["id"], impersonating_as_user_id=None)
+            auth.login_as_employee(employee["id"])
+            return redirect(url_for("employee_bp.serve_dashboard"))
+        else:
+            raise ExportException("Not authorized")
+    else:
+        ExportException("Not authorized")
