@@ -18,7 +18,6 @@ from .constants import SECONDS_IN_ONE_DAY
 from ..config import SUPPORT_GENERAL_EMAIL
 from ..sectors import SECTORS_ID_TO_NAME
 
-# since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
@@ -69,8 +68,7 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-def load_app_context_from_session():
-    """Load session into app context. Session variables must be set first"""
+def load_app_context():
     load_user_to_context()
     if "user" in g:
         load_account_to_context()
@@ -79,16 +77,14 @@ def load_app_context_from_session():
 
 
 def load_employee(employee_id):
-    """Load user to session and app context."""
     session.clear()
     session[SESSION_EMPLOYEE_ID_VAR] = employee_id
     load_employee_to_context()
 
 
 def load_employee_to_context():
-    """"Load employee session into app context."""
     if SESSION_EMPLOYEE_ID_VAR in session:
-        g.employee = Employees(g.db).get(session[SESSION_EMPLOYEE_ID_VAR])
+        g.employee = Employees(g.db).get_by_id(session[SESSION_EMPLOYEE_ID_VAR])
 
 
 def load_account(account_id):
@@ -109,7 +105,6 @@ def load_account(account_id):
 
 
 def load_user(user_id, employee_id=0):
-    """Load user to session and app context."""
     session.clear()
     session[SESSION_USER_ID_VAR] = user_id
     if employee_id:
@@ -118,7 +113,6 @@ def load_user(user_id, employee_id=0):
 
 
 def load_user_to_context():
-    """Load user session into app context."""
     if SESSION_USER_ID_VAR in session:
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
         if SESSION_EMPLOYEE_ID_VAR in session:
@@ -126,13 +120,9 @@ def load_user_to_context():
 
 
 def load_account_to_context():
-    """Load account session into app context."""
-    # g.account = None
     if SESSION_ACCOUNT_ID_VAR in session:
         g.account = g.db.accounts.get_account_by_id(session[SESSION_ACCOUNT_ID_VAR])
         if SESSION_IS_ADMIN_VAR in session:
-            # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
-            # role and therefore assuming is_admin will not change during an active session
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
 
 
@@ -221,7 +211,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 
 
 def logout():
-    """Clear session and remove g user"""
+    """Clear session"""
     session.clear()
     g.pop("user", None)
     g.pop("employee", None)
@@ -657,3 +647,14 @@ def employee_login_as_user(account_id, user_id, employee_id, is_admin):
         load_account(account_id)
     else:
         raise Exception("No user found")
+
+
+def login_as_employee(employee_id):
+    """
+    Params:
+        employee_id: Employee Id to log in
+    Returns:
+        Nothing.
+    """
+    logout()
+    load_employee(employee_id)
