@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
-import { generateAccountInformationContainer, colorMap } from '../../utilities/map_utlilities.mjs';
- 
+import { loadGoogleMapsAPI, generateAccountInformationContainer, colorMap } from '../../utilities/map_utlilities.mjs';
+
 export class MapV2Widget extends Widget {
     constructor(frame) {
         super(frame);
@@ -8,10 +8,10 @@ export class MapV2Widget extends Widget {
 
     initType = async () =>{
         this.frame.innerHTML = "";
+        loadGoogleMapsAPI();
         const { Map } = await google.maps.importLibrary("maps");
         const { Marker, AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
         const { InfoWindow } = await google.maps.importLibrary("streetView");
-        const { Polyline } = await google.maps.importLibrary("geometry");
 
         let mapContainer = document.createElement("div");
         mapContainer.id = "map_container";
@@ -54,14 +54,16 @@ export class MapV2Widget extends Widget {
         let matchRows = matchRowsData.result.matches;
         let sectorsIdToNameData = await this.getData("direct/sectors_id_to_name", {});
         let sectorsIDToName = sectorsIdToNameData.sectors_id_to_name;
-        this.generateMap(map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow, Polyline);
+        this.generateMap(map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow);
     }
 
-    generateMap = (map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow, Polyline) =>{
+    generateMap = (map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow) =>{
         let coordinates = [];
+        let markers = [];
         let infoWindow = new InfoWindow();
         // Generate location markers and info windows on click
         for(const matchRow of matchRows){
+            if(matchRow["lat"] !==null &&  matchRow["lon"]!== null){
             let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
             let accountSectorID = matchRow["account_links.sector"];
             let accountSectorName = sectorsIDToName[accountSectorID];
@@ -80,7 +82,9 @@ export class MapV2Widget extends Widget {
                 infoWindow.setContent(accountInformationContainer);
                 infoWindow.open(marker.map, this);
             })
+            markers.push(marker);
             coordinates.push({lat:matchRow["lat"], lng:matchRow["lon"]});
+        }
         }
         // Generate lines between locations
         let line = new google.maps.Polyline({
@@ -88,8 +92,15 @@ export class MapV2Widget extends Widget {
             geodesic: true,
             strokeColor: '#000000',
             strokeOpacity: 1.0,
-            strokeWeight: 2
+            strokeWeight: 0.5
         });
         line.setMap(map);
+        // Adding the marker clusterer script and generating clusters when it is loaded
+        let markerClustererScript = document.createElement("script");
+        markerClustererScript.src = "https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js";
+        this.frame.append(markerClustererScript);
+        markerClustererScript.onload = () =>{
+            const markerCluster = new markerClusterer.MarkerClusterer({map, markers});
+        }
     }
 }
