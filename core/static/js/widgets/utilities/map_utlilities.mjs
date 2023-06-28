@@ -1,4 +1,4 @@
-const loadGoogleMapsAPI = () =>{
+const loadGoogleMapsAPI = async() =>{
     // Google Maps JavaScript API Script Link: https://developers.google.com/maps/documentation/javascript/load-maps-js-api
     // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
     (g=>{
