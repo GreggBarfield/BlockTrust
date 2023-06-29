@@ -16,6 +16,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.orders import Orders
+from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
@@ -706,3 +707,22 @@ def serve_log_back_in():
             raise ExportException("Not authorized")
     else:
         raise ExportException("Not authorized")
+
+
+@bp.route("/employee/sustainability/transfer-sustainability-survey-scores", methods=["GET", "POST"])
+@crut.require_employee
+def serve_transfer_sustainability_survey_scores():
+    if request.method == "GET":
+        accounts = Accounts(g.db).get_accounts(is_partner=0)
+        accounts_with_filled_sustainability_survey = SustainabilityResponses(g.db).get_sustainability_responses(
+            questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"],
+            select_columns=["account_id"],
+            use_distinct=True
+        )
+        print(accounts_with_filled_sustainability_survey)
+        return employee_render("/employee/sustainability/transfer-sustainability-survey-scores.html", {
+            "accounts": accounts,
+            "accounts_with_filled_sustainability_survey": accounts_with_filled_sustainability_survey
+        })
+    if request.method == "POST":
+        return {}

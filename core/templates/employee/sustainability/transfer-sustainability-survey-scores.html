@@ -1,0 +1,43 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Sustainability" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+Transfer Sustainability Survey Scores
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card col-md-12 m-2 p-2">
+    <div class="card-header d-flex">
+        <h5>Transfer Sustainability Survey Scores</h5>
+    </div>
+    <div class="card-body row d-flex">
+        <div class="col-md-6 d-flex">
+            <div class="col-md-6">
+                <h6>Accounts with completed Surveys: </h6>
+            </div>
+            <div class="col-md-6">
+                <select id="accounts-with-completed-surveys" class="form-control" required></select>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex">
+            <div class="col-md-6">
+                <h6>Transfer Score to Account(s): </h6>
+            </div>
+            <div class="col-md-6">
+                <select id="transfer-scores-to" class="form-control" required></select>
+            </div>
+        </div>
+        <div class="col-md-12 p-2 m-2">
+            <button class="btn btn-primary">Transfer Score</button>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#accounts-with-completed-surveys").select2();
+        $("#transfer-scores-to").select2();    
+    });  
+</script>
+{% endblock employee_content %}

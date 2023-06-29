@@ -8,6 +8,8 @@ QUESTIONNAIRE_STATUS_NAMES_TO_IDS = {
     "Completed": 1
 }
 
+cols = ("id", "account_id", "user_id", "air_points", "land_points", "water_points", "animal_points", "safety_points",
+        "efficiency_points", "improvement_points", "score", "response", "sector_id", "questionnaire_status_id")
 
 class SustainabilityResponses:
 
@@ -17,7 +19,8 @@ class SustainabilityResponses:
     def get_sustainability_responses(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, air_points=NO_VALUE,
                                      land_points=NO_VALUE, water_points=NO_VALUE, animal_points=NO_VALUE,
                                      safety_points=NO_VALUE, efficiency_points=NO_VALUE, improvement_points=NO_VALUE,
-                                     score=NO_VALUE, sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE):
+                                     score=NO_VALUE, sector_id=NO_VALUE, questionnaire_status_id=NO_VALUE,
+                                     use_distinct=False, select_columns=()):
         """
         Gets the sustainability responses based on the attributes provided
 
@@ -39,7 +42,17 @@ class SustainabilityResponses:
         Returns:
             A list of sustainability response rows or an empty list
         """
-        base_query = "SELECT * FROM sustainability_responses"
+        if len(select_columns) > 0:
+            incorrect_columns = [col for col in select_columns if col not in cols]
+            if len(incorrect_columns) > 0:
+                raise Exception("Selected column(s) " + ",".join(incorrect_columns) + " don't exist in sustainability responses table")
+            
+            base_query = "SELECT "
+            if use_distinct:
+                base_query += "DISTINCT "
+            base_query += ",".join(select_columns) + " FROM sustainability_responses"
+        else:
+            base_query = "SELECT * FROM sustainability_responses"
 
         query_conditions = []
         query_values = {}
@@ -89,12 +102,12 @@ class SustainabilityResponses:
         else:
             combined_query_condition = ""
 
-        query = base_query + combined_query_condition + " ORDER BY ID DESC"
+        query = base_query + combined_query_condition#  + " ORDER BY ID DESC"
 
         sustainability_response_rows = self._db.execute_d(query, query_values)
         if len(sustainability_response_rows) > 0:
             for row in sustainability_response_rows:
-                row["response"] = json.loads(row["response"]) if row["response"] else None
+                row["response"] = json.loads(row["response"]) if "response" in row else None
             return sustainability_response_rows
         else:
             return []
