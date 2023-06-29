@@ -5,6 +5,14 @@ from .files import PRODUCT_FILES_S3_PATH
 
 NO_VALUE = NoValue()
 
+PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS = {
+    "External": 0,
+    "Internal": 1
+}
+PRODUCT_TAG_STORE_LOCATION_IDS_TO_NAMES = {
+    value: key for key, value in PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS.items()
+}
+
 class ProductTableException(Exception):
     """Generic Product exception."""
 
@@ -29,7 +37,7 @@ class ProductTable:
 
     def get_products(self, id=NO_VALUE, product=NO_VALUE, pic_1=NO_VALUE, pic_2=NO_VALUE, price=NO_VALUE, post=NO_VALUE,
                      subheader=NO_VALUE, details=NO_VALUE, unit=NO_VALUE, partner=NO_VALUE, product_vendor_id=NO_VALUE,
-                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE, include_images=False):
+                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE, product_tag_store_location=NO_VALUE, include_images=False):
         """
         Gets the product based on the attributes provided
 
@@ -95,6 +103,9 @@ class ProductTable:
         if product_vendor_id is not NO_VALUE:
             query_conditions.append("product_vendor_id = %(product_vendor_id)s")
             query_values["product_vendor_id"] = product_vendor_id
+        if product_tag_store_location is not NO_VALUE:
+            query_conditions.append("product_tag_store_location = %(product_tag_store_location)s")
+            query_values["product_tag_store_location"] = product_tag_store_location
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
