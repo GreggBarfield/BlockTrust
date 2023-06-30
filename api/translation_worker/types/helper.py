@@ -27,6 +27,8 @@ def insert_sighting_if_not_exists(db, eid, account_link_id, api_insert_id, zipco
             api_insert=api_insert_id,
             zip=zipcode
         )
+    else:
+        raise Exception("Duplicate")
 
 
 def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_date,
