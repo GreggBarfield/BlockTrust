@@ -334,7 +334,8 @@ class Matches:
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
                                        matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
                                        account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE, is_distinct=False,
-                                       matches_cols=(), account_links_multiple_account_ids=()):
+                                       matches_cols=(), account_links_multiple_account_ids=(),
+                                       account_links_partner_account=NO_VALUE):
         """
         Get matches with account_links (if any) by the values specified. If no account_links exist for a match,
         only the match is returned
@@ -383,6 +384,13 @@ class Matches:
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
             query_values["account_links_sector"] = account_links_sector
+
+        if account_links_partner_account is not NO_VALUE:
+            query_conditions.append(
+                "al.partner_account = %(account_links_partner_account)s"
+                if account_links_partner_account is not None else "al.partner_account IS None"
+            )
+            query_values["account_links_partner_account"] = account_links_partner_account
 
         # cannot pass values for both account_links_account_id AND account_links_multiple_account_ids
         if account_links_account_id is not NO_VALUE:
