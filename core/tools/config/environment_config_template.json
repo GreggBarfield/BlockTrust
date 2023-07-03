@@ -69,5 +69,12 @@
     },
     "run_jobs": {
         "notify_admin_if_no_data_received_from_partner": false
+    },
+    "herdwhistle": {
+        "api_key": "22de2b681e6d63d8f29df37b39ec3738e6cf49ee",
+        "api_endpoint": "https://herdwhistle-staging-6106507.dev.odoo.com",
+        "db": "herdwhistle-staging-6106507",
+        "username": "blocktrust",
+        "invoice_id": 4984
     }
 }
