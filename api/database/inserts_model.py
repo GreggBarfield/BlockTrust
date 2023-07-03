@@ -11,7 +11,8 @@ statuses_by_id = {
     3: "Running",
     4: "Bad Namespace",
     5: "Bad Type",
-    6: "Exception"
+    6: "Exception",
+    7: "Duplicate"
 }
 statuses_by_name = {b: a for a, b in statuses_by_id.items()}
 
