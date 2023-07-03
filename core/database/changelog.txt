@@ -2013,7 +2013,7 @@ ALTER TABLE `products`
 CHANGE COLUMN `details` `details` VARCHAR(1500);
 ALTER TABLE `products` 
 ADD COLUMN `vendor_product_reference_id`  INT DEFAULT NULL,
-ADD COLUMN `product_tag_store_location`  TINYINT DEFAULT 0;
+ADD COLUMN `product_tag_store_location`  TINYINT DEFAULT 2;
 SET @herd_whistle_id := (SELECT id FROM product_vendors WHERE vendor_name="Herd Whistle");
 SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
 INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, vendor_product_reference_id, product_tag_store_location)
