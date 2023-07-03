@@ -34,12 +34,18 @@ def run(inserts_model, verbose=False, insert_id=None):
                     db = Database(MYSQL_CONFIG)
                 handle_insert(db, inserts_model, insert)
             except Exception as e:
-                # max col size to store exception is 3000
-                inserts_model.set_status(
-                    insert['id'],
-                    "Exception",
-                    e.__class__.__name__ + ": " + str(e) + ", Stacktrace: " + traceback.format_exc()
-                )
+                if str(e) == "Duplicate":
+                    inserts_model.set_status(
+                        insert['id'],
+                        "Duplicate"
+                    )
+                else:
+                    # max col size to store exception is 3000
+                    inserts_model.set_status(
+                        insert['id'],
+                        "Exception",
+                        e.__class__.__name__ + ": " + str(e) + ", Stacktrace: " + traceback.format_exc()
+                    )
 
                 if verbose:
                     print("ExecutionException",  str(e))

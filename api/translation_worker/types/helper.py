@@ -6,6 +6,31 @@ from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.utilities.zip_codes import get_lat_lon
 
 
+def insert_sighting_if_not_exists(db, eid, account_link_id, api_insert_id, zipcode, sighting_date,
+                                  partner_account, visual_id=None, grouping_id=None, timezone=None):
+    f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
+    for d in f5:
+        if d not in "0123456789":
+            raise Exception(f"Incorrect zipcode: {f5}")
+    lat, lon = get_lat_lon(int(f5))
+    matches = db.matches.get_matches(eid=eid, restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"])
+    if not matches:
+        db.matches.types.insert_sighting(
+            eid=eid,
+            visual_id=visual_id,
+            time=all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date),
+            lat=lat,
+            lon=lon,
+            partner_account=partner_account,
+            account_link=account_link_id,
+            grouping_id=grouping_id,
+            api_insert=api_insert_id,
+            zip=zipcode
+        )
+    else:
+        raise Exception("Duplicate")
+
+
 def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_date,
                      partner_account, visual_id=None, grouping_id=None, timezone=None):
     f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
