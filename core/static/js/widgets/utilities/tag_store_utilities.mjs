@@ -195,10 +195,10 @@ const generateCheckoutFormTextInput = (inputText, inputType, inputId, inputRequi
     return inputContainer;
 }
 
-const validateFormCompletion = (formResponseValues) =>{
+const validateFormCompletion = (formResponseInputs) =>{
     let formCompletionStatus = true;
-    for(let value of formResponseValues){
-        if(value == "" || value == -1){
+    for(let input of formResponseInputs){
+        if(input.value == "" || input.value == -1){
             formCompletionStatus = false;
         }
     }
