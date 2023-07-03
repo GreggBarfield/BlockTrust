@@ -164,18 +164,21 @@ export class TableWidget extends Widget {
         //Second table
         let accountDataAvailableTotal = 0, globalDataAvailableTotal = 0;
 
-        let qualityGradeToCountAccount = {"Prime":0, "Choice":0, "Select or Lower":0,"Others":0};
-        let qualityGradeToCountGlobal = {"Prime":0, "Choice":0, "Select or Lower":0,"Others":0};
+        let qualityGradeToCountAccount = {"Prime":0, "Choice":0, "Select or Lower":0, "Others":0};
+        let qualityGradeToCountGlobal = {"Prime":0, "Choice":0, "Select or Lower":0, "Others":0};
         for(let dataItem of this.account_usda_quality_grade_distribution)
         {
+            dataItem.data = dataItem.data == "Select"? "Select or Lower": dataItem.data;
             accountDataAvailableTotal += dataItem.count;
-            if(qualityGrades.includes(dataItem.data))
+            if(qualityGrades.includes(dataItem.data)) {
                 qualityGradeToCountAccount[dataItem.data] += dataItem.count;
+            }
             else
                 qualityGradeToCountAccount["Others"] += dataItem.count;
         }
         for(let dataItem of this.global_usda_quality_grade_distribution)
-        {          
+        {       
+            dataItem.data = dataItem.data == "Select"? "Select or Lower": dataItem.data;  
             globalDataAvailableTotal += dataItem.count;
             if(qualityGrades.includes(dataItem.data))
                 qualityGradeToCountGlobal[dataItem.data] += dataItem.count;
@@ -290,7 +293,7 @@ export class TableWidget extends Widget {
                     else if (r.data == "Choice") {
                         yg[1]+=r.count;
                     }
-                    else if (r.data == "Select or Lower") {
+                    else if (r.data.includes("Select")) {
                         yg[2]+=r.count;
                     }
                     else {
@@ -368,7 +371,7 @@ export class TableWidget extends Widget {
                     else if (r.data == "Choice") {
                         yg[1]+=r.count;
                     }
-                    else if (r.data == "Select or Lower") {
+                    else if (r.data.includes("Select")) {
                         yg[2]+=r.count;
                     }
                     else {
