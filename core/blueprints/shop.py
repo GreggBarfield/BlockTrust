@@ -14,6 +14,7 @@ from ..database.tables.product_vendors import ProductVendors
 from ..utilities import crut
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
+from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 from ..renderers.email import render_email
 
 import json
@@ -362,3 +363,33 @@ def serve_update_order():
         return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
         return {"error": str(e)}, HTTP_BAD_REQUEST
+
+
+@bp.route("/shop/send-order-to-herdwhistle-api", methods=["GET"])
+@crut.require_account
+def serve_tag_store_api_test():
+    customer_details = {
+        'name': 'John Smith',
+        'street': "123 Main Street",
+        'street2': False,
+        'city': 'Los Angeles',
+        'state_id': 'California',
+        'zip': '12345',
+        'country_id': 'United States',
+        'phone': '403-123-4567',
+        'email': 'john.smith@test.com',
+        'company_type': 'company',
+        'type': 'contact'
+    }
+    products_list = [{"vendor_product_reference_id": 3740,"quantity": 1},{"vendor_product_reference_id": 3592,"quantity": 2}]
+    herdwhistle_customer_id, herdwhistle_customer_shipping_id = HerdWhistleAPI().create_new_herdwhistle_customer_credentials(customer_details=customer_details)
+    if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
+        herdwhistle_customer_id=herdwhistle_customer_id,
+        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id):
+        sale_order_id = HerdWhistleAPI().create_new_sale_order(
+            herdwhistle_customer_id=herdwhistle_customer_id,
+            herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,
+            products_list=products_list
+        )
+        print(sale_order_id)
+    return {}

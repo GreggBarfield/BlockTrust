@@ -135,6 +135,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         // Updating order as paid
         if(paymentIntent.status === 'succeeded'){
+            this.updatePaymentButton("Payment Successful! Confirming Order", true);
             let response = await fetch(
                 '/shop/update-order',{
                     method: 'POST',
@@ -148,11 +149,20 @@ export class CheckoutPaymentWidget extends Widget {
                     })
                 }
             );
-            if(response.ok){
-                this.updatePaymentButton("Success! Redirecting...", true);
-            }
         }
-        window.location.href = '/shop/invoice';
+        let sendOrderToHerdWhistle = await fetch(
+            '/shop/send-order-to-herdwhistle-api',{
+                method: 'POST',
+                header: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    orderDetails: localStorage.getItem("orderDetails")
+                })
+            }
+        );
+        // window.location.href = '/shop/invoice';
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{
