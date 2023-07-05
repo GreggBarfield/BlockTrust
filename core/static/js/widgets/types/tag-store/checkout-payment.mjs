@@ -135,7 +135,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         // Updating order as paid
         if(paymentIntent.status === 'succeeded'){
-            this.updatePaymentButton("Payment Successful! Confirming Order", true);
+            this.updatePaymentButton("Payment Successful! Confirming Order ...", true);
             let response = await fetch(
                 '/shop/update-order',{
                     method: 'POST',
@@ -162,7 +162,8 @@ export class CheckoutPaymentWidget extends Widget {
                 })
             }
         );
-        // window.location.href = '/shop/invoice';
+        this.updatePaymentButton("Order Confirmed!", true);
+        window.location.href = '/shop/invoice';
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{

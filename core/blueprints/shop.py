@@ -5,6 +5,7 @@ from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
 from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY
+from ..database.tables.herdwhistle_identifiers_for_accounts import HerdwhistleIdentifiersForAccounts
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
@@ -313,8 +314,8 @@ def serve_update_order():
                 'shipping_zip_code': order_details["zip_code"],
                 'cart': shopping_cart,
                 'premise_id': premise_id
-            }),
-            order_details["email"]
+            }),"nisheet.thakur@blocktrustnetwork.com"
+            # order_details["email"]
         )
         vendor_oriented_cart = {}
         for product_id, product_details in shopping_cart.items():
@@ -341,7 +342,8 @@ def serve_update_order():
                     'cart': products_list,
                     'premise_id': premise_id
                 }),
-                vendor_email
+                "nisheet.thakur@blocktrustnetwork.com"
+            # vendor_email
             )
 
         send_multiple_tag_store_email(
@@ -362,38 +364,53 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            [ADMIN_EMAIL]
+            ["nisheet.thakur@blocktrustnetwork.com"]
+            # [ADMIN_EMAIL]
         )
         return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
         return {"error": str(e)}, HTTP_BAD_REQUEST
 
 
-@bp.route("/shop/send-order-to-herdwhistle-api", methods=["GET"])
+@bp.route("/shop/send-order-to-herdwhistle-api", methods=["GET", "POST"])
 @crut.require_account
 def serve_tag_store_api_test():
+    data = json.loads(request.data)
+    order_details = eval(data["orderDetails"])
+    shopping_cart = eval(order_details["shopping_cart"])
     customer_details = {
-        'name': 'John Smith',
-        'street': "123 Main Street",
+        'name': order_details["first_name"] + " " + order_details["last_name"],
+        'street': order_details["address_line"],
         'street2': False,
-        'city': 'Los Angeles',
-        'state_id': 'California',
-        'zip': '12345',
+        'city': order_details["city"],
+        'state_id': order_details["state"],
+        'zip': order_details["zip_code"],
         'country_id': 'United States',
-        'phone': '403-123-4567',
-        'email': 'john.smith@test.com',
+        'phone': order_details["phone"],
+        'email': order_details["email"],
         'company_type': 'company',
         'type': 'contact'
     }
-    products_list = [{"vendor_product_reference_id": 3740,"quantity": 1},{"vendor_product_reference_id": 3592,"quantity": 2}]
-    herdwhistle_customer_id, herdwhistle_customer_shipping_id = HerdWhistleAPI().create_new_herdwhistle_customer_credentials(customer_details=customer_details)
+    herdwhistle_identifiers_for_account = HerdwhistleIdentifiersForAccounts(g.db).get(account_id=g.account.id())
+    if len(herdwhistle_identifiers_for_account) > 0:
+        herdwhistle_customer_id = herdwhistle_identifiers_for_account[0]["herdwhistle_customer_id"]
+        herdwhistle_customer_shipping_id = herdwhistle_identifiers_for_account[0]["herdwhistle_customer_shipping_id"]
+    else:
+        herdwhistle_customer_id, herdwhistle_customer_shipping_id = HerdWhistleAPI().create_new_herdwhistle_customer_credentials(
+            customer_details=customer_details
+        )
+        HerdwhistleIdentifiersForAccounts(g.db).insert(
+            account_id=g.account.id(),
+            herdwhistle_customer_id=herdwhistle_customer_id,
+            herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
+        )
     if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
         herdwhistle_customer_id=herdwhistle_customer_id,
         herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id):
         sale_order_id = HerdWhistleAPI().create_new_sale_order(
             herdwhistle_customer_id=herdwhistle_customer_id,
             herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,
-            products_list=products_list
+            shopping_cart=shopping_cart
         )
-        print(sale_order_id)
-    return {}
+        Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
+    return Response(status=HTTP_NO_CONTENT)
