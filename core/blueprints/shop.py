@@ -314,8 +314,8 @@ def serve_update_order():
                 'shipping_zip_code': order_details["zip_code"],
                 'cart': shopping_cart,
                 'premise_id': premise_id
-            }),"nisheet.thakur@blocktrustnetwork.com"
-            # order_details["email"]
+            }),
+            order_details["email"]
         )
         vendor_oriented_cart = {}
         for product_id, product_details in shopping_cart.items():
@@ -342,8 +342,7 @@ def serve_update_order():
                     'cart': products_list,
                     'premise_id': premise_id
                 }),
-                "nisheet.thakur@blocktrustnetwork.com"
-            # vendor_email
+                vendor_email
             )
 
         send_multiple_tag_store_email(
@@ -364,8 +363,7 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            ["nisheet.thakur@blocktrustnetwork.com"]
-            # [ADMIN_EMAIL]
+            [ADMIN_EMAIL]
         )
         return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
