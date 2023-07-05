@@ -370,7 +370,7 @@ def serve_update_order():
         return {"error": str(e)}, HTTP_BAD_REQUEST
 
 
-@bp.route("/shop/send-order-to-herdwhistle-api", methods=["GET", "POST"])
+@bp.route("/shop/send-order-to-herdwhistle-api", methods=["POST"])
 @crut.require_account
 def serve_tag_store_api_test():
     data = json.loads(request.data)
