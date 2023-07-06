@@ -10,29 +10,20 @@ export class CheckoutWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         this.inputs = {};
-        this.inputs.firstNameInput = {};
-        this.inputs.lastNameInput = {}
-        this.inputs.companyInput = {};
-        this.inputs.addressInput = {};
-        this.inputs.cityInput = {};
-        this.inputs.stateInput = {};
-        this.inputs.zipCodeInput = {};
-        this.inputs.phoneInput = {};
-        this.inputs.emailInput = {};
-        let accountData = {};
-        accountData.firstName = this.frame.getAttribute("data-widget-first-name");
-        accountData.lastName = this.frame.getAttribute("data-widget-last-name");
-        accountData.company = this.frame.getAttribute("data-widget-company-name");
-        accountData.address = this.frame.getAttribute("data-widget-address");
-        accountData.city = this.frame.getAttribute("data-widget-city");
-        accountData.state = this.frame.getAttribute("data-widget-state");
-        accountData.zipCode = this.frame.getAttribute("data-widget-zip");
-        accountData.phone = this.frame.getAttribute("data-widget-phone");
-        let checkoutPage = this.makeCheckoutPage(accountData);
+        this.inputs.firstNameInput = this.generateCheckoutFormTextInput("*First Name", "text", "first_name", true, this.frame.getAttribute("data-widget-first-name"));
+        this.inputs.lastNameInput = this.generateCheckoutFormTextInput("*Last Name", "text", "last_name", true, this.frame.getAttribute("data-widget-last-name"));
+        this.inputs.companyInput = this.generateCheckoutFormTextInput("*Company", "text", "company", true, this.frame.getAttribute("data-widget-company-name"));
+        this.inputs.addressInput = this.generateCheckoutFormTextInput("*Address", "text", "address", true, this.frame.getAttribute("data-widget-address"));
+        this.inputs.cityInput = this.generateCheckoutFormTextInput("*City", "text", "city", true, this.frame.getAttribute("data-widget-city"));
+        this.inputs.stateInput = this.generateCheckoutFormDropDownInput("state", states, "---Please select shipping state---", true, this.frame.getAttribute("data-widget-state"));
+        this.inputs.zipCodeInput = this.generateCheckoutFormTextInput("*Zip Code", "text", "zip_code", true, this.frame.getAttribute("data-widget-zip"));
+        this.inputs.phoneInput = this.generateCheckoutFormTextInput("*Phone", "text", "phone", true, this.frame.getAttribute("data-widget-phone"));
+        this.inputs.emailInput = this.generateCheckoutFormTextInput("*Email", "email", "email", true);
+        let checkoutPage = this.makeCheckoutPage();
         this.frame.append(checkoutPage);
     }
 
-    makeCheckoutPage = (accountData) =>{
+    makeCheckoutPage = () =>{
         let checkoutPageCard = document.createElement("div");
         checkoutPageCard.className = "card border rounded";
 
@@ -49,7 +40,7 @@ export class CheckoutWidget extends Widget {
 
         let checkoutFormContainer = document.createElement("div");
         checkoutFormContainer.className = "col-md-9";
-        let checkoutForm = this.makeCheckoutForm(accountData);
+        let checkoutForm = this.makeCheckoutForm();
         checkoutFormContainer.append(checkoutForm);
         checkoutPageCardBody.append(checkoutFormContainer);
 
@@ -65,7 +56,7 @@ export class CheckoutWidget extends Widget {
         return checkoutPageCard;
     }
 
-    makeCheckoutForm = (accountData) =>{
+    makeCheckoutForm = () =>{
         let checkoutFormContainer = document.createElement("div");
 
         let checkoutFormContainerHeader = document.createElement("h4");
@@ -80,39 +71,30 @@ export class CheckoutWidget extends Widget {
         
         let personalDetailsInputsRow = document.createElement("div");
         personalDetailsInputsRow.className = "row";
-        this.inputs.firstNameInput = this.generateCheckoutFormTextInput("*First Name", "text", "first_name", true, accountData.firstName);
         let firstNameInputContainer = this.generateContainer(this.inputs.firstNameInput, "col-md-6");
         personalDetailsInputsRow.append(firstNameInputContainer);
-        this.inputs.lastNameInput = this.generateCheckoutFormTextInput("*Last Name", "text", "last_name", true, accountData.lastName);
         let lastNameInputContainer = this.generateContainer(this.inputs.lastNameInput, "col-md-6");
         personalDetailsInputsRow.append(lastNameInputContainer);
-        this.inputs.companyInput = this.generateCheckoutFormTextInput("*Company", "text", "company", true, accountData.company);
         let companyInputContainer = this.generateContainer(this.inputs.companyInput, "col-md-6");
         personalDetailsInputsRow.append(companyInputContainer);
         checkoutForm.append(personalDetailsInputsRow);
 
         let shippingAddressDetailsInputsRow = document.createElement("div");
         shippingAddressDetailsInputsRow.className = "row";
-        this.inputs.addressInput = this.generateCheckoutFormTextInput("*Address", "text", "address", true, accountData.address);
         let addressInputContainer = this.generateContainer(this.inputs.addressInput, "col-md-6");
         shippingAddressDetailsInputsRow.append(addressInputContainer);
-        this.inputs.cityInput = this.generateCheckoutFormTextInput("*City", "text", "city", true, accountData.city);
         let cityInputContainer = this.generateContainer(this.inputs.cityInput, "col-md-6");
         shippingAddressDetailsInputsRow.append(cityInputContainer);
-        this.inputs.stateInput = this.generateCheckoutFormDropDownInput("state", states, "---Please select shipping state---", true, accountData.state);
         let stateInputContainer = this.generateContainer(this.inputs.stateInput, "col-md-6");
         shippingAddressDetailsInputsRow.append(stateInputContainer);
-        this.inputs.zipCodeInput = this.generateCheckoutFormTextInput("*Zip Code", "text", "zip_code", true, accountData.zipCode);
         let zipCodeInputContainer = this.generateContainer(this.inputs.zipCodeInput, "col-md-6");
         shippingAddressDetailsInputsRow.append(zipCodeInputContainer);
         checkoutForm.append(shippingAddressDetailsInputsRow);
 
         let contactDetailsInputsRow = document.createElement("div");
         contactDetailsInputsRow.className = "row";
-        this.inputs.phoneInput = this.generateCheckoutFormTextInput("*Phone", "text", "phone", true, accountData.phone);
         let phoneInputContainer = this.generateContainer(this.inputs.phoneInput, "col-md-6");
         contactDetailsInputsRow.append(phoneInputContainer);
-        this.inputs.emailInput = this.generateCheckoutFormTextInput("*Email", "email", "email", true);
         let emailInputContainer = this.generateContainer(this.inputs.emailInput, "col-md-6");
         contactDetailsInputsRow.append(emailInputContainer);
         checkoutForm.append(contactDetailsInputsRow);
