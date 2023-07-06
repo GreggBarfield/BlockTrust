@@ -27,6 +27,8 @@ class HerdWhistleAPI:
                 customer_details["state_id"] = False
         herdwhistle_customer_id = self.execute_remote_procedure_call('res.partner', 'create', [customer_details])
         customer_details["parent_id"] = herdwhistle_customer_id
+        customer_details["company_type"] = "person"
+        customer_details["type"] = "delivery"
         herdwhistle_customer_shipping_id = self.execute_remote_procedure_call('res.partner', 'create', [customer_details])
         return herdwhistle_customer_id, herdwhistle_customer_shipping_id
 
