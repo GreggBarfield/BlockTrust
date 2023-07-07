@@ -32,7 +32,7 @@ class VendorIdentifiersForAccounts:
     def get(self, id=NO_VALUE, account_id=NO_VALUE, product_vendor_id=NO_VALUE, vendor_customer_id=NO_VALUE,
             vendor_customer_shipping_id=NO_VALUE):
         """
-        Gets the Vendor identifiers for an account based on attributed provided
+        Gets the Vendor identifiers for an account based on attributes provided
 
         Params:
             vendor_customer_id: Vendor Customer ID for given account
