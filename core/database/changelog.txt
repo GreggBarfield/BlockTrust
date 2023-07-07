@@ -2022,11 +2022,12 @@ VALUES ("HerdWhistle™ One Piece UHF Ear Tags ","HW_one_piece_UHF_ear_tags.png"
 
 
 /* Nisheet Thakur 07/04/2023 */
-CREATE TABLE `herdwhistle_identifiers_for_accounts` (
+CREATE TABLE `vendor_identifiers_for_accounts` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `account_id` INT NULL,
-  `herdwhistle_customer_id` INT NULL,
-  `herdwhistle_customer_shipping_id` INT NULL,
+  `product_vendor_id` INT NULL,
+  `vendor_customer_id` INT NULL,
+  `vendor_customer_shipping_id` INT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));

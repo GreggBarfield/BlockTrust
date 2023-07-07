@@ -5,13 +5,13 @@ from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
 from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY
-from ..database.tables.herdwhistle_identifiers_for_accounts import HerdwhistleIdentifiersForAccounts
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
 from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.vendor_identifiers_for_account import VendorIdentifiersForAccounts
 from ..utilities import crut
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
@@ -373,6 +373,7 @@ def serve_update_order():
 @bp.route("/shop/send-order-to-herdwhistle-api", methods=["POST"])
 @crut.require_account
 def serve_tag_store_api_test():
+    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
     data = json.loads(request.data)
     order_details = eval(data["orderDetails"])
     shopping_cart = eval(order_details["shopping_cart"])
@@ -389,18 +390,22 @@ def serve_tag_store_api_test():
         'company_type': 'company',
         'type': 'contact'
     }
-    herdwhistle_identifiers_for_account = HerdwhistleIdentifiersForAccounts(g.db).get(account_id=g.account.id())
+    herdwhistle_identifiers_for_account = VendorIdentifiersForAccounts(g.db).get(
+        product_vendor_id=herd_whistle_data[0]["id"],
+        account_id=g.account.id()
+    )
     if len(herdwhistle_identifiers_for_account) > 0:
-        herdwhistle_customer_id = herdwhistle_identifiers_for_account[0]["herdwhistle_customer_id"]
-        herdwhistle_customer_shipping_id = herdwhistle_identifiers_for_account[0]["herdwhistle_customer_shipping_id"]
+        herdwhistle_customer_id = herdwhistle_identifiers_for_account[0]["vendor_customer_id"]
+        herdwhistle_customer_shipping_id = herdwhistle_identifiers_for_account[0]["vendor_customer_shipping_id"]
     else:
         herdwhistle_customer_id, herdwhistle_customer_shipping_id = HerdWhistleAPI().create_new_herdwhistle_customer_credentials(
             customer_details=customer_details
         )
-        HerdwhistleIdentifiersForAccounts(g.db).insert(
+        VendorIdentifiersForAccounts(g.db).insert(
             account_id=g.account.id(),
-            herdwhistle_customer_id=herdwhistle_customer_id,
-            herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
+            product_vendor_id=herd_whistle_data[0]["id"],
+            vendor_customer_id=herdwhistle_customer_id,
+            vendor_customer_shipping_id=herdwhistle_customer_shipping_id
         )
     if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
         herdwhistle_customer_id=herdwhistle_customer_id,
