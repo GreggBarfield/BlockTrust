@@ -92,7 +92,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         ).then((r) => r.json());
         if(error){
-            this.updatePaymentStatusMessage(error, "text-danger");
+            this.updatePaymentStatusMessage(error, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -112,7 +112,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         ).then((r) => r.json());
         if(backendError){
-            this.updatePaymentStatusMessage(backendError.message, "text-danger");
+            this.updatePaymentStatusMessage(backendError.message, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -129,7 +129,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         );
         if(stripeError){
-            this.updatePaymentStatusMessage(stripeError.message, "text-danger");
+            this.updatePaymentStatusMessage(stripeError.message, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -149,6 +149,7 @@ export class CheckoutPaymentWidget extends Widget {
                 }
             );
             if(response.ok){
+                this.updatePaymentStatusMessage("", "d-none");
                 this.updatePaymentButton("Success! Redirecting...", true);
             }
         }
@@ -157,7 +158,6 @@ export class CheckoutPaymentWidget extends Widget {
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{
         let paymentStatusMessage = document.getElementById("checkout-payment-status-message");
-        paymentStatusMessage.style.display = 'block';
         paymentStatusMessage.className = statusClassName;
         paymentStatusMessage.textContent = statusTextContent;
     }
