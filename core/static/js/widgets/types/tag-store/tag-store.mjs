@@ -46,8 +46,10 @@ export class TagStoreWidget extends Widget {
         cardBody.className = "card-body row";
         for(let product of products){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
+                let productCardContainer = document.createElement("div");
+                productCardContainer.className = "col-md-4";
                 let productCard = document.createElement("div");
-                productCard.className = "card col-md-4 border border-dark rounded";
+                productCard.className = "card border border-dark rounded m-1 p-1";
 
                 let productCardBody = document.createElement("div");
                 productCardBody.className = "card-body";
@@ -83,8 +85,9 @@ export class TagStoreWidget extends Widget {
                 productCardFooterModalButtonContainer.append(addToCartButton);
                 productCardFooter.append(productCardFooterModalButtonContainer);
                 productCard.append(productCardFooter);
-                    
-                cardBody.append(productCard);
+                productCardContainer.append(productCard);
+                
+                cardBody.append(productCardContainer);
             }
         }
         // Hide Product category cards that have no products
