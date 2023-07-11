@@ -193,3 +193,74 @@ class Orders:
             return order_rows
         else:
             return []
+
+    def update(self, id, account=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE, shipping_state=NO_VALUE,
+                   shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE, email=NO_VALUE, phone=NO_VALUE,
+                   discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE, total_cart=NO_VALUE, grand_total=NO_VALUE,
+                   premise_id=NO_VALUE, stripe_paid=NO_VALUE, herdwhistle_sale_order_id=NO_VALUE):
+        """
+        Update orders based on attributes provided
+        """
+        base_query = "UPDATE orders"
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if account is not NO_VALUE:
+            query_conditions.append("account = %(account)s ")
+            query_values["account"] = account
+        if shipping_address is not NO_VALUE:
+            query_conditions.append("shipping_address = %(shipping_address)s ")
+            query_values["shipping_address"] = shipping_address
+        if shipping_city is not NO_VALUE:
+            query_conditions.append("shipping_city = %(shipping_city)s ")
+            query_values["shipping_city"] = shipping_city
+        if shipping_state is not NO_VALUE:
+            query_conditions.append("shipping_state = %(shipping_state)s ")
+            query_values["shipping_state"] = shipping_state
+        if shipping_zipcode is not NO_VALUE:
+            query_conditions.append("shipping_zipcode = %(shipping_zipcode)s ")
+            query_values["shipping_zipcode"] = shipping_zipcode
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s ")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s ")
+            query_values["last_name"] = last_name
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s ")
+            query_values["email"] = email
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s ")
+            query_values["phone"] = phone
+        if discount is not NO_VALUE:
+            query_conditions.append("discount = %(discount)s ")
+            query_values["discount"] = discount
+        if total_tax is not NO_VALUE:
+            query_conditions.append("total_tax = %(total_tax)s ")
+            query_values["total_tax"] = total_tax
+        if total_shipping is not NO_VALUE:
+            query_conditions.append("total_shipping = %(total_shipping)s ")
+            query_values["total_shipping"] = total_shipping
+        if total_cart is not NO_VALUE:
+            query_conditions.append("total_cart = %(total_cart)s ")
+            query_values["total_cart"] = total_cart
+        if grand_total is not NO_VALUE:
+            query_conditions.append("grand_total = %(grand_total)s ")
+            query_values["grand_total"] = grand_total
+        if premise_id is not NO_VALUE:
+            query_conditions.append("premise_id = %(premise_id)s ")
+            query_values["premise_id"] = premise_id
+        if stripe_paid is not NO_VALUE:
+            query_conditions.append("stripe_paid = %(stripe_paid)s ")
+            query_values["stripe_paid"] = stripe_paid
+        if herdwhistle_sale_order_id is not NO_VALUE:
+            query_conditions.append("herdwhistle_sale_order_id = %(herdwhistle_sale_order_id)s ")
+            query_values["herdwhistle_sale_order_id"] = herdwhistle_sale_order_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Products")
