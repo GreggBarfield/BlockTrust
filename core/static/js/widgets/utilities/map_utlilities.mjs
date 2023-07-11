@@ -115,8 +115,6 @@ const generateLegendTable = (markersColorList) =>{
         markerNameCell.textContent = markerName;
         legendRow.append(markerNameCell);
         let colorCell = document.createElement("td");
-        //colorCell.style.backgroundColor=color;
-        //colorCell.style.maxWidth = "20";
         colorCell.className = "m-1 p-1";
         colorCell.style = "background-color:"+color+";width:20px;"
         legendRow.append(colorCell);
