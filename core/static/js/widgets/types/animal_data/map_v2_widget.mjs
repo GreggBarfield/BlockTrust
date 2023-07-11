@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { loadGoogleMapsAPI, generateAccountInformationContainer, colorMap } from '../../utilities/map_utlilities.mjs';
+import { loadGoogleMapsAPI, generateAccountInformationContainer, generateLegendTable, colorMap } from '../../utilities/map_utlilities.mjs';
 
 export class MapV2Widget extends Widget {
     constructor(frame) {
@@ -55,6 +55,7 @@ export class MapV2Widget extends Widget {
         let sectorsIdToNameData = await this.getData("direct/sectors_id_to_name", {});
         let sectorsIDToName = sectorsIdToNameData.sectors_id_to_name;
         this.generateMap(map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow);
+        this.generateMapLegend(map, colorMap)
     }
 
     generateMap = (map, matchRows, sectorsIDToName, Marker, AdvancedMarkerElement, PinElement, InfoWindow) =>{
@@ -102,5 +103,16 @@ export class MapV2Widget extends Widget {
         markerClustererScript.onload = () =>{
             const markerCluster = new markerClusterer.MarkerClusterer({map, markers});
         }
+    }
+    
+    generateMapLegend = (map, colorMap) =>{
+        let legendContainer = document.createElement("div");
+        legendContainer.className = "card m-1 p-1";
+        let legendContainerBody = document.createElement("div");
+        legendContainerBody.className = "card-body col";
+        let legendTable = generateLegendTable(colorMap);
+        legendContainerBody.append(legendTable);
+        legendContainer.append(legendContainerBody);
+        map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(legendContainer);
     }
 }

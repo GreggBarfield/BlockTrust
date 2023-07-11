@@ -104,8 +104,24 @@ const formatDate = (epoch) =>{
     return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
 }
 
+const generateLegendTable = (markersColorList) =>{
+    let legendTable = document.createElement("table");
+    for(let [markerName, color] of Object.entries(markersColorList)){
+        let legendRow = document.createElement("tr");
+        let markerNameCell = document.createElement("td");
+        markerNameCell.textContent = markerName;
+        legendRow.append(markerNameCell);
+        let colorCell = document.createElement("td");
+        colorCell.textContent = color;
+        legendRow.append(colorCell);
+        legendTable.append(legendRow);
+    }
+    return legendTable;
+}
+
 export {
     loadGoogleMapsAPI,
     generateAccountInformationContainer,
+    generateLegendTable,
     colorMap
 }
