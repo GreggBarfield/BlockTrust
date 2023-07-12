@@ -71,7 +71,7 @@ export class MapV2Widget extends Widget {
             let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
             let accountSectorID = matchRow["account_links.sector"];
             let accountSectorName = sectorsIDToName[accountSectorID];
-            // Generating cutom Pin element and Marker
+            // Generating custom Pin element and Marker
             let markerBackground = new PinElement({
                 scale: 0.6,
                 background: colorMap[accountSectorName],
