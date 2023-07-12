@@ -81,7 +81,6 @@ const getShoppingCartTotalsData = () =>{
         }
     }
     else{
-        console.log(typeof(localStorage.getItem("totalPrice")));
         shoppingCartTotalsData = {
             subtotal: {name: "Subtotal", value: parseFloat(localStorage.getItem("totalPrice")).toFixed(2)},
             shipping: {name: "Shipping", value: localStorage.getItem("shipping")},
