@@ -1,0 +1,16 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Order History" %}
+{% set dashboard_locations = [] %}
+{% block dashboard_content_header %}
+Order History
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class = "col-sm-12 mb-0 widget" data-widget-type = "order history"></div>
+    </div>
+</div>
+{% endblock dashboard_content %}

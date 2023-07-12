@@ -417,3 +417,9 @@ def serve_tag_store_api_test():
         )
         Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
     return Response(status=HTTP_NO_CONTENT)
+
+
+@bp.route("/shop/view-order-history", methods=["GET"])
+@crut.require_account
+def serve_view_order_history():
+    return dashboard_render("tag-store/view-order-history.html")
