@@ -77,8 +77,8 @@ export class TagStoreWidget extends Widget {
                 productCardFooterModalButtonContainer.className = "col-md-4 pt-2";
                 let addToCartButton = document.createElement("button");
 
-                addToCartButton.className = "btn btn-outline-primary m-0 p-1";
-                addToCartButton.textContent = "Add to Cart";
+                addToCartButton.className = "btn btn-outline-primary m-0 p-2";
+                addToCartButton.textContent = "More Details";
                 addToCartButton.onclick = () =>{
                     this.generateProductInfoModal(product);
                 }
@@ -133,7 +133,7 @@ export class TagStoreWidget extends Widget {
         productPriceIcon.className = "far fa-bookmark mr-1";
         productPriceContainer.append(productPriceIcon);
         let productPrice = document.createElement("h6");
-        productPrice.textContent = "Price: $" + productData.price;
+        productPrice.textContent = "Price: $" + productData.price.toFixed(2);
         productPriceContainer.append(productPrice);
         productDetailsContainer.append(productPriceContainer);
 

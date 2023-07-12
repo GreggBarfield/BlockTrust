@@ -81,12 +81,13 @@ const getShoppingCartTotalsData = () =>{
         }
     }
     else{
+        console.log(typeof(localStorage.getItem("totalPrice")));
         shoppingCartTotalsData = {
-            subtotal: {name: "Subtotal", value: localStorage.getItem("totalPrice")},
+            subtotal: {name: "Subtotal", value: parseFloat(localStorage.getItem("totalPrice")).toFixed(2)},
             shipping: {name: "Shipping", value: localStorage.getItem("shipping")},
-            tax: {name: "Tax", value: localStorage.getItem("totalTax")},
+            tax: {name: "Tax", value: parseFloat(localStorage.getItem("totalTax")).toFixed(2)},
             discount: {name: "Discount", value: localStorage.getItem("discount")},
-            total: {name: "Total", value: localStorage.getItem("grandTotal")}
+            total: {name: "Total", value: parseFloat(localStorage.getItem("grandTotal")).toFixed(2)}
         }
     }
     return shoppingCartTotalsData;
@@ -161,9 +162,10 @@ const makeShoppingCartTableProductRow = (productData, includeRemoveProductButton
     tableProductRow.append(productNameCell);
     let productQuantityCell = generateTableCell(productData.quantity+" "+productData.product_units, "td", "h6");
     tableProductRow.append(productQuantityCell);
-    let productPriceCell = generateTableCell("$" + productData.price, "td", "h6");
+    let productPriceCell = generateTableCell("$" + productData.price.toFixed(2), "td", "h6");
     tableProductRow.append(productPriceCell);
-    let productTotalCell = generateTableCell("$" + productData.price * productData.quantity, "td", "h6");
+    let productTotal = productData.price * productData.quantity;
+    let productTotalCell = generateTableCell("$" + productTotal.toFixed(2), "td", "h6");
     tableProductRow.append(productTotalCell);
     if(includeRemoveProductButton){
         let removeProductButtonCell = document.createElement("td");
