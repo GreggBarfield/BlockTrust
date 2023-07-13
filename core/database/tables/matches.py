@@ -254,10 +254,10 @@ class Matches:
 
         if len(selectColumns) > 0:
             incorrect_cols = [col for col in selectColumns if col not in self._match_cols]
-            
+
             if len(incorrect_cols) > 0:
                 raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in match table")
-            
+
             base_query = "SELECT "
             if use_distinct:
                 base_query += "DISTINCT "
@@ -275,7 +275,7 @@ class Matches:
         if visual_id is not NO_VALUE:
             query_conditions.append("visual_id = %(visual_id)s" if visual_id is not None else "visual_id IS %(visual_id)s")
             query_values["visual_id"] = visual_id
-        
+
         if visual_id_has_value != NO_VALUE:
             if visual_id_has_value is True:
                 query_conditions.append("visual_id IS NOT NULL")
@@ -331,10 +331,12 @@ class Matches:
         else:
             return []
 
-    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_visual_id=NO_VALUE, matches_restrict_type=NO_VALUE, 
-                                       matches_order_by=NO_VALUE, matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
-                                       account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE, is_distinct=False,
-                                       matches_cols=(), account_links_multiple_account_ids=()):
+    def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_eids=NO_VALUE, matches_visual_id=NO_VALUE,
+                                       matches_restrict_type=NO_VALUE, matches_order_by=NO_VALUE,
+                                       matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
+                                       account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE,
+                                       is_distinct=False, matches_cols=(), account_links_multiple_account_ids=(),
+                                       account_links_partner_account=NO_VALUE):
         """
         Get matches with account_links (if any) by the values specified. If no account_links exist for a match,
         only the match is returned
@@ -350,7 +352,7 @@ class Matches:
 
         if len(matches_cols) > 0:
             incorrect_cols = [col for col in matches_cols if col not in self._match_cols]
-            
+
             if len(incorrect_cols) > 0:
                 raise MatchesException("Selected column(s) " + ",".join(incorrect_cols) + " don't exist in matches table")
 
@@ -367,7 +369,10 @@ class Matches:
         if matches_eid is not NO_VALUE:
             query_conditions.append("m.eid = %(matches_eid)s" if matches_eid is not None else "m.eid IS %(matches_eid)s")
             query_values["matches_eid"] = matches_eid
-
+        elif matches_eids is not NO_VALUE:
+            if not all(isinstance(eid, int) for eid in matches_eids):
+                raise MatchesException("Not all EIDs are integers") 
+            query_conditions.append(f"m.eid IN ({','.join([str(match) for match in matches_eids])})")
         if matches_visual_id is not NO_VALUE:
             query_conditions.append("m.visual_id = %(matches_visual_id)s" if matches_visual_id is not None else "m.visual_id IS %(matches_visual_id)s")
             query_values["matches_visual_id"] = matches_visual_id
@@ -383,6 +388,10 @@ class Matches:
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
             query_values["account_links_sector"] = account_links_sector
+
+        if account_links_partner_account is not NO_VALUE:
+            query_conditions.append("al.partner_account = %(account_links_partner_account)s" if account_links_partner_account is not None else "al.partner_account IS %(account_links_partner_account)s")
+            query_values["account_links_partner_account"] = account_links_partner_account
 
         # cannot pass values for both account_links_account_id AND account_links_multiple_account_ids
         if account_links_account_id is not NO_VALUE:

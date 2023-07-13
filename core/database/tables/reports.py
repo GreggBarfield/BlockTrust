@@ -175,6 +175,18 @@ class Reports:
             for query in queries:
                 self.insert_query(account_id, query)
 
+    def make_partner_reports(self, partner_id, sector_id):
+        if sector_id == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            queries = [
+                count_distribution.create(partner_id, is_partner=True),
+                count_distribution.create(partner_id, "USDA Yield Grade", is_partner=True),
+                count_distribution.create(partner_id, "USDA Quality Grade", is_partner=True),
+                count_eid_distinct_by_account.create(partner_id, is_partner=True)
+            ]
+
+            for query in queries:
+                self.insert_query(partner_id, query)
+
     def make_global_reports(self):
         queries = [
             count_distribution_global.create("USDA Yield Grade"),
