@@ -1,5 +1,7 @@
 from flask import g
-from ....match_types import convert_match_type_names_to_ids
+
+from core.sectors import SECTORS_NAME_TO_ID
+from ....match_types import MATCH_TYPES_NAME_TO_ID, convert_match_type_names_to_ids
 from ....common_exceptions import ExportException
 
 
@@ -24,13 +26,26 @@ def auth(params):
         if g.account.is_partner():
             account = g.db.accounts.get_accounts(id=params["account_id"])[0]
             if account["partner_account"] == g.account.id():
-                return {
-                    "matches": g.db.matches.get_matches(
-                        account_link=g.db.account_links.get_account_links(account_id=account["id"])[0]["id"], 
+                matches = g.db.matches.get_matches(
+                        account_link=g.db.account_links.get_account_links(account_id=account["id"])[0]["id"],
                         restrict_type=convert_match_type_names_to_ids(params['types'])[0],
                         selectColumns=["eid", "visual_id"]
+                )
+                if matches and account["sector"] != SECTORS_NAME_TO_ID["Cow-Calf"]:
+                    owner_data = g.db.matches.get_matches_with_account_links(
+                        matches_eids=tuple(match["eid"] for match in matches),
+                        matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
+                        account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created"
                     )
+                    for match in matches:
+                        owner = list(filter(lambda o: o["eid"] == match["eid"], owner_data))
+                        match["name"] = owner[0]["name"] if owner else None
+                        match["visual_id"] = owner[0]["visual_id"] if owner else match["visual_id"]
+
+                return {
+                    "matches": matches
                 }
+
             else:
                 raise ExportException("Unauthorized")
         else:
