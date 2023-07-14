@@ -92,24 +92,20 @@ export class SourceSummaryWidget extends Widget {
         return exportTable;
     }
 
-    makeAnimals(matchRows) {
+    makeAnimals(matchRows, isNameAvailable) {
         let animals = {};
 
         for (const match_row of matchRows) {
-            if (!(match_row.eid in animals)) {
-                animals[match_row.eid] = {
-                    "visual_id": "(no data)"
-                };
+            animals[match_row.eid] = {}
+            animals[match_row.eid]["visual_id"] = match_row.visual_id? match_row.visual_id : "(no data)";
+            if (isNameAvailable) {
+                animals[match_row.eid]["name"] = match_row.name? match_row.name : "(no data)";
             }
-            if(match_row.visual_id != null)
-                animals[match_row.eid]["visual_id"] = match_row.visual_id;
         }
         return animals;
     }
 
     makeDisplayTable(matchRows) {
-
-        let animals = this.makeAnimals(matchRows);
 
         this.divTableResponsive = document.createElement("div");
         this.divTableResponsive.className = "dt-responsive table-responsive";
@@ -118,55 +114,70 @@ export class SourceSummaryWidget extends Widget {
         this.mainTable.className = "table table-striped table-bordered nowrap";
         this.divTableResponsive.appendChild(this.mainTable);
 
-        // Header
+        if (matchRows.length){
+            // Header
+            this.mainTableHead = document.createElement("thead");
+            this.mainTable.appendChild(this.mainTableHead);
 
-        this.mainTableHead = document.createElement("thead");
-        this.mainTable.appendChild(this.mainTableHead);
+            this.mainTableHeadRow0 = document.createElement("tr");
+            this.mainTableHead.appendChild(this.mainTableHeadRow0);
 
-        this.mainTableHeadRow0 = document.createElement("tr");
-        this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["EID", "Visual ID", "Options"]
-        for (const headerText of headers) {
-            let th = document.createElement("th");
-            th.textContent = headerText;
-            this.mainTableHeadRow0.appendChild(th);
-        }
-
-        // Body
-        //
-        this.mainTableBody = document.createElement("tbody");
-        this.mainTable.appendChild(this.mainTableBody);
-
-        for (const eid in animals) {
-            let rowTag = document.createElement("tr");
-            this.mainTableBody.appendChild(rowTag);
-
-            let rowPreformat = animals[eid];
-
-            let row = [];
-
-            row.push(eid);
-            row.push(rowPreformat["visual_id"]);
-
-            for (const value of row) {
-                let td = document.createElement("td");
-                td.textContent = value;
-                rowTag.appendChild(td);
+            const isNameAvailable = matchRows.length? "name" in matchRows[0]: false;
+            const headers = isNameAvailable? ["EID", "Ranch", "Visual ID", "Options"] : ["EID", "Visual ID", "Options"]
+            for (const headerText of headers) {
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                this.mainTableHeadRow0.appendChild(th);
             }
 
-            let tdOptions = document.createElement("td");
-            rowTag.appendChild(tdOptions);
+            // Body
+            this.mainTableBody = document.createElement("tbody");
+            this.mainTable.appendChild(this.mainTableBody);
+            let animals = this.makeAnimals(matchRows, isNameAvailable);
+            for (const eid in animals) {
+                let rowTag = document.createElement("tr");
+                this.mainTableBody.appendChild(rowTag);
 
-            let button = document.createElement("a");
-            button.className = "btn btn-outline-secondary btn-sm";
-            button.setAttribute("href", this.frame.getAttribute("data-widget-animal-URL") + eid);
-            button.textContent = "View";
-            tdOptions.appendChild(button);
+                let rowPreformat = animals[eid];
+
+                let row = [];
+
+                row.push(eid);
+                if(isNameAvailable) {
+                    row.push(rowPreformat["name"]);
+                }
+                row.push(rowPreformat["visual_id"]);
+
+                for (const value of row) {
+                    let td = document.createElement("td");
+                    td.textContent = value;
+                    rowTag.appendChild(td);
+                }
+
+                let tdOptions = document.createElement("td");
+                rowTag.appendChild(tdOptions);
+
+                let button = document.createElement("a");
+                button.className = "btn btn-outline-secondary btn-sm";
+                button.setAttribute("href", this.frame.getAttribute("data-widget-animal-URL") + eid);
+                button.textContent = "View";
+                tdOptions.appendChild(button);
+            }
+            $(this.mainTable).DataTable();
+        }
+        else {
+            this.mainTableBody = document.createElement("tbody");
+            let rowTag = document.createElement("tr");
+            this.mainTableBody.appendChild(rowTag);
+            let td = document.createElement("td");
+            td.textContent = "Nothing to show here";
+            td.classList.add("text-center")
+            rowTag.appendChild(td);
+            this.mainTableBody.appendChild(rowTag);
+            this.mainTable.appendChild(this.mainTableBody);
         }
 
         // Put HTML in frame    
-
         this.frame.appendChild(this.divTableResponsive);
-        $(this.mainTable).DataTable();
     }
 }

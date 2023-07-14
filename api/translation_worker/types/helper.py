@@ -1,8 +1,13 @@
 
-from core.database.combinations import perform_feeder_packer_data_received_actions
+from core.database.combinations import (
+    create_connection_with_all_sighted_accounts_for_eid,
+    create_connection_with_eid_owner,
+    perform_feeder_packer_data_received_actions
+)
 from core.database.tables.animals import Animals, AnimalsException
 from api.translation_worker.all_to_unix import all_to_unix
 from core.match_types import MATCH_TYPES_NAME_TO_ID
+from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.zip_codes import get_lat_lon
 
 
@@ -32,7 +37,9 @@ def insert_sighting_if_not_exists(db, eid, account_link_id, api_insert_id, zipco
 
 
 def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_date,
-                     partner_account, visual_id=None, grouping_id=None, timezone=None):
+                     partner_account, account_id=None, sector_id=None, visual_id=None,
+                     grouping_id=None, timezone=None, connection_details=None,
+                     time_delta=0):
     f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
     for d in f5:
         if d not in "0123456789":
@@ -53,7 +60,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
 
         db.matches.update_match(
             id=matches[0]["id"],
-            time=all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date),
+            time=(all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date)) + time_delta,
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -66,7 +73,7 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
         db.matches.types.insert_sighting(
             eid=eid,
             visual_id=visual_id,
-            time=all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date),
+            time=(all_to_unix(sighting_date, timezone) if timezone else all_to_unix(sighting_date)) + time_delta,
             lat=lat,
             lon=lon,
             partner_account=partner_account,
@@ -75,6 +82,17 @@ def process_sighting(db, eid, account_link_id, api_insert_id, zipcode, sighting_
             api_insert=api_insert_id,
             zip=zipcode
         )
+        if account_id and sector_id:
+            if sector_id == SECTORS_NAME_TO_ID["Cow-Calf"]:
+                create_connection_with_all_sighted_accounts_for_eid(
+                    db, eid, account_id,
+                    details=connection_details
+                )
+            else:
+                create_connection_with_eid_owner(
+                    db=db, eid=eid, connecting_account_id=account_id,
+                    details=connection_details
+                )
 
 
 def process_birth_date(db, input_data, eid, partner_account, account_link, api_insert=None, timezone=None):
@@ -200,7 +218,6 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
 
 def process_feeder_data(db, input_data, eid, api_insert_id, timezone=None):
     feeder_data = {}
-    print("input_data", input_data)
     if input_data.get("LotNumber", "").strip():
         feeder_data["lot_number"] = int(input_data["LotNumber"])
     if input_data.get("PenNumber", "").strip():

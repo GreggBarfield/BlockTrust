@@ -52,7 +52,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="sightings" role="tabpanel"
                         aria-labelledby="sightings-tab">
-                        <p class="mb-0 widget" data-widget-type="map" data-widget-match-types="Sighting"
+                        <p class="mb-0 widget" data-widget-type="map v2" data-widget-match-types="Sighting"
                             data-widget-account="{{ partner.id() }}" style='height:400px;'></p>
                     </div>
                     <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
@@ -74,7 +74,7 @@
         </div>
     </div>
 </div>
-{% if partner.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] %}
+{% if partner.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] or partner.sector_id() == SECTORS_NAME_TO_ID["Auction House"] %}
 <div class="row">
     <div class="col-md">
         <div class="card">
