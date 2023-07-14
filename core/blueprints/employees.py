@@ -369,7 +369,7 @@ def serve_create_new_partner_action():
         )
         user_id = Users(g.db).create_pseudo_user(account_id, True)
         AccountUsers(g.db).insert_account_user(user_id, account_id, int(False))
-        Reports(g.db).make_partner_reports(account_id, format_field(required['sector']))
+        Reports(g.db).make_partner_reports(account_id, int(format_field(required['sector'])))
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
