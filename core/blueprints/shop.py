@@ -276,7 +276,8 @@ def serve_create_order():
         data = json.loads(request.data)
         order_details = eval(data["orderDetails"])
         order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
-                                          order_details["state"], order_details["zip_code"])
+                                          order_details["state"], order_details["zip_code"], account_id=g.account.id(),
+                                          user_id=g.user.id())
         shopping_cart = eval(order_details['shopping_cart'])
         for product_id, product_details in shopping_cart.items():
             OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
@@ -422,4 +423,21 @@ def serve_tag_store_api_test():
 @bp.route("/shop/view-order-history", methods=["GET"])
 @crut.require_account
 def serve_view_order_history():
-    return dashboard_render("tag-store/view-order-history.html")
+    user_orders = Orders(g.db).get_orders(account_id=g.account.id(), user_id=g.user.id())
+    return dashboard_render("tag-store/view-order-history.html", {"user_orders": user_orders})
+
+
+@bp.route("/shop/view-order-history/view-order/<int:order_id>", methods=["GET"])
+@crut.require_account
+def serve_view_order(order_id):
+    user_order = Orders(g.db).get_orders(id=order_id, account_id=g.account.id(), user_id=g.user.id())
+    if len(user_order) > 0:
+        user_order = user_order[0]
+        order_products = OrderProducts(g.db).get_order_products(order_id)
+        print(order_products)
+        for product in order_products:
+            product_details = ProductTable(g.db).get_products(id=product["product"])
+            product["product_details"] = product_details[0]
+        return dashboard_render("tag-store/view-order.html", {"order": user_order, "order_products": order_products})
+    else:
+        return dashboard_render("tag-store/order-not-found.html")

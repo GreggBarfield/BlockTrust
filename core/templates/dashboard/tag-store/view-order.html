@@ -1,0 +1,21 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Order History" %}
+{% set dashboard_locations = [] %}
+{% block dashboard_content_header %}
+Order Details
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div 
+            class = "col-sm-12 mb-0 widget"
+            data-widget-type = "view order"
+            data-widget-order = '{{order|tojson}}'
+            data-widget-order-products = '{{order_products|tojson}}'
+        ></div>
+    </div>
+</div>
+{% endblock dashboard_content %}

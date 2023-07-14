@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { makeShoppingCartTable, makeShoppingCartTotalsContainer } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTable, makeShoppingCartTotalsContainer, generateAccountAndShippingInformationContainer, getShoppingCartTotalsData, generateFormattedTextLine } from '../../utilities/tag_store_utilities.mjs';
 
 export class InvoiceWidget extends Widget {
     constructor(frame) {
@@ -51,20 +51,25 @@ export class InvoiceWidget extends Widget {
         cardBody.append(dateContainer);
         cardBody.append(this.generateHorizontalRule());
 
-        let accountAndShippingInformationContainer = this.generateAccountAndShippingInformationContainer();
+        let orderDetailsString=localStorage.getItem("orderDetails");
+        let orderDetails=JSON.parse(orderDetailsString);
+        let accountAndShippingInformationContainer = generateAccountAndShippingInformationContainer(orderDetails);
         cardBody.append(accountAndShippingInformationContainer);
         cardBody.append(this.generateHorizontalRule());
 
         let shoppingCartTableContainer = document.createElement("div");
         shoppingCartTableContainer.className = "col-md-12 m-2";
-        let shoppingCartTable = makeShoppingCartTable(false);
+        let shoppingCartString = localStorage.getItem("shoppingCart");
+        let shoppingCart = JSON.parse(shoppingCartString);
+        let shoppingCartTable = makeShoppingCartTable(shoppingCart, false);
         shoppingCartTableContainer.append(shoppingCartTable);
         cardBody.append(shoppingCartTableContainer);
         cardBody.append(this.generateHorizontalRule());
 
         let shoppingCartTotalsContainer = document.createElement("div");
         shoppingCartTotalsContainer.className = "col-md-6 m-2";
-        let shoppingCartTotals = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let shoppingCartTotals = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         shoppingCartTotalsContainer.append(shoppingCartTotals);
         cardBody.append(shoppingCartTotalsContainer);
 
@@ -93,15 +98,15 @@ export class InvoiceWidget extends Widget {
         addressAndPrintButtonContainer.className = "col-md-12 d-inline-flex m-2";
         let addressContainer = document.createElement("div");
         addressContainer.className = "col-md-6 p-0 m-0";
-        let nameLine = this.generateFormattedTextLine("U.S. CattleTrace", "h6", "font-weight-bold text-secondary");
+        let nameLine = generateFormattedTextLine("U.S. CattleTrace", "h6", "font-weight-bold text-secondary");
         addressContainer.append(nameLine);
-        let streetLine = this.generateFormattedTextLine("414 Lincoln Ave", "h6", "font-weight-bold text-secondary");
+        let streetLine = generateFormattedTextLine("414 Lincoln Ave", "h6", "font-weight-bold text-secondary");
         addressContainer.append(streetLine);
-        let cityLine = this.generateFormattedTextLine("Wamego, KS 66475", "h6", "font-weight-bold text-secondary");
+        let cityLine = generateFormattedTextLine("Wamego, KS 66475", "h6", "font-weight-bold text-secondary");
         addressContainer.append(cityLine);
-        let phoneLine = this.generateFormattedTextLine("785-456-8472", "h6", "font-weight-bold text-secondary");
+        let phoneLine = generateFormattedTextLine("785-456-8472", "h6", "font-weight-bold text-secondary");
         addressContainer.append(phoneLine);
-        let emailLine = this.generateFormattedTextLine("info@uscattletrace.org", "h6", "font-weight-bold text-secondary");
+        let emailLine = generateFormattedTextLine("info@uscattletrace.org", "h6", "font-weight-bold text-secondary");
         addressContainer.append(emailLine);
         addressAndPrintButtonContainer.append(addressContainer);
 
@@ -122,50 +127,9 @@ export class InvoiceWidget extends Widget {
         let month = String(currentDate.getMonth() + 1).padStart(2, '0');
         let year = currentDate.getFullYear();
         currentDate = month + "/" + date + "/" + year;
-        let dateTextLine = this.generateFormattedTextLine("Date:  " + currentDate, "h6", "font-weight-bold text-secondary");
+        let dateTextLine = generateFormattedTextLine("Date:  " + currentDate, "h6", "font-weight-bold text-secondary");
         dateContainer.append(dateTextLine);
         return dateContainer;
-    }
-
-    generateAccountAndShippingInformationContainer = () =>{
-        let orderDetailsString=localStorage.getItem("orderDetails");
-        let orderDetails=JSON.parse(orderDetailsString);
-
-        let accountAndShippingInformationContainer = document.createElement("div");
-        accountAndShippingInformationContainer.className = "col-md-12 d-flex m-2";
-        let accountInformationContainer = document.createElement("div");
-        accountInformationContainer.className = "col-md-6 m-0 p-0";
-        let headerLine = this.generateFormattedTextLine("Account Information", "h6", "font-weight-bold text-secondary");
-        accountInformationContainer.append(headerLine);
-        let nameLine = this.generateFormattedTextLine(orderDetails.first_name + " " + orderDetails.last_name, "h6", "font-weight-bold text-primary");
-        accountInformationContainer.append(nameLine);
-        let addressLine = this.generateFormattedTextLine(orderDetails.address_line, "h6", "font-weight-bold text-primary");
-        accountInformationContainer.append(addressLine);
-        let cityLine = this.generateFormattedTextLine(orderDetails.city + ", " + orderDetails.state + " " +orderDetails.zip_code,"h6", "font-weight-bold text-primary");
-        accountInformationContainer.append(cityLine);
-        accountAndShippingInformationContainer.append(accountInformationContainer);
-        let shippingInformationContainer = document.createElement("div");
-        shippingInformationContainer.className = "col-md-6 m-0 p-0";
-        let shippingHeaderLine = this.generateFormattedTextLine("Shipping Information", "h6", "font-weight-bold text-secondary");
-        shippingInformationContainer.append(shippingHeaderLine);
-        let shippingNameLine = this.generateFormattedTextLine(orderDetails.first_name + " " + orderDetails.last_name, "h6", "font-weight-bold text-primary");
-        shippingInformationContainer.append(shippingNameLine);
-        let shippingAddressLine = this.generateFormattedTextLine(orderDetails.address_line, "h6", "font-weight-bold text-primary");
-        shippingInformationContainer.append(shippingAddressLine);
-        let shippingCityLine = this.generateFormattedTextLine(orderDetails.city + ", " + orderDetails.state + " " +orderDetails.zip_code,"h6", "font-weight-bold text-primary");
-        shippingInformationContainer.append(shippingCityLine);
-        accountAndShippingInformationContainer.append(shippingInformationContainer);
-
-        return accountAndShippingInformationContainer;
-    }
-
-    generateFormattedTextLine = (textContent, textSize, textClassName) =>{
-        let customText = document.createElement(textSize);
-        customText.textContent = textContent;
-        customText.className = textClassName;
-        let lineBreak = document.createElement("br");
-        customText.appendChild(lineBreak);
-        return customText;
     }
 
     generatePrintInvoiceButton = () =>{ 

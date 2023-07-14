@@ -2033,3 +2033,10 @@ CREATE TABLE `vendor_identifiers_for_accounts` (
   PRIMARY KEY (`id`));
 ALTER TABLE `orders`
 ADD COLUMN `herdwhistle_sale_order_id` INT DEFAULT NULL;
+
+
+/* Nisheet Thakur 07/13/2023 */
+ALTER TABLE `orders`
+RENAME COLUMN `account` TO `account_id`;
+ALTER TABLE `orders`
+ADD COLUMN `user_id` INT DEFAULT NULL;

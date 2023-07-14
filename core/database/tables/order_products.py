@@ -43,14 +43,11 @@ class OrderProducts:
         matching_orders = self._db.execute_d(
             """
                 SELECT * FROM order_products
-                WHERE
-                    order=%(order_no)s
+                WHERE `order`=%(order_no)s
             """,
             {
-                "order": order_no
+                "order_no": order_no
             }
         )
 
-        if len(matching_orders) != 1:
-            return {}
         return matching_orders
