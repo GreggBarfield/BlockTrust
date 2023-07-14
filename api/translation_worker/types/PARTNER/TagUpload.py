@@ -39,7 +39,9 @@ def handle(db, insert):
             zipcode = str(account["zip"])
             process_sighting(
                 db, eid, account_link["id"], api_insert, zipcode, sighting_date,
-                insert["account"], visual_id
+                insert["account"], account_id=account["id"], sector_id=account["sector"],
+                visual_id=visual_id,
+                connection_details={"created_by_operation": "Partner Tag Upload", "eid": eid, "api_insert": api_insert}
             )
             process_weaning_data(
                 db, fields, eid, insert["account"], account_link["id"], api_insert
@@ -49,16 +51,9 @@ def handle(db, insert):
             )
             process_animal_characteristics(db, fields, eid, api_insert, visual_id)
 
-            if account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
-                create_connection_with_all_sighted_accounts_for_eid(
-                    db, eid, account["id"],
-                    details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
-                )
-            else:
-                create_connection_with_eid_owner(
-                    db=db, eid=eid, connecting_account_id=account["id"],
-                    details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
-                )
+        else:
+            raise Exception(f"""No account exists for partner: {insert['account']}
+                            and affiliate ID: {fields['affiliate_id']}""")
     else:
-        raise Exception(f"""No account exists for partner: {insert['account']}
+        raise Exception(f"""No account link exists for partner: {insert['account']}
                          and affiliate ID: {fields['affiliate_id']}""")
