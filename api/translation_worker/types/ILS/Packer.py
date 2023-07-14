@@ -1,5 +1,6 @@
 from api.translation_worker.types.helper import (
-    process_grades_and_weight
+    process_grades_and_weight,
+    process_sighting
 )
 from core.database.tables.animals import Animals, AnimalsException
 from core.utilities.zip_codes import get_lat_lon
@@ -92,16 +93,10 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = get_lat_lon(int(f5))
-                    db.matches.types.insert_sighting(
-                        eid=eid,
-                        time=all_to_unix(fields['EIDDate'])-86400,
-                        lat=lat,
-                        lon=lon,
-                        partner_account=partner_account,
-                        account_link=feeder_account_link.id(),
-                        api_insert=api_insert_id,
-                        zip=zipcode
+                    process_sighting(
+                        db, eid, feeder_account_link.id(), api_insert_id, f5, fields['EIDDate'], partner_account,
+                        account_id=feeder_account_link.account_id(), sector_id=feeder_account_link.sector(),
+                        time_delta=-86400
                     )
 
         if ";" in fields["Packer"] or ";" in str(fields["PlantID"]):
@@ -129,16 +124,9 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = get_lat_lon(int(f5))
-                    db.matches.types.insert_sighting(
-                        eid=eid,
-                        time=all_to_unix(fields['EIDDate']),
-                        lat=lat,
-                        lon=lon,
-                        partner_account=partner_account,
-                        account_link=packer_account_link.id(),
-                        api_insert=api_insert_id,
-                        zip=zipcode
+                    process_sighting(
+                        db, eid, packer_account_link.id(), api_insert_id, f5, fields['EIDDate'], partner_account,
+                        account_id=packer_account_link.account_id(), sector_id=packer_account_link.sector(),
                     )
 
         process_grades_and_weight(
@@ -161,18 +149,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = get_lat_lon(int(f5))
-                    db.matches.types.insert_sighting(
-                        eid=eid,
-                        time=all_to_unix(fields['EIDDate']),
-                        lat=lat,
-                        lon=lon,
-                        partner_account=partner_account,
-                        account_link=feeder_account_link.id(),
-                        api_insert=api_insert_id,
-                        zip=zipcode
+                    process_sighting(
+                        db, eid, feeder_account_link.id(), api_insert_id, f5, fields['EIDDate'], partner_account,
+                        account_id=feeder_account_link.account_id(), sector_id=feeder_account_link.sector()
                     )
-
-            perform_feeder_packer_data_received_actions(
-                db, eid, schedule_email=False, feeder_account_id=feeder.id(), api_insert_id=api_insert_id
-            )

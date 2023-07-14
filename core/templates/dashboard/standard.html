@@ -313,18 +313,6 @@
                 {% endif %}
                 </ul>
             </li>
-        {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Auction House"] %}
-            <li>
-                <a href="/dashboard/auction-sales/manage">
-                    <span><i class="feather icon-award"></i></span>
-                    <span>Auctions</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/auction-sales/new">New Auction Sale</a></li>
-                    <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
-                </ul>
-            </li>
-        {% endif %}
         {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"]%}
             <li>
                 <a href="/dashboard">
