@@ -188,7 +188,7 @@ def create_connection_with_eid_owner(db, eid, connecting_account_id, details=Non
     )) > 0:
         owner_match_account_link = sightings[0]
         try:
-            if connecting_account_id:
+            if connecting_account_id and connecting_account_id != owner_match_account_link["account"]:
                 Connections(db).create_or_fail_connection(
                     from_account_id=connecting_account_id,
                     to_account_id=owner_match_account_link["account"],
