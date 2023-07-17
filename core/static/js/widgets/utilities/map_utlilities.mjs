@@ -45,6 +45,8 @@ const colorMap = {
     "Stocker": "#FF9800"
 };
 
+const USABounds = {north: 49.5904, south:24.9493 , east: -66.39326, west: -125.0011};
+
 const generateAccountInformationContainer = (matchRow, sectorsIDToName) =>{
     let accountInformationContainer = document.createElement("div");
     accountInformationContainer.className = "p-1 m-1";
@@ -104,8 +106,27 @@ const formatDate = (epoch) =>{
     return (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear();
 }
 
+const generateLegendTable = (markersColorList) =>{
+    let legendTable = document.createElement("table");
+    for(let [markerName, color] of Object.entries(markersColorList)){
+        let legendRow = document.createElement("tr");
+        let markerNameCell = document.createElement("td");
+        markerNameCell.className = "m-1 p-1";
+        markerNameCell.textContent = markerName;
+        legendRow.append(markerNameCell);
+        let colorCell = document.createElement("td");
+        colorCell.className = "m-1 p-1";
+        colorCell.style = "background-color:"+color+";width:20px;"
+        legendRow.append(colorCell);
+        legendTable.append(legendRow);
+    }
+    return legendTable;
+}
+
 export {
     loadGoogleMapsAPI,
     generateAccountInformationContainer,
-    colorMap
+    generateLegendTable,
+    colorMap,
+    USABounds
 }
