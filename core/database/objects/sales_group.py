@@ -1,5 +1,4 @@
 from copy import deepcopy
-from ...match_types import match_types_by_id
 
 class SalesGroupException(Exception):
     """Generic sales group exception."""

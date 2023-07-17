@@ -1,5 +1,5 @@
 from copy import deepcopy
-from ...match_types import match_types_by_id
+from ...match_types import MATCH_TYPES_ID_TO_NAME
 
 class MatchException(Exception):
     """Generic match exception."""
@@ -35,7 +35,7 @@ class Match:
         return self._row['id']
 
 
-    def account_id(self):
+    def partner_account_id(self):
         """Gets match account ID
 
         (This is the data owner)
@@ -43,7 +43,7 @@ class Match:
         Returns:
             The account ID
         """
-        return self._row['account']
+        return self._row['partner_account']
 
 
     def account_link_id(self):
@@ -112,7 +112,7 @@ class Match:
         Returns:
             The type of data (as a string)
         """
-        return match_types_by_id[self._row['type']]
+        return MATCH_TYPES_ID_TO_NAME[self._row['type']]
 
 
     def type_id(self):

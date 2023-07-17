@@ -25,21 +25,15 @@ export class AccountSalesGroupsWidget extends Widget {
                 file_auths: false
             }
         ).then((data) => {
+            this.frame.innerHTML = "";
             this.sales_groups = data.sales_groups;
             this.displaySalesGroups();
         });
-
-
-        this.onSomeDataLoaded(function () {
-            this.frame.innerHTML = "";
-        });
-
     }
 
     displaySalesGroups() {
         this.table = new Table();
-
-        this.table.setHeader(["ID", "Name", "Published", "Options"]);
+        this.table.setHeader(["Number", "Name", "Published", "Options"]);
 
         for (const salesGroup of this.sales_groups) {
             let optionsGroup = document.createElement("div");
@@ -54,7 +48,31 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/edit/" + salesGroup.id
             );
-            this.table.addRow([salesGroup.id, salesGroup.name, salesGroup.published ? "Yes" : "No", optionsGroup]);
+            controls.addA(
+                "Manage EIDs",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/manage-eids/" + salesGroup.id
+            );
+            controls.addButton(
+                "Archive",
+                "btn btn-sm btn-info",
+                () => {
+                    fetch('/widgets/data/archive_sales_group', {
+                        method: 'POST',
+                        headers: {
+                        'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                                "sales_group_id": salesGroup.id
+                            }),
+                    }).then(() => {
+                        this.frame.innerHTML = "";
+                        this.sales_groups = this.sales_groups.filter(item => item.id != salesGroup.id);
+                        this.displaySalesGroups();
+                    });
+                }
+            );
+            this.table.addRow([salesGroup.id, salesGroup.group_name || "", salesGroup.published ? "Yes" : "No", optionsGroup]);
         }
 
         this.table.attach(this.frame);

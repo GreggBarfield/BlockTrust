@@ -1,0 +1,104 @@
+{% extends "partner/standard.html" %}
+
+{% block head_section_per_partner_page %}
+{% endblock head_section_per_partner_page %}
+
+
+{% set page_title = partner.name()|e %}
+{% set partner_locations = [("/partner/dashboard", partner.sector_name() + " - " + partner.name()|e)] %}
+
+{% block partner_content_header %}
+{{ partner.name()|e }}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">
+                Calf-Crop Summary
+                <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
+                </a>
+                <a class="btn btn-outline-primary btn-sm float-right d-none" id="downloadSummaryButton"><i class="fa fa-download"></i>Download</a>
+            </h5>
+    
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ partner.id() }}"
+                    data-widget-company-name="{{ partner.name() }}" data-widget-button-id="downloadSummaryButton"></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-6">
+        <div class="card">
+            <h5 class="card-header">Maps and Charts</h5>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active text-uppercase" href="#sightings" id="sightings-tab" data-toggle="tab"
+                            role="tab" aria-controls="sightings" aria-selected="true">Sightings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase" href="#carcass-quality" id="carcass-quality-tab"
+                            data-toggle="tab" role="tab" aria-controls="carcass-quality" aria-selected="false">Carcass
+                            Quality</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-uppercase" href="#carcass-yield-grade" id="carcass-yield-grade-tab"
+                            data-toggle="tab" role="tab" aria-controls="carcass-yield-grade"
+                            aria-selected="false">Carcass Yield Grade</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="sightings" role="tabpanel"
+                        aria-labelledby="sightings-tab">
+                        <p class="mb-0 widget" data-widget-type="map v2" data-widget-match-types="Sighting"
+                            data-widget-account="{{ partner.id() }}" style='height:400px;'></p>
+                    </div>
+                    <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
+                        aria-labelledby="carcass-quality-tab">
+                        <p class="mb-0">
+                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-str data-widget-match-type="USDA Quality Grade"
+                                data-widget-account="{{ partner.id() }}"></p>
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="carcass-yield-grade" role="tabpanel"
+                        aria-labelledby="carcass-yield-grade-tab">
+                        <p class="mb-0">
+                            <p class="mb-0 widget" data-widget-type="grade" data-widget-match-type="USDA Yield Grade"
+                                data-widget-account="{{ partner.id() }}"></p>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if partner.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] or partner.sector_id() == SECTORS_NAME_TO_ID["Auction House"] %}
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">
+                Ranch Summary
+                <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
+                </a>
+            </h5>
+            <div class="card-body">
+                <div class="mb-0 widget" data-widget-type="partner count distribution" data-widget-tag-detail="tag-detail" data-widget-view-scores-URL="{{view_scores_URL}}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row d-none" id="tag-detail" tabindex="0">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header"><span></span></h5>
+            <div class="card-body">
+                <div class="mb-0 widget" data-widget-type="source summary" data-widget-refresh-id="refresh-sightings-button" data-widget-animal-URL="{{animal_URL}}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock partner_content %}

@@ -11,7 +11,8 @@ statuses_by_id = {
     3: "Running",
     4: "Bad Namespace",
     5: "Bad Type",
-    6: "Exception"
+    6: "Exception",
+    7: "Duplicate"
 }
 statuses_by_name = {b: a for a, b in statuses_by_id.items()}
 
@@ -41,7 +42,7 @@ class InsertsModel:
 
     @staticmethod
     def _process_row(row):
-        json_fields = ['api_blocks.value', 'fields', 'row']
+        json_fields = ['fields', 'row']
         for f in json_fields:
             if row[f] is not None and row[f] != "":
                 row[f] = json.loads(row[f])
@@ -66,17 +67,14 @@ class InsertsModel:
         """
         results = Database._expand_multi(self._cur.execute(
             """
-                LOCK TABLES api_inserts WRITE, api_blocks WRITE;
+                LOCK TABLES api_inserts WRITE;
                 SET @insert_id = (
                     SELECT id FROM api_inserts WHERE status=%(pending_status)s
-                    ORDER BY priority DESC, id ASC
                     LIMIT 1
                 );
                 UPDATE api_inserts SET status=%(running_status)s WHERE id=@insert_id;
-                SELECT api_inserts.*, api_blocks.value AS 'api_blocks.value',
-                    api_blocks.resolved AS 'api_blocks.resolved'
+                SELECT api_inserts.*
                     FROM api_inserts
-                    LEFT JOIN api_blocks ON api_blocks.id=api_inserts.block
                     WHERE api_inserts.id=@insert_id;
                 UNLOCK TABLES;
             """,
@@ -106,7 +104,7 @@ class InsertsModel:
         rows = self._cur.fetchall()
         return InsertsModel._process_row(rows[0]) if rows else None
 
-    def set_status(self, insert_id, status_name):
+    def set_status(self, insert_id, status_name, status_details=None):
         """Sets the status.
 
         Params:
@@ -115,10 +113,11 @@ class InsertsModel:
         """
         self._cur.execute(
             """
-                UPDATE api_inserts SET status=%(status)s WHERE id=%(insert_id)s;
+                UPDATE api_inserts SET status=%(status)s, status_details=%(status_details)s WHERE id=%(insert_id)s;
             """,
             {
                 'status': statuses_by_name[status_name],
+                'status_details': status_details,
                 'insert_id': insert_id
             }
         )

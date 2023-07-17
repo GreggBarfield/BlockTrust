@@ -1,0 +1,62 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Create Sector Notification" %}
+{% set employee_locations = [("/employee/notifications", "Create Sector Notification")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">
+                Create Sector Notification
+            </h5>
+            <div class="card-body">   
+                <div class="col-lg-8 mb-2">
+                    <form class="bg-white p-3" id="sector_notification_form" method="POST">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="sector">Sector</label>
+                                    <select class="form-control" id="sector">                                    
+                                        <option value="">---Please select a Sector---</option>
+                                        {% for sector_id in sectors_id_to_name %}
+                                        <option value="{{sector_id}}">{{sectors_id_to_name[sector_id]}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group required">
+                                    <label for="message_subject">Notification Subject</label>
+                                    <input type="text" class="form-control" id="message_subject" required>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="message">Notification</label>
+                                    <textarea class="form-control" rows="5" cols="60" id="message"></textarea>
+                                    <span class="focus-border"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <p class="mt-2 mb-0" id="notification_status_message" style="display:none;">Hang on...</p>
+                        <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="notification_error_message">Loading error...</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/accounts/notifications/create-sector-notification.mjs"></script>
+{% endblock employee_content %}

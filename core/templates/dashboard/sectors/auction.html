@@ -5,7 +5,7 @@
 
 
 {% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts", "Accounts"), ("/dashboard/accounts/" + account.id()|string, "Auction House - " + account.name()|e)] %}
+{% set dashboard_locations = [("/dashboard", "Auction House - " + account.name()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.name()|e }}
@@ -17,8 +17,8 @@
         <div class="card">
             <h5 class="card-header">Associated Cattle</h5>
             <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting"
-                            data-widget-map-mode="associated auction sale account" style='height:400px;'></p>
+                <p class="mb-0 widget" data-widget-type="map v2" data-widget-match-types="Sighting"
+                            data-widget-mode="associated auction sale account" style='height:400px;'></p>
             </div>
         </div>
     </div>

@@ -2,6 +2,17 @@
 <html lang="en">
 
 <head>
+  {% if enable_google_analytics %}
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-46245144-2" ></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-46245144-2');
+  </script>
+  {% endif %}
+  
   <meta charset="utf-8">
 
   <meta name="keywords" content="Cattle Traceability Transparency" />
@@ -10,7 +21,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   {# Open Graph Meta Tags #}
-  <meta property="og:title" content="Blockchain-based Livestock Transparency Platform">
+  <meta property="og:title" content="Blockchain-based Beef Transparency Platform">
   <meta property="og:description" content="Increase value for producers by giving them access to critical data from the entire supply chain">
   {# This image is not correct <meta property="og:image" content="https://blocktrustnetwork.com/static/images/cattlemarket/logo.png"> #}
   <meta property="og:url" content="https://blocktrustnetwork.com">

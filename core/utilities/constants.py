@@ -1,0 +1,12 @@
+from enum import Enum
+
+SECONDS_IN_ONE_DAY = 86400
+
+StripePrices = Enum("StripePrices", "basic")
+
+HTTP_OK = 200
+HTTP_NO_CONTENT = 204
+HTTP_BAD_REQUEST = 400
+HTTP_NOT_FOUND = 404
+
+DEFAULT_PASSWORD = "BlockTru$t"

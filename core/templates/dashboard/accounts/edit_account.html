@@ -1,0 +1,271 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/edit-account", "Edit Account")] %}
+
+{% block dashboard_content_header %}
+Edit Account
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 text-center">
+            <div class="mb-3">
+                <h4>Edit Account Info</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 mb-2">
+            <form class="bg-white shadow p-3"  id="edit_account_form"  method="POST">
+                <div class="row">
+                    <div class="col-lg-4"> 
+                        <div class="form-group">
+                            <label for="edit_account_company" style="font-weight: bold;padding-top: 10px;">Company Name</label>                       
+                        </div>
+                    </div>
+                    <div class="col-lg-6"> 
+                        <div class="form-group">                   
+                            <input type="text" class="form-control" id="edit_account_company" value="{{dashboard_standard_account.company() if dashboard_standard_account.company() is not none}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <!-- Empty for checkbox -->
+                    </div>
+                    <div class="col-lg-6">               
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="edit_account_show_real_name" {{"checked" if dashboard_standard_account.show_real_name() else ""}}> 
+                            <label class="form-check-label" for="exampleCheck1">Show real name</label>
+                        </div>    
+                    </div>
+                    <div class="col-lg-8"> 
+                        <div class="form-group">
+                            <label for="edit_account_address">Address</label>                       
+                            <input type="text" class="form-control" id="edit_account_address" value="{{dashboard_standard_account.address() if dashboard_standard_account.address() is not none}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <div class="form-group">
+                            <label for="edit_account_city">City</label>                       
+                            <input type="text" class="form-control" id="edit_account_city"  value="{{dashboard_standard_account.city() if dashboard_standard_account.city() is not none}}">                        
+                        </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <div class="form-group">
+                            <label for="edit_account_state">State</label>                       
+                            <select class="form-control" id="edit_account_state" name="edit_account_state" required>
+                                <option value=" "></option>
+                                <option value="AL">Alabama</option>
+                                <option value="AK">Alaska</option>
+                                <option value="AZ">Arizona</option>
+                                <option value="AR">Arkansas</option>
+                                <option value="CA">California</option>
+                                <option value="CO">Colorado</option>
+                                <option value="CT">Connecticut</option>
+                                <option value="DE">Delaware</option>
+                                <option value="DC">District Of Columbia</option>
+                                <option value="FL">Florida</option>
+                                <option value="GA">Georgia</option>
+                                <option value="HI">Hawaii</option>
+                                <option value="ID">Idaho</option>
+                                <option value="IL">Illinois</option>
+                                <option value="IN">Indiana</option>
+                                <option value="IA">Iowa</option>
+                                <option value="KS">Kansas</option>
+                                <option value="KY">Kentucky</option>
+                                <option value="LA">Louisiana</option>
+                                <option value="ME">Maine</option>
+                                <option value="MD">Maryland</option>
+                                <option value="MA">Massachusetts</option>
+                                <option value="MI">Michigan</option>
+                                <option value="MN">Minnesota</option>
+                                <option value="MS">Mississippi</option>
+                                <option value="MO">Missouri</option>
+                                <option value="MT">Montana</option>
+                                <option value="NE">Nebraska</option>
+                                <option value="NV">Nevada</option>
+                                <option value="NH">New Hampshire</option>
+                                <option value="NJ">New Jersey</option>
+                                <option value="NM">New Mexico</option>
+                                <option value="NY">New York</option>
+                                <option value="NC">North Carolina</option>
+                                <option value="ND">North Dakota</option>
+                                <option value="OH">Ohio</option>
+                                <option value="OK">Oklahoma</option>
+                                <option value="OR">Oregon</option>
+                                <option value="PA">Pennsylvania</option>
+                                <option value="RI">Rhode Island</option>
+                                <option value="SC">South Carolina</option>
+                                <option value="SD">South Dakota</option>
+                                <option value="TN">Tennessee</option>
+                                <option value="TX">Texas</option>
+                                <option value="UT">Utah</option>
+                                <option value="VT">Vermont</option>
+                                <option value="VA">Virginia</option>
+                                <option value="WA">Washington</option>
+                                <option value="WV">West Virginia</option>
+                                <option value="WI">Wisconsin</option>
+                                <option value="WY">Wyoming</option>
+                            </select>                   
+                        </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <div class="form-group">
+                            <label for="edit_account_zip">Zip Code</label>                       
+                            <input type="text" class="form-control" id="edit_account_zip"  value="{{dashboard_standard_account.zip() if dashboard_standard_account.zip() is not none}}">                        
+                        </div>
+                    </div>
+                    <div class="col-lg-4"> 
+                        <div class="form-group">
+                            <label for="edit_account_phone">Company Phone</label>                       
+                            <input type="text" class="form-control" id="edit_account_phone"  value="{{dashboard_standard_account.phone() if dashboard_standard_account.phone() is not none}}" name="phone">                        
+                            <span class="focus-border"></span>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}"></input> 
+                <button type="submit" class="btn btn-primary">Update</button>
+                <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, we're updating your account...</p>
+                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Loading error...</p>
+
+                {% if dashboard_standard_is_admin %}
+                <div class="card mt-5" >
+                    <div class="card-body">
+                        <h5 class="card-title">Other Account Users</h5>
+                        <p class="card-text">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">User</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if users %}
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{user.first_name + " " + user.last_name}}</td>
+                                        <td>{{user.email}}</td>
+                                        <td>
+                                            <a href="javascript:;" user-id="{{user.id}}" user-name="{{user.first_name + ' ' + user.last_name}}" name="reset-password-user">Reset Password</a>
+                                            <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                                            title="Password will be reset to BlockTru$t">
+                                            <div class="justify-content-center ml-2 d-none" id="spinner-{{user.id}}">
+                                                <div class="spinner-border spinner-border-sm" role="status">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr class="text-center">
+                                        <td colspan="3">No other users</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if dashboard_standard_account.sector_id() == sectors["Cow-Calf"] %}
+                <div class="row justify-content-center mt-5" id="divStripeSetup">
+                    <div class="col-lg-10 text-center">
+                        <span><i class="fa fa-dollar-sign text-success mb-2" style="font-size:4em"></i></span>
+                        {% if not is_stripe_payouts_enabled %}    
+                            <div class="mb-3">
+                                <h4>Setup payouts to receive payments</h4>
+                                <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
+                            </div>
+                            {% if dashboard_standard_account.stripe_account_id() is none %}
+                            <button class="btn btn-success" id="btnSetupPayout"> Setup payouts on Stripe </button>
+                            {% else %}
+                            <button class="btn btn-warning" id="btnCompleteSetup"> Complete Setup </button>
+                            {% endif %}
+                            <p>You'll be redirected to Stripe to complete the onboarding process.</p>
+                        {% else %}
+                            <h4>You are able to receive payments!</h4>
+                            <p class="font-weight-bold">Blocktrust Network partners with Stripe to transfer earnings to your bank account.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    $("#edit_account_state").val("{{dashboard_standard_account.state()}}");
+
+    let setupButton = document.querySelector("#btnSetupPayout");
+
+    if (setupButton) {
+        setupButton.addEventListener(
+            "click",
+            e => {
+                setupButton.setAttribute("disabled", "disabled");
+                setupButton.textContent = "Opening...";
+
+                fetch("/stripe/onboard-account", {
+                    method: "POST",
+                    headers: {
+                    "Content-Type": "application/json"
+                    }
+                }).then(
+                    response => response.json()
+                ).then(data => {
+                    if (data.url) {
+                        window.location = data.url;
+                    } else {
+                        setupButton.removeAttribute("disabled");
+                        setupButton.textContent = "<Something went wrong>";
+                        console.log("data", data);
+                    }
+                });
+            },
+            false
+        );
+    }
+
+    let completeButton = document.querySelector("#btnCompleteSetup");
+
+    if (completeButton) {
+        completeButton.addEventListener(
+            "click",
+            e => {
+                completeButton.setAttribute("disabled", "disabled");
+                completeButton.textContent = "Opening...";
+
+                fetch("/stripe/onboard-account/complete", {
+                    method: "GET",
+                    headers: {
+                    "Content-Type": "application/json"
+                    }
+                }).then(
+                    response => response.json()
+                ).then(data => {
+                    if (data.url) {
+                        window.location = data.url;
+                    } else {
+                        setupButton.removeAttribute("disabled");
+                        setupButton.textContent = "<Something went wrong>";
+                        console.log("data", data);
+                    }
+                });
+            },
+            false
+        );
+    }
+    
+
+</script>   
+<script type="module" src="/static/entry_points/dashboard/accounts/edit_account.mjs" ></script> 
+
+{% endblock dashboard_content %}s

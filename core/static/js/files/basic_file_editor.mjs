@@ -1,13 +1,19 @@
-import {uploadFile} from "./files.mjs";
+import {saveAndUploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
-
 export class BasicFileEditor {
-    constructor(restrictions={}, attach_node=null, fileIDs=null, fileAuths=null) {
+    
+     /**
+     * 
+     * @param {dictionary} restrictions dictionary in which you can add restrictions. For example, fileType:'image'
+     * @param {list} fileIDs a list of file IDs
+     * @param {dictionary } fileDetails a dictionary which contains id, name and s3 link of the file
+     */
+    constructor(restrictions={}, attach_node=null, fileIDs=null, fileDetails=null) {
         let that = this;
         this.files = [];
         this.restrictions = restrictions;
-        this.fileAuths = fileAuths;
+        this.fileAuths = fileDetails;
 
         if (fileIDs !== null) {
             for (const fileID of fileIDs) {
@@ -15,8 +21,8 @@ export class BasicFileEditor {
                     "id": fileID,
                     "uploaded": true
                 };
-                if (fileID in fileAuths) {
-                    file_obj["name"] = fileAuths[fileID]["name"];
+                if (fileID in fileDetails) {
+                    file_obj["name"] = fileDetails[fileID]["name"];
                 }
                 this.files.push(file_obj);
             }
@@ -24,32 +30,31 @@ export class BasicFileEditor {
 
         this.attached = false;
         this.frame = null;
-        this.box = document.createElement("div");
-        this.input = document.createElement("input");
-        this.input.type = "file";
-        this.input.multiple = true;
-        this.input.style.display = "none";
-        document.body.append(this.input);
-        this.input.addEventListener("input", () => {
+        this.ImageBox = document.createElement("div");
+        this.ImageInput = document.createElement("input");
+        this.ImageInput.type = "file";
+        this.ImageInput.multiple = true;
+        this.ImageInput.style.display = "none";
+        document.body.append(this.ImageInput);
+        this.ImageInput.addEventListener("input", () => {
             that.checkInput();
         });
 
         this.table = new Table();
-        this.table.attach(this.box);
+        this.table.attach(this.ImageBox);
 
         this.table.setHeader(["ID", "Name", "Options"]);
 
         this.updateTable();
 
-        this.addFilesButton = document.createElement("button");
-        this.addFilesButton.className = "btn btn-sm btn-primary";
-        this.addFilesButton.textContent = "Add Files"
-        this.addFilesButton.type = "button";
-        this.addFilesButton.addEventListener("click", function(e) {
-            that.input.dispatchEvent(new MouseEvent("click"));
+        this.addImageButton = document.createElement("button");
+        this.addImageButton.className = "btn btn-sm btn-outline-primary";
+        this.addImageButton.textContent = "Add Files"
+        this.addImageButton.type = "button";
+        this.addImageButton.addEventListener("click", function(e) {
+            that.ImageInput.dispatchEvent(new MouseEvent("click"));
         });
-        this.box.append(this.addFilesButton);
-        
+        this.ImageBox.append(this.addImageButton);
 
         if (attach_node !== null) {
             this.attach(attach_node);
@@ -59,8 +64,7 @@ export class BasicFileEditor {
     attach(attach_node) {
         this.attached = true;
         this.frame = attach_node;
-
-        this.frame.append(this.box);
+        this.frame.append(this.ImageBox);
     }
 
     remove(file) {
@@ -73,6 +77,10 @@ export class BasicFileEditor {
         return file["removed"];
     }
 
+    /**
+     * Updates file table. This is called in the constructor, when files are uploaded, when files are added and removed
+     *
+     */
     updateTable() {
         for (let file of this.files) {
             let fileID = "Not Uploaded";
@@ -89,8 +97,11 @@ export class BasicFileEditor {
                 
                 let removeButton = document.createElement("button");
                 removeButton.textContent = "Remove";
+                removeButton.textContent.fontcolor("green");
+                removeButton.style.borderColor="black";
                 removeButton.className = "btn btn-sm btn-danger";
                 removeButton.type = "button";
+                removeButton.style.backgroundColor="rgb(168, 87, 34)";
                 removeButton.addEventListener("click", ()=>{
                     if (this.remove(file)) {
                         removeButton.textContent = "Add";
@@ -116,20 +127,46 @@ export class BasicFileEditor {
         }
     }
 
-    acceptableFile(file) {
+    acceptableFile(file, restrictions={}) {
         // Just to make it a little less confusing for the users, not for security
         if (file.size > 10 * 1000 * 1000) {
             return "Sorry, " + file.name + " is too big (" + Math.floor(file.size / (1000 * 1000)) + "MB, the limit is 10MB).";
         }
+
+        const {error, message} = this.checkFileType(file, restrictions);
+        if(error)
+            return message;
+
         return null;
     }
 
+    checkFileType(file, restrictions) {
+        if('filetype' in restrictions) {
+            let result = {error: true, message:""};
+            if(restrictions.filetype.includes("image"))
+            {
+                const  fileType = file['type'];
+                const validImageTypes = ['image/gif','image/jpg', 'image/jpeg', 'image/png'];
+                if (!validImageTypes.includes(fileType)) {
+                    // invalid file type code goes here.
+                    result.error = true;
+                    result.message = "Sorry, the file " + file.name + " is not in .jpg, .jpeg, .png, or .gif format.";
+                }
+                else {
+                    result.error = false;
+                    result.message = "";
+                }
+            }
+            return result;           
+        }
+    }
+
     checkInput() {
-        let inputFiles = Array.from(this.input.files);
-        this.input.value = "";
+        let inputFiles = Array.from(this.ImageInput.files);
+        this.ImageInput.value = "";
 
         for (let file of inputFiles) {
-            let r = this.acceptableFile(file);
+            let r = this.acceptableFile(file, this.restrictions);
             if (r === null) {
                 this.files.push({
                     "name": file.name,
@@ -144,15 +181,16 @@ export class BasicFileEditor {
         this.updateTable();
     }
 
+    /**
+     * Gets all ids of files which haven't been removed
+     *
+     */
     getFileIDs() {
-        // Gets all uploaded and not removed file IDs
         let result = [];
         for (const file of this.files) {
+            //"removed" is added when file is removed
             if ("removed" in file && file["removed"])
                 continue;
-            if (!("uploaded" in file)) {
-                throw "Uploaded should be in file";
-            }
             if (!file["uploaded"])
                 continue;
             if (!("id" in file) || file["id"] === undefined || file["id"] === null)
@@ -162,9 +200,22 @@ export class BasicFileEditor {
         return result;
     }
 
-    upload(progress=null) {
-        // Uploads remaining files
-        // Returns a Promise
+    getNumberOfAttachedFiles() {
+        let count = 0;
+        for(const file of this.files){
+            if(!file.removed){
+                count++;
+            }
+        }
+        return count;
+    }
+
+     /**
+     * Uploads remaining files and returns a promise
+     * 
+     * @param {function} setProgress function which processes the current progress percentage.
+     */
+    upload(setProgress) {
 
         let filesToBeProcessed = [];
 
@@ -178,9 +229,7 @@ export class BasicFileEditor {
         }
 
         if (filesToBeProcessed.length == 0) {
-            if (typeof progress == "function") {
-                progress(1);
-            }
+            setProgress(1);
             return Promise.resolve(true);
         }
 
@@ -189,15 +238,15 @@ export class BasicFileEditor {
                 return Promise.resolve(true);
             }
 
-            return uploadFile(false, true, filesToBeProcessed[itr]["file"], function(perc) {
+            return saveAndUploadFile(true, true, filesToBeProcessed[itr]["file"], function(perc) {
                 if (totalBytes == 0) {
-                    progress(1);
+                    setProgress(1);
                 }
                 else if (filesToBeProcessed[itr]["file"].size == 0) {
-                    progress(bytesSoFar / totalBytes);
+                    setProgress(bytesSoFar / totalBytes);
                 }
                 else {
-                    progress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
+                    setProgress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
                 }
             })
             .then((id)=>{

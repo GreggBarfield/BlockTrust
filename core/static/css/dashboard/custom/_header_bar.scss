@@ -2,6 +2,7 @@ $navbar-gray: #1b1c1d;
 $navbar-thick-gray: #676767;
 $navbar-blue: #3949AB;
 
+@use 'sass:math';
 @use "../../common/common" as common;
 @use "../../common/colors" as *;
 @use "../../common/reset" as reset;
@@ -65,7 +66,7 @@ $nav-small-gap: 10px;
         position: fixed;
         right: 10px;
         z-index: 6;
-        top: ($header-top-size - 54px)/2;
+        top: math.div($header-top-size - 54px, 2);
     }
 
     .b-header {
@@ -116,12 +117,6 @@ $nav-small-gap: 10px;
                 > li.is-active {
                     display: block;
                     margin-right: 25px;
-
-                    > a {
-                        > i {
-                            transform: rotate(90deg);
-                        }
-                    }
                 }
                 > li {
                     display: inline-block;
@@ -145,11 +140,11 @@ $nav-small-gap: 10px;
 
 
 
-                    .b-user-settings {
+                    .b-expandable-icon {
                         display: none;
                     }
 
-                    .b-user-settings.is-active {
+                    .b-expandable-icon.is-active {
                         position: relative;
                         display: block;
 
@@ -160,6 +155,11 @@ $nav-small-gap: 10px;
                             img {
 
                                 height: 60px;
+                            }
+
+                            div {
+                                padding-left: 10px;
+                                font-size: 1.5rem;
                             }
 
                             span {
@@ -436,6 +436,15 @@ $nav-small-gap: 10px;
                 display: inline-flex;
                 align-items: center;
                 position: relative;
+                &:hover {
+                    background-color: #8b4513;
+                }
+                &:hover a {
+                    color: white;
+                }
+                &.b-account-settings-li {
+                    padding-right: 0px;
+                }
 
                 > a {
                     @include reset.a;
@@ -475,6 +484,11 @@ $nav-small-gap: 10px;
                         img {
                             width: 40px;
                             margin-right: 15px;
+                        }
+
+                        div {
+                            padding-left: 10px;
+                            font-size: 1.5rem;
                         }
 
                         a{

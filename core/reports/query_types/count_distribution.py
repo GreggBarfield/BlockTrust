@@ -1,25 +1,40 @@
-from ...match_types import match_types_by_name
+from ...database.tables.sustainability_responses import QUESTIONNAIRE_STATUS_NAMES_TO_IDS, SustainabilityResponses
+from ...match_types import MATCH_TYPES_NAME_TO_ID
 
 
 TYPE_NAME = "count_distribution"
 
 
 def execute(db, query):
-    """Execute the query."""
+    """Execute the query. Used by report worker"""
     params = query['params']
+    is_partner = params.get("is_partner", False)
 
-    account = db.accounts.get_by_id(params['account'])
-    account_links = account.account_links()
-
-    if len(account_links) == 0:
-        return {"count_distribution": []}
-
-    return {
-        "count_distribution": db.matches.get_count_distribution(
-            match_types_by_name[params["match_type"]],
-            account_links=account_links
+    if params.get("match_type", None):
+        return {
+            "count_distribution": db.matches.get_count_distribution(
+                MATCH_TYPES_NAME_TO_ID[params["match_type"]],
+                account_id=params['account'],
+                is_partner=is_partner
+            )
+        }
+    else:
+        partner_account_links = db.account_links.get_account_links(partner_account=params['account'],
+                                                                   account_is_not_null=True)
+        count_distribution = db.matches.get_count_distribution(
+                is_partner=True,
+                partner_account_links=partner_account_links
         )
-    }
+
+        for result in count_distribution.values():
+            completed_sustainability_surveys = SustainabilityResponses(db).get_sustainability_responses(
+                account_id=result['account_id'], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+            )
+            result["survey_completed"] = True if len(completed_sustainability_surveys) > 0 else False
+
+        return {
+            "count_distribution": count_distribution
+        }
 
 
 def accessible(query, account_id):
@@ -38,20 +53,22 @@ def accessible(query, account_id):
     return account_id == query['params']['account']
 
 
-def create(account_id, match_type):
+def create(account_id, match_type=None, is_partner=False):
     """Creates a query.
 
     Params:
         account_id: The account ID to get cows associated with
         match_type: The match type name to generate distribution data on
-
+        is_partner: whether the account is a partner or not.
     Returns:
         The query dictionary
     """
+    params = {'account': account_id}
+    if match_type:
+        params['match_type'] = match_type
+    if is_partner:
+        params['is_partner'] = True
     return {
         'type': TYPE_NAME,
-        'params': {
-            'account': account_id,
-            'match_type': match_type
-        }
+        'params': params
     }

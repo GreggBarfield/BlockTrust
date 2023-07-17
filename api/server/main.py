@@ -21,23 +21,24 @@ from flask import (
     Response
 )
 
-
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.path.abspath('core/templates'))
 
 
 from . import input_blueprint
 from . import internal_blueprint
+from . import external_blueprint
 from core.common_exceptions import ExportException
 
 
 app.register_blueprint(input_blueprint.bp)
 app.register_blueprint(internal_blueprint.bp)
+app.register_blueprint(external_blueprint.bp)
 
 
 @app.errorhandler(ExportException)
 def handle_export_exception(e):
     return {
-        "error": "An error occurred: " + str(e)
+        "error": str(e)
     }, 400
 
 

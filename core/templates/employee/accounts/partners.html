@@ -1,0 +1,69 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Partners" %}
+{% set employee_locations = [("/employee/dashboard", "Partners")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+        <div class="card d-inline-block col-md-12">
+            <div class="card-header">
+                <h5>Partners</h5>
+                <button class="btn btn-sm btn-primary float-right" onclick="window.location.href='/employee/dashboard/create-new-partner'">
+                    Create New Partner
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table" id="partners">
+                    <thead>
+                        <tr>
+                            <th>Partner Number</th>
+                            <th>Partner Name</th>
+                            <th>Sector</th>
+                            <th>Partner city, state</th>
+                            <th>Subscription Credits</th> 
+                            <th>User</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for partner in partner_and_partner_users %}
+                        <tr>
+                            <td>{{partner.id}}</td>
+                            <td>
+                                <a href="/employee/dashboard/edit-partner/{{partner.id}}">
+                                    {{partner.company}}
+                                </a>
+                            </td>
+                            <td>{{sectors_id_to_name[partner.sector]}}</td>
+                            <td>{{partner.city}}, {{partner.state}}</td>
+                            <td>{{partner.partner_subscription_credits}}</td>
+                            <td class="{{'text-muted' if not partner.user_name else ''}}">
+                                {{partner.user_name if partner.user_name else "No user"}}
+                            </td>
+                            <td>
+                                <a class="button" href="javascript:;" name="add-user-for-partner" id="{{partner.id}}" partner-name="{{partner.name}}"><i class="feather icon-user-plus" title="Invite User"></i></a>
+                            </td>
+                            <td>
+                                {% if partner.user_id %}
+                                <a class="button" href= "/employee/dashboard/login-as-user/{{partner.user_id}}/{{partner.id}}">
+                                    <i class="feather icon-log-in" title="Login as user"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#partners').DataTable();
+    });
+</script>
+<script type="module" src="/static/entry_points/employee/partners.mjs" ></script> 
+{% endblock employee_content %}

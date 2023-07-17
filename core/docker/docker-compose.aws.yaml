@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+    core:
+      image: blocktrust/core
+      environment:
+        - PYTHONUNBUFFERED=1
+      build:
+        context: ../../
+        dockerfile: core/docker/dockerfile.aws
+      ports:
+        - "127.0.0.1:5000:5000"

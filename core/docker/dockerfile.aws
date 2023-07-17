@@ -1,0 +1,42 @@
+FROM python:3.9-buster
+
+############# LIBRARIES
+
+# Environment update
+
+RUN apt update -y && apt upgrade -y
+
+# Get python requirements
+
+WORKDIR /home/ubuntu
+COPY core/docker/requirements.txt .
+RUN python3 -m pip install -r requirements.txt
+
+# Install npm stuff
+
+WORKDIR /home/ubuntu/blocktrust
+RUN apt-get update
+RUN apt-get -y install curl gnupg
+RUN curl -sL https://deb.nodesource.com/setup_14.x  | bash -
+RUN apt-get -y install nodejs
+RUN node -v
+RUN npm -v
+COPY core/docker/webpack/package.json .
+RUN npm install
+
+############# SETUP
+
+# Copy everything over
+
+WORKDIR /home/ubuntu/blocktrust
+COPY core ./core
+
+# Build static
+
+COPY core/docker/webpack/webpack.aws.config.js .
+RUN npm run build
+
+############# RUNTIME
+
+WORKDIR /home/ubuntu/blocktrust
+CMD exec python3 core/main.py

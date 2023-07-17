@@ -1,4 +1,7 @@
+from core.database.no_value import NoValue
 from ..objects.account_link import AccountLink, AccountLinkException
+
+NO_VALUE = NoValue()
 
 
 class AccountLinksException(Exception):
@@ -18,7 +21,7 @@ class AccountLinks:
     def __init__(self, db):
         self._db = db
 
-    def get_by_id(self, account_link_id):
+    def get_account_link_by_id(self, account_link_id):
         """Gets an account link by ID.
 
         Params:
@@ -39,8 +42,8 @@ class AccountLinks:
             }
         )
         if len(account_link_rows) != 1:
-            raise AccountLinkException("No account link with that ID")
-        return AccountLink(self._db, account_link_rows[0])
+            return None
+        return AccountLink(account_link_rows[0])
 
     def get_by_account_id(self, account_id):
         """Gets account links attached to the provided account.
@@ -59,49 +62,52 @@ class AccountLinks:
                 "account": account_id
             }
         )
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_company(self, company, insert_sector=None, insert=False, data_race_protection=True):
+    #TODO: obsolete. Should be removed.
+    def get_by_company(self, company, partner_account=None, api_insert=None, insert_sector=None, insert=False, data_race_protection=True):
         """Gets all account links that match company.
 
         Params:
             company: company to search
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
             insert_sector: optional, if set to an integer it will be inserted if the row is inserted
-        
+
         Returns:
             A list of AccountLink objects (could be empty)
         """
         account_link_rows = self._db.execute_d(
             """SELECT * FROM account_links
-                WHERE company=%(company)s
+                WHERE company=%(company)s AND partner_account=%(partner_account)s
             """,
             {
-                "company": company
+                "company": company,
+                "partner_account": partner_account
             }
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(company=company, sector=insert_sector)
+                self.insert(partner_account=partner_account, company=company, sector=insert_sector, api_insert=api_insert)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
                     return self.get_by_company(
+                        partner_account=partner_account,
                         company=company,
+                        api_insert=api_insert,
                         insert_sector=insert_sector,
                         insert=insert,
                         data_race_protection=False
                     )
                 raise e
-            return [self.get_by_id(self._db.last_row_id())]
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+            return [self.get_account_link_by_id(self._db.last_row_id())]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def get_by_uid(self, uid, uid_type, insert=False, data_race_protection=True):
-        """Gets all account links that match a uid.
+    def get_by_affiliate_id(self, affiliate_id, partner_account=None, api_insert=None, sector=None, insert=False, data_race_protection=True):
+        """Gets all account links that match a affiliate_id.
 
         Params:
-            uid: uid to search
-            uid_type: the UID type to search ("MFA")
+            affiliate_id: affiliate_id to search
             insert: optional, if set to True it will insert when it doesn't exist and return a list with the single account link
         
         Returns:
@@ -109,63 +115,126 @@ class AccountLinks:
         """
         account_link_rows = self._db.execute_d(
             """SELECT * FROM account_links
-                WHERE uid=%(uid)s AND uid_type=%(uid_type)s
+                WHERE affiliate_id=%(affiliate_id)s AND partner_account=%(partner_account)s
             """,
             {
-                "uid": uid,
-                "uid_type": uid_type
+                "affiliate_id": affiliate_id,
+                "partner_account": partner_account
             }
         )
         if len(account_link_rows) == 0 and insert:
             try:
-                self.insert(uid=uid, uid_type=uid_type)
+                self.insert(partner_account=partner_account, affiliate_id=affiliate_id, api_insert=api_insert, sector=sector)
             except AccountLinksException as e:
                 # *might* be a data race. Happens a lot in high thread environments.
                 if data_race_protection:
-                    return self.get_by_uid(
-                        uid=uid,
-                        uid_type=uid_type,
+                    return self.get_by_affiliate_id(
+                        affiliate_id=affiliate_id,
+                        partner_account=partner_account,
+                        api_insert=api_insert,
                         insert=insert,
                         data_race_protection=False
                     )
                 raise e
-            return [self.get_by_id(self._db.last_row_id())]
-        return [AccountLink(self._db, account_link_row) for account_link_row in account_link_rows]
+            return [self.get_account_link_by_id(self._db.last_row_id())]
+        return [AccountLink(account_link_row) for account_link_row in account_link_rows]
 
-    def insert(self, account=None, uid_type=None, uid=None, company=None, sector=None):
+    def insert(self, account=None, affiliate_id=None, company=None, name=None, sector=None, partner_account=None, api_insert=None):
         """Inserts a new account link.
 
         Params:
             account: Account ID to bind to (optional)
-            uid_type: UID
 
         Raises:
             AccountLinksException
         """
 
-        # UID type not specified or specified and not uid
-        if uid_type is not None and uid is None or uid_type is None and uid is not None:
-            raise AccountLinksException("UID and UID type mismatch")
-
-        where_clause_statements = []
-
-        if uid is not None and company is not None:
-            raise AccountLinksException("Account link empty")
-
         self._db.execute(
             """
-                INSERT IGNORE INTO account_links
-                    (account, uid_type, uid, company, sector)
-                    VALUES (%(account)s, %(uid_type)s, %(uid)s, %(company)s, %(sector)s)
+                INSERT INTO account_links
+                    (account, affiliate_id, company, name, sector, partner_account, api_insert)
+                    VALUES (%(account)s, %(affiliate_id)s, %(company)s, %(name)s, %(sector)s, %(partner_account)s, %(api_insert)s)
             """,
             {
                 "account": account,
-                "uid_type": uid_type,
-                "uid": uid,
+                "affiliate_id": affiliate_id,
                 "company": company,
-                "sector": sector
+                "name": name,
+                "sector": sector,
+                "partner_account": partner_account,
+                "api_insert": api_insert
             }
         )
+        return self._db.last_row_id()
 
-        if self._db.row_count() != 1:
-            raise AccountLinksException("Conflict with another account link")
+    def update_account_link_with_account(self, partner_id, affiliate_id, sector, company, name, account_id):
+        """Updates a account link with the account id
+
+        Params:
+            partner: Partner ID 
+            affiliate_id: affiliate_id or partron id
+            account: Account ID to bind
+        """
+        self._db.execute(
+            """
+                UPDATE account_links
+                SET account=%(account)s, sector=%(sector)s, company=%(company)s, name=%(name)s
+                WHERE account_links.partner_account=%(partner)s AND account_links.affiliate_id=%(affiliate_id)s
+            """,
+            {
+                "account": account_id,
+                "sector": sector,
+                "company": company,
+                "name": name,
+                "partner": partner_id,
+                "affiliate_id": affiliate_id
+            }
+        )
+        if self._db.row_count() == 0:
+            # insert the account_link
+            self.insert(account=account_id, affiliate_id=affiliate_id, company=company, name=name, sector=sector, partner_account=partner_id)
+
+    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE,
+                          account_is_not_null=False, selectColumns=[]):
+        """
+        Get an account link by the values specified.
+
+        Returns:
+            A list of account link records if found else an empty list
+        """
+        if len(selectColumns) > 0:
+            selectColumns = ",".join(selectColumns)
+        else:
+            selectColumns = "*"
+
+        base_query = "SELECT " + selectColumns + " FROM account_links"
+
+        query_conditions = []
+        query_values = {}
+
+        if affiliate_id is not NO_VALUE:
+            query_conditions.append("affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
+
+        if partner_account is not NO_VALUE:
+            query_conditions.append("partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+        
+        if account_id is not NO_VALUE:
+            query_conditions.append("account = %(account_id)s")
+            query_values["account_id"] = account_id
+
+        if account_is_not_null:
+            query_conditions.append("account IS NOT NULL")
+
+        if len(query_conditions) > 0:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        account_link_rows = self._db.execute_d(query, query_values)
+        if len(account_link_rows) > 0:
+            return account_link_rows
+        else:
+            return []

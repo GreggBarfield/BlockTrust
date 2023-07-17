@@ -1,0 +1,22 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Not found or no access" %}
+
+{% block dashboard_content_header %}
+Not found or no access
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Not found or no access</h5>
+                <p class="card-text">Either the requested resouce couldn't be found or you don't have access to it.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

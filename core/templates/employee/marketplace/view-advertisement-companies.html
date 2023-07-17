@@ -1,0 +1,90 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Advertisement Companies" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+Manage Advertisement Companies
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md-12 d-flex justify-content-end">
+        <a class="btn btn-primary" href="{{add_advertisement_company_url}}">Create New Advertisement Company</a>
+    </div>
+    {% for advertisement_company in advertisement_companies %}
+        <div class="card col-md-12 m-2 p-2">
+            <div class="card-header d-flex">
+                <div class="col-md-3">
+                    <h5>{{advertisement_company.name}}</h5>
+                </div>
+            </div>
+            <div class="card-body m-1 p-1">
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company ID: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.id}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Contact Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.contact_name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Phone: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.phone}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Email: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.email}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Address: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{advertisement_company.address}} {{advertisement_company.city}}, {{advertisement_company.state}} - {{advertisement_company.zip_code}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Company Integrated with BlockTrust: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>
+                            {% if advertisement_company.is_integrated_with_blocktrust ==1 %}
+                            Yes
+                            {% else %}
+                            No 
+                            {% endif %}
+                        </h6></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock employee_content %}

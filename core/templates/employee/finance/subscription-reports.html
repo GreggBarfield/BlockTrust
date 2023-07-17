@@ -1,0 +1,117 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Subscription Reports" %}
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Subscription Reports</h5>
+                <a style="width:250px" class="btn btn-outline-primary float-right">Download</a>
+            </div>
+            <div class="card-body mb-2">
+                <div class="col-lg-6 mb-4">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>SECTOR</th>
+                                <th>MONTHLY AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id,name in SECTORS_ID_TO_NAME.items() %}
+                            <tr>
+                                <th>{{name}}</th>
+                                <th>{{sector_totals[id]}}</th>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-lg-12 mt-5">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ACCOUNT NUMBER</th>
+                                <th>COMPANY</th>
+                                <th>SECTOR</th>
+                                <th>START DATE</th>
+                                <th>CREATED DATE</th>
+                                <th>SUBSCRIPTION TYPE</th>
+                                <th>MONTHLY AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for account in subscribed_accounts %}
+                            <tr>
+                                <th>{{account.id}}</th>
+                                <th>{{account.company}}</th>
+                                <th>{{account.sector_name}}</th>
+                                <th name="start-date">{{account.subscription_start_date if account.subscription_start_date else 'Unknown'}}</th>
+                                <th name="create-date">{{account.created_timestamp}}</th>
+                                <th>{{"MANUAL" if account.manual_paid else "STRIPE"}}</th>
+                                <th>{{"N/A" if account.manual_paid else monthly_amount}}</th>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <table class="table col-lg-6">
+                        <thead>
+                            <tr>
+                                <th>Monthly Total (Stripe):</th>
+                                <th>${{monthly_total}}</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    let startDates = document.getElementsByName("start-date");
+    for(date of startDates){
+        if (date.innerText !== "Unknown"){
+            date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        }
+    }
+    let createDates = document.getElementsByName("create-date");
+    for(date of createDates){
+        date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric'
+        });
+    }
+    //JSON.parse converts the JSON string given by tojson to JS object
+    let subscribedAccounts = JSON.parse('{{ subscribed_accounts|tojson }}');
+    let headers = ["ACCOUNT NUMBER", "COMPANY", "SECTOR", "SUBSCRIPTION START DATE", "CREATED DATE", "SUBSCRIPTION TYPE", "MONTHLY AMOUNT"];
+    let tableExport = [headers];
+    for(account of subscribedAccounts){
+        let startDate = account.subscription_start_date? new Date(account.subscription_start_date).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric'}):"Unknown";
+        let createDate = new Date(account.created_timestamp).toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric'});
+        tableExport.push([
+            account.id, 
+            account.company,
+            account.sector_name,
+            startDate,
+            createDate,
+            account.manual_paid? "Manual" : "Stripe", 
+            account.manual_paid? "N/A" : "{{monthly_amount}}"
+        ]);
+    }
+    tableExport.push([]);
+    tableExport.push(["Monthly Total(Stripe): ", "${{monthly_total}}"])
+    let csvContent = "data:text/csv;charset=utf-8," + tableExport.map(e => e.join(",")).join("\n");
+    let encodedUri = encodeURI(csvContent);
+    let downloadButton = document.getElementsByClassName("btn-outline-primary")[0];
+    downloadButton.setAttribute("href", encodedUri);
+    downloadButton.setAttribute("download", "Subscriptions.csv");
+    downloadButton.classList.remove("d-none")
+</script>
+{% endblock employee_content %}

@@ -12,14 +12,65 @@ def _require_user():
     raise RequireUserFailed()
 
 
-class RequireAccountFailed(Exception):
+class RequireNonPartnerAccountFailed(Exception):
     pass
 
 
-def _require_account():
-    if 'account' in g and g.account is not None:
+def _require_non_partner_account():
+    if 'account' in g and not g.account.is_partner():
         return
-    raise RequireAccountFailed()
+    raise RequireNonPartnerAccountFailed()
+
+
+class RequirePaidAccountFailed(Exception):
+    pass
+
+
+def _require_paid_account():
+    if g.account.generated_paid() == 1:
+        return
+    raise RequirePaidAccountFailed()
+
+
+class RequirePartnerFailed(Exception):
+    pass
+
+
+def _require_partner_account():
+    if 'account' in g and g.account.is_partner():
+        return
+    raise RequirePartnerFailed()
+
+
+class RequireEmployeeFailed(Exception):
+    pass
+
+
+def _require_employee():
+    if 'employee' in g and g.employee is not None:
+        return
+    raise RequireEmployeeFailed()
+
+
+class RequireUserOrEmployeeFailed(Exception):
+    pass
+
+
+def _require_user_or_employee():
+    try:
+        _require_user()
+    except (RequireUserFailed):
+        pass
+    else:
+        return
+
+    try:
+        _require_employee()
+    except RequireEmployeeFailed:
+        pass
+    else:
+        return
+    raise RequireUserOrEmployeeFailed()
 
 
 def require_user(func):
@@ -29,17 +80,61 @@ def require_user(func):
     def wrapper(*args, **kwargs):
         _require_user()
         return func(*args, **kwargs)
-        
+
     return wrapper
 
 
 def require_account(func):
-    """Decorator to ensure a user has an account and is logged in."""
+    """Decorator to ensure a user has a non partner account and is logged in."""
 
     @wraps(func)
     def wrapper(*args, **kwargs):
         _require_user()
-        _require_account()
+        _require_non_partner_account()
         return func(*args, **kwargs)
     return wrapper
 
+
+def require_paid_account(func):
+    """Decorator to ensure a user has a paid account and is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user()
+        _require_non_partner_account()
+        _require_paid_account()
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def require_partner(func):
+    """Decorator to ensure a user has a partner account and is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user()
+        _require_partner_account()
+        return func(*args, **kwargs)
+    return wrapper
+
+
+def require_employee(func):
+    """Decorator to ensure a employee is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_employee()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def require_user_or_employee(func):
+    """Decorator to ensure an employee or a user with a non partner account is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user_or_employee()
+        return func(*args, **kwargs)
+
+    return wrapper

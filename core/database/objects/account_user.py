@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+
 class AccountUser:
 
     def __init__(self, db, row):
@@ -20,3 +21,6 @@ class AccountUser:
 
     def account(self):
         return self._db.accounts.get_by_account_user(self)
+
+    def is_admin(self):
+        return self._row['is_admin']

@@ -1,6 +1,7 @@
 from flask import g
 from ....common_exceptions import ExportException
 from ....reports.query_types import count_distribution
+from core.database.tables.reports import Reports
 
 
 def unauth(params):
@@ -10,12 +11,12 @@ def unauth(params):
 def auth(params):
     if 'account' in params and params['account'] is not None:
         raise ExportException("account none null not implemented")
-        # WARNING: visibility system not set up here
 
-    row = g.db.reports.get_ready_by_query(
+    row = Reports(g.db).get_ready_by_query(
         count_distribution.create(
             g.account.id(),
-            params['match_type']
+            params.get('match_type', None),
+            g.account.is_partner()
         )
     )
     if row is not None:

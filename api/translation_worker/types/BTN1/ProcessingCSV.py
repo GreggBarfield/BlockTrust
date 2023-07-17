@@ -3,13 +3,14 @@ from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
 from .medical_helper import format_data
 from .remapper import remap
+from ...exceptions import ExecutionException
 
 
 def block_key(insert):
     return None
 
 
-def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
+def handle(db: Database, insert):
     insert["fields"] = fields = remap(insert["fields"], {
         "LotNumber": "lot_no",
         "SequenceID": "sequence",
@@ -25,22 +26,25 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
     time = all_to_unix(fields["proc_date"])
     account = insert["account"]
     eid = int(fields["electronic"])  # This might fail!
+    api_insert = insert["id"]
 
     if time is None:
-        return
+        raise ExecutionException("Time is none")
 
     medical_data = format_data(
-        product=fields["prod_name"],
-        method=fields["admin_rt"],
-        location=fields["loc_name"]
+        product=fields.get("prod_name", None),
+        method=fields.get("admin_rt", None),
+        location=fields.get("loc_name", None),
+        diagnosis=fields.get("diagnosis", None)
     )
 
     if medical_data is None or medical_data == {}:
-        return
+        raise ExecutionException("Medical data is none")
 
     db.matches.types.insert_medical(
         time=time,
         data=medical_data,
         eid=eid,
-        account=account
+        partner_account=account,
+        api_insert=api_insert
     )

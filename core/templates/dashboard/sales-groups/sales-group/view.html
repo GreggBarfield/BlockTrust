@@ -9,15 +9,25 @@ View Sales Group {{ sales_group['id'] }}
 
 {% block dashboard_content %}
 
+<!-- jsPDF library -->
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+
 <div class="row">
-    <div class="col-md">
+    <div class="col">
         <div class="card">
-            <h5 class="card-header">Sales Group {{ sales_group['id'] }}</h5>
+            <h5 class="card-header">
+                Sales Group {{ sales_group['id'] }}
+            </h5>
             <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="view sales group" data-widget-sales-group="{{ sales_group['id'] }}"></p>
+                <p class="mb-0 widget" 
+                    data-widget-type="view sales group" 
+                    data-widget-sales-group="{{ sales_group['id'] }}"
+                    data-widget-qr-src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}" 
+                    data-widget-shareable-link="{{external_shareable_link}}"
+                ></p>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock dashboard_content %}

@@ -1,0 +1,18 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Sustainability Summary" %}
+{% set dashboard_locations = [("/dashboard/sustainability", "Summary")] %}
+
+{% block dashboard_content_header %}
+Sustainability Scores for {{account_name}}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="account sustainability scores" data-widget-account-id="{{account_id}}"></div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

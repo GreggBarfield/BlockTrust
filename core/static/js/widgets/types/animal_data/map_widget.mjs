@@ -30,7 +30,7 @@ export class MapWidget extends Widget {
     }
 
     initType() {
-        this.matchTypes = this.frame.getAttribute("data-widget-map-match-types").split(",");
+        this.matchTypes = this.frame.getAttribute("data-widget-match-types").split(",");
 
         let request_object = {
             params: {
@@ -39,8 +39,8 @@ export class MapWidget extends Widget {
             }
         };
         
-        if (this.frame.hasAttribute("data-widget-map-mode")) {
-            let mode = this.frame.getAttribute("data-widget-map-mode");
+        if (this.frame.hasAttribute("data-widget-mode")) {
+            let mode = this.frame.getAttribute("data-widget-mode");
             if (mode == "associated auction sale account") {
                 request_object.type = "matches_by_auction_account";
             }
@@ -49,13 +49,12 @@ export class MapWidget extends Widget {
             }
         }
         else {
-            // Support for older uses
-            if (this.frame.hasAttribute("data-widget-map-account")) {
+            if (this.frame.hasAttribute("data-widget-account")) {
                 request_object.type = "matches_by_account";
             }
             else {
                 request_object.type = "matches_by_eids";
-                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-map-animal"))];
+                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-animal"))];
             }
         }
 
@@ -71,10 +70,10 @@ export class MapWidget extends Widget {
             }),
 
             this.getData(
-                "direct/sectors_by_id",
+                "direct/sectors_id_to_name",
                 {}
             ).then((data) => {
-                this.sectors_by_id = data.sectors_by_id;
+                this.sectors_id_to_name = data.sectors_id_to_name;
             })
 
         ]).then(() => {
@@ -106,8 +105,6 @@ export class MapWidget extends Widget {
 
         const jvmLineColor = 'rgb(255,0,0)';
         const jvmMapMainName = "us_lcc";
-        const jvmMarkerInitialRadius = 10 / ((2) ** (1 / 2));
-        const jvmMarkerHoverRadius = jvmMarkerInitialRadius;
         const jvmImagePreload = true;
         const jvmMapCountyDirectory = "/static/jvm/jquery-jvectormap-us-counties/";
         function jvmMarkerDescription(event, tip, marker_index) {
@@ -138,7 +135,7 @@ export class MapWidget extends Widget {
 
             let pCompany = document.createElement("p");
             pCompany.style = "font-family: verdana; font-size:14px;font-weight:bold;color:#404040";
-            pCompany.textContent = marker.company;
+            pCompany.textContent = marker.name;
             right.append(pCompany);
 
             // Description
@@ -150,7 +147,8 @@ export class MapWidget extends Widget {
             // Sighted
             let pSighted = document.createElement("p");
             pSighted.style = "font-family: verdana; font-size:12px;padding-top:10px;color:#C0C0C0";
-            pSighted.textContent = "Sighted on " + marker.sighted;
+            if ("sighted" in marker)
+                pSighted.textContent = "Sighted on " + marker.sighted;
             right.append(pSighted);
 
             tip.html("");
@@ -165,27 +163,29 @@ export class MapWidget extends Widget {
         for (const match_row of this.match_rows) {
             let im = null;
             let marker = {
-                'name': '',
+                'name': 'Unknown',
                 'latLng': [match_row["lat"], match_row["lon"]],
                 'company': 'Unknown',
-                'sighted': this.formatDate(match_row["time"]),
                 'desc': '',
                 'fill': '#AAAAAA'
             };
+            if("time" in match_row) {
+                marker.sighted = this.formatDate(match_row["time"])
+            }
 
-            let company = match_row["account_links.company"];
+            let name = match_row["account_links.name"];
 
-            if (company != null) {
-                marker['company'] = company;
-                if (company in imageMap)
-                    im = imageMap[company];
+            if (name != null) {
+                marker['name'] = name;
+                if (name in imageMap)
+                    im = imageMap[name];
             }
 
         
 
             let sector = match_row["account_links.sector"];
             if (sector != null) {
-                let sector_name = this.sectors_by_id[sector];
+                let sector_name = this.sectors_id_to_name[sector];
                 marker['fill'] = colorMap[sector_name];
                 if (im == null && sector_name in imageMap) {
                     im = imageMap[sector_name];
@@ -307,6 +307,13 @@ export class MapWidget extends Widget {
 
         // Uses the configuration above to configure a map
         function generateMapConfig(name) {
+            let [initialRadius, hoverRadius] = [7,7];
+            if (jvmMarkers.length > 50) {
+                initialRadius = initialRadius/2;
+            }
+            else if (jvmMarkers.length > 10) {
+                initialRadius = initialRadius/1.27;
+            }
             return {
                 map: name,
                 markers: jvmMarkers,
@@ -314,10 +321,10 @@ export class MapWidget extends Widget {
                 onViewportChange: jvmViewportChange,
                 markerStyle: {
                     initial: {
-                        r: jvmMarkerInitialRadius
+                        r: initialRadius
                     },
                     hover: {
-                        r: jvmMarkerHoverRadius
+                        r: hoverRadius
                     },
                     selected: {
 

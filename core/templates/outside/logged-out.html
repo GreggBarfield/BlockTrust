@@ -1,0 +1,39 @@
+{% extends "outside/standard.html" %}
+
+
+{% set page_title = "Logged Out" %}
+
+{% block outside_banner %}
+<div class="header-inner bg-light text-center bg-overlay-dark-40 py-4 py-md-5" style="background: url(/static/images/bison_luckyb_banner2.jpg); background-size: cover">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-white mb-1">You have logged out successfully</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
+                        <li class="breadcrumb-item">
+                            <a href="/">
+                                <i class="fa fa-home pr-1"></i>
+                                Home
+                            </a>
+                        </li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock outside_banner %}
+
+{% block outside_content %}
+<section class="bg-white">
+    <div class="container col-md-12">
+        <div class="row justify-content-center">
+            <div class="card border-secondary rounded text-center col-md-5">
+                <p><h4>Thanks for using BlockTrust Network!</h4></p>
+                <p><a href="{{login_url}}" class="ml-1 btn bg-primary text-white w-25"><i class="fas fa-sign-in-alt pr-1"></i>Login again</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock outside_content %}

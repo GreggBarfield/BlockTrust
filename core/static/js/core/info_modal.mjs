@@ -12,13 +12,13 @@ export class InfoModal extends CoreModal {
         super(wide);
         let that = this;
 
-        let modalHeader = document.createElement("div");
-        modalHeader.className = "modal-header";
+        this.modalHeader = document.createElement("div");
+        this.modalHeader.className = "modal-header";
         
         let modalHeaderH5 = document.createElement("h5");
         modalHeaderH5.className = "modal-title";
-        modalHeaderH5.textContent = headerText;
-        modalHeader.append(modalHeaderH5);
+        modalHeaderH5.innerHTML = headerText;
+        this.modalHeader.append(modalHeaderH5);
 
         let modalHeaderX = document.createElement("button");
         modalHeaderX.className = "close";
@@ -26,9 +26,9 @@ export class InfoModal extends CoreModal {
             that.close();
         });
         modalHeaderX.textContent = "x";
-        modalHeader.append(modalHeaderX);
+        this.modalHeader.append(modalHeaderX);
         
-        this.modalContent.append(modalHeader);
+        this.modalContent.append(this.modalHeader);
 
         let modalBody = document.createElement("div");
         this.modalBody = modalBody;
@@ -47,6 +47,9 @@ export class InfoModal extends CoreModal {
         this.modalFooter = modalFooter;
         modalFooter.className = "modal-footer";
 
+        this.actionButtonDiv = document.createElement("div");
+        modalFooter.append(this.actionButtonDiv);
+
         let closeButton = document.createElement("button");
         closeButton.className = "btn btn-secondary";
         closeButton.textContent = "Close";
@@ -58,8 +61,16 @@ export class InfoModal extends CoreModal {
         this.modalContent.append(modalFooter);
     }
 
+    getHeader() {
+        return this.modalHeader;
+    }
+
     getBody() {
         return this.modalBody;
+    }
+
+    getActionButtonDiv() {
+        return this.actionButtonDiv;
     }
 
     getFooter() {

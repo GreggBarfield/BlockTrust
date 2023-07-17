@@ -1,14 +1,14 @@
 from flask import g
-from ....match_types import name_to_id
-from ...security.matches_visibility import apply_visibility
+
+from core.sectors import SECTORS_NAME_TO_ID
+from ....match_types import MATCH_TYPES_NAME_TO_ID, convert_match_type_names_to_ids
+from ....common_exceptions import ExportException
 
 
 def unauth(params):
     result = auth(params)
-    visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])
     return {
-        'matches': visible_matches,
-        'blocked_matches': blocked_matches
+        'matches': result['matches']
     }
 
 
@@ -22,25 +22,63 @@ def auth(params):
                 ljoin_account_links: Whether to LJOIN account links (boolean)
                     (results as account_links.column_name)
     """
-    ljoin_account_links = False
-    if "ljoin_account_links" in params:
-        ljoin_account_links = params["ljoin_account_links"]
+    if params.get("account_id", 0):
+        if g.account.is_partner():
+            account = g.db.accounts.get_accounts(id=params["account_id"])[0]
+            if account["partner_account"] == g.account.id():
+                matches = g.db.matches.get_matches(
+                        account_link=g.db.account_links.get_account_links(account_id=account["id"])[0]["id"],
+                        restrict_type=convert_match_type_names_to_ids(params['types'])[0],
+                        selectColumns=["eid", "visual_id"]
+                )
+                if matches and account["sector"] != SECTORS_NAME_TO_ID["Cow-Calf"]:
+                    owner_data = g.db.matches.get_matches_with_account_links(
+                        matches_eids=tuple(match["eid"] for match in matches),
+                        matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
+                        account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"], matches_order_by="created"
+                    )
+                    for match in matches:
+                        owner = list(filter(lambda o: o["eid"] == match["eid"], owner_data))
+                        match["name"] = owner[0]["name"] if owner else None
+                        match["visual_id"] = owner[0]["visual_id"] if owner else match["visual_id"]
 
-    restrict_types = ()
-    if 'types' in params:
-        restrict_types = name_to_id(params['types'])
+                return {
+                    "matches": matches
+                }
 
-    account_user = g.db.account_users.get_by_user_and_account_id(
-        g.user,
-        g.account.id()
-    )
-    account = account_user.account()
-    account_links = account.account_links()
+            else:
+                raise ExportException("Unauthorized")
+        else:
+            account = g.db.accounts.get_accounts(id=params["account_id"])[0]
+            account_link_id = g.db.account_links.get_account_links(account_id=account["id"])[0]["id"]
+            logged_in_account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
+            return {
+                "matches": g.db.matches.get_common_eid_data(logged_in_account_link_id, account_link_id)
+            }
+    else:
+        if 'sighted_animals' in params:
+            return {
+                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(g.account.id(), g.account.is_partner())
+            }
+        elif 'all_matches' in params:
+            if g.account.is_partner():
+                # no matches for a partner account
+                return {"matches": []}
+            else:
+                account_link_id = g.db.account_links.get_account_links(account_id=g.account.id())[0]["id"]
+                restrict_types = ()
+                if 'types' in params:
+                    restrict_types = convert_match_type_names_to_ids(params['types'])
+                return {
+                    "matches": g.db.matches.get_matches(account_link=account_link_id, restrict_type=restrict_types[0], selectColumns=["eid", "visual_id"])
+                }
+        else:
+            restrict_types = ()
+            if 'types' in params:
+                restrict_types = convert_match_type_names_to_ids(params['types'])
 
-    return {
-        "matches": g.db.matches.get_by_account_links_spread(
-            account_links,
-            restrict_types=restrict_types,
-            ljoin_account_links=ljoin_account_links
-        )
-    }
+            return {
+                "matches": g.db.matches.get_distinct_match_locations_for_account(
+                    g.account.id(), restrict_types, g.account.is_partner()
+                )
+            }

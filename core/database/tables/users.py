@@ -1,4 +1,8 @@
 from ..objects.user import User
+import bcrypt
+from ..no_value import NoValue
+
+NO_VALUE = NoValue()
 
 
 class UsersException(Exception):
@@ -13,17 +17,12 @@ class UsersException(Exception):
         super().__init__(reason)
 
 
-class NoUserFoundException(UsersException):
-    """User was not found."""
-    pass
-
-
 class Users:
 
     def __init__(self, db):
         self._db = db
 
-    def get(self, user_id):
+    def get_user_by_id(self, user_id):
         """Gets a user by their ID.
 
         Params:
@@ -44,7 +43,7 @@ class Users:
         )
 
         if len(matching_users) != 1:
-            raise UsersException()
+            return None
 
         return User(self._db, matching_users[0])
 
@@ -68,8 +67,8 @@ class Users:
             }
         )
 
-        if len(matching_users) != 1:
-            raise NoUserFoundException()
+        if len(matching_users) == 0:
+            return None
         return User(self._db, matching_users[0])
 
     def get_by_username(self, username):
@@ -93,7 +92,7 @@ class Users:
         )
 
         if len(matching_users) != 1:
-            raise NoUserFoundException()
+            return None
         return User(self._db, matching_users[0])
 
     def get_rows_by_account(self, account_id):
@@ -122,6 +121,31 @@ class Users:
         )
         return rows
 
+    def get_email_verified_status(self, email):
+        """
+        Confirms if the user email is verified
+
+        Params:
+            email:User email which needs to be looked up for verification status
+
+        Returns:
+            True if user is verified. False if not verified.
+        """
+        matching_user = self._db.execute_d(
+            """
+                SELECT * FROM users
+                WHERE
+                    email=%(email)s
+            """,
+            {
+                "email": Users._format_field(email)
+            }
+        )
+        if len(matching_user) > 0:
+            return matching_user[0]['is_email_verified']
+        else:
+            return 0
+
     @staticmethod
     def _format_field(field):
         """Format a user info field.
@@ -133,4 +157,374 @@ class Users:
             raise ValueError("field can't be None")
         if b'\x00' in field.encode("utf-8"):
             raise ValueError("Null bytes in the field??? Stop whatever is going on")
-        return field.strip(" \n\r\t")
+        field.strip(" \n\r\t")
+        return field if field != '' else None
+
+    def validate_and_insert_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
+        """Runs validations and creates a new user
+
+        Params:
+            username: username to login
+            password: password to login
+            email: email of the user
+            first_name: first name of the user
+            last_name: last name of the user
+            phone: phone of the user
+            email_verified: is email verified
+
+        Returns:
+            An User object
+
+        Raises:
+            UsersException
+        """
+
+        self.validate_user(email, password, confirm_password)
+
+        # Double-usage
+        user = self.get_by_email(email)
+        if user is not None:
+            raise UsersException("Email is already being used.")
+
+        # Double-usage. This should never happen since if email doesn't exist, username shouldn't as well. But to be absolutely sure.
+        user = self.get_by_username(username)
+        if user is not None:
+            raise UsersException("Username is already being used.")
+
+        # Process phone number
+        phone = self.process_phone(phone)
+        # We don't really care whether or not the phone is being used more than once
+
+        password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        self.insert_user(username, password, email,  email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country)
+        user = self.get_by_username(username)
+        return user
+
+    def insert_user(self, username, password=None, email=None, email_verified=int(False), phone=None, first_name=None,
+                    last_name=None, recaptcha_score=None, ip_address=None, ip_country=None,
+                    is_system_generated=int(False)):
+        """Inserts a new user record to the users table"""
+
+        self._db.execute(
+            """
+                INSERT INTO users
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score,
+                     ip_address, ip_country, is_system_generated)
+                    VALUES
+                    (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s,
+                        %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s, %(is_system_generated)s)
+            """,
+            {
+                "password": password,
+                "username": username,
+                "phone": phone,
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
+                "email_verified": email_verified,
+                "recaptcha_score": recaptcha_score,
+                "ip_address": ip_address,
+                "ip_country": ip_country,
+                "is_system_generated": is_system_generated
+            }
+        )
+        return self._db.last_row_id()
+
+    def is_user_deletable(self, user):
+        """This runs checks to find if a user record is deletable.
+
+        Params:
+            id: The user object
+
+        Returns:
+            True Or False
+        """
+        account_users = self._db.account_users.get_by_user(user)
+        if len(account_users) > 0:
+            return False
+        else:
+            return True
+
+    def delete_by_user(self, user):
+        """Delete a user record if it is deletable
+
+        Params:
+            user: The user's object
+
+        Returns:
+            True if success else False
+        """
+        if self.is_user_deletable(user):
+            self._db.execute_d(
+                """
+                    DELETE FROM users
+                    WHERE
+                        id=%(id)s
+                """,
+                {
+                    "id": user.id()
+                }
+            )
+
+    def create_pseudo_user(self, account_id, is_partner=False):
+        """Inserts an entry to user table. Routine is created for system generated users
+
+        Params:
+            username: username to login
+            password: password to login
+            first_name: first name of the user
+            last_name: last name of the user
+
+        Returns:
+            User Id
+
+        Raises:
+            UsersException
+        """
+
+        if is_partner:
+            username = f"DefaultUserPartner#{account_id}"
+            first_name = "Default"
+            last_name = "User"
+        else:
+            username = f"DefaultAdminAccount#{account_id}"
+            first_name = "Default"
+            last_name = "Admin"
+        
+        user = self.get_by_username(username)
+        if user is not None:
+            raise UsersException("Username is already being used.")
+
+        return self.insert_user(username=username, first_name=first_name, last_name=last_name,
+                                is_system_generated=int(True))
+
+    def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                  is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
+                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE):
+        """
+        Returns the users based on provided attributes
+
+        Params:
+            id: USer ID
+            username: username to login
+            email: email to login
+            phone: phone number of user
+            first_name: first name of the user
+            last_name: last name of the user
+            is_email_verified: email verification status
+            failed_attempts: failed login attempts
+            is_user_locked: user account locked status
+            is_system_generated: indicates if user is system generated
+
+        Returns:
+            A list of users or None
+
+        """
+        base_query = "SELECT u.* FROM users u INNER JOIN account_users au ON u.id = au.user"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("u.id = %(id)s")
+            query_values["id"] = id
+        if username is not NO_VALUE:
+            query_conditions.append("username = %(username)s")
+            query_values["username"] = username
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s")
+            query_values["email"] = email
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s")
+            query_values["last_name"] = last_name
+        if is_email_verified is not NO_VALUE:
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
+            query_values["is_email_verified"] = is_email_verified
+        if failed_attempts is not NO_VALUE:
+            query_conditions.append("failed_attempts = %(failed_attempts)s")
+            query_values["failed_attempts"] = failed_attempts
+        if is_user_locked is not NO_VALUE:
+            query_conditions.append("is_user_locked = %(is_user_locked)s")
+            query_values["is_user_locked"] = is_user_locked
+        if locked_time is not NO_VALUE:
+            query_conditions.append("locked_time = %(locked_time)s")
+            query_values["locked_time"] = locked_time
+        if is_system_generated is not NO_VALUE:
+            query_conditions.append("is_system_generated = %(is_system_generated)s")
+            query_values["is_system_generated"] = is_system_generated
+        if recaptcha_score is not NO_VALUE:
+            query_conditions.append("recaptcha_score = %(recaptcha_score)s")
+            query_values["recaptcha_score"] = recaptcha_score
+        if account_users__account is not NO_VALUE:
+            query_conditions.append("au.account = %(account_users__account)s")
+            query_values["account_users__account"] = account_users__account
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+
+        user_rows = self._db.execute_d(query, query_values)
+        if len(user_rows) > 0:
+            return user_rows
+        else:
+            return []
+
+    def get_users_and_accounts(self, user_id=NO_VALUE, user_email=NO_VALUE):
+        """
+        Gets the user and accounts based on parameters
+
+        Params:
+            user_id: user id
+
+        Returns:
+            A list of user and account rows joined or an empty list
+        """
+
+        base_query = """
+            SELECT *, u.id as user_id, a.id as account_id, u.phone as user_phone, a.phone as account_phone FROM users u
+            INNER JOIN account_users au on au.user = u.id
+            INNER JOIN accounts a on a.id = au.account 
+        """
+        query_conditions = []
+        query_values = {}
+
+        if user_id is not NO_VALUE:
+            query_conditions.append("u.id = %(user_id)s")
+            query_values["user_id"] = user_id
+
+        if user_email is not NO_VALUE:
+            query_conditions.append("u.email = %(user_email)s")
+            query_values["user_email"] = user_email
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        result_rows = self._db.execute_d(query, query_values)
+        if len(result_rows) > 0:
+            return result_rows
+        else:
+            return []
+
+    def validate_user(self, email, password=NO_VALUE, confirm_password=NO_VALUE):
+        if len(email) == 0:
+            raise UsersException("Email is blank.")
+        if '@' not in email or '.' not in email or len(email) < 5:
+            raise UsersException("The email you entered is incomplete.")
+        if ' ' in email:
+            raise UsersException("Spaces cannot be in the email.")
+
+        if password is not NO_VALUE:
+            if len(password) < 8:
+                raise UsersException("Password must be at least 8 characters.")
+
+            if len(password.encode("utf-8")) > 60:
+                raise UsersException("Your password is too long.")
+
+            if (password != confirm_password):
+                raise UsersException("Password and Confirm password are not the same!")
+
+    def process_phone(self, phone):
+        if phone is not None:
+            # Process phone number
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        return phone
+
+    def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
+        """
+        Transforms, validates and updates an user record.
+        """
+
+        if email is not NO_VALUE:
+            existing_row = self.get_users(id=id)[0]
+            if existing_row["email"] != email:
+                # Double-usage.
+                existing_user = self.get_users(email=email)
+                if len(existing_user) > 0:
+                    raise UsersException("Email is already being used.")
+                else:
+                    # email will be updated
+                    # is_email_verified = 0
+                    pass
+            else:
+                # don't update since email is same
+                email = NO_VALUE
+
+        # Process phone number
+        if phone is not NO_VALUE:
+            phone = self.process_phone(phone)
+
+        self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
+
+    def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
+        """
+        Updates an user.
+
+        Params:
+            username: This is the user id, just the user can see it
+            email: email address of user,just the user can see it
+            password: This is corresponding password used to login
+            phone: phone number of user
+            first: first name of the user.
+            last: last name of the user.
+        """
+        base_query = "UPDATE users"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s")
+            query_values["email"] = email
+            query_conditions.append("username = %(username)s")
+            query_values["username"] = email
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s")
+            query_values["last_name"] = last_name
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if password is not NO_VALUE:
+            query_conditions.append("password = %(password)s")
+            query_values["password"] = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        if is_email_verified is not NO_VALUE:
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
+            query_values["is_email_verified"] = is_email_verified
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update user record")
+        return self._db.row_count()

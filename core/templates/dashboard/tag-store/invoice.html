@@ -1,0 +1,16 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Invoice" %}
+{% set dashboard_locations = [("/shop/tag-store", "Tag Store")] %}
+{% block dashboard_content_header %}
+Invoice
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+        <div class = "col-sm-12 mb-0 widget" data-widget-type = "invoice"></div>
+    </div>
+</div>
+{% endblock dashboard_content %}

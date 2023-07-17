@@ -1,0 +1,248 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Upload Tag Data" %}
+{% set dashboard_locations = [("/dashboard/upload-tags", "Upload Tag Data")] %}
+
+{% block dashboard_content_header %}
+Upload Tag Data
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col">
+      <div id="popup" class="alert alert-success d-none justify-content-between">
+        <p id="popupText" class="m-0"></p>
+        <button type="button" class="close ml-3" onclick="{
+            $('#popup').removeClass('d-flex');
+            $('#popup').addClass('d-none');
+          }">x</button>
+      </div>
+        <div class="card" style="width:100%;">
+            <h5 class="card-header">Tag Data Smart Upload</h5>
+            <div class="card-body">
+                <p>This module allows you to upload your tag numbers, 
+                    plus any associated data simply by dropping your file 
+                    into ‘the bucket’. Our system will help you clean it up, 
+                    if necessary, then put it in the proper place in our system 
+                    so you can track your animals up and down the beef supply 
+                    chain.</p>
+                <p>Currently we are accepting the following data fields automatically:</p>
+                <ul class="mb-0">
+                  <li>Electronic Tag Number (15 digit EID associated with the tag)</li>
+                  <li>Visual Tag Number</li>
+                  <li>Sighting Date (if not present, upload date will be used)</li>
+                  <li>Date of Birth</li>
+                  <li>Birth Weight</li>
+                  <li>Breed</li>
+                </ul>
+                <details class="mb-3">
+                  <summary>See Complete List</summary>
+                  <ul>
+                    <li>Calf Registration Number</li>
+                    <li>Sire Registration Number</li>
+                    <li>Dam Registration Number</li>
+                    <li>Weaning Date</li>
+                    <li>Wean Weight</li>
+                    <li>Creep Feed</li>
+                    <li>Sex</li>
+                    <li>Implants</li>
+                  </ul>
+                </details>
+                <p>If there are other data points you want to add, please Contact Us</p>
+                <p>
+                    To begin, you must have your data in a data file (Excel Spreadsheet 
+                    or Comma Delimited file). Field names must be at the top of each 
+                    column. Remember where you have it stored on your computer.
+                </p>
+                <p>
+                    Push the button below and follow the instructions. 
+                    You will receive a confirmation email once the data is 
+                    loaded (should be immediately).
+                </p>
+                <button class="btn btn-primary" onclick="postData()">Start Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+    
+<script>
+function postData()
+{
+  importer.requestDataFromUser().then(function(results) { 
+    console.log(results)
+      $('#popup').removeClass('d-none');
+      $('#popup').addClass('d-flex');
+      $('#popupText').html('You successfully uploaded ' + results.data.length + ' tag(s) on ' + 
+                            new Date().toLocaleString() + '. ' + 
+                            'Some supply chain data may be processed overnight. Once processed, it will be reflected ' + 
+                            '<a href="/dashboard"><u>on your dashboard. </u></a>' +
+                            'If you have any questions, please contact us.');
+
+      importer.displaySuccess('Thanks for uploading your data!');
+      fetch('/dashboard/upload-tags', {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+                  eids: results.data
+              }),
+      });
+  })
+}
+const importer = new FlatfileImporter('{{license}}', {
+  type: "EID import",
+  title: "EID import",
+  managed: true,
+  fields: [
+      { 
+        key: "eid", label: "Electronic ID (EID)",
+        validators: [
+        { validate: "required" },
+        { validate: "unique" },
+        {
+          validate: 'regex_matches',
+          regex: '^[0-9]{15}$',
+          error: 'Only can be a unique number and must be 15 digits in length.'
+        }
+      ]},
+      { 
+        key: "sighting_date", label: "Sighting Date",
+        validators: []
+      },
+      { 
+        key: "birth_date", label: "Date of Birth",
+        validators: [
+
+      ]},
+      { 
+        key: "wean_date", label: "Weaning Date",
+        validators: [
+
+      ]},
+      { 
+        key: "breed", label: "Breed",
+        validators: [
+
+      ]},
+      { 
+        key: "birth_weight", label: "Birth Weight",
+        validators: [
+          {
+            validate: 'regex_matches',
+            regex: '^([0-9]+[.])?[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+      ]},
+      { 
+        key: "calf_reg_no", label: "Calf Registration #",
+        validators: [
+        {
+            validate: 'regex_matches',
+            regex: '^[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+      ]},
+      { 
+        key: "sire_reg_no", label: "Sire Registration #",
+        validators: [
+        {
+            validate: 'regex_matches',
+            regex: '^[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+      ]},
+      { 
+        key: "dam_reg_no", label: "Dam Registration #",
+        validators: [
+        {
+            validate: 'regex_matches',
+            regex: '^[0-9]+$',
+            error: 'Only can be a number.'
+          }  
+      ]},
+      { 
+        key: "visual_id", label: "Visual Tag Number",
+        validators: [
+
+      ]},
+      { 
+        key: "wean_weight", label: "Wean Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]+[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "wean_date", label: "Wean Date",
+        validators: [
+
+      ]},
+      { 
+        key: "sex", label: "Sex",
+        validators: [
+
+        ]
+      },
+      { 
+        key: "birth_weight", label: "Birth Weight",
+        validators: [
+        {
+          validate: 'regex_matches',
+          regex: '^([0-9]*[.])?[0-9]+$',
+          error: 'Only can be a number and/or decimal.'
+        }
+      ]},
+      { 
+        key: "description", label: "Calf Description",
+        validators: [
+
+      ]},
+      { 
+        key: "creep_feed", label: "Creep Feed",
+        validators: [
+
+      ]},
+      { 
+        key: "implants", label: "Implants",
+        validators: [
+
+      ]}
+    ],
+  i18nOverrides: {
+    en: {
+      otherLocales: ["en-US", "en-CA", "en-GB"],
+      overrides: {
+        fileTypes:
+          "<p style=\"padding-bottom: 1em;\">Here you can upload your tag numbers (both electronic or visual) and any other data associated with them, " +
+          "like birthdates or weight. On the left there is a list of all the acceptable data types. Please remember " +
+          "that there can only be one record per row.</p>" +
+          "<p style=\"padding-bottom: 1em;\">The next step will allow you to match your spreadsheet columns to the right data points within our system. " +
+          "You'll be able to clean up or remove any corrupted data before it is uploaded.</p>" +
+          "<p><a href=\"#\">CLICK HERE</a> for more information about how to upload data.</p>", // TODO: Need to fill out href on a tag when link is ready.
+      }
+    }
+  },
+  theme: {
+      buttons: {
+          primary: {
+              backgroundColor: "#8b4513",
+              border: "1px solid #8b4513",
+              ":hover": {
+                  backgroundColor: "#722C00",
+                  border: "1px solid #722C00"
+              }
+          }
+      },
+    }
+});
+
+importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email:'{{user.email()}}'});
+</script>
+
+{% endblock dashboard_content %}

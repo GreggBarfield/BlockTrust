@@ -6,16 +6,6 @@ from .tables.account_users import AccountUsers
 from .tables.account_links import AccountLinks
 from .tables.users import Users
 from .tables.matches import Matches
-from .tables.animals import Animals
-from .tables.sales_groups import SalesGroups
-from .tables.sales_group_eids import SalesGroupEIDs
-from .tables.sales_group_intervals import SalesGroupIntervals
-from .tables.files import Files
-from .tables.zip_codes import ZIPCodes
-from .tables.messages import Messages
-from .tables.auction_sales import AuctionSales
-from .tables.matches_type_visibility import MatchesTypeVisibility
-from .tables.reports import Reports
 
 # all SQL should be in tables/ and in this file
 # objects/ can use tables/ but can't use SQL
@@ -44,16 +34,7 @@ class Database:
         self.account_users = AccountUsers(self)
         self.users = Users(self)
         self.matches = Matches(self)
-        self.animals = Animals(self)
         self.account_links = AccountLinks(self)
-        self.sales_groups = SalesGroups(self)
-        self.sales_group_eids = SalesGroupEIDs(self)
-        self.files = Files(self)
-        self.zip_codes = ZIPCodes(self)
-        self.messages = Messages(self)
-        self.auction_sales = AuctionSales(self)
-        self.matches_type_visibility = MatchesTypeVisibility(self)
-        self.reports = Reports(self)
 
     def connect(self):
         try:
@@ -68,7 +49,7 @@ class Database:
             pass
         self._connection = mysql.connect(**self._sql_config)
         self._cursor = self._connection.cursor(dictionary=True)
-        print("SECURE:", self._connection._ssl_active)
+        #print("SECURE:", self._connection._ssl_active)
         return self._cursor
 
     def execute(self, code, params=tuple(), allow_retry=True, multi=False):
@@ -96,8 +77,17 @@ class Database:
             raise error
 
     def execute_d(self, code, params=tuple()):
+        """Executes a query with params provided.
+
+        Returns:
+            List of dictionaries possibly empty
+        """
         self.execute(code, params)
         return self.fetch_all()
+
+    def execute_fetch_one(self, code, params=tuple()):
+        self.execute(code, params)
+        return self._cursor.fetchone()
 
     def exec_frag_d(self, kvs):
         """Executes a frag() style return value.
@@ -162,3 +152,19 @@ class Database:
 
     def row_count(self):
         return self._cursor.rowcount
+
+    def execute_many(self, query, data):
+        """Prepares a database operation (query or command) and executes it against all parameter sequences or mappings
+
+        Params:
+            data: list of tuples
+            query: the SQL statement
+        """
+        self._cursor.executemany(query, data)
+
+    def close(self):
+        self._cursor.close()
+        self._connection.close()
+    
+    def commit(self):
+        self._connection.commit()

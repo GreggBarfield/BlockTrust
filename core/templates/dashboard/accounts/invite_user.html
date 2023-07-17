@@ -1,0 +1,40 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/inviteuser", "Invite User")] %}
+
+{% block dashboard_content_header %}
+Invite User
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 text-center">
+            <div class="mb-3">
+                <h4>Invite New User</h4>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6 mb-2">
+            <form class="bg-white shadow p-3"  id="invite_user_form"  method="POST"> 
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="invite_user_email">Enter User Email</label>
+                        <input type="text" class="form-control" placeholder="johndoe@gmail.com" id="invite_user_email">
+                        <span class="focus-border"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Invite</button>
+                </div>
+                
+                <p class="mt-2 mb-0" id="inviteuser_status_message" style="display:none;">Hang on, we're sending an invite...</p>
+                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="inviteuser_error_message">Invite error...</p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="/static/entry_points/dashboard/accounts/invite_user.mjs" ></script> 
+{% endblock dashboard_content %}

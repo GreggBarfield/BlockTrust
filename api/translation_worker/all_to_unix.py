@@ -2,12 +2,11 @@ from .exceptions import ExecutionException
 from dateutil.parser import isoparse, parse
 from datetime import datetime, timezone
 import re  # Note that it automatically caches up to MAXCACHE
+from pytz import timezone as pytz_timezone
 
 
-def all_to_unix(d):
+def all_to_unix(d, tz=pytz_timezone('Etc/GMT+11')):
     """Converts a date time string to Unix timestamp.
-
-    Assumed to be UTC/GMT unless otherwise stated.
 
     Params:
         d: String
@@ -49,7 +48,7 @@ def all_to_unix(d):
         raise ExecutionException("Dateutil failed to parse date: " + d)
 
     if result.tzinfo is None:
-        result = result.replace(tzinfo=timezone.utc)
+        result = result.replace(tzinfo=tz)
 
     # These checks shouldn't return None as we should have already validated
     # that it is a good date.

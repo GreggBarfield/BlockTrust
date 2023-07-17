@@ -1,9 +1,10 @@
 import { Widget } from '../../widget.mjs';
 
 export class SearchEIDsWidget extends Widget {
-    constructor(frame, searchFrame) {
+    constructor(frame, searchFrame, postRoute) {
         super(frame);
         this.searchFrame = searchFrame;
+        this.postRoute = postRoute;
     }
 
     initType() {
@@ -26,7 +27,7 @@ export class SearchEIDsWidget extends Widget {
         eidNumberFormGroup.className = "form-group col-md-6";
         firstFormRow.append(eidNumberFormGroup);
         let eidLabel = document.createElement("label");
-        eidLabel.textContent = "EID";
+        eidLabel.textContent = "Enter 15-digit EID or Visual ID Number";
         eidNumberFormGroup.append(eidLabel);
 
         this.inputs.eidNumber = document.createElement("input");
@@ -58,6 +59,7 @@ export class SearchEIDsWidget extends Widget {
 
         this.results = document.createElement("div");
         this.results.style.display = "none";
+        this.results.style.marginLeft = "-0.5rem";
         this.frame.append(this.results);
     }
 
@@ -73,10 +75,6 @@ export class SearchEIDsWidget extends Widget {
             this.showError("Please enter a EID number.");
             return;
         }
-        else if(this.inputs.eidNumber.value.length != 15) {
-            this.showError("EID number must have exactly 15 digits.");
-            return;
-        }
 
         this.resultsHr.style.display = "block";
         this.results.style.display = "block";
@@ -88,7 +86,7 @@ export class SearchEIDsWidget extends Widget {
             </div>';
       
         this.getData(
-            "search_by_eid_if_visible",  
+            this.postRoute,
             {
                 search: {
                     eid: parseInt(this.inputs.eidNumber.value)
@@ -104,9 +102,55 @@ export class SearchEIDsWidget extends Widget {
     }
 
     handleSearchResults(data) {
-        if(data.matches === 0)
+        if(data.matches.length == 0)
             this.results.innerHTML = "<div style='text-align:center;'>0 results</div>";
-        else
-            window.location.href = location.protocol + "//" + location.host + "/dashboard/animals/" + this.inputs.eidNumber.value;
+        else if(data.matches.length == 1) {  
+            window.location.href = location.protocol + "//" + location.host + data.redirect_route + data.matches[0].eid;
+        }
+        else {
+            this.results.innerHTML = "";
+
+            let mainTable = document.createElement("table");
+            mainTable.className = "table table-bordered nowrap";
+
+            // Header
+            let mainTableHead = document.createElement("thead");
+            mainTable.appendChild(mainTableHead);
+    
+            let mainTableHeadRow = document.createElement("tr");
+            mainTableHead.appendChild(mainTableHeadRow);
+            const headers = ["EID number", "Visual Id", ""];
+            for (const headerText of headers) {
+                let th = document.createElement("th");
+                th.textContent = headerText;
+                mainTableHeadRow.appendChild(th);
+            }
+
+             let mainTableBody = document.createElement("tbody");
+             mainTable.appendChild(mainTableBody);
+
+            for(const match of data.matches) {
+                let rowTag = document.createElement("tr");
+                mainTableBody.appendChild(rowTag);
+
+                let tdEID = document.createElement("td");
+                tdEID.innerHTML = match.eid;
+                rowTag.appendChild(tdEID);
+
+                let tdvisualID = document.createElement("td");
+                tdvisualID.innerHTML = match.visual_id;
+                rowTag.appendChild(tdvisualID);          
+
+                let tdSelect = document.createElement("td");
+                rowTag.appendChild(tdSelect);
+                let btnSelect = document.createElement("a");
+                btnSelect.className = "btn btn-info btn-md";
+                btnSelect.setAttribute("href", data.redirect_route + match.eid);
+                btnSelect.textContent = "Select";
+                tdSelect.appendChild(btnSelect);
+            }
+            
+            this.results.append(mainTable);
+        }
     }
 }

@@ -1,0 +1,29 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Plans" %}
+{% set dashboard_locations = [("/dashboard/plans", "Plans")] %}
+
+{% block dashboard_content_header %}
+Plans
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <h5 class="card-header">Plans</h5> 
+            {% if dashboard_standard_account.generated_paid() %}
+            <div class="card-body">
+                <h4>You have already subscribed. Thank you!</h4>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <p class="mb-0 widget" data-widget-type="plans"></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock dashboard_content %}

@@ -1,0 +1,11 @@
+{% extends "email/standard.html" %}
+{% block email_standard_subdescription %}
+<br>
+<div>
+    <p>You have received a connection request from {{account_company}}. Please click the button below to respond.</p>
+    <p><a href="https://ledgerspacedev.com/signup" style="color:#ffffff;width:25%;font-size:16px;font-family:Helvetica,sans-serif;border-radius:6px;line-height:20px;display:block;font-weight:700;white-space:nowrap;background-color:#0d6efd;padding:12px;border:1px solid #0d6efd;text-align:center;">Signup</a></p>
+    <p>Thank you!</p>
+</div>
+<br>
+(Please don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

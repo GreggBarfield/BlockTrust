@@ -9,9 +9,9 @@ services:
       - ../../../core:/home/ubuntu/core
       - ../../../api:/home/ubuntu/api
     ports:
-      - "127.0.0.1:5001:80"
+      - "5001:80"
 
 networks:
   default:
-    external:
-      name: btn-core_default
+    name: btn-core_default
+    external: true

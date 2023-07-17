@@ -1,0 +1,107 @@
+{% extends "email/standard.html" %}
+
+{% block email_standard_center %}
+<table>
+    <tr>
+        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
+            <p style="margin: 0;">New Registration Information</p>
+        </td>
+    </tr>
+</table>
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
+<head>
+    <style>
+        table {
+        border-spacing: 0 !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+        margin: 0 auto !important;
+        padding: 15 px;
+        }
+        th {
+        display: table-cell;
+        vertical-align: middle;
+        font-weight: bold;
+        padding: 8px;
+        background-color: #88888829;
+        }
+        td {
+        display: table-cell;
+        padding: 15px;
+        }
+    </style>
+</head>
+<div class="card">
+    <h3 class="card-header">Account Information</h3>
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Account Name</th>
+                <td>{{user_account.name}}</td>
+            </tr>
+            <tr>
+                <th>Account Company</th>
+                <td>{{user_account.company}}</td>
+            </tr>
+            <tr>
+                <th>Sector</th>
+                <td>{{sectors_id_to_name[user_account.sector]}}</td>
+            </tr>
+            <tr>
+                <th>Partner</th>
+                <td>{{partner_account_company}}</td>
+            </tr>
+            <tr>
+                <th>Affiliate ID</th>
+                <td>{{user_account.affiliate_id}}</td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td>{{user_account.address}}</td>
+            </tr>
+            <tr>
+                <th>City</th>
+                <td>{{user_account.city}}</td>
+            </tr>
+            <tr>
+                <th>State</th>
+                <td>{{user_account.state}}</td>
+            </tr>
+            <tr>
+                <th>Zip</th>
+                <td>{{user_account.zip}}</td>
+            </tr>
+            <tr>
+                <th>Account Phone</th>
+                <td>{{user_account.account_phone}}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3 class="card-header">User Information</h3>
+    <table class="table">
+    <tbody>
+        <tr>
+            <th>First Name</th>
+            <td>{{user_account.first_name}}</td>
+        </tr>
+        <tr>
+            <th>Last Name</th>
+            <td>{{user_account.last_name}}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{user_account.email}}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{user_account.user_phone}}</td>
+        </tr>
+    </tbody>
+    </table>
+</div>
+<br><br>
+(Don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

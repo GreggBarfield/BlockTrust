@@ -17,40 +17,27 @@ export class SectorsWidget extends Widget {
                         type: 'matches_by_eids',
                         params: {
                             eids: [this.animal],
-                            ljoin_account_links: true
+                            ljoin_account_links: true,
+                            ljoin_animals: true
                         }
                     }
                 }
             ).then((data) => {
                 this.match_rows = data.result.matches;
             }),
-
-            this.getData(
-                "direct/sectors_by_id",
-                {}
-            ).then((data) => {
-                this.sectors_by_id = data.sectors_by_id;
-            }),
             
             this.getData(
-                "direct/sectors_by_name",
+                "direct/sectors_name_to_id",
                 {}
             ).then((data) => {
-                this.sectors_by_name = data.sectors_by_name;
-            }),
-            
+                this.sectors_name_to_id = data.sectors_name_to_id;
+            }),         
+           
             this.getData(
-                "direct/match_types_by_id",
+                "direct/match_types_name_to_id",
                 {}
             ).then((data) => {
-                this.match_types_by_id = data.match_types_by_id;
-            }),
-            
-            this.getData(
-                "direct/match_types_by_name",
-                {}
-            ).then((data) => {
-                this.match_types_by_name = data.match_types_by_name;
+                this.match_types_name_to_id = data.match_types_name_to_id;
             })
 
         ]).then(() => {
@@ -68,8 +55,8 @@ export class SectorsWidget extends Widget {
     }
 
     prepData() {
-        let match_types_by_name=this.match_types_by_name;
-        let sectors_by_name=this.sectors_by_name;
+        let matchTypesNameToId=this.match_types_name_to_id;
+        let sectors_name_to_id=this.sectors_name_to_id;
         let match_rows=this.match_rows;
         let formatDate = this.formatDate;
 
@@ -113,9 +100,9 @@ export class SectorsWidget extends Widget {
             return formatDate(v);
         }
 
-        function useAccountLinkCompany(converter=convAsIs) {
+        function useAccountLinkName(converter=convAsIs) {
             return function (row) {
-                return converter(row["account_links.company"]);
+                return converter(row["account_links.name"]);
             }
         }
         
@@ -133,19 +120,19 @@ export class SectorsWidget extends Widget {
 
         function filterMatchTypeDataValue(matchTypeStr, dataValue) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr] && row.data === dataValue;
+                return row.type === matchTypesNameToId[matchTypeStr] && row.data === dataValue;
             }
         }
 
         function filterMatchTypeAccountLinkSector(matchTypeStr, sectorName) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr] && row["account_links.sector"] === sectors_by_name[sectorName];
+                return row.type === matchTypesNameToId[matchTypeStr] && row["account_links.sector"] === sectors_name_to_id[sectorName];
             }
         }
 
         function filterMatchType(matchTypeStr) {
             return function (row) {
-                return row.type === match_types_by_name[matchTypeStr];
+                return row.type === matchTypesNameToId[matchTypeStr];
             }
         }
 
@@ -165,12 +152,24 @@ export class SectorsWidget extends Widget {
             }
         }
 
-        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null) {
+        function addField(sectorName, tabName, dataLabel, __filter=null, __use=null, combined=null, matchColumn=null, isTime=null) {
             let numAdded = 0;
             if (combined === null) {
                 combined = [[__filter, __use]];
             }
             for (const match_row of match_rows) {
+                if (matchColumn != null) {
+                    let res = isTime? formatDate(match_row[matchColumn]): match_row[matchColumn];
+                    if(res != null) {
+                        addData(sectorName, tabName, dataLabel, res);
+                        numAdded +=1;
+                        break
+                    }
+                    else{
+                        //some fields like visual_id are not null only on some match rows and hence continue check
+                        continue;
+                    }
+                }
                 for (const pair of combined) {
                     const filter = pair[0];
                     const use = pair[1];
@@ -183,24 +182,32 @@ export class SectorsWidget extends Widget {
                         numAdded += 1;
                     }
                 }
-            }
+            } 
             if (numAdded == 0) {
-                addData(sectorName, tabName, dataLabel, "");
+                addData(sectorName, tabName, dataLabel, "--");
             }
         }
 
         // Shared
         for (const displaySector of displaySectors) {
             addSector(displaySector);
-            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkCompany());
+            addField(displaySector, "Demographics", displaySector + " Company", filterMatchTypeAccountLinkSector("Sighting", displaySector), useAccountLinkName());
             addField(displaySector, "Demographics", "Sighted", filterMatchTypeAccountLinkSector("Sighting", displaySector), useTime());
         }
 
         // Cow-Calf info
         addField("Cow-Calf", "Demographics", "Born", filterMatchType("Born"), useTime());
-        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, [[filterMatchType("Visual ID"), useDataValue()], [filterMatchType("Visual ID Complex"), useDataValue()]]);
+        addField("Cow-Calf", "Demographics", "Visual Tag", null, null, null, "visual_id");
         addField("Cow-Calf", "Demographics", "Weaned", filterMatchType("Weaned"), useTime());
         addField("Cow-Calf", "Demographics", "Weaned At", filterMatchType("Weaned"), useDataJson("at"));
+        addField("Cow-Calf", "Demographics", "Weaned Weight", filterMatchType("Weaned"), useDataJson("wean_weight"));
+        addField("Cow-Calf", "Demographics", "Birth Weight", null, null, null, "birth_weight");
+        addField("Cow-Calf", "Demographics", "Breed", null, null, null, "breed");
+        addField("Cow-Calf", "Demographics", "Sex", null, null, null, "sex");
+        addField("Cow-Calf", "Demographics", "Implants", null, null, null, "implants");
+        addField("Cow-Calf", "Demographics", "Calf Registration Number", null, null, null, "calf_registration_number");
+        addField("Cow-Calf", "Demographics", "Sire Registration Number", null, null, null, "sire_registration_number");
+        addField("Cow-Calf", "Demographics", "Dam Registration Number", null, null, null, "dam_registration_number");
 
         // Cow-Calf Feed
         addField("Cow-Calf", "Feed", "Creepfeed", filterMatchType("Weaned"), useDataJson("creep_feed"));
@@ -215,13 +222,28 @@ export class SectorsWidget extends Widget {
         addField("Cow-Calf", "Market", "At", filterMatchType("Sold"), useDataJson("location"));
         addField("Cow-Calf", "Market", "Group Size", filterMatchType("Sold"), useDataJson("group_size"));
 
+        // Feedlot
+        addField("Feedlot", "Demographics", "Lot Number", null, null, null, "lot_number");
+        addField("Feedlot", "Demographics", "Pen Number", null, null, null, "pen_number");
+        addField("Feedlot", "Demographics", "Feeder Weight", null, null, null, "feeder_weight");
+        addField("Feedlot", "Demographics", "Feeder Account Number", null, null, null, "feeder_account_number");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Weight", null, null, null, "terminal_reimplant_weight");
+        addField("Feedlot", "Demographics", "Terminal Re-implant Date", null, null, null, "terminal_reimplant_date", true);
+
         // Packer Quality
         addField("Packer", "Quality", "Hot Weight", filterMatchType("Hot Weight"), useDataValue());
         addField("Packer", "Quality", "USDA Quality Grade", filterMatchType("USDA Quality Grade"), useDataValue());
         addField("Packer", "Quality", "USDA Yield Grade", filterMatchType("USDA Yield Grade"), useDataValue());
-        addData("Packer", "Quality", "Ribeye Area", "");
-        addData("Packer", "Quality", "Marbling Score", "");
-        addData("Packer", "Quality", "Fat Thickness", "");
+        addField("Packer", "Quality", "Harvest Date", null, null, null, "harvest_date", true);
+        addField("Packer", "Quality", "Program Certification", null, null, null, "program_certification");
+        addField("Packer", "Quality", "Ribeye Area", null, null, null, "ribeye_area");
+        addField("Packer", "Quality", "Marbling Score", null, null, null, "marbling_score");
+        addField("Packer", "Quality", "Marbling Score Code", null, null, null, "marbling_score_code");
+        addField("Packer", "Quality", "Fat Thickness", null, null, null, "fat_thickness");
+        addField("Packer", "Performance", "Calculated Live Weight", null, null, null, "calculated_live_weight");
+        addField("Packer", "Performance", "Total Gain", null, null, null, "total_gain");
+        addField("Packer", "Performance", "Days On Test", null, null, null, "days_on_test");
+        addField("Packer", "Performance", "Average Daily Gain", null, null, null, "average_daily_gain");
     }
 
     selectTab(tab, sector) {

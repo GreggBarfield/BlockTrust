@@ -23,7 +23,9 @@ function uploadFileToS3(config, file, progress=null) {
                     if (perc > 0.98) {
                         perc = 0.98;
                     }
-                    progress(perc);
+                    if (progress != null) {
+                        progress(perc);
+                    }
                 }
             }, false);
             return x;
@@ -44,14 +46,17 @@ function uploadFileToS3(config, file, progress=null) {
     });
 }
 
-export function uploadFile(userOwns, accountOwns, file, progress=null) {
+export function saveAndUploadFile(userOwns, accountOwns, file, progress=null, questionId=null, employeeOwns=false, file_s3_path=null) {
     let dataResult = null;
     return $.ajax({
-        url: "/widgets/data/get_upload_config",
+        url: "/widgets/data/save_file_and_get_upload_config",
         data: JSON.stringify({
             "user_owns": userOwns === true,
             "account_owns": accountOwns === true,
-            "file_name": file.name
+            "file_name": file.name,
+            "question_id": questionId,
+            "employee_owns": employeeOwns,
+            "file_s3_path": file_s3_path
         }),
         contentType: 'application/json',
         method: "POST"

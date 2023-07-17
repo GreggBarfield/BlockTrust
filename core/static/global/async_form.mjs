@@ -11,14 +11,26 @@ export class AsyncForm {
         this.getData = options.getData;
         this.asJSON = options.asJSON;
         this.requestRedirectTo = options.requestRedirectTo;
+        this.reCaptcha =  "reCaptcha" in options? options.reCaptcha : false;
+        this.reCaptchaAction = "reCaptchaAction" in options? options.reCaptchaAction : "submit";
+        this.reCaptchaSiteKey = "reCaptchaSiteKey" in options? options.reCaptchaSiteKey: "";
         this.bindHandlers();
     }
 
     bindHandlers() {
         let that = this;
         this.form.addEventListener("submit", function(e) {
-            e.preventDefault();
-            that.submit();
+            e.preventDefault();       
+            if (that.reCaptcha) {
+                grecaptcha.ready(function() {
+                    grecaptcha.execute(that.reCaptchaSiteKey, {action: that.reCaptchaAction}).then(function(token) {
+                        that.submit(token);
+                    });
+                  });
+            }
+            else {
+                that.submit();
+            }
         });
     }
 
@@ -41,7 +53,7 @@ export class AsyncForm {
         this.error.textContent = message;
     }
 
-    submit() {
+    submit(token="") {
         if (this.submitting) {
             return;
         }
@@ -59,6 +71,9 @@ export class AsyncForm {
 
         try {
             postOptions.data = this.getData();
+            if (token != "") {
+                postOptions.data.token = token
+            }
         }
         catch(e) {
             console.log(e);
@@ -77,6 +92,11 @@ export class AsyncForm {
             postOptions.data.requestRedirectTo = this.requestRedirectTo;
         }
 
+        let csrfTokenElement = this.form.querySelector("#csrf_token");
+        if (csrfTokenElement !== null) {
+            postOptions.headers = {"X-CSRFToken": csrfTokenElement.value}
+        }
+
         $.post(postOptions)
             .always(function(){
                 that.clearStatus();
@@ -85,7 +105,7 @@ export class AsyncForm {
             .done(function(data){
                 try {
                     if ('error' in data) {
-                        that.setError(data.error);
+                        that.setStatus(data.error);
                     }
                     if ('redirect' in data) {
                         if (that.redirectMessage !== undefined) {
@@ -94,7 +114,7 @@ export class AsyncForm {
                         location.replace(data.redirect);
                     }
                     if (that.onFinished !== undefined) {
-                        that.onFinished();
+                        that.onFinished(data);
                     }
                 }
                 catch(e) {
@@ -105,7 +125,7 @@ export class AsyncForm {
                 try {
                     let data = JSON.parse(xhr.responseText);
                     if ("error" in data) {
-                        that.setError("An error occurred: " + data.error);
+                        that.setError(data.error);
                     }
                     else {
                         throw "Nope";

@@ -1,14 +1,11 @@
 from flask import g
-from ....match_types import name_to_id
-from ...security.matches_visibility import apply_visibility
+from ....match_types import convert_match_type_names_to_ids
 
 
 def unauth(params):
     result = auth(params)
-    visible_matches, blocked_matches = apply_visibility(result['matches'], [g.account.id()])
     return {
-        'matches': visible_matches,
-        'blocked_matches': blocked_matches
+        'matches': result['matches']
     }
 
 
@@ -28,7 +25,7 @@ def auth(params):
 
     restrict_types = ()
     if 'types' in params:
-        restrict_types = name_to_id(params['types'])
+        restrict_types = convert_match_type_names_to_ids(params['types'])
 
     return {
         "matches": g.db.matches.get_by_auction_sale_account(

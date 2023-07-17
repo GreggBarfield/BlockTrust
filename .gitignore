@@ -53,11 +53,13 @@ Thumbs.db
 local/
 *.env
 .vscode/
+venv/
 
 build*
+data_works/
+aws/
 
 core/environment_config.json
-core/environment_configs
 api/translation_worker/tools/sandbox.py
 
 # Fabric Network generated files
