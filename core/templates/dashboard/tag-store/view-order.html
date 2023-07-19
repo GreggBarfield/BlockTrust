@@ -10,12 +10,18 @@ Order Details
 
 <div class="row">
     <div class="col">
-        <div 
-            class = "col-sm-12 mb-0 widget"
-            data-widget-type = "view order"
-            data-widget-order = '{{order|tojson}}'
-            data-widget-order-products = '{{order_products|tojson}}'
-        ></div>
+        {% if error %}
+            <div class="card border rounded">
+                <h4 class="mt-2 p-1">{{error}}</h4>
+            </div>
+        {% else %}
+            <div 
+                class = "col-sm-12 mb-0 widget"
+                data-widget-type = "view order"
+                data-widget-order = '{{order|tojson}}'
+                data-widget-order-products = '{{order_products|tojson}}'
+            ></div>
+        {% endif %}
     </div>
 </div>
 {% endblock dashboard_content %}

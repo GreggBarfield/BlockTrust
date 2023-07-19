@@ -420,24 +420,26 @@ def serve_tag_store_api_test():
     return Response(status=HTTP_NO_CONTENT)
 
 
-@bp.route("/shop/view-order-history", methods=["GET"])
+@bp.route("/shop/view-orders", methods=["GET"])
 @crut.require_account
 def serve_view_order_history():
     user_orders = Orders(g.db).get_orders(account_id=g.account.id(), user_id=g.user.id())
-    return dashboard_render("tag-store/view-order-history.html", {"user_orders": user_orders})
+    return dashboard_render("tag-store/view-orders.html", {"user_orders": user_orders})
 
 
-@bp.route("/shop/view-order-history/view-order/<int:order_id>", methods=["GET"])
+@bp.route("/shop/view-orders/<int:order_id>", methods=["GET"])
 @crut.require_account
 def serve_view_order(order_id):
-    user_order = Orders(g.db).get_orders(id=order_id, account_id=g.account.id(), user_id=g.user.id())
-    if len(user_order) > 0:
-        user_order = user_order[0]
-        order_products = OrderProducts(g.db).get_order_products(order_id)
-        print(order_products)
-        for product in order_products:
-            product_details = ProductTable(g.db).get_products(id=product["product"])
-            product["product_details"] = product_details[0]
-        return dashboard_render("tag-store/view-order.html", {"order": user_order, "order_products": order_products})
-    else:
-        return dashboard_render("tag-store/order-not-found.html")
+    try:
+        user_order = Orders(g.db).get_orders(id=order_id, account_id=g.account.id(), user_id=g.user.id())
+        if len(user_order) > 0:
+            user_order = user_order[0]
+            order_products = OrderProducts(g.db).get_order_products(order_id)
+            for product in order_products:
+                product_details = ProductTable(g.db).get_products(id=product["product"])
+                product["product_details"] = product_details[0]
+            return dashboard_render("tag-store/view-order.html", {"order": user_order, "order_products": order_products})
+        else:
+            raise ExportException("Sorry, the requested order was not found. ")
+    except ExportException as e:
+        return dashboard_render("tag-store/view-order.html", {"error": str(e)})
