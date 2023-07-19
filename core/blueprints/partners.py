@@ -5,6 +5,7 @@ from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
+from core.database.tables.connections import Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_OK
@@ -49,7 +50,19 @@ def serve_animal_eid(animal_eid):
 
         if owner_account_match:
             if owner_account_match[0]["partner_account"] != g.account.id():
-                show_animal = False
+                connection = Connections(g.db).get_connection_between(
+                    from_account_id=g.account.id(), to_account_id=owner_account_match[0]["account"]
+                )
+                if not connection:
+                    connections = Connections(g.db).get_connected_account_ids(
+                        account_id=owner_account_match[0]["account"]
+                    )
+                    for account_id in connections:
+                        account = g.db.accounts.get_accounts(id=account_id)[0]
+                        if account["partner_account"] == g.account.id():
+                            break
+                    else:
+                        show_animal = False
 
             health_track_partner = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
             if owner_account_match[0]["partner_account"] == health_track_partner["id"]:
