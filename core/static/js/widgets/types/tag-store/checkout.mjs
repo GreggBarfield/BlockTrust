@@ -72,31 +72,31 @@ export class CheckoutWidget extends Widget {
         
         let personalDetailsInputsRow = document.createElement("div");
         personalDetailsInputsRow.className = "row";
-        let firstNameInputContainer = this.generateContainer(this.inputs.firstNameInput, "col-md-6");
+        let firstNameInputContainer = this.generateContainer(this.inputs.firstNameInput, "First Name");
         personalDetailsInputsRow.append(firstNameInputContainer);
-        let lastNameInputContainer = this.generateContainer(this.inputs.lastNameInput, "col-md-6");
+        let lastNameInputContainer = this.generateContainer(this.inputs.lastNameInput, "Last Name");
         personalDetailsInputsRow.append(lastNameInputContainer);
-        let companyInputContainer = this.generateContainer(this.inputs.companyInput, "col-md-6");
+        let companyInputContainer = this.generateContainer(this.inputs.companyInput, "Company Name");
         personalDetailsInputsRow.append(companyInputContainer);
         checkoutForm.append(personalDetailsInputsRow);
 
         let shippingAddressDetailsInputsRow = document.createElement("div");
         shippingAddressDetailsInputsRow.className = "row";
-        let addressInputContainer = this.generateContainer(this.inputs.addressInput, "col-md-6");
+        let addressInputContainer = this.generateContainer(this.inputs.addressInput, "Address");
         shippingAddressDetailsInputsRow.append(addressInputContainer);
-        let cityInputContainer = this.generateContainer(this.inputs.cityInput, "col-md-6");
+        let cityInputContainer = this.generateContainer(this.inputs.cityInput, "City");
         shippingAddressDetailsInputsRow.append(cityInputContainer);
-        let stateInputContainer = this.generateContainer(this.inputs.stateInput, "col-md-6");
+        let stateInputContainer = this.generateContainer(this.inputs.stateInput, "State");
         shippingAddressDetailsInputsRow.append(stateInputContainer);
-        let zipCodeInputContainer = this.generateContainer(this.inputs.zipCodeInput, "col-md-6");
+        let zipCodeInputContainer = this.generateContainer(this.inputs.zipCodeInput, "Zip Code");
         shippingAddressDetailsInputsRow.append(zipCodeInputContainer);
         checkoutForm.append(shippingAddressDetailsInputsRow);
 
         let contactDetailsInputsRow = document.createElement("div");
         contactDetailsInputsRow.className = "row";
-        let phoneInputContainer = this.generateContainer(this.inputs.phoneInput, "col-md-6");
+        let phoneInputContainer = this.generateContainer(this.inputs.phoneInput, "Phone");
         contactDetailsInputsRow.append(phoneInputContainer);
-        let emailInputContainer = this.generateContainer(this.inputs.emailInput, "col-md-6");
+        let emailInputContainer = this.generateContainer(this.inputs.emailInput, "Email");
         contactDetailsInputsRow.append(emailInputContainer);
         checkoutForm.append(contactDetailsInputsRow);
 
@@ -127,9 +127,16 @@ export class CheckoutWidget extends Widget {
         return linksContainer;
     }
 
-    generateContainer = (input, inputSize) =>{
+    generateContainer = (input, inputHeader) =>{
         let inputContainer = document.createElement("div");
-        inputContainer.className = inputSize;
+        inputContainer.className = "col-md-6 col";
+        let inputContainerHeader = document.createElement("div");
+        inputContainerHeader.className = "row p-1";
+        let inputContainerHeaderText = document.createElement("h6");
+        inputContainerHeaderText.textContent = inputHeader;
+        inputContainerHeaderText.className = "pl-2 m-0";
+        inputContainerHeader.append(inputContainerHeaderText);
+        inputContainer.append(inputContainerHeader);
         inputContainer.append(input);
         return inputContainer;
     }
