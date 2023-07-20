@@ -2040,3 +2040,6 @@ ALTER TABLE `orders`
 RENAME COLUMN `account` TO `account_id`;
 ALTER TABLE `orders`
 ADD COLUMN `user_id` INT DEFAULT NULL;
+ALTER TABLE `order_products`
+RENAME COLUMN `order` TO `order_id`,
+RENAME COLUMN `product` TO `product_id`;

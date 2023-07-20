@@ -120,7 +120,7 @@ def update_order():
                 'premise_id': premise_id
             }),
             order_details["email"]
-        ) 
+        )
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
@@ -436,7 +436,7 @@ def serve_view_order(order_id):
             user_order = user_order[0]
             order_products = OrderProducts(g.db).get_order_products(order_id)
             for product in order_products:
-                product_details = ProductTable(g.db).get_products(id=product["product"])
+                product_details = ProductTable(g.db).get_products(id=product["product_id"])
                 product["product_details"] = product_details[0]
             return dashboard_render("tag-store/view-order.html", {"order": user_order, "order_products": order_products})
         else:
