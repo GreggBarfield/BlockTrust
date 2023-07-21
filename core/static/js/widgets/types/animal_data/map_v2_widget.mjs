@@ -68,30 +68,30 @@ export class MapV2Widget extends Widget {
         // Generate location markers and info windows on click
         for(const matchRow of matchRows){
             if(matchRow["lat"] !==null &&  matchRow["lon"]!== null){
-            let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
-            let accountSectorID = matchRow["account_links.sector"];
-            let accountSectorName = sectorsIDToName[accountSectorID];
-            // Generating custom Pin element and Marker
-            let markerBackground = new PinElement({
-                scale: 0.6,
-                background: colorMap[accountSectorName],
-                borderColor: "#137333",
-                glyph: ""
-            });
-            let marker = new AdvancedMarkerElement({
-                map,
-                position: {lat:matchRow["lat"], lng:matchRow["lon"]},
-                content: markerBackground.element
-            });
-            google.maps.event.addListener(marker, 'click', function(){
-                infoWindow.setContent(accountInformationContainer);
-                infoWindow.open(marker.map, this);
-            })
-            // Updating marker lists for generating lines, clustering and recentering
-            markers.push(marker);
-            coordinates.push({lat:matchRow["lat"], lng:matchRow["lon"]});
-            bounds.extend(marker.position);
-        }
+                let accountInformationContainer = generateAccountInformationContainer(matchRow, sectorsIDToName);
+                let accountSectorID = matchRow["account_links.sector"];
+                let accountSectorName = sectorsIDToName[accountSectorID];
+                // Generating custom Pin element and Marker
+                let markerBackground = new PinElement({
+                    scale: 0.6,
+                    background: accountSectorName? colorMap[accountSectorName]: colorMap["Unknown"],
+                    borderColor: "#137333",
+                    glyph: ""
+                });
+                let marker = new AdvancedMarkerElement({
+                    map,
+                    position: {lat:matchRow["lat"], lng:matchRow["lon"]},
+                    content: markerBackground.element
+                });
+                google.maps.event.addListener(marker, 'click', function(){
+                    infoWindow.setContent(accountInformationContainer);
+                    infoWindow.open(marker.map, this);
+                })
+                // Updating marker lists for generating lines, clustering and recentering
+                markers.push(marker);
+                coordinates.push({lat:matchRow["lat"], lng:matchRow["lon"]});
+                bounds.extend(marker.position);
+            }
         }
         // Generate lines between locations
         let line = new google.maps.Polyline({

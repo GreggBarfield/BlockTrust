@@ -39,10 +39,12 @@ const imageMap = {
 };
 
 const colorMap = {
-    "Cow-Calf": "#900C3F",
-    "Packer": "#117A65",
-    "Feedlot": "#FFFF00",
-    "Stocker": "#FF9800"
+    "Cow-Calf": "maroon",
+    "Packer": "green",
+    "Feedlot": "yellow",
+    "Stocker": "orange",
+    "Auction House": "blue",
+    "Unknown": "grey"
 };
 
 const USABounds = {north: 49.5904, south:24.9493 , east: -66.39326, west: -125.0011};
