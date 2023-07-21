@@ -1,0 +1,20 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Add Advertisement Company" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div 
+        class="col-md-12 mb-0 widget" 
+        data-widget-type="add advertisement company" 
+        data-widget-marketplace-files-s3-path="{{marketplace_files_s3_path}}">
+    </div>
+</div>
+
+
+{% endblock employee_content %}

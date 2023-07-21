@@ -52,7 +52,26 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_sector">
+                                    Sector
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="Select the sector for your account">
+                                    </a>
+                                </label>
+                                <select class="form-control" id="signup_form_sector"> 
+                                    {% for key,value in available_sectors.items() %}
+                                    <option value="{{value}}">{{key}}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="signup_form_partner">
                                     Partner
@@ -66,13 +85,15 @@
                                 <select class="form-control" id="signup_form_partner">                                    
                                     <option value="">No Partner</option>
                                     {% for p in partners %}
-                                    <option value="{{p["id"]}}">{{p["name"]}}</option>
+                                    {% if p["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"] %}
+                                    <option value="{{p['id']}}">{{p["name"]}}</option>
+                                    {% endif %}
                                     {% endfor %}
                                 </select>
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="signup_form_affiliate_id">
                                     Partner ID
@@ -266,10 +287,25 @@
     </div>
 </section>
 <script type="text/javascript">
-    var sectorId = '{{ default_sector_id }}'
-    var siteKey = '{{site_key}}'
-    var ipInfoAccessToken = '{{ipinfo_access_token}}'
-    var checkIP = '{{check_ip}}'
+    document.getElementById("signup_form_sector").onchange = (event) => {
+        let partnersDropDown = document.getElementById("signup_form_partner");
+        /* It is important to remove the options backwards as the remove() method rearranges the options collection.
+           This way, it's guaranteed that the element to be removed still exists */
+        for(let i = partnersDropDown.options.length - 1; i >= 0; i--){
+            if(i != 0){
+                partnersDropDown.remove(i);
+            }
+        }
+        let partners = JSON.parse('{{partners|tojson}}');
+        for(let p of partners){
+            if(p.sector == event.target.value){
+                partnersDropDown.add(new Option(p.name, p.id));
+            }
+        }
+    };
+    var siteKey = '{{site_key}}';
+    var ipInfoAccessToken = '{{ipinfo_access_token}}';
+    var checkIP = '{{check_ip}}';
 </script>
 
 <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>

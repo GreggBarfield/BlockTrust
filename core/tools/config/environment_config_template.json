@@ -23,8 +23,11 @@
         "autocommit": true
     },
     "api_mysql": "same",
+    "dev_mysql": "same",
     "email": {
-        "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>"
+        "sender": "Ledgerspacedev <no-reply@ledgerspacedev.com>",
+        "secondary_recipient_for_match_found": "",
+        "admin_email": "gregg.barfield@ledgerspace.net"
     },
     "internal_api": {
         "secret": "gsjg94e8se4w8ahw39gjdsfbhcx8r9b8",
@@ -37,6 +40,7 @@
     },
     "stripe": {
         "subscription_webhook_secret": "whsec_utnh0X5xZF31SVkedD0zy2dVEcrKuFjR",
+        "account_webhook_secret": "whsec_bjdiU5R65YjH8CGB9l1ugTVnzZqpZK76",
         "secret_key": "sk_test_51HRTwoGWRtomrLg3A2oqpP5mS60M5OAJyjpoUNGm4YjgGmhAWMFBaKx9ezdtk5DGfExhpSrPgd0ESgcbc9hOCpiR0023awyPeX",
         "publishable_key": "pk_test_51HRTwoGWRtomrLg3eckt8XeKxqtfdfAT1hZh5C2hnfyJFyjM0l0UGnCYVSv6CS6M8Rs8rcBu4Mm03xqf9WmWaIXr00jI2Eqsmh",
         "basic": "price_1IHjY1GWRtomrLg3OifgDsmq"
@@ -50,7 +54,7 @@
     },
     "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
     "blockchain": {
-           "endpoint": "http://ec2-13-59-58-208.us-east-2.compute.amazonaws.com:3000",
+           "endpoint": "http://ec2-18-116-170-112.us-east-2.compute.amazonaws.com:3000",
            "upload": true,
            "batch_size": 10
     },
@@ -62,5 +66,15 @@
     "ipinfo": {
         "token": "",
         "check_ip": false
+    },
+    "run_jobs": {
+        "notify_admin_if_no_data_received_from_partner": false
+    },
+    "herdwhistle": {
+        "api_key": "9485d503e6c60da1370a430176ddadd2f1686ad6",
+        "api_endpoint": "https://herdwhistle-staging-8866134.dev.odoo.com",
+        "db": "herdwhistle-staging-8866134",
+        "username": "blocktrust",
+        "invoice_id": 4977
     }
 }

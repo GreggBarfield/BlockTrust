@@ -1,9 +1,10 @@
 import { Widget } from '../../widget.mjs';
 
 export class SearchEIDsWidget extends Widget {
-    constructor(frame, searchFrame) {
+    constructor(frame, searchFrame, postRoute) {
         super(frame);
         this.searchFrame = searchFrame;
+        this.postRoute = postRoute;
     }
 
     initType() {
@@ -85,7 +86,7 @@ export class SearchEIDsWidget extends Widget {
             </div>';
       
         this.getData(
-            "search_by_eid_and_visual_id",  
+            this.postRoute,
             {
                 search: {
                     eid: parseInt(this.inputs.eidNumber.value)
@@ -104,7 +105,7 @@ export class SearchEIDsWidget extends Widget {
         if(data.matches.length == 0)
             this.results.innerHTML = "<div style='text-align:center;'>0 results</div>";
         else if(data.matches.length == 1) {  
-            window.location.href = location.protocol + "//" + location.host + "/dashboard/animals/" + data.matches[0].eid;
+            window.location.href = location.protocol + "//" + location.host + data.redirect_route + data.matches[0].eid;
         }
         else {
             this.results.innerHTML = "";
@@ -144,7 +145,7 @@ export class SearchEIDsWidget extends Widget {
                 rowTag.appendChild(tdSelect);
                 let btnSelect = document.createElement("a");
                 btnSelect.className = "btn btn-info btn-md";
-                btnSelect.setAttribute("href", "/dashboard/animals/" + match.eid);
+                btnSelect.setAttribute("href", data.redirect_route + match.eid);
                 btnSelect.textContent = "Select";
                 tdSelect.appendChild(btnSelect);
             }

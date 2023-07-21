@@ -1,5 +1,5 @@
 from core.database.tables.accounts import NO_VALUE
-from .connections import Connections, connection_status
+from .connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 
 
 class ConnectionInvites:
@@ -42,13 +42,14 @@ class ConnectionInvites:
             }
         )
 
-    def convert_invites_to_connections(self, email, account):
+    def convert_invites_to_connections(self, email, account_id):
         """
         Adds invites in the connection_invites table to connections table once a user signs up
         Removes row from the connection_invites table
 
         Params:
             email: Email of the user who has signed up
+            account_id: ID of the invited account
 
         Returns:
             None
@@ -56,10 +57,11 @@ class ConnectionInvites:
         invites = self.get_connection_invites(company_email=email)
         if len(invites) >= 1:
             for invite in invites:
-                Connections(self._db).create_connection(
+                Connections(self._db).create_or_fail_connection(
                     from_account_id=invite["from_account"],
-                    to_account_id=account.id(),
-                    status=connection_status["Connected"]
+                    to_account_id=account_id,
+                    status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+                    connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
                 )
 
     def get_connection_invites(self, from_account=NO_VALUE, to_account=NO_VALUE, company_sector=NO_VALUE,

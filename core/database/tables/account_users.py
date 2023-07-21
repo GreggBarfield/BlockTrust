@@ -125,7 +125,7 @@ class AccountUsers:
             }
         )
 
-    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE):
+    def get_account_users(self, account=NO_VALUE, user=NO_VALUE, is_admin=NO_VALUE, users__is_system_generated=NO_VALUE):
         """
         Gets the account records based on conditions provided
 
@@ -138,25 +138,29 @@ class AccountUsers:
             List of results based on conditions provided
         """
         # Base query
-        query = "SELECT * FROM account_users"
+        query = "SELECT au.* FROM account_users au LEFT JOIN users u ON au.user = u.id"
 
         query_condition_list = []
         query_values = {}
 
         if account is not NO_VALUE:
-            query_condition_list.append(" account = %(account)s")
+            query_condition_list.append("account = %(account)s")
             query_values["account"] = account
 
         if user is not NO_VALUE:
-            query_condition_list.append(" user = %(user)s")
+            query_condition_list.append("user = %(user)s")
             query_values["user"] = user
 
         if is_admin is not NO_VALUE:
-            query_condition_list.append(" is_admin = %(is_admin)s")
+            query_condition_list.append("is_admin = %(is_admin)s")
             query_values["is_admin"] = is_admin
 
+        if users__is_system_generated is not NO_VALUE:
+            query_condition_list.append("is_system_generated = %(is_system_generated)s")
+            query_values["is_system_generated"] = users__is_system_generated
+
         if len(query_condition_list) >= 1:
-            query_condition = " WHERE" + " AND ".join(query_condition_list)
+            query_condition = " WHERE " + " AND ".join(query_condition_list)
         else:
             query_condition = ""
 
@@ -167,3 +171,33 @@ class AccountUsers:
             return account_user_rows
         else:
             return []
+
+    def create_account_user(self, user_id, account_id, is_admin=int(False)):
+        """Runs validations. Inserts a user to an account.
+
+        Raises:
+            AccountUsersException
+        """
+        # Check if link already exists
+        account_users = self.get_account_users(account=account_id, user=user_id)
+        if account_users:
+            raise AccountUsersException("account user already exists")
+
+        self.insert_account_user(user_id, account_id, is_admin)
+
+    def insert_account_user(self, user_id, account_id, is_admin=int(False)):
+        self._db.execute(
+            """
+                INSERT INTO account_users
+                    (user, account, is_admin)
+                    VALUES
+                        (%(user)s, %(account)s, %(is_admin)s)
+            """,
+            {
+                "user": user_id,
+                "account": account_id,
+                "is_admin": is_admin
+            }
+        )
+
+        return self._db.last_row_id()

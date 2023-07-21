@@ -1,5 +1,5 @@
 from copy import deepcopy
-from ...sectors import sectors_by_id
+from ...sectors import SECTORS_ID_TO_NAME
 from ..tables.account_users import AccountUsersException
 
 
@@ -36,6 +36,9 @@ class Account:
 
     def company(self):
         return self._row['company']
+    
+    def show_real_name(self):
+        return self._row["show_real_name"]
 
     def token(self):
         return self._row['token']
@@ -44,7 +47,7 @@ class Account:
         return self._row['sector']
 
     def sector_name(self):
-        return sectors_by_id[self._row['sector']]
+        return SECTORS_ID_TO_NAME[self._row['sector']]
 
     def partner_account_id(self):
         return self._row['partner_account']
@@ -63,6 +66,9 @@ class Account:
 
     def zip(self):
         return self._row['zip']
+    
+    def is_partner(self):
+        return self._row['is_partner']
 
     def phone(self):
         return self._row['phone']
@@ -93,6 +99,21 @@ class Account:
 
     def archived(self):
         return self._row['archived']
+
+    def stripe_account_id(self):
+        return self._row['stripe_account_id']
+    
+    def is_stripe_payouts_enabled(self):
+        return self._row['is_stripe_payouts_enabled']
+
+    def is_partner_used_for_signup(self):
+        return self._row['is_partner_used_for_signup']
+
+    def retail_name(self):
+        return self._row["retail_name"]
+
+    def retail_description(self):
+        return self._row["retail_description"]
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

@@ -12,5 +12,4 @@ services:
 
 networks:
   default:
-    external:
-      name: btn-core_default
+    name: btn-core_default

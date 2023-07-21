@@ -53,8 +53,11 @@ Thumbs.db
 local/
 *.env
 .vscode/
+venv/
 
 build*
+data_works/
+aws/
 
 core/environment_config.json
 api/translation_worker/tools/sandbox.py

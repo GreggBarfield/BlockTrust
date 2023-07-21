@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h1 class="text-white mb-1">Sign In</h1>
+                <h1 class="text-white mb-1">Staff Sign In</h1>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb breadcrumb-light justify-content-center bg-transparent p-0 m-0">
                         <li class="breadcrumb-item">
@@ -17,7 +17,13 @@
                                 Home
                             </a>
                         </li>
-                        <li class="breadcrumb-item active" aria-current="page">Sign In</li>
+                        <li class="breadcrumb-item">
+                            <a href="{{customer_login_URL}}">
+                                <i class="fas fa-sign-in-alt pr-1"></i>
+                                Sign In
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Staff Sign In</li>
                     </ol>
                 </nav>
             </div>
@@ -32,7 +38,7 @@
         <div class="row justify-content-center">
             <div class="col-xl-8 text-center">
                 <div class="mb-3">
-                    <h2>Welcome! This is the staff login.</h2>
+                    <h2>Welcome! This is the <span class="text-primary">staff</span> login.</h2>
                     <p>You'll be able to access the dashboard once you sign in.</p>
                 </div>
             </div>
@@ -66,7 +72,6 @@
                     <p><button type="submit" class="btn btn-primary">Login</button></p>
                     <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
                     <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
-                    <p class="mt-2 mb-0"><a href="/employee/request-password-reset"> Forgot your password?</a></p>
                 </form>
 
             </div>

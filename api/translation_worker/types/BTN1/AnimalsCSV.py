@@ -1,8 +1,7 @@
+from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, insert_sighting_if_not_exists, process_weaning_data
 from core.database.database import Database
-from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
-from .medical_helper import format_data
-from core.sectors import sectors_by_name
+from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from .remapper import remap
 
@@ -20,22 +19,22 @@ def handle(db: Database, insert):
         "ZipCode": "zipcode",
         "PatronID": "patronid",
         "VisualID": "visualid",
-        "WeanDate": "weandate",
-        "CreepFeed": "creepfeed",
+        "WeanDate": "wean_date",
+        "CreepFeed": "creep_feed",
         "SequenceID": "sequence",
         "SysEndTime": "end_time",
-        "WeanWeight": "weanweight",
-        "BirthWeight": "birthweigh",
+        "WeanWeight": "wean_weight",
+        "BirthWeight": "birth_weight",
         "ElectronicID": "electronic",
         "SysStartTime": "st_time",
         "ApplicationID": "applicatio",
         "CalfBirthDate": "calfbirthd",
         "MarketingDate": "marketingd",
-        "FirstBirthDate": "firstbirth",
+        "FirstBirthDate": "birth_date",
         "IsVetProcessed": "isvetproce",
         "NumberOfCalves": "numberofca",
         "ApplicationDate": "appdate",
-        "CalfDescription": "calfdescri",
+        "CalfDescription": "description",
         "First14DateFeed": "first14day",
         "Second31DayFeed": "second31da",
         "WeaningStrategy": "weaningstr",
@@ -46,9 +45,8 @@ def handle(db: Database, insert):
         "First14DayFeedMethod": "first14da1",
         "Second31DayFeedMethod": "second31d1",
     })
-
     try:
-        patronid = fields["patronid"]
+        patronid = int(fields["patronid"]) if fields["patronid"].isdigit() else fields["patronid"]
         if patronid is None or patronid == '':
             raise Exception("patron id is none or blank")
     except Exception as e:
@@ -63,68 +61,23 @@ def handle(db: Database, insert):
 
     account_link = account_link.id()
     eid = int(fields["electronic"])
-    visual_id = fields["visualid"] if fields["visualid"] != "" else None
+    visual_id = fields["visualid"] if "visualid" in fields and fields["visualid"] != "" else None
 
     grouping_id = None
     if "applicatio" in fields.keys() and fields["applicatio"] != "":
         grouping_id = int(fields["applicatio"])
 
-    weaned_object = {}
+    process_weaning_data(db, fields, eid, partner_account, account_link, api_insert)
 
-    weaned_object_tags = [
-        ("at", "weaningstr"),
-        ("creep_feed", "creepfeed"),
-        ("first_14_feed", "first14day"),
-        ("first_14_method", "first14da1"),
-        ("second_31_feed", "second31da"),
-        ("second_31_method", "second31d1")
-    ]
-
-    for tag in weaned_object_tags:
-        if fields[tag[1]].strip() != "":
-            weaned_object[tag[0]] = fields[tag[1]].strip()
-
-    if fields["weaningstr"].strip() != "":
-        weaned_object["at"] = fields["weaningstr"].strip()
-
-    if fields["weanweight"].strip() != "" and int(fields["weanweight"]) > 0:
-        weaned_object["wean_weight"] = int(fields["weanweight"])
-
-    if weaned_object == {}:
-        weaned_object = None
-
-    wean_date = all_to_unix(fields["weandate"])
-    if wean_date is not None:
-        db.matches.types.insert_weaned(
-            time=wean_date,
-            partner_account=partner_account,
-            account_link=account_link,
-            data=weaned_object,
-            eid=eid,
-            visual_id=visual_id,
-            grouping_id=grouping_id,
-            api_insert=api_insert
-        )
-
-    birth_date = all_to_unix(fields["firstbirth"])
-    if birth_date is not None:
-        db.matches.types.insert_born(
-            time=birth_date,
-            partner_account=partner_account,
-            account_link=account_link,
-            eid=eid,
-            visual_id=visual_id,
-            grouping_id=grouping_id,
-            api_insert=api_insert
-        )
+    process_birth_date(db, fields, eid, partner_account, account_link, api_insert)
 
     sold_object = {}
-    if fields['marketingm'].strip().lower() not in ('', "unknown"):
+    if "marketingm" in fields and fields['marketingm'].strip().lower() not in ('', "unknown"):
         sold_object["method"] = fields['marketingm'].strip()
-    if fields['salelocati'].strip() != '':
+    if "salelocati" in fields and fields['salelocati'].strip() != '':
         sold_object["location"] = fields['salelocati'].strip()
 
-    if fields['numberofca'] != '' and int(fields['numberofca']) > 0:
+    if "numberofca" in fields and fields['numberofca'] != '' and int(fields['numberofca']) > 0:
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
@@ -139,41 +92,10 @@ def handle(db: Database, insert):
             api_insert=api_insert
         )
 
-
-    animal_details = {}
-    animal_object_tags = [
-        ("sex", "sex"),
-        ("description", "calfdescri")
-    ]
-
-    for tag in animal_object_tags:
-        if fields[tag[1]].strip() != "":
-            animal_details[tag[0]] = fields[tag[1]].strip()
-
-    if fields["birthweigh"].strip() != "" and int(fields["birthweigh"]) > 0:
-        animal_details["birth_weight"] = int(fields["birthweigh"])
-
-    if animal_details == {}:
-        animal_details = None
-
     if 'zipcode' in fields and fields['zipcode']:
         zipcode = str(fields['zipcode'])
-        f5 = zipcode[0:5] if len(zipcode) > 5 else zipcode
-        for d in f5:
-            if d not in "0123456789":
-                break
-        else:
-            lat, lon = db.zip_codes.get_lat_lon(int(f5))
-            db.matches.types.insert_sighting(
-                eid=eid,
-                visual_id=visual_id,
-                time=all_to_unix(fields['appdate']),
-                lat=lat,
-                lon=lon,
-                partner_account=partner_account,
-                account_link=account_link,
-                grouping_id=grouping_id,
-                debug={"zip": f5},
-                api_insert=api_insert,
-                data=animal_details
-            )
+        insert_sighting_if_not_exists(
+            db, eid, account_link, api_insert, zipcode, fields['appdate'], partner_account, visual_id, grouping_id
+        )
+
+    process_animal_characteristics(db, fields, eid, api_insert, visual_id)

@@ -5,7 +5,7 @@
 
 
 {% set page_title = account.name()|e %}
-{% set dashboard_locations = [("/dashboard/accounts/" + account.id()|string, account.name()|e)] %}
+{% set dashboard_locations = [("/dashboard", account.name()|e)] %}
 
 {% block dashboard_content_header %}
 {{ account.name()|e }}
@@ -19,12 +19,13 @@
                 Calf-Crop Summary
                 <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
                 title="Data in this table is processed nightly and may not immediately reflect results from uploads or API calls.">
-            </a>
+                </a>
+                <a class="btn btn-outline-primary btn-sm float-right d-none" id="downloadSummaryButton"><i class="fa fa-download"></i>Download</a>
             </h5>
 
             <div class="card-body">
                 <p class="mb-0 widget" data-widget-type="table" data-widget-account="{{ account.id() }}"
-                    data-widget-company-name="{{ account.name() }}"></p>
+                    data-widget-company-name="{{ account.name() }}" data-widget-button-id="downloadSummaryButton"></p>
             </div>
         </div>
     </div>
@@ -51,8 +52,8 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="sightings" role="tabpanel"
                         aria-labelledby="sightings-tab">
-                        <p class="mb-0 widget" data-widget-type="map" data-widget-map-match-types="Sighting"
-                            data-widget-map-account="{{ account.id() }}" style='height:400px;'></p>
+                        <p class="mb-0 widget" data-widget-type="map v2" data-widget-match-types="Sighting"
+                            data-widget-account="{{ account.id() }}" style='height:400px;'></p>
                     </div>
                     <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
                         aria-labelledby="carcass-quality-tab">
@@ -92,18 +93,18 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="sighted-cattle" role="tabpanel"
                         aria-labelledby="sighted-cattle-tab">
-                        <p class="mb-0 widget" data-widget-type="source summary" data-widget-display="animals-with-data"></p>
+                        <p class="mb-0 widget" data-widget-type="source summary" data-widget-display="animals-with-data" data-widget-animal-URL="{{animal_URL}}"></p>
                     </div>
                     <div class="tab-pane fade" id="all-cattle" role="tabpanel"
                         aria-labelledby="all-cattle-tab">
-                        <p class="mb-0 widget" data-widget-type="source summary" data-widget-display="sightings"></p>
+                        <p class="mb-0 widget" data-widget-type="source summary" data-widget-display="sightings" data-widget-animal-URL="{{animal_URL}}"></p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="row" style="visibility: hidden;">
+<!-- <div class="row" style="visibility: hidden;">
     <div class="col">
         <a href="#" class="badge badge-secondary" data-toggle="collapse" data-target="#collapseAccountDebug" style="float:right;margin-right:20px;">Debug Info</a>
         <div class="collapse" id="collapseAccountDebug" style="clear:both;">
@@ -128,6 +129,5 @@
             </div>
         </div>
     </div>
-</div>
-
+</div> -->
 {% endblock dashboard_content %}

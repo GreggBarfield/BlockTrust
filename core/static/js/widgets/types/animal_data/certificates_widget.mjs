@@ -11,11 +11,11 @@ export class CertificatesWidget extends Widget {
         this.company = this.frame.getAttribute("data-widget-account_name");
         this.frame.innerHTML = "";
         this.getData(
-            "direct/match_types_by_name",
+            "direct/match_types_name_to_id",
             {}
         ).then((data) => {
 
-            this.matchTypes = data.match_types_by_name;
+            this.matchTypesNameToId = data.match_types_name_to_id;
             this.getData(
                 "data_request",
                 {
@@ -24,7 +24,7 @@ export class CertificatesWidget extends Widget {
                         params: {
                             eids: [this.eid],
                             ljoin_account_links: false,
-                            types: ["Weaned","First Birth","Medical"]
+                            types: ["Weaned","First Birth","Medical", "Sighting"]
                         }
                     }
                 }
@@ -33,16 +33,20 @@ export class CertificatesWidget extends Widget {
                 this.medical_rows=[];
                 this.wean_data=null;
                 this.first_born=null;
+                this.sighting_rows=[];
                 for ( const match of data.result.matches)
                 {
-                    if (match.type == this.matchTypes["Medical"]){
+                    if (match.type == this.matchTypesNameToId["Medical"]){
                         this.medical_rows.push(match)
                     }
-                    else if(match.type == this.matchTypes["Weaned"]){
+                    else if(match.type == this.matchTypesNameToId["Weaned"]){
                         this.wean_data=match;
                     }
-                    else if(match.type == this.matchTypes["First Birth"]){
+                    else if(match.type == this.matchTypesNameToId["First Birth"]){
                         this.first_born=match
+                    }
+                    else if(match.type == this.matchTypesNameToId["Sighting"]){
+                        this.sighting_rows.push(match);
                     }
                 }
                 this.createDisplay();
@@ -65,7 +69,10 @@ export class CertificatesWidget extends Widget {
 
         let appNo =document.createElement("div");
         appNo.className = "col-md-4";
-        appNo.textContent="App No:"+ ((this.wean_data["grouping_id"]!==null)? this.wean_data["grouping_id"]: "N/A");
+        let rowsWithGroupingId = this.sighting_rows.filter((sighting) => sighting["grouping_id"]);
+        if (rowsWithGroupingId.length) {
+            appNo.textContent="App No: " + rowsWithGroupingId[0]["grouping_id"];
+        }
         row.append(appNo)
 
         let prodName =document.createElement("div");

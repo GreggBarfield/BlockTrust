@@ -1,12 +1,17 @@
 from flask import (
-    Flask, Blueprint, request, g
+    Blueprint, request, g, session, redirect, url_for
 )
-import stripe
-import json
-from ..database.tables.accounts import AccountsException
-from ..database.objects.account import AccountException
+from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
+from ..database.tables.accounts import Accounts, AccountsException
+from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.error_logs import ErrorLogs
+from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE
+from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from datetime import datetime
+import json
+import stripe
+import traceback
 
 bp = Blueprint('stripe_bp', __name__)
 
@@ -20,7 +25,7 @@ def serve_stripe_test():
 
 @bp.route('/stripe/config', methods=['GET'])
 def serve_stripe_config():
-    return  {
+    return {
         'publishableKey': STRIPE_PUBLISHABLE_KEY
     }
 
@@ -40,67 +45,61 @@ def serve_stripe_price(priceLookupKey):
             price = stripe.Price.retrieve(
                 STRIPE_BASIC_PRICE,
             )
-            return {
-                'price': "${:,.2f}".format(price['unit_amount']/100)
-            }
+            return {'price': price['unit_amount']}
         else:
             return {'error':{'message': 'Incorrect price key'}}, 400    
     except Exception as e:
         return {'error':{'message': str(e)}}, 400
 
 
-#events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
+# events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
 @bp.route('/stripe/subscription', methods=['POST'])
 def serve_stripe_subscription():
-    payload = request.data
-    #this should match the signing secret of the webhook set up in Stripe Dashboard
     endpoint_secret = SUBSCRIPTION_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
+    payload = json.loads(request.data)
+    DebugLogs(g.db).insert_debug_log(
+        component="Stripe Webhooks", short_info=f"Event: {payload.get('type', '')}, customer id: {payload.get('data',{}).get('object',{}).get('customer','')}",
+        long_info=f"Function: {serve_stripe_subscription.__name__}, Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
+        details=payload
+    )
 
     try:
         event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
+            request.data, sig_header, endpoint_secret
         )
-    except ValueError as e:
-        # Invalid payload
-        raise ExportException(str(e))
-    except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
+    except (ValueError, stripe.error.SignatureVerificationError)  as e:
+        # Invalid payload or invalid signature
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
 
+    customer_id = event.data.object.customer
+    error = ""
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
-            account = get_account_of_stripe_customer(event)
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=1
-            )
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.deleted':
-        account = get_account_of_stripe_customer(event)
-        g.db.accounts.update_account(
-            account.id(),
-            stripe_paid=0
-        )
+        if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
+        else:
+            error = f"No account for customer id: {customer_id}. Event: {event.type}"
     elif event.type == 'customer.subscription.updated':
-        account = get_account_of_stripe_customer(event)
         if event.data.object.status == 'past_due':
-            g.db.accounts.update_account(
-                account.id(),
-                stripe_paid=0
-            )
+            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
+            else:
+                error = f"No account for customer id: {customer_id}. Event: {event.type}"
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
+    if error:
+        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error)
+        return {'status': error}
+
     return {'status': 'Success'}
-
-
-def get_account_of_stripe_customer(event):
-    #read the stripe customer id and get the account
-    customer_id = event.data.object.customer      
-    try:
-        return g.db.accounts.get_by_stripe_customer_id(customer_id)
-    except AccountsException:
-        raise ExportException('No customer found with the stripe customer id: ' + customer_id)
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])
@@ -109,7 +108,11 @@ def create_customer():
     try:
         if g.account is not None:
             # Create a new customer object
-            customer = stripe.Customer.create(email=data['email'], name=data['name'], metadata={'AccountId':g.account.id()})
+            customer = stripe.Customer.create(
+                email=data['email'],
+                name=data['name'],
+                metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
+            )
             # At this point, associate the ID of the Customer object with your
             # own internal representation of a customer, if you have one.            
             g.db.accounts.update_account(
@@ -143,40 +146,208 @@ def create_subscription():
                 }],
                 expand=['latest_invoice.payment_intent'],
             )
-            return {'subscription':subscription}
+            return {'subscription': subscription}
         else:
             return {'error':{'message': 'No or incorrect price selected'}}, 400
     except Exception as e:
         return {'error':{'message': str(e)}}, 400
 
 
-@bp.route('/stripe/create-payment-intent/<partner_id>', methods=['POST'])
-def create_payment(partner_id):
+@bp.route('/stripe/create-payment-intent', methods=['POST'])
+def create_payment():
     data = json.loads(request.data)
     try:
-        account = g.db.accounts.get_account_by_id(partner_id)
-        if account is not None:
-            stripe.api_key = account.partner_stripe_secret_key()
-            # Some example payment method types include `card`, `ideal`, and `alipay`.
-            payment_method_type = data['paymentMethodType']
-            currency = data['currency']
-            order_id = data['orderId']
-            amount = float(data['amount'])*100
-            amount = int(amount)
-            # Create a PaymentIntent with the amount, currency, and a payment method type.
-            params = {
-                'payment_method_types': [payment_method_type],
-                'amount': amount,
-                'currency': currency,
-                'metadata': {'order_id':order_id}
-            }
-            intent = stripe.PaymentIntent.create(**params)
-
-            # Send PaymentIntent details to the front end.
-            return {'clientSecret': intent.client_secret}
+        if 'partner_id' in data:
+            account = g.db.accounts.get_account_by_id(data['partner_id'])
+            if account is not None:
+                stripe.api_key = account.partner_stripe_secret_key()
+            else:
+                raise Exception("Incorrect partner id.")
         else:
-            raise Exception("Incorrect partner id.")
+            stripe.api_key = STRIPE_SECRET_KEY
+        # Some example payment method types include `card`, `ideal`, and `alipay`.
+        payment_method_type = data['paymentMethodType']
+        currency = data['currency']
+        order_id = data['orderId']
+        amount = float(data['amount'])*100
+        amount = int(amount)
+        # Create a PaymentIntent with the amount, currency, and a payment method type.
+        params = {
+            'payment_method_types': [payment_method_type],
+            'amount': amount,
+            'currency': currency,
+            'metadata': {'order_id':order_id}
+        }
+        intent = stripe.PaymentIntent.create(**params)
+
+        # Send PaymentIntent details to the front end.
+        return {'clientSecret': intent.client_secret}
     except stripe.error.StripeError as e:
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
         return {'error': {'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-payment-intent/sales-group', methods=['POST'])
+def create_sales_group_payment():
+    data = json.loads(request.data)
+    try:
+        if len(account := g.db.accounts.get_accounts(id=data['account_id'])) > 0 and account[0]["stripe_account_id"] is not None \
+         and account[0]["is_stripe_payouts_enabled"] == 1:
+            intent = create_intent_for_transfer_to_connected_account(
+                amount=int(float(data['amount'])*100)*0.96,
+                charged_amount=int(float(data['amount'])*100),
+                account=account,
+                metadata={'sales_group_id': data['sales_group_id']},
+                currency=data['currency']
+            )
+            return {'clientSecret': intent.client_secret}
+        else:
+            raise Exception("There is a problem with this sales group transaction. Please try later.")
+    except stripe.error.StripeError as e:
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400
+
+
+@bp.route('/stripe/create-payment-intent/tip/<account_id>', methods=['POST'])
+def create_account_payment(account_id):
+    input_post_data = json.loads(request.data)
+    try:
+        if len(account := g.db.accounts.get_accounts(id=account_id)) > 0 and account[0]["stripe_account_id"] is not None \
+         and account[0]["is_stripe_payouts_enabled"] == 1:
+            charged_amount = round((float(input_post_data['amount']) + 0.3)/0.97, 2)
+            tip_id = Tips(g.db).insert_tip(
+                account_id, input_post_data['amount'],
+                charged_amount, input_post_data["name"],
+                input_post_data["email"] if input_post_data["email"] else None,
+                input_post_data["phone"] if input_post_data["phone"] else None
+            )
+            intent = create_intent_for_transfer_to_connected_account(
+                amount=int(float(input_post_data['amount'])*100),
+                charged_amount=int(charged_amount*100),
+                account=account,
+                metadata={'tip_id': tip_id},
+                currency=input_post_data['currency']
+            )
+            Tips(g.db).update_tip(tip_id, stripe_payment_intent_id=intent.id)
+            return {'client_secret': intent.client_secret, 'intent_id': intent.id, 'tip_id': tip_id}
+        else:
+            raise Exception("Your tip cannot be sent currently. Please try later.")
+    except stripe.error.StripeError as e:
+        Tips(g.db).update_tip(tip_id, stripe_error=str(e))
+        return {'error': {'message': str(e)}}, 400
+    except Exception as e:
+        return {'error': {'message': str(e)}}, 400
+
+
+def create_intent_for_transfer_to_connected_account(amount, charged_amount, account, metadata, currency):
+    stripe.api_key = STRIPE_SECRET_KEY
+    params = {
+        'transfer_data': {
+            'amount': amount,
+            'destination': account[0]["stripe_account_id"]
+        },
+        'automatic_payment_methods': {
+            'enabled': True,
+        },
+        'amount': charged_amount,
+        'currency': currency,
+        'metadata': metadata
+    }
+    return stripe.PaymentIntent.create(**params)
+
+
+@bp.route('/stripe/onboard-account', methods=['POST'])
+def onboard_account():
+    try:
+        stripe_account = stripe.Account.create(
+            type='express',
+            country='US',
+            capabilities={
+                'transfers': {'requested': True}
+            },
+            business_type='company',
+            company={
+                'name': g.account.company()
+            },
+            metadata={'internal_account_id': g.account.id(), 'created_by_user': g.user.id()}
+        )
+
+        session[SESSION_STRIPE_ACCOUNT_ID_VAR] = stripe_account.id
+        Accounts(g.db).update_account(account_id=g.account.id(), stripe_account_id=stripe_account.id)
+
+        origin = request.headers['origin']
+        account_link_url = _generate_account_link(stripe_account.id, origin)  
+        return {'url': account_link_url}
+    except Exception as e:
+        return {'error': str(e)}, 403
+
+
+@bp.route('/stripe/onboard-account/complete', methods=['GET'])
+def onboard_account_complete():
+    if SESSION_STRIPE_ACCOUNT_ID_VAR in session:
+        account_id = session[SESSION_STRIPE_ACCOUNT_ID_VAR]
+    else:
+        account_id = g.account.stripe_account_id()
+
+    origin = ('https://' if request.is_secure else 'http://') + request.headers['host']
+    account_link_url = _generate_account_link(account_id, origin)
+    return {'url': account_link_url}
+
+
+@bp.route('/stripe/onboard-account/refresh', methods=['GET'])
+def onboard_account_refresh():
+    if SESSION_STRIPE_ACCOUNT_ID_VAR not in session:
+        return redirect(url_for('dashboard_bp.serve_edit_account'))
+
+    account_id = session[SESSION_STRIPE_ACCOUNT_ID_VAR]
+
+    origin = ('https://' if request.is_secure else 'http://') + request.headers['host']
+    account_link_url = _generate_account_link(account_id, origin)
+    return redirect(account_link_url)
+
+
+def _generate_account_link(stripe_account_id, origin):
+    account_link = stripe.AccountLink.create(
+        type='account_onboarding',
+        account=stripe_account_id,
+        refresh_url=f'{origin}/{url_for("stripe_bp.onboard_account_refresh")}',
+        return_url=f'{origin}/{url_for("dashboard_bp.serve_edit_account")}?stripe_onboarding=1',
+    )
+    return account_link.url
+
+
+@bp.route('/stripe/connect/account-events', methods=['POST'])
+def serve_stripe_account():
+    payload = request.data
+    endpoint_secret = ACCOUNT_WEBHOOK_SECRET
+    sig_header = request.headers.get('stripe-signature')
+
+    DebugLogs(g.db).insert_debug_log("Stripe", "Connect web hook received", f"Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
+                                     json.dumps(json.loads(request.data)))
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e), json.dumps(json.loads(request.data)))
+        raise ExportException(str(e))
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e))
+        raise ExportException(str(e))
+
+    if event.type == 'account.updated':
+        stripe_account = event.data.object
+        accounts_table = Accounts(g.db)
+        if len(account := accounts_table.get_accounts(stripe_account_id=stripe_account.id)) > 0:
+            accounts_table.update_account(account_id=account[0]["id"], is_stripe_payouts_enabled=int(stripe_account.charges_enabled))
+        else:
+            ErrorLogs(g.db).insert_error_log("Stripe", f"An event was received for stripe account id: {stripe_account.id} which doesn't exist")
+    else:
+        raise ExportException('This event type ' + event.type + ' is not supported.')
+
+    return {}

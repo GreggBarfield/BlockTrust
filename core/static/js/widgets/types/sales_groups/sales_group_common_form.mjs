@@ -5,6 +5,7 @@ import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
+import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs'
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute) {
@@ -20,14 +21,19 @@ export class SalesGroupsCommonForm{
             this.marketingEndDateValue = this.data.end;
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
+            this.marketingPriceValue = this.data.price;
+            this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
+            this.characteristicsBreedCommentsValue = this.data.breed_comments;
             this.characteristicsWeightValue = this.data.reported.weight;
             this.characteristicsWeightVarianceValue = this.data.reported.weight_variance;
+            this.characteristicsWeighingConditionsValue = this.data.weighing_conditions;
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
+            this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -37,7 +43,6 @@ export class SalesGroupsCommonForm{
             this.fileAuths = this.data.file_auths
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
-
         }
         else{
             this.salesGroupID = null;
@@ -49,14 +54,19 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = "Off Ranch";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
+            this.marketingPriceValue = 0;
+            this.characteristicsCategoryValue = "Mixed Steers and Heifers";
             this.characteristicBreedsValue = [];
+            this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
-            this.characteristicsFrameValue = "Small";
-            this.characteristicsMusclingValue = "Light";
-            this.characteristicsHornsValue = "Horns";
+            this.characteristicsWeighingConditionsValue = null;
+            this.characteristicsFrameValue = "N/A";
+            this.characteristicsMusclingValue = "N/A";
+            this.characteristicsHornsValue = "N/A";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
+            this.maintenanceCattleAnnualHerdVaccinationsValue = "Yes"
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
@@ -100,7 +110,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, addAuctionMarketLink=false) {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -112,15 +122,28 @@ export class SalesGroupsCommonForm{
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
+            if(addAuctionMarketLink){
+                let newLink = document.createElement("a");
+                newLink.className = "form-label text-primary";
+                newLink.textContent = "Not Listed?";
+                newLink.onclick = () => {
+                    let widget = new CreateAuctionMarketWidget();
+                    widget.init();
+                }
+                groupLabel.append(newLink);
+            }
             group.append(groupLabel);
             return group;
         }
 
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
             let id = "domuid" + window.DOMUIDNext++;
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
+            if (isDecimal) {
+                input.step = "0.01";
+            }
             input.value = value;
             input.className = "form-control";
             input.id = id;
@@ -158,12 +181,12 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false) {
             let id = "domuid" + window.DOMUIDNext++;
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, addAuctionMarketLink);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -214,7 +237,6 @@ export class SalesGroupsCommonForm{
             return select;
         }
 
-        let that = this;
         let form = document.createElement("form");
         this.box.append(form);
 
@@ -225,6 +247,7 @@ export class SalesGroupsCommonForm{
         let salesGroupName = createText(marketingRow,"Sales Group Nickname", this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
         let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
+        //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
@@ -247,18 +270,21 @@ export class SalesGroupsCommonForm{
         
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
-            name: "Auction Market",
+            name: "Auction Market: ",
             options: this.auctionMarketsData,
             values: auctionMarket || "None",
             multiple: false,
             tags: false,
             placeholder: "Select Auction Market"
-        }, false, "", "", 4)
+        }, false, "", "", 4, true);
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
         marketingDeliveryLocationType.onchange = () => {
             if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
+                // Remove comments when marketingPrice is enabled again
+                //marketingPrice.disabled = false;
+                //marketingPrice.value = this.marketingPriceValue
 
                 marketingAuctionMarketLocation.value="None";
                 marketingAuctionMarketLocation.disabled=true;
@@ -268,9 +294,14 @@ export class SalesGroupsCommonForm{
 
                 marketingOffRanchLocation.value="";
                 marketingOffRanchLocation.disabled=true;
+
+                // Remove comments when marketingPrice is enabled again
+                //marketingPrice.disabled = true;
+                //marketingPrice.value = 0;
             }
         }
-        marketingDeliveryLocationType.onchange()
+        marketingDeliveryLocationType.onchange();
+
         //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
         // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
         //     marketingRow,
@@ -282,7 +313,16 @@ export class SalesGroupsCommonForm{
         // Characteristics
 
         let characteristicsRow = createSection(form, "Characteristics");
-
+        
+        let characteristicsCategory = createSelect({
+            row: characteristicsRow,
+            name: "Category",
+            options: SalesGroupFields.commonCategoryNames,
+            values: this.characteristicsCategoryValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Select Applicable Category"
+        },false,"","", 4);
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
@@ -292,10 +332,12 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Select Applicable Breeds"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsWeight = createNumber(characteristicsRow, "Base Weight", this.characteristicsWeightValue,true,"characteristicsWeight",
+        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
+        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -308,7 +350,7 @@ export class SalesGroupsCommonForm{
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
-            options: ["Light", "Heavy"],
+            options: SalesGroupFields.commonMusclings,
             values: this.characteristicsMusclingValue,
             multiple: false,
             tags: false,
@@ -317,7 +359,7 @@ export class SalesGroupsCommonForm{
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
-            options: ["Horns", "No Horns"],
+            options: SalesGroupFields.commonHorns,
             values: this.characteristicsHornsValue,
             multiple: false,
             tags: false,
@@ -345,7 +387,17 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Select Vaccinations"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
+
+        let maintenanceAnnualCattleHerdVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Annual Cattle Herd Vaccinations",
+            options: ["Yes", "No"],
+            values: this.maintenanceAnnualCattleHerdVaccinationsValue,
+            multiple: false,
+            tags: false,
+            placeholder: ""
+        }, false, "", "", 2);
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
@@ -395,7 +447,7 @@ export class SalesGroupsCommonForm{
         mediaGroup.append(mediaLabel);
 
         let fileEditorFrame = document.createElement("div");
-        this.fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.reportedImages, this.fileAuths);
+        let fileEditor = new BasicFileEditor({filetype:["image"]}, fileEditorFrame, this.reportedImages, this.fileAuths);
         mediaGroup.append(fileEditorFrame);
 
 
@@ -412,7 +464,7 @@ export class SalesGroupsCommonForm{
         videoGroup.append(videoLabel);
 
         let videoText = document.createElement("div");
-        this.VideoEditor = new VideoSession({}, videoText, this.reportedVideos, this.fileAuths);
+        let videoEditor = new VideoSession({}, videoText, this.reportedVideos, this.fileAuths);
         videoGroup.append(videoText);
 
         // Comments
@@ -467,7 +519,8 @@ export class SalesGroupsCommonForm{
         submitButton.textContent = "Save";
         submitButton.type = "button";
         submitFormGroup.append(submitButton);
-
+      
+        //progress bar needs to be accessible from parent
         this.progressBar = new ProgressBar();
         this.progressBar.attach(form);
         this.progressBar.hide();
@@ -480,10 +533,10 @@ export class SalesGroupsCommonForm{
         errorMessage.style.display = "none";
         errorMessage.className = "mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
-        this.internalErrorMessage = document.createElement("p");
-        this.internalErrorMessage.style.display = "none";
-        this.internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
-        form.append(this.internalErrorMessage);
+        let internalErrorMessage = document.createElement("p");
+        internalErrorMessage.style.display = "none";
+        internalErrorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(internalErrorMessage);
 
         this.asyncForm = new AsyncForm({
             action: this.postRoute,
@@ -502,7 +555,7 @@ export class SalesGroupsCommonForm{
                 }
 
                 return {
-                    id: that.salesGroupID,
+                    id: this.salesGroupID,
                     published: publishSwitch.isChecked(),
                     eids: [],
                     reported: {
@@ -520,8 +573,8 @@ export class SalesGroupsCommonForm{
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
-                        images: that.fileEditor.getFileIDs(),
-                        videos: that.VideoEditor.getVideoLinks(),
+                        images: fileEditor.getFileIDs(),
+                        videos: videoEditor.getVideoLinks(),
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
@@ -529,7 +582,12 @@ export class SalesGroupsCommonForm{
                     "start": marketingDates.getStartTime(),
                     "end": marketingDates.getEndTime(),
                     "group_name": salesGroupName.value,
+                    "price": 0, //marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,
+                    "category": characteristicsCategory.value,
+                    "breed_comments": characteristicsBreedComments.value,
+                    "weighing_conditions": characteristicsWeighingConditions.value,
+                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,
                     //TODO: Removed auction_sale for now. Retained incase needed in future.
                     //auction_sale: marketingAuctionSale.getID()
                     auction_sale: null                   
@@ -538,12 +596,13 @@ export class SalesGroupsCommonForm{
         });
 
         submitButton.addEventListener("click", () => {
-            this.internalErrorMessage.style.display = "none";
-            function progress(perc) {
-                that.progressBar.setProgress(perc);
+            internalErrorMessage.style.display = "none";
+            let parent = this;
+            function setProgress(perc) {
+                parent.progressBar.setProgress(perc);
             }
-            that.progressBar.show();
-            this.fileEditor.upload(progress)
+            this.progressBar.show();
+            fileEditor.upload(setProgress)
                 .then(() => {
                     this.asyncForm.submit();
                 });

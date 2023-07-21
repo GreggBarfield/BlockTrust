@@ -1,4 +1,4 @@
-import {uploadFile} from "./files.mjs";
+import {saveAndUploadFile} from "./files.mjs";
 import {Table} from "../core/table.mjs";
 import {InfoModal} from "../core/info_modal.mjs";
 export class BasicFileEditor {
@@ -200,9 +200,22 @@ export class BasicFileEditor {
         return result;
     }
 
-    upload(progress=null) {
-        // Uploads remaining files
-        // Returns a Promise
+    getNumberOfAttachedFiles() {
+        let count = 0;
+        for(const file of this.files){
+            if(!file.removed){
+                count++;
+            }
+        }
+        return count;
+    }
+
+     /**
+     * Uploads remaining files and returns a promise
+     * 
+     * @param {function} setProgress function which processes the current progress percentage.
+     */
+    upload(setProgress) {
 
         let filesToBeProcessed = [];
 
@@ -216,9 +229,7 @@ export class BasicFileEditor {
         }
 
         if (filesToBeProcessed.length == 0) {
-            if (typeof progress == "function") {
-                progress(1);
-            }
+            setProgress(1);
             return Promise.resolve(true);
         }
 
@@ -227,15 +238,15 @@ export class BasicFileEditor {
                 return Promise.resolve(true);
             }
 
-            return uploadFile(false, true, filesToBeProcessed[itr]["file"], function(perc) {
+            return saveAndUploadFile(true, true, filesToBeProcessed[itr]["file"], function(perc) {
                 if (totalBytes == 0) {
-                    progress(1);
+                    setProgress(1);
                 }
                 else if (filesToBeProcessed[itr]["file"].size == 0) {
-                    progress(bytesSoFar / totalBytes);
+                    setProgress(bytesSoFar / totalBytes);
                 }
                 else {
-                    progress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
+                    setProgress(bytesSoFar / totalBytes + perc * filesToBeProcessed[itr]["file"].size / totalBytes);
                 }
             })
             .then((id)=>{

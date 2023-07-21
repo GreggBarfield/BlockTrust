@@ -180,48 +180,36 @@
         <div class="b-nav-utility">
             <ul>
             {% if dashboard_standard_account is not none %}
-            {% if dashboard_standard_account.sector_name() != "Buyer" and dashboard_standard_account.generated_paid() == 1 %}
-                <li> 
+            {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"] and dashboard_standard_account.generated_paid() == 1 %}
+                <li title="Search for EID Numbers"> 
                   <a href="#" id="icon-search">
-                    <i class="icon feather icon-search"></i>
+                    <i class="icon feather icon-search h2"></i>
                   </a>
                 </li>
             {% endif %}
-            {% if unread_notifications==1 %}
-                <li>  
-                    <a href="/dashboard/notifications">
-                    <i 
-                        class="icon feather icon-bell" 
-                        title="You have unread notifications"
-                        style="color: blue;"
-                    ></i>
+                <!-- below the whole code in title attribute is in quotes because we use strings with spaces-->
+                <li title="{{'You have pending connection requests' if pending_connection_requests_count else 'Manage Connections in the Beef Supply Chain'}}">  
+                    <a href="/dashboard/connections"  class={{"text-danger" if pending_connection_requests_count else ""}}>
+                        <i class="icon feather icon-users h2"></i>
                     </a>
                 </li>
-            {% else %}
-                <li>  
-                    <a href="/dashboard/notifications">
-                    <i class="icon feather icon-bell"></i>
+                <li title="{{'You have unread notifications' if unread_notifications_count else 'Notifications'}}">  
+                    <a href="/dashboard/notifications" class={{"text-danger" if unread_notifications_count else ""}}>
+                        <i class="icon feather icon-bell h2"></i>
                     </a>
                 </li>
-            {% endif %}
-                <li>  
+                <li title="Internal Secure Messaging">  
                     <a href="/dashboard/messages">
-                    <i class="icon feather icon-mail"></i>
+                        <i class="icon feather icon-mail h2"></i>
                     </a>
                 </li>
-                <li class="b-account-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-account-settings-li b-account-settings"
-                    >
-                        <i class="icon feather icon-settings"></i>
+                <li class="b-account-settings-li" title="Account Settings">
+                    <a href="#" class="toggler" data-toggles="b-account-settings-li b-account-settings">
+                        <i class="icon feather icon-settings h2"></i>
                     </a>
                     <div class="b-expandable-icon b-account-settings">
                         <div class="pro-head">
-                            <div>
-                              {{ dashboard_standard_account.name()}}
-                            </div>
+                            <div> {{ dashboard_standard_account.company()}} </div>
                         </div>
                         <ul class="pro-body">
                             <li>
@@ -237,26 +225,22 @@
                             </li>
                         {% endif %}
                             <li>
-                                <a href="/dashboard/connections">
-                                    <i class="feather icon-users"></i> View Connections
+                                <a href="/dashboard/edit/edit-account">
+                                    <i class="feather icon-briefcase"></i> Edit Account
                                 </a>
                             </li>
                             <li>
-                                <a href="/dashboard/edit/edit-account">
-                                    <i class="feather icon-briefcase"></i> Edit Account
+                                <a href="/dashboard/edit/edit-account-retail-data">
+                                    <i class="feather icon-briefcase"></i> Edit Account Retail Data
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </li>
             {% endif %}
-                <li class="b-user-settings-li">
-                    <a
-                        href="#"
-                        class="toggler"
-                        data-toggles="b-user-settings-li b-user-settings"
-                    >
-                        <i class="icon feather icon-user"></i>
+                <li class="b-user-settings-li" title="User Settings">
+                    <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
+                        <i class="icon feather icon-user h2"></i>
                     </a>
                     <div class="b-expandable-icon b-user-settings">
                         <div class="pro-head">
@@ -266,10 +250,16 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                        {% if dashboard_is_employee_impersonating == 0 %}
+                        {% if not dashboard_is_employee %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="/employee/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to staff portal
                                 </a>
                             </li>
                         {% endif %}
@@ -289,7 +279,7 @@
             <li>
             {% if dashboard_standard_account is not none %}
                 <a
-                    href="/dashboard/accounts/{{ dashboard_standard_account.id() }}"
+                    href="/dashboard"
                 >
                     <span><i class="feather icon-home"></i></span>
                     <span>{{ dashboard_standard_account.name()|e }}</span>
@@ -312,34 +302,18 @@
             <li>
                 <a href="/dashboard/sales-groups">
                     <span><i class="feather icon-tag"></i></span>
-                {% if dashboard_standard_account.sector_name() == "Feedlot" %}
-                    <span>MarketTrust</span>
-                {% else %}
-                    <span>Sales Groups</span>
-                {% endif %}
+                    <span>MarketTrust<sup>™</sup></span>
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                {% if dashboard_standard_account.sector_name() != "Feedlot" and dashboard_standard_account.sector_name() != "Buyer"%}
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] or dashboard_standard_account.sector_id() == sectors_name_to_id["Auction House"]%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                     <li><a href="/dashboard/sales-groups/archive">Archived Sales Groups</a></li>
                 {% endif %}
                 </ul>
             </li>
-        {% if dashboard_standard_account.sector_name() == "Auction House" %}
-            <li>
-                <a href="/dashboard/auction-sales/manage">
-                    <span><i class="feather icon-award"></i></span>
-                    <span>Auctions</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/auction-sales/new">New Auction Sale</a></li>
-                    <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
-                </ul>
-            </li>
-        {% endif %}
-        {% if dashboard_standard_account.sector_name() != "Buyer"%}
+        {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"]%}
             <li>
                 <a href="/dashboard">
                     <span><i class="feather icon-trending-up"></i></span>
@@ -347,19 +321,40 @@
                 </a>
                 <ul>
                     <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
-                    <li><a href="/dashboard/data/market">Market Data</a></li>
+                    <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
                     <li><a href="/dashboard/sustainability">Sustainability</a></li>
+                    {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
+                    <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
+                    {% endif %} 
                 </ul>
+            </li>
+        {% endif %}
+        <li>
+            <a href="/shop/tag-store">
+                <span><i class="feather icon-shopping-cart"></i></span>
+                <span>Tag Store</span>
+            </a>
+        </li>
+        {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
+            <li>
+                <a href="/dashboard/marketplace">
+                    <span><i class="feather icon-trending-up"></i></span>
+                    <span>MarketPlace</span>
+                </a>
             </li>
         {% endif %}
         {% endif %}
         </ul>
         <span>Support</span>
-        <ul class="float-right" style="display:inline-flex;">
+        <ul class="float-right mr-4" style="display:inline-flex;">
             <li>
                 <a href="/dashboard/support">
                     <span>Support</span>
                 </a>
+                <ul>
+                    <li><a href="/dashboard/support">Support Form</a></li> 
+                    <li><a href="/dashboard/files/BT_Onboarding_Guide.pdf" target="_blank">Onboarding Guide</a></li>
+                </ul>
             </li>
         </ul>
     </nav>

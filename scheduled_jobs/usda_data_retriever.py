@@ -4,6 +4,7 @@ from core.config import (USDA_API_KEY, USDA_MANDATORY_ENDPOINT, USDA_PUBLIC_ENDP
 from core.database.objects.usda_report import USDAReport
 from core.database.tables.debug_logs import DebugLogs
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.usda_reports import USDAReports
 import traceback
 import datetime
 
@@ -22,7 +23,7 @@ class UsdaDataRetriever:
             json_response = response.json()
 
             cattleReports = dict()
-            published_dates = self._db.usda_reports.get_unique_published_dates_and_slug_id()
+            published_dates = USDAReports(self._db).get_unique_published_dates_and_slug_id()
 
             for row in json_response:
                 if 'Cattle' in row['market_types'][0]:
@@ -57,7 +58,7 @@ class UsdaDataRetriever:
                     if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
                         try:
                             report = USDAReport(row)
-                            self._db.usda_reports.create_report(report)
+                            USDAReports(self._db).create_report(report)
                             reportsAddedCounter += 1
                         except Exception as e:
                             print("USDADataRetreiver.get_mandatory_reports(): Result Row excepted. Row: ", row)
@@ -82,13 +83,13 @@ class UsdaDataRetriever:
                 marketTypeIDs = [1000, 1010, 1011, 1012, 1013, 1031, 1085]
 
                 reports = dict()
-                published_dates = self._db.usda_reports.get_unique_published_dates_and_slug_id()
-                for id in marketTypeIDs:
-                    response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(id), 
+                published_dates = USDAReports(self._db).get_unique_published_dates_and_slug_id()
+                for market_type_id in marketTypeIDs:
+                    response = requests.get(USDA_PUBLIC_ENDPOINT + 'marketTypes/' + str(market_type_id),
                         auth=(USDA_API_KEY, ''))
                     json_response = response.json()
 
-                    for row in json_response['results']:
+                    for row in json_response:
                         item = {
                             'published_date' : row['published_date'],
                             'slug_id' : int(row['slug_id'])
@@ -121,7 +122,7 @@ class UsdaDataRetriever:
                         if age_of_report.days <= USDA_CUTOFF_PERIOD_IN_DAYS:
                             try:
                                 report = USDAReport(row)
-                                self._db.usda_reports.create_report(report)
+                                USDAReports(self._db).create_report(report)
                                 reportsAddedCounter += 1
                             except Exception as e:
                                 print("USDADataRetreiver.get_public_reports(): Result Row excepted. Row: ", row)
@@ -141,7 +142,7 @@ class UsdaDataRetriever:
             DebugLogs(self._db).insert_debug_log("USDADataRetreiver.get_public_reports()", "Run logs", "", {"details":debug_logs})
 
     def delete_old_reports(self):
-        rowCount = self._db.usda_reports.delete_reports_older_than(USDA_CUTOFF_PERIOD_IN_DAYS)
+        rowCount = USDAReports(self._db).delete_reports_older_than(USDA_CUTOFF_PERIOD_IN_DAYS)
         # print("USDADataRetriever.delete_old_reports(): Reports deleted: " + str(rowCount))
         DebugLogs(self._db).insert_debug_log("USDADataRetriever.delete_old_reports()", "Reports deleted: " + str(rowCount))
 

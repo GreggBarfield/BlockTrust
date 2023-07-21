@@ -13,16 +13,6 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 <script src="/static/global/global.mjs" type="module"></script>
 {% endblock head_section %}
 
-{% block scripts %}
-<script src="/static/libs/popper/popper.min.js"></script>
-<script src="/static/libs/bootstrap/bootstrap.min.js"></script>
-<script src="/static/libs/appear/jquery.appear.js"></script>
-<script src="/static/js/custom.js"></script>
-<script src="/static/libs2/parallax.js-1.5.0/parallax.min.js"></script>
-<script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
-<script src="/static/build/build_outside_interactive.min.mjs"></script>
-{% endblock scripts %}
-
 {% set dashboard_standard_socialmedia_links_html %}
 <ul class="nav">
   <li class="nav-item">
@@ -64,15 +54,8 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
             </a>
             <!-- header contact info -->
             <div class="header-contact-info ml-auto justify-content-center d-none d-lg-flex">
-              <div class="d-flex pr-2 mr-2">
-                <i class="flaticon-map fa-2x align-self-center pr-1 text-primary"></i>
-                <div class="align-self-center">
-                  <span class="d-block">1125 Westport Drive</span>
-                  <span>Manhattan, KS 66502</span>
-                </div>
-              </div>
               <div class="d-flex pr-2 mr-2 border-right mb-1 mb-lg-0">
-                <i class=""></i>
+                <i class="flaticon-map fa-2x align-self-center pr-1 text-primary"></i>
                 <div class="align-self-center">
                   <span class="d-block">3515 Longmire Dr, Suite 157</span>
                   <span>College Station, TX 77845</span>
@@ -132,15 +115,8 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
               <div class="ml-auto">
                 <ul class="nav">
                   <li class="nav-item p-1 px-2 bg-black ">
-                    {% if outside_standard_user_logged_in %}
-                    <a class="btn btn-link text-white" href="/dashboard">
-                      Dashboard
-                    </a>&nbsp;|&nbsp;
-                    <a class="btn btn-link text-white" href="/logout">
-                      Logout
-                    </a>
-                    {% elif outside_standard_employee_logged_in %}
-                    <a class="btn btn-link text-white" href="/employee/dashboard">
+                    {% if outside_standard_logged_in %}
+                    <a class="btn btn-link text-white" href="{{outside_standard_dashboard_URL}}">
                       Dashboard
                     </a>&nbsp;|&nbsp;
                     <a class="btn btn-link text-white" href="/logout">
@@ -171,9 +147,11 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 Needs outside banner
 {% endblock outside_banner %}
 
+
 {% block outside_content %}
 Needs outside content
 {% endblock outside_content %}
+
 
 {% endblock content %}
 
@@ -348,7 +326,6 @@ Needs outside content
                 <i class="fas fa-location-arrow fa-fw pr-1"></i>
                 Address
               </span>
-              <label class="text-muted mb-0">1125 Westport Drive Manhattan, KS 66502</label>
               <label class="text-muted mb-0">3515 Longmire Dr, Suite 157 College Station, TX 77845</label>
             </li>
             <li class="mb-2">
@@ -407,7 +384,7 @@ Needs outside content
     </div>
     <div class="row footer-bottom">
       <div class="col-lg-8 text-center text-lg-right mb-2 align-self-center">
-        <p class="mb-0 text-muted">Copyright © 2021. All Rights Reserved. <a href="#">LedgerSpace, LLC</a></p>
+        <p class="mb-0 text-muted">Copyright © <span id="year"></span>. All Rights Reserved. <a href="#">LedgerSpace, LLC</a></p>
       </div>
     </div>
   </div>
@@ -420,3 +397,15 @@ Needs outside content
 </div>
 {% endblock features %}
 
+{% block scripts %}
+<script src="/static/libs/popper/popper.min.js"></script>
+<script src="/static/libs/bootstrap/bootstrap.min.js"></script>
+<script src="/static/libs/appear/jquery.appear.js"></script>
+<script src="/static/js/custom.js"></script>
+<script src="/static/libs2/parallax.js-1.5.0/parallax.min.js"></script>
+<script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
+<script src="/static/build/build_outside_interactive.min.mjs"></script>
+<script>
+  document.getElementById("year").innerText = new Date().getFullYear()
+</script>
+{% endblock scripts %}

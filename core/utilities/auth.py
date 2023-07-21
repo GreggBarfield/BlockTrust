@@ -8,19 +8,21 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 import time
 from ..database.tables.connection_invites import ConnectionInvites
+from ..database.tables.account_links import AccountLinks
+from ..database.combinations import create_connections_for_supply_chain, perform_new_account_actions
 from ..renderers.email import render_email
 
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
 from ..config import SUPPORT_GENERAL_EMAIL
-from ..sectors import sectors_by_id
+from ..sectors import SECTORS_ID_TO_NAME
 
-# since session objects are easily decoded, we use key names which make no sense
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
 SESSION_EMPLOYEE_ID_VAR = "jkl"
+SESSION_STRIPE_ACCOUNT_ID_VAR = "mno"
 
 
 class AuthException(Exception):
@@ -66,24 +68,26 @@ class SignupFailedException(AuthException):
         super().__init__(reason)
 
 
-def session_open():
-    """Load session into app context."""
-    session_open_user()
-    if g.user is not None:
-        session_open_account()
+def load_app_context():
+    load_user_to_context()
+    if "user" in g:
+        load_account_to_context()
     else:
-        session_open_employee()
+        load_employee_to_context()
 
 
-def session_open_employee():
-    """"Load employee session into app context."""
-    if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
-        g.employee = Employees(g.db).get(session[SESSION_EMPLOYEE_ID_VAR])
-    else:
-        session[SESSION_EMPLOYEE_ID_VAR] = ""
+def load_employee(employee_id):
+    session.clear()
+    session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+    load_employee_to_context()
 
 
-def session_start_account(account_id):
+def load_employee_to_context():
+    if SESSION_EMPLOYEE_ID_VAR in session:
+        g.employee = Employees(g.db).get_by_id(session[SESSION_EMPLOYEE_ID_VAR])
+
+
+def load_account(account_id):
     """Start a session with this account.
 
     Note that g.user should already be set to allow this to work.
@@ -94,41 +98,32 @@ def session_start_account(account_id):
     Raises:
         NoAccountUserFound on user not found
     """
-    g.account = None
-    session[SESSION_ACCOUNT_ID_VAR] = ""
-    session[SESSION_IS_ADMIN_VAR] = ""
-    attempt_login = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
-    if attempt_login.account_id() == account_id and attempt_login.user_id() == g.user.id():
-        session[SESSION_ACCOUNT_ID_VAR] = account_id
-        session[SESSION_IS_ADMIN_VAR] = attempt_login.is_admin()
-        session_open_account()
+    account_user = g.db.account_users.get_by_user_and_account_id(g.user, account_id)
+    session[SESSION_ACCOUNT_ID_VAR] = account_id
+    session[SESSION_IS_ADMIN_VAR] = account_user.is_admin()
+    load_account_to_context()
 
 
-def session_open_user():
-    """Load user session into app context."""
-    g.user = None
-    if SESSION_USER_ID_VAR in session and session[SESSION_USER_ID_VAR] != "":
+def load_user(user_id, employee_id=0):
+    session.clear()
+    session[SESSION_USER_ID_VAR] = user_id
+    if employee_id:
+        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+    load_user_to_context()
+
+
+def load_user_to_context():
+    if SESSION_USER_ID_VAR in session:
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
-        if SESSION_EMPLOYEE_ID_VAR in session and session[SESSION_EMPLOYEE_ID_VAR] != "":
-            g.is_employee_impersonating = 1
-        else:
-            g.is_employee_impersonating = 0
-    else:
-        session[SESSION_USER_ID_VAR] = ""
-        # TODO: if this fails, abort request and redirect to issue opening session screen
+        if SESSION_EMPLOYEE_ID_VAR in session:
+            g.employee_id = session[SESSION_EMPLOYEE_ID_VAR]
 
 
-def session_open_account():
-    """Load account session into app context."""
-    g.account = None
-    if SESSION_ACCOUNT_ID_VAR in session and session[SESSION_ACCOUNT_ID_VAR] != "":
+def load_account_to_context():
+    if SESSION_ACCOUNT_ID_VAR in session:
         g.account = g.db.accounts.get_account_by_id(session[SESSION_ACCOUNT_ID_VAR])
-        if SESSION_IS_ADMIN_VAR in session and session[SESSION_IS_ADMIN_VAR] != "":
-            # Not bothering to get the account_user from db again on each request, since we don't let users change anyone's
-            # role and therefore assuming is_admin will not change during an active session
+        if SESSION_IS_ADMIN_VAR in session:
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
-    else:
-        session[SESSION_ACCOUNT_ID_VAR] = ""
 
 
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
@@ -175,26 +170,24 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
 
-    # Password should equal confirm_password
+    sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
-    if password != confirm_password:
-        raise SignupFailedException("The passwords you entered were not identical.")
-
-    user = g.db.users.create_user(
+    user = g.db.users.validate_and_insert_user(
         username=username,
         password=password,
+        confirm_password=confirm_password,
         email=email,
         first_name=first_name,
         last_name=last_name,
         phone=personal_phone,
         email_verified=0,
-        recaptcha_score = recaptcha_score,
-        ip_address = ip_address,
-        ip_country = ip_country
+        recaptcha_score=recaptcha_score,
+        ip_address=ip_address,
+        ip_country=ip_country
     )
 
     try:
-        account = g.db.accounts.create_account_with_admin(
+        account_obj = g.db.accounts.create_account_with_admin(
             user=user,
             company=company,
             sector=sector,
@@ -206,20 +199,25 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone
         )
-        ConnectionInvites(g.db).convert_invites_to_connections(email, account)
-        EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"])
+
+        perform_new_account_actions(
+            db=g.db, account_id=account_obj.id(), user_id=user.id(),
+            event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id(),
+            partner_id=partner, email=email
+        )
+
     except Exception as e:
-        # Delete the user if there are errors in account creation. This will let them register again.
-        g.db.users.delete_by_user(user)
         raise e
 
 
 def logout():
-    """Clear session of user info and remove g user."""
+    """Clear session"""
     session.clear()
+    g.pop("user", None)
+    g.pop("employee", None)
 
 
-def change_user_password(email, new_password, confirm_password):
+def reset_user_password(email, new_password, confirm_password):
     """
     Changing the password in the user database
 
@@ -233,17 +231,14 @@ def change_user_password(email, new_password, confirm_password):
         Exception on failure with the reason.
     """
     try:
-        new_password = Users._format_field(new_password)
-        confirm_password = Users._format_field(confirm_password)
         # Check if password reset link is valid. As token.py returns false if link is Invalid
         if email is False:
             raise Exception("Password reset link is Invalid")
-        user = Users(g.db).get_by_email(email)
-        # Password should not be blank
-        Users(g.db).update_user(
-            username=user.username(),
-            password=new_password,
-            confirm_password=confirm_password
+        user = Users(g.db).get_users(email=email)[0]
+        Users(g.db).validate_user(email, new_password, confirm_password)
+        Users(g.db).modify_user(
+            id=user["id"],
+            password=new_password
         )
     except Exception as e:
         raise e
@@ -252,7 +247,7 @@ def change_user_password(email, new_password, confirm_password):
 def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
-    g.db.users.update_user(username=user_account["username"], is_email_verified=1)
+    g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
     EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
     partner_account_company = ""
     if user_account["partner_account"] is not None:
@@ -263,7 +258,7 @@ def confirm(email):
         render_email("new_account_info.html", {
             'user_account': user_account,
             'partner_account_company': partner_account_company,
-            'sectors_by_id': sectors_by_id
+            'sectors_id_to_name': SECTORS_ID_TO_NAME
         }), SUPPORT_GENERAL_EMAIL
     )
 
@@ -346,7 +341,7 @@ def login(identifier, password=""):
                 user_row = email_results[0]
 
         # End of tries
-        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues. Note that after 3 consecutive incorrect attempts, your account will be locked for 24 hours"
+        generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues"
 
         if user_row is None:
             raise LoginException(generic_error)
@@ -356,82 +351,75 @@ def login(identifier, password=""):
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
             raise EmailNotVerifiedException(email_not_verified_error)
 
-        locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
-        if int(user_row["is_user_locked"]) == 1:
-            
-            # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
-            
-            if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
-                raise LoginException(locked_account_error)
-            else:
-                g.db.execute(
-                """
-                    UPDATE users
-                    SET failed_attempts =  %(failed_attempts)s, 
-                    is_user_locked = %(is_user_locked)s, 
-                    locked_time = %(locked_time)s
-                    WHERE
-                        users.id=%(id)s
-                """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts": 0,
-                        "is_user_locked": 0,
-                        "locked_time": None
-                    }
-                )
+        # Retained for future 5/30/23
+        # locked_account_error = "Your account (" + user_row["username"] + ") is locked for 24 hours due to reaching the maximum 3 consecutive failed login attempts. Contact us if you're having issues"
+        # if int(user_row["is_user_locked"]) == 1:
+        #     # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
+        #     if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+        #         raise LoginException(locked_account_error)
+        #     else:
+        #         g.db.execute(
+        #         """
+        #             UPDATE users
+        #             SET failed_attempts =  %(failed_attempts)s,
+        #             is_user_locked = %(is_user_locked)s,
+        #             locked_time = %(locked_time)s
+        #             WHERE
+        #                 users.id=%(id)s
+        #         """,
+        #             {
+        #                 "id": user_row["id"],
+        #                 "failed_attempts": 0,
+        #                 "is_user_locked": 0,
+        #                 "locked_time": None
+        #             }
+        #         )
 
         if not bcrypt.checkpw(password.encode("utf-8"), user_row["password"].encode("utf-8")):
-            failed_attempts = user_row["failed_attempts"] + 1
             g.db.execute_d(
-                    """
-                        UPDATE users
-                        SET failed_attempts =  %(failed_attempts)s
-                        WHERE
-                            users.id=%(id)s
-                    """,
-                    {
-                        "id": user_row["id"],
-                        "failed_attempts":  failed_attempts
-                    }
-            )
- 
-            if failed_attempts == 3:
-                g.db.execute(
                 """
                     UPDATE users
-                    SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+                    SET failed_attempts =  failed_attempts + 1
                     WHERE
                         users.id=%(id)s
                 """,
-                    {
-                        "id": user_row["id"],
-                        "is_user_locked": 1,
-                        "locked_time": int(round(time.time()))
-                    }
-                )
-                raise LoginException(locked_account_error)
-         
+                {
+                    "id": user_row["id"]
+                }
+            )
+
+            # Retained for future 5/30/23
+            # if failed_attempts == 3:
+            #     g.db.execute(
+            #     """
+            #         UPDATE users
+            #         SET is_user_locked = %(is_user_locked)s, locked_time = %(locked_time)s
+            #         WHERE
+            #             users.id=%(id)s
+            #     """,
+            #         {
+            #             "id": user_row["id"],
+            #             "is_user_locked": 1,
+            #             "locked_time": int(round(time.time()))
+            #         }
+            #     )
+            #     raise LoginException(locked_account_error)
+
             raise LoginException(generic_error)
 
-
-        if  user_row["failed_attempts"] > 0:
+        if user_row["failed_attempts"] > 0:
             g.db.execute(
-            """
-                UPDATE users
-                SET failed_attempts =  %(failed_attempts)s
-                WHERE
-                    users.id=%(id)s
-            """,
+                """
+                    UPDATE users
+                    SET failed_attempts =  0
+                    WHERE
+                        users.id=%(id)s
+                """,
                 {
-                    "id": user_row["id"],
-                    "failed_attempts": 0
+                    "id": user_row["id"]
                 }
-            )      
-        g.user = User(g.db, user_row)
-        session.clear()
-        session[SESSION_USER_ID_VAR] = g.user.id()
-        return g.user
+            )
+        return user_row["id"]
     except LoginException as e:
         raise e
     except EmailNotVerifiedException as e:
@@ -510,9 +498,7 @@ def employee_login(identifier, password=""):
         if not bcrypt.checkpw(password.encode("utf-8"), employee_row["password"].encode("utf-8")):
             raise LoginException(generic_error)
 
-        g.employee = Employee(employee_row)
-        session.clear()
-        session[SESSION_EMPLOYEE_ID_VAR] = g.employee.id()
+        load_employee(employee_row["id"])
     except LoginException as e:
         raise e
     except Exception as e:
@@ -561,37 +547,39 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
     confirm_password = Users._format_field(confirm_password)
     email_validation = validate_email(email)
     if email_validation["success"]:
-        # Password should equal confirm_password
-        if password != confirm_password:
-            raise SignupFailedException("The passwords you entered were not identical.")
-        user = g.db.users.create_user(
+        user = g.db.users.validate_and_insert_user(
             username=username,
             password=password,
+            confirm_password=confirm_password,
             email=email,
             first_name=first_name,
             last_name=last_name,
             phone=None,
             email_verified=1
         )
+
         account = g.db.accounts.get_account_by_id(account_id)
         if is_admin == 0:
             g.db.account_users.add_user_to_account(user, account)
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
+
         EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=event_type_by_name["Invited Signup"])
-        user_accounts = g.db.users.get_users_and_accounts(user_email_id=email)
+
+        user_accounts = g.db.users.get_users_and_accounts(user_email=email)
         if len(user_accounts) > 1:
             user_account = user_accounts[0]
             partner_account_company = ""
             if account.partner_account_id() is not None:
                 partner_account = g.db.accounts.get_account_by_id(account_id=account.partner_account_id())
                 partner_account_company = partner_account.company()
+
             send_email(
                 "BlockTrust Network New Invited User Registration Information",
                 render_email("new_account_info.html", {
                     'user_account': user_account,
                     'partner_account_company': partner_account_company,
-                    'sectors_by_id': sectors_by_id
+                    'sectors_id_to_name': SECTORS_ID_TO_NAME
                 }), SUPPORT_GENERAL_EMAIL
             )
     else:
@@ -639,28 +627,34 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(user_id, employee_id):
+def employee_login_as_user(account_id, user_id, employee_id, is_admin):
     """
     Params:
+        account_id: Account's ID
         user_id: User Id of the user for logging in
+        employee_id: Employee Id using the user to log in
 
     Returns:
-        Nothing
+        Nothing.
+
+    Raises:
+        Exception
     """
-    id_results = g.db.execute_d(
-                """
-                    SELECT * FROM users
-                    WHERE
-                        id=%(id)s
-                """,
-                {
-                    "id": user_id
-                }
-            )
-    if len(id_results) == 1:
-        user_row = id_results[0]
-        session.clear()
-        session[SESSION_USER_ID_VAR] = user_row["id"]
-        session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+    account_user = g.db.account_users.get_account_users(account=account_id, user=user_id, is_admin=is_admin)
+    if account_user:
+        logout()
+        load_user(user_id, employee_id)
+        load_account(account_id)
     else:
         raise Exception("No user found")
+
+
+def login_as_employee(employee_id):
+    """
+    Params:
+        employee_id: Employee Id to log in
+    Returns:
+        Nothing.
+    """
+    logout()
+    load_employee(employee_id)

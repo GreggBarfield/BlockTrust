@@ -1,7 +1,8 @@
+from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
 from ...all_to_unix import all_to_unix
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 
 def _check_format(insert):
     keys = [
@@ -27,7 +28,7 @@ def handle(db: Database, insert):
         feeder_account_link_id = 0
         feeder_zip = 0
         feeder_account_links = db.account_links.get_by_affiliate_id(fields["FeederCode"].strip().upper(), partner_account=partner_account, api_insert=api_insert,
-                                                                        sector=sectors_by_name["Feedlot"], insert=True)
+                                                                        sector=SECTORS_NAME_TO_ID["Feedlot"], insert=True)
         if len(feeder_account_links) > 0:
             feeder_account_link = feeder_account_links[0]
             feeder_account_link_id = feeder_account_link.id()
@@ -43,7 +44,7 @@ def handle(db: Database, insert):
         
         # Retained in case needed for future use
         # else:
-        #     feeders = db.accounts.get_accounts(company_like=fields["FeederCompany"].strip(), sector=sectors_by_name["Feedlot"])
+        #     feeders = db.accounts.get_accounts(company_like=fields["FeederCompany"].strip(), sector=SECTORS_NAME_TO_ID["Feedlot"])
         #     if len(feeders) > 0:
         #         feeder = feeders[0]
         #         feeder_zip = feeder["zip"]
@@ -63,7 +64,7 @@ def handle(db: Database, insert):
                     if d not in "0123456789":
                         break
                 else:
-                    lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                    lat, lon = get_lat_lon(int(f5))
                     db.matches.types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['SightedDate'])-86400,
@@ -77,7 +78,7 @@ def handle(db: Database, insert):
     if fields["PlantID"].isdigit():
         fields["PlantID"] =  fields["PlantID"].lstrip("0")
 
-    packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=sectors_by_name["Packer"], 
+    packer_account_link = db.account_links.get_by_affiliate_id(fields["PlantID"], partner_account=partner_account, sector=SECTORS_NAME_TO_ID["Packer"], 
                                                                     api_insert=api_insert, insert=True)[0]
     if packer_account_link.account_id() is not None:
         packer = db.accounts.get_account_by_id(packer_account_link.account_id())
@@ -94,7 +95,7 @@ def handle(db: Database, insert):
                 if d not in "0123456789":
                     break
             else:
-                lat, lon = db.zip_codes.get_lat_lon(int(f5))
+                lat, lon = get_lat_lon(int(f5))
                 db.matches.types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['SightedDate']),

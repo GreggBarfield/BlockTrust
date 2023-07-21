@@ -1,9 +1,16 @@
+from api.translation_worker.types.helper import (
+    process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
+)
+from core.database.combinations import (
+    create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
+)
+from core.sectors import SECTORS_NAME_TO_ID
 from ...exceptions import ExecutionException
-from ...all_to_unix import all_to_unix
 
-def _check_format(insert):
+
+def _check_required(insert):
     keys = [
-        "EID"
+        "eid"
     ]
     for key in keys:
         if key not in insert['fields']:
@@ -15,36 +22,47 @@ def handle(db, insert):
 
     Currently processing fields like
         {
-            "EID": "982000423956846"
+            "eid": "982000423956846",
+            "visual_id": "ABCDE",
+            "breed": "Red Baldy",
+            "birth_date": "12/1/2022",
+            "birth_weight": "55",
+            "calf_reg_no": "812311",
+            "sire_reg_no": "534311",
+            "wean_date": "12/30/2022",
+            "wean_weight": "300",
+            "creep_feed": "Yes",
+            "sex": "S",
+            "implants": "Yes"
         }
     """
-    _check_format(insert)
+    _check_required(insert)
 
     fields = insert['fields']
-    date_created = str(insert['created'])
+    date_created = fields['sighting_date'] if fields.get('sighting_date', None) else str(insert['created'])
 
-    eid = int(fields["EID"])
+    eid = int(fields["eid"])
     api_insert = insert["id"]
-    visual_id = fields["VisualID"] if "VisualID" in fields and fields["VisualID"] != "" else None
+    visual_id = fields["visual_id"] if "visual_id" in fields and fields["visual_id"] != "" else None
 
-    account = db.accounts.get_account_by_id(insert["account"])
-    if account is not None:
-        account_link_id = account.account_links()[0].id()
-        zipcode = str(account.zip())
-        if len(zipcode) >= 5:
-            f5 = zipcode[0:5]
-            for d in f5:
-                if d not in "0123456789":
-                    break
-            else:
-                lat, lon = db.zip_codes.get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
-                    eid=eid,
-                    visual_id=visual_id,
-                    time=all_to_unix(date_created),
-                    lat=lat,
-                    lon=lon,
-                    partner_account=insert["account"],
-                    account_link=account_link_id,
-                    api_insert=api_insert
-                )
+    accounts = db.accounts.get_accounts(id=insert["account"])
+    if len(accounts) > 0:
+        uploader_account = accounts[0]
+        account_link_id = db.account_links.get_account_links(account_id=uploader_account["id"])[0]["id"]
+        zipcode = str(uploader_account["zip"])
+        process_sighting(
+            db, eid, account_link_id, api_insert, zipcode, date_created,
+            insert["account"],
+            account_id=uploader_account["id"],
+            sector_id=uploader_account["sector"],
+            visual_id=visual_id,
+            connection_details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
+        )
+        process_weaning_data(
+            db, fields, eid, insert["account"], account_link_id, api_insert
+        )
+        process_birth_date(
+            db, fields, eid, insert["account"], account_link_id, api_insert
+        )
+        process_animal_characteristics(db, fields, eid, api_insert, visual_id)
+

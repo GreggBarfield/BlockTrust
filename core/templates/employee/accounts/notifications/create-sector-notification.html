@@ -23,8 +23,8 @@
                                     <label for="sector">Sector</label>
                                     <select class="form-control" id="sector">                                    
                                         <option value="">---Please select a Sector---</option>
-                                        {% for sector in sectors %}
-                                        <option value="{{sector}}">{{sectors[sector]}}</option>
+                                        {% for sector_id in sectors_id_to_name %}
+                                        <option value="{{sector_id}}">{{sectors_id_to_name[sector_id]}}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="focus-border"></span>

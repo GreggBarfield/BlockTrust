@@ -1,5 +1,12 @@
 from ... import config
 from ...utilities.aws import aws
+from ..no_value import NoValue
+
+DEFAULT_FILES_S3_PATH = "files/"
+PRODUCT_FILES_S3_PATH = "products/"
+MARKETPLACE_FILES_S3_PATH = "marketplace/"
+
+NO_VALUE = NoValue()
 
 class FilesException(Exception):
     """Files generic exception."""
@@ -16,6 +23,7 @@ class Files:
 
     def __init__(self, db):
         self._db = db
+        self.file_cols = ("id", "name", 'account_id', "user_id", "retail_page_account_id")
 
     def get_url(self, file_id, expires_in=3600):
         """Gets a signed URL to a file by the ID.
@@ -67,7 +75,8 @@ class Files:
         
         return False
 
-    def get_post(self, file_name, user_id, account_id, limit=10000000, expires_in=120):
+    def insert_file_and_get_post_configuration(self, file_name, user_id, account_id, employee_id, question_id=None,
+                                               limit=10000000, expires_in=480, file_s3_path=DEFAULT_FILES_S3_PATH):
         """Gets the POST configuration to upload a file.
         Creates the record in the files table.
 
@@ -82,28 +91,30 @@ class Files:
             limit: The file size limit in B
                 (default 10MB)
             expires_in: The number of seconds available to upload the image
-                (default 2 minutes)
+                (default 8 minutes)
         
         Returns:
             The file ID and the POST config (dictionary)
         """
         self._db.execute(
             """INSERT INTO files
-                (name, user_id, account_id)
+                (name, user_id, account_id, employee_id, question_id)
                 VALUES
-                    (%(name)s, %(user_id)s, %(account_id)s)
+                    (%(name)s, %(user_id)s, %(account_id)s, %(employee_id)s, %(question_id)s)
             """,
             {
                 "name": file_name,
                 "account_id": account_id,
-                "user_id": user_id
+                "employee_id": employee_id,
+                "user_id": user_id,
+                "question_id": question_id
             }
         )
 
         file_id = self._db.last_row_id()
         return file_id, aws.get_s3_client().generate_presigned_post(
             Bucket=config.AWS_S3_BUCKET,
-            Key="files/" + str(file_id),
+            Key=file_s3_path + str(file_id),
             Fields={
                 
             },
@@ -154,3 +165,137 @@ class Files:
                 "name": file_row["name"]
             }
         return auths
+
+    def get_files(self, id=NO_VALUE, name=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, employee_id=NO_VALUE,
+                  retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE,
+                  get_url=False, select_columns=[]):
+        """
+        Gets the file rows based on attributes provided
+
+        Params:
+            id: Fild ID
+            name: Name of the file during upload
+            account_id: Account ID of uploading account
+            user_id: User ID of uploading user
+            retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
+
+        Returns:
+            File rows based on attributes provided
+        """
+        if len(select_columns) > 0:
+            incorrect_columns = [col for col in select_columns if col not in self.file_cols]
+            if len(incorrect_columns) > 0:
+                raise Exception("Selected column(s) " + ",".join(incorrect_columns) + " don't exist in files table")
+            base_query = "SELECT "
+            base_query += ",".join(select_columns) + " FROM files"
+        else:
+            base_query = "SELECT * FROM files"
+
+        query_conditions = []
+        query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+        if name is not NO_VALUE:
+            query_conditions.append("name = %(name)s")
+            query_values["name"] = name
+        if account_id is not NO_VALUE:
+            query_conditions.append("account_id = %(account_id)s")
+            query_values["account_id"] = account_id
+        if employee_id is not NO_VALUE:
+            query_conditions.append("employee_id = %(employee_id)s")
+            query_values["employee_id"] = employee_id
+        if user_id is not NO_VALUE:
+            query_conditions.append("user_id = %(user_id)s")
+            query_values["user_id"] = user_id
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append("retail_page_account_id = %(retail_page_account_id)s")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append("sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append("question_id = %(question_id)s")
+            query_values["question_id"] = question_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        file_rows = self._db.execute_d(query, query_values)
+        if len(file_rows) > 0:
+            if get_url is True:
+                for file in file_rows:
+                    file_url = self.get_url(file["id"])
+                    file["file_url"] = file_url
+                return file_rows
+            else:
+                return file_rows
+        else:
+            return []
+
+    def update_file(self, file_id, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE, question_id=NO_VALUE):
+        """
+        Updates file data for provided ID
+
+        Params: 
+            id: File ID
+            retail_page_account_id: Account ID of Retail image uploaded
+            sustainability_response_id: ID of sustainability response 
+            question_id: Sustainability question ID for which file is uploaded
+        """
+        base_query = "UPDATE files "
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = file_id
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if question_id is not NO_VALUE:
+            query_conditions.append(" question_id = %(question_id)s")
+            query_values["question_id"] = question_id
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Files table")
+
+    def update_multiple_files(self, file_ids, retail_page_account_id=NO_VALUE, sustainability_response_id=NO_VALUE):
+        """
+        Updates file data for provided ID
+
+        Params:
+            ids: List of file ids
+            retail_page_account_id: Account ID of Retail image uploaded or None
+
+        Returns:
+            Number of rows affected
+        """
+
+        if all(isinstance(id, int) for id in file_ids):
+            where_clause = "WHERE id IN (" + ",".join(str(id) for id in file_ids) + ")"
+        else:
+            raise Exception("Not all the File ids provided are integers")
+        base_query = "UPDATE files SET"
+        query_conditions = []
+        query_values = {}
+        if retail_page_account_id is not NO_VALUE:
+            query_conditions.append(" retail_page_account_id = %(retail_page_account_id)s ")
+            query_values["retail_page_account_id"] = retail_page_account_id
+        if sustainability_response_id is not NO_VALUE:
+            query_conditions.append(" sustainability_response_id = %(sustainability_response_id)s ")
+            query_values["sustainability_response_id"] = sustainability_response_id
+        if len(query_conditions) >= 1:
+            query = base_query + ",".join(query_conditions) + where_clause
+            self._db.execute(query, query_values)
+        return self._db.row_count()

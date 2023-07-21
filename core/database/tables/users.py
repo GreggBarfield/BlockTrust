@@ -1,7 +1,6 @@
 from ..objects.user import User
 import bcrypt
 from ..no_value import NoValue
-from ..frag import frag
 
 NO_VALUE = NoValue()
 
@@ -161,8 +160,8 @@ class Users:
         field.strip(" \n\r\t")
         return field if field != '' else None
 
-    def create_user(self, username, password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
-        """Creates a new user
+    def validate_and_insert_user(self, username, password, confirm_password, email, first_name, last_name, phone, email_verified, recaptcha_score=None, ip_address=None, ip_country=None):
+        """Runs validations and creates a new user
 
         Params:
             username: username to login
@@ -180,13 +179,8 @@ class Users:
             UsersException
         """
 
-        # Email must exist and contain an '@'
-        if len(email) == 0:
-            raise UsersException("Email is blank.")
-        if '@' not in email or '.' not in email or len(email) < 5:
-            raise UsersException("The email you entered is incomplete.")
-        if ' ' in email:
-            raise UsersException("Spaces cannot be in the email.")
+        self.validate_user(email, password, confirm_password)
+
         # Double-usage
         user = self.get_by_email(email)
         if user is not None:
@@ -197,40 +191,32 @@ class Users:
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 8 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(password) < 8:
-            raise UsersException("Password must be at least 8 characters.")
-
-        if len(password.encode("utf-8")) > 60:
-            raise UsersException("Your password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
         # Process phone number
-        if phone is not None:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-
+        phone = self.process_phone(phone)
         # We don't really care whether or not the phone is being used more than once
+
+        password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+        self.insert_user(username, password, email,  email_verified, phone, first_name, last_name, recaptcha_score, ip_address, ip_country)
+        user = self.get_by_username(username)
+        return user
+
+    def insert_user(self, username, password=None, email=None, email_verified=int(False), phone=None, first_name=None,
+                    last_name=None, recaptcha_score=None, ip_address=None, ip_country=None,
+                    is_system_generated=int(False)):
+        """Inserts a new user record to the users table"""
 
         self._db.execute(
             """
                 INSERT INTO users
-                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score, ip_address, ip_country)
+                    (password, username, email, phone, first_name, last_name, is_email_verified, recaptcha_score,
+                     ip_address, ip_country, is_system_generated)
                     VALUES
-                        (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s, %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s)
+                    (%(password)s, %(username)s, %(email)s, %(phone)s, %(first_name)s, %(last_name)s,
+                        %(email_verified)s, %(recaptcha_score)s, %(ip_address)s, %(ip_country)s, %(is_system_generated)s)
             """,
             {
-                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+                "password": password,
                 "username": username,
                 "phone": phone,
                 "email": email,
@@ -239,102 +225,11 @@ class Users:
                 "email_verified": email_verified,
                 "recaptcha_score": recaptcha_score,
                 "ip_address": ip_address,
-                "ip_country": ip_country
+                "ip_country": ip_country,
+                "is_system_generated": is_system_generated
             }
         )
-        user = self.get_by_username(username)
-        return user
-
-    def update_user(self, username, first_name=NO_VALUE, last_name=NO_VALUE, phone=NO_VALUE, password=None, confirm_password=None, is_email_verified=NO_VALUE):
-        """Updates user information.
-
-        Params:
-            username: This is the user id, just the user can see it
-            email: email address of user,just the user can see it
-            password: This is corresponding password used to login
-            phone: phone number of user
-            first: first name of the user.
-            last: last name of the user.
-        Returns:
-            None
-
-        Raises:
-            UsersException
-
-        """
-        username = Users._format_field(username)
-
-        if password is not None:
-            password = Users._format_field(password)
-            if len(password) < 8:
-                raise UsersException("Password must be at least 8 characters.")
-
-            if len(password.encode("utf-8")) > 60:
-                raise UsersException("Your password is too long.")
-
-            if (password != confirm_password):
-                raise UsersException("Password and Confirm password are not the same!")
-
-        # Process phone number
-        if phone is not NO_VALUE:
-            digits = ''.join(chr(ord('0') + i) for i in range(10))
-            temp_phone = ""
-            for c in phone:
-                if c in digits:
-                    temp_phone += c
-            phone = temp_phone
-            # If phone is empty it is NULL
-            if phone == "":
-                phone = None
-
-        set_frags = frag()
-        if first_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "first_name=:first_name,",
-                            first_name=first_name
-                        )
-        if last_name is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "last_name=:last_name,",
-                            last_name=last_name
-                        )
-        if phone is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "phone=:phone,",
-                            phone=phone
-                        )
-        #password should never be none
-        if password is not None:
-            set_frags = frag(
-                            set_frags,
-                            "password=:password,",
-                            password=bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-                        )
-        if is_email_verified is not NO_VALUE:
-            set_frags = frag(
-                            set_frags,
-                            "is_email_verified=:is_email_verified,",
-                            is_email_verified=is_email_verified
-                        )
-
-        if len(set_frags[0]) > 0 and len(set_frags[1]) > 0:
-            # check if last character in SQL is , and remove it if so
-            if set_frags[0][-1] == ",":
-                set_frags = (set_frags[0][:-1], set_frags[1])
-
-            self._db.exec_frag(
-                frag(
-                    "UPDATE users SET",
-                    set_frags,
-                    frag(
-                        "WHERE username=:username",
-                        username=username
-                    )
-                )
-            )
+        return self._db.last_row_id()
 
     def is_user_deletable(self, user):
         """This runs checks to find if a user record is deletable.
@@ -372,8 +267,8 @@ class Users:
                 }
             )
 
-    def create_pseudo_user(self, username, password, first_name, last_name):
-        """Inserts an entry to user table. Routine is created for system generated users 
+    def create_pseudo_user(self, account_id, is_partner=False):
+        """Inserts an entry to user table. Routine is created for system generated users
 
         Params:
             username: username to login
@@ -382,46 +277,31 @@ class Users:
             last_name: last name of the user
 
         Returns:
-            An User object
+            User Id
 
         Raises:
             UsersException
         """
+
+        if is_partner:
+            username = f"DefaultUserPartner#{account_id}"
+            first_name = "Default"
+            last_name = "User"
+        else:
+            username = f"DefaultAdminAccount#{account_id}"
+            first_name = "Default"
+            last_name = "Admin"
+        
         user = self.get_by_username(username)
         if user is not None:
             raise UsersException("Username is already being used.")
 
-        # Password must be at least 8 characters in unicode
-        # and be no more than 60 characters in UTF-8
-        # and can't contain the null byte when in UTF-8
-
-        if len(password) < 8:
-            raise UsersException("Password must be at least 8 characters.")
-
-        if len(password.encode("utf-8")) > 60:
-            raise UsersException("Password is too long. (Can't be longer than 60 bytes when in UTF-8 formatting.)")
-
-        self._db.execute(
-            """
-                INSERT INTO users
-                    (password, username, first_name, last_name, is_system_generated)
-                    VALUES
-                        (%(password)s, %(username)s, %(first_name)s, %(last_name)s, %(is_system_generated)s)
-            """,
-            {
-                "password": bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "is_system_generated": 1
-            }
-        )
-        user = self.get_by_username(username)
-        return user
+        return self.insert_user(username=username, first_name=first_name, last_name=last_name,
+                                is_system_generated=int(True))
 
     def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                   is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
-                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE):
+                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE):
         """
         Returns the users based on provided attributes
 
@@ -441,13 +321,13 @@ class Users:
             A list of users or None
 
         """
-        base_query = "SELECT * FROM users"
+        base_query = "SELECT u.* FROM users u INNER JOIN account_users au ON u.id = au.user"
 
         query_conditions = []
         query_values = {}
 
         if id is not NO_VALUE:
-            query_conditions.append("id = %(id)s")
+            query_conditions.append("u.id = %(id)s")
             query_values["id"] = id
         if username is not NO_VALUE:
             query_conditions.append("username = %(username)s")
@@ -482,6 +362,9 @@ class Users:
         if recaptcha_score is not NO_VALUE:
             query_conditions.append("recaptcha_score = %(recaptcha_score)s")
             query_values["recaptcha_score"] = recaptcha_score
+        if account_users__account is not NO_VALUE:
+            query_conditions.append("au.account = %(account_users__account)s")
+            query_values["account_users__account"] = account_users__account
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
@@ -533,3 +416,115 @@ class Users:
             return result_rows
         else:
             return []
+
+    def validate_user(self, email, password=NO_VALUE, confirm_password=NO_VALUE):
+        if len(email) == 0:
+            raise UsersException("Email is blank.")
+        if '@' not in email or '.' not in email or len(email) < 5:
+            raise UsersException("The email you entered is incomplete.")
+        if ' ' in email:
+            raise UsersException("Spaces cannot be in the email.")
+
+        if password is not NO_VALUE:
+            if len(password) < 8:
+                raise UsersException("Password must be at least 8 characters.")
+
+            if len(password.encode("utf-8")) > 60:
+                raise UsersException("Your password is too long.")
+
+            if (password != confirm_password):
+                raise UsersException("Password and Confirm password are not the same!")
+
+    def process_phone(self, phone):
+        if phone is not None:
+            # Process phone number
+            digits = ''.join(chr(ord('0') + i) for i in range(10))
+            temp_phone = ""
+            for c in phone:
+                if c in digits:
+                    temp_phone += c
+            phone = temp_phone
+            # If phone is empty it is NULL
+            if phone == "":
+                phone = None
+        return phone
+
+    def modify_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
+        """
+        Transforms, validates and updates an user record.
+        """
+
+        if email is not NO_VALUE:
+            existing_row = self.get_users(id=id)[0]
+            if existing_row["email"] != email:
+                # Double-usage.
+                existing_user = self.get_users(email=email)
+                if len(existing_user) > 0:
+                    raise UsersException("Email is already being used.")
+                else:
+                    # email will be updated
+                    # is_email_verified = 0
+                    pass
+            else:
+                # don't update since email is same
+                email = NO_VALUE
+
+        # Process phone number
+        if phone is not NO_VALUE:
+            phone = self.process_phone(phone)
+
+        self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
+
+    def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
+        """
+        Updates an user.
+
+        Params:
+            username: This is the user id, just the user can see it
+            email: email address of user,just the user can see it
+            password: This is corresponding password used to login
+            phone: phone number of user
+            first: first name of the user.
+            last: last name of the user.
+        """
+        base_query = "UPDATE users"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if email is not NO_VALUE:
+            query_conditions.append("email = %(email)s")
+            query_values["email"] = email
+            query_conditions.append("username = %(username)s")
+            query_values["username"] = email
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if first_name is not NO_VALUE:
+            query_conditions.append("first_name = %(first_name)s")
+            query_values["first_name"] = first_name
+        if last_name is not NO_VALUE:
+            query_conditions.append("last_name = %(last_name)s")
+            query_values["last_name"] = last_name
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if password is not NO_VALUE:
+            query_conditions.append("password = %(password)s")
+            query_values["password"] = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        if is_email_verified is not NO_VALUE:
+            query_conditions.append("is_email_verified = %(is_email_verified)s")
+            query_values["is_email_verified"] = is_email_verified
+        if phone is not NO_VALUE:
+            query_conditions.append("phone = %(phone)s")
+            query_values["phone"] = phone
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update user record")
+        return self._db.row_count()

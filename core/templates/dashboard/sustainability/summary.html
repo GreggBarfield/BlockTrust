@@ -9,79 +9,55 @@ Sustainability Summary
 
 {% block dashboard_content %}
 
-<!-- jsPDF library -->
-<script src="/static/libs/jspdf/jspdf.min.js"></script>
-<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
-
 <script>
-    async function generatePDF(accountName) {
-        document.body.style.cursor='wait';
+    function printPageArea(areaID, accountName){
+        let tempWindowForPrint = window.open('', '', 'width=1200,height=900');
+        let breakLine = "<hr style='height:2px;background:black'/>"
 
-        let element = document.querySelector("#sustainability");
-        let logo = document.querySelector(".b-header-logo-desktop");
-
-        let pdf = new jsPDF("p", "mm");
-
-        let pageWidth = pdf.internal.pageSize.getWidth();
-        let pageHeight = pdf.internal.pageSize.getHeight();
-        
-        let logoCanvas = await html2canvas(logo, { 
-            scale: 1.5 
-        });
-        let logoData = logoCanvas.toDataURL('image/png', 1);
-        pdf.addImage(logoData, 'PNG', (pageWidth / 2) - 40, 10);
-        
-        pdf.setFontSize(12);
-        pdf.text("Sustainability Metrics Report", (pageWidth / 2) - 30, 40);
-        pdf.setFontSize(10);
-        let dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        pdf.text(accountName, 15, 55);
-        pdf.text(new Date().toLocaleDateString('en-US', dateOptions), 15, 60);
-        
-        pdf.setDrawColor('gray');
-        pdf.line(10, 63, pageWidth - 10, 63);
-        
-        let elementCanvas = await html2canvas(element, {
-            scale: .8
-        });
-        let elementData = elementCanvas.toDataURL('image/png', 1);
-        pdf.addImage(elementData, 'PNG', 10, 65);
-
-        // hide tabs on score card
-        pdf.setFillColor('white');
-        pdf.rect(10, 80, 60, 10, 'F');
-        
-        pdf.setFontSize(8);
-        pdf.line(10, pageHeight - 15, pageWidth - 10, pageHeight - 15);
-        pdf.text("BlockTrust Network", 15, pageHeight - 10);
-        pdf.text("3511 Longmire, College Station, TX 77845", (pageWidth / 2) - 30, pageHeight - 10);
-        pdf.text("info@Blocktrustnetwork.com", pageWidth - 50, pageHeight - 10);
-        
-        pdf.save('sustainability.pdf');
-        document.body.style.cursor='default';
+        tempWindowForPrint.document.write('<html><title>Sustainability Metrics</title><head><h5> Sustainability Metrics Report: </h5>' + accountName +'<link rel="stylesheet" href="/static/build/build_dashboard_main.min.css"/></head><body>');
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write(document.getElementById(areaID).innerHTML);
+        tempWindowForPrint.document.write(breakLine);
+        tempWindowForPrint.document.write("<h5>BlockTrust Network<br>3511 Longmire, College Station, TX 77845<br>info@Blocktrustnetwork.com</h5>");
+        tempWindowForPrint.document.write('</body></html>');
+        tempWindowForPrint.document.close();
+        tempWindowForPrint.focus();
+        setTimeout(function() {
+            tempWindowForPrint.print();
+            tempWindowForPrint.close();
+        }, 1000);
     }
 </script>
 
 
-
 <div class="row mb-2 mx-2 flex-row-reverse">
-    <a class="btn btn-outline-secondary btn-sm" href="/dashboard/sustainability/survey">New Survey</a>
-    <button class="btn btn-outline-secondary btn-sm" onclick="generatePDF( '{{ accountName }}' )">Download Charts</button>
+    {% if sustainability_enabled_for_sector == True %}
+    {% if pending_questionnaires_for_user == True %}
+    <a class="btn btn-outline-primary btn-sm" href="/dashboard/sustainability/questionnaire">Complete Existing Survey</a>
+    {% else %}
+    <a class="btn btn-outline-primary btn-sm" href="/dashboard/sustainability/questionnaire">New {{sector}} Survey</a>
+    {% endif %}
+    {% endif %}
+    <button class="btn btn-outline-primary btn-sm" onclick="printPageArea('sustainability', '{{ accountName }}')">Print/Save</button>
 </div>
 <div class="row">
+    {% if sustainability_enabled_for_sector == True %}
     <div class="col">
-        <div id="sustainability" class="col-sm-12 widget" data-widget-type="{{sector}} summary" data-widget-sector="{{sectorID}}"></div>
+        <div id="sustainability" class="col-sm-12 widget" data-widget-type="sustainability summary" data-widget-sector-id="{{sector_id}}"></div>
     </div>
-</div>
+    {% endif  %}
+</div>   
+{% if sector == "Cow-Calf" %}
 <div class="row">
     <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Sustainability Timeline</h5>
-            <div class="card-body">
-                <p class="mb-0 widget" data-widget-type="sustainability timeline"></p>
-            </div>
+          <h5 class="card-header">Sustainability Timeline</h5>
+          <div class="card-body">
+            <div id="sustainabilityTimeline" class="col-sm-12 widget" data-widget-type="sustainability timeline v2"></div>
+          </div>
         </div>
-    </div>
+      </div>
 </div>
+{% endif  %}
 
 {% endblock dashboard_content %}

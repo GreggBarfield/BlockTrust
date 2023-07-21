@@ -8,11 +8,9 @@ export class SalesGroupViewer {
         this.frame = null;
 
         this.box = document.createElement("div");
-
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
-
         this.data = data;
         this.createDisplay();
 
@@ -130,13 +128,24 @@ export class SalesGroupViewer {
             row.append(left);
 
             let salesGroupID = document.createElement("h5");
-            salesGroupID.className = "mb-0";
-            salesGroupID.style = "display: inline;";
+            salesGroupID.className = "mb-0 d-inline pr-2"
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
+
+            let scoreText = document.createElement("h4");
+            scoreText.className = "d-inline text-c-green";
+            scoreText.textContent = parseFloat(this.data.owner_account_sustainability_score_average).toFixed(2);
+            let scoreIcon = document.createElement("i");
+            scoreIcon.className = "fas fa-leaf text-c-green f-15 pr-2";
+
+            if( this.data.owner_account_sustainability_score_average){
+                left.append(scoreIcon);
+                left.append(scoreText);
+            }
+
             if(this.data["is_archived"]==0){
                 let sendMessageButton = document.createElement("button");
-                sendMessageButton.className = "btn btn-sm btn-outline-primary";
+                sendMessageButton.className = "btn btn-sm btn-primary";
                 sendMessageButton.style = "float:right"
                 sendMessageButton.textContent = "Contact Seller";
                 sendMessageButton.addEventListener("click", () => {
@@ -171,6 +180,21 @@ export class SalesGroupViewer {
                 });
                 left.append(unarchiveButton);
             }
+            if(this.data["is_sold"] == 0 && this.data["is_account_payouts_enabled"] == 1 && this.data["price"] > 0){
+                let purchaseButton = document.createElement("button");
+                purchaseButton.className = "btn btn-sm btn-success";
+                purchaseButton.style = "float:right"
+                purchaseButton.textContent = "Purchase";
+                purchaseButton.addEventListener("click", () => {
+                    window.location.href = "/dashboard/sales-groups/purchase/"+this.data["id"];
+                });
+                left.append(purchaseButton);
+                let priceLabel = document.createElement("label");
+                priceLabel.innerHTML = `$${this.data["price"]}`;
+                priceLabel.className = "h3 text-info mr-4";
+                priceLabel.style = "float:right";
+                left.append(priceLabel);
+            }
             
             let location = document.createElement("div");
 
@@ -187,6 +211,11 @@ export class SalesGroupViewer {
             location.style = "color:black";
             location.textContent = "  Location: " + this.formatData(this.data.market_location) + " ( " + milesAwayInt + " Miles)";
             left.append(location);
+
+            let category = document.createElement("div");
+            category.style = "color:black";
+            category.textContent =`Category: ${this.data.category}`;
+            left.append(category);
         }
 
         // Configure Animal data
@@ -209,14 +238,17 @@ export class SalesGroupViewer {
             animalDataCol.append(animalBody);
 
             addInfo("Breed", this.formatData(this.data.reported.breeds), animalBody);
+            addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
             addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
             addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
+            addInfo("Weighing Conditions", this.formatData(this.data.weighing_conditions), animalBody);
             addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
             addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
             addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), animalBody);
             addInfo("Implants", this.formatData(this.data.reported.implants), animalBody);
             addInfo("Castrated", this.formatData(this.data.reported.castrated), animalBody);
             addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
+            addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
             addInfo("PVP Program", this.formatData(this.data.reported.process_verified_program), animalBody);
         }

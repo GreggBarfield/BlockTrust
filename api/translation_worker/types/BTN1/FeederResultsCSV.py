@@ -2,7 +2,7 @@ from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
 from .medical_helper import format_data
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 
 
 def block_key(insert):
@@ -18,7 +18,7 @@ def handle(db: Database, insert):
 
     # account_link = db.account_links.get_by_company(
     #     fields["packer"].strip(),
-    #     insert_sector=sectors_by_name["Packer"],
+    #     insert_sector=SECTORS_NAME_TO_ID["Packer"],
     #     insert=True
     # )[0].id()
 

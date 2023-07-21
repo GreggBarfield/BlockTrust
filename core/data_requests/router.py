@@ -4,11 +4,11 @@ from .exceptions import (
 )
 
 from .types.aggregated import (
-    count_distribution_account_and_sector,
+    count_distribution_for_sector_at_account,
     count_eid_distinct,
     count_distribution_global,
     market_data_cache,
-    sustainability_averages
+    sustainability_response_averages
 )
 
 from .types.specific import (
@@ -25,8 +25,8 @@ routing_table = {
     'count_distribution_global': count_distribution_global,
     'count_eid_distinct_by_account': count_eid_distinct_by_account,
     'market_data_cache': market_data_cache,
-    'sustainability_averages': sustainability_averages,
-    'count_distribution_account_and_sector': count_distribution_account_and_sector
+    'count_distribution_for_sector_at_account': count_distribution_for_sector_at_account,
+    'sustainability_response_averages': sustainability_response_averages
 }
 
 

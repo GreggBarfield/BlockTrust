@@ -3,7 +3,7 @@ from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 import traceback
 from core.utilities.blockchain import blockchain_helper
-from core.match_types import match_types_by_id
+from core.match_types import MATCH_TYPES_ID_TO_NAME
 import datetime
 import time
 
@@ -28,7 +28,7 @@ class Blockchain:
                     match = {
                             "eid": m["eid"],
                             "visual_id": m["visual_id"],
-                            "type": match_types_by_id[m["type"]],
+                            "type": MATCH_TYPES_ID_TO_NAME[m["type"]],
                             "grouping_id": m["grouping_id"],
                             "data": m["data"],
                             "lat": m["lat"],

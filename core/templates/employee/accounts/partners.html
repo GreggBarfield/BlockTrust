@@ -16,26 +16,44 @@
                 </button>
             </div>
             <div class="card-body">
-                <table class="table" id="partnersTable">
+                <table class="table" id="partners">
                     <thead>
                         <tr>
                             <th>Partner Number</th>
                             <th>Partner Name</th>
                             <th>Sector</th>
                             <th>Partner city, state</th>
+                            <th>Subscription Credits</th> 
+                            <th>User</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        {%for partner in partner_rows%}
+                        {% for partner in partner_and_partner_users %}
                         <tr>
                             <td>{{partner.id}}</td>
                             <td>
-                                <a href="/employee/dashboard/edit-account/{{partner.id}}">
+                                <a href="/employee/dashboard/edit-partner/{{partner.id}}">
                                     {{partner.company}}
                                 </a>
                             </td>
-                            <td>{{sectors_by_id[partner.sector]}}</td>
+                            <td>{{sectors_id_to_name[partner.sector]}}</td>
                             <td>{{partner.city}}, {{partner.state}}</td>
+                            <td>{{partner.partner_subscription_credits}}</td>
+                            <td class="{{'text-muted' if not partner.user_name else ''}}">
+                                {{partner.user_name if partner.user_name else "No user"}}
+                            </td>
+                            <td>
+                                <a class="button" href="javascript:;" name="add-user-for-partner" id="{{partner.id}}" partner-name="{{partner.name}}"><i class="feather icon-user-plus" title="Invite User"></i></a>
+                            </td>
+                            <td>
+                                {% if partner.user_id %}
+                                <a class="button" href= "/employee/dashboard/login-as-user/{{partner.user_id}}/{{partner.id}}">
+                                    <i class="feather icon-log-in" title="Login as user"></i>
+                                </a>
+                                {% endif %}
+                            </td>
                         </tr>
                         {%endfor%}
                     </tbody>
@@ -44,7 +62,8 @@
         </div>
 <script type="text/javascript"> 
     document.addEventListener('DOMContentLoaded', function () {
-        $('#partnersTable').DataTable();
+        $('#partners').DataTable();
     });
 </script>
+<script type="module" src="/static/entry_points/employee/partners.mjs" ></script> 
 {% endblock employee_content %}

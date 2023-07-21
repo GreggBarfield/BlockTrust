@@ -1,12 +1,13 @@
 from json import dumps, loads
 from time import time
 from core.database.no_value import NoValue
-from core.sectors import sectors_by_name
+from core.sectors import SECTORS_NAME_TO_ID
 from ...common_exceptions import DebugException
 from ..frag import frag, frag_insert_into
 
 from core.reports.query_types import (
-    count_distribution, count_distribution_account_and_sector, count_eid_distinct_by_account
+    count_distribution, count_distribution_for_sector_at_account, count_eid_distinct_by_account,
+    count_distribution_global, count_eid_distinct
 )
 import json
 
@@ -19,6 +20,8 @@ REPORT_STATUS = {
     "Running": 3,
     "Error": 4,  # Note that errors may also be uncaught, leading to infinite running
 }
+
+report_cols = ("id", "account_id", "priority", "query", "result", "status", "fulfilled", "created_timestamp", "last_updated_timestamp")
 
 class Reports:
     """Model for reports.
@@ -70,15 +73,12 @@ class Reports:
         )
         return Reports._process_row(results[0]) if results else None
 
-    def insert_query(self, account_id, query, priority=30):
+    def insert_query(self, account_id, query):
         """Insert a new query. Status is always pending.
 
         Params:
             owner: The Account ID of the owner or None for system
             query: The query (dictionary)
-            issuer: The Account ID of the issuer or None for system
-                (optional, default None)
-            priority: Priority of the query (default 30)
         """
 
         self._db.exec_frag(
@@ -107,7 +107,7 @@ class Reports:
                 LOCK TABLES reports WRITE;
                 SET @work_report_id = (
                     SELECT id FROM reports WHERE status=:pending_status
-                    ORDER BY priority DESC, create_timestamp ASC
+                    ORDER BY priority DESC, created_timestamp ASC
                     LIMIT 1
                 );
                 UPDATE reports SET status=:running_status WHERE id=@work_report_id;
@@ -148,19 +148,53 @@ class Reports:
             )
         )
 
+    def get_accounts_with_no_reports(self):
+        for row in self._db.execute_d(
+            f"""
+            SELECT id,sector FROM accounts WHERE accounts.id NOT IN
+            (SELECT account_id FROM reports WHERE account_id IS NOT NULL)
+            AND is_partner=0 AND sector NOT IN ({SECTORS_NAME_TO_ID["Buyer"]})
+            """
+        ):
+            yield {"account_id": row['id'], "sector_id": row['sector']}
+
     def make_reports_for_account(self, account_id, sector_id):
-        if sector_id != sectors_by_name["Buyer"]:
+        if sector_id != SECTORS_NAME_TO_ID["Buyer"]:
             queries = [
                 count_distribution.create(account_id, "USDA Yield Grade"),
                 count_distribution.create(account_id, "USDA Quality Grade"),
                 count_eid_distinct_by_account.create(account_id)
             ]
 
-            if sector_id == sectors_by_name["Feedlot"]:
-                queries.append(count_distribution_account_and_sector.create(account_id, sectors_by_name["Cow-Calf"]))
+            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"]):
+                queries.append(count_distribution_for_sector_at_account.create(account_id, SECTORS_NAME_TO_ID["Cow-Calf"]))
 
             for query in queries:
                 self.insert_query(account_id, query)
+
+    def make_partner_reports(self, partner_id, sector_id):
+        if sector_id in (
+            SECTORS_NAME_TO_ID["Cow-Calf"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"],
+            SECTORS_NAME_TO_ID["Feedlot"]
+        ):
+            queries = [
+                count_distribution.create(partner_id, is_partner=True),
+                count_distribution.create(partner_id, "USDA Yield Grade", is_partner=True),
+                count_distribution.create(partner_id, "USDA Quality Grade", is_partner=True),
+                count_eid_distinct_by_account.create(partner_id, is_partner=True)
+            ]
+
+            for query in queries:
+                self.insert_query(partner_id, query)
+
+    def make_global_reports(self):
+        queries = [
+            count_distribution_global.create("USDA Yield Grade"),
+            count_distribution_global.create("USDA Quality Grade"),
+            count_eid_distinct.create()
+        ]
+        for query in queries:
+            self.insert_query(None, query)
 
     def mark_account_reports_for_reprocessing(self):
         """Marking reports linked to accounts for reprocessing. Reports need to be in ready state to be marked.
@@ -168,12 +202,13 @@ class Reports:
         """
         self._db.execute(
             """
-                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s) AND account_id IS NOT NULL
-
+                UPDATE reports SET status=%(status)s WHERE status IN (%(ready_status)s, %(error_status)s)
+                AND account_id IS NOT NULL
             """,
             {
                 "status": REPORT_STATUS["Pending"],
-                "ready_status": REPORT_STATUS["Ready"]
+                "ready_status": REPORT_STATUS["Ready"],
+                "error_status": REPORT_STATUS["Error"]
             }
 
         )
@@ -182,6 +217,9 @@ class Reports:
         """Generic get report routine
 
         """
+        for selectColumn in selectColumns:
+            if selectColumn not in report_cols:
+                raise Exception("selectColumn " + selectColumn + " does not exist")
         if len(selectColumns) > 0:
             selectColumns = ",".join(selectColumns)
         else:
