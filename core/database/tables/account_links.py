@@ -194,7 +194,7 @@ class AccountLinks:
             # insert the account_link
             self.insert(account=account_id, affiliate_id=affiliate_id, company=company, name=name, sector=sector, partner_account=partner_id)
 
-    def get_account_links(self, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE,
+    def get_account_links(self, id=NO_VALUE, partner_account=NO_VALUE, affiliate_id=NO_VALUE, account_id=NO_VALUE,
                           account_is_not_null=False, selectColumns=[]):
         """
         Get an account link by the values specified.
@@ -212,6 +212,10 @@ class AccountLinks:
         query_conditions = []
         query_values = {}
 
+        if id is not NO_VALUE:
+            query_conditions.append("id = %(id)s")
+            query_values["id"] = id
+
         if affiliate_id is not NO_VALUE:
             query_conditions.append("affiliate_id = %(affiliate_id)s")
             query_values["affiliate_id"] = affiliate_id
@@ -219,7 +223,7 @@ class AccountLinks:
         if partner_account is not NO_VALUE:
             query_conditions.append("partner_account = %(partner_account)s")
             query_values["partner_account"] = partner_account
-        
+
         if account_id is not NO_VALUE:
             query_conditions.append("account = %(account_id)s")
             query_values["account_id"] = account_id
