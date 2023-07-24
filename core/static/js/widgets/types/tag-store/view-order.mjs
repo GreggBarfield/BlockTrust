@@ -9,7 +9,7 @@ export class ViewOrderWidget extends Widget {
     initType = () =>{
         this.frame.innerHTML = "";
         let order = this.formatOrderData(JSON.parse(this.frame.getAttribute("data-widget-order")));
-        let shoppingCart = this.formatOrderProductsData(JSON.parse(this.frame.getAttribute("data-widget-order-products")));
+        let shoppingCart = this.transformOrderProductsData(JSON.parse(this.frame.getAttribute("data-widget-order-products")));
         let orderContainer = this.makeOrderContainer(order, shoppingCart);
         this.frame.append(orderContainer);
     }
@@ -22,7 +22,7 @@ export class ViewOrderWidget extends Widget {
         return order;
     }
 
-    formatOrderProductsData = (orderProducts) =>{
+    transformOrderProductsData = (orderProducts) =>{
         let formattedProductData = {};
         for(let product of orderProducts){
             let productDetails = product.product_details;
