@@ -31,7 +31,7 @@ const updateShoppingCartTotalsInLocalStorage = () =>{
     localStorage.setItem('grandTotal', grandTotal);
 }
 
-const makeShoppingCartTotalsContainer = () =>{
+const makeShoppingCartTotalsContainer = (shoppingCartTotalsData) =>{
     let totalsContainer = document.createElement("div");
 
     let totalsCardHeader = document.createElement("div");
@@ -51,7 +51,6 @@ const makeShoppingCartTotalsContainer = () =>{
     let rightSubColumn = document.createElement("div");
     rightSubColumn.className = "col sub-col-right";
 
-    let shoppingCartTotalsData = getShoppingCartTotalsData();
     for(let shoppingCartDataField of Object.values(shoppingCartTotalsData)){
         let leftColumnCell = document.createElement("p");
         leftColumnCell.textContent = shoppingCartDataField.name;
@@ -122,7 +121,7 @@ const generateRemoveProductButton = (product_id) =>{
     return removeButton;
 }
 
-const makeShoppingCartTable = (includeRemoveProductButton) =>{
+const makeShoppingCartTable = (shoppingCart, includeRemoveProductButton) =>{
     let shoppingCartTable = document.createElement("table");
     shoppingCartTable.className = "table table-striped";
     let shoppingCartTableHead = document.createElement("thead");
@@ -139,9 +138,7 @@ const makeShoppingCartTable = (includeRemoveProductButton) =>{
     shoppingCartTableHead.append(shoppingCartTableHeadRow);
     shoppingCartTable.append(shoppingCartTableHead);
 
-    let shoppingCartTableBody = document.createElement("tbody"); 
-    let shoppingCartString = localStorage.getItem("shoppingCart");
-    let shoppingCart = JSON.parse(shoppingCartString);
+    let shoppingCartTableBody = document.createElement("tbody");
     if(shoppingCart == null){
         window.location.href = "/shop/tag-store";
         return;
@@ -206,6 +203,44 @@ const validateFormCompletion = (formResponseInputs) =>{
     return formCompletionStatus;
 }
 
+const generateAccountAndShippingInformationContainer = (orderDetails) =>{
+    let accountAndShippingInformationContainer = document.createElement("div");
+    accountAndShippingInformationContainer.className = "col-md-12 d-flex m-2";
+    let accountInformationContainer = document.createElement("div");
+    accountInformationContainer.className = "col-md-6 m-0 p-0";
+    let headerLine = generateFormattedTextLine("Account Information", "h6", "font-weight-bold text-secondary");
+    accountInformationContainer.append(headerLine);
+    let nameLine = generateFormattedTextLine(orderDetails.first_name + " " + orderDetails.last_name, "h6", "font-weight-bold text-primary");
+    accountInformationContainer.append(nameLine);
+    let addressLine = generateFormattedTextLine(orderDetails.address_line, "h6", "font-weight-bold text-primary");
+    accountInformationContainer.append(addressLine);
+    let cityLine = generateFormattedTextLine(orderDetails.city + ", " + orderDetails.state + " " +orderDetails.zip_code,"h6", "font-weight-bold text-primary");
+    accountInformationContainer.append(cityLine);
+    accountAndShippingInformationContainer.append(accountInformationContainer);
+    let shippingInformationContainer = document.createElement("div");
+    shippingInformationContainer.className = "col-md-6 m-0 p-0";
+    let shippingHeaderLine = generateFormattedTextLine("Shipping Information", "h6", "font-weight-bold text-secondary");
+    shippingInformationContainer.append(shippingHeaderLine);
+    let shippingNameLine = generateFormattedTextLine(orderDetails.first_name + " " + orderDetails.last_name, "h6", "font-weight-bold text-primary");
+    shippingInformationContainer.append(shippingNameLine);
+    let shippingAddressLine = generateFormattedTextLine(orderDetails.address_line, "h6", "font-weight-bold text-primary");
+    shippingInformationContainer.append(shippingAddressLine);
+    let shippingCityLine = generateFormattedTextLine(orderDetails.city + ", " + orderDetails.state + " " +orderDetails.zip_code,"h6", "font-weight-bold text-primary");
+    shippingInformationContainer.append(shippingCityLine);
+    accountAndShippingInformationContainer.append(shippingInformationContainer);
+
+    return accountAndShippingInformationContainer;
+}
+
+const generateFormattedTextLine = (textContent, textSize, textClassName) =>{
+    let customText = document.createElement(textSize);
+    customText.textContent = textContent;
+    customText.className = textClassName;
+    let lineBreak = document.createElement("br");
+    customText.appendChild(lineBreak);
+    return customText;
+}
+
 export {
     updateShoppingCartTotalsInLocalStorage,
     makeShoppingCartTotalsContainer,
@@ -214,5 +249,7 @@ export {
     generateRemoveProductButton,
     makeShoppingCartTable,
     generateCheckoutFormTextInput,
-    validateFormCompletion
+    validateFormCompletion,
+    generateAccountAndShippingInformationContainer,
+    generateFormattedTextLine
 };

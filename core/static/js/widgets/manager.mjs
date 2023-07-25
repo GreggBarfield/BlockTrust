@@ -47,6 +47,7 @@ import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
 import { MapV2Widget } from './types/animal_data/map_v2_widget.mjs';
 import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
+import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
 
 
 // Immediately invoked
@@ -110,6 +111,7 @@ import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
     attach("upload ranch accounts", UploadRanchAccountsWidget);
     attach("map v2", MapV2Widget);
     attach("checkout payment", CheckoutPaymentWidget);
+    attach("view order", ViewOrderWidget);
 
     // Find widgets
     $(".widget").each(function () {

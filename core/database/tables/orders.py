@@ -32,7 +32,8 @@ class Orders:
             raise Exception("No order found with that ID.")
         return Order(self._db, order_rows[0])
 
-    def add_order(self, order, shipping_address_line, shipping_city, shipping_state, shipping_zip_code):
+    def add_order(self, order, shipping_address_line, shipping_city, shipping_state, shipping_zip_code, account_id=None,
+                  user_id=None):
         """
         Adds a new order to the orders table
 
@@ -59,9 +60,13 @@ class Orders:
         self._db.execute(
             """
                 INSERT INTO orders
-                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city, shipping_state, shipping_zip, first_name, last_name, email, phone, premise_id)
+                    (total_tax, discount, total_shipping, total_cart, grand_total, shipping_address, shipping_city,
+                    shipping_state, shipping_zip, first_name, last_name, email, phone, premise_id, account_id, user_id)
                     VALUES
-                        ( %(total_tax)s, %(discount)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s, %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_zipcode)s, %(first_name)s, %(last_name)s, %(email)s, %(phone)s, %(premise_id)s)
+                    ( %(total_tax)s, %(discount)s, %(total_shipping)s, %(total_cart)s, %(grand_total)s,
+                    %(shipping_address)s, %(shipping_city)s, %(shipping_state)s, %(shipping_zipcode)s,
+                    %(first_name)s, %(last_name)s, %(email)s, %(phone)s, %(premise_id)s, %(account_id)s, %(user_id)s
+                    )
             """,
             {
                 "total_tax": total_tax,
@@ -77,7 +82,9 @@ class Orders:
                 "last_name": last_name,
                 "email": email,
                 "phone": phone,
-                "premise_id": premise_id
+                "premise_id": premise_id,
+                "account_id": account_id,
+                "user_id": user_id
             }
         )
         return self._db.last_row_id()
@@ -101,10 +108,10 @@ class Orders:
             }
         )
 
-    def get_orders(self, account=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE, shipping_state=NO_VALUE,
-                   shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE, email=NO_VALUE, phone=NO_VALUE,
-                   discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE, total_cart=NO_VALUE, grand_total=NO_VALUE,
-                   premise_id=NO_VALUE, stripe_paid=NO_VALUE):
+    def get_orders(self, id=NO_VALUE, account_id=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE,
+                   shipping_state=NO_VALUE, shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
+                   email=NO_VALUE, phone=NO_VALUE, discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE,
+                   total_cart=NO_VALUE, grand_total=NO_VALUE, premise_id=NO_VALUE, stripe_paid=NO_VALUE, user_id=NO_VALUE):
         """
         Gets an order by the values specified
 
@@ -117,9 +124,18 @@ class Orders:
         query_condition_list = []
         query_values = {}
 
-        if account is not NO_VALUE:
-            query_condition_list.append("account = %(account)s ")
-            query_values["account"] = account
+        if id is not NO_VALUE:
+            query_condition_list.append("id = %(id)s ")
+            query_values["id"] = id
+
+        if account_id is not NO_VALUE:
+            query_condition_list.append("account_id = %(account_id)s ")
+            query_values["account_id"] = account_id
+
+
+        if user_id is not NO_VALUE:
+            query_condition_list.append("user_id = %(user_id)s ")
+            query_values["user_id"] = user_id
 
         if shipping_address is not NO_VALUE:
             query_condition_list.append("shipping_address = %(shipping_address)s ")
@@ -194,10 +210,10 @@ class Orders:
         else:
             return []
 
-    def update(self, id, account=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE, shipping_state=NO_VALUE,
+    def update(self, id, account_id=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE, shipping_state=NO_VALUE,
                    shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE, email=NO_VALUE, phone=NO_VALUE,
                    discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE, total_cart=NO_VALUE, grand_total=NO_VALUE,
-                   premise_id=NO_VALUE, stripe_paid=NO_VALUE, herdwhistle_sale_order_id=NO_VALUE):
+                   premise_id=NO_VALUE, stripe_paid=NO_VALUE, herdwhistle_sale_order_id=NO_VALUE, user_id=NO_VALUE):
         """
         Update orders based on attributes provided
         """
@@ -206,9 +222,12 @@ class Orders:
         query_values = {}
         query_values["id"] = id
 
-        if account is not NO_VALUE:
-            query_conditions.append("account = %(account)s ")
-            query_values["account"] = account
+        if account_id is not NO_VALUE:
+            query_conditions.append("account_id = %(account_id)s ")
+            query_values["account_id"] = account_id
+        if user_id is not NO_VALUE:
+            query_conditions.append("user_id = %(user_id)s ")
+            query_values["user_id"] = user_id
         if shipping_address is not NO_VALUE:
             query_conditions.append("shipping_address = %(shipping_address)s ")
             query_values["shipping_address"] = shipping_address
