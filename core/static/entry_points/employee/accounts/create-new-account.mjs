@@ -12,9 +12,9 @@ $(document).ready(function(){
                 }
             }
         }
-        if($(this).val()==sectors_name_to_id["Auction House"]){
+        if($(this).val()==sectors_name_to_id["Auction"]){
             for(let val in partners){
-                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Auction House"]){
+                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Auction"]){
                     $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
                 }
             }

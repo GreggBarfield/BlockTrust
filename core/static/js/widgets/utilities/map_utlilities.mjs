@@ -43,7 +43,7 @@ const colorMap = {
     "Packer": "green",
     "Feedlot": "yellow",
     "Stocker": "orange",
-    "Auction House": "blue",
+    "Auction": "blue",
     "Unknown": "grey"
 };
 

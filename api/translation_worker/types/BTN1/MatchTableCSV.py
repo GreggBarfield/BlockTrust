@@ -17,7 +17,7 @@ def handle(db: Database, insert):
     
     sectors = ["cc", "fd", "pk", "au"]
     sectors_by_abbreviation = {
-        "au": "Auction House",
+        "au": "Auction",
         "cc": "Cow-Calf",
         "fd": "Feedlot",
         "pk": "Packer"
