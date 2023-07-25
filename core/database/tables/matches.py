@@ -540,7 +540,7 @@ class Matches:
         return self._db.fetch_all()[0]['count']
 
     def get_count_eid_distinct_sighted(self):
-        """Count the number of distinct EIDs in the database which have been sighted at either feedlot, auction house,
+        """Count the number of distinct EIDs in the database which have been sighted at either feedlot, auction,
         packer, buyer, stocker/backgrounder.
 
         Returns:
