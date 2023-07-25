@@ -93,7 +93,7 @@ class Matches:
             select_clause = "SELECT m3.*"
             third_matches_clause = "LEFT JOIN matches m3 on m1.eid = m3.eid"
 
-        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
+        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction']},{SECTORS_NAME_TO_ID['Feedlot']},
                               {SECTORS_NAME_TO_ID['Packer']},{SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
 
         if is_partner:
@@ -546,7 +546,7 @@ class Matches:
         Returns:
             The value
         """
-        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction House']},{SECTORS_NAME_TO_ID['Feedlot']},
+        sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction']},{SECTORS_NAME_TO_ID['Feedlot']},
                               {SECTORS_NAME_TO_ID['Packer']}, {SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
         rows = self._db.execute_d(
             f"""

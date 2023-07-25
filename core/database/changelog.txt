@@ -1788,7 +1788,7 @@ ADD COLUMN `details` JSON NULL AFTER `blocked_date`,
 CHANGE COLUMN `blocked_date_time` `blocked_date` DATETIME NULL DEFAULT NULL;
 
 /* Rohan Sureshkumar 1/27/23 */
-UPDATE accounts SET name = CONCAT("Auction House ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
+UPDATE accounts SET name = CONCAT("Auction ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Feedlot ", id) WHERE sector = 6 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Packer ", id) WHERE sector = 7 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Buyer ", id) WHERE sector = 8 AND (is_partner=0 OR is_partner IS NULL);
