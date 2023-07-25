@@ -8,13 +8,13 @@ export class ViewOrderWidget extends Widget {
 
     initType = () =>{
         this.frame.innerHTML = "";
-        let order = this.formatOrderData(JSON.parse(this.frame.getAttribute("data-widget-order")));
+        let order = this.transformOrderData(JSON.parse(this.frame.getAttribute("data-widget-order")));
         let shoppingCart = this.transformOrderProductsData(JSON.parse(this.frame.getAttribute("data-widget-order-products")));
         let orderContainer = this.makeOrderContainer(order, shoppingCart);
         this.frame.append(orderContainer);
     }
 
-    formatOrderData = (order) =>{
+    transformOrderData = (order) =>{
         order.address_line = order.shipping_address;
         order.city = order.shipping_city;
         order.state = order.shipping_state;
