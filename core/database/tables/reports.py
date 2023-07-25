@@ -166,7 +166,7 @@ class Reports:
                 count_eid_distinct_by_account.create(account_id)
             ]
 
-            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"]):
+            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"]):
                 queries.append(count_distribution_for_sector_at_account.create(account_id, SECTORS_NAME_TO_ID["Cow-Calf"]))
 
             for query in queries:
@@ -174,7 +174,7 @@ class Reports:
 
     def make_partner_reports(self, partner_id, sector_id):
         if sector_id in (
-            SECTORS_NAME_TO_ID["Cow-Calf"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"],
+            SECTORS_NAME_TO_ID["Cow-Calf"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"],
             SECTORS_NAME_TO_ID["Feedlot"]
         ):
             queries = [

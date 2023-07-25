@@ -120,7 +120,7 @@ def update_order():
                 'premise_id': premise_id
             }),
             order_details["email"]
-        ) 
+        )
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
         vendor_oriented_cart = {}
@@ -276,7 +276,8 @@ def serve_create_order():
         data = json.loads(request.data)
         order_details = eval(data["orderDetails"])
         order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
-                                          order_details["state"], order_details["zip_code"])
+                                          order_details["state"], order_details["zip_code"], account_id=g.account.id(),
+                                          user_id=g.user.id())
         shopping_cart = eval(order_details['shopping_cart'])
         for product_id, product_details in shopping_cart.items():
             OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
@@ -417,3 +418,28 @@ def serve_tag_store_api_test():
         )
         Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
     return Response(status=HTTP_NO_CONTENT)
+
+
+@bp.route("/shop/view-orders", methods=["GET"])
+@crut.require_account
+def serve_view_order_history():
+    user_orders = Orders(g.db).get_orders(account_id=g.account.id(), user_id=g.user.id())
+    return dashboard_render("tag-store/view-orders.html", {"user_orders": user_orders})
+
+
+@bp.route("/shop/view-orders/<int:order_id>", methods=["GET"])
+@crut.require_account
+def serve_view_order(order_id):
+    try:
+        user_order = Orders(g.db).get_orders(id=order_id, account_id=g.account.id(), user_id=g.user.id())
+        if len(user_order) > 0:
+            user_order = user_order[0]
+            order_products = OrderProducts(g.db).get_order_products(order_id)
+            for product in order_products:
+                product_details = ProductTable(g.db).get_products(id=product["product_id"])
+                product["product_details"] = product_details[0]
+            return dashboard_render("tag-store/view-order.html", {"order": user_order, "order_products": order_products})
+        else:
+            raise ExportException("Sorry, the requested order was not found. ")
+    except ExportException as e:
+        return dashboard_render("tag-store/view-order.html", {"error": str(e)})

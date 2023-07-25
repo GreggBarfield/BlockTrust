@@ -9,7 +9,7 @@ def execute(db, query):
 
     cow_calf_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Cow-Calf"])
     feedlot_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Feedlot"])
-    auction_house_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Auction House"])
+    auction_house_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Auction"])
     packer_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Packer"])
     stocker_backgrounder_sustainability_response_averages = SustainabilityResponses(db).get_sustainability_response_averages(sector_id=SECTORS_NAME_TO_ID["Packer"])
 
@@ -32,7 +32,7 @@ def execute(db, query):
             "efficiency_average": float(feedlot_sustainability_response_averages["efficiency_average"]) if feedlot_sustainability_response_averages["efficiency_average"] else 0,
             "improvement_average": float(feedlot_sustainability_response_averages["improvement_average"]) if feedlot_sustainability_response_averages["improvement_average"] else 0
         },
-        SECTORS_NAME_TO_ID["Auction House"]: {
+        SECTORS_NAME_TO_ID["Auction"]: {
             "water_average": float(auction_house_sustainability_response_averages["water_average"]) if auction_house_sustainability_response_averages["water_average"] else 0,
             "animal_average": float(auction_house_sustainability_response_averages["animal_average"]) if auction_house_sustainability_response_averages["animal_average"] else 0,
             "safety_average": float(auction_house_sustainability_response_averages["safety_average"]) if auction_house_sustainability_response_averages["safety_average"] else 0,

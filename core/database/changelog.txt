@@ -1788,7 +1788,7 @@ ADD COLUMN `details` JSON NULL AFTER `blocked_date`,
 CHANGE COLUMN `blocked_date_time` `blocked_date` DATETIME NULL DEFAULT NULL;
 
 /* Rohan Sureshkumar 1/27/23 */
-UPDATE accounts SET name = CONCAT("Auction House ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
+UPDATE accounts SET name = CONCAT("Auction ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Feedlot ", id) WHERE sector = 6 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Packer ", id) WHERE sector = 7 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Buyer ", id) WHERE sector = 8 AND (is_partner=0 OR is_partner IS NULL);
@@ -2033,3 +2033,13 @@ CREATE TABLE `vendor_identifiers_for_accounts` (
   PRIMARY KEY (`id`));
 ALTER TABLE `orders`
 ADD COLUMN `herdwhistle_sale_order_id` INT DEFAULT NULL;
+
+
+/* Nisheet Thakur 07/13/2023 */
+ALTER TABLE `orders`
+RENAME COLUMN `account` TO `account_id`;
+ALTER TABLE `orders`
+ADD COLUMN `user_id` INT DEFAULT NULL;
+ALTER TABLE `order_products`
+RENAME COLUMN `order` TO `order_id`,
+RENAME COLUMN `product` TO `product_id`;

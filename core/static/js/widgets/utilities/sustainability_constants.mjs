@@ -1985,7 +1985,7 @@ const calculateSustainabilityQuestionnaireMaxScores = (sectorsNameToId) => {
     let sectorBasedSectionalTotals = {
         [sectorsNameToId["Cow-Calf"]] : getSectionalScores(cowCalfQuestionnaireData),
         [sectorsNameToId["Feedlot"]]: getSectionalScores(feedlotQuestionnaireData),
-        [sectorsNameToId["Auction House"]]: getSectionalScores(auctionHouseQuestionnaireData),
+        [sectorsNameToId["Auction"]]: getSectionalScores(auctionHouseQuestionnaireData),
         [sectorsNameToId["Packer"]]: getSectionalScores(packerQuestionnaireData),
         [sectorsNameToId["Stocker/Backgrounder"]]: getSectionalScores(stockerBackGrounderQuestionnaireData)
     };

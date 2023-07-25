@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { makeShoppingCartTotalsContainer, generateCheckoutFormTextInput } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateCheckoutFormTextInput, getShoppingCartTotalsData } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutPaymentWidget extends Widget {
     constructor(frame) {
@@ -35,7 +35,8 @@ export class CheckoutPaymentWidget extends Widget {
         let totalsContainer = document.createElement("div");
         totalsContainer.className = "col-md-6 p-0 m-0";
 
-        let cartTotalsContainer = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let cartTotalsContainer = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         totalsContainer.append(cartTotalsContainer);
 
         let checkoutPaymentNameInputContainer = generateCheckoutFormTextInput("*Name", "text", "name", true);

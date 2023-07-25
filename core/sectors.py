@@ -3,7 +3,7 @@
 
 SECTORS_ID_TO_NAME = {
     4: "Cow-Calf",
-    5: "Auction House",
+    5: "Auction",
     6: "Feedlot",
     7: "Packer",
     8: "Buyer",

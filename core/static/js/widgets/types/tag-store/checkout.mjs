@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { states } from '../../../core/common_constants.mjs';
-import { generateButtonLink, makeShoppingCartTotalsContainer, validateFormCompletion } from '../../utilities/tag_store_utilities.mjs';
+import { generateButtonLink, makeShoppingCartTotalsContainer, validateFormCompletion, getShoppingCartTotalsData } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutWidget extends Widget {
     constructor(frame) {
@@ -46,7 +46,8 @@ export class CheckoutWidget extends Widget {
 
         let checkoutPageTotalsAndLinksContainer = document.createElement("div");
         checkoutPageTotalsAndLinksContainer.className = "col-md-3 col";
-        let shoppingCartTotals = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let shoppingCartTotals = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         checkoutPageTotalsAndLinksContainer.append(shoppingCartTotals);
         let checkoutPageLinksContainer = this.makeCheckoutPageLinksContainer();
         checkoutPageTotalsAndLinksContainer.append(checkoutPageLinksContainer);

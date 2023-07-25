@@ -19,7 +19,7 @@ class OrderProducts:
         self._db.execute(
             """
             INSERT INTO order_products
-                (`order`, product, product_quantity)
+                (`order_id`, product_id, product_quantity)
             VALUES
                 (%(order_id)s,%(product_id)s,%(product_quantity)s)
             """,
@@ -30,12 +30,12 @@ class OrderProducts:
             }
         )
 
-    def get_order_products(self, order_no):
+    def get_order_products(self, order_id):
         """
         Gets the producst associated with a particular order
 
         Params:
-            order_no: Order id
+            order_id: Order id
 
         Returns:
             matching_orders: Array with order product details
@@ -43,14 +43,11 @@ class OrderProducts:
         matching_orders = self._db.execute_d(
             """
                 SELECT * FROM order_products
-                WHERE
-                    order=%(order_no)s
+                WHERE order_id=%(order_id)s
             """,
             {
-                "order": order_no
+                "order_id": order_id
             }
         )
 
-        if len(matching_orders) != 1:
-            return {}
         return matching_orders

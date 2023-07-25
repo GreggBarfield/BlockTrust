@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { makeShoppingCartTotalsContainer, generateButtonLink, generateRemoveProductButton, makeShoppingCartTable } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateButtonLink, getShoppingCartTotalsData, makeShoppingCartTable } from '../../utilities/tag_store_utilities.mjs';
 
 export class ShoppingCartWidget extends Widget {
     constructor(frame) {
@@ -28,11 +28,14 @@ export class ShoppingCartWidget extends Widget {
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
 
-        let shoppingCartTable = makeShoppingCartTable(true);
+        let shoppingCartString = localStorage.getItem("shoppingCart");
+        let shoppingCart = JSON.parse(shoppingCartString);
+        let shoppingCartTable = makeShoppingCartTable(shoppingCart, true);
         cardBody.append(shoppingCartTable);
         let shoppingCartTotalsContainer = document.createElement("div");
         shoppingCartTotalsContainer.className = "col-md-6";
-        let shoppingCartTotals = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let shoppingCartTotals = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         shoppingCartTotalsContainer.append(shoppingCartTotals);
         cardBody.append(shoppingCartTotalsContainer);
         let shoppingCartPageLinks = this.makeShoppingCartPageLinksContainer();
