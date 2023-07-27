@@ -332,7 +332,7 @@ def serve_market_data(state, slug_id):
 
 
 @bp.route('/dashboard/edit/edit-account', methods=['GET', 'POST'])
-@crut.require_user
+@crut.require_account
 @csrf.csrf_protect
 def serve_edit_account():
     # Get account information
@@ -377,7 +377,7 @@ def serve_edit_account():
 
 # edit user profile
 @bp.route('/dashboard/edit/edituser', methods=['GET', 'POST'])
-@crut.require_user
+@crut.require_account
 @csrf.csrf_protect
 def serve_edit_edituser():
     if request.method == 'POST':
