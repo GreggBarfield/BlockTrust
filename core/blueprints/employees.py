@@ -57,6 +57,7 @@ def serve_employee_create_account():
 
 
 @bp.route("/employee/dashboard/create-new-account/action", methods=["POST"])
+@crut.require_employee
 def serve_employee_create_account_action():
     try:
         required = {
@@ -113,6 +114,7 @@ def serve_add_new_employee():
 
 
 @bp.route("/employee/dashboard/add-new-employee/action", methods=["POST"])
+@crut.require_employee
 def serve_add_new_employee_action():
     try:
         required = {
@@ -310,6 +312,7 @@ def serve_edit_selected_partner(partner_id):
 
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
+@crut.require_employee
 def serve_view_partners():
     partner_rows = Accounts(g.db).get_partners()
     partner_and_partner_users = []
@@ -331,6 +334,7 @@ def serve_view_partners():
 
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
+@crut.require_employee
 def serve_create_new_partner():
     return employee_render("/employee/accounts/create-new-partner.html", {
         "sectors_name_to_id": SECTORS_NAME_TO_ID
@@ -338,6 +342,7 @@ def serve_create_new_partner():
 
 
 @bp.route("/employee/dashboard/create-new-partner/action", methods=["POST"])
+@crut.require_employee
 def serve_create_new_partner_action():
     try:
         required = {
@@ -376,6 +381,7 @@ def serve_create_new_partner_action():
 
 
 @bp.route("/employee/upload-packer-data", methods=["GET", "POST"])
+@crut.require_employee
 def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
@@ -392,6 +398,7 @@ def serve_upload_packer_data():
 
 
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
+@crut.require_employee
 def serve_notifications():
     notifications = Notifications(g.db).get_notifications()
     return employee_render("/employee/accounts/notifications/notifications.html", {
@@ -401,16 +408,19 @@ def serve_notifications():
 
 
 @bp.route("/employee/dashboard/create-new-notification", methods=["GET"])
+@crut.require_employee
 def serve_create_new_notifcation():
     return employee_render("/employee/accounts/notifications/create-new-notification.html")
 
 
 @bp.route("/employee/dashboard/create-new-notification/global", methods=["GET"])
+@crut.require_employee
 def serve_create_global_notification():
     return employee_render("/employee/accounts/notifications/create-global-notification.html")
 
 
 @bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
+@crut.require_employee
 def serve_create_global_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -422,12 +432,14 @@ def serve_create_global_notification_action():
 
 
 @bp.route("/employee/dashboard/create-new-notification/partner", methods=["GET"])
+@crut.require_employee
 def serve_create_partner_notification():
     partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/notifications/create-partner-notification.html", {"partners": partners})
 
 
 @bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
+@crut.require_employee
 def serve_create_partner_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -442,11 +454,13 @@ def serve_create_partner_notification_action():
 
 
 @bp.route("/employee/dashboard/create-new-notification/sector", methods=["GET"])
+@crut.require_employee
 def serve_create_sector_notification():
     return employee_render("/employee/accounts/notifications/create-sector-notification.html", {"sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
+@crut.require_employee
 def serve_create_sector_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -461,6 +475,7 @@ def serve_create_sector_notification_action():
 
 
 @bp.route("/employee/dashboard/archive-notification", methods=["POST"])
+@crut.require_employee
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
     return {}
@@ -498,6 +513,7 @@ def serve_update_account_paid_status():
 
 @bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
+@crut.require_employee
 def serve_animal_eid(animal_eid):
     animal = g.db.matches.get_animal_by_eid(animal_eid)
 
@@ -705,6 +721,8 @@ def serve_log_back_in():
             auth.login_as_employee(employee["id"])
             return redirect(url_for("employee_bp.serve_dashboard"))
         else:
-            raise ExportException("Not authorized")
+            auth.logout()
+            return redirect(url_for("outside_bp.serve_employee_login"))
     else:
-        raise ExportException("Not authorized")
+        auth.logout()
+        return redirect(url_for("outside_bp.serve_employee_login"))
