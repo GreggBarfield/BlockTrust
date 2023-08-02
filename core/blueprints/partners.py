@@ -1,11 +1,11 @@
 from flask import (
-    Response, Blueprint, g, request, url_for
+    Response, Blueprint, g, redirect, request, url_for
 )
 from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
-from core.database.tables.connections import Connections
+from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_OK
@@ -19,10 +19,15 @@ bp = Blueprint('partner_bp', __name__, url_prefix="/partner")
 @bp.route('/dashboard', methods=['GET'])
 @crut.require_partner
 def serve_dashboard():
+    pending_connection_requests_count = len(Connections(g.db).get_connections(
+        to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"])
+    )
+
     return partner_render("homepage.html", {
         "SECTORS_NAME_TO_ID": SECTORS_NAME_TO_ID,
         "animal_URL": url_for("partner_bp.serve_animal_eid"),
-        "view_scores_URL": url_for("partner_bp.serve_view_account_sustainability_data")
+        "view_scores_URL": url_for("partner_bp.serve_view_account_sustainability_data"),
+        "pending_connection_requests_count": pending_connection_requests_count
     })
 
 
@@ -128,3 +133,41 @@ def serve_upload_packer_data():
     return partner_render("upload-packer-data.html",  {
         "account": g.account, "user": g.user, "license": FLATFILE_LICENSE, "eligible_packers": eligible_packers
     })
+
+
+@bp.route('/connections', methods=['GET'])
+@crut.require_partner
+def serve_connections():
+    connections_data_access = Connections(g.db)
+    account_connections = connections_data_access.get_connections(
+        from_account_id_OR_to_account_id=g.account.id(),
+        status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+        get_related_data=True
+    )
+
+    requests = connections_data_access.get_connections(
+        to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"], get_related_data=True
+    )
+
+    blocked_connections = connections_data_access.get_connections(
+        from_account_id_OR_to_account_id=g.account.id(),
+        status=CONNECTION_STATUS_NAME_TO_ID["Blocked"],
+        get_related_data=True
+    )
+
+    return partner_render("connections/connections.html", {
+        "account_connections": account_connections,
+        "requests": requests,
+        "blocked_connections": blocked_connections,
+        "CONNECTION_TYPE_ID_TO_NAME": CONNECTION_TYPE_ID_TO_NAME
+    })
+
+
+@bp.route('/profile/<int:account_id>', methods=['GET'])
+@crut.require_partner
+def serve_view_profile(account_id):
+    if Connections(g.db).get_connection_between(g.account.id(), account_id, CONNECTION_STATUS_NAME_TO_ID["Connected"]) is not None:
+        account_details = g.db.accounts.get_account_by_id(account_id)
+        return partner_render("connections/profile.html", {"account_details": account_details})
+    else:
+        return redirect(url_for("partner_bp.serve_connections"))

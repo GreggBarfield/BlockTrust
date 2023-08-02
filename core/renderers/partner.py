@@ -17,7 +17,7 @@ def partner_render(file, args={}):
         A Response object
 
     Raises:
-        ValueError: On 'args' conflicting with standard dashboard_standard_args
+        ValueError: On 'args' conflicting with standard partner_args
         ValueError: On the user not being logged in
 
     """
@@ -35,5 +35,5 @@ def partner_render(file, args={}):
     }
     for key in args:
         if key in partner_args:
-            raise ValueError(key + " cannot be in args since it is already in dashboard_standard_args")
+            raise ValueError(key + " cannot be in args since it is already in partner_args")
     return render_template(join("partner", file), **partner_args, **args)

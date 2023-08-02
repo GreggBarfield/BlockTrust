@@ -160,7 +160,7 @@ class Connections:
             SELECT * FROM accounts WHERE id NOT IN(
             SELECT from_account_id as connected_account_id FROM connections WHERE to_account_id = %(account_id)s UNION
             SELECT to_account_id as connected_account_id FROM connections WHERE from_account_id = %(account_id)s
-            ) AND id!=%(account_id)s AND is_partner=0
+            ) AND id!=%(account_id)s
             """, {
                 "account_id": account_id
             }
@@ -170,7 +170,7 @@ class Connections:
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
-                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False,
+                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_related_data=False,
                         from_account_id_OR_to_account_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
@@ -187,7 +187,7 @@ class Connections:
             A list of connections or and empty list
         """
 
-        if get_full:
+        if get_related_data:
             base_query = """
                 SELECT c.*, fa.name as from_account_name, fa.sector as from_account_sector_id,
                 ta.name as to_account_name, ta.sector as to_account_sector_id FROM connections c
@@ -285,7 +285,7 @@ class Connections:
 
     def get_connected_account_ids(self, account_id, sector_id=None):
         connections = Connections(self._db).get_connections(
-            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_full=True
+            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_related_data=True
         )
 
         connected_account_ids = []

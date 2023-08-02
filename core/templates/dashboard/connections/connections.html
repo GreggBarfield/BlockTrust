@@ -17,7 +17,6 @@
             <table class="table table-xs">  
                 <thead>
                     <tr>
-                        <th>Account ID</th>
                         <th>Account Name</th>
                         <th>Received On</th>
                         <th></th>
@@ -26,39 +25,20 @@
                 </thead>
             <tbody>
             {% for request in requests %}
-                {% if request.to_account_id == dashboard_standard_account.id() %}
-                    <tr>
-                        <td>{{request.from_account_id}}</td>
-                        <td>{{request.from_account_name}}</td>
-                        <td>{{request.create_timestamp}}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
-                                <i class="feather icon-check"></i>Accept
-                            </button>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{request.id}})">
-                                <i class="feather icon-x"></i>Block
-                            </button>
-                        </td>
-                    </tr>
-                {% else %}
-                    <tr>
-                        <td>{{request.to_account_id}}</td>
-                        <td>{{request.to_account_name}}</td>
-                        <td>{{request.create_timestamp}}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
-                                <i class="feather icon-check"></i>Accept
-                            </button>
-                        </td>
-                        <td>
+                <tr>
+                    <td>{{request.from_account_name}}</td>
+                    <td>{{request.create_timestamp}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
+                            <i class="feather icon-check"></i>Accept
+                        </button>
+                    </td>
+                    <td>
                         <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{request.id}})">
                             <i class="feather icon-x"></i>Block
                         </button>
-                        </td>
-                    </tr>
-                {% endif %}
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
             </table>
@@ -133,9 +113,11 @@
                             <td>{{blocked_connection.to_account_name}}</td>
                             <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
                             <td>
+                                {% if blocked_connection.blocked_by_account_id == dashboard_standard_account.id() %}
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock
                                 </button>
+                                {% endif %}
                             </td>
                         </tr>
                         {% else %}
@@ -143,9 +125,11 @@
                             <td>{{blocked_connection.from_account_name}}</td>
                             <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
                             <td>
+                                {% if blocked_connection.blocked_by_account_id == dashboard_standard_account.id() %}
                                 <button class="btn btn-sm btn-primary btn-danger float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
                                     <i class="feather icon-x"></i>Unblock
                                 </button>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endif %}
