@@ -8,7 +8,8 @@ SECTORS_ID_TO_NAME = {
     7: "Packer",
     8: "Buyer",
     9: "Financial",
-    10: "Stocker/Backgrounder"
+    10: "Stocker/Backgrounder",
+    11: "Producer Service"
 }
 
 SECTORS_NAME_TO_ID = {
