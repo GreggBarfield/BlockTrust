@@ -441,12 +441,20 @@ def serve_invite_user():
 @crut.require_account
 def serve_connections():
     connections_data_access = Connections(g.db)
-    account_connections = connections_data_access.get_connections(from_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Connected"], 
-                                                                  get_full=True)
-    account_connections.extend(connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
-                                                                       get_full=True))
-    requests = connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"], get_full=True)
-    blocked_connections = connections_data_access.get_connections(status=CONNECTION_STATUS_NAME_TO_ID["Blocked"], blocked_by_account_id=g.account.id(), get_full=True)
+
+    account_connections = connections_data_access.get_connections(
+        from_account_id_OR_to_account_id=g.account.id(),
+        status=CONNECTION_STATUS_NAME_TO_ID["Connected"],
+        get_related_data=True
+    )
+    requests = connections_data_access.get_connections(to_account_id=g.account.id(), status=CONNECTION_STATUS_NAME_TO_ID["Pending"], get_related_data=True)
+
+    blocked_connections = connections_data_access.get_connections(
+        from_account_id_OR_to_account_id=g.account.id(),
+        status=CONNECTION_STATUS_NAME_TO_ID["Blocked"],
+        get_related_data=True
+    )
+
     return dashboard_render("/dashboard/connections/connections.html", {
         "account_connections": account_connections,
         "requests": requests,
@@ -462,14 +470,14 @@ def serve_add_connection():
 
 
 @bp.route('/dashboard/accept-invite', methods=['POST'])
-@crut.require_account
+@crut.require_user
 def serve_accept_invite():
     Connections(g.db).update_connection_between(
         from_account_id=request.json["account_id"],
         to_account_id=g.account.id(),
         status=CONNECTION_STATUS_NAME_TO_ID["Connected"]
     )
-    return {}
+    return Response(status=HTTP_NO_CONTENT)
 
 # Deprecated 10/04/2022
 # @bp.route('/dashboard/decline-invite', methods=['POST'])
@@ -484,24 +492,24 @@ def serve_accept_invite():
 
 
 @bp.route('/dashboard/block-connection', methods=['POST'])
-@crut.require_account
+@crut.require_user
 def serve_block_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Blocked"],
         blocked_by_account_id=g.account.id()
     )
-    return {}
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/dashboard/unblock-connection', methods=['POST'])
-@crut.require_account
+@crut.require_user
 def serve_unblock_connection():
     Connections(g.db).update_connection(
         id=request.json["connection_id"],
         connection_status_id=CONNECTION_STATUS_NAME_TO_ID["Connected"]
     )
-    return {}
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/dashboard/view-profile/<int:account_id>', methods=['GET'])
