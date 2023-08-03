@@ -45,8 +45,8 @@ class Blockchain:
                 hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
-                if number_of_consecutive_uploads % 5 == 0:
-                    print(f"Blockchain thread: 5x uploads reached {number_of_consecutive_uploads}. Sleeping for 60s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+                if number_of_consecutive_uploads % 10 == 0:
+                    print(f"Blockchain thread: 10x uploads reached {number_of_consecutive_uploads}. Sleeping for 60s. Current time:", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
                     time.sleep(60)
             else:
                 print("Blockchain thread: No records left to upload and so exiting")
