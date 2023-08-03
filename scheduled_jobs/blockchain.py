@@ -22,6 +22,7 @@ class Blockchain:
         while True:
             matches_to_be_uploaded = self.get_next_batch_of_matches(BLOCKCHAIN_BATCH_SIZE)
             if len(matches_to_be_uploaded) > 0:
+                print("Hash match start id", matches_to_be_uploaded[0]["id"])
                 hashes = []
                 hash_and_match_ids = []
                 for m in matches_to_be_uploaded:
