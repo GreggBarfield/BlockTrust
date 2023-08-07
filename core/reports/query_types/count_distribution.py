@@ -30,14 +30,14 @@ def execute(db, query):
                 MATCH_TYPES_NAME_TO_ID[params["match_type"]],
                 account_id=params['account'],
                 is_partner=is_partner,
-                affiliated_accounts=partner_accounts
+                associated_accounts=partner_accounts
             )
         }
     else:
         # only supported for partners
         count_distribution = db.matches.get_count_distribution(
             is_partner=True,
-            affiliated_accounts=partner_accounts
+            associated_accounts=partner_accounts
         )
 
         for result in count_distribution.values():

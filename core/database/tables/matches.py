@@ -664,7 +664,7 @@ class Matches:
         else:
             return 0
 
-    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, affiliated_accounts=()):
+    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, associated_accounts=()):
         """Gets the count of each data type for an account
 
         Params:
@@ -681,9 +681,9 @@ class Matches:
         if type_int:
             account_link_condition = ""
             if is_partner:
-                if len(affiliated_accounts) > 0:
+                if len(associated_accounts) > 0:
                     account_link_condition = f"""
-                        AND al.account IN ({','.join([str(account['id']) for account in affiliated_accounts])})
+                        AND al.account IN ({','.join([str(account['id']) for account in associated_accounts])})
                     """
             else:
                 if not isinstance(account_id, int):
@@ -709,7 +709,7 @@ class Matches:
             if is_partner:
                 # get yield, quality and sightings
                 result = {}
-                for account in affiliated_accounts:
+                for account in associated_accounts:
                     account_result = {}
                     quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account["id"])
                     account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
