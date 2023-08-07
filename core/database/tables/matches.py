@@ -679,6 +679,7 @@ class Matches:
                     count: The number of times data existed
         """
         if type_int:
+            args = {"type_id": type_int}
             account_link_condition = ""
             if is_partner:
                 if len(associated_accounts) > 0:
@@ -686,9 +687,8 @@ class Matches:
                         AND al.account IN ({','.join([str(account['id']) for account in associated_accounts])})
                     """
             else:
-                if not isinstance(account_id, int):
-                    raise Exception("Incorrect account ID")
-                account_link_condition = f" AND al.account = {account_id}"
+                account_link_condition = " AND al.account = %(account_id)s"
+                args["account_id"] = account_id
 
             if account_link_condition:
                 return Matches._load_rows(self._db.execute_d(
@@ -699,9 +699,7 @@ class Matches:
                     WHERE m1.type = %(type_id)s""" + account_link_condition + """
                     GROUP BY m1.data
                     """,
-                    {
-                        "type_id": type_int
-                    }
+                    args
                 ))
             else:
                 return []
