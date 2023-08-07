@@ -669,8 +669,7 @@ class Matches:
 
         Params:
             type_int: The type as an int
-            account_links: Query on only a set of account links (spread)
-            partner_id: partner id if any
+            account_id: Account ID
             is_partner: whether report is generated for a partner account
 
         Returns:
@@ -687,7 +686,9 @@ class Matches:
                         AND al.account IN ({','.join([str(account['id']) for account in affiliated_accounts])})
                     """
             else:
-                account_link_condition = " AND al.account = %(account_id)s"
+                if not isinstance(account_id, int):
+                    raise Exception("Incorrect account ID")
+                account_link_condition = f" AND al.account = {account_id}"
 
             if account_link_condition:
                 return Matches._load_rows(self._db.execute_d(
@@ -699,8 +700,7 @@ class Matches:
                     GROUP BY m1.data
                     """,
                     {
-                        "type_id": type_int,
-                        "account_id": account_id
+                        "type_id": type_int
                     }
                 ))
             else:
