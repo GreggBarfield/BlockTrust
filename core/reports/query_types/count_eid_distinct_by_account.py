@@ -19,7 +19,7 @@ def execute(db, query):
             )
             account_ids = [account["id"] for account in partner_accounts]
     else:
-        account_ids = (params['account'],)
+        account_ids = [params['account']]
 
     return {
         'count_eid_distinct': db.matches.get_count_eid_distinct_for_accounts(
