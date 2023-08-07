@@ -85,7 +85,10 @@ class Matches:
         result = self._db.execute_d(query)
         return Matches._load_rows(result)
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_ids, is_partner=False, as_count=False):
+        if not all(isinstance(id, int) for id in account_ids):
+            raise Exception("Incorrect input for account ids")
+
         if as_count:
             select_clause = "SELECT COUNT(DISTINCT m1.eid) AS count"
             third_matches_clause = ""
@@ -96,29 +99,34 @@ class Matches:
         sectors_clause = f"""({SECTORS_NAME_TO_ID['Auction']},{SECTORS_NAME_TO_ID['Feedlot']},
                               {SECTORS_NAME_TO_ID['Packer']},{SECTORS_NAME_TO_ID['Stocker/Backgrounder']})"""
 
-        if is_partner:
-            first_account_link_clause = "al1.partner_account=%(account_id)s"
+        first_account_link_clause = ""
+        if not is_partner:
+            first_account_link_clause = f"al1.account = {account_ids[0]}"
         else:
-            first_account_link_clause = "al1.account=%(account_id)s"
+            if len(account_ids) > 0:
+                first_account_link_clause = f"al1.account IN ({','.join([str(id) for id in account_ids])})"
 
-        match_rows = self._db.execute_d(
-            f"""
-            {select_clause} FROM matches m1
-            INNER JOIN account_links al1 on al1.id = m1.account_link
-            INNER JOIN matches m2 ON m1.eid = m2.eid
-            INNER JOIN account_links al2 on al2.id = m2.account_link
-            {third_matches_clause}
-            WHERE {first_account_link_clause} AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
-            AND al2.sector IN {sectors_clause}
-            ORDER BY m1.eid
-            """,
-            {
-                "account_id": account_id,
-                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
-            }
-        )
+        if first_account_link_clause:
+            match_rows = self._db.execute_d(
+                f"""
+                {select_clause} FROM matches m1
+                INNER JOIN account_links al1 on al1.id = m1.account_link
+                INNER JOIN matches m2 ON m1.eid = m2.eid
+                INNER JOIN account_links al2 on al2.id = m2.account_link
+                {third_matches_clause}
+                WHERE {first_account_link_clause} AND m1.type = %(sighting_type)s AND m2.type = %(sighting_type)s
+                AND al2.sector IN {sectors_clause}
+                ORDER BY m1.eid
+                """,
+                {
+                    "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
+                }
+            )
+        else:
+            match_rows = []
+
         if as_count:
-            return match_rows[0]["count"]
+            return match_rows[0]["count"] if match_rows else 0
         else:
             return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
@@ -623,34 +631,40 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_by_account(self, account_id, is_partner=False):
+    def get_count_eid_distinct_for_accounts(self, account_ids=(), is_partner=False):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
-            account_id: The account to generate data on
+            account_ids: The account(s) to generate data on
 
         Returns:
             The value
         """
+        if not all(isinstance(id, int) for id in account_ids):
+            raise Exception("Incorrect input for account ids")
+
         query = """
             SELECT COUNT(DISTINCT eid) AS 'count'
             FROM matches m INNER JOIN account_links al ON m.account_link = al.id
         """
-
+        condition = ""
         if not is_partner:
-            condition = "al.account = %(account_id)s"
+            condition = f" AND al.account = {account_ids[0]}"
         else:
-            condition = "al.partner_account = %(account_id)s"
+            if len(account_ids) > 0:
+                condition = f" AND al.account IN ({','.join([str(id) for id in account_ids])})"
 
-        return self._db.execute_d(
-            query + " WHERE m.type= %(sighting_type)s AND " + condition,
-            {
-                "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"],
-                "account_id": account_id
-            }
-        )[0]["count"]
+        if condition:
+            return self._db.execute_d(
+                query + " WHERE m.type= %(sighting_type)s" + condition,
+                {
+                    "sighting_type": MATCH_TYPES_NAME_TO_ID["Sighting"]
+                }
+            )[0]["count"]
+        else:
+            return 0
 
-    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, partner_account_links=()):
+    def get_count_distribution(self, type_int=None, account_id=None, is_partner=False, affiliated_accounts=()):
         """Gets the count of each data type for an account
 
         Params:
@@ -658,7 +672,6 @@ class Matches:
             account_links: Query on only a set of account links (spread)
             partner_id: partner id if any
             is_partner: whether report is generated for a partner account
-            account_links: list of affiliated account_links for partner
 
         Returns:
             A list of dictionaries
@@ -667,39 +680,46 @@ class Matches:
                     count: The number of times data existed
         """
         if type_int:
+            account_link_condition = ""
             if is_partner:
-                account_link_condition = "al.partner_account = %(account_id)s"
+                if len(affiliated_accounts) > 0:
+                    account_link_condition = f"""
+                        AND al.account IN ({','.join([str(account['id']) for account in affiliated_accounts])})
+                    """
             else:
-                account_link_condition = "al.account = %(account_id)s"
+                account_link_condition = " AND al.account = %(account_id)s"
 
-            return Matches._load_rows(self._db.execute_d(
-                """
-                SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
-                INNER JOIN matches m2 ON m1.eid = m2.eid
-                INNER JOIN account_links al ON m2.account_link = al.id
-                WHERE m1.type = %(type_id)s AND """ + account_link_condition + """
-                GROUP BY m1.data
-                """,
-                {
-                    "type_id": type_int,
-                    "account_id": account_id
-                }
-            ))
+            if account_link_condition:
+                return Matches._load_rows(self._db.execute_d(
+                    """
+                    SELECT m1.data, COUNT(distinct m1.eid) as 'count' FROM matches m1
+                    INNER JOIN matches m2 ON m1.eid = m2.eid
+                    INNER JOIN account_links al ON m2.account_link = al.id
+                    WHERE m1.type = %(type_id)s""" + account_link_condition + """
+                    GROUP BY m1.data
+                    """,
+                    {
+                        "type_id": type_int,
+                        "account_id": account_id
+                    }
+                ))
+            else:
+                return []
         else:
             if is_partner:
                 # get yield, quality and sightings
                 result = {}
-                for account_link in partner_account_links:
+                for account in affiliated_accounts:
                     account_result = {}
-                    quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_link["account"])
+                    quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account["id"])
                     account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
-                    yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_link["account"])
+                    yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account["id"])
                     account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                     account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                        account_link["account"], False, True
+                        (account["id"],), False, True
                     )
-                    account_result["account_id"] = account_link["account"]
-                    result[account_link["name"]] = account_result
+                    account_result["account_id"] = account["id"]
+                    result[account["name"]] = account_result
                 return result
 
     def get_count_distribution_global(self, type_int):
@@ -836,7 +856,7 @@ class Matches:
                 yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                 account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    account_detail["account_id"], False, True
+                    (account_detail["account_id"],), False, True
                 )
                 account_result["account_id"] = account_detail["account_id"]
                 all_eid_data[account_detail["account_name"]] = account_result
