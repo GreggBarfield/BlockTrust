@@ -175,7 +175,7 @@ class Reports:
     def make_partner_reports(self, partner_id, sector_id):
         if sector_id in (
             SECTORS_NAME_TO_ID["Cow-Calf"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"],
-            SECTORS_NAME_TO_ID["Feedlot"]
+            SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Financial"], SECTORS_NAME_TO_ID["Producer Service"]
         ):
             queries = [
                 count_distribution.create(partner_id, is_partner=True),
