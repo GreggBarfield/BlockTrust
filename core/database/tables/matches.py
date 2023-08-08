@@ -130,7 +130,7 @@ class Matches:
         else:
             return [x for x in Matches._convert_eid_data_for_export(match_rows).values()]
 
-    def get_distinct_match_locations_for_account(self, account_id, restrict_types=(), is_partner=False):
+    def get_distinct_match_locations_for_account(self, account_ids, restrict_types=(), is_partner=False):
         query_statements = [
             """
             SELECT DISTINCT m1.lat, m1.lon, al1.name AS 'account_links.name',
@@ -141,12 +141,13 @@ class Matches:
             """
         ]
 
+        args = []
         if is_partner:
-            account_link_clause = "WHERE al2.partner_account = %s"
+            account_link_clause = f"WHERE al2.account IN ({','.join(list(map(lambda x: '%s', account_ids)))})"
         else:
             account_link_clause = "WHERE al2.account = %s"
         query_statements.append(account_link_clause)
-        args = [account_id]
+        args += account_ids
 
         if len(restrict_types) > 0:
             in_clause = ', '.join(list(map(lambda x: '%s', restrict_types)))
