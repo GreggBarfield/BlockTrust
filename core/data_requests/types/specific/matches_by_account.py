@@ -82,7 +82,7 @@ def auth(params):
                 if g.account.sector_id() == SECTORS_NAME_TO_ID["Producer Service"]:
                     account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
                 else:
-                    accounts = g.accounts.get_accounts(partner_account=g.account.id())
+                    accounts = g.db.accounts.get_accounts(partner_account=g.account.id())
                     account_ids = [account["id"] for account in accounts]
             else:
                 account_ids = [g.account.id()]
