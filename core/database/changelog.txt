@@ -2043,3 +2043,8 @@ ADD COLUMN `user_id` INT DEFAULT NULL;
 ALTER TABLE `order_products`
 RENAME COLUMN `order` TO `order_id`,
 RENAME COLUMN `product` TO `product_id`;
+
+
+/* Nisheet Thakur 08/07/2023 */
+ALTER TABLE `orders`
+ADD COLUMN `order_processed_to_retrieve_eids` TINYINT DEFAULT 0;
