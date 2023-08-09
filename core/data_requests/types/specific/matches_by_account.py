@@ -1,4 +1,5 @@
 from flask import g
+from core.database.tables.connections import Connections
 
 from core.sectors import SECTORS_NAME_TO_ID
 from ....match_types import MATCH_TYPES_NAME_TO_ID, convert_match_type_names_to_ids
@@ -58,7 +59,7 @@ def auth(params):
     else:
         if 'sighted_animals' in params:
             return {
-                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(g.account.id(), g.account.is_partner())
+                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker((g.account.id(),), g.account.is_partner())
             }
         elif 'all_matches' in params:
             if g.account.is_partner():
@@ -76,9 +77,17 @@ def auth(params):
             restrict_types = ()
             if 'types' in params:
                 restrict_types = convert_match_type_names_to_ids(params['types'])
-
+            account_ids = []
+            if g.account.is_partner():
+                if g.account.sector_id() == SECTORS_NAME_TO_ID["Producer Service"]:
+                    account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
+                else:
+                    accounts = g.db.accounts.get_accounts(partner_account=g.account.id())
+                    account_ids = [account["id"] for account in accounts]
+            else:
+                account_ids = [g.account.id()]
             return {
                 "matches": g.db.matches.get_distinct_match_locations_for_account(
-                    g.account.id(), restrict_types, g.account.is_partner()
+                    account_ids, restrict_types, g.account.is_partner()
                 )
             }

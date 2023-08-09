@@ -33,23 +33,12 @@ export class MapV2Widget extends Widget {
         let matchTypes = this.frame.getAttribute("data-widget-match-types").split(",");
         let request_object = {params: {types: matchTypes, ljoin_account_links: true}};
 
-        if(this.frame.hasAttribute("data-widget-mode")){
-            let mode = this.frame.getAttribute("data-widget-mode");
-            if(mode == "associated auction sale account"){
-                request_object.type = "matches_by_auction_account";
-            }
-            else{
-                throw "Mode unresolved: " + mode;
-            }
+        if(this.frame.hasAttribute("data-widget-account")){
+            request_object.type = "matches_by_account";
         }
         else{
-            if(this.frame.hasAttribute("data-widget-account")){
-                request_object.type = "matches_by_account";
-            }
-            else{
-                request_object.type = "matches_by_eids";
-                request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-animal"))];
-            }
+            request_object.type = "matches_by_eids";
+            request_object.params.eids = [parseInt(this.frame.getAttribute("data-widget-animal"))];
         }
 
         let matchRowsData = await this.getData("data_request", {request: request_object});
