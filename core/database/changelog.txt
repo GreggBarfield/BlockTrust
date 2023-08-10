@@ -2047,4 +2047,4 @@ RENAME COLUMN `product` TO `product_id`;
 
 /* Nisheet Thakur 08/07/2023 */
 ALTER TABLE `orders`
-ADD COLUMN `order_processed_to_retrieve_eids` TINYINT DEFAULT 0;
+ADD COLUMN `has_eids_been_retrieved` TINYINT DEFAULT 0;

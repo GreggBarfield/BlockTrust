@@ -1,3 +1,4 @@
+from core.database.tables.animals import Animals
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.account_links import AccountLinks
@@ -10,7 +11,7 @@ import time
 
 def run_tag_store_tasks(job_run_id, db):
     try:
-        unprocessed_orders_for_eids = Orders(db).get_orders(order_processed_to_retrieve_eids=0)
+        unprocessed_orders_for_eids = Orders(db).get_orders(has_eids_been_retrieved=0)
         for unprocessed_order in unprocessed_orders_for_eids:
             if unprocessed_order["herdwhistle_sale_order_id"] is not None:
                 order_details = HerdWhistleAPI().get_sales_order_details(unprocessed_order["herdwhistle_sale_order_id"])
@@ -30,9 +31,10 @@ def run_tag_store_tasks(job_run_id, db):
                                         lon=None,
                                         partner_account=account_link.partner_account_id()
                                     )
-                                Orders(db).update(id=unprocessed_order["id"], order_processed_to_retrieve_eids=1)
+                                    Animals(db).create_or_fail_animal(eid=eid)
+                                Orders(db).update(id=unprocessed_order["id"], has_eids_been_retrieved=1)
             else:
-                Orders(db).update(id=unprocessed_order["id"], order_processed_to_retrieve_eids=1)
+                Orders(db).update(id=unprocessed_order["id"], has_eids_been_retrieved=1)
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Tag Store Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
