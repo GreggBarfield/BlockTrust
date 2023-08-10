@@ -4,7 +4,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
-from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY
+from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
@@ -119,7 +119,8 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"]),
                 'premise_id': premise_id
             }),
-            order_details["email"]
+            order_details["email"],
+            "U.S. CattleTrace Purchase <info@uscattletrace.org>"
         )
         # Once payment goes through sending email to confirm order to seller
         # Creating a vendor oriented cart to facilitate sending separate emails to separate vendors
@@ -150,7 +151,8 @@ def update_order():
                         'cart': product_list,
                         'premise_id': premise_id
                         }),
-                    vendor_email
+                    vendor_email,
+                    "U.S. CattleTrace Purchase <info@uscattletrace.org>"
                     )
 
         send_multiple_tag_store_email(
@@ -171,7 +173,8 @@ def update_order():
                 'cart': eval(order_details["shoppingCart"]),
                 'premise_id': premise_id
             }),
-            ["cgrund@uscattletrace.org", ADMIN_EMAIL]
+            ["cgrund@uscattletrace.org", ADMIN_EMAIL],
+            "U.S. CattleTrace Purchase <info@uscattletrace.org>"
         )
 
         return {"success": True}
@@ -301,7 +304,7 @@ def serve_update_order():
             premise_id = order_details["premise_id"]
         send_tag_store_email(
             "Tag Store Purchase Summary",
-            render_email("purchase_summary_customer.html", {
+            render_email("internal_tag_store/purchase_summary_customer.html", {
                 'first': order_details["first_name"],
                 'last': order_details["last_name"],
                 'total_price': order_details["total_price"],
@@ -316,7 +319,8 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            order_details["email"]
+            order_details["email"],
+            EMAIL_SENDER
         )
         vendor_oriented_cart = {}
         for product_id, product_details in shopping_cart.items():
@@ -332,7 +336,7 @@ def serve_update_order():
             vendor_email = vendor_row[0]["vendor_email"]
             send_tag_store_email(
                 "New order summary",
-                render_email("purchase_summary_vendor.html", {
+                render_email("internal_tag_store/purchase_summary_vendor.html", {
                     'order_id': data["orderId"],
                     'first': order_details["first_name"],
                     'last': order_details["last_name"],
@@ -343,12 +347,13 @@ def serve_update_order():
                     'cart': products_list,
                     'premise_id': premise_id
                 }),
-                vendor_email
+                vendor_email,
+            EMAIL_SENDER
             )
 
         send_multiple_tag_store_email(
             "New order summary",
-            render_email("purchase_summary_seller.html", {
+            render_email("internal_tag_store/purchase_summary_seller.html", {
                 'order_id': data["orderId"],
                 'first': order_details["first_name"],
                 'last': order_details["last_name"],
@@ -364,7 +369,8 @@ def serve_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            [ADMIN_EMAIL]
+            [ADMIN_EMAIL],
+            EMAIL_SENDER
         )
         return Response(status=HTTP_NO_CONTENT)
     except Exception as e:
