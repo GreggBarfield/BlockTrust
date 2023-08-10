@@ -111,7 +111,8 @@ class Orders:
     def get_orders(self, id=NO_VALUE, account_id=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE,
                    shipping_state=NO_VALUE, shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                    email=NO_VALUE, phone=NO_VALUE, discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE,
-                   total_cart=NO_VALUE, grand_total=NO_VALUE, premise_id=NO_VALUE, stripe_paid=NO_VALUE, user_id=NO_VALUE):
+                   total_cart=NO_VALUE, grand_total=NO_VALUE, premise_id=NO_VALUE, stripe_paid=NO_VALUE, user_id=NO_VALUE,
+                   has_eids_been_retrieved=NO_VALUE):
         """
         Gets an order by the values specified
 
@@ -197,6 +198,10 @@ class Orders:
             query_condition_list.append("stripe_paid = %(stripe_paid)s ")
             query_values["stripe_paid"] = stripe_paid
 
+        if has_eids_been_retrieved is not NO_VALUE:
+            query_condition_list.append("has_eids_been_retrieved = %(has_eids_been_retrieved)s ")
+            query_values["has_eids_been_retrieved"] = has_eids_been_retrieved
+
         if len(query_condition_list) >= 1:
             query_condition = " WHERE " + " AND ".join(query_condition_list)
         else:
@@ -213,7 +218,8 @@ class Orders:
     def update(self, id, account_id=NO_VALUE, shipping_address=NO_VALUE, shipping_city=NO_VALUE, shipping_state=NO_VALUE,
                    shipping_zipcode=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE, email=NO_VALUE, phone=NO_VALUE,
                    discount=NO_VALUE, total_tax=NO_VALUE, total_shipping=NO_VALUE, total_cart=NO_VALUE, grand_total=NO_VALUE,
-                   premise_id=NO_VALUE, stripe_paid=NO_VALUE, herdwhistle_sale_order_id=NO_VALUE, user_id=NO_VALUE):
+                   premise_id=NO_VALUE, stripe_paid=NO_VALUE, herdwhistle_sale_order_id=NO_VALUE, user_id=NO_VALUE,
+                   has_eids_been_retrieved=NO_VALUE):
         """
         Update orders based on attributes provided
         """
@@ -276,6 +282,9 @@ class Orders:
         if herdwhistle_sale_order_id is not NO_VALUE:
             query_conditions.append("herdwhistle_sale_order_id = %(herdwhistle_sale_order_id)s ")
             query_values["herdwhistle_sale_order_id"] = herdwhistle_sale_order_id
+        if has_eids_been_retrieved is not NO_VALUE:
+            query_conditions.append("has_eids_been_retrieved = %(has_eids_been_retrieved)s ")
+            query_values["has_eids_been_retrieved"] = has_eids_been_retrieved
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
