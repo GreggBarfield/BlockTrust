@@ -8,8 +8,11 @@ class HerdWhistleAPI:
         self.uid = server_proxy.authenticate(HERDWHISTLE_DB, HERDWHISTLE_USERNAME, HERDWHISTLE_API_KEY, {})
         self.models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(HERDWHISTLE_API_ENDPOINT))
 
-    def execute_remote_procedure_call(self, model_name, method_name, parameters):
-        result = self.models.execute_kw(HERDWHISTLE_DB, self.uid, HERDWHISTLE_API_KEY, model_name, method_name, parameters)
+    def execute_remote_procedure_call(self, model_name, method_name, parameters, fields=None):
+        if fields is not None:
+            result = self.models.execute_kw(HERDWHISTLE_DB, self.uid, HERDWHISTLE_API_KEY, model_name, method_name, parameters, fields)
+        else:
+            result = self.models.execute_kw(HERDWHISTLE_DB, self.uid, HERDWHISTLE_API_KEY, model_name, method_name, parameters)
         return result
 
     def create_new_herdwhistle_customer_credentials(self, customer_details=None):
@@ -59,3 +62,12 @@ class HerdWhistleAPI:
         sale_order_id = self.execute_remote_procedure_call('sale.order', 'create', sale_order_parameters)
         return sale_order_id
 
+    def get_sales_order_details(self, herdwhistle_order_id):
+        order_details_fields = {'fields': ['name', 'partner_id', 'partner_shipping_id', 'partner_invoice_id', 'pricelist_id', 'order_line']}
+        order_details = self.execute_remote_procedure_call('sale.order', 'read', [herdwhistle_order_id], fields=order_details_fields)
+        return order_details
+
+    def get_sale_order_details_with_eids(self, herdwhistle_order_line_id):
+        order_details_fields = {'fields': ['product_template_id', 'name', 'product_uom_qty', 'product_uom', 'x_studio_tag_sequence_start', 'x_studio_tag_sequence_end']}
+        order_details_with_eids = self.execute_remote_procedure_call('sale.order.line', 'read', [herdwhistle_order_line_id], fields=order_details_fields)
+        return order_details_with_eids

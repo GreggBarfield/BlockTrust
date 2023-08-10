@@ -71,7 +71,7 @@ def send_email_to_many(subject, html, to_addresses):
     )
 
 
-def send_tag_store_email(subject, html, to_address):
+def send_tag_store_email(subject, html, to_address, source):
     """Sends an email.
     Params:
         subject: Subject for the email which needs to be sent
@@ -103,11 +103,11 @@ def send_tag_store_email(subject, html, to_address):
                 'Data': subject,
             },
         },
-        Source="U.S. CattleTrace Purchase <info@uscattletrace.org>"
+        Source=source
     )
 
 
-def send_multiple_tag_store_email(subject, html, to_addresses):
+def send_multiple_tag_store_email(subject, html, to_addresses, source):
     """Sends an email.
     Params:
         subject: Subject for the email which needs to be sent
@@ -137,5 +137,5 @@ def send_multiple_tag_store_email(subject, html, to_addresses):
                 'Data': subject,
             },
         },
-        Source="U.S. CattleTrace Purchase <info@uscattletrace.org>"
+        Source=source
     )
