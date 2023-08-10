@@ -1,42 +1,47 @@
-{% extends "email/standard_BTN.html" %}
+{% extends "email/standard.html" %}
 
 {% block email_standard_center %}
+<h1 style="margin: 0;font-family: 'Montserrat',sans-serif;font-size: 40px;line-height: 36px;color: #000000;font-weight: bold;">TAG ORDER</h1>   
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
 <head>
     <style>
-        table {
+        table.customTable {
         border-spacing: 0 !important;
         border-collapse: collapse !important;
         table-layout: fixed !important;
         margin: 0 auto !important;
         padding: 15 px;
         }
-        th {
+        table.customTable th {
         display: table-cell;
         vertical-align: middle;
         font-weight: bold;
         padding: 8px;
         background-color: #88888829;
         }
-        td {
+        table.customTable td {
         display: table-cell;
         padding: 15px;
-        }ss
+        }
     </style>
 </head>
-<div>
-<div class="col-sm-4 col-grid" style="background-color:#fff">
-    <div class="col-sm-6 col-grid" style="background-color:#fff">
-    <b>U.S. CattleTrace</b><br>
-	414 Lincoln Ave<br>
-	Wamego, KS 66475<br>
-    785-456-8472<br>
-    info@uscattletrace.org
+<div style="background-color:#fff">
+    <div class="col-sm-6 col-grid">
+        <b>U.S. CattleTrace</b><br>
+	    414 Lincoln Ave<br>
+	    Wamego, KS 66475<br>
+        785-456-8472<br>
+        info@uscattletrace.org
     </div>
+    
     <h4>Shipping Information: </h4>
     Customer name: {{first}} {{last}}<br>
     Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
+    
     <h4>Order Information: </h4>
-    <table>
+    <table class="customTable">
         <tr>
             <th>Product</th>
             <th>Quantity</th>
@@ -59,7 +64,7 @@
         {% endfor %}
     </table>
 
-    <table>
+    <table class="customTable">
         <tr>
             <th>Total Price: </th>
             <td>{{"$%.2f"|format(total_price|float)}}</td>
@@ -82,9 +87,5 @@
         </tr>
     </table>
 
-
-    </span>
 </div>
-
-</div>
-{% endblock email_standard_center %}
+{% endblock email_standard_subdescription %}
