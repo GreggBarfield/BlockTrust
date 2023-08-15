@@ -229,13 +229,19 @@ def serve_external_invoice(partner_id):
 @crut.require_account
 def serve_tag_store():
     all_product_data = []
-    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
-    if len(herd_whistle_data) > 0:
-        all_product_data = ProductTable(g.db).get_products(
-            product_vendor_id=herd_whistle_data[0]["id"],
+    INTERNAL_TAG_STORE_PRODUCT_VENDORS = ['Herd Whistle', 'All Data Tags']
+    product_vendor_ids = []
+    for product_vendor in INTERNAL_TAG_STORE_PRODUCT_VENDORS:
+        product_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=product_vendor)
+        product_vendor_ids.append(product_vendor_data[0]['id'])
+    for product_vendor_id in product_vendor_ids:
+        vendor_products_data = ProductTable(g.db).get_products(
+            product_vendor_id=product_vendor_id,
             include_images=True,
             product_tag_store_location=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]    
         )
+        all_product_data.extend(vendor_products_data)
+    
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
