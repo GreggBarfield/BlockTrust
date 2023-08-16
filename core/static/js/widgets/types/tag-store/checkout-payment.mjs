@@ -153,18 +153,31 @@ export class CheckoutPaymentWidget extends Widget {
                 this.updatePaymentButton("Payment Successful! Confirming Order ...", true);
             }
         }
-        let sendOrderToHerdWhistle = await fetch(
-            '/shop/send-order-to-herdwhistle-api',{
-                method: 'POST',
-                header: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    orderId: orderId,
-                    orderDetails: localStorage.getItem("orderDetails")
-                })
+        
+        let orderContainsHerdWhistleProducts = false;
+        let shoppingCartString = localStorage.getItem("shoppingCart");
+        let shoppingCart = JSON.parse(shoppingCartString);
+        for(let productData of Object.values(shoppingCart)){
+            if(productData.vendor_product_reference_id !== 0){
+                orderContainsHerdWhistleProducts = true;
+                break;
             }
-        );
+        }
+        if(orderContainsHerdWhistleProducts){
+            let sendOrderToHerdWhistle = await fetch(
+                '/shop/send-order-to-herdwhistle-api',{
+                    method: 'POST',
+                    header: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        orderDetails: localStorage.getItem("orderDetails")
+                    })
+                }
+            );
+        }
+
         this.updatePaymentButton("Order Confirmed!", true);
         window.location.href = '/shop/invoice';
     }
