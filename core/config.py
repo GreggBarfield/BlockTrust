@@ -115,3 +115,5 @@ HERDWHISTLE_API_ENDPOINT = config_file["herdwhistle"]["api_endpoint"]
 HERDWHISTLE_DB = config_file["herdwhistle"]["db"]
 HERDWHISTLE_USERNAME = config_file["herdwhistle"]["username"]
 HERDWHISTLE_INVOICE_ID = config_file["herdwhistle"]["invoice_id"]
+
+INTERNAL_TAG_STORE_PRODUCT_VENDORS = config_file["tag_store"]["internal_tag_store_product_vendors"]

@@ -4,7 +4,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
-from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER
+from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER, INTERNAL_TAG_STORE_PRODUCT_VENDORS
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
@@ -229,7 +229,6 @@ def serve_external_invoice(partner_id):
 @crut.require_account
 def serve_tag_store():
     all_product_data = []
-    INTERNAL_TAG_STORE_PRODUCT_VENDORS = ['Herd Whistle', 'All Data Tags']
     product_vendor_ids = []
     for product_vendor in INTERNAL_TAG_STORE_PRODUCT_VENDORS:
         product_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=product_vendor)
