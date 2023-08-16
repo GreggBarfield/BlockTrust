@@ -76,5 +76,8 @@
         "db": "herdwhistle-staging-8866134",
         "username": "blocktrust",
         "invoice_id": 4977
+    },
+    "tag_store": {
+        "internal_tag_store_product_vendors": ["Herd Whistle", "All Data Tags"]
     }
 }
