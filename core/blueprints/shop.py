@@ -231,9 +231,8 @@ def serve_tag_store():
     all_product_data = []
     product_vendors = ProductVendors(g.db).get_product_vendors()
     for product_vendor in product_vendors:
-        product_vendor_id = product_vendor["id"]
         vendor_products_data = ProductTable(g.db).get_products(
-            product_vendor_id=product_vendor_id,
+            product_vendor_id=product_vendor["id"],
             include_images=True,
             is_internal=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]
         )
