@@ -26,9 +26,40 @@ const updateShoppingCartTotalsInLocalStorage = () =>{
     totalDiscount = Math.round(totalDiscount*100)/100;
     let totalTax = Math.round((totalPrice-totalDiscount)*0.065*100)/100;
     let grandTotal = Math.round((totalPrice+totalTax-totalDiscount+20)*100)/100;
+    let totalShipping = calculateTotalShipping(shoppingCart);
+    localStorage.setItem('shipping', totalShipping);
     localStorage.setItem('discount', totalDiscount);
     localStorage.setItem('totalTax', totalTax);
     localStorage.setItem('grandTotal', grandTotal);
+}
+
+const calculateTotalShipping = (shoppingCart) =>{
+    let totalShipping = 0;
+    let totalTags = 0;
+    for(let productData of Object.values(shoppingCart)){
+        totalTags = totalTags + productData.quantity * productData.product_units_per_order;
+    }
+    if(totalTags <= 1000){
+        totalShipping = getShippingBasedOnQuantity(totalTags);
+    }
+    else{
+        totalShipping = 40 * Math.floor(totalTags/1000) + getShippingBasedOnQuantity(totalTags%1000);
+    }
+    return totalShipping;
+}
+
+const getShippingBasedOnQuantity = (quantity) =>{
+    let shipping = 0;
+    if(quantity<300){
+        shipping = 15;
+    }
+    else if(quantity >= 300 && quantity <= 500){
+        shipping = 20;
+    }
+    else if(quantity > 500 && quantity <=1000){
+        shipping = 40;
+    }
+    return shipping;
 }
 
 const makeShoppingCartTotalsContainer = (shoppingCartTotalsData) =>{
