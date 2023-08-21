@@ -1,32 +1,6 @@
-{% extends "email/standard.html" %}
+{% extends "email/internal_tag_store/internal_tag_store_standard.html" %}
 
-{% block email_standard_center %}
-<h1 style="margin: 0;font-family: 'Montserrat',sans-serif;font-size: 40px;line-height: 36px;color: #000000;font-weight: bold;">TAG ORDER</h1>   
-{% endblock email_standard_center %}
-
-{% block email_standard_subdescription %}
-<head>
-    <style>
-        table.customTable {
-        border-spacing: 0 !important;
-        border-collapse: collapse !important;
-        table-layout: fixed !important;
-        margin: 0 auto !important;
-        padding: 15 px;
-        }
-        table.customTable th {
-        display: table-cell;
-        vertical-align: middle;
-        font-weight: bold;
-        padding: 8px;
-        background-color: #88888829;
-        }
-        table.customTable td {
-        display: table-cell;
-        padding: 15px;
-        }
-    </style>
-</head>
+{% block email_content %}
 <div style="background-color:#fff">
     <h4>Shipping Information: </h4>
     Customer name: {{first}} {{last}}<br>
@@ -78,6 +52,5 @@
             <td>{{"$%.2f"|format(grand_total|float)}}</td>
         </tr>
     </table>
-
 </div>
-{% endblock email_standard_subdescription %}
+{% endblock email_content %}
