@@ -158,7 +158,7 @@ export class CheckoutPaymentWidget extends Widget {
         let shoppingCartString = localStorage.getItem("shoppingCart");
         let shoppingCart = JSON.parse(shoppingCartString);
         for(let productData of Object.values(shoppingCart)){
-            if(productData.vendor_product_reference_id !== 0){
+            if(productData.vendor_product_reference_id !== null){
                 orderContainsHerdWhistleProducts = true;
                 break;
             }

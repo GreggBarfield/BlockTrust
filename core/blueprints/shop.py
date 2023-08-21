@@ -237,7 +237,7 @@ def serve_tag_store():
         vendor_products_data = ProductTable(g.db).get_products(
             product_vendor_id=product_vendor_id,
             include_images=True,
-            product_tag_store_location=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]    
+            is_internal=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]
         )
         all_product_data.extend(vendor_products_data)
     
@@ -286,7 +286,7 @@ def serve_create_order():
         order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
                                           order_details["state"], order_details["zip_code"], account_id=g.account.id(),
                                           user_id=g.user.id())
-        shopping_cart = eval(order_details['shopping_cart'])
+        shopping_cart = json.loads(order_details['shopping_cart'])
         for product_id, product_details in shopping_cart.items():
             OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
         return {"orderId": order_id}
@@ -301,8 +301,8 @@ def serve_update_order():
         data = json.loads(request.data)
         Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
-        order_details = eval(data["orderDetails"])
-        shopping_cart = eval(order_details["shopping_cart"])
+        order_details = json.loads(data["orderDetails"])
+        shopping_cart = json.loads(order_details["shopping_cart"])
         # Once payment goes through sending email to confirm order to buyer
         premise_id = "N/A"
         if order_details["premise_id"] != "":
@@ -384,11 +384,11 @@ def serve_update_order():
 
 @bp.route("/shop/send-order-to-herdwhistle-api", methods=["POST"])
 @crut.require_account
-def serve_tag_store_api_test():
+def serve_send_order_to_herdwhistle_api():
     herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
     data = json.loads(request.data)
-    order_details = eval(data["orderDetails"])
-    shopping_cart = eval(order_details["shopping_cart"])
+    order_details = json.loads(data["orderDetails"])
+    shopping_cart = json.loads(order_details["shopping_cart"])
     customer_details = {
         'name': order_details["first_name"] + " " + order_details["last_name"],
         'street': order_details["address_line"],

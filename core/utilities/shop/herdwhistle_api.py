@@ -47,7 +47,7 @@ class HerdWhistleAPI:
         pricelist_id = product_pricelist[0]
         herdwhistle_products_list = []
         for product_details in shopping_cart.values():
-            if "vendor_product_reference_id" in product_details and product_details["vendor_product_reference_id"] != 0:
+            if "vendor_product_reference_id" in product_details and product_details["vendor_product_reference_id"] is not None:
                 herdwhistle_products_list.append((0, 0, {
                     'product_id': product_details["vendor_product_reference_id"],
                     'product_uom_qty': product_details["quantity"]

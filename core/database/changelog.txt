@@ -2051,19 +2051,20 @@ ADD COLUMN `has_eids_been_retrieved` TINYINT DEFAULT 0;
 
 
 /* Nisheet Thakur 08/14/2023 */
+ALTER TABLE `products`
+RENAME COLUMN `product_tag_store_location` TO `is_internal`;
 SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
 SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
-SET @partner_id := (SELECT id FROM accounts WHERE company='U.S. CattleTrace' AND is_partner=1);
-INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, partner, product_category_id, product_vendor_id, is_premise_id_required, member_price, product_tag_store_location)
-VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 35, 0, "", "Bag(s) of 20", 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.', @partner_id, @usda_840_id, @alldatatagsid, 1, 35, 1);
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)
+VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 35, 0, "", "Bag(s) of 20", 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.', @usda_840_id, @alldatatagsid, 1, 35, 1);
 
 
 /* Nisheet Thakur 08/17/2023*/
 ALTER TABLE `products`
 ADD COLUMN `units_per_order` INT DEFAULT 1;
-SET @herd_whistle_one_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ One Piece UHF Ear Tags" and product_tag_store_location=1);
+SET @herd_whistle_one_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ One Piece UHF Ear Tags" and is_internal=1);
 UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_one_piece_id;
-SET @herd_whistle_two_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ Two Piece UHF Ear Tags" and product_tag_store_location=1);
+SET @herd_whistle_two_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ Two Piece UHF Ear Tags" and is_internal=1);
 UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_two_piece_id;
-SET @usda_hdx_840_id := (SELECT id FROM products WHERE product="USDA HDX 840 Tag" and product_tag_store_location=1);
+SET @usda_hdx_840_id := (SELECT id FROM products WHERE product="USDA HDX 840 Tag" and is_internal=1);
 UPDATE `products` SET units_per_order=20 WHERE id=@usda_hdx_840_id;
