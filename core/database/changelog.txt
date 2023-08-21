@@ -2048,3 +2048,14 @@ RENAME COLUMN `product` TO `product_id`;
 /* Nisheet Thakur 08/07/2023 */
 ALTER TABLE `orders`
 ADD COLUMN `has_eids_been_retrieved` TINYINT DEFAULT 0;
+
+
+/* Nisheet Thakur 08/17/2023*/
+ALTER TABLE `products`
+ADD COLUMN `units_per_order` INT DEFAULT 1;
+SET @herd_whistle_one_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ One Piece UHF Ear Tags" and product_tag_store_location=1);
+UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_one_piece_id;
+SET @herd_whistle_two_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ Two Piece UHF Ear Tags" and product_tag_store_location=1);
+UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_two_piece_id;
+SET @usda_hdx_840_id := (SELECT id FROM products WHERE product="USDA HDX 840 Tag" and product_tag_store_location=1);
+UPDATE `products` SET units_per_order=20 WHERE id=@usda_hdx_840_id;
