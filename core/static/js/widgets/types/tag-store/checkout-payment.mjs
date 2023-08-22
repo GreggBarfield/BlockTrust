@@ -179,8 +179,8 @@ export class CheckoutPaymentWidget extends Widget {
             );
         }
 
-        this.updatePaymentButton("Order Confirmed!", false);
-        // window.location.href = '/shop/invoice';
+        this.updatePaymentButton("Order Confirmed!", true);
+        window.location.href = '/shop/invoice';
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{

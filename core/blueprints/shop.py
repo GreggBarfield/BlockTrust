@@ -7,7 +7,7 @@ from ..common_exceptions import ExportException
 from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
-from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
+from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
@@ -234,7 +234,7 @@ def serve_tag_store():
         vendor_products_data = ProductTable(g.db).get_products(
             product_vendor_id=product_vendor["id"],
             include_images=True,
-            is_internal=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]
+            is_internal=int(True)
         )
         all_product_data.extend(vendor_products_data)
     

@@ -2053,6 +2053,7 @@ ADD COLUMN `has_eids_been_retrieved` TINYINT DEFAULT 0;
 /* Nisheet Thakur 08/14/2023 */
 ALTER TABLE `products`
 RENAME COLUMN `product_tag_store_location` TO `is_internal`;
+UPDATE `products` SET is_internal = 0 WHERE is_internal = 2;
 SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
 SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
 INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)

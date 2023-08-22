@@ -5,14 +5,6 @@ from .files import PRODUCT_FILES_S3_PATH
 
 NO_VALUE = NoValue()
 
-PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS = {
-    "Internal": 1,
-    "External": 2
-}
-PRODUCT_TAG_STORE_LOCATION_IDS_TO_NAMES = {
-    value: key for key, value in PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS.items()
-}
-
 class ProductTableException(Exception):
     """Generic Product exception."""
 
