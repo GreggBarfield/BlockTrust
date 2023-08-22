@@ -208,7 +208,8 @@ export class TagStoreWidget extends Widget {
             is_premise_id_required_for_product: parseInt(productData.is_premise_id_required),
             product_units: productData.unit,
             vendor_product_reference_id: productData.vendor_product_reference_id,
-            product_units_per_order: productData.units_per_order
+            product_units_per_order: productData.units_per_order,
+            product_vendor_id: productData.product_vendor_id
         }
         if(!(productData.id in shoppingCart)){
             shoppingCart[productData.id] = productDataToBeStored;

@@ -10,7 +10,7 @@ from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
-from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.vendor_identifiers_for_account import VendorIdentifiersForAccounts
 from ..utilities import crut
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -271,7 +271,12 @@ def serve_invoice():
 @bp.route("/shop/checkout-payment", methods=["GET"])
 @crut.require_account
 def serve_checkout_payment():
-    return dashboard_render("tag-store/checkout-payment.html", {"stripe_key": STRIPE_PUBLISHABLE_KEY})
+    herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    return dashboard_render("tag-store/checkout-payment.html", {
+        "stripe_key": STRIPE_PUBLISHABLE_KEY,
+        "herd_whistle_vendor_id": herd_whistle_vendor_id
+    })
 
 
 @bp.route("/shop/create-order", methods=["POST"])
@@ -418,7 +423,8 @@ def serve_send_order_to_herdwhistle_api():
         )
     if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
         herdwhistle_customer_id=herdwhistle_customer_id,
-        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id):
+        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
+    ):
         sale_order_id = HerdWhistleAPI().create_new_sale_order(
             herdwhistle_customer_id=herdwhistle_customer_id,
             herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,

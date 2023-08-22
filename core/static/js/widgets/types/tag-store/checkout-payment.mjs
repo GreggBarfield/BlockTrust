@@ -9,12 +9,13 @@ export class CheckoutPaymentWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
-        let checkoutPaymentCard = this.makeCheckoutPaymentCard();
+        let herdWhistleVendorId = this.frame.getAttribute("data-widget-herd-whistle-vendor-id");
+        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId);
         this.frame.append(checkoutPaymentCard);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
 
-    makeCheckoutPaymentCard = () =>{
+    makeCheckoutPaymentCard = (herdWhistleVendorId) =>{
         let checkoutPaymentCard = document.createElement("div");
         checkoutPaymentCard.className = "card border rounded";
 
@@ -53,7 +54,7 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentSubmitButton.textContent = "SUBMIT";
         paymentContainer.append(checkoutPaymentSubmitButton);
         checkoutPaymentSubmitButton.onclick = () =>{
-            this.performStripePaymentActions();
+            this.performStripePaymentActions(herdWhistleVendorId);
         }
 
         let checkoutPaymentStatusMessage = document.createElement("div");
@@ -80,7 +81,7 @@ export class CheckoutPaymentWidget extends Widget {
         this.card.mount('#checkout-card-element');
     }
 
-    performStripePaymentActions = async () =>{
+    performStripePaymentActions = async (herdWhistleVendorId) =>{
         this.updatePaymentButton("Processing...", true);
         // Creating a new order
         let {error, orderId} = await fetch(
@@ -158,7 +159,7 @@ export class CheckoutPaymentWidget extends Widget {
         let shoppingCartString = localStorage.getItem("shoppingCart");
         let shoppingCart = JSON.parse(shoppingCartString);
         for(let productData of Object.values(shoppingCart)){
-            if(productData.vendor_product_reference_id !== null){
+            if(productData.product_vendor_id == herdWhistleVendorId){
                 orderContainsHerdWhistleProducts = true;
                 break;
             }
