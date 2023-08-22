@@ -75,6 +75,7 @@
         "api_endpoint": "https://herdwhistle-staging-8866134.dev.odoo.com",
         "db": "herdwhistle-staging-8866134",
         "username": "blocktrust",
-        "invoice_id": 4977
+        "invoice_id": 4977,
+        "fetch_eids_from_api": true
     }
 }
