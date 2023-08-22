@@ -42,16 +42,15 @@ class HerdWhistleAPI:
             return False
         return True
 
-    def create_new_sale_order(self, herdwhistle_customer_id, herdwhistle_customer_shipping_id, shopping_cart):
+    def create_new_sale_order(self, herdwhistle_customer_id, herdwhistle_customer_shipping_id, herdwhistle_products_shopping_cart):
         product_pricelist = self.execute_remote_procedure_call('product.pricelist', 'search', [[['name', 'ilike', "Blocktrust"]]])
         pricelist_id = product_pricelist[0]
         herdwhistle_products_list = []
-        for product_details in shopping_cart.values():
-            if "vendor_product_reference_id" in product_details and product_details["vendor_product_reference_id"] is not None:
-                herdwhistle_products_list.append((0, 0, {
-                    'product_id': product_details["vendor_product_reference_id"],
-                    'product_uom_qty': product_details["quantity"]
-                }))
+        for product_details in herdwhistle_products_shopping_cart:
+            herdwhistle_products_list.append((0, 0, {
+                'product_id': product_details["vendor_product_reference_id"],
+                'product_uom_qty': product_details["quantity"]
+            }))
         sale_order_parameters = [{
             'partner_id': herdwhistle_customer_id,
             'partner_shipping_id': herdwhistle_customer_shipping_id,

@@ -387,7 +387,7 @@ def serve_update_order():
 @bp.route("/shop/send-order-to-herdwhistle-api", methods=["POST"])
 @crut.require_account
 def serve_send_order_to_herdwhistle_api():
-    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
+    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     data = json.loads(request.data)
     order_details = json.loads(data["orderDetails"])
     shopping_cart = json.loads(order_details["shopping_cart"])
@@ -425,10 +425,14 @@ def serve_send_order_to_herdwhistle_api():
         herdwhistle_customer_id=herdwhistle_customer_id,
         herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
     ):
+        herdwhistle_products_shopping_cart = []
+        for product_details in shopping_cart.values():
+            if product_details["product_vendor_id"] == herd_whistle_data[0]["id"]:
+                herdwhistle_products_shopping_cart.append(product_details)
         sale_order_id = HerdWhistleAPI().create_new_sale_order(
             herdwhistle_customer_id=herdwhistle_customer_id,
             herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,
-            shopping_cart=shopping_cart
+            herdwhistle_products_shopping_cart=herdwhistle_products_shopping_cart
         )
         Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
     return Response(status=HTTP_NO_CONTENT)
