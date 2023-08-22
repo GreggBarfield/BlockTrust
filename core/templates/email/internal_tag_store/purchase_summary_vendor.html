@@ -1,35 +1,33 @@
 {% extends "email/internal_tag_store/internal_tag_store_standard.html" %}
 
 {% block email_content %}
-<div style="background-color:#fff">
-    <div class="col-sm-4 col-grid">
-        <h4>Shipping Information: </h4>
-        Order ID: {{order_id}}<br>
-        Customer name: {{first}} {{last}}<br>
-        Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
-        <h4>Order Information: </h4>
-        <table class="customTable">
-            <tr>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
-                <th>Details</th>
-            </tr>
-            {% for cart_item in cart %}
-            <tr>   
-                <td>{{cart_item["product_name"]}}</td>
-                <td>{{cart_item["quantity"]}}</td>
-                <td>{{"$%.2f"|format(cart_item["price"])}}</td>
-                <td>{{"$%.2f"|format(cart_item["quantity"]*cart_item["price"])}}</td>
-                {% if cart_item["is_premise_id_required"] == 1 %}
-                <td>Premise ID: {{premise_id}}</td>
-                {% else %}
-                <td></td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
+<div class="col-sm-4 col-grid">
+    <h4>Shipping Information: </h4>
+    Order ID: {{order_id}}<br>
+    Customer name: {{first}} {{last}}<br>
+    Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br>
+    <h4>Order Information: </h4>
+    <table class="customTable">
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Details</th>
+        </tr>
+        {% for cart_item in cart %}
+        <tr>   
+            <td>{{cart_item["product_name"]}}</td>
+            <td>{{cart_item["quantity"]}}</td>
+            <td>{{"$%.2f"|format(cart_item["price"])}}</td>
+            <td>{{"$%.2f"|format(cart_item["quantity"]*cart_item["price"])}}</td>
+            {% if cart_item["is_premise_id_required"] == 1 %}
+            <td>Premise ID: {{premise_id}}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endblock email_content %}
