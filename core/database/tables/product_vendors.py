@@ -1,6 +1,7 @@
 from ..no_value import NoValue
 NO_VALUE = NoValue()
 
+HERD_WHISTLE_VENDOR_NAME = "Herd Whistle"
 
 class ProductVendors:
 

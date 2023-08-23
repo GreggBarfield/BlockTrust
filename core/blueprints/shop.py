@@ -7,10 +7,10 @@ from ..common_exceptions import ExportException
 from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
-from ..database.tables.products import ProductTable, PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS
+from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscountException, ProductDiscounts
-from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.vendor_identifiers_for_account import VendorIdentifiersForAccounts
 from ..utilities import crut
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -229,13 +229,15 @@ def serve_external_invoice(partner_id):
 @crut.require_account
 def serve_tag_store():
     all_product_data = []
-    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
-    if len(herd_whistle_data) > 0:
-        all_product_data = ProductTable(g.db).get_products(
-            product_vendor_id=herd_whistle_data[0]["id"],
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    for product_vendor in product_vendors:
+        vendor_products_data = ProductTable(g.db).get_products(
+            product_vendor_id=product_vendor["id"],
             include_images=True,
-            product_tag_store_location=PRODUCT_TAG_STORE_LOCATION_NAMES_TO_IDS["Internal"]    
+            is_internal=int(True)
         )
+        all_product_data.extend(vendor_products_data)
+    
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
@@ -269,7 +271,12 @@ def serve_invoice():
 @bp.route("/shop/checkout-payment", methods=["GET"])
 @crut.require_account
 def serve_checkout_payment():
-    return dashboard_render("tag-store/checkout-payment.html", {"stripe_key": STRIPE_PUBLISHABLE_KEY})
+    herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    return dashboard_render("tag-store/checkout-payment.html", {
+        "stripe_key": STRIPE_PUBLISHABLE_KEY,
+        "herd_whistle_vendor_id": herd_whistle_vendor_id
+    })
 
 
 @bp.route("/shop/create-order", methods=["POST"])
@@ -281,7 +288,7 @@ def serve_create_order():
         order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
                                           order_details["state"], order_details["zip_code"], account_id=g.account.id(),
                                           user_id=g.user.id())
-        shopping_cart = eval(order_details['shopping_cart'])
+        shopping_cart = json.loads(order_details['shopping_cart'])
         for product_id, product_details in shopping_cart.items():
             OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
         return {"orderId": order_id}
@@ -296,8 +303,8 @@ def serve_update_order():
         data = json.loads(request.data)
         Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
 
-        order_details = eval(data["orderDetails"])
-        shopping_cart = eval(order_details["shopping_cart"])
+        order_details = json.loads(data["orderDetails"])
+        shopping_cart = json.loads(order_details["shopping_cart"])
         # Once payment goes through sending email to confirm order to buyer
         premise_id = "N/A"
         if order_details["premise_id"] != "":
@@ -379,11 +386,11 @@ def serve_update_order():
 
 @bp.route("/shop/send-order-to-herdwhistle-api", methods=["POST"])
 @crut.require_account
-def serve_tag_store_api_test():
-    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name='Herd Whistle')
+def serve_send_order_to_herdwhistle_api():
+    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     data = json.loads(request.data)
-    order_details = eval(data["orderDetails"])
-    shopping_cart = eval(order_details["shopping_cart"])
+    order_details = json.loads(data["orderDetails"])
+    shopping_cart = json.loads(order_details["shopping_cart"])
     customer_details = {
         'name': order_details["first_name"] + " " + order_details["last_name"],
         'street': order_details["address_line"],
@@ -416,11 +423,16 @@ def serve_tag_store_api_test():
         )
     if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
         herdwhistle_customer_id=herdwhistle_customer_id,
-        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id):
+        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
+    ):
+        herdwhistle_products_shopping_cart = []
+        for product_details in shopping_cart.values():
+            if product_details["product_vendor_id"] == herd_whistle_data[0]["id"]:
+                herdwhistle_products_shopping_cart.append(product_details)
         sale_order_id = HerdWhistleAPI().create_new_sale_order(
             herdwhistle_customer_id=herdwhistle_customer_id,
             herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,
-            shopping_cart=shopping_cart
+            herdwhistle_products_shopping_cart=herdwhistle_products_shopping_cart
         )
         Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
     return Response(status=HTTP_NO_CONTENT)
