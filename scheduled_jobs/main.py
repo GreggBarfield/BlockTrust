@@ -9,7 +9,7 @@ import traceback
 import time
 import datetime
 from core.database.database import Database
-from core.config import MYSQL_CONFIG
+from core.config import HERDWHISTLE_FETCH_EIDS_FROM_API, MYSQL_CONFIG
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 
@@ -95,11 +95,14 @@ try:
         # this will run once between 10 and 11 AM
         if datetime.time(10, 0, 0) <= current_time < datetime.time(11, 0, 0):
             if not any(t.getName() == "Tag Store" for t in threads):
-                job_run_id = JobRuns(db).insert("Tag Store", scheduled_jobs["Tag Store"].split('|')[0], scheduled_jobs["Tag Store"].split('|')[1])
-                t = Thread(target=run_tag_store_tasks, name="Tag Store", args=[job_run_id, Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: appended thread Tag Store', 'Total number of threads:', len(threads), 'Current time:', current_time)
+                if HERDWHISTLE_FETCH_EIDS_FROM_API:
+                    job_run_id = JobRuns(db).insert("Tag Store", scheduled_jobs["Tag Store"].split('|')[0], scheduled_jobs["Tag Store"].split('|')[1])
+                    t = Thread(target=run_tag_store_tasks, name="Tag Store", args=[job_run_id, Database(MYSQL_CONFIG)])
+                    t.start()
+                    threads.append(t)
+                    print('Main: appended thread Tag Store', 'Total number of threads:', len(threads), 'Current time:', current_time)
+                else:
+                    print("Tag Store thread: Tag Store HerdWhistle EID fetch turned off. Exiting")
 
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
