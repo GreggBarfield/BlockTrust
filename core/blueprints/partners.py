@@ -4,6 +4,7 @@ from flask import (
 from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from core.database.tables.account_links import AccountLinks
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
@@ -171,3 +172,10 @@ def serve_view_profile(account_id):
         return partner_render("connections/profile.html", {"account_details": account_details})
     else:
         return redirect(url_for("partner_bp.serve_connections"))
+
+
+@bp.route('/view-partner-accounts-sustainability-data', methods=['GET'])
+@crut.require_partner
+def serve_view_partner_accounts_sustainability_data():
+    partner_account_links_data = AccountLinks(g.db).get_account_links(partner_account=g.account.id())
+    return partner_render("sustainability/view-partner-accounts-sustainability.html")
