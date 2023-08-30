@@ -1,13 +1,15 @@
 from flask import (
     Blueprint, request, g, session, redirect, url_for
 )
+from core.database.tables.payments import PAYMENT_STATUS_NAMES_TO_IDS, Payments
+from core.renderers.outside import outside_render
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from core.config import SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
 from datetime import datetime
 import json
 import stripe
@@ -351,3 +353,50 @@ def serve_stripe_account():
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
     return {}
+
+
+@bp.route('/payment/', defaults={'payment_id': ''}, methods=['GET'])
+@bp.route('/payment/<int:payment_id>', methods=['GET'])
+def serve_payment(payment_id):
+    if payment_id and (payment := Payments(g.db).get(
+        id=payment_id, status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"]
+    )):
+        payment = payment[0]
+        product_data = {'name': payment["reason"]}
+        if payment["description"]:
+            product_data["description"] = payment["description"]
+        session = stripe.checkout.Session.create(
+            client_reference_id=payment['account_id'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': product_data,
+                    'unit_amount': int(payment["amount"])*100,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            metadata={'payment_id': payment_id},
+            payment_method_types=['card'],
+            success_url=(ROOT + url_for('stripe_bp.serve_payment_sucess', payment_id=payment_id)
+                         + "?session_id={CHECKOUT_SESSION_ID}")
+        )
+        return redirect(session.url, code=303)
+    raise ExportException("Invalid Payment Link")
+
+
+@bp.route('/payment/success/<int:payment_id>', methods=['GET'])
+def serve_payment_sucess(payment_id):
+    session = stripe.checkout.Session.retrieve(request.args.get('session_id'))
+    customer = stripe.Customer.retrieve(session.customer)
+    Payments(g.db).update(
+        id=payment_id,
+        status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
+        details={"stripe_session_id": request.args.get('session_id'), "customer": customer.name},
+        paid_date=datetime.utcnow()
+    )
+    return outside_render("message.html", {
+            "heading": "Payment successful",
+            "sub_heading": f"Thank you for the payment, {customer.name}!"
+        }
+    )

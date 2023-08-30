@@ -304,15 +304,23 @@ class Accounts:
                      city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
                      token=NO_VALUE, stripe_customer_id=NO_VALUE, stripe_account_id=NO_VALUE,
                      accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
-                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE):
+                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, columns=()):
         """
         Get an account by the values specified.
 
         Returns:
             A list of account row(s) if found else []
         """
+
         # base query
-        base_query = "SELECT * FROM accounts"
+        if columns:
+            incorrect_cols = [col for col in columns if col not in account_cols]
+            if len(incorrect_cols) == 0:
+                base_query = f"SELECT {','.join(columns)} FROM accounts"
+            else:
+                raise AccountsException(f"Following columns don't exist in accounts table: {','.join(incorrect_cols)}")
+        else:
+            base_query = "SELECT * FROM accounts"
 
         query_conditions = []
         query_values = {}

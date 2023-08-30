@@ -1,0 +1,47 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Payment Links" %}
+{% set employee_locations = [("/employee/dashboard", "Payment Links")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10 card">
+        <div class="card-header">
+            <h5>Payment Links</h5>
+            <a class="btn btn-sm btn-primary float-right" href="/employee/payment-link">
+                Create New Payment Link
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Link</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if links %}
+                    {% for link in links %}
+                    <tr>
+                        <td>{{link.partner_company if link.partner_company else link.account_company}}</td>
+                        <td><a href="{{root + route + link.id | string}}" target="_blank">{{root + route + link.id | string}}</a></td>
+                        <td>{{PAYMENT_STATUS_IDS_TO_NAMES[link.status]}}</td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td class="text-center" colspan="3">No links to show currently</td>
+                    </tr>
+                    {% endif %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}
