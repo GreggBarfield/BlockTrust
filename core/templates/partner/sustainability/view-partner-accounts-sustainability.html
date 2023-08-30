@@ -22,17 +22,17 @@ Sustainability Scores for {{account_name}}
 
 
 <script type="text/javascript">
-    let partnerAccountLinksData = JSON.parse('{{ partner_account_links_data|tojson }}');
+    let partnerAccountsData = JSON.parse('{{ partner_accounts_data|tojson }}');
     let headers = ["ACCOUNT NUMBER", "COMPANY", "NAME", "AFFILIATE ID", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "TAGS COUNT", "PRIME", "CHOICE", "SELECT OR LOWER", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
     let tableExport = [headers];
 
-    for(let partnerData of partnerAccountLinksData){
+    for(let partnerData of partnerAccountsData){
         let partnerDataRow = [];
 
         // Adding in values for the basic account information and sustainability scores
         let partnerSustainabilityData = partnerData.account_sustainability_data;
         partnerDataRow.push(
-            partnerData.account,
+            partnerData.id,
             partnerData.company,
             partnerData.name,
             partnerData.affiliate_id,
