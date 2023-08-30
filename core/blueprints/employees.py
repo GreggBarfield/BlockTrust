@@ -752,14 +752,14 @@ def serve_payment_links():
             reason=request.form["reason"],
             description=request.form["description"]
         )
-
         return {"redirect": url_for("employee_bp.serve_payment_link", payment_id=payment_id)}
     payments = Payments(g.db).get(employee_id=g.employee.id(), expand=True)
     return employee_render("/employee/finance/payment-links.html", {
-        "links": payments,
+        "payments": payments,
         "root": WEBSITE_ROOT,
-        "route":  url_for("stripe_bp.serve_payment"),
-        "PAYMENT_STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES
+        "payment_route":  url_for("stripe_bp.serve_payment"),
+        "PAYMENT_STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES,
+        "payment_link_route": url_for("employee_bp.serve_payment_link")
     })
 
 
@@ -769,10 +769,10 @@ def serve_payment_links():
 def serve_payment_link(payment_id):
     accounts = Accounts(g.db).get_accounts(columns=("id", "company"))
     payment = None
-    try:
-        if payment_id:
-            payment = Payments(g.db).get(id=payment_id)[0]
+    if payment_id:
+        if payment := Payments(g.db).get(id=payment_id):
+            payment = payment[0]
             payment["link"] = WEBSITE_ROOT + url_for("stripe_bp.serve_payment", payment_id=payment_id)
-    except Exception:
-        raise ExportException("Bad request")
+        else:
+            raise ExportException("Bad Request")
     return employee_render("/employee/finance/payment-link.html", {"accounts": accounts, "payment": payment})

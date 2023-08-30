@@ -11,7 +11,7 @@
     <div class="col-lg-10 card">
         <div class="card-header">
             <h5>Payment Links</h5>
-            <a class="btn btn-sm btn-primary float-right" href="/employee/payment-link">
+            <a class="btn btn-sm btn-primary float-right" href="{{payment_link_route}}">
                 Create New Payment Link
             </a>
         </div>
@@ -20,22 +20,26 @@
                 <thead>
                     <tr>
                         <th>Customer</th>
+                        <th>Amount</th>
                         <th>Link</th>
                         <th>Status</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% if links %}
-                    {% for link in links %}
+                    {% if payments %}
+                    {% for payment in payments %}
                     <tr>
-                        <td>{{link.partner_company if link.partner_company else link.account_company}}</td>
-                        <td><a href="{{root + route + link.id | string}}" target="_blank">{{root + route + link.id | string}}</a></td>
-                        <td>{{PAYMENT_STATUS_IDS_TO_NAMES[link.status]}}</td>
+                        <td>{{payment.account_company}}</td>
+                        <td>${{payment.amount}}</td>
+                        <td><a href="{{root + payment_route + payment.id | string}}" target="_blank">{{root + payment_route + payment.id | string}}</a></td>
+                        <td>{{PAYMENT_STATUS_IDS_TO_NAMES[payment.status]}}</td>
+                        <td><a href="{{payment_link_route + payment.id | string}}"><i class="feather icon-eye" title="View"></i></a></td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td class="text-center" colspan="3">No links to show currently</td>
+                        <td class="text-center" colspan="5">No links to show currently</td>
                     </tr>
                     {% endif %}
                     </tr>
