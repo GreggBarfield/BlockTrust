@@ -2069,3 +2069,18 @@ SET @herd_whistle_two_piece_id := (SELECT id FROM products WHERE product="HerdWh
 UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_two_piece_id;
 SET @usda_hdx_840_id := (SELECT id FROM products WHERE product="USDA HDX 840 Tag" and is_internal=1);
 UPDATE `products` SET units_per_order=20 WHERE id=@usda_hdx_840_id;
+
+/* Rohan Sureshkumar 8/24/2023 */
+CREATE TABLE `payments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `employee_id` INT NULL,
+  `amount` DECIMAL(8,2) NULL,
+  `status` INT NULL,
+  `reason` VARCHAR(45) NULL,
+  `description` VARCHAR(200) NULL,
+  `details` JSON NULL,
+  `paid_date` DATETIME NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

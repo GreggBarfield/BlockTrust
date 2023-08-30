@@ -1,3 +1,4 @@
+from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.reports import Reports
 from flask import (
     Response, request, Blueprint, g, redirect, url_for
@@ -291,7 +292,7 @@ def serve_edit_selected_partner(partner_id):
         )
         credits_diff = subscription_credits - partner["partner_subscription_credits"]
         if credits_diff:
-            Transactions(g.db).insert_transaction(
+            Transactions(g.db).insert(
                 transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
                 partner_id=partner["id"],
                 subscription_credits=credits_diff,
@@ -737,3 +738,41 @@ def serve_log_back_in():
     else:
         auth.logout()
         return redirect(url_for("outside_bp.serve_employee_login"))
+
+
+@bp.route("/employee/payment-links", methods=["GET", "POST"])
+@crut.require_employee
+def serve_payment_links():
+    if request.method == "POST":
+        payment_id = Payments(g.db).insert(
+            account_id=request.form["customer"],
+            employee_id=g.employee.id(),
+            amount=request.form["amount"],
+            status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"],
+            reason=request.form["reason"],
+            description=request.form["description"]
+        )
+        return {"redirect": url_for("employee_bp.serve_payment_link", payment_id=payment_id)}
+    payments = Payments(g.db).get(employee_id=g.employee.id(), expand=True)
+    return employee_render("/employee/finance/payment-links.html", {
+        "payments": payments,
+        "root": WEBSITE_ROOT,
+        "payment_route":  url_for("stripe_bp.serve_payment"),
+        "PAYMENT_STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES,
+        "payment_link_route": url_for("employee_bp.serve_payment_link")
+    })
+
+
+@bp.route('/employee/payment-link/', defaults={'payment_id': ''}, methods=["GET"])
+@bp.route("/employee/payment-link/<int:payment_id>", methods=["GET"])
+@crut.require_employee
+def serve_payment_link(payment_id):
+    accounts = Accounts(g.db).get_accounts(columns=("id", "company"))
+    payment = None
+    if payment_id:
+        if payment := Payments(g.db).get(id=payment_id):
+            payment = payment[0]
+            payment["link"] = WEBSITE_ROOT + url_for("stripe_bp.serve_payment", payment_id=payment_id)
+        else:
+            raise ExportException("Bad Request")
+    return employee_render("/employee/finance/payment-link.html", {"accounts": accounts, "payment": payment})

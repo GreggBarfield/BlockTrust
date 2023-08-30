@@ -142,7 +142,7 @@ def update_partner_payment_of_account(db, partner, account_id, paid_by_partner, 
         partner["id"],
         partner_subscription_credits=partner["partner_subscription_credits"] + change_in_credits
     )
-    Transactions(db).insert_transaction(
+    Transactions(db).insert(
         transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
         partner_id=partner["id"],
         account_id=account_id,
