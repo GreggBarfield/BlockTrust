@@ -12,7 +12,7 @@ from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.reports.query_types import count_distribution
-from core.sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
+from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
