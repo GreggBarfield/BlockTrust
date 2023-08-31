@@ -3,10 +3,14 @@ from flask import (
 )
 from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
-from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.reports import Reports
+from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
+from core.match_types import MATCH_TYPES_NAME_TO_ID
+from core.reports.query_types import count_distribution
 from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
@@ -171,3 +175,34 @@ def serve_view_profile(account_id):
         return partner_render("connections/profile.html", {"account_details": account_details})
     else:
         return redirect(url_for("partner_bp.serve_connections"))
+
+
+@bp.route('/view-partner-accounts-sustainability-data', methods=['GET'])
+@crut.require_partner
+def serve_view_partner_accounts_sustainability_data():
+    partner_accounts_data = Accounts(g.db).get_accounts(partner_account=g.account.id())
+
+    for partner_account_data in partner_accounts_data:
+        account_id = partner_account_data["id"]
+        account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
+            account_id=account_id,
+            questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+        )
+        if len(account_sustainability_responses_data) > 0:
+            account_sustainability_response_data = account_sustainability_responses_data[0]
+            partner_account_data["account_sustainability_data"] = account_sustainability_response_data
+        else:
+            partner_account_data["account_sustainability_data"] = None
+
+        account_distinct_eids = g.db.matches.get_count_eid_distinct_for_accounts((account_id,))
+        partner_account_data["account_eid_count"] = account_distinct_eids
+
+        usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Quality Grade", 0))
+        partner_account_data["usda_quality_grade_data"] = usda_quality_grade_data["result"] if usda_quality_grade_data else None
+
+        usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Yield Grade", 0))
+        partner_account_data["usda_yield_grade_data"] = usda_yield_grade_data["result"] if usda_yield_grade_data else None
+
+    return partner_render("sustainability/view-partner-accounts-sustainability.html",{
+        "partner_accounts_data": partner_accounts_data
+    })
