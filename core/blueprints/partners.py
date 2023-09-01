@@ -194,7 +194,7 @@ def serve_view_partner_accounts_sustainability_data():
         else:
             partner_account_data["account_sustainability_data"] = None
 
-        account_distinct_eids = g.db.matches.get_count_eid_distinct_for_accounts((account_id,))
+        account_distinct_eids = g.db.matches.get_count_eid_distinct_for_accounts(account_id)
         partner_account_data["account_eid_count"] = account_distinct_eids
 
         usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Quality Grade", 0))
