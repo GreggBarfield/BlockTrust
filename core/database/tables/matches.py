@@ -85,8 +85,8 @@ class Matches:
         result = self._db.execute_d(query)
         return Matches._load_rows(result)
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_ids, is_partner=False, as_count=False):
-        if not all(isinstance(id, int) for id in account_ids):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False, associated_account_ids=()):
+        if not all(isinstance(id, int) for id in associated_account_ids):
             raise Exception("Incorrect input for account ids")
 
         if as_count:
@@ -101,10 +101,12 @@ class Matches:
 
         first_account_link_clause = ""
         if not is_partner:
-            first_account_link_clause = f"al1.account = {account_ids[0]}"
+            first_account_link_clause = f"al1.account = {account_id}"
         else:
-            if len(account_ids) > 0:
-                first_account_link_clause = f"al1.account IN ({','.join([str(id) for id in account_ids])})"
+            if len(associated_account_ids) > 0:
+                first_account_link_clause = f"al1.account IN ({','.join([str(id) for id in associated_account_ids])})"
+            else:
+                first_account_link_clause = f"al1.partner_account = {account_id}"
 
         if first_account_link_clause:
             match_rows = self._db.execute_d(
@@ -632,7 +634,7 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_for_accounts(self, account_ids=(), is_partner=False):
+    def get_count_eid_distinct_for_accounts(self, account_id, is_partner=False, associated_account_ids=(),):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
@@ -641,7 +643,7 @@ class Matches:
         Returns:
             The value
         """
-        if not all(isinstance(id, int) for id in account_ids):
+        if not all(isinstance(id, int) for id in associated_account_ids):
             raise Exception("Incorrect input for account ids")
 
         query = """
@@ -650,10 +652,12 @@ class Matches:
         """
         condition = ""
         if not is_partner:
-            condition = f" AND al.account = {account_ids[0]}"
+            condition = f" AND al.account = {account_id}"
         else:
-            if len(account_ids) > 0:
-                condition = f" AND al.account IN ({','.join([str(id) for id in account_ids])})"
+            if len(associated_account_ids) > 0:
+                condition = f" AND al.account IN ({','.join([str(id) for id in associated_account_ids])})"
+            else:
+                condition = f" AND al.partner_account = {account_id}"
 
         if condition:
             return self._db.execute_d(
@@ -687,6 +691,11 @@ class Matches:
                     account_link_condition = f"""
                         AND al.account IN ({','.join([str(account['id']) for account in associated_accounts])})
                     """
+                else:
+                    account_link_condition = f"""
+                        AND al.partner_account = {account_id}
+                    """
+
             else:
                 account_link_condition = " AND al.account = %(account_id)s"
                 args["account_id"] = account_id
@@ -715,7 +724,7 @@ class Matches:
                     yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account["id"])
                     account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                     account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                        (account["id"],), False, True
+                        account["id"], False, True
                     )
                     account_result["account_id"] = account["id"]
                     result[account["name"]] = account_result
@@ -855,7 +864,7 @@ class Matches:
                 yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
                 account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                 account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    (account_detail["account_id"],), False, True
+                    account_detail["account_id"], False, True
                 )
                 account_result["account_id"] = account_detail["account_id"]
                 all_eid_data[account_detail["account_name"]] = account_result

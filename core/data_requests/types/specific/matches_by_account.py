@@ -59,7 +59,7 @@ def auth(params):
     else:
         if 'sighted_animals' in params:
             return {
-                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker((g.account.id(),), g.account.is_partner())
+                "matches": g.db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(g.account.id(), g.account.is_partner())
             }
         elif 'all_matches' in params:
             if g.account.is_partner():

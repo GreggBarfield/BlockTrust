@@ -19,10 +19,6 @@ def execute(db, query):
             connected_account_ids = Connections(db).get_connected_account_ids(partner["id"])
             for account_id in connected_account_ids:
                 partner_accounts.append(db.accounts.get_accounts(id=account_id)[0])
-        else:
-            partner_accounts = db.accounts.get_accounts(
-                partner_account=params['account']
-            )
 
     if params.get("match_type", None):
         return {
@@ -35,6 +31,12 @@ def execute(db, query):
         }
     else:
         # only supported for partners
+
+        if partner["sector"] != SECTORS_NAME_TO_ID["Producer Service"]:
+            partner_accounts = db.accounts.get_accounts(
+                partner_account=params['account']
+            )
+
         count_distribution = db.matches.get_count_distribution(
             is_partner=True,
             associated_accounts=partner_accounts

@@ -592,7 +592,7 @@ def serve_tag_store_reports():
 def serve_tag_reports():
     accounts = Accounts(g.db).get_accounts(sector=SECTORS_NAME_TO_ID["Cow-Calf"], is_partner=int(False))
     for account in accounts:
-        account["tag_count"] = g.db.matches.get_count_eid_distinct_for_accounts((account["id"],))
+        account["tag_count"] = g.db.matches.get_count_eid_distinct_for_accounts(account["id"])
     return employee_render("/employee/finance/tag-report.html", {
         "accounts_and_tags": accounts
     })
