@@ -17,7 +17,7 @@ def execute(db, query):
 
     return {
         'count_eid_distinct': db.matches.get_count_eid_distinct_for_accounts(
-            params['account'], account_ids, is_partner
+            params['account'], is_partner, account_ids
         ),
         'count_eid_distinct_sighted': db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(
             params['account'], is_partner, as_count=True, associated_account_ids=account_ids

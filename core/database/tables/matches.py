@@ -634,7 +634,7 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_for_accounts(self, account_id, associated_account_ids=(), is_partner=False):
+    def get_count_eid_distinct_for_accounts(self, account_id, is_partner=False, associated_account_ids=(),):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
