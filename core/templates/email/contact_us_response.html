@@ -14,7 +14,7 @@
 
 <br>
 <div style="border-left: 1px solid black;padding-left:20px;">
-    {% if g.account != None %}
+    {% if "account" in g %}
     Account ID: {{g.account.id()}}<br>
     Company: {{g.account.company()}}<br>
     {% endif %}
