@@ -15,88 +15,95 @@ Sustainability Scores for {{account_name}}
             <h5>Partner Accounts Sustainability Data</h5>
         </div>
         <div class="col-md-9 d-flex justify-content-end">
-            <a class="btn btn-outline-primary" id="download-data-button"><i class="fa fa-download"></i>Download Partner Accounts Data</a>
+            <a class="btn btn-outline-primary" id="download-data-button"><i class="fa fa-download"></i>Download Accounts Data</a>
         </div>
     </div>
-</div> 
-
+</div>
 
 <script type="text/javascript">
-    let partnerAccountsData = JSON.parse('{{ partner_accounts_data|tojson }}');
-    let headers = ["ACCOUNT NUMBER", "COMPANY", "NAME", "AFFILIATE ID", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "TAGS COUNT", "PRIME", "CHOICE", "SELECT OR LOWER", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
-    let tableExport = [headers];
+    let sectorBasedAccountsa = JSON.parse('{{ sector_based_accounts|tojson }}');
+    let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
+    let partnerName = '{{ partner.company() }}'
+    
+    let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "PRIME", "CHOICE", "SELECT OR LOWER", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
+    let accountsDataTableExport = [];
+    accountsDataTableExport.push(["", "", "", "", "", "", "", "", partnerName+ " Supply Chain"]);
+    accountsDataTableExport.push([]);
+    accountsDataTableExport.push([tableHeaders]);
+    accountsDataTableExport.push([]);
 
-    for(let partnerData of partnerAccountsData){
-        let partnerDataRow = [];
+    for(const [sectorId, sectorAccounts] of Object.entries(sectorBasedAccountsa)){
+        accountsDataTableExport.push([sectorsIdToName[sectorId]]);
+        for(const accountData of Object.values(sectorAccounts)){
+            let accountDataRow = [""];
+            let accountSustainabilityData = accountData.account_sustainability_data;
+            // Adding in values for the basic account information and sustainability scores
+            accountDataRow.push(
+                accountData.account_id,
+                accountData.account_name,
+                accountData.count,
+                accountSustainabilityData !== null ? accountSustainabilityData.air_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.land_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.water_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.animal_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.safety_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.efficiency_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.improvement_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.score : "N/A"
+            );
 
-        // Adding in values for the basic account information and sustainability scores
-        let partnerSustainabilityData = partnerData.account_sustainability_data;
-        partnerDataRow.push(
-            partnerData.id,
-            partnerData.company,
-            partnerData.name,
-            partnerData.affiliate_id,
-            partnerSustainabilityData !== null ? partnerSustainabilityData.air_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.land_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.water_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.animal_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.safety_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.efficiency_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.improvement_points : "N/A",
-            partnerSustainabilityData !== null ? partnerSustainabilityData.score : "N/A",
-            partnerData.account_eid_count
-        );
-
-        // Calculating and adding the USDA quality grade percentages if available
-        let USDAQualityGradeDistributionData = partnerData.usda_quality_grade_data;
-        if(USDAQualityGradeDistributionData != null){
-            let USDAQualityGradeDistribution = USDAQualityGradeDistributionData.count_distribution;
-            if(USDAQualityGradeDistribution != null){
-                let total = 0;
-                let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
-                let selectPercentage = 0;
-                let primePercentage = 0;
-                let choicePercentage = 0;
-                for(let qualityGradeData of USDAQualityGradeDistribution){
-                    total += qualityGradeData.count;
+            // Calculating and adding the USDA quality grade percentages if available
+            let USDAQualityGradeDistributionData = accountData.usda_quality_grade_data;
+            if(USDAQualityGradeDistributionData != null){
+                let USDAQualityGradeDistribution = USDAQualityGradeDistributionData.count_distribution;
+                if(USDAQualityGradeDistribution != null){
+                    let total = 0;
+                    let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
+                    let selectPercentage = 0;
+                    let primePercentage = 0;
+                    let choicePercentage = 0;
+                    for(let qualityGradeData of USDAQualityGradeDistribution){
+                        total += qualityGradeData.count;
+                    }
+                    for(let qualityGradeData of USDAQualityGradeDistribution){
+                        qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
+                    }
+                    accountDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"]);
                 }
-                for(let qualityGradeData of USDAQualityGradeDistribution){
-                    qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
-                }
-                partnerDataRow.push(qualityGradePercentages["Prime"], qualityGradePercentages["Choice"], qualityGradePercentages["Select or Lower"]);
             }
-        }
-        else{
-            partnerDataRow.push("N/A", "N/A", "N/A");
-        }
-
-        // Calculating and adding the USDA Yield grade percentages if available
-        let USDAYieldGradeDistributionData = partnerData.usda_yield_grade_data;
-        if(USDAYieldGradeDistributionData != null){
-            let USDAYieldGradeDistribution = USDAYieldGradeDistributionData.count_distribution;
-            if(USDAYieldGradeDistribution != null){
-                let total = 0;
-                let yieldGradePercentages = {1:0, 2:0, 3:0, 4:0, 5:0}
-                for(let yieldgradeData of USDAYieldGradeDistribution){
-                    total += yieldgradeData.count;
-                }
-                for(let yieldgradeData of USDAYieldGradeDistribution){
-                    yieldGradePercentages[yieldgradeData.data] = (100*yieldgradeData.count/total).toFixed(2) + "%";
-                }
-                partnerDataRow.push(yieldGradePercentages[1], yieldGradePercentages[2], yieldGradePercentages[3], yieldGradePercentages[4], yieldGradePercentages[5])
+            else{
+                accountDataRow.push("N/A", "N/A", "N/A");
             }
-        }
-        else{
-            partnerDataRow.push("N/A", "N/A", "N/A", "N/A", "N/A");
-        }
 
-        tableExport.push(partnerDataRow)
+            // Calculating and adding the USDA Yield grade percentages if available
+            let USDAYieldGradeDistributionData = accountData.usda_yield_grade_data;
+            if(USDAYieldGradeDistributionData != null){
+                let USDAYieldGradeDistribution = USDAYieldGradeDistributionData.count_distribution;
+                if(USDAYieldGradeDistribution != null){
+                    let total = 0;
+                    let yieldGradePercentages = {1:0, 2:0, 3:0, 4:0, 5:0}
+                    for(let yieldgradeData of USDAYieldGradeDistribution){
+                        total += yieldgradeData.count;
+                    }
+                    for(let yieldgradeData of USDAYieldGradeDistribution){
+                        yieldGradePercentages[yieldgradeData.data] = (100*yieldgradeData.count/total).toFixed(2) + "%";
+                    }
+                    accountDataRow.push(yieldGradePercentages[1], yieldGradePercentages[2], yieldGradePercentages[3], yieldGradePercentages[4], yieldGradePercentages[5])
+                }
+            }
+            else{
+                accountDataRow.push("N/A", "N/A", "N/A", "N/A", "N/A");
+            }
+
+            accountsDataTableExport.push(accountDataRow);
+        }
+        accountsDataTableExport.push([]);
     }
 
-    let csvContent =  tableExport.map(e => e.join(",")).join("\n");
+    let csvContent =  accountsDataTableExport.map(e => e.join(",")).join("\n");
     let encoded = encodeURIComponent(csvContent);
     let downloadButton = document.getElementById("download-data-button");
     downloadButton.setAttribute("href", "data:text/csv;charset=utf-8," + encoded);
-    downloadButton.setAttribute("download", "PartnerAccountsSustainabilityReport.csv");
+    downloadButton.setAttribute("download", "AccountsReport.csv");
 </script>
 {% endblock partner_content %}
