@@ -200,7 +200,7 @@ def serve_view_partner_accounts_sustainability_data():
                     if matched_account_id not in accounts_object_for_sector:
                         # Sustainability data for matched account
                         account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
-                            account_id=account_id,
+                            account_id=matched_account_id,
                             questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
                         )
                         if len(account_sustainability_responses_data) > 0:
@@ -210,10 +210,10 @@ def serve_view_partner_accounts_sustainability_data():
                             matched_account["account_sustainability_data"] = None
                         
                         # USDA Quality and Yield grade
-                        usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Quality Grade", 0))
+                        usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Quality Grade", 0))
                         matched_account["usda_quality_grade_data"] = usda_quality_grade_data["result"] if usda_quality_grade_data else None
 
-                        usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Yield Grade", 0))
+                        usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Yield Grade", 0))
                         matched_account["usda_yield_grade_data"] = usda_yield_grade_data["result"] if usda_yield_grade_data else None
 
                         accounts_object_for_sector[matched_account_id] = matched_account
