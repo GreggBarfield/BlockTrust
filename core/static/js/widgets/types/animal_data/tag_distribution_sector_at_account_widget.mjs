@@ -26,52 +26,21 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
                 }
             ).then((data) => {
                 this.feedyardData = data.result !== null ? data.result.matched_data : {};
-                this.accountData = data.result !== null ? data.result.all_data: {};
             }).then(() => {
                 this.frame.innerHTML = "";
-                this.frame.appendChild(this.createTabs(accountName));
                 let tabDataContainer = this.createContainer();
                 tabDataContainer.appendChild(this.makeMatchedTabContents(this.feedyardData));
-                tabDataContainer.appendChild(this.makeAllDataTabContents(this.accountData));
                 this.frame.appendChild(tabDataContainer);
             });
         })
 
     }
 
-    createTabs = (companyName) => {
-        let ulTabs = document.createElement("ul");
-        ulTabs.className = "nav nav-tabs";
-        ulTabs.setAttribute("role", "tablist")    
 
-        let liTab = this.createTab("matched-data", companyName, true)
-        ulTabs.appendChild(liTab);
 
-        liTab = this.createTab("all-data", "All", false);
-        ulTabs.appendChild(liTab);
-
-        return ulTabs;
-    }
-
-    createTab = (tabIdentifier, label, isSelected) => {
-        let liTab = document.createElement("li");
-        liTab.className = "nav-item";
-        let aTab = document.createElement("a");
-        aTab.className = `nav-link text-uppercase ${isSelected?"active":""}` ;
-        aTab.href = `#${tabIdentifier}`;
-        aTab.id = `${tabIdentifier}-tab`;
-        aTab.setAttribute("data-toggle", "tab");
-        aTab.setAttribute("role", "tab");
-        aTab.setAttribute("aria-controls", tabIdentifier);
-        aTab.setAttribute("aria-selected", isSelected);
-        aTab.text = label
-        liTab.appendChild(aTab);
-        return liTab
-    }
 
     createContainer = () => {
         let divTabContent = document.createElement("div");
-        divTabContent.className = "tab-content";
         divTabContent.id = "myTabContent";
         return divTabContent;
     }
@@ -87,16 +56,6 @@ export class TagDistributionSectorAtAccountWidget extends Widget {
         return divTab;
     }
 
-    makeAllDataTabContents = (distributionData) => {
-        let divTab = document.createElement("div");
-        divTab.className = "tab-pane fade"
-        divTab.id = "all-data"
-        divTab.setAttribute("role", "tabpanel");
-        divTab.setAttribute("aria-labelledby", "all-data-tab")       
-        let table = this.makeTable(distributionData);
-        divTab.appendChild(table);
-        return divTab;
-    }
 
     makeTable = (distributionData) => {
         this.divTableResponsive = document.createElement("div");
