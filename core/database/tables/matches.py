@@ -836,7 +836,6 @@ class Matches:
         """
         result = {}
         sighted_eid_data = {}
-        all_eid_data = {}
         if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
             related_account_details = self.get_sighted_match_accounts_for_account_link(
                 account_link_id=account_links[0]['id'], sector_id=sector_id
@@ -858,19 +857,7 @@ class Matches:
                 account_result["sightings"] = account_detail["count"]
                 sighted_eid_data[account_detail["account_name"]] = account_result
 
-                account_result = {}
-                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_detail["account_id"])
-                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
-                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
-                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
-                account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    account_detail["account_id"], False, True
-                )
-                account_result["account_id"] = account_detail["account_id"]
-                all_eid_data[account_detail["account_name"]] = account_result
-
         result['matched_data'] = sighted_eid_data
-        result['all_data'] = all_eid_data
         return result
 
     @staticmethod
