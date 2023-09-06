@@ -19,16 +19,40 @@
                         <h5>Select Partner Account: </h5>
                     </div>
                     <div class="col-md-6">
-                        <select class="form-control" id="signup_form_state" required>
-                            <option value="" selected disabled>--- Please Select a Partner ---</option>
+                        <select class="form-control" id="invited-account-id" required>
+                            <option value="-1" selected disabled>--- Please Select a Partner ---</option>
                             {% for invitable_partner_account in invitable_partner_accounts %}
-                            <option id="{{invitable_partner_account.id}}">{{invitable_partner_account.name}}</option>
+                            <option value="{{invitable_partner_account.id}}">{{invitable_partner_account.name}}</option>
                             {% endfor %}
                         </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-sm btn-primary p-2" onClick='sendConnectionInvite()'>
+                            <i class="feather icon-user-plus"></i>Send Connection Invite
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    async function sendConnectionInvite(){
+        let invitedAccountId = document.getElementById("invited-account-id").value;
+        if(parseInt(invitedAccountId) !== -1){
+            const response = await fetch(
+            "/partner/add-connection",{
+                method: "POST",
+                body: JSON.stringify({"invited_account_id": parseInt(invitedAccountId)}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+            );
+            if(response.ok == true){
+                location.href = "/partner/connections";
+            }
+        }
+    }    
+</script>
 {% endblock partner_content %}

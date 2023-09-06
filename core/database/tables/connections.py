@@ -163,11 +163,7 @@ class Connections:
         
         if get_partners_only is not False:
             query = query + " AND is_partner = 1"
-        unconnected_accounts = self._db.execute_d(
-            query, {
-                "account_id": account_id
-            }
-        )
+        unconnected_accounts = self._db.execute_d(query, {"account_id": account_id})
 
         if len(unconnected_accounts) > 0:
             return unconnected_accounts

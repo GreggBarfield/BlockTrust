@@ -6,7 +6,7 @@ from core.config import FLATFILE_LICENSE
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
-from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, Connections
+from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
@@ -225,11 +225,17 @@ def serve_view_partner_accounts_sustainability_data():
     })
 
 
-@bp.route('/add-connection', methods=["GET"])
+@bp.route('/add-connection', methods=["GET", "POST"])
 @crut.require_partner
 def serve_add_connection():
-    invitable_partner_accounts = Connections(g.db).get_unconnected_accounts(g.account.id(), get_partners_only=True)
-    # print(len(invitable_partner_accounts))
-    return partner_render("connections/add-connections.html",{
-        "invitable_partner_accounts": invitable_partner_accounts
-    })
+    if request.method == "GET":
+        invitable_partner_accounts = Connections(g.db).get_unconnected_accounts(g.account.id(), get_partners_only=True)
+        return partner_render("connections/add-connections.html",{"invitable_partner_accounts": invitable_partner_accounts})
+    if request.method == "POST":
+        Connections(g.db).create_or_fail_connection(
+            g.account.id(),
+            request.json["invited_account_id"],
+            CONNECTION_STATUS_NAME_TO_ID["Pending"],
+            connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
+        )
+        return Response(status=HTTP_OK)
