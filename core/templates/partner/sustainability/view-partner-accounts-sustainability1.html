@@ -1,0 +1,28 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Sustainability Summary" %}
+{% set partner_locations = [("/partner/dashboard", "Dashboard")] %}
+
+{% block partner_content_header %}
+Sustainability Scores for {{account_name}}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+<div class="card">
+    <div class="card-header d-flex">
+        <div class="col-md-3">
+            <h5>Partner Accounts Sustainability Data</h5>
+        </div>
+    </div>
+    <div class="card-body">
+        {% for key, value in sector_based_account_data_for_connections%}
+        {{key}}<br>
+        {{value}}<br>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+{% endblock partner_content %}
