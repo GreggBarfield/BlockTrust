@@ -39,6 +39,9 @@
     </div>
 </div>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#invited-account-id").select2({multiple: false, placeholder: "Select Partner"});
+    });
     async function sendConnectionInvite(){
         let invitedAccountId = document.getElementById("invited-account-id").value;
         if(parseInt(invitedAccountId) !== -1){
