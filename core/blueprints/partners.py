@@ -223,3 +223,13 @@ def serve_view_partner_accounts_sustainability_data():
         "sector_based_accounts": sector_based_accounts,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
+
+
+@bp.route('/add-connection', methods=["GET"])
+@crut.require_partner
+def serve_add_connection():
+    invitable_partner_accounts = Connections(g.db).get_unconnected_accounts(g.account.id(), get_partners_only=True)
+    # print(len(invitable_partner_accounts))
+    return partner_render("connections/add-connections.html",{
+        "invitable_partner_accounts": invitable_partner_accounts
+    })
