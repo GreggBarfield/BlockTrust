@@ -270,7 +270,6 @@ def serve_view_partner_accounts_sustainability_data1():
                             accounts_object_for_sector[matched_account_id] = matched_account
                             sector_based_accounts[matched_account["account_sector_id"]] = accounts_object_for_sector
                             sector_based_account_data_for_connections[connected_account_name] = sector_based_accounts
-    print(sector_based_account_data_for_connections)
     return partner_render("sustainability/view-partner-accounts-sustainability1.html",{
         "sector_based_account_data_for_connections": sector_based_account_data_for_connections,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
