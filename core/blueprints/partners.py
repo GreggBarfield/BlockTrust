@@ -230,7 +230,9 @@ def serve_view_partner_accounts_sustainability_data():
 def serve_add_connection():
     if request.method == "GET":
         invitable_partner_accounts = Connections(g.db).get_unconnected_accounts(g.account.id(), get_partners_only=True)
-        return partner_render("connections/add-connections.html",{"invitable_partner_accounts": invitable_partner_accounts})
+        return partner_render("connections/add-connections.html", {
+            "invitable_partner_accounts": invitable_partner_accounts
+        })
     if request.method == "POST":
         Connections(g.db).create_or_fail_connection(
             g.account.id(),

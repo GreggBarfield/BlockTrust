@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-md-6">
                         <select class="form-control" id="invited-account-id" required>
-                            <option value="-1" selected disabled>--- Please Select a Partner ---</option>
+                            <option value="0" selected disabled>--- Please Select a Partner ---</option>
                             {% for invitable_partner_account in invitable_partner_accounts %}
                             <option value="{{invitable_partner_account.id}}">{{invitable_partner_account.name}}</option>
                             {% endfor %}
@@ -44,7 +44,7 @@
     });
     async function sendConnectionInvite(){
         let invitedAccountId = document.getElementById("invited-account-id").value;
-        if(parseInt(invitedAccountId) !== -1){
+        if(parseInt(invitedAccountId) !== 0){
             const response = await fetch(
             "/partner/add-connection",{
                 method: "POST",
