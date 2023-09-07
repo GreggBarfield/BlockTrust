@@ -21,7 +21,7 @@ Sustainability Scores for {{account_name}}
 </div>
 
 <script type="text/javascript">
-    let sectorBasedAccountsa = JSON.parse('{{ sector_based_accounts|tojson }}');
+    let sectorBasedAccounts = JSON.parse('{{ sector_based_accounts|tojson }}');
     let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
     let partnerName = '{{ partner.company() }}'
     
@@ -32,7 +32,7 @@ Sustainability Scores for {{account_name}}
     accountsDataTableExport.push([tableHeaders]);
     accountsDataTableExport.push([]);
 
-    for(const [sectorId, sectorAccounts] of Object.entries(sectorBasedAccountsa)){
+    for(const [sectorId, sectorAccounts] of Object.entries(sectorBasedAccounts)){
         accountsDataTableExport.push([sectorsIdToName[sectorId]]);
         for(const accountData of Object.values(sectorAccounts)){
             let accountDataRow = [""];
