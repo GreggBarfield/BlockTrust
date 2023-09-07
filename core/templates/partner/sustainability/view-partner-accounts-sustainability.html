@@ -36,7 +36,6 @@ Sustainability Scores for {{account_name}}
         let sectorBasedAccounts = sectorBasedAccountDataForConnections[accountName];
         let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
         let partnerName = '{{ partner.company() }}';
-        console.log(sectorBasedAccounts);
         
         let tableHeaders = ["SECTOR", "ACCOUNT NUMBER", "COMPANY", "TAGS COUNT", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "PRIME", "CHOICE", "SELECT OR LOWER", "YIELD GRADE 1", "YIELD GRADE 2", "YIELD GRADE 3", "YIELD GRADE 4", "YIELD GRADE 5"];
         let accountsDataTableExport = [];
