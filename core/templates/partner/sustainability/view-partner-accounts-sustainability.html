@@ -22,7 +22,7 @@ Sustainability Scores for {{account_name}}
                     <h5>{{account_name}}</h5>
                 </div>
                 <div class="col-md-3 m-0 p-0">
-                    <button class="btn btn-sm btn-primary p-2 float-right" id='{{account_name}}' onClick="downloadReport('{{account_name}}')">
+                    <button class="btn btn-sm btn-primary p-2 float-right" onClick="downloadReport('{{account_name}}')">
                         <i class="feather icon-download"></i>Download Report
                     </button>
                 </div>
@@ -115,11 +115,11 @@ Sustainability Scores for {{account_name}}
 
         let csvContent =  accountsDataTableExport.map(e => e.join(",")).join("\n");
         let encoded = encodeURIComponent(csvContent);
-        let hiddenElement = document.createElement('a');
-        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encoded;
-        hiddenElement.target = '_blank';
-        hiddenElement.download = 'AccountReport.csv';
-        hiddenElement.click(); 
+        let downloadElement = document.createElement('a');
+        downloadElement.href = 'data:text/csv;charset=utf-8,' + encoded;
+        downloadElement.target = '_blank';
+        downloadElement.download = 'AccountReport.csv';
+        downloadElement.click(); 
     }
 </script>
 {% endblock partner_content %}
