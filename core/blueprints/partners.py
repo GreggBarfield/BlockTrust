@@ -6,7 +6,7 @@ from core.config import FLATFILE_LICENSE
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
-from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, Connections
+from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
@@ -181,45 +181,70 @@ def serve_view_profile(account_id):
 @bp.route('/view-partner-accounts-sustainability-data', methods=['GET'])
 @crut.require_partner
 def serve_view_partner_accounts_sustainability_data():
-    partner_accounts_data = Accounts(g.db).get_accounts(partner_account=g.account.id())
-    sector_based_accounts = {
-        SECTORS_NAME_TO_ID["Cow-Calf"]: {},
-        SECTORS_NAME_TO_ID["Feedlot"]: {},
-        SECTORS_NAME_TO_ID["Packer"]: {},
-    }
+    sector_based_account_data_for_connections = {}
+    connected_account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
+    for connected_account_id in connected_account_ids:
+        connected_account_data = Accounts(g.db).get_accounts(id=connected_account_id)
+        connected_account_name = connected_account_data[0]["name"]
+        partner_accounts_data = Accounts(g.db).get_accounts(partner_account=connected_account_id)
+        sector_based_accounts = {
+            SECTORS_NAME_TO_ID["Cow-Calf"]: {},
+            SECTORS_NAME_TO_ID["Feedlot"]: {},
+            SECTORS_NAME_TO_ID["Packer"]: {},
+        }
+        for partner_account_data in partner_accounts_data:
+            account_id = partner_account_data["id"]
+            account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
+            if len(account_links) > 0:
+                for account_link in account_links:
+                    matched_accounts = g.db.matches.get_sighted_match_accounts_for_account_link(account_link["id"])
+                    for matched_account in matched_accounts:
+                        matched_account_id = matched_account["account_id"]
+                        accounts_object_for_sector = sector_based_accounts[matched_account["account_sector_id"]]
+                        if matched_account_id not in accounts_object_for_sector:
+                            # Sustainability data for matched account
+                            account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
+                                account_id=matched_account_id,
+                                questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+                            )
+                            if len(account_sustainability_responses_data) > 0:
+                                account_sustainability_response_data = account_sustainability_responses_data[0]
+                                matched_account["account_sustainability_data"] = account_sustainability_response_data
+                            else:
+                                matched_account["account_sustainability_data"] = None
 
-    for partner_account_data in partner_accounts_data:
-        account_id = partner_account_data["id"]
-        account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
-        if len(account_links) > 0:
-            for account_link in account_links:
-                matched_accounts = g.db.matches.get_sighted_match_accounts_for_account_link(account_link["id"])
-                for matched_account in matched_accounts:
-                    matched_account_id = matched_account["account_id"]
-                    accounts_object_for_sector = sector_based_accounts[matched_account["account_sector_id"]]
-                    if matched_account_id not in accounts_object_for_sector:
-                        # Sustainability data for matched account
-                        account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
-                            account_id=matched_account_id,
-                            questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
-                        )
-                        if len(account_sustainability_responses_data) > 0:
-                            account_sustainability_response_data = account_sustainability_responses_data[0]
-                            matched_account["account_sustainability_data"] = account_sustainability_response_data
+                            # USDA Quality and Yield grade
+                            usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Quality Grade", 0))
+                            matched_account["usda_quality_grade_data"] = usda_quality_grade_data["result"] if usda_quality_grade_data else None
+
+                            usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Yield Grade", 0))
+                            matched_account["usda_yield_grade_data"] = usda_yield_grade_data["result"] if usda_yield_grade_data else None
+
+                            accounts_object_for_sector[matched_account_id] = matched_account
+                            sector_based_accounts[matched_account["account_sector_id"]] = accounts_object_for_sector
+                            sector_based_account_data_for_connections[connected_account_name] = sector_based_accounts
                         else:
-                            matched_account["account_sustainability_data"] = None
-                        
-                        # USDA Quality and Yield grade
-                        usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Quality Grade", 0))
-                        matched_account["usda_quality_grade_data"] = usda_quality_grade_data["result"] if usda_quality_grade_data else None
-
-                        usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(matched_account_id, "USDA Yield Grade", 0))
-                        matched_account["usda_yield_grade_data"] = usda_yield_grade_data["result"] if usda_yield_grade_data else None
-
-                        accounts_object_for_sector[matched_account_id] = matched_account
-                        sector_based_accounts[matched_account["account_sector_id"]] = accounts_object_for_sector
-    
-    return partner_render("sustainability/view-partner-accounts-sustainability.html",{
-        "sector_based_accounts": sector_based_accounts,
+                            matched_account_data = accounts_object_for_sector[matched_account_id]
+                            matched_account_data["count"] += matched_account["count"]
+    return partner_render("sustainability/view-partner-accounts-sustainability.html", {
+        "sector_based_account_data_for_connections": sector_based_account_data_for_connections,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
+
+
+@bp.route('/add-connection', methods=["GET", "POST"])
+@crut.require_partner
+def serve_add_connection():
+    if request.method == "GET":
+        invitable_partner_accounts = Connections(g.db).get_unconnected_accounts(g.account.id(), get_partners_only=True)
+        return partner_render("connections/add-connections.html", {
+            "invitable_partner_accounts": invitable_partner_accounts
+        })
+    if request.method == "POST":
+        Connections(g.db).create_or_fail_connection(
+            g.account.id(),
+            request.json["invited_account_id"],
+            CONNECTION_STATUS_NAME_TO_ID["Pending"],
+            connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
+        )
+        return Response(status=HTTP_OK)
