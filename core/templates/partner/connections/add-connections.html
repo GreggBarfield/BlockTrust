@@ -1,0 +1,61 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Connections" %}
+{% set partner_locations = [(url_for(request.endpoint), "Connections")] %}
+
+{% block partner_content_header %}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+<div class="row">
+    <div class="card col-md-12">
+        <div class="card-header">
+            <h4>Send Connection Invite</h4>
+        </div>
+        <div class="card-body">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Select Partner Account: </h5>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="invited-account-id" required>
+                            <option value="0" selected disabled>--- Please Select a Partner ---</option>
+                            {% for invitable_partner_account in invitable_partner_accounts %}
+                            <option value="{{invitable_partner_account.id}}">{{invitable_partner_account.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button class="btn btn-sm btn-primary p-2" onClick='sendConnectionInvite()'>
+                            <i class="feather icon-user-plus"></i>Send Connection Invite
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#invited-account-id").select2({multiple: false, placeholder: "Select Partner"});
+    });
+    async function sendConnectionInvite(){
+        let invitedAccountId = document.getElementById("invited-account-id").value;
+        if(parseInt(invitedAccountId) !== 0){
+            const response = await fetch(
+            "/partner/add-connection",{
+                method: "POST",
+                body: JSON.stringify({"invited_account_id": parseInt(invitedAccountId)}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+            );
+            if(response.ok == true){
+                location.href = "/partner/connections";
+            }
+        }
+    }    
+</script>
+{% endblock partner_content %}
