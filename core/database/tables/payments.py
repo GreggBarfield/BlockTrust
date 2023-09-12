@@ -18,7 +18,7 @@ class Payments:
         self._db = db
 
     def insert(self, account_id=None, employee_id=None, amount=None, status=None, reason=None, description=None,
-               recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None):
+               recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None, details=None):
         """
         Inserts a new payment
 
@@ -29,9 +29,9 @@ class Payments:
         self._db.execute(
             """
                 INSERT INTO payments (account_id, employee_id, amount, status, reason, description,
-                    recurring_payment_id, paid_date, email, stripe_customer_id)
+                    recurring_payment_id, paid_date, email, stripe_customer_id, details)
                 VALUES (%(account_id)s, %(employee_id)s, %(amount)s, %(status)s, %(reason)s, %(description)s,
-                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s)
+                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s)
             """,
             {
                 "account_id": account_id,
@@ -43,7 +43,8 @@ class Payments:
                 "recurring_payment_id": recurring_payment_id,
                 "paid_date": paid_date,
                 "email": email,
-                "stripe_customer_id": stripe_customer_id
+                "stripe_customer_id": stripe_customer_id,
+                "details": dumps(details) if details else None
             }
         )
         return self._db.last_row_id()

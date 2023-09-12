@@ -2129,10 +2129,10 @@ ADD COLUMN `stripe_checkout_id` VARCHAR(90) NULL AFTER `recurring_payment_id`,
 ADD COLUMN `stripe_customer_id` VARCHAR(90) NULL AFTER `stripe_checkout_id`,
 ADD COLUMN `email` VARCHAR(150) NULL;
 ALTER TABLE `payments`
-ADD INDEX `fk_payments_recurring_payments_id_id_recurring_payments` (`recurring_payments_id` ASC) VISIBLE;
+ADD INDEX `fk_payments_recurring_payment_id_id_recurring_payments` (`recurring_payment_id` ASC) VISIBLE;
 ALTER TABLE `payments`
-ADD CONSTRAINT `fk_payments_recurring_payments_id_id_recurring_payments`
-  FOREIGN KEY (`recurring_payments_id`)
+ADD CONSTRAINT `fk_payments_recurring_payment_id_id_recurring_payments`
+  FOREIGN KEY (`recurring_payment_id`)
   REFERENCES `recurring_payments`(`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
