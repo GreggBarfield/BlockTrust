@@ -12,18 +12,21 @@ Sustainability Scores for {{account_name}}
 <div class="card">
     <div class="card-header d-flex">
         <div class="col-md-3">
-            <h5>Partner Accounts Sustainability Data</h5>
+            <h5>Connected Partner Accounts Sustainability Reports</h5>
         </div>
     </div>
     <div class="card-body">
         {% for account_name in sector_based_account_data_for_connections.keys() %}
             <div class="row m-1 p-1">
-                <div class="col-md-9 m-0 p-0">
+                <div class="col-md-6 m-0 p-0">
                     <h5>{{account_name}}</h5>
                 </div>
-                <div class="col-md-3 m-0 p-0">
-                    <button class="btn btn-sm btn-primary p-2 float-right" onClick="downloadReport('{{account_name}}')">
-                        <i class="feather icon-download"></i>Download Report
+                <div class="col-md-6 m-0 p-0">
+                    <button class="btn btn-sm btn-primary p-2 float-right" onClick="downloadAccountsSummaryReport('{{account_name}}')">
+                        <i class="feather icon-download"></i>Download Accounts Summary Report
+                    </button>
+                    <button class="btn btn-sm btn-primary p-2 float-right" onClick="downloadDetailedEIDReport('{{account_name}}')">
+                        <i class="feather icon-download"></i>Download Detailed EID Report
                     </button>
                 </div>
             </div>
@@ -31,7 +34,7 @@ Sustainability Scores for {{account_name}}
     </div>
 </div>
 <script>
-    downloadReport = (accountName) =>{
+    downloadAccountsSummaryReport = (accountName) =>{
         let sectorBasedAccountDataForConnections = JSON.parse('{{ sector_based_account_data_for_connections|tojson }}')
         let sectorBasedAccounts = sectorBasedAccountDataForConnections[accountName];
         let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
@@ -119,6 +122,10 @@ Sustainability Scores for {{account_name}}
         downloadElement.target = '_blank';
         downloadElement.download = 'AccountReport.csv';
         downloadElement.click(); 
+    }
+
+    downloadDetailedEIDReport = (accountName) =>{
+
     }
 </script>
 {% endblock partner_content %}

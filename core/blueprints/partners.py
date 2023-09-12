@@ -192,6 +192,11 @@ def serve_view_partner_accounts_sustainability_data():
             SECTORS_NAME_TO_ID["Feedlot"]: {},
             SECTORS_NAME_TO_ID["Packer"]: {},
         }
+        
+        ranch_matches_for_partner_account = g.db.matches.get_matches_for_partner_accounts(
+            partner_account_id=connected_account_id,
+            matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
+        )
         for partner_account_data in partner_accounts_data:
             account_id = partner_account_data["id"]
             account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
