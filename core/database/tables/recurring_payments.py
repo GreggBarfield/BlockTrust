@@ -31,21 +31,6 @@ class RecurringPayments:
             id of row inserted
         """
 
-        print(
-            """
-                INSERT INTO recurring_payments (account_id, employee_id, recurring_interval, amount, status, reason, description)
-                VALUES (%(account_id)s, %(employee_id)s, %(recurring_interval)s, %(amount)s, %(status)s, %(reason)s, %(description)s)
-            """,
-            {
-                "account_id": account_id,
-                "employee_id": employee_id,
-                "recurring_interval": recurring_interval,
-                "amount": amount,
-                "status": status,
-                "reason": reason,
-                "description": description
-            }
-        )
         self._db.execute(
             """
                 INSERT INTO recurring_payments (account_id, employee_id, recurring_interval, amount, status, reason, description)

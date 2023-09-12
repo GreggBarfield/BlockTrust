@@ -2084,3 +2084,73 @@ CREATE TABLE `payments` (
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+ALTER TABLE `payments` 
+ADD INDEX `fk_payments_account_id_id_accounts` (`account_id` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD CONSTRAINT `fk_payments_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `payments` 
+ADD INDEX `fk_payments_employee_id_id_employees` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD CONSTRAINT `fk_payments_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 8/31/23 */
+CREATE TABLE `recurring_payments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `employee_id` INT NULL,
+  `amount` DECIMAL(8,2) NULL,
+  `recurring_interval` VARCHAR(45),
+  `status` INT NULL,
+  `reason` VARCHAR(45) NULL,
+  `description` VARCHAR(200) NULL,
+  `details` JSON NULL,
+  `start_date` DATETIME NULL,
+  `end_date` DATETIME NULL,
+  `email` VARCHAR(150) NULL,
+  `stripe_customer_id` VARCHAR(90) NULL,
+  `stripe_checkout_id` VARCHAR(90) NULL,
+  `stripe_subscription_id` VARCHAR(90) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `payments` 
+ADD COLUMN `recurring_payment_id` INT NULL AFTER `paid_date`,
+ADD COLUMN `stripe_checkout_id` VARCHAR(90) NULL AFTER `recurring_payment_id`,
+ADD COLUMN `stripe_customer_id` VARCHAR(90) NULL AFTER `stripe_checkout_id`,
+ADD COLUMN `email` VARCHAR(150) NULL;
+ALTER TABLE `payments`
+ADD INDEX `fk_payments_recurring_payments_id_id_recurring_payments` (`recurring_payments_id` ASC) VISIBLE;
+ALTER TABLE `payments`
+ADD CONSTRAINT `fk_payments_recurring_payments_id_id_recurring_payments`
+  FOREIGN KEY (`recurring_payments_id`)
+  REFERENCES `recurring_payments`(`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `recurring_payments` 
+ADD INDEX `fk_recurring_payments_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `recurring_payments` 
+ADD CONSTRAINT `fk_recurring_payments_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `recurring_payments` 
+ADD INDEX `fk_recurring_payments_employee_id_id_employees_idx` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `recurring_payments` 
+ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
