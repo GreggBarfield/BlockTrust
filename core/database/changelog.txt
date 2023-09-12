@@ -2145,7 +2145,6 @@ ADD CONSTRAINT `fk_recurring_payments_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
 ALTER TABLE `recurring_payments` 
 ADD INDEX `fk_recurring_payments_employee_id_id_employees_idx` (`employee_id` ASC) VISIBLE;
 ALTER TABLE `recurring_payments` 
