@@ -4,7 +4,7 @@ from flask import (
 from core.database.tables.payments import PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
 from core.renderers.outside import outside_render
-from core.utilities.constants import HTTP_OK
+from core.utilities.constants import HTTP_NO_CONTENT
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
@@ -132,7 +132,7 @@ def serve_stripe_subscription():
         ErrorLogs(g.db).insert_error_log("Stripe", short_error=error)
         return {'status': error}
 
-    return Response(status=HTTP_OK)
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])
