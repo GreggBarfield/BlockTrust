@@ -419,7 +419,6 @@ def serve_payment(payment_id):
 @bp.route('/payment/success', methods=['GET'])
 def serve_payment_success():
     session = stripe.checkout.Session.retrieve(request.args.get('session_id'))
-    print('session', session)
     if session.metadata.get("payment_id", None):
         Payments(g.db).update(
             id=session.metadata["payment_id"],
