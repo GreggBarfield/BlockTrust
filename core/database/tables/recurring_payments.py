@@ -131,5 +131,5 @@ class RecurringPayments:
             query = base_query + combined_query_condition
             self._db.execute(query, query_values)
         else:
-            raise Exception("Values for fields to update payment record not given")
+            raise Exception("Values for fields to update recurring payment record not given")
         return self._db.row_count()
