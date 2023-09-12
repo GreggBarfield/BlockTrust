@@ -1,4 +1,5 @@
 from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
+from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
 from core.database.tables.reports import Reports
 from flask import (
     Response, request, Blueprint, g, redirect, url_for
@@ -744,22 +745,39 @@ def serve_log_back_in():
 @crut.require_employee
 def serve_payment_links():
     if request.method == "POST":
-        payment_id = Payments(g.db).insert(
-            account_id=request.form["customer"],
-            employee_id=g.employee.id(),
-            amount=request.form["amount"],
-            status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"],
-            reason=request.form["reason"],
-            description=request.form["description"]
-        )
+        if str_to_bool(request.form["recurring"]):
+            rec_payment_id = RecurringPayments(g.db).insert(
+                account_id=request.form["customer"],
+                employee_id=g.employee.id(),
+                recurring_interval=request.form["interval"],
+                status=RECURRING_STATUS_NAMES_TO_IDS["unpaid"],
+                amount=request.form["amount"],
+                reason=request.form["reason"],
+                description=request.form["description"]
+            )
+            return {
+                "redirect": url_for("employee_bp.serve_recurring_payment_link", recurring_payment_id=rec_payment_id)
+            }
+        else:
+            payment_id = Payments(g.db).insert(
+                account_id=request.form["customer"],
+                employee_id=g.employee.id(),
+                amount=request.form["amount"],
+                status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"],
+                reason=request.form["reason"],
+                description=request.form["description"]
+            )
         return {"redirect": url_for("employee_bp.serve_payment_link", payment_id=payment_id)}
-    payments = Payments(g.db).get(employee_id=g.employee.id(), expand=True)
+    payments = RecurringPayments(g.db).get(employee_id=g.employee.id(), expand=True)
+    payments.extend(Payments(g.db).get(employee_id=g.employee.id(), recurring_payment_id=None, expand=True))
+    payments.sort(key=lambda p: p["created_timestamp"], reverse=True)
     return employee_render("/employee/finance/payment-links.html", {
         "payments": payments,
         "root": WEBSITE_ROOT,
-        "payment_route":  url_for("stripe_bp.serve_payment"),
         "PAYMENT_STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES,
-        "payment_link_route": url_for("employee_bp.serve_payment_link")
+        "RECURRING_STATUS_IDS_TO_NAMES": RECURRING_STATUS_IDS_TO_NAMES,
+        "payment_route": url_for("employee_bp.serve_payment_link"),
+        "recurring_payment_route": url_for("employee_bp.serve_recurring_payment_link")
     })
 
 
@@ -773,6 +791,30 @@ def serve_payment_link(payment_id):
         if payment := Payments(g.db).get(id=payment_id):
             payment = payment[0]
             payment["link"] = WEBSITE_ROOT + url_for("stripe_bp.serve_payment", payment_id=payment_id)
+            if payment["recurring_payment_id"]:
+                recurring_payment = RecurringPayments(g.db).get(id=payment["recurring_payment_id"])[0]
+                payment["recurring_interval"] = recurring_payment["recurring_interval"]
         else:
             raise ExportException("Bad Request")
-    return employee_render("/employee/finance/payment-link.html", {"accounts": accounts, "payment": payment})
+    return employee_render("/employee/finance/payment-link.html", {
+        "accounts": accounts, "payment": payment, "STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES
+    })
+
+
+@bp.route('/employee/recurring-payment-link/', defaults={'recurring_payment_id': ''}, methods=["GET"])
+@bp.route("/employee/recurring-payment-link/<int:recurring_payment_id>", methods=["GET"])
+@crut.require_employee
+def serve_recurring_payment_link(recurring_payment_id):
+    accounts = Accounts(g.db).get_accounts(columns=("id", "company"))
+    recurring_payment = None
+    if recurring_payment_id:
+        if recurring_payment := RecurringPayments(g.db).get(id=recurring_payment_id):
+            recurring_payment = recurring_payment[0]
+            recurring_payment["link"] = WEBSITE_ROOT + url_for(
+                "stripe_bp.serve_recurring_payment", recurring_payment_id=recurring_payment_id
+            )
+        else:
+            raise ExportException("Bad Request")
+    return employee_render("/employee/finance/payment-link.html", {
+        "accounts": accounts, "payment": recurring_payment, "STATUS_IDS_TO_NAMES": RECURRING_STATUS_IDS_TO_NAMES
+    })

@@ -1,8 +1,10 @@
 from flask import (
-    Blueprint, request, g, session, redirect, url_for
+    Blueprint, Response, request, g, session, redirect, url_for
 )
 from core.database.tables.payments import PAYMENT_STATUS_NAMES_TO_IDS, Payments
+from core.database.tables.recurring_payments import RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
 from core.renderers.outside import outside_render
+from core.utilities.constants import HTTP_NO_CONTENT
 from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
 from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.debug_logs import DebugLogs
@@ -54,14 +56,14 @@ def serve_stripe_price(priceLookupKey):
         return {'error':{'message': str(e)}}, 400
 
 
-# events to subscribe to: customer.subscription.created, customer.subscription.deleted, customer.subscription.updated
 @bp.route('/stripe/subscription', methods=['POST'])
 def serve_stripe_subscription():
     endpoint_secret = SUBSCRIPTION_WEBHOOK_SECRET
     sig_header = request.headers.get('stripe-signature')
     payload = json.loads(request.data)
     DebugLogs(g.db).insert_debug_log(
-        component="Stripe Webhooks", short_info=f"Event: {payload.get('type', '')}, customer id: {payload.get('data',{}).get('object',{}).get('customer','')}",
+        component="Stripe",
+        short_info=f"Event: {payload.get('type', '')}, customer id: {payload.get('data',{}).get('object',{}).get('customer','')}",
         long_info=f"Function: {serve_stripe_subscription.__name__}, Stripe signature: {sig_header}, Endpoint secret: {endpoint_secret}",
         details=payload
     )
@@ -70,7 +72,7 @@ def serve_stripe_subscription():
         event = stripe.Webhook.construct_event(
             request.data, sig_header, endpoint_secret
         )
-    except (ValueError, stripe.error.SignatureVerificationError)  as e:
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
         # Invalid payload or invalid signature
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
@@ -79,29 +81,58 @@ def serve_stripe_subscription():
     error = ""
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
-            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-                Accounts(g.db).update_account(account[0]["id"], stripe_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
-            else:
-                error = f"No account for customer id: {customer_id}. Event: {event.type}"
+            # if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+            #     Accounts(g.db).update_account(account[0]["id"], stripe_paid=1, subscription_start_date=datetime.now(), subscription_end_date=None)
+            # else:
+            #     error = f"No account for customer id: {customer_id}. Event: {event.type}"
+            pass
     elif event.type == 'customer.subscription.deleted':
-        if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-            Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
-        else:
-            error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        # if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+        #     Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
+        # else:
+        #     error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        recurring_payment = RecurringPayments(g.db).get(stripe_customer_id=customer_id)
+        if recurring_payment:
+            RecurringPayments(g.db).update(
+                id=recurring_payment[0]["id"],
+                status=RECURRING_STATUS_NAMES_TO_IDS[event.data.object.status],
+                end_date=datetime.utcnow()
+            )
     elif event.type == 'customer.subscription.updated':
-        if event.data.object.status == 'past_due':
-            if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
-                Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
-            else:
-                error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        # if event.data.object.status == 'past_due':
+        #     if len(account := Accounts(g.db).get_accounts(stripe_customer_id=customer_id)) > 0:
+        #         Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
+        #     else:
+        #         error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        recurring_payment = RecurringPayments(g.db).get(stripe_customer_id=customer_id)
+        if recurring_payment:
+            RecurringPayments(g.db).update(
+                id=recurring_payment[0]["id"],
+                status=RECURRING_STATUS_NAMES_TO_IDS[event.data.object.status]
+            )
+    elif event.type == 'invoice.paid':
+        if customer_id:
+            recurring_payment = RecurringPayments(g.db).get(stripe_customer_id=customer_id)
+            recurring_payment_id = recurring_payment[0]["id"] if recurring_payment else None
+            account_id = recurring_payment[0]["account_id"] if recurring_payment else None
+            Payments(g.db).insert(
+                account_id=account_id,
+                amount=round(event.data.object.amount_paid/100, 2),
+                status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
+                recurring_payment_id=recurring_payment_id,
+                paid_date=datetime.utcnow(),
+                email=event.data.object.customer_email,
+                stripe_customer_id=customer_id,
+                details={"stripe_invoice_id": event.data.object.id}
+            )
     else:
         raise ExportException('This event type ' + event.type + ' is not supported.')
 
     if error:
-        ErrorLogs(g.db).insert_error_log("Stripe Webhooks", short_error=error)
+        ErrorLogs(g.db).insert_error_log("Stripe", short_error=error)
         return {'status': error}
 
-    return {'status': 'Success'}
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/stripe/create-customer', methods=['POST'])
@@ -131,7 +162,7 @@ def create_customer():
 
 @bp.route('/stripe/create-subscription', methods=['POST'])
 def create_subscription():
-    data = json.loads(request.data)    
+    data = json.loads(request.data)
     try:
         payment_method = stripe.PaymentMethod.attach(
             data['paymentMethodId'],
@@ -367,6 +398,7 @@ def serve_payment(payment_id):
             product_data["description"] = payment["description"]
         session = stripe.checkout.Session.create(
             client_reference_id=payment['account_id'],
+            customer_creation='if_required',
             line_items=[{
                 'price_data': {
                     'currency': 'usd',
@@ -377,26 +409,70 @@ def serve_payment(payment_id):
             }],
             mode='payment',
             metadata={'payment_id': payment_id},
-            payment_method_types=['card'],
-            success_url=(ROOT + url_for('stripe_bp.serve_payment_sucess', payment_id=payment_id)
+            success_url=(ROOT + url_for('stripe_bp.serve_payment_success')
                          + "?session_id={CHECKOUT_SESSION_ID}")
         )
         return redirect(session.url, code=303)
     raise ExportException("Invalid Payment Link")
 
 
-@bp.route('/payment/success/<int:payment_id>', methods=['GET'])
-def serve_payment_sucess(payment_id):
+@bp.route('/payment/success', methods=['GET'])
+def serve_payment_success():
     session = stripe.checkout.Session.retrieve(request.args.get('session_id'))
-    customer = stripe.Customer.retrieve(session.customer)
-    Payments(g.db).update(
-        id=payment_id,
-        status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
-        details={"stripe_session_id": request.args.get('session_id'), "customer": customer.name},
-        paid_date=datetime.utcnow()
-    )
+    if session.metadata.get("payment_id", None):
+        Payments(g.db).update(
+            id=session.metadata["payment_id"],
+            status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
+            stripe_checkout_id=request.args.get('session_id'),
+            stripe_customer_id=session.customer,
+            paid_date=datetime.utcnow(),
+            email=session.customer_details.email
+        )
+    else:
+        RecurringPayments(g.db).update(
+            id=session.metadata["recurring_payment_id"],
+            status=RECURRING_STATUS_NAMES_TO_IDS['active'],
+            stripe_checkout_id=session.id,
+            stripe_customer_id=session.customer,
+            stripe_subscription_id=session.subscription,
+            start_date=datetime.utcnow(),
+            email=session.customer_details.email
+        )
+
     return outside_render("message.html", {
             "heading": "Payment successful",
-            "sub_heading": f"Thank you for the payment, {customer.name}!"
+            "sub_heading": f"Thank you for the payment, {session.customer_details.name}!"
         }
     )
+
+
+@bp.route('/recurring-payment/', defaults={'recurring_payment_id': ''}, methods=['GET'])
+@bp.route('/recurring-payment/<int:recurring_payment_id>', methods=['GET'])
+def serve_recurring_payment(recurring_payment_id):
+    if recurring_payment_id and (recurring_payment := RecurringPayments(g.db).get(
+        id=recurring_payment_id
+    )):
+        recurring_payment = recurring_payment[0]
+        product_data = {'name': recurring_payment["reason"]}
+        if recurring_payment["description"]:
+            product_data["description"] = recurring_payment["description"]
+        price_data = {
+            'currency': 'usd',
+            'product_data': product_data,
+            'unit_amount': int(recurring_payment["amount"])*100,
+            'recurring': {
+                'interval': recurring_payment["recurring_interval"]
+            }
+        }
+        metadata = {"recurring_payment_id": recurring_payment["id"]}
+        mode = "subscription"
+        session = stripe.checkout.Session.create(
+            client_reference_id=recurring_payment['account_id'],
+            line_items=[{'price_data': price_data, 'quantity': 1}],
+            mode=mode,
+            metadata=metadata,
+            success_url=(ROOT + url_for('stripe_bp.serve_payment_success')
+                         + "?session_id={CHECKOUT_SESSION_ID}")
+        )
+        return redirect(session.url, code=303)
+    raise ExportException("Invalid Payment Link")
