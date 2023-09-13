@@ -194,7 +194,6 @@ def serve_view_partner_accounts_sustainability_data():
             SECTORS_NAME_TO_ID["Feedlot"]: {},
             SECTORS_NAME_TO_ID["Packer"]: {},
         }
-        
         for partner_account_data in partner_accounts_data:
             account_id = partner_account_data["id"]
             account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
