@@ -118,7 +118,7 @@ def serve_stripe_subscription():
             Payments(g.db).insert(
                 account_id=account_id,
                 amount=round(event.data.object.amount_paid/100, 2),
-                status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
+                status=PAYMENT_STATUS_NAMES_TO_IDS[event.data.object.status],
                 recurring_payment_id=recurring_payment_id,
                 paid_date=datetime.utcnow(),
                 email=event.data.object.customer_email,
@@ -390,7 +390,7 @@ def serve_stripe_account():
 @bp.route('/payment/<int:payment_id>', methods=['GET'])
 def serve_payment(payment_id):
     if payment_id and (payment := Payments(g.db).get(
-        id=payment_id, status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"]
+        id=payment_id, status=PAYMENT_STATUS_NAMES_TO_IDS["unpaid"]
     )):
         payment = payment[0]
         product_data = {'name': payment["reason"]}
@@ -422,7 +422,7 @@ def serve_payment_success():
     if session.metadata.get("payment_id", None):
         Payments(g.db).update(
             id=session.metadata["payment_id"],
-            status=PAYMENT_STATUS_NAMES_TO_IDS["Paid"],
+            status=PAYMENT_STATUS_NAMES_TO_IDS[session.payment_status],
             stripe_checkout_id=request.args.get('session_id'),
             stripe_customer_id=session.customer,
             paid_date=datetime.utcnow(),
