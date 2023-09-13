@@ -8,7 +8,7 @@ PAYMENT_STATUS_NAMES_TO_IDS = {
     "paid": 1
 }
 
-PAYMENT_STATUS_IDS_TO_NAMES = {value: key for key, value in PAYMENT_STATUS_NAMES_TO_IDS.items()}
+PAYMENT_STATUS_IDS_TO_NAMES = {value: key.capitalize() for key, value in PAYMENT_STATUS_NAMES_TO_IDS.items()}
 
 
 class Payments:
