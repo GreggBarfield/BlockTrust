@@ -11,18 +11,19 @@
     <div class="col-lg-10 card">
         <div class="card-header">
             <h5>Payment Links</h5>
-            <a class="btn btn-sm btn-primary float-right" href="{{payment_link_route}}">
-                Create New Payment Link
+            <a class="btn btn-sm btn-primary float-right" href="{{payment_route}}">
+                Create New
             </a>
         </div>
         <div class="card-body">
             <table class="table">
                 <thead>
                     <tr>
+                        <th>Type</th>
                         <th>Customer</th>
                         <th>Amount</th>
-                        <th>Link</th>
                         <th>Status</th>
+                        <th>Created</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -30,16 +31,17 @@
                     {% if payments %}
                     {% for payment in payments %}
                     <tr>
+                        <td>{{'Recurring' if 'recurring_interval' in payment else 'One-Time'}}</td>
                         <td>{{payment.account_company}}</td>
                         <td>${{payment.amount}}</td>
-                        <td><a href="{{root + payment_route + payment.id | string}}" target="_blank">{{root + payment_route + payment.id | string}}</a></td>
-                        <td>{{PAYMENT_STATUS_IDS_TO_NAMES[payment.status]}}</td>
-                        <td><a href="{{payment_link_route + payment.id | string}}"><i class="feather icon-eye" title="View"></i></a></td>
+                        <td>{{RECURRING_STATUS_IDS_TO_NAMES[payment.status] if 'recurring_interval' in payment else PAYMENT_STATUS_IDS_TO_NAMES[payment.status]}}</td>
+                        <td name="created-date">{{payment.created_timestamp}}</td>
+                        <td><a href="{{(recurring_payment_route + payment.id | string) if 'recurring_interval' in payment else (payment_route + payment.id | string)}}"><i class="feather icon-eye" title="View"></i></a></td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td class="text-center" colspan="5">No links to show currently</td>
+                        <td class="text-center" colspan="6">Nothing to show</td>
                     </tr>
                     {% endif %}
                     </tr>
@@ -48,4 +50,13 @@
         </div>
     </div>
 </div>
+<script>
+    for(let date of document.getElementsByName("created-date")){
+        date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+</script>
 {% endblock employee_content %}

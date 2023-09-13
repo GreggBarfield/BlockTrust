@@ -8,7 +8,7 @@
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                <h5>Create New Payment Link</h5>
+                <h4>{{'Payment Link' if payment else 'Create New Payment Link'}}</h4>
             </div>
             <div class="card-body">
                 <div class="container">
@@ -17,7 +17,7 @@
                             <form class="bg-white p-3" id="payment-link-form" method="POST">
                                 <div class="row">
                                     <div class="col">
-                                        <h4>Payment Details:</h4>
+                                        <h5>Payment Details:</h5>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -31,7 +31,8 @@
                                             <label for="customer">
                                                 Customer
                                             </label>
-                                            <select class="form-control" id="customer" {{"disabled" if payment}}>
+                                            <select class="form-control" id="customer" {{"disabled" if payment else "required"}}>
+                                                <option value="" selected disabled>---Please Select---</option>
                                                 {% for account in accounts %}
                                                 <option value="{{account.id}}" {{"selected" if (payment and payment.account_id == account.id or payment.partner_id == account.id)}}>{{account.company}}</option>
                                                 {% endfor %}
@@ -40,6 +41,26 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div class="{{'row' if ((not payment) or (payment and payment.recurring_interval)) else 'd-none'}}">
+                                    <div class="col-lg-6">               
+                                        <div class="form-check mt-4 mb-4">
+                                            <input type="checkbox" class="form-check-input" id="recurring" {{"disabled" if payment}} {{"checked" if (payment and payment.recurring_interval) else ""}}> 
+                                            <label class="form-check-label" for="recurring">Recurring</label>
+                                        </div>    
+                                    </div>
+                                    <div class="{{'col-lg-6' if (payment and payment.recurring_interval) else 'col-lg-6 d-none'}}" id="interval-div">
+                                        <div class="form-group">
+                                            <label for="interval">
+                                                Interval
+                                            </label>
+                                            <select class="form-control" id="interval" {{"disabled" if payment}}>
+                                                <option value="month" {{"selected" if (payment and payment.recurring_interval == "month")}}>Monthly</option>
+                                                <option value="year" {{"selected" if (payment and payment.recurring_interval == "year")}}>Yearly</option>
+                                            </select>
+                                            <span class="focus-border"></span>
+                                        </div>
+                                    </div>
+                                </div>                                
                                 <div class="row">
                                     <div class="col-lg-6">
                                         <div class="form-group required">
@@ -67,11 +88,16 @@
                                 </div>
                                 {% if payment %}
                                 <div class="form-group">
+                                    <label for="created">Created</label>
+                                    <div id="created">{{payment.created_timestamp if payment else ''}}</div>
+                                </div>
+                                <div class="form-group">
                                     <label for="link">Link</label>
-                                    <div class="form-group">
-                                        <a id="link" href="{{payment.link}}" target="_blank">{{payment.link}}</a>
-                                    </div>
-                                    <span class="focus-border"></span>
+                                    <div id="link"><a href="{{payment.link}}" target="_blank">{{payment.link}}</a></div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="status">Status</label>
+                                    <div id="status" class="font-weight-bold">{{STATUS_IDS_TO_NAMES[payment.status]}}</div>
                                 </div>
                                 {% else %}
                                 <button type="submit" class="btn btn-primary">Save</button>
@@ -91,27 +117,45 @@
 <script type="module">
     import {AsyncForm} from '/static/global/async_form.mjs';
     let linkForm = $("#payment-link-form");
-    let customer = linkForm.find('#customer');
-    let amount = linkForm.find('#amount')
-    let reason = linkForm.find("#reason");
-    let description = linkForm.find("#description");
-    let statusMessage = linkForm.find("#status-message");
-    let errorMessage = linkForm.find("#error-message");
     let form = new AsyncForm({
         action: "/employee/payment-links",
         form: linkForm[0],
-        status: statusMessage[0],
-        error: errorMessage[0],
+        status: linkForm.find("#status-message")[0],
+        error: linkForm.find("#error-message")[0],
         redirectMessage: "Link created successfully!",
         loadingMessage: "Hang on, setting up the link...",
         getData: () => {
             return {
-                customer: customer.val(),
-                amount: amount.val(),
-                reason: reason.val(),
-                description: description.val(),
+                customer: linkForm.find('#customer').val(),
+                recurring: linkForm.find("#recurring").is(":checked"),
+                interval: linkForm.find("#interval").val(),
+                amount: linkForm.find('#amount').val(),
+                reason: linkForm.find("#reason").val(),
+                description: linkForm.find("#description").val()
             }
         }
     });
+    
+    document.getElementById("recurring").addEventListener("change", (event) => {
+        if (event.currentTarget.checked) {
+            document.getElementById("interval-div").classList.remove("d-none");
+        } else {
+            document.getElementById("interval-div").classList.add("d-none");
+        }
+    });
+
+    let createdDate = document.getElementById("created");
+    if (createdDate) {
+        createdDate.innerText = new Date(createdDate.innerText + " UTC").toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#customer").select2({multiple: false});
+    });
 </script>
+
 {% endblock employee_content %}
