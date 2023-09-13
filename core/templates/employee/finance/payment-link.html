@@ -31,7 +31,8 @@
                                             <label for="customer">
                                                 Customer
                                             </label>
-                                            <select class="form-control" id="customer" {{"disabled" if payment}}>
+                                            <select class="form-control" id="customer" {{"disabled" if payment else "required"}}>
+                                                <option value="" selected disabled>---Please Select---</option>
                                                 {% for account in accounts %}
                                                 <option value="{{account.id}}" {{"selected" if (payment and payment.account_id == account.id or payment.partner_id == account.id)}}>{{account.company}}</option>
                                                 {% endfor %}
@@ -151,6 +152,10 @@
                 day: 'numeric'
             });
     };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        $("#customer").select2({multiple: false});
+    });
 </script>
 
 {% endblock employee_content %}

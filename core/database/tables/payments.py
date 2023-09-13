@@ -18,7 +18,8 @@ class Payments:
         self._db = db
 
     def insert(self, account_id=None, employee_id=None, amount=None, status=None, reason=None, description=None,
-               recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None, details=None):
+               recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None, details=None,
+               stripe_invoice_id=None):
         """
         Inserts a new payment
 
@@ -29,9 +30,11 @@ class Payments:
         self._db.execute(
             """
                 INSERT INTO payments (account_id, employee_id, amount, status, reason, description,
-                    recurring_payment_id, paid_date, email, stripe_customer_id, details)
+                    recurring_payment_id, paid_date, email, stripe_customer_id, details,
+                    stripe_invoice_id)
                 VALUES (%(account_id)s, %(employee_id)s, %(amount)s, %(status)s, %(reason)s, %(description)s,
-                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s)
+                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s
+                    %(stripe_invoice_id)s)
             """,
             {
                 "account_id": account_id,
@@ -44,12 +47,14 @@ class Payments:
                 "paid_date": paid_date,
                 "email": email,
                 "stripe_customer_id": stripe_customer_id,
-                "details": dumps(details) if details else None
+                "details": dumps(details) if details else None,
+                "stripe_invoice_id": stripe_invoice_id
             }
         )
         return self._db.last_row_id()
 
-    def get(self, id=NO_VALUE, status=NO_VALUE, expand=False, employee_id=NO_VALUE, recurring_payment_id=NO_VALUE):
+    def get(self, id=NO_VALUE, status=NO_VALUE, expand=False, employee_id=NO_VALUE, recurring_payment_id=NO_VALUE,
+            stripe_invoice_id=NO_VALUE):
         """
         Gets the payments based on the provided parameters
 
@@ -75,6 +80,9 @@ class Payments:
         if employee_id is not NO_VALUE:
             query_conditions.append("employee_id = %(employee_id)s")
             query_values["employee_id"] = employee_id
+        if stripe_invoice_id is not NO_VALUE:
+            query_conditions.append("stripe_invoice_id = %(stripe_invoice_id)s")
+            query_values["stripe_invoice_id"] = stripe_invoice_id
         if recurring_payment_id is not NO_VALUE:
             query_conditions.append(
                 "recurring_payment_id = %(recurring_payment_id)s" if recurring_payment_id
