@@ -48,7 +48,8 @@ class RecurringPayments:
         )
         return self._db.last_row_id()
 
-    def get(self, id=NO_VALUE, status=NO_VALUE, expand=False, employee_id=NO_VALUE, stripe_customer_id=NO_VALUE):
+    def get(self, id=NO_VALUE, status=NO_VALUE, expand=False, employee_id=NO_VALUE, stripe_customer_id=NO_VALUE,
+            stripe_subscription_id=NO_VALUE):
         """
         Gets the recurring payments based on the provided parameters
 
@@ -77,6 +78,9 @@ class RecurringPayments:
         if stripe_customer_id is not NO_VALUE:
             query_conditions.append("stripe_customer_id = %(stripe_customer_id)s")
             query_values["stripe_customer_id"] = stripe_customer_id
+        if stripe_subscription_id is not NO_VALUE:
+            query_conditions.append("stripe_subscription_id = %(stripe_subscription_id)s")
+            query_values["stripe_subscription_id"] = stripe_subscription_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
