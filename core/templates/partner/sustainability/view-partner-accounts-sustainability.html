@@ -125,7 +125,46 @@ Sustainability Scores for {{account_name}}
     }
 
     downloadDetailedEIDReport = (accountName) =>{
+        let eidBasedAccountDataForConnections = JSON.parse('{{ eid_based_account_data_for_connections|tojson }}')
+        let eidBasedAccounts = eidBasedAccountDataForConnections[accountName];
+        let sectorsIdToName = JSON.parse('{{ sectors_id_to_name|tojson }}');
+        let partnerName = '{{ partner.company() }}';
 
+        let tableHeaders = ["EID", "ACCOUNT NUMBER", "COMPANY", "AIR POINTS", "LAND POINTS", "WATER POINTS", "ANIMAL POINTS", "SAFETY POINTS", "EFFICIENCY POINTS", "IMPROVEMENT POINTS", "TOTAL SUSTAINABILITY SCORE", "USDA QUALITY GRADE", "USDA YIELD GRADE"];
+        let eidsDataTableExport = [];
+        eidsDataTableExport.push(["", "", "", "", "", "", "", "", partnerName+ " Supply Chain"]);
+        eidsDataTableExport.push([]);
+        eidsDataTableExport.push([tableHeaders]);
+        eidsDataTableExport.push([]);
+
+        for(const eidBasedAccountData of eidBasedAccounts){
+            let eidDataRow = [];
+            let accountSustainabilityData = eidBasedAccountData.account_sustainability_data;
+            eidDataRow.push(
+                eidBasedAccountData.eid,
+                eidBasedAccountData.account_id,
+                eidBasedAccountData.account_name,
+                accountSustainabilityData !== null ? accountSustainabilityData.air_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.land_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.water_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.animal_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.safety_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.efficiency_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.improvement_points : "N/A",
+                accountSustainabilityData !== null ? accountSustainabilityData.score : "N/A",
+                eidBasedAccountData.usda_quality_grade !== null ? eidBasedAccountData.usda_quality_grade : "N/A",
+                eidBasedAccountData.usda_yield_grade !== null ? eidBasedAccountData.usda_yield_grade : "N/A"
+            )
+            eidsDataTableExport.push(eidDataRow);
+        }
+
+        let csvContent =  eidsDataTableExport.map(e => e.join(",")).join("\n");
+        let encoded = encodeURIComponent(csvContent);
+        let downloadElement = document.createElement('a');
+        downloadElement.href = 'data:text/csv;charset=utf-8,' + encoded;
+        downloadElement.target = '_blank';
+        downloadElement.download = 'AccountReport.csv';
+        downloadElement.click();
     }
 </script>
 {% endblock partner_content %}

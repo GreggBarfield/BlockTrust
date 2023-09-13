@@ -873,8 +873,10 @@ class Matches:
         query_values = {}
         base_query = """
             SELECT m1.eid as eid, al.account as account_id, m1.account_link as sighted_account_link,
-            m2.account_link as partner_account_link, al.name as account_name, al.sector as account_sector_id
-            FROM matches m1 LEFT JOIN matches m2 on m1.eid=m2.eid LEFT JOIN account_links al on m1.account_link = al.id
+            al.name as account_name, al.sector as account_sector_id, MIN(m3.data) as usda_quality_grade, 
+            MIN(m4.data) as usda_yield_grade FROM matches m1 LEFT JOIN matches m2 on m1.eid=m2.eid 
+            LEFT JOIN account_links al on m1.account_link = al.id LEFT JOIN matches m3 on m1.eid=m3.eid AND m3.type=16 
+            LEFT JOIN matches m4 on m1.eid=m4.eid AND m4.type=17
         """
         
         if partner_account_id is not NO_VALUE:

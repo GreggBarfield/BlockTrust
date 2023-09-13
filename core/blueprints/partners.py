@@ -17,6 +17,7 @@ from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
 from json import loads
+import json
 
 bp = Blueprint('partner_bp', __name__, url_prefix="/partner")
 
@@ -194,11 +195,6 @@ def serve_view_partner_accounts_sustainability_data():
             SECTORS_NAME_TO_ID["Packer"]: {},
         }
         
-        ranch_matches_for_partner_account = g.db.matches.get_matches_for_partner_accounts(
-            partner_account_id=connected_account_id,
-            matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
-        )
-        print(len(ranch_matches_for_partner_account))
         for partner_account_data in partner_accounts_data:
             account_id = partner_account_data["id"]
             account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
@@ -238,12 +234,12 @@ def serve_view_partner_accounts_sustainability_data():
             partner_account_id=connected_account_id,
             matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
         )
-        print(len(ranch_matches_for_partner_account))
         ranches_data = {}
         for ranch_match in ranch_matches_for_partner_account:
             account_id = ranch_match["account_id"]
             if account_id not in ranches_data:
                 ranches_data[account_id] = {}
+        
         for account_id, account_data in ranches_data.items():
             # Sustainability data for matched account
             account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
@@ -255,20 +251,17 @@ def serve_view_partner_accounts_sustainability_data():
                 account_data["account_sustainability_data"] = account_sustainability_response_data
             else:
                 account_data["account_sustainability_data"] = None
-            
-            # USDA Quality and Yield grade
-            usda_quality_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Quality Grade", 0))
-            account_data["usda_quality_grade_data"] = usda_quality_grade_data["result"] if usda_quality_grade_data else None
-        
-            usda_yield_grade_data = Reports(g.db).get_ready_by_query(count_distribution.create(account_id, "USDA Yield Grade", 0))
-            account_data["usda_yield_grade_data"] = usda_yield_grade_data["result"] if usda_yield_grade_data else None
 
+        for ranch_match in ranch_matches_for_partner_account:
+            account_id = ranch_match["account_id"]
+            ranch_match["account_sustainability_data"] = ranches_data[account_id]["account_sustainability_data"]
+            if ranch_match["usda_quality_grade"] is not None:
+                ranch_match["usda_quality_grade"] = ranch_match["usda_quality_grade"].replace('"', '')
+        eid_based_account_data_for_connections[connected_account_name] = ranch_matches_for_partner_account
 
-
-
-        print(ranches_data)
     return partner_render("sustainability/view-partner-accounts-sustainability.html", {
         "sector_based_account_data_for_connections": sector_based_account_data_for_connections,
+        "eid_based_account_data_for_connections": eid_based_account_data_for_connections,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
 
