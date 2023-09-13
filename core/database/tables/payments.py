@@ -33,7 +33,7 @@ class Payments:
                     recurring_payment_id, paid_date, email, stripe_customer_id, details,
                     stripe_invoice_id)
                 VALUES (%(account_id)s, %(employee_id)s, %(amount)s, %(status)s, %(reason)s, %(description)s,
-                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s
+                    %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s,
                     %(stripe_invoice_id)s)
             """,
             {
