@@ -459,7 +459,7 @@ def serve_payment_success():
 @bp.route('/recurring-payment/<int:recurring_payment_id>', methods=['GET'])
 def serve_recurring_payment(recurring_payment_id):
     if recurring_payment_id and (recurring_payment := RecurringPayments(g.db).get(
-        id=recurring_payment_id
+        id=recurring_payment_id, status=RECURRING_STATUS_NAMES_TO_IDS["unpaid"]
     )):
         recurring_payment = recurring_payment[0]
         product_data = {'name': recurring_payment["reason"]}
