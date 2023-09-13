@@ -763,7 +763,7 @@ def serve_payment_links():
                 account_id=request.form["customer"],
                 employee_id=g.employee.id(),
                 amount=request.form["amount"],
-                status=PAYMENT_STATUS_NAMES_TO_IDS["Unpaid"],
+                status=PAYMENT_STATUS_NAMES_TO_IDS["unpaid"],
                 reason=request.form["reason"],
                 description=request.form["description"]
             )

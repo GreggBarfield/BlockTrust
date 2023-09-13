@@ -4,9 +4,8 @@ from ..no_value import NoValue
 NO_VALUE = NoValue()
 
 PAYMENT_STATUS_NAMES_TO_IDS = {
-    "Unpaid": 0,
-    "Paid": 1,
-    "Failed": 2
+    "unpaid": 0,
+    "paid": 1
 }
 
 PAYMENT_STATUS_IDS_TO_NAMES = {value: key for key, value in PAYMENT_STATUS_NAMES_TO_IDS.items()}
