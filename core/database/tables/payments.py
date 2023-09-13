@@ -102,7 +102,8 @@ class Payments:
             return []
 
     def update(self, id, status=NO_VALUE, details=NO_VALUE, paid_date=NO_VALUE,
-               stripe_checkout_id=NO_VALUE, stripe_customer_id=NO_VALUE, email=NO_VALUE):
+               stripe_checkout_id=NO_VALUE, stripe_customer_id=NO_VALUE, email=NO_VALUE,
+               recurring_payment_id=NO_VALUE):
         """
         Updates a transaction.
         """
@@ -130,6 +131,9 @@ class Payments:
         if email is not NO_VALUE:
             query_conditions.append("email = %(email)s")
             query_values["email"] = email
+        if recurring_payment_id is not NO_VALUE:
+            query_conditions.append("recurring_payment_id = %(recurring_payment_id)s")
+            query_values["recurring_payment_id"] = recurring_payment_id
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
