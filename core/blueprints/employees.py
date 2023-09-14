@@ -1,3 +1,4 @@
+from core.database.tables.matches import Matches
 from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
 from core.database.tables.reports import Reports
@@ -517,7 +518,7 @@ def serve_update_account_paid_status():
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
 @crut.require_employee
 def serve_animal_eid(animal_eid):
-    animal = g.db.matches.get_animal_by_eid(animal_eid)
+    animal = Matches(g.db).get_animal_by_eid(animal_eid)
 
     display_certificate = False
     owner_account_match = sorted(
@@ -593,7 +594,7 @@ def serve_tag_store_reports():
 def serve_tag_reports():
     accounts = Accounts(g.db).get_accounts(sector=SECTORS_NAME_TO_ID["Cow-Calf"], is_partner=int(False))
     for account in accounts:
-        account["tag_count"] = g.db.matches.get_count_eid_distinct_for_accounts(account["id"])
+        account["tag_count"] = Matches(g.db).get_count_eid_distinct_for_accounts(account["id"])
     return employee_render("/employee/finance/tag-report.html", {
         "accounts_and_tags": accounts
     })
