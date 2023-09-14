@@ -3,6 +3,7 @@ from flask import (
 )
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
+from core.database.tables.matches import Matches
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
@@ -83,7 +84,7 @@ def serve_dashboard():
 @bp.route('/dashboard/animals/<int:animal_eid>', methods=['GET'])
 @crut.require_paid_account
 def serve_animal_eid(animal_eid):
-    animal = g.db.matches.get_animal_by_eid(animal_eid)
+    animal = Matches(g.db).get_animal_by_eid(animal_eid)
     available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
     available_account_ids += Connections(g.db).get_connected_account_ids(
         account_id=g.account.id(), sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
@@ -119,7 +120,7 @@ def serve_animal_eid(animal_eid):
 @bp.route('/dashboard/animals/<int:animal_eid>/certificates', methods=['GET'])
 @crut.require_user
 def serve_animal_cert(animal_eid):
-    animal = g.db.matches.get_animal_by_eid(animal_eid)
+    animal = Matches(g.db).get_animal_by_eid(animal_eid)
     return dashboard_render("animals/animal-certificate.html", {"animal": animal})
 
 

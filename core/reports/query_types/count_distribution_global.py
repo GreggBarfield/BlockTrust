@@ -1,3 +1,4 @@
+from core.database.tables.matches import Matches
 from ...match_types import MATCH_TYPES_NAME_TO_ID
 
 
@@ -8,7 +9,7 @@ def execute(db, query):
     """Execute the query."""
     params = query['params']
     return {
-        "count_distribution": db.matches.get_count_distribution_global(
+        "count_distribution": Matches(db).get_count_distribution_global(
             MATCH_TYPES_NAME_TO_ID[params["match_type"]]
         )
     }

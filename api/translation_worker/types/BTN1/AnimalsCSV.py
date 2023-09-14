@@ -1,6 +1,7 @@
 from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, insert_sighting_if_not_exists, process_weaning_data
 from core.database.database import Database
 from api.translation_worker.all_to_unix import all_to_unix
+from core.database.tables.matches import Matches
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from .remapper import remap
@@ -81,7 +82,7 @@ def handle(db: Database, insert):
         sold_object["group_size"] = int(fields['numberofca'])
 
     if sold_object != {}:
-        db.matches.types.insert_sold(
+        Matches(db).types.insert_sold(
             partner_account=partner_account,
             account_link=account_link,
             eid=eid,
