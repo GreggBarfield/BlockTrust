@@ -2125,7 +2125,7 @@ CREATE TABLE `recurring_payments` (
 
 ALTER TABLE `payments` 
 ADD COLUMN `recurring_payment_id` INT NULL AFTER `paid_date`,
-ADD COLUMN `email` VARCHAR(150) AFTER `recurring_payment_id` NULL,
+ADD COLUMN `email` VARCHAR(150) NULL AFTER `recurring_payment_id`,
 ADD COLUMN `stripe_checkout_id` VARCHAR(90) NULL AFTER `email`,
 ADD COLUMN `stripe_customer_id` VARCHAR(90) NULL AFTER `stripe_checkout_id`,
 ADD COLUMN `stripe_invoice_id` VARCHAR(90) NULL AFTER `stripe_customer_id`;
