@@ -2,6 +2,7 @@ from core.database.tables.animals import Animals
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.account_links import AccountLinks
+from core.database.tables.matches import Matches
 from core.database.tables.orders import Orders
 from core.utilities.shop.herdwhistle_api import HerdWhistleAPI
 import traceback
@@ -24,7 +25,7 @@ def run_tag_store_tasks(job_run_id, db):
                             if len(account_links) > 0:
                                 account_link = account_links[0]
                                 for eid in range(int(product_details["x_studio_tag_sequence_start"]), int(product_details["x_studio_tag_sequence_end"])+1):
-                                    db.matches.types.insert_sighting(
+                                    Matches(db).types.insert_sighting(
                                         eid=eid,
                                         account_link=account_link.id(),
                                         lat=None,

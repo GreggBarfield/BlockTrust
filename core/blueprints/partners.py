@@ -8,6 +8,7 @@ from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
 from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.matches import Matches
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from core.match_types import MATCH_TYPES_NAME_TO_ID
@@ -51,7 +52,7 @@ def serve_edit_user():
 @bp.route("/animals/<int:animal_eid>", methods=["GET"])
 @crut.require_partner
 def serve_animal_eid(animal_eid):
-    animal = g.db.matches.get_animal_by_eid(animal_eid)
+    animal = Matches(g.db).get_animal_by_eid(animal_eid)
     if show_animal := bool(len(animal.matches)):
         display_certificate = False
         owner_account_match = sorted(
@@ -199,7 +200,7 @@ def serve_view_partner_accounts_sustainability_data():
             account_links = AccountLinks(g.db).get_account_links(account_id=account_id)
             if len(account_links) > 0:
                 for account_link in account_links:
-                    matched_accounts = g.db.matches.get_sighted_match_accounts_for_account_link(account_link["id"])
+                    matched_accounts = Matches(g.db).get_sighted_match_accounts_for_account_link(account_link["id"])
                     for matched_account in matched_accounts:
                         matched_account_id = matched_account["account_id"]
                         accounts_object_for_sector = sector_based_accounts[matched_account["account_sector_id"]]
@@ -229,7 +230,7 @@ def serve_view_partner_accounts_sustainability_data():
                             matched_account_data = accounts_object_for_sector[matched_account_id]
                             matched_account_data["count"] += matched_account["count"]
         
-        ranch_matches_for_partner_account = g.db.matches.get_matches_for_partner_accounts(
+        ranch_matches_for_partner_account = Matches(g.db).get_matches_for_partner_accounts(
             partner_account_id=connected_account_id,
             matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
         )
