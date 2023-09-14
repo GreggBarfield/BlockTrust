@@ -25,7 +25,7 @@ from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccoun
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.sales_groups import SalesGroups
 
-from ..reports.query_types import count_eid_distinct
+from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
@@ -95,7 +95,8 @@ def serve_sales_group():
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
-        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
+        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
+        "show_account_carcass_data": sales_group_row["show_account_carcass_data"]
     }
 
 
@@ -280,7 +281,8 @@ def serve_create_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+        show_account_carcass_data=request.json["show_account_carcass_data"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -335,7 +337,8 @@ def serve_update_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+        show_account_carcass_data=request.json["show_account_carcass_data"]
     )
 
     return {
@@ -865,3 +868,14 @@ def serve_get_advertisements():
         "advertisements": advertisements,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
     }
+
+
+@bp.route('/widgets/data/get_count_distribution_for_account', methods=["POST"])
+@crut.require_account
+def serve_get_count_distribution_for_account():
+    count_distribution_data = Reports(g.db).get_ready_by_query(count_distribution.create(
+        request.json["account_id"],
+        "USDA Quality Grade",
+        0
+    ))                        
+    return count_distribution_data

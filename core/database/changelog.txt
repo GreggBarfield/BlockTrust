@@ -2154,3 +2154,7 @@ ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
   REFERENCES `employees` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `show_account_carcass_data` TINYINT DEFAULT NULL;

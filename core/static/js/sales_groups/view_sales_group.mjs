@@ -18,7 +18,23 @@ export class SalesGroupViewer {
             this.attach(attachTo);
     }
 
-    createDisplay() {
+    createDisplay = async() =>{
+        // Get USDA Quality Grade distribution for given account
+        let accountUSDAQualityGradeDistribution = null;
+        const fetchAccountCarcassData = await fetch(
+            '/widgets/data/get_count_distribution_for_account', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    account_id: this.data.account
+                }),
+        });
+        const accountUSDAQualityGradeDistributionData = await fetchAccountCarcassData.json();
+        if(accountUSDAQualityGradeDistributionData.result !== null){
+            accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result.count_distribution;
+        }
         // General layout
 
         let layout = {};
@@ -216,6 +232,12 @@ export class SalesGroupViewer {
             category.style = "color:black";
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
+
+            let carcassData = document.createElement("div");
+            carcassData.style = "color:black";
+            console.log(accountUSDAQualityGradeDistribution);
+            carcassData.textContent =`Ranch Carcass History: ${accountUSDAQualityGradeDistribution}`;
+            left.append(carcassData);
         }
 
         // Configure Animal data
