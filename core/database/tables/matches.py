@@ -860,6 +860,42 @@ class Matches:
         result['matched_data'] = sighted_eid_data
         return result
 
+    def get_matches_for_partner_accounts(self, partner_account_id=NO_VALUE, matched_account_sector_id=NO_VALUE):
+        """
+        Get the sightings for EID's under a list of account links at ranches 
+
+        Params:
+            account_link_ids: List of account link ID's
+
+        Returns: 
+        """
+        query_conditions = []
+        query_values = {}
+        base_query = """
+            SELECT m1.eid as eid, al.account as account_id, m1.account_link as sighted_account_link,
+            al.name as account_name, al.sector as account_sector_id, MIN(m3.data) as usda_quality_grade, 
+            MIN(m4.data) as usda_yield_grade FROM matches m1 LEFT JOIN matches m2 on m1.eid=m2.eid 
+            LEFT JOIN account_links al on m1.account_link = al.id LEFT JOIN matches m3 on m1.eid=m3.eid AND m3.type=16 
+            LEFT JOIN matches m4 on m1.eid=m4.eid AND m4.type=17
+        """
+        
+        if partner_account_id is not NO_VALUE:
+            query_conditions.append("m2.account_link in (SELECT id FROM account_links WHERE partner_account=%(partner_account_id)s)")
+            query_values["partner_account_id"] = partner_account_id
+        if matched_account_sector_id is not NO_VALUE:
+            query_conditions.append("al.sector=%(matched_account_sector_id)s")
+            query_values["matched_account_sector_id"] = matched_account_sector_id
+
+        group_by_clause = "GROUP BY m1.eid, m1.account_link ORDER BY m1.eid, m1.account_link"
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions) + " " + group_by_clause
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        return self._db.execute_d(query, query_values)
+
     @staticmethod
     def _load_rows(rows):
         """Parses returned JSON from mysql"""

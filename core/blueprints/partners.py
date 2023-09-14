@@ -17,6 +17,7 @@ from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
 from json import loads
+import json
 
 bp = Blueprint('partner_bp', __name__, url_prefix="/partner")
 
@@ -182,6 +183,7 @@ def serve_view_profile(account_id):
 @crut.require_partner
 def serve_view_partner_accounts_sustainability_data():
     sector_based_account_data_for_connections = {}
+    eid_based_account_data_for_connections = {}
     connected_account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
     for connected_account_id in connected_account_ids:
         connected_account_data = Accounts(g.db).get_accounts(id=connected_account_id)
@@ -226,8 +228,39 @@ def serve_view_partner_accounts_sustainability_data():
                         else:
                             matched_account_data = accounts_object_for_sector[matched_account_id]
                             matched_account_data["count"] += matched_account["count"]
+        
+        ranch_matches_for_partner_account = g.db.matches.get_matches_for_partner_accounts(
+            partner_account_id=connected_account_id,
+            matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
+        )
+        ranches_data = {}
+        for ranch_match in ranch_matches_for_partner_account:
+            account_id = ranch_match["account_id"]
+            if account_id not in ranches_data:
+                ranches_data[account_id] = {}
+        
+        for account_id, account_data in ranches_data.items():
+            # Sustainability data for matched account
+            account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
+                account_id=account_id,
+                questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"]
+            )
+            if len(account_sustainability_responses_data) > 0:
+                account_sustainability_response_data = account_sustainability_responses_data[0]
+                account_data["account_sustainability_data"] = account_sustainability_response_data
+            else:
+                account_data["account_sustainability_data"] = None
+
+        for ranch_match in ranch_matches_for_partner_account:
+            account_id = ranch_match["account_id"]
+            ranch_match["account_sustainability_data"] = ranches_data[account_id]["account_sustainability_data"]
+            if ranch_match["usda_quality_grade"] is not None:
+                ranch_match["usda_quality_grade"] = ranch_match["usda_quality_grade"].replace('"', '')
+        eid_based_account_data_for_connections[connected_account_name] = ranch_matches_for_partner_account
+
     return partner_render("sustainability/view-partner-accounts-sustainability.html", {
         "sector_based_account_data_for_connections": sector_based_account_data_for_connections,
+        "eid_based_account_data_for_connections": eid_based_account_data_for_connections,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
 
