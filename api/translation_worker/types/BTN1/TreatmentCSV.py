@@ -1,6 +1,7 @@
 from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
+from core.database.tables.matches import Matches
 from .medical_helper import format_data
 from .remapper import remap
 
@@ -44,7 +45,7 @@ def handle(db: Database, insert):
     if medical_data is None or medical_data == {}:
         return
 
-    db.matches.types.insert_medical(
+    Matches(db).types.insert_medical(
         time=time,
         data=medical_data,
         eid=eid,

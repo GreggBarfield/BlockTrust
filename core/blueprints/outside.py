@@ -8,6 +8,7 @@ from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.files import Files
+from ..database.tables.matches import Matches
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
@@ -567,7 +568,7 @@ def serve_external_sales_group_viewer(sales_group_id):
 @bp.route("/retail/<int:eid>", methods=["GET"])
 def serve_retail(eid):
     supply_chain_account_ids = []
-    original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    original_ranch_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],
@@ -575,14 +576,14 @@ def serve_retail(eid):
     )
     if len(original_ranch_match_and_account_link) > 0:
         supply_chain_account_ids.append(original_ranch_match_and_account_link[0]["account"])
-    feedyard_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    feedyard_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Feedlot"]
     )
     if len(feedyard_match_and_account_link) > 0:
         supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
-    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    packer_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Packer"]
@@ -628,7 +629,7 @@ def serve_contact_account():
 def serve_tip(eid, account_id):
     account_with_payouts_enabled = g.db.accounts.get_accounts(id=account_id, is_stripe_payouts_enabled=1)
     if len(account_with_payouts_enabled) > 0:
-        original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        original_ranch_match_and_account_link = Matches(g.db).get_matches_with_account_links(
             matches_eid=eid,
             matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
             account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],
