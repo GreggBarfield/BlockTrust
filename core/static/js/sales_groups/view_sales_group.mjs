@@ -232,12 +232,33 @@ export class SalesGroupViewer {
             category.style = "color:black";
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
-
-            let carcassData = document.createElement("div");
-            carcassData.style = "color:black";
-            console.log(accountUSDAQualityGradeDistribution);
-            carcassData.textContent =`Ranch Carcass History: ${accountUSDAQualityGradeDistribution}`;
-            left.append(carcassData);
+            
+            if(this.data.show_account_carcass_data == 1){
+                let carcassData = document.createElement("div");
+                carcassData.style = "color:black";
+                let qualityGradeDistribution = "";
+                if(accountUSDAQualityGradeDistribution != null){
+                    let total = 0;
+                    let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
+                    for(let qualityGradeData of accountUSDAQualityGradeDistribution){
+                        total += qualityGradeData.count;
+                    }
+                    for(let qualityGradeData of accountUSDAQualityGradeDistribution){
+                        qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
+                    }
+                    qualityGradeDistribution = qualityGradePercentages["Choice"] + "/" + qualityGradePercentages["Prime"] + "/" + qualityGradePercentages["Select or Lower"];
+                }
+                let tooltip = document.createElement("a");
+                tooltip.className = "feather icon-info text-primary pl-2";
+                tooltip.style = "color:blue";
+                tooltip.dataToggle = "tooltip";
+                tooltip.dataPlacement = "right";
+                tooltip.title = "Choice/Prime/Select";
+                carcassData.textContent =`Ranch Carcass History: ${qualityGradeDistribution}`;
+                carcassData.append(tooltip);
+                left.append(carcassData);
+            }
+            
         }
 
         // Configure Animal data
