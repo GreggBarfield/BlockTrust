@@ -19,7 +19,7 @@ export class SalesGroupViewer {
     }
 
     createDisplay = async() =>{
-        // Get USDA Quality Grade distribution for given account
+        // Get USDA Quality Grade distribution for sales group account
         let accountUSDAQualityGradeDistribution = null;
         const fetchAccountCarcassData = await fetch(
             '/widgets/data/get_count_distribution_for_account', {
