@@ -11,8 +11,12 @@ from flask import (
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
 from core.database.database import Database
+from core.database.tables.accounts import Accounts
+from core.database.tables.error_logs import ErrorLogs
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
+
+from traceback import format_exc
 
 
 bp = Blueprint('input_blueprint', __name__)
@@ -134,3 +138,29 @@ def serve_api():
     # All-good
     print("api good")
     return "", 200
+
+
+@bp.route('/api/insert_sales_group', methods=["POST"])
+def serve_insert_sales_group():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "token" not in request_data:
+            raise ExportException("Bad request")
+        print(request_data)
+        accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
+        if len(accounts_list) == 0:
+            raise ExportException("Bad token. You are not authorized to insert a sales group")
+        else:
+            authenticated_account = accounts_list[0]
+            print(authenticated_account["id"])
+
+        return "", 200
+    except ExportException as e:
+        raise e
+    except Exception as e:
+        print("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
