@@ -2154,3 +2154,17 @@ ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
   REFERENCES `employees` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 9/18/2023 */
+ALTER TABLE `animals` 
+ADD COLUMN `is_paid` TINYINT NULL DEFAULT 0 AFTER `average_daily_gain`,
+ADD COLUMN `paid_by_account_id` INT NULL AFTER `is_paid`;
+UPDATE `animals` SET is_paid = 1;
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_paid_by_account_id_id_accounts_idx` (`paid_by_account_id` ASC) VISIBLE;
+ALTER TABLE `animals` 
+ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
+  FOREIGN KEY (`paid_by_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
