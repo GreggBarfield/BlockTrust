@@ -148,15 +148,47 @@ def serve_insert_sales_group():
         except json.decoder.JSONDecodeError:
             return {"error": "Decoding request JSON has failed"}, 400
         if "token" not in request_data:
-            raise ExportException("Bad request")
-        print(request_data)
+            raise ExportException("Bad request. Missing token.")
         accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
         if len(accounts_list) == 0:
             raise ExportException("Bad token. You are not authorized to insert a sales group")
         else:
             authenticated_account = accounts_list[0]
-            print(authenticated_account["id"])
-
+        sales_group_data = {
+            "sales_group_name": "",
+            "total_animals": 0,
+            "zip_code": "",
+            "start_date": "",
+            "end_date": "",
+            "delivery_location_type": "",
+            "auction_market": "",
+            "delivery_location": "",
+            "category": "",
+            "breeds": [],
+            "breed_comments": "",
+            "base_weight": 0,
+            "weight_variance": 0,
+            "weighing_conditions": "",
+            "frame": "",
+            "muscling": "",
+            "horns": "",
+            "preconditioning_program": "",
+            "vaccinations": [],
+            "are_annual_cattle_herd_vaccinations_given": "",
+            "feeding_program": [],
+            "implants": [],
+            "castrated": "",
+            "pvp_program": "",
+            "publish_sales_group": "",
+            "show_carcass_data_for_account": ""
+        }
+        for sales_group_data_field_name, sales_group_data_field_value in sales_group_data.items():
+            if sales_group_data_field_name not in request_data:
+                raise ExportException("Missing field: " + sales_group_data_field_name)
+            if type(sales_group_data_field_value) != type(request_data[sales_group_data_field_name]):
+                raise ExportException(sales_group_data_field_name + " should be " + type(sales_group_data_field_value).__name__)
+            sales_group_data_field_value = request_data[sales_group_data_field_name]
+        print(sales_group_data)
         return "", 200
     except ExportException as e:
         raise e
