@@ -211,6 +211,48 @@ def serve_insert_sales_group():
             images=[],
             price=sales_group_data["price"]
         )
+        reported_data = {
+            "comments": request_data["comments"] if "comments" in request_data else "",
+            "count": sales_group_data["total_animals"],
+            "weight": sales_group_data["base_weight"],
+            "weight_variance": sales_group_data["weight_variance"],
+            "breeds": sales_group_data["breeds"],
+            "horns": sales_group_data["horns"],
+            "muscling": sales_group_data["muscling"],
+            "usda_frame_size": sales_group_data["frame"],
+            "preconditioning_program": sales_group_data["preconditioning_program"],
+            "vaccinations": sales_group_data["vaccinations"],
+            "feeding_program": sales_group_data["feeding_program"],
+            "implants": sales_group_data["implants"],
+            "castrated": sales_group_data["castrated"],
+            "process_verified_program": sales_group_data["pvp_program"],
+            "images": [],
+            "videos": []
+        }
+        delivery_location = ""
+        if sales_group_data["delivery_location_type"] == "Off Ranch":
+            delivery_location = sales_group_data["delivery_location"]
+        else:
+            delivery_location = sales_group_data["auction_market_location"]
+        SalesGroups(g.db).insert_sales_group(
+            account=authenticated_account["id"],
+            reported=reported_data,
+            published=sales_group_data["published"],
+            zip_code=sales_group_data["zip_code"],
+            delivery_location=delivery_location,
+            start=sales_group_data["start_date"],
+            end=sales_group_data["end_date"],
+            auction_sale=None,
+            group_name=sales_group_data["sales_group_name"],
+            is_archived=0,
+            delivery_location_type=sales_group_data["delivery_location_type"],
+            price=sales_group_data["price"],
+            category=sales_group_data["category"],
+            breed_comments=sales_group_data["breed_comments"],
+            weighing_conditions=sales_group_data["weighing_conditions"],
+            are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"]
+        )
+
         return "", 200
     except ExportException as e:
         raise e
