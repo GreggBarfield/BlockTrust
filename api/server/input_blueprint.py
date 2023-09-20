@@ -233,7 +233,7 @@ def serve_insert_sales_group():
         if sales_group_data["delivery_location_type"] == "Off Ranch":
             delivery_location = sales_group_data["delivery_location"]
         else:
-            delivery_location = sales_group_data["auction_market_location"]
+            delivery_location = sales_group_data["auction_market"]
         SalesGroups(g.db).insert_sales_group(
             account=authenticated_account["id"],
             reported=reported_data,
