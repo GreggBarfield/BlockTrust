@@ -43,6 +43,7 @@ export class SalesGroupsCommonForm{
             this.fileAuths = this.data.file_auths
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
+            this.showAccountCarcassData = this.data.show_account_carcass_data;
         }
         else{
             this.salesGroupID = null;
@@ -76,6 +77,7 @@ export class SalesGroupsCommonForm{
             this.fileAuths = null;
             this.comments = "";
             this.published = true;
+            this.showAccountCarcassData = true;
         }
         this.auctionMarketsData = auctionMarketsData;
         this.postRoute = postRoute;
@@ -508,6 +510,8 @@ export class SalesGroupsCommonForm{
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.published);
 
+        let showAccountCarcassDataSwitch = new SwitchFormGroup(form, "Show Carcass History", this.showAccountCarcassData);
+
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -557,6 +561,7 @@ export class SalesGroupsCommonForm{
                 return {
                     id: this.salesGroupID,
                     published: publishSwitch.isChecked(),
+                    show_account_carcass_data: showAccountCarcassDataSwitch.isChecked(),
                     eids: [],
                     reported: {
                         comments: commentsTA.value,
