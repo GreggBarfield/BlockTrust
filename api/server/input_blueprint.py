@@ -181,8 +181,8 @@ def serve_insert_sales_group():
             "implants": [],
             "castrated": "",
             "pvp_program": "",
-            "publish_sales_group": "",
-            "show_carcass_data_for_account": "",
+            "publish_sales_group": 1,
+            "show_carcass_data_for_account": 1,
             "price": 0
         }
 
@@ -253,7 +253,7 @@ def serve_insert_sales_group():
             are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"]
         )
 
-        return "", 200
+        return {"sales_group": "Sales Group Inserted"}, 200
     except ExportException as e:
         raise e
     except Exception as e:
