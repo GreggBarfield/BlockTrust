@@ -17,7 +17,6 @@ from core.database.tables.sales_groups import SalesGroups
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
 
-from datetime import datetime
 from traceback import format_exc
 
 
