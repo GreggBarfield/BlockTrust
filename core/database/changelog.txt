@@ -2172,3 +2172,8 @@ ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `api_insert` TINYINT DEFAULT 0;

@@ -160,8 +160,8 @@ def serve_insert_sales_group():
             "sales_group_name": "",
             "total_animals": 0,
             "zip_code": 0,
-            "start_date": "",
-            "end_date": "",
+            "start_time": 0,
+            "end_time": 0,
             "delivery_location_type": "",
             "auction_market": "",
             "delivery_location": "",
@@ -176,7 +176,7 @@ def serve_insert_sales_group():
             "horns": "",
             "preconditioning_program": "",
             "vaccinations": [],
-            "are_annual_cattle_herd_vaccinations_given": "",
+            "are_annual_cattle_herd_vaccinations_given": 0,
             "feeding_program": [],
             "implants": [],
             "castrated": "",
@@ -192,7 +192,7 @@ def serve_insert_sales_group():
             if type(sales_group_data_field_value) != type(request_data[sales_group_data_field_name]):
                 raise ExportException(sales_group_data_field_name + " should be " + type(sales_group_data_field_value).__name__)
             sales_group_data[sales_group_data_field_name] = request_data[sales_group_data_field_name]
-        print(sales_group_data)
+
         SalesGroups(g.db).validate_or_fail_sales_group(
             account_id=authenticated_account["id"],
             group_name=sales_group_data["sales_group_name"],
@@ -204,8 +204,8 @@ def serve_insert_sales_group():
             category=sales_group_data["category"],
             breeds=sales_group_data["breeds"],
             auction_sale=None,
-            start=datetime.strptime(sales_group_data["start_date"], '%m-%d-%Y').date(),
-            end=datetime.strptime(sales_group_data["end_date"], '%m-%d-%Y').date(),
+            start=sales_group_data["start_time"],
+            end=sales_group_data["end_time"],
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],
             images=[],
@@ -237,11 +237,11 @@ def serve_insert_sales_group():
         SalesGroups(g.db).insert_sales_group(
             account=authenticated_account["id"],
             reported=reported_data,
-            published=sales_group_data["published"],
+            published=sales_group_data["publish_sales_group"],
             zip_code=sales_group_data["zip_code"],
             delivery_location=delivery_location,
-            start=sales_group_data["start_date"],
-            end=sales_group_data["end_date"],
+            start=sales_group_data["start_time"],
+            end=sales_group_data["end_time"],
             auction_sale=None,
             group_name=sales_group_data["sales_group_name"],
             is_archived=0,
@@ -250,10 +250,11 @@ def serve_insert_sales_group():
             category=sales_group_data["category"],
             breed_comments=sales_group_data["breed_comments"],
             weighing_conditions=sales_group_data["weighing_conditions"],
-            are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"]
+            are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"],
+            show_account_carcass_data=1,
+            is_api_insert=1
         )
-
-        return {"sales_group": "Sales Group Inserted"}, 200
+        return {"response": "Sales Group Inserted"}, 200
     except ExportException as e:
         raise e
     except Exception as e:
