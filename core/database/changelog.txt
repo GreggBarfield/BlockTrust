@@ -2155,6 +2155,10 @@ ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `show_account_carcass_data` TINYINT DEFAULT 1;
+
 /* Rohan Sureshkumar 9/18/2023 */
 ALTER TABLE `animals` 
 ADD COLUMN `is_paid` TINYINT NULL DEFAULT 0 AFTER `average_daily_gain`,
