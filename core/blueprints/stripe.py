@@ -1,17 +1,20 @@
 from flask import (
     Blueprint, Response, request, g, session, redirect, url_for
 )
+
+from core.common_exceptions import ExportException
+from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from core.database.tables.accounts import Accounts, AccountsException
+from core.database.tables.debug_logs import DebugLogs
+from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.tips import Tips
 from core.database.tables.payments import PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
 from core.renderers.outside import outside_render
 from core.utilities.constants import HTTP_NO_CONTENT
-from ..utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
-from ..database.tables.accounts import Accounts, AccountsException
-from ..database.tables.debug_logs import DebugLogs
-from ..database.tables.error_logs import ErrorLogs
-from ..database.tables.tips import Tips
-from ..common_exceptions import ExportException
-from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from core.utilities.auth import SESSION_STRIPE_ACCOUNT_ID_VAR
+from core.utilities import crut
+
 from datetime import datetime
 import json
 import stripe
@@ -73,7 +76,6 @@ def serve_stripe_subscription():
             request.data, sig_header, endpoint_secret
         )
     except (ValueError, stripe.error.SignatureVerificationError) as e:
-        # Invalid payload or invalid signature
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
 
@@ -140,14 +142,11 @@ def create_customer():
     data = json.loads(request.data)
     try:
         if g.account is not None:
-            # Create a new customer object
             customer = stripe.Customer.create(
                 email=data['email'],
                 name=data['name'],
                 metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
             )
-            # At this point, associate the ID of the Customer object with your
-            # own internal representation of a customer, if you have one.            
             g.db.accounts.update_account(
                 g.account.id(),
                 stripe_customer_id=customer.id
@@ -168,8 +167,6 @@ def create_subscription():
             data['paymentMethodId'],
             customer=data['customerId'],
         )
-        # Create the subscription
-        # only supporting basic price right now       
         if data['priceLookupKey'] == "basic":
             subscription = stripe.Subscription.create(
                 default_payment_method=payment_method.id,
@@ -198,13 +195,11 @@ def create_payment():
                 raise Exception("Incorrect partner id.")
         else:
             stripe.api_key = STRIPE_SECRET_KEY
-        # Some example payment method types include `card`, `ideal`, and `alipay`.
         payment_method_type = data['paymentMethodType']
         currency = data['currency']
         order_id = data['orderId']
         amount = float(data['amount'])*100
         amount = int(amount)
-        # Create a PaymentIntent with the amount, currency, and a payment method type.
         params = {
             'payment_method_types': [payment_method_type],
             'amount': amount,
@@ -213,7 +208,6 @@ def create_payment():
         }
         intent = stripe.PaymentIntent.create(**params)
 
-        # Send PaymentIntent details to the front end.
         return {'clientSecret': intent.client_secret}
     except stripe.error.StripeError as e:
         return {'error': {'message': str(e)}}, 400
@@ -485,3 +479,34 @@ def serve_recurring_payment(recurring_payment_id):
         )
         return redirect(session.url, code=303)
     raise ExportException("Invalid Payment Link")
+
+
+@crut.require_account
+@bp.route('/stripe/setup-payment', methods=['GET'])
+def setup_payment():
+    try:
+        if not g.account.stripe_customer_id():
+            customer_id = stripe.Customer.create(
+                email=g.user.email() if g.user.is_email_verified() else None,
+                name=g.account.company(),
+                metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
+            ).id
+
+            g.db.accounts.update_account(
+                g.account.id(),
+                stripe_customer_id=customer_id
+            )
+        else:
+            customer_id = g.account.stripe_customer_id()
+            payment_methods = stripe.PaymentMethod.list(
+                customer=customer_id,
+                type="card",
+            )["data"]
+
+        intent = stripe.SetupIntent.create(
+            customer=customer_id
+        )
+
+        return {'client_secret': intent.client_secret, "number_of_payment_methods": len(payment_methods)}
+    except Exception as e:
+        raise ExportException(str(e))

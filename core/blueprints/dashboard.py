@@ -264,6 +264,14 @@ def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
 
+@bp.route('/dashboard/payment', methods=['GET'])
+@crut.require_account
+def serve_payment():
+    return dashboard_render("stripe/payment.html", {
+        "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY, "route": url_for("stripe_bp.setup_payment")
+    })
+
+
 @bp.route('/dashboard/upload-tags', methods=['GET', 'POST'])
 @crut.require_paid_account
 def serve_upload_tags():
