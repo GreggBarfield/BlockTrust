@@ -55,7 +55,7 @@ Payment Details
             stripe.retrieveSetupIntent(clientSecret).then(({setupIntent}) => {
                 switch (setupIntent.status) {
                     case 'succeeded': {
-                        header.innerText = 'Success! Your payment method has been saved.';
+                        header.innerHTML = "Success! Your payment method has been saved  <i class='fa fa-check-circle'></i>";
                         header.classList.add("text-success");
                         break;
                     }
