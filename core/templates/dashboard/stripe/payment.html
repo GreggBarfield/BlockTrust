@@ -92,7 +92,6 @@ Payment Details
                     return_url: window.location.href,
                 }
             });
-
             if (error) {
                 const messageContainer = document.querySelector('#card-errors');
                 messageContainer.textContent = error.message;
