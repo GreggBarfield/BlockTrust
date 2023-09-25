@@ -59,13 +59,11 @@ Payment Details
                         header.classList.add("text-success");
                         break;
                     }
-
                     case 'processing': {
                         header.innerText = "Processing payment details. We'll update you when processing is complete.";
                         header.classList.add("text-info");
                         break;
                     }
-
                     case 'requires_payment_method': {
                         header.innerText = 'Failed to process payment details. Please try another payment method. Redirecting...';
                         header.classList.add("text-danger");
