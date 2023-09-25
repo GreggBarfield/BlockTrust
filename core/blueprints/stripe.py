@@ -485,13 +485,13 @@ def serve_recurring_payment(recurring_payment_id):
 @bp.route('/stripe/setup-payment', methods=['GET'])
 def setup_payment():
     try:
+        payment_methods = []
         if not g.account.stripe_customer_id():
             customer_id = stripe.Customer.create(
                 email=g.user.email() if g.user.is_email_verified() else None,
                 name=g.account.company(),
                 metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
             ).id
-
             g.db.accounts.update_account(
                 g.account.id(),
                 stripe_customer_id=customer_id
@@ -503,10 +503,7 @@ def setup_payment():
                 type="card",
             )["data"]
 
-        intent = stripe.SetupIntent.create(
-            customer=customer_id
-        )
-
+        intent = stripe.SetupIntent.create(customer=customer_id)
         return {'client_secret': intent.client_secret, "number_of_payment_methods": len(payment_methods)}
     except Exception as e:
         raise ExportException(str(e))
