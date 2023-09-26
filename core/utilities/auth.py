@@ -127,7 +127,7 @@ def load_account_to_context():
 
 
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
-            personal_phone, recaptcha_score, ip_address, ip_country):
+            personal_phone, recaptcha_score, ip_address, ip_country, are_auction_markets_used_by_account, auction_markets):
     """Create new user account.
 
     Params:
@@ -203,7 +203,8 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         perform_new_account_actions(
             db=g.db, account_id=account_obj.id(), user_id=user.id(),
             event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id(),
-            partner_id=partner, email=email
+            partner_id=partner, email=email, are_auction_markets_used_by_account=are_auction_markets_used_by_account,
+            auction_markets=auction_markets
         )
 
     except Exception as e:
