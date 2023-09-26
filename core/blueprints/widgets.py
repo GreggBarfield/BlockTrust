@@ -16,6 +16,7 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files, DEFAULT_FILES_S3_PATH
+from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
@@ -24,7 +25,7 @@ from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccoun
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.sales_groups import SalesGroups
 
-from ..reports.query_types import count_eid_distinct
+from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
 from ..utilities.email import send_email
@@ -94,7 +95,8 @@ def serve_sales_group():
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
-        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"]
+        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
+        "show_account_carcass_data": sales_group_row["show_account_carcass_data"]
     }
 
 
@@ -216,7 +218,7 @@ def serve_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
     available_account_ids = [g.account.id()] if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"] else []
     available_account_ids += Connections(g.db).get_connected_account_ids(g.account.id(), SECTORS_NAME_TO_ID["Cow-Calf"])
-    rows = g.db.matches.get_matches_by_eid_or_visual_id(
+    rows = Matches(g.db).get_matches_by_eid_or_visual_id(
         eid_or_visual_id=eid_number,
         account_ids=available_account_ids
     )
@@ -279,7 +281,8 @@ def serve_create_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+        show_account_carcass_data=request.json["show_account_carcass_data"]
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -334,7 +337,8 @@ def serve_update_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"]
+        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+        show_account_carcass_data=request.json["show_account_carcass_data"]
     )
 
     return {
@@ -404,7 +408,7 @@ def serve_get_eids_for_sales_group():
     if not (sales_group_row["published"] > 0 or sales_group_row["account"] == g.account.id()):
         raise ExportException("Insufficient Permissions")
     # Getting eids owned by the account
-    distinct_eids = g.db.matches.get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
+    distinct_eids = Matches(g.db).get_distinct_eids_and_visual_ids_by_account(account_id=g.account.id(), number_of_years=1)
     # Getting sales groups owned by account and corresponding eid's
     account_sales_groups_ids = list(map(lambda item: item['id'], SalesGroups(g.db).get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
@@ -659,7 +663,7 @@ def serve_add_connection_request():
 @crut.require_employee
 def serve_employee_search_by_eid_and_visual_id():
     eid_number = int(request.json["search"]["eid"])
-    rows = g.db.matches.get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
+    rows = Matches(g.db).get_matches_by_eid_or_visual_id(eid_or_visual_id=eid_number)
     redirect_route = url_for('employee_bp.serve_animal_eid')
     if len(rows) > 0:
         return {
@@ -675,7 +679,7 @@ def serve_employee_search_by_eid_and_visual_id():
 @bp.route('/widgets/data/get_animals_and_grouping_ids_for_account', methods=["POST"])
 @crut.require_account
 def get_animals_and_grouping_ids_for_account():
-    animals_and_grouping_ids = g.db.matches.get_matches_with_account_links(
+    animals_and_grouping_ids = Matches(g.db).get_matches_with_account_links(
         account_links_account_id=g.account.id(),
         matches_partner_account_id=g.account.partner_account_id(),
         is_distinct=True,
@@ -797,7 +801,7 @@ def serve_get_sustainability_response_timeline_data():
     if account_link is None:
         return {"Account link not available"}, 400
     else:
-        matched_accounts = g.db.matches.get_sighted_match_accounts_for_account_link(account_link[0].id())
+        matched_accounts = Matches(g.db).get_sighted_match_accounts_for_account_link(account_link[0].id())
         for account_data in matched_accounts:
             account_sustainability_score = 0
             account_sustainability_responses = SustainabilityResponses(g.db).get_sustainability_responses(account_id=account_data["account_id"], questionnaire_status_id=QUESTIONNAIRE_STATUS_NAMES_TO_IDS["Completed"])
@@ -864,3 +868,14 @@ def serve_get_advertisements():
         "advertisements": advertisements,
         "advertisement_category_ids_to_names": ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
     }
+
+
+@bp.route('/widgets/data/get_count_distribution_for_account', methods=["POST"])
+@crut.require_account
+def serve_get_count_distribution_for_account():
+    count_distribution_data = Reports(g.db).get_ready_by_query(count_distribution.create(
+        request.json["account_id"],
+        "USDA Quality Grade",
+        0
+    ))                        
+    return count_distribution_data

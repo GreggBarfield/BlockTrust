@@ -1,3 +1,4 @@
+from core.database.tables.matches import Matches
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from ...all_to_unix import all_to_unix
@@ -45,7 +46,7 @@ def handle(db, insert):
                     break
             else:
                 lat, lon = get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
+                Matches(db).types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['KillDate'])-86400,
                     lat=lat,
@@ -78,7 +79,7 @@ def handle(db, insert):
                     break
             else:
                 lat, lon = get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
+                Matches(db).types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['KillDate']),
                     lat=lat,
@@ -90,7 +91,7 @@ def handle(db, insert):
                 )
 
     # USDAYieldGrade
-    db.matches.types.insert_usda_yield_grade(
+    Matches(db).types.insert_usda_yield_grade(
         int(float(fields["USDAYieldGrade"])),
         eid=eid,
         partner_account=partner_account,
@@ -99,7 +100,7 @@ def handle(db, insert):
     )
 
     # USDAQualityGrade
-    db.matches.types.insert_usda_quality_grade(
+    Matches(db).types.insert_usda_quality_grade(
         fields["USDAQualityGrade"],
         eid=eid,
         partner_account=partner_account,
@@ -109,7 +110,7 @@ def handle(db, insert):
 
     # Hot Weight
     if fields["CarcassWeight"] and float(fields["CarcassWeight"]) != 0:
-        db.matches.types.insert_hot_weight(
+        Matches(db).types.insert_hot_weight(
             weight=float(fields["CarcassWeight"]),
             eid=eid,
             partner_account=partner_account,
@@ -131,7 +132,7 @@ def handle(db, insert):
         packer_data["FatThickness"] = float(fields["FatThickness"])
         
     if packer_data:
-        db.matches.types.insert_packer(
+        Matches(db).types.insert_packer(
             packer_str=packer_data,
             eid=eid,
             partner_account=partner_account,

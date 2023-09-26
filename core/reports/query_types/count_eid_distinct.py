@@ -1,3 +1,6 @@
+from core.database.tables.matches import Matches
+
+
 TYPE_NAME = "count_eid_distinct"
 
 
@@ -5,8 +8,8 @@ def execute(db, query):
     """Execute the query."""
     params = query['params']
     return {
-        'count_eid_distinct': db.matches.get_count_eid_distinct(),
-        'count_eid_distinct_sighted': db.matches.get_count_eid_distinct_sighted()
+        'count_eid_distinct': Matches(db).get_count_eid_distinct(),
+        'count_eid_distinct_sighted': Matches(db).get_count_eid_distinct_sighted()
     }
 
 

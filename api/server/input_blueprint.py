@@ -12,8 +12,13 @@ from core.database.tables.error_logs import ErrorLogs
 from ..database.inserts_model import InsertsModel
 from core.database.tables.accounts import AccountsException
 from core.database.database import Database
+from core.database.tables.accounts import Accounts
+from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.sales_groups import SalesGroups
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
+from traceback import format_exc
+
 from traceback import format_exc
 
 
@@ -142,4 +147,125 @@ def serve_api():
     except Exception as e:
         print("Input API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Input API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/insert_sales_group', methods=["POST"])
+def serve_insert_sales_group():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "token" not in request_data:
+            raise ExportException("Bad request. Missing token.")
+        accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
+        if len(accounts_list) == 0:
+            raise ExportException("Bad token. You are not authorized to insert a sales group")
+        else:
+            authenticated_account = accounts_list[0]
+        sales_group_data = {
+            "sales_group_name": "",
+            "total_animals": 0,
+            "zip_code": 0,
+            "start_time": 0,
+            "end_time": 0,
+            "delivery_location_type": "",
+            "auction_market": "",
+            "delivery_location": "",
+            "category": "",
+            "breeds": [],
+            "breed_comments": "",
+            "base_weight": 0,
+            "weight_variance": "",
+            "weighing_conditions": "",
+            "frame": "",
+            "muscling": "",
+            "horns": "",
+            "preconditioning_program": "",
+            "vaccinations": [],
+            "are_annual_cattle_herd_vaccinations_given": 0,
+            "feeding_program": [],
+            "implants": [],
+            "castrated": "",
+            "pvp_program": "",
+            "publish_sales_group": 1,
+            "show_carcass_data_for_account": 1,
+            "price": 0
+        }
+
+        for sales_group_data_field_name, sales_group_data_field_value in sales_group_data.items():
+            if sales_group_data_field_name not in request_data:
+                raise ExportException("Missing field: " + sales_group_data_field_name)
+            if type(sales_group_data_field_value) != type(request_data[sales_group_data_field_name]):
+                raise ExportException(sales_group_data_field_name + " should be " + type(sales_group_data_field_value).__name__)
+            sales_group_data[sales_group_data_field_name] = request_data[sales_group_data_field_name]
+
+        SalesGroups(g.db).validate_or_fail_sales_group(
+            account_id=authenticated_account["id"],
+            group_name=sales_group_data["sales_group_name"],
+            zip=sales_group_data["zip_code"],
+            delivery_location_type=sales_group_data["delivery_location_type"],
+            count=sales_group_data["total_animals"],
+            weight=sales_group_data["base_weight"],
+            weight_variance=sales_group_data["weight_variance"],
+            category=sales_group_data["category"],
+            breeds=sales_group_data["breeds"],
+            auction_sale=None,
+            start=sales_group_data["start_time"],
+            end=sales_group_data["end_time"],
+            delivery_location=sales_group_data["delivery_location"],
+            auction_market_location=sales_group_data["auction_market"],
+            images=[],
+            price=sales_group_data["price"]
+        )
+        reported_data = {
+            "comments": request_data["comments"] if "comments" in request_data else "",
+            "count": sales_group_data["total_animals"],
+            "weight": sales_group_data["base_weight"],
+            "weight_variance": sales_group_data["weight_variance"],
+            "breeds": sales_group_data["breeds"],
+            "horns": sales_group_data["horns"],
+            "muscling": sales_group_data["muscling"],
+            "usda_frame_size": sales_group_data["frame"],
+            "preconditioning_program": sales_group_data["preconditioning_program"],
+            "vaccinations": sales_group_data["vaccinations"],
+            "feeding_program": sales_group_data["feeding_program"],
+            "implants": sales_group_data["implants"],
+            "castrated": sales_group_data["castrated"],
+            "process_verified_program": sales_group_data["pvp_program"],
+            "images": [],
+            "videos": []
+        }
+        delivery_location = ""
+        if sales_group_data["delivery_location_type"] == "Off Ranch":
+            delivery_location = sales_group_data["delivery_location"]
+        else:
+            delivery_location = sales_group_data["auction_market"]
+        SalesGroups(g.db).insert_sales_group(
+            account=authenticated_account["id"],
+            reported=reported_data,
+            published=sales_group_data["publish_sales_group"],
+            zip_code=sales_group_data["zip_code"],
+            delivery_location=delivery_location,
+            start=sales_group_data["start_time"],
+            end=sales_group_data["end_time"],
+            auction_sale=None,
+            group_name=sales_group_data["sales_group_name"],
+            is_archived=0,
+            delivery_location_type=sales_group_data["delivery_location_type"],
+            price=sales_group_data["price"],
+            category=sales_group_data["category"],
+            breed_comments=sales_group_data["breed_comments"],
+            weighing_conditions=sales_group_data["weighing_conditions"],
+            are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"],
+            show_account_carcass_data=1,
+            is_api_insert=1
+        )
+        return {"response": "Sales Group Inserted"}, 200
+    except ExportException as e:
+        raise e
+    except Exception as e:
+        print("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500

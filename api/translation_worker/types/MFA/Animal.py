@@ -1,3 +1,4 @@
+from core.database.tables.matches import Matches
 from ...exceptions import ExecutionException
 from .blocks import block_eid_from_animal_id
 from ...all_to_unix import all_to_unix
@@ -32,7 +33,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
             isinstance(visual_id, int) and visual_id != 0
         )
     ):
-        db.matches.types.insert_visual_id(
+        Matches(db).types.insert_visual_id(
             account=account,
             visual_id=visual_id,
             eid=eid,
@@ -40,7 +41,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         )
 
     if birth_date is not None:
-        db.matches.types.insert_born(
+        Matches(db).types.insert_born(
             account=account,
             time=birth_date,
             eid=eid,
@@ -48,7 +49,7 @@ def handle(db: Database, inserts_model: InsertsModel, insert, block_value):
         )
 
     if wean_date is not None:
-        db.matches.types.insert_weaned(
+        Matches(db).types.insert_weaned(
             account=account,
             time=wean_date,
             eid=eid,

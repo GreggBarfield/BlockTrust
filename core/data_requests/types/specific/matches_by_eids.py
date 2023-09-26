@@ -1,4 +1,6 @@
 from flask import g
+
+from core.database.tables.matches import Matches
 from ....match_types import convert_match_type_names_to_ids
 
 
@@ -33,7 +35,7 @@ def auth(params):
         restrict_types = convert_match_type_names_to_ids(params['types'])
 
     return {
-        "matches": g.db.matches.get_by_eids(
+        "matches": Matches(g.db).get_by_eids(
             params["eids"],
             restrict_types=restrict_types,
             ljoin_account_links=ljoin_account_links,
