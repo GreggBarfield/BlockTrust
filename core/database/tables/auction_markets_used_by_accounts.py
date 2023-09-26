@@ -62,3 +62,31 @@ class AuctionMarketsUsedByAccounts:
             return auction_markets_used_by_accounts_rows
         else:
             return []
+
+    def update(self, id, account_id=NO_VALUE, auction_market_id=NO_VALUE):
+        """
+        Updates the auction market used by account row based on ID provided
+
+        Params:
+            id: ID of the record
+            account_id: ID of the account
+            auction_market_id: ID of the auction market
+        """
+        base_query = "UPDATE auction_markets_used_by_accounts"
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if account_id is not NO_VALUE:
+            query_conditions.append(" account_id = %(account_id)s")
+            query_values["account_id"] = account_id
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append(" auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("Must give values for fields to update on Auction Markets used by Accounts")
