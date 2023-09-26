@@ -2173,6 +2173,10 @@ ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
+
 /* Nisheet Thakur 09/25/2023 */
 ALTER TABLE `accounts`
 ADD COLUMN `are_auction_markets_used_by_account` TINYINT DEFAULT 0;

@@ -171,7 +171,8 @@ class SalesGroups:
                            category=None, breed_comments=None, weighing_conditions=None,
                            are_annual_cattle_herd_vaccinations_given=None, seller_id=None, vaccination_date=None,
                            vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
-                           home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None):
+                           home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None,
+                           is_api_insert=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -189,6 +190,7 @@ class SalesGroups:
             breed_comments: Breed comments for sales group
             weighing_conditions: Weighing conditions comment for sales group
             show_account_carcass_data: Show carcass data for account
+            is_api_insert: Indicates if sales group is an API insert 
 
         Returns:
             Sales group ID of new Sales group
@@ -198,14 +200,16 @@ class SalesGroups:
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
                 group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
                 are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire, 
-                ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data
+                ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data,
+                is_api_insert
             )
             VALUES (
                 %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
                 %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s, %(seller_id)s,
                 %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
-                %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(show_account_carcass_data)s
+                %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(show_account_carcass_data)s,
+                %(is_api_insert)s
             )
             """, {
                 "account": account,
@@ -232,7 +236,8 @@ class SalesGroups:
                 "ranch_size": ranch_size,
                 "home_raised": home_raised,
                 "family_farm_or_ranch": family_farm_or_ranch,
-                "show_account_carcass_data": show_account_carcass_data
+                "show_account_carcass_data": show_account_carcass_data,
+                "is_api_insert": is_api_insert
             }
         )
         return self._db.last_row_id()
