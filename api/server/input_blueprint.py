@@ -19,8 +19,6 @@ from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from traceback import format_exc
 
-from traceback import format_exc
-
 
 bp = Blueprint('input_blueprint', __name__)
 
