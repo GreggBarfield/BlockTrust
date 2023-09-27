@@ -66,10 +66,10 @@ def serve_animal_eid(animal_eid):
                     from_account_id=g.account.id(), to_account_id=owner_account_match[0]["account"]
                 )
                 if not connection:
-                    connected_account_ids = Connections(g.db).get_connected_account_ids(
+                    account_id_and_connected_account_ids = Connections(g.db).get_connected_account_ids(
                         account_id=owner_account_match[0]["account"]
                     )
-                    for account_id in connected_account_ids:
+                    for account_id in account_id_and_connected_account_ids:
                         account = g.db.accounts.get_accounts(id=account_id)[0]
                         if account["partner_account"] == g.account.id():
                             break
@@ -185,8 +185,9 @@ def serve_view_profile(account_id):
 def serve_view_partner_accounts_sustainability_data():
     sector_based_account_data_for_connections = {}
     eid_based_account_data_for_connections = {}
-    connected_account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
-    for connected_account_id in connected_account_ids:
+    account_id_and_connected_account_ids = Connections(g.db).get_connected_account_ids(g.account.id())
+    account_id_and_connected_account_ids.append(g.account.id())
+    for connected_account_id in account_id_and_connected_account_ids:
         connected_account_data = Accounts(g.db).get_accounts(id=connected_account_id)
         connected_account_name = connected_account_data[0]["name"]
         partner_accounts_data = Accounts(g.db).get_accounts(partner_account=connected_account_id)
