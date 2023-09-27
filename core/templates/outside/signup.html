@@ -251,10 +251,6 @@
                             <div class="form-group required">
                                 <label for="signup_form_auction_markets">Please tell us which markets you usually use</label>
                                 <select class="form-control" id="signup_form_auction_markets">
-                                    <option></option>
-                                    {% for auction_market in auction_markets %}
-                                    <option value={{auction_market.id}}>{{auction_market.name}}, {{auction_market.city}}, {{auction_market.state}}</option>
-                                    {% endfor %}
                                 </select>
                                 <span class="focus-border"></span>
                             </div>
@@ -332,15 +328,17 @@
     var siteKey = '{{site_key}}';
     var ipInfoAccessToken = '{{ipinfo_access_token}}';
     var checkIP = '{{check_ip}}';
+
     document.addEventListener('DOMContentLoaded', function () {
-        $("#signup_form_auction_markets").select2({multiple: true, placeholder: "Select Auction Markets"});
-        $("#signup_form_auction_markets").select2("val", null);
+        let auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
+        let auctionMarketsList = [];
+        for(let auctionMarket of auctionMarkets){
+            auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state})
+        }
+        $("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
     });
 </script>
 
 <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css" rel="stylesheet" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
-
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
 {% endblock outside_content %}

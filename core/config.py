@@ -55,8 +55,7 @@ CSP = {
         'fonts.googleapis.com',
         'http://localhost:5000',
         'blocktrustnetwork.com',
-        'data:',
-        "https://cdnjs.cloudflare.com"
+        'data:'
     ],
     'frame-ancestors': [
         'blocktrustnetwork.com',
