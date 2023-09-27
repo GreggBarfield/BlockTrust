@@ -66,10 +66,10 @@ def serve_animal_eid(animal_eid):
                     from_account_id=g.account.id(), to_account_id=owner_account_match[0]["account"]
                 )
                 if not connection:
-                    account_id_and_connected_account_ids = Connections(g.db).get_connected_account_ids(
+                    connected_account_ids = Connections(g.db).get_connected_account_ids(
                         account_id=owner_account_match[0]["account"]
                     )
-                    for account_id in account_id_and_connected_account_ids:
+                    for account_id in connected_account_ids:
                         account = g.db.accounts.get_accounts(id=account_id)[0]
                         if account["partner_account"] == g.account.id():
                             break
