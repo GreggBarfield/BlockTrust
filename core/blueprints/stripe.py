@@ -79,7 +79,6 @@ def serve_stripe_subscription():
         ErrorLogs(g.db).insert_error_log("Stripe Webhooks", f"{e.__class__.__name__ } : {str(e)}", traceback.format_exc())
         raise ExportException(str(e))
 
-    subscription_id = event.data.object.subscription
     error = ""
     if event.type == 'customer.subscription.created':
         if event.data.object.status == 'active':
@@ -93,6 +92,7 @@ def serve_stripe_subscription():
         #     Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
         # else:
         #     error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        subscription_id = event.data.object.id
         recurring_payment = RecurringPayments(g.db).get(stripe_subscription_id=subscription_id)
         if recurring_payment:
             RecurringPayments(g.db).update(
@@ -106,6 +106,7 @@ def serve_stripe_subscription():
         #         Accounts(g.db).update_account(account[0]["id"], stripe_paid=0, subscription_end_date=datetime.now())
         #     else:
         #         error = f"No account for customer id: {customer_id}. Event: {event.type}"
+        subscription_id = event.data.object.id
         recurring_payment = RecurringPayments(g.db).get(stripe_subscription_id=subscription_id)
         if recurring_payment:
             RecurringPayments(g.db).update(
@@ -113,6 +114,7 @@ def serve_stripe_subscription():
                 status=RECURRING_STATUS_NAMES_TO_IDS[event.data.object.status]
             )
     elif event.type == 'invoice.paid':
+        subscription_id = event.data.object.subscription
         if subscription_id:
             recurring_payment = RecurringPayments(g.db).get(stripe_subscription_id=subscription_id)
             recurring_payment_id = recurring_payment[0]["id"] if recurring_payment else None
@@ -423,8 +425,9 @@ def serve_payment_success():
             email=session.customer_details.email
         )
     else:
+        recurring_payment = RecurringPayments(g.db).get(id=session.metadata["recurring_payment_id"])[0]
         RecurringPayments(g.db).update(
-            id=session.metadata["recurring_payment_id"],
+            id=recurring_payment["id"],
             status=RECURRING_STATUS_NAMES_TO_IDS['active'],
             stripe_checkout_id=session.id,
             stripe_customer_id=session.customer,
@@ -432,6 +435,9 @@ def serve_payment_success():
             start_date=datetime.utcnow(),
             email=session.customer_details.email
         )
+        account = g.db.accounts.get_accounts(id=recurring_payment["account_id"])[0]
+        if not account["stripe_customer_id"]:
+            g.db.accounts.update_account(account_id=account["id"], stripe_customer_id=session.customer)
         if payment := Payments(g.db).get(stripe_invoice_id=session.invoice):
             Payments(g.db).update(
                 id=payment[0]["id"],
@@ -467,13 +473,14 @@ def serve_recurring_payment(recurring_payment_id):
                 'interval': recurring_payment["recurring_interval"]
             }
         }
-        metadata = {"recurring_payment_id": recurring_payment["id"]}
-        mode = "subscription"
+        account = g.db.accounts.get_accounts(id=recurring_payment["account_id"])[0]
+        customer_id = account["stripe_customer_id"] if account["stripe_customer_id"] else None
         session = stripe.checkout.Session.create(
             client_reference_id=recurring_payment['account_id'],
             line_items=[{'price_data': price_data, 'quantity': 1}],
-            mode=mode,
-            metadata=metadata,
+            mode="subscription",
+            customer=customer_id,
+            metadata={"recurring_payment_id": recurring_payment["id"]},
             success_url=(ROOT + url_for('stripe_bp.serve_payment_success')
                          + "?session_id={CHECKOUT_SESSION_ID}")
         )
