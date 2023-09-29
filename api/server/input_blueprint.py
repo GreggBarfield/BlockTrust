@@ -18,11 +18,8 @@ from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.users import UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
-<<<<<<< HEAD
 from core.utilities import auth
 
-=======
->>>>>>> 43223dfe434bed388111492199fd1bf27c79dbc8
 from traceback import format_exc
 
 
