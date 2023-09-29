@@ -318,9 +318,9 @@ def serve_create_new_account():
                 personal_phone=request_data['personal_phone']
             )
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
-            raise ExportException("Signup failed: " + str(e))
+            raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
-        return {"response": "New Account Created for. Please verify your email."}
+        return {"response": "New Account Created for" + required['company']}
     except ExportException as e:
         raise e
     except Exception as e:
