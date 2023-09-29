@@ -284,8 +284,6 @@ def serve_create_new_account():
         accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
         if len(accounts_list) == 0:
             raise ExportException("Bad token. You are not authorized to insert a new account")
-        else:
-            authenticated_account = accounts_list[0]
         required = {
             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
             'address': None, 'city': None, 'state': None, 'zip_code': None,
@@ -320,7 +318,7 @@ def serve_create_new_account():
         except (auth.SignupFailedException, AccountsException, UsersException) as e:
             raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
-        return {"response": "New Account Created for" + required['company']}
+        return {"response": "New Account Created for " + required['company']}
     except ExportException as e:
         raise e
     except Exception as e:

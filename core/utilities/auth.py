@@ -714,7 +714,6 @@ def api_signup(username, email, phone, first_name, last_name, password, confirm_
         phone=personal_phone,
         email_verified=1
     )
-
     try:
         account_obj = g.db.accounts.create_account_with_admin(
             user=user,
@@ -728,7 +727,6 @@ def api_signup(username, email, phone, first_name, last_name, password, confirm_
             zip=zip_code,
             phone=phone
         )
-
         perform_new_account_actions(
             db=g.db, account_id=account_obj.id(), user_id=user.id(),
             event_type_id=event_type_by_name["API Signup"], sector_id=account_obj.sector_id(),
