@@ -85,8 +85,8 @@ class Matches:
         result = self._db.execute_d(query)
         return Matches._load_rows(result)
 
-    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_ids, is_partner=False, as_count=False):
-        if not all(isinstance(id, int) for id in account_ids):
+    def get_sightings_in_auction_house_feedlot_packer_stocker(self, account_id, is_partner=False, as_count=False, associated_account_ids=()):
+        if not all(isinstance(id, int) for id in associated_account_ids):
             raise Exception("Incorrect input for account ids")
 
         if as_count:
@@ -101,10 +101,12 @@ class Matches:
 
         first_account_link_clause = ""
         if not is_partner:
-            first_account_link_clause = f"al1.account = {account_ids[0]}"
+            first_account_link_clause = f"al1.account = {account_id}"
         else:
-            if len(account_ids) > 0:
-                first_account_link_clause = f"al1.account IN ({','.join([str(id) for id in account_ids])})"
+            if len(associated_account_ids) > 0:
+                first_account_link_clause = f"al1.account IN ({','.join([str(id) for id in associated_account_ids])})"
+            else:
+                first_account_link_clause = f"al1.partner_account = {account_id}"
 
         if first_account_link_clause:
             match_rows = self._db.execute_d(
@@ -632,7 +634,7 @@ class Matches:
                 }
         )
 
-    def get_count_eid_distinct_for_accounts(self, account_ids=(), is_partner=False):
+    def get_count_eid_distinct_for_accounts(self, account_id, is_partner=False, associated_account_ids=(),):
         """Count the number of distinct EIDs in the database for an account.
 
         Params:
@@ -641,7 +643,7 @@ class Matches:
         Returns:
             The value
         """
-        if not all(isinstance(id, int) for id in account_ids):
+        if not all(isinstance(id, int) for id in associated_account_ids):
             raise Exception("Incorrect input for account ids")
 
         query = """
@@ -650,10 +652,12 @@ class Matches:
         """
         condition = ""
         if not is_partner:
-            condition = f" AND al.account = {account_ids[0]}"
+            condition = f" AND al.account = {account_id}"
         else:
-            if len(account_ids) > 0:
-                condition = f" AND al.account IN ({','.join([str(id) for id in account_ids])})"
+            if len(associated_account_ids) > 0:
+                condition = f" AND al.account IN ({','.join([str(id) for id in associated_account_ids])})"
+            else:
+                condition = f" AND al.partner_account = {account_id}"
 
         if condition:
             return self._db.execute_d(
@@ -687,6 +691,11 @@ class Matches:
                     account_link_condition = f"""
                         AND al.account IN ({','.join([str(account['id']) for account in associated_accounts])})
                     """
+                else:
+                    account_link_condition = f"""
+                        AND al.partner_account = {account_id}
+                    """
+
             else:
                 account_link_condition = " AND al.account = %(account_id)s"
                 args["account_id"] = account_id
@@ -715,7 +724,7 @@ class Matches:
                     yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account["id"])
                     account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
                     account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                        (account["id"],), False, True
+                        account["id"], False, True
                     )
                     account_result["account_id"] = account["id"]
                     result[account["name"]] = account_result
@@ -827,7 +836,6 @@ class Matches:
         """
         result = {}
         sighted_eid_data = {}
-        all_eid_data = {}
         if len(account_links := self._db.account_links.get_account_links(account_id=account_id)) > 0:
             related_account_details = self.get_sighted_match_accounts_for_account_link(
                 account_link_id=account_links[0]['id'], sector_id=sector_id
@@ -849,20 +857,44 @@ class Matches:
                 account_result["sightings"] = account_detail["count"]
                 sighted_eid_data[account_detail["account_name"]] = account_result
 
-                account_result = {}
-                quality_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"], account_id=account_detail["account_id"])
-                account_result["quality_distribution"] = {x['data']: x['count'] for x in quality_distribution}
-                yield_distribution = self.get_count_distribution(MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"], account_id=account_detail["account_id"])
-                account_result["yield_distribution"] = {x['data']: x['count'] for x in yield_distribution}
-                account_result["sightings"] = self.get_sightings_in_auction_house_feedlot_packer_stocker(
-                    (account_detail["account_id"],), False, True
-                )
-                account_result["account_id"] = account_detail["account_id"]
-                all_eid_data[account_detail["account_name"]] = account_result
-
         result['matched_data'] = sighted_eid_data
-        result['all_data'] = all_eid_data
         return result
+
+    def get_matches_for_partner_accounts(self, partner_account_id=NO_VALUE, matched_account_sector_id=NO_VALUE):
+        """
+        Get the sightings for EID's under a list of account links at ranches 
+
+        Params:
+            account_link_ids: List of account link ID's
+
+        Returns: 
+        """
+        query_conditions = []
+        query_values = {}
+        base_query = """
+            SELECT m1.eid as eid, al.account as account_id, m1.account_link as sighted_account_link,
+            al.name as account_name, al.sector as account_sector_id, MIN(m3.data) as usda_quality_grade, 
+            MIN(m4.data) as usda_yield_grade FROM matches m1 LEFT JOIN matches m2 on m1.eid=m2.eid 
+            LEFT JOIN account_links al on m1.account_link = al.id LEFT JOIN matches m3 on m1.eid=m3.eid AND m3.type=16 
+            LEFT JOIN matches m4 on m1.eid=m4.eid AND m4.type=17
+        """
+        
+        if partner_account_id is not NO_VALUE:
+            query_conditions.append("m2.account_link in (SELECT id FROM account_links WHERE partner_account=%(partner_account_id)s)")
+            query_values["partner_account_id"] = partner_account_id
+        if matched_account_sector_id is not NO_VALUE:
+            query_conditions.append("al.sector=%(matched_account_sector_id)s")
+            query_values["matched_account_sector_id"] = matched_account_sector_id
+
+        group_by_clause = "GROUP BY m1.eid, m1.account_link ORDER BY m1.eid, m1.account_link"
+
+        if len(query_conditions) >= 1:
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions) + " " + group_by_clause
+        else:
+            combined_query_condition = ""
+
+        query = base_query + combined_query_condition
+        return self._db.execute_d(query, query_values)
 
     @staticmethod
     def _load_rows(rows):

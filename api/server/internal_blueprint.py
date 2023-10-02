@@ -7,9 +7,8 @@ from flask import (
     Flask, jsonify, request, session, Blueprint, g, redirect
 )
 
-
 from ..database.inserts_model import InsertsModel
-from core.database.tables.accounts import AccountsException
+from core.database.tables.matches import Matches
 from core.database.database import Database
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, INTERNAL_API_SECRET
 from core.common_exceptions import ExportException
@@ -31,7 +30,7 @@ def serve_api_eids(secret):
         print(secret)
         raise ExportException("Bad internal API secret")
 
-    eids = g.db.matches.get_ils_eids()
+    eids = Matches(g.db).get_ils_eids()
 
     return {
         "eids": eids

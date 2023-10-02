@@ -1,4 +1,5 @@
 from core.database.tables.connections import Connections
+from core.database.tables.matches import Matches
 from core.sectors import SECTORS_NAME_TO_ID
 
 
@@ -9,24 +10,18 @@ def execute(db, query):
     """Execute the query."""
     params = query['params']
     is_partner = params.get("is_partner", False)
+    account_ids = []
     if is_partner:
         partner = db.accounts.get_accounts(id=params['account'])[0]
         if partner["sector"] == SECTORS_NAME_TO_ID["Producer Service"]:
             account_ids = Connections(db).get_connected_account_ids(partner["id"])
-        else:
-            partner_accounts = db.accounts.get_accounts(
-                partner_account=params['account']
-            )
-            account_ids = [account["id"] for account in partner_accounts]
-    else:
-        account_ids = [params['account']]
 
     return {
-        'count_eid_distinct': db.matches.get_count_eid_distinct_for_accounts(
-            account_ids, is_partner
+        'count_eid_distinct': Matches(db).get_count_eid_distinct_for_accounts(
+            params['account'], is_partner, account_ids
         ),
-        'count_eid_distinct_sighted': db.matches.get_sightings_in_auction_house_feedlot_packer_stocker(
-            account_ids, is_partner, as_count=True
+        'count_eid_distinct_sighted': Matches(db).get_sightings_in_auction_house_feedlot_packer_stocker(
+            params['account'], is_partner, as_count=True, associated_account_ids=account_ids
         )
     }
 

@@ -18,7 +18,23 @@ export class SalesGroupViewer {
             this.attach(attachTo);
     }
 
-    createDisplay() {
+    createDisplay = async() =>{
+        // Get USDA Quality Grade distribution for sales group account
+        let accountUSDAQualityGradeDistribution = null;
+        const fetchAccountCarcassData = await fetch(
+            '/widgets/data/get_count_distribution_for_account', {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    account_id: this.data.account
+                }),
+        });
+        const accountUSDAQualityGradeDistributionData = await fetchAccountCarcassData.json();
+        if(accountUSDAQualityGradeDistributionData.result !== null){
+            accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result.count_distribution;
+        }
         // General layout
 
         let layout = {};
@@ -216,6 +232,33 @@ export class SalesGroupViewer {
             category.style = "color:black";
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
+            
+            if(this.data.show_account_carcass_data == 1){
+                let carcassData = document.createElement("div");
+                carcassData.style = "color:black";
+                let qualityGradeDistribution = "";
+                if(accountUSDAQualityGradeDistribution != null){
+                    let total = 0;
+                    let qualityGradePercentages = {"Select or Lower": 0, "Choice": 0,"Prime": 0};
+                    for(let qualityGradeData of accountUSDAQualityGradeDistribution){
+                        total += qualityGradeData.count;
+                    }
+                    for(let qualityGradeData of accountUSDAQualityGradeDistribution){
+                        qualityGradePercentages[qualityGradeData.data] = (100*qualityGradeData.count/total).toFixed(2) + "%";
+                    }
+                    qualityGradeDistribution = qualityGradePercentages["Choice"] + "/" + qualityGradePercentages["Prime"] + "/" + qualityGradePercentages["Select or Lower"];
+                }
+                let tooltip = document.createElement("a");
+                tooltip.className = "feather icon-info text-primary pl-2";
+                tooltip.style = "color:blue";
+                tooltip.dataToggle = "tooltip";
+                tooltip.dataPlacement = "right";
+                tooltip.title = "Choice/Prime/Select";
+                carcassData.textContent =`Ranch Carcass History: ${qualityGradeDistribution}`;
+                carcassData.append(tooltip);
+                left.append(carcassData);
+            }
+            
         }
 
         // Configure Animal data

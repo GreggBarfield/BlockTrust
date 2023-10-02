@@ -1,4 +1,5 @@
 from core.database.tables.connections import Connections
+from core.database.tables.matches import Matches
 from core.sectors import SECTORS_NAME_TO_ID
 from ...database.tables.sustainability_responses import QUESTIONNAIRE_STATUS_NAMES_TO_IDS, SustainabilityResponses
 from ...match_types import MATCH_TYPES_NAME_TO_ID
@@ -19,14 +20,10 @@ def execute(db, query):
             connected_account_ids = Connections(db).get_connected_account_ids(partner["id"])
             for account_id in connected_account_ids:
                 partner_accounts.append(db.accounts.get_accounts(id=account_id)[0])
-        else:
-            partner_accounts = db.accounts.get_accounts(
-                partner_account=params['account']
-            )
 
     if params.get("match_type", None):
         return {
-            "count_distribution": db.matches.get_count_distribution(
+            "count_distribution": Matches(db).get_count_distribution(
                 MATCH_TYPES_NAME_TO_ID[params["match_type"]],
                 account_id=params['account'],
                 is_partner=is_partner,
@@ -35,7 +32,13 @@ def execute(db, query):
         }
     else:
         # only supported for partners
-        count_distribution = db.matches.get_count_distribution(
+
+        if partner["sector"] != SECTORS_NAME_TO_ID["Producer Service"]:
+            partner_accounts = db.accounts.get_accounts(
+                partner_account=params['account']
+            )
+
+        count_distribution = Matches(db).get_count_distribution(
             is_partner=True,
             associated_accounts=partner_accounts
         )

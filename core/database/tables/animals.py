@@ -181,7 +181,7 @@ class Animals:
                       marbling_score=NO_VALUE, marbling_score_code=NO_VALUE, ribeye_area=NO_VALUE,
                       fat_thickness=NO_VALUE, calculated_live_weight=NO_VALUE, total_gain=NO_VALUE,
                       days_on_test=NO_VALUE, average_daily_gain=NO_VALUE, packer_api_insert_id=NO_VALUE,
-                      feeder_api_insert_id=NO_VALUE):
+                      feeder_api_insert_id=NO_VALUE, is_paid=NO_VALUE, paid_by_account_id=NO_VALUE):
         """
         Updates an animal.
         """
@@ -299,6 +299,12 @@ class Animals:
         if feeder_api_insert_id is not NO_VALUE:
             query_conditions.append("feeder_api_insert_id = %(feeder_api_insert_id)s")
             query_values["feeder_api_insert_id"] = feeder_api_insert_id
+        if is_paid is not NO_VALUE:
+            query_conditions.append("is_paid = %(is_paid)s")
+            query_values["is_paid"] = is_paid
+        if paid_by_account_id is not NO_VALUE:
+            query_conditions.append("paid_by_account_id = %(paid_by_account_id)s")
+            query_values["paid_by_account_id"] = paid_by_account_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"
