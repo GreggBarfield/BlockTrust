@@ -2173,7 +2173,18 @@ ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
 
-
 /* Nisheet Thakur 09/14/2023 */
 ALTER TABLE `sales_groups`
 ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
+
+/* Nisheet Thakur 09/25/2023 */
+ALTER TABLE `accounts`
+ADD COLUMN `are_auction_markets_used_by_account` TINYINT DEFAULT 0;
+
+CREATE TABLE `auction_markets_used_by_accounts`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `auction_market_id` INT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

@@ -19,6 +19,8 @@ let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone");
+let are_auction_market_utilized = signupForm.find("#signup_form_are_auction_market_utilizied");
+let auction_markets = signupForm.find("#signup_form_auction_markets");
 
 let ip="", country="";
 if(checkIP.toLowerCase() === "true") {
@@ -59,7 +61,9 @@ let form = new AsyncForm({
             zip_code: zip_code.val(),
             personal_phone: personal_phone.val(),
             ip_address: ip,
-            ip_country: country
+            ip_country: country,
+            are_auction_markets_used_by_account: are_auction_market_utilized.val(),
+            auction_markets: JSON.stringify(auction_markets.val())
         }
     }
 });
@@ -69,5 +73,14 @@ partner.on('change', function() {
         partner_id.prop('disabled', true);
     } else {
         partner_id.prop('disabled', false);
+    }
+});
+
+are_auction_market_utilized.on('change', function(){
+    if(are_auction_market_utilized.val() == "0"){
+        auction_markets.prop('disabled', true);
+    }
+    else{
+        auction_markets.prop('disabled', false);
     }
 });
