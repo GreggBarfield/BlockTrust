@@ -9,6 +9,7 @@ from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
 from ..common_exceptions import ExportException
 
 from ..database.combinations import send_connection_request_email_to_admin_users
+from ..database.tables.account_links import AccountLinks
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
@@ -879,3 +880,19 @@ def serve_get_count_distribution_for_account():
         0
     ))                        
     return count_distribution_data
+
+
+@bp.route('/widgets/data/get_all_matches_for_an_account', methods=["POST"])
+@crut.require_account
+def serve_get_all_matches_for_an_account():
+    eids_wtih_all_data = {}
+    account_links = AccountLinks(g.db).get_by_account_id(account_id=g.account.id())
+    for account_link in account_links:
+        print(account_link.id())
+        account_matches = g.db.matches.get_matches(account_link=account_link.id())
+        for account_match in account_matches:
+            if account_match["eid"] not in eids_wtih_all_data:
+                eids_wtih_all_data[account_match["eid"]] = [account_matches["data"]]
+            else:
+                eids_wtih_all_data[account_match["eid"]].append(account_match["data"])
+    return eids_wtih_all_data
