@@ -2188,3 +2188,9 @@ CREATE TABLE `auction_markets_used_by_accounts`(
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 09/03/2023 */
+ALTER TABLE `accounts`
+ADD COLUMN `auction_markets_used` JSON DEFAULT NULL,
+ADD COLUMN `preconditioning_programs` JSON DEFAULT NULL,
+ADD COLUMN `pvp_programs` JSON DEFAULT NULL;

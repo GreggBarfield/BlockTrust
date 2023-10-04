@@ -255,7 +255,27 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                    </div>  
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_preconditioning_programs">
+                                    Pre-Conditioning Programs
+                                </label>
+                                <select class="form-control" id="signup_form_preconditioning_programs" required>
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_pvp_programs">PVP Programs</label>
+                                <select class="form-control" id="signup_form_pvp_programs">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
                     <hr style="height:2px;background:black"/>
                     <div class="row">
                         <h4>User Information:</h4>
@@ -331,11 +351,23 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         let auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
+        let preconditioningPrograms = JSON.parse('{{preconditioning_programs|tojson}}');
+        let pvpPrograms = JSON.parse('{{pvp_programs|tojson}}');
         let auctionMarketsList = [];
+        let preconditioningProgramsList = [];
+        let pvpProgramsList = [];
         for(let auctionMarket of auctionMarkets){
-            auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state})
+            auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state});
+        }
+        for(let preconditioningProgram of preconditioningPrograms){
+            preconditioningProgramsList.push({id: preconditioningProgram, text: preconditioningProgram});
+        }
+        for(let pvpProgram of pvpPrograms){
+            pvpProgramsList.push({id: pvpProgram, text: pvpProgram});
         }
         $("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
+        $("#signup_form_preconditioning_programs").select2({data: preconditioningProgramsList, multiple: true, placeholder: "Select Preconditioning Programs"});
+        $("#signup_form_pvp_programs").select2({data: pvpProgramsList, multiple: true, placeholder: "Select PVP Programs"});
     });
 </script>
 

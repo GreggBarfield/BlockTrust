@@ -21,6 +21,8 @@ let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone");
 let are_auction_market_utilized = signupForm.find("#signup_form_are_auction_market_utilizied");
 let auction_markets = signupForm.find("#signup_form_auction_markets");
+let preconditioning_programs = signupForm.find("#signup_form_preconditioning_programs");
+let pvp_programs = signupForm.find("#signup_form_pvp_programs")
 
 let ip="", country="";
 if(checkIP.toLowerCase() === "true") {
@@ -63,7 +65,9 @@ let form = new AsyncForm({
             ip_address: ip,
             ip_country: country,
             are_auction_markets_used_by_account: are_auction_market_utilized.val(),
-            auction_markets: JSON.stringify(auction_markets.val())
+            auction_markets: JSON.stringify(auction_markets.val()),
+            preconditioning_programs: JSON.stringify(preconditioning_programs.val()),
+            pvp_programs: JSON.stringify(pvp_programs.val())
         }
     }
 });

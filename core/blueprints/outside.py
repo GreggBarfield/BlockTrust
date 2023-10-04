@@ -14,6 +14,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from ..utilities import auth
+from ..utilities.constants import PRECONDITIONING_PROGRAMS, PVP_PROGRAMS
 from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -118,7 +119,9 @@ def serve_signup():
         "site_key": RECAPTCHA_SITE_KEY,
         "ipinfo_access_token": IPINFO_TOKEN,
         "check_ip": CHECK_IP,
-        "auction_markets": auction_markets
+        "auction_markets": auction_markets,
+        "preconditioning_programs": PRECONDITIONING_PROGRAMS,
+        "pvp_programs": PVP_PROGRAMS
     })
 
 
@@ -130,19 +133,19 @@ def serve_signup_action():
             'address': None, 'city': None, 'state': None, 'zip_code': None,
             'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
+        print(request.form)
         for required_field in required:
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        
         if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
             raise ExportException("Please Select Auction Market(s)")
 
         if request.form.get('token', None) is not None:
             data = {
-                "secret" : RECAPTCHA_SECRET_KEY,
+                "secret": RECAPTCHA_SECRET_KEY,
                 "response": request.form['token']
             }
             verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
