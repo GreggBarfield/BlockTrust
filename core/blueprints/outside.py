@@ -174,7 +174,9 @@ def serve_signup_action():
                         ip_address=request.form['ip_address'],
                         ip_country=request.form['ip_country'],
                         are_auction_markets_used_by_account=int(request.form["are_auction_markets_used_by_account"]),
-                        auction_markets=loads(request.form["auction_markets"])
+                        auction_markets_used=loads(request.form["auction_markets"]),
+                        preconditioning_programs=loads(request.form["preconditioning_programs"]),
+                        pvp_programs=loads(request.form["pvp_programs"])
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))

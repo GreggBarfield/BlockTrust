@@ -126,8 +126,9 @@ def load_account_to_context():
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
-            personal_phone, recaptcha_score, ip_address, ip_country, are_auction_markets_used_by_account, auction_markets):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id,
+           sector, address, city, state, zip_code, personal_phone, recaptcha_score, ip_address, ip_country,
+           are_auction_markets_used_by_account, auction_markets_used, preconditioning_programs, pvp_programs):
     """Create new user account.
 
     Params:
@@ -169,6 +170,16 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     personal_phone = format_field(personal_phone)
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
+    auction_markets_used_json = None
+    preconditioning_programs_json = None
+    pvp_programs_json = None
+    if len(auction_markets_used) > 0:
+        auction_markets_used_json = {"auction_market_ids": auction_markets_used}
+    if len(preconditioning_programs) > 0:
+        preconditioning_programs_json = {"preconditioning_programs": preconditioning_programs}
+    if len(pvp_programs) > 0:
+        pvp_programs_json = {"pvp_programs": pvp_programs}
+
 
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
@@ -197,14 +208,16 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             city=city,
             state=state,
             zip=zip_code,
-            phone=phone
+            phone=phone,
+            are_auction_markets_used_by_account=are_auction_markets_used_by_account,
+            auction_markets_used=auction_markets_used_json,
+            preconditioning_programs=preconditioning_programs_json,
+            pvp_programs=pvp_programs_json
         )
 
         perform_new_account_actions(
-            db=g.db, account_id=account_obj.id(), user_id=user.id(),
-            event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id(),
-            partner_id=partner, email=email, are_auction_markets_used_by_account=are_auction_markets_used_by_account,
-            auction_markets=auction_markets
+            db=g.db, account_id=account_obj.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"],
+            sector_id=account_obj.sector_id(), partner_id=partner, email=email
         )
 
     except Exception as e:

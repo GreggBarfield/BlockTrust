@@ -161,7 +161,9 @@ class Accounts:
 
         return sector, phone, affiliate_id
 
-    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                       are_auction_markets_used_by_account=None, auction_markets_used=None,
+                       preconditioning_programs=None, pvp_programs=None):
         """Creates a new account without a user.
 
         Params:
@@ -184,9 +186,12 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
+                are_auction_markets_used_by_account, auction_markets_used, preconditioning_programs, pvp_programs)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
+                    %(phone)s, %(show_real_name)s, %(are_auction_markets_used_by_account)s, %(auction_markets_used)s, 
+                    %(preconditioning_programs)s, %(pvp_programs)s)
             """,
             {
                 "company": company,
@@ -198,7 +203,11 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "show_real_name": int(False)
+                "show_real_name": int(False),
+                "are_auction_markets_used_by_account": are_auction_markets_used_by_account,
+                "auction_markets_used": auction_markets_used,
+                "preconditioning_programs": preconditioning_programs,
+                "pvp_programs": pvp_programs
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
