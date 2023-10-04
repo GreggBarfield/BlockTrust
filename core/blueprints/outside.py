@@ -133,7 +133,6 @@ def serve_signup_action():
             'address': None, 'city': None, 'state': None, 'zip_code': None,
             'username': None, 'email': None, 'password': None, 'confirm_password': None
         }
-        print(request.form)
         for required_field in required:
             if required_field not in request.form:
                 raise ExportException("internal error, {} missing from form".format(required_field))
