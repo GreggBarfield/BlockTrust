@@ -2,6 +2,8 @@ from ...sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..objects.account import Account
 from ..no_value import NoValue
 
+import json
+
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
@@ -205,9 +207,9 @@ class Accounts:
                 "phone": phone,
                 "show_real_name": int(False),
                 "are_auction_markets_used_by_account": are_auction_markets_used_by_account,
-                "auction_markets_used": auction_markets_used,
-                "preconditioning_programs": preconditioning_programs,
-                "pvp_programs": pvp_programs
+                "auction_markets_used": json.dumps(auction_markets_used) if auction_markets_used is not None else None,
+                "preconditioning_programs": json.dumps(preconditioning_programs) if preconditioning_programs is not None else None,
+                "pvp_programs": json.dumps(pvp_programs) if pvp_programs is not None else None
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -222,7 +224,9 @@ class Accounts:
 
         return account
 
-    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                       are_auction_markets_used_by_account=None, auction_markets_used=None,
+                       preconditioning_programs=None, pvp_programs=None):
         """Creates a new account with the user automatically added as the admin.
 
         Params:
@@ -244,7 +248,10 @@ class Accounts:
             AccountsException
         """
 
-        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone)
+        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                                      are_auction_markets_used_by_account, auction_markets_used,
+                                      preconditioning_programs, pvp_programs
+        )
 
         # make the first user the account admin
         account.add_user(user, 1)
