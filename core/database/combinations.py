@@ -2,6 +2,7 @@
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
+from core.database.tables.auction_markets_used_by_accounts import AuctionMarketsUsedByAccounts
 from core.database.tables.connection_invites import ConnectionInvites
 from core.database.tables.event_logs import EventLogs
 from core.database.tables.reports import Reports
@@ -116,7 +117,7 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
 
 
 def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, partner_id=None, email=None,
-                                employee_id=None):
+                                employee_id=None, are_auction_markets_used_by_account=None, auction_markets=None):
     if email:
         ConnectionInvites(db).convert_invites_to_connections(email, account_id)
     Reports(db).make_reports_for_account(account_id, sector_id)
@@ -134,6 +135,11 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
         partner = Accounts(db).get_partners(id=partner_id)[0]
         if partner["partner_subscription_credits"]:
             update_partner_payment_of_account(db, partner, account_id, True, employee_id)
+    
+    if are_auction_markets_used_by_account is not None and are_auction_markets_used_by_account == 1:
+        Accounts(db).update_account(account_id=account_id, are_auction_markets_used_by_account=1)
+        for auction_market_id in auction_markets:
+            AuctionMarketsUsedByAccounts(db).insert(account_id=account_id, auction_market_id=auction_market_id)
 
 
 def update_partner_payment_of_account(db, partner, account_id, paid_by_partner, employee_id=None):

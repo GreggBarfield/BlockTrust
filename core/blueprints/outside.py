@@ -4,6 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.combinations import send_email_to_admin_users
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
@@ -105,13 +106,19 @@ def serve_signup():
         is_partner=1,
         is_partner_used_for_signup=1
     )
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(
+        is_archived=0,
+        auction_markets_order_by="name",
+        auction_markets_sort_by="ASC"
+    )
     return outside_render('signup.html', {
         "available_sectors": available_sectors,
         "SECTORS_NAME_TO_ID": SECTORS_NAME_TO_ID,
         "partners": partners,
         "site_key": RECAPTCHA_SITE_KEY,
         "ipinfo_access_token": IPINFO_TOKEN,
-        "check_ip": CHECK_IP
+        "check_ip": CHECK_IP,
+        "auction_markets": auction_markets
     })
 
 
@@ -129,6 +136,9 @@ def serve_signup_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        
+        if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
+            raise ExportException("Please Select Auction Market(s)")
 
         if request.form.get('token', None) is not None:
             data = {
@@ -159,7 +169,9 @@ def serve_signup_action():
                         personal_phone=request.form['personal_phone'],
                         recaptcha_score=verification_response_json['score'],
                         ip_address=request.form['ip_address'],
-                        ip_country=request.form['ip_country']
+                        ip_country=request.form['ip_country'],
+                        are_auction_markets_used_by_account=int(request.form["are_auction_markets_used_by_account"]),
+                        auction_markets=loads(request.form["auction_markets"])
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
@@ -183,7 +195,6 @@ def serve_signup_action():
             raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
         return {"error": str(e)}, 400
-
 # About us
 
 
