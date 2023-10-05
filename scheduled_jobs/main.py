@@ -4,6 +4,7 @@ from reports import run_report_tasks
 from emails import run_email_tasks
 from partners import run_partner_tasks
 from tag_store import run_tag_store_tasks
+import payments
 from threading import Thread
 import traceback
 import time
@@ -20,12 +21,13 @@ try:
         "Reports": "reports.py|run_report_tasks",
         "Emails": "emails.py|run_email_tasks",
         "Partners": "partners.py|run_partner_tasks",
-        "Tag Store": "tag_store.py|run_tag_store_tasks"
+        "Tag Store": "tag_store.py|run_tag_store_tasks",
+        "Payments": (payments, payments.run_payment_tasks)
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
     threads = []
-    while(True):
+    while True:
         # remove any threads that are done executing
         for t in threads:
             if not t.is_alive():
@@ -83,6 +85,15 @@ try:
         #     threads.append(t)
         #     print('Main: appended thread TransferDataILS', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
+        # this will run once between 8 and 9 AM
+        if datetime.datetime.today().day == 5 and (datetime.time(8, 0, 0) <= current_time < datetime.time(9, 0, 0)):
+            if not any(t.getName() == "Payments" for t in threads):
+                job_run_id = JobRuns(db).insert("Payments", scheduled_jobs["Payments"][0].__name__ + ".py", scheduled_jobs["Payments"][1].__name__)
+                t = Thread(target=scheduled_jobs["Payments"][1], name="Payments", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Payments', 'Total number of threads:', len(threads), 'Current time:', current_time)
+
         # this will run once between 9 and 10 AM
         if datetime.time(9, 0, 0) <= current_time < datetime.time(10, 0, 0):
             if not any(t.getName() == "Partners" for t in threads):
@@ -91,7 +102,7 @@ try:
                 t.start()
                 threads.append(t)
                 print('Main: appended thread Partners', 'Total number of threads:', len(threads), 'Current time:', current_time)
-        
+
         # this will run once between 10 and 11 AM
         if datetime.time(10, 0, 0) <= current_time < datetime.time(11, 0, 0):
             if not any(t.getName() == "Tag Store" for t in threads):
