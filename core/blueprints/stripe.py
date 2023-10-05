@@ -467,13 +467,15 @@ def serve_recurring_payment(recurring_payment_id):
                 'interval': recurring_payment["recurring_interval"]
             }
         }
-        metadata = {"recurring_payment_id": recurring_payment["id"]}
-        mode = "subscription"
+        account = g.db.accounts.get_accounts(id=recurring_payment["account_id"])[0]
+        customer_id = account["stripe_customer_id"] if account["stripe_customer_id"] else None
         session = stripe.checkout.Session.create(
             client_reference_id=recurring_payment['account_id'],
             line_items=[{'price_data': price_data, 'quantity': 1}],
-            mode=mode,
-            metadata=metadata,
+            mode="subscription",
+            customer=customer_id,
+            metadata={"recurring_payment_id": recurring_payment["id"]},
+            subscription_data={"metadata": {"recurring_payment_id": recurring_payment["id"]}},
             success_url=(ROOT + url_for('stripe_bp.serve_payment_success')
                          + "?session_id={CHECKOUT_SESSION_ID}")
         )
