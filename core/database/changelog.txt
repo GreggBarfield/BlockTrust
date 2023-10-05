@@ -2159,6 +2159,10 @@ ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
 ALTER TABLE `sales_groups`
 ADD COLUMN `show_account_carcass_data` TINYINT DEFAULT 1;
 
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
+
 /* Rohan Sureshkumar 9/18/2023 */
 ALTER TABLE `animals` 
 ADD COLUMN `is_paid` TINYINT NULL DEFAULT 0 AFTER `average_daily_gain`,
@@ -2171,10 +2175,6 @@ ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
-/* Nisheet Thakur 09/14/2023 */
-ALTER TABLE `sales_groups`
-ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
 
 /* Nisheet Thakur 09/25/2023 */
 ALTER TABLE `accounts`
