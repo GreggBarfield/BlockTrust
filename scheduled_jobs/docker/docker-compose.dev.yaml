@@ -12,6 +12,7 @@ services:
       - ../../core/match_types.py:/home/ubuntu/core/match_types.py
       - ../../core/environment_config.json:/home/ubuntu/core/environment_config.json
       - ../../core/database:/home/ubuntu/core/database
+      - ../../core/renderers:/home/ubuntu/core/renderers
       - ../../core/reports:/home/ubuntu/core/reports
       - ../../core/utilities:/home/ubuntu/core/utilities
       - ../:/home/ubuntu/scheduled_jobs

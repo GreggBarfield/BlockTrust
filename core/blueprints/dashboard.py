@@ -90,7 +90,6 @@ def serve_animal_eid(animal_eid):
         account_id=g.account.id(), sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
     )
     if len(animal.matches) > 0:
-        # first ranch is owner
         owner_account_match = sorted(
             list(filter(lambda row: row["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"], animal.matches)),
             key=lambda row: row["id"]
