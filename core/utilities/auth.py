@@ -1,5 +1,6 @@
 import bcrypt
 from flask import g, session
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.tables.users import UsersException
@@ -15,7 +16,7 @@ from ..renderers.email import render_email
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
-from ..config import SUPPORT_GENERAL_EMAIL
+from ..config import SUPPORT_GENERAL_EMAIL, ADMIN_EMAIL
 from ..sectors import SECTORS_ID_TO_NAME
 
 SESSION_USER_ID_VAR = "abc"
@@ -206,7 +207,28 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             partner_id=partner, email=email, are_auction_markets_used_by_account=are_auction_markets_used_by_account,
             auction_markets=auction_markets
         )
-
+        auction_market_names = []
+        if account_obj.auction_markets_used() is not None:
+            auction_markets_used = account_obj.auction_markets_used()
+            auction_market_ids = auction_markets_used["auction_market_ids"]
+            for auction_market_id in auction_market_ids:
+                auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
+                if len(auction_market_data) > 0:
+                    auction_market_names.append(auction_market_data[0]["name"])
+        partner_account_company = ""
+        if account_obj.partner_account_id() is not None:
+            partner_account = g.db.accounts.get_account_by_id(account_id=account_obj.partner_account_id())
+            partner_account_company = partner_account.company()
+        send_email(
+            "BlockTrust Network New Account Signup",
+            render_email("new_account_info.html", {
+                'user_account': account_obj,
+                'partner_account_company': partner_account_company,
+                'sectors_id_to_name': SECTORS_ID_TO_NAME,
+                'user': user,
+                "account_auction_market_names": auction_market_names
+            }), "nisheet.thakur@blocktrustnetwork.com"
+        )        
     except Exception as e:
         raise e
 

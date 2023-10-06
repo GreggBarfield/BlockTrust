@@ -114,6 +114,18 @@ class Account:
 
     def retail_description(self):
         return self._row["retail_description"]
+    
+    def are_auction_markets_used_by_account(self):
+        return self._row["are_auction_markets_used_by_account"]
+
+    def auction_markets_used(self):
+        return self._row["auction_markets_used"]
+
+    def preconditioning_programs(self):
+        return self._row["preconditioning_programs"]
+
+    def pvp_programs(self):
+        return self._row["pvp_programs"]
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

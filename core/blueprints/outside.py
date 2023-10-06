@@ -667,3 +667,32 @@ def serve_modify_tip(tip_id):
         return Response(status=HTTP_NO_CONTENT)
     else:
         return Response(status=HTTP_BAD_REQUEST)
+
+
+@bp.route('/testsignupemail', methods=['GET'])
+def serve_test():
+    account_obj = g.db.accounts.get_account_by_id(868)
+    user = g.db.users.get_user_by_id(353)
+    auction_market_names = []
+    if account_obj.auction_markets_used() is not None:
+        auction_markets_used = loads(account_obj.auction_markets_used())
+        auction_market_ids = auction_markets_used["auction_market_ids"]
+        for auction_market_id in auction_market_ids:
+            auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
+            if len(auction_market_data) > 0:
+                auction_market_names.append(auction_market_data[0]["name"])
+    partner_account_company = ""
+    if account_obj.partner_account_id() is not None:
+        partner_account = g.db.accounts.get_account_by_id(account_id=account_obj.partner_account_id())
+        partner_account_company = partner_account.company()
+    send_email(
+        "BlockTrust Network New Account Registration",
+        render_email("new_account_info.html", {
+            'user_account': account_obj,
+            'partner_account_company': partner_account_company,
+            'sectors_id_to_name': SECTORS_ID_TO_NAME,
+            'user': user,
+            "account_auction_market_names": auction_market_names
+        }), "nisheet.thakur@blocktrustnetwork.com"
+    )
+    return {}
