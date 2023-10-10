@@ -72,7 +72,13 @@
             </tr>
             <tr>
                 <th>Are Auction Markets Used by Account</th>
-                <td>{{user_account.are_auction_markets_used_by_account()}}</td>
+                <td>
+                    {% if user_account.are_auction_markets_used_by_account() == 1 %}
+                        Yes
+                    {% else %}
+                        No
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <th>Auction Markets Used</th>
@@ -80,11 +86,11 @@
             </tr>
             <tr>
                 <th>Preconditioning Programs</th>
-                <td>{{user_account.preconditioning_programs()}}</td>
+                <td>{{preconditioning_programs|join(', ')}}</td>
             </tr>
             <tr>
                 <th>PVP Programs</th>
-                <td>{{user_account.pvp_programs()}}</td>
+                <td>{{pvp_programs|join(', ')}}</td>
             </tr>
         </tbody>
     </table>
