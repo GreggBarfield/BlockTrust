@@ -2190,6 +2190,10 @@ CREATE TABLE `auction_markets_used_by_accounts`(
 
 /* Rohan Sureshkumar 9/25/2023 */
 ALTER TABLE `animals` 
+DROP FOREIGN KEY `fk_animals_paid_by_account_id_id_accounts`;
+ALTER TABLE `animals` 
+DROP INDEX `fk_animals_paid_by_account_id_id_accounts_idx` ;
+ALTER TABLE `animals` 
 DROP COLUMN `paid_by_account_id`;
 ALTER TABLE `animals` 
 ADD COLUMN `payment_id` INT NULL AFTER `is_paid`;
@@ -2209,3 +2213,18 @@ ADD COLUMN `stripe_error_code` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`
 UPDATE `animals` SET is_paid = 1;
 ALTER TABLE `error_logs` 
 CHANGE COLUMN `short_error` `short_error` VARCHAR(300) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/6/2023 */
+CREATE TABLE `sent_emails` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `email_address` VARCHAR(200) NULL,
+  `subject` VARCHAR(100) NULL,
+  `file` VARCHAR(100) NULL,
+  `routine` VARCHAR(100) NULL,
+  `template_name` VARCHAR(100) NULL,
+  `variables` JSON NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
