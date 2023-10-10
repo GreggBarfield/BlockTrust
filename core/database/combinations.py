@@ -1,4 +1,6 @@
 """Reusable functions which perform actions using multiple table routines"""
+import os
+from datetime import datetime
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
@@ -6,6 +8,7 @@ from core.database.tables.auction_markets_used_by_accounts import AuctionMarkets
 from core.database.tables.connection_invites import ConnectionInvites
 from core.database.tables.event_logs import EventLogs
 from core.database.tables.reports import Reports
+from core.database.tables.sent_emails import SentEmails
 from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from core.database.tables.users import Users
 from core.renderers.email import render_email
@@ -19,7 +22,6 @@ from core.sectors import SECTORS_NAME_TO_ID
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from .tables.debug_logs import DebugLogs
 from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
-from datetime import datetime
 
 
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
@@ -180,11 +182,19 @@ def send_connection_request_email_to_admin_users(db, to_account_id, from_account
                 )
 
 
-def send_email_to_admin_users(db, account_id, subject, body):
+def send_email_to_admin_users(db, account_id, subject, body, add_log=False):
     if len(admin_account_users := AccountUsers(db).get_account_users(account=account_id, is_admin=1)) > 0:
         for admin_account_user in admin_account_users:
             if len(email_verified_user := Users(db).get_users(id=admin_account_user["user"], is_email_verified=1)) > 0:
                 send_email(subject, body, email_verified_user[0]["email"])
+                if add_log:
+                    SentEmails(db).insert(
+                        account_id=account_id,
+                        user_id=email_verified_user[0]["id"],
+                        email_address=email_verified_user[0]["email"],
+                        subject=subject, file=os.path.basename(__file__),
+                        routine=send_email_to_admin_users.__name__
+                    )
 
 
 def create_connection_with_eid_owner(db, eid, connecting_account_id, details=None):
