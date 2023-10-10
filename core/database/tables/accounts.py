@@ -716,3 +716,17 @@ class Accounts:
         else:
             name = f"{SECTORS_ID_TO_NAME[sector]} {id}"
         return name
+
+    def get_accounts_for_charge(self):
+        accounts_data = self._db.execute_d(
+            """
+                SELECT ac.id, ac.stripe_customer_id, COUNT(a.eid) AS count_eid FROM accounts ac
+                INNER JOIN account_links al ON al.account = ac.id
+                INNER JOIN matches m on m.account_link = al.id
+                INNER JOIN animals a on m.eid = a.eid
+                WHERE a.is_paid=0 AND m.type=1
+                GROUP BY ac.id, ac.stripe_customer_id
+                HAVING COUNT(a.eid)>0
+            """
+        )
+        return accounts_data
