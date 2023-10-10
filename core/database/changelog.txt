@@ -2159,11 +2159,14 @@ ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
 ALTER TABLE `sales_groups`
 ADD COLUMN `show_account_carcass_data` TINYINT DEFAULT 1;
 
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
+
 /* Rohan Sureshkumar 9/18/2023 */
 ALTER TABLE `animals` 
 ADD COLUMN `is_paid` TINYINT NULL DEFAULT 0 AFTER `average_daily_gain`,
 ADD COLUMN `paid_by_account_id` INT NULL AFTER `is_paid`;
-UPDATE `animals` SET is_paid = 1;
 ALTER TABLE `animals` 
 ADD INDEX `fk_animals_paid_by_account_id_id_accounts_idx` (`paid_by_account_id` ASC) VISIBLE;
 ALTER TABLE `animals` 
@@ -2172,10 +2175,6 @@ ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
   REFERENCES `accounts` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
-
-/* Nisheet Thakur 09/14/2023 */
-ALTER TABLE `sales_groups`
-ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
 
 /* Nisheet Thakur 09/25/2023 */
 ALTER TABLE `accounts`
@@ -2187,4 +2186,45 @@ CREATE TABLE `auction_markets_used_by_accounts`(
   `auction_market_id` INT NOT NULL,
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Rohan Sureshkumar 9/25/2023 */
+ALTER TABLE `animals` 
+DROP FOREIGN KEY `fk_animals_paid_by_account_id_id_accounts`;
+ALTER TABLE `animals` 
+DROP INDEX `fk_animals_paid_by_account_id_id_accounts_idx` ;
+ALTER TABLE `animals` 
+DROP COLUMN `paid_by_account_id`;
+ALTER TABLE `animals` 
+ADD COLUMN `payment_id` INT NULL AFTER `is_paid`;
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_payment_id_id_payments_idx` (`payment_id` ASC) VISIBLE;
+ALTER TABLE `animals` 
+ADD CONSTRAINT `fk_animals_payment_id_id_payments`
+  FOREIGN KEY (`payment_id`)
+  REFERENCES `payments` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `animals` 
+ADD INDEX `is_paid_idx` (`is_paid` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD COLUMN `stripe_payment_intent_id` VARCHAR(90) NULL AFTER `stripe_invoice_id`,
+ADD COLUMN `stripe_error_code` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
+UPDATE `animals` SET is_paid = 1;
+ALTER TABLE `error_logs` 
+CHANGE COLUMN `short_error` `short_error` VARCHAR(300) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/6/2023 */
+CREATE TABLE `sent_emails` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `email_address` VARCHAR(200) NULL,
+  `subject` VARCHAR(100) NULL,
+  `file` VARCHAR(100) NULL,
+  `routine` VARCHAR(100) NULL,
+  `template_name` VARCHAR(100) NULL,
+  `variables` JSON NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));

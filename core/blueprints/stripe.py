@@ -481,6 +481,7 @@ def serve_recurring_payment(recurring_payment_id):
             mode="subscription",
             customer=customer_id,
             metadata={"recurring_payment_id": recurring_payment["id"]},
+            subscription_data={"metadata": {"recurring_payment_id": recurring_payment["id"]}},
             success_url=(ROOT + url_for('stripe_bp.serve_payment_success')
                          + "?session_id={CHECKOUT_SESSION_ID}")
         )
