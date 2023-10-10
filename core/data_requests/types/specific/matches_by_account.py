@@ -84,7 +84,7 @@ def auth(params):
                 else:
                     accounts = g.db.accounts.get_accounts(partner_account=g.account.id())
                     account_ids = [account["id"] for account in accounts]
-            else:
+            if not account_ids:
                 account_ids = [g.account.id()]
             return {
                 "matches": Matches(g.db).get_distinct_match_locations_for_account(
