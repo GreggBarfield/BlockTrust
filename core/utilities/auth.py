@@ -170,15 +170,15 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     personal_phone = format_field(personal_phone)
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
-    auction_markets_used_json = None
-    preconditioning_programs_json = None
-    pvp_programs_json = None
+    optional_fields = {}
     if len(auction_markets_used) > 0:
-        auction_markets_used_json = {"auction_market_ids": auction_markets_used}
+        optional_fields["auction_market_ids"] = auction_markets_used
     if len(preconditioning_programs) > 0:
-        preconditioning_programs_json = {"preconditioning_programs": preconditioning_programs}
+        optional_fields["preconditioning_programs"] = preconditioning_programs
     if len(pvp_programs) > 0:
-        pvp_programs_json = {"pvp_programs": pvp_programs}
+        optional_fields["pvp_programs"] = pvp_programs
+    if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
+        optional_fields = None
 
 
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
@@ -210,9 +210,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             zip=zip_code,
             phone=phone,
             are_auction_markets_used_by_account=are_auction_markets_used_by_account,
-            auction_markets_used=auction_markets_used_json,
-            preconditioning_programs=preconditioning_programs_json,
-            pvp_programs=pvp_programs_json
+            optional_fields=optional_fields
         )
 
         perform_new_account_actions(

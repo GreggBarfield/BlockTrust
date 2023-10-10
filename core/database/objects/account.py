@@ -115,6 +115,12 @@ class Account:
     def retail_description(self):
         return self._row["retail_description"]
 
+    def are_auction_markets_used_by_account(self):
+        return self._row["are_auction_markets_used_by_account"]
+
+    def optional_fields(self):
+        return self._row["optional_fields"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
