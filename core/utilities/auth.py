@@ -212,20 +212,20 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
 
         auction_market_names = []
         preconditioning_programs = []
-        pvp_programs =[]
-        if account_obj.auction_markets_used() is not None:
-            auction_markets_used = loads(account_obj.auction_markets_used())
-            auction_market_ids = auction_markets_used["auction_market_ids"]
-            for auction_market_id in auction_market_ids:
-                auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
-                if len(auction_market_data) > 0:
-                    auction_market_names.append(auction_market_data[0]["name"])
-        if account_obj.preconditioning_programs() is not None:
-            preconditioning_programs_obj = loads(account_obj.preconditioning_programs())
-            preconditioning_programs = preconditioning_programs_obj["preconditioning_programs"]
-        if account_obj.pvp_programs() is not None:
-            pvp_programs_obj = loads(account_obj.pvp_programs())
-            pvp_programs = pvp_programs_obj["pvp_programs"]
+        pvp_programs = []
+        if account_obj.optional_fields() is not None:
+            optional_fields = loads(account_obj.optional_fields())
+            if "auction_market_ids" in optional_fields:
+                auction_market_ids = optional_fields["auction_market_ids"]
+                for auction_market_id in auction_market_ids:
+                    auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
+                    if len(auction_market_data) > 0:
+                        auction_market_names.append(auction_market_data[0]["name"])
+            if "preconditioning_programs" in optional_fields:
+                preconditioning_programs = optional_fields["preconditioning_programs"]
+            if "pvp_programs" in optional_fields:
+                pvp_programs = optional_fields["pvp_programs"]
+
         partner_account_company = ""
         if account_obj.partner_account_id() is not None:
             partner_account = g.db.accounts.get_account_by_id(account_id=account_obj.partner_account_id())
@@ -240,7 +240,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
                 "account_auction_market_names": auction_market_names,
                 "preconditioning_programs": preconditioning_programs,
                 "pvp_programs": pvp_programs
-            }), "nisheet.thakur@blocktrustnetwork.com"
+            }), ADMIN_EMAIL
         )
 
     except Exception as e:
