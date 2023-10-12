@@ -232,8 +232,7 @@ def serve_view_partner_accounts_sustainability_data():
                             matched_account_data["count"] += matched_account["count"]
         
         ranch_matches_for_partner_account = Matches(g.db).get_matches_for_partner_accounts(
-            partner_account_id=connected_account_id,
-            matched_account_sector_id=SECTORS_NAME_TO_ID["Cow-Calf"]
+            partner_account_id=connected_account_id
         )
         ranches_data = {}
         for ranch_match in ranch_matches_for_partner_account:
