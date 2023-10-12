@@ -14,7 +14,6 @@ from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from ..utilities import auth
-from ..utilities.constants import PRECONDITIONING_PROGRAMS, PVP_PROGRAMS
 from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -119,9 +118,7 @@ def serve_signup():
         "site_key": RECAPTCHA_SITE_KEY,
         "ipinfo_access_token": IPINFO_TOKEN,
         "check_ip": CHECK_IP,
-        "auction_markets": auction_markets,
-        "preconditioning_programs": PRECONDITIONING_PROGRAMS,
-        "pvp_programs": PVP_PROGRAMS
+        "auction_markets": auction_markets
     })
 
 
@@ -172,7 +169,6 @@ def serve_signup_action():
                         recaptcha_score=verification_response_json['score'],
                         ip_address=request.form['ip_address'],
                         ip_country=request.form['ip_country'],
-                        are_auction_markets_used_by_account=int(request.form["are_auction_markets_used_by_account"]),
                         auction_markets_used=loads(request.form["auction_markets"]),
                         preconditioning_programs=loads(request.form["preconditioning_programs"]),
                         pvp_programs=loads(request.form["pvp_programs"])

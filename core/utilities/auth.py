@@ -128,7 +128,7 @@ def load_account_to_context():
 
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id,
            sector, address, city, state, zip_code, personal_phone, recaptcha_score, ip_address, ip_country,
-           are_auction_markets_used_by_account, auction_markets_used, preconditioning_programs, pvp_programs):
+           auction_markets_used, preconditioning_programs, pvp_programs):
     """Create new user account.
 
     Params:
@@ -180,7 +180,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
         optional_fields = None
 
-
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
     user = g.db.users.validate_and_insert_user(
@@ -209,7 +208,6 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             state=state,
             zip=zip_code,
             phone=phone,
-            are_auction_markets_used_by_account=are_auction_markets_used_by_account,
             optional_fields=optional_fields
         )
 

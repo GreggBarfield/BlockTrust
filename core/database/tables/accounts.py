@@ -164,7 +164,7 @@ class Accounts:
         return sector, phone, affiliate_id
 
     def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                       are_auction_markets_used_by_account=None, optional_fields=None):
+                       optional_fields=None):
         """Creates a new account without a user.
 
         Params:
@@ -188,10 +188,10 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
-                are_auction_markets_used_by_account, optional_fields)
+                optional_fields)
                 VALUES
                     (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
-                    %(phone)s, %(show_real_name)s, %(are_auction_markets_used_by_account)s, %(optional_fields)s)
+                    %(phone)s, %(show_real_name)s, %(optional_fields)s)
             """,
             {
                 "company": company,
@@ -204,7 +204,6 @@ class Accounts:
                 "zip": zip,
                 "phone": phone,
                 "show_real_name": int(False),
-                "are_auction_markets_used_by_account": are_auction_markets_used_by_account,
                 "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None
             }
         )
@@ -221,7 +220,7 @@ class Accounts:
         return account
 
     def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                                  are_auction_markets_used_by_account=None, optional_fields=None):
+                                  optional_fields=None):
         """Creates a new account with the user automatically added as the admin.
 
         Params:
@@ -244,7 +243,7 @@ class Accounts:
         """
 
         account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                                      are_auction_markets_used_by_account, optional_fields
+                                      optional_fields
         )
 
         # make the first user the account admin
@@ -603,8 +602,7 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE,
-                       are_auction_markets_used_by_account=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
         """
         Updates an account.
 
@@ -691,9 +689,6 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
-        if are_auction_markets_used_by_account is not NO_VALUE:
-            query_conditions.append("are_auction_markets_used_by_account = %(are_auction_markets_used_by_account)s")
-            query_values["are_auction_markets_used_by_account"] = are_auction_markets_used_by_account
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"

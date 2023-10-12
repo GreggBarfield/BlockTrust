@@ -358,27 +358,7 @@
     var siteKey = '{{site_key}}';
     var ipInfoAccessToken = '{{ipinfo_access_token}}';
     var checkIP = '{{check_ip}}';
-
-    document.addEventListener('DOMContentLoaded', function () {
-        let auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
-        let preconditioningPrograms = JSON.parse('{{preconditioning_programs|tojson}}');
-        let pvpPrograms = JSON.parse('{{pvp_programs|tojson}}');
-        let auctionMarketsList = [];
-        let preconditioningProgramsList = [];
-        let pvpProgramsList = [];
-        for(let auctionMarket of auctionMarkets){
-            auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state});
-        }
-        for(let preconditioningProgram of preconditioningPrograms){
-            preconditioningProgramsList.push({id: preconditioningProgram, text: preconditioningProgram});
-        }
-        for(let pvpProgram of pvpPrograms){
-            pvpProgramsList.push({id: pvpProgram, text: pvpProgram});
-        }
-        $("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
-        $("#signup_form_preconditioning_programs").select2({data: preconditioningProgramsList, multiple: true, placeholder: "Select Preconditioning Programs"});
-        $("#signup_form_pvp_programs").select2({data: pvpProgramsList, multiple: true, placeholder: "Select PVP Programs"});
-    });
+    var auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
 </script>
 
 <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>

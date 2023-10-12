@@ -34,6 +34,53 @@ if(checkIP.toLowerCase() === "true") {
     }
 }
 
+let preconditioningProgramsList = [];
+let pvpProgramsList = [];
+let auctionMarketsList = [];
+let preconditioningPrograms = [
+	"Health Track",
+	"Value Added Calf-45",
+	"OQBN Vac-45 Program",
+	"JRS Wean-Vac 45",
+	"Superior Livestock Vac-45",
+	"TAMU Vac-45",
+	"Integrity Beef Alliance Vac-45",
+	"MFA Health Track Vac-45",
+	"NMSU Vac-45",
+	"MCA Vac-45",
+	"PrimeVac Vac-45",
+	"SelectVac WeanVac"
+];
+let pvpPrograms = [
+    "American Certified Brands",
+    "AzTx Cattle Co.",
+    "BeefTraxx",
+    "Big Blue Sale Barn Passport Program®",
+    "Cal Poly State Univ Animal Science",
+    "Frost PLLC dba FACTA",
+    "IdentiGEN North America",
+    "IMI Global",
+    "Legacy Verified",
+    "Ranchers Connecting Ranchers",
+    "Red Angus Association of America",
+    "Samson",
+    "TechniTrack",
+    "Zoetis Genetics",
+    "Other"
+];
+for(let auctionMarket of auctionMarkets){
+    auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state});
+}
+for(let preconditioningProgram of preconditioningPrograms){
+    preconditioningProgramsList.push({id: preconditioningProgram, text: preconditioningProgram});
+}
+for(let pvpProgram of pvpPrograms){
+    pvpProgramsList.push({id: pvpProgram, text: pvpProgram});
+}
+$("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
+$("#signup_form_preconditioning_programs").select2({data: preconditioningProgramsList, multiple: true, placeholder: "Select Preconditioning Programs"});
+$("#signup_form_pvp_programs").select2({data: pvpProgramsList, multiple: true, placeholder: "Select PVP Programs"});
+
 let form = new AsyncForm({
     action: "/signup/action",
     form: signupForm[0],
@@ -83,6 +130,7 @@ partner.on('change', function() {
 are_auction_market_utilized.on('change', function(){
     if(are_auction_market_utilized.val() == "0"){
         auction_markets.prop('disabled', true);
+        auction_markets.val(null).trigger("change");
     }
     else{
         auction_markets.prop('disabled', false);

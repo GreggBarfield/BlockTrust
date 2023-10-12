@@ -2193,6 +2193,8 @@ ALTER TABLE `accounts`
 ADD COLUMN `optional_fields` JSON DEFAULT NULL;
 
 ALTER TABLE `accounts`
+DROP COLUMN `are_auction_markets_used_by_account`;
+ALTER TABLE `accounts`
 DROP COLUMN `auction_markets_used`;
 DROP TABLE auction_markets_used_by_accounts;
 
