@@ -668,3 +668,80 @@ def login_as_employee(employee_id):
     """
     logout()
     load_employee(employee_id)
+
+
+def api_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner,
+               affiliate_id, sector, address, city, state, zip_code, personal_phone):
+    """Create new user account.
+
+    Params:
+        username: new username
+        email: new email
+        phone: company phone number (must be at least blank string)
+        first: first name
+        last: last name (must be at least blank string)
+        password: password
+        confirm_password: the confirmed password
+            (if password comes from a user field, confirm_password should too;
+            don't just duplicate password)
+        company: company name
+        affiliate_id: affliate id
+        city: city
+        state: state
+        zip: zip
+    Returns:
+        Nothing
+
+    Raises:
+        SignupFailedException on failure with the reason.
+    """
+    username = format_field(username)
+    email = format_field(email)
+    phone = format_field(phone)
+    first_name = format_field(first_name)
+    last_name = format_field(last_name)
+    password = format_field(password)
+    confirm_password = format_field(confirm_password)
+    company = format_field(company)
+    partner = format_field(partner)
+    affiliate_id = format_field(affiliate_id)
+    sector = format_field(sector)
+    address = format_field(address)
+    city = format_field(city)
+    state = format_field(state)
+    zip_code = format_field(zip_code)
+    personal_phone = format_field(personal_phone)
+
+    sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+
+    user = g.db.users.validate_and_insert_user(
+        username=username,
+        password=password,
+        confirm_password=confirm_password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        phone=personal_phone,
+        email_verified=1
+    )
+    try:
+        account_obj = g.db.accounts.create_account_with_admin(
+            user=user,
+            company=company,
+            sector=sector,
+            partner=partner,
+            affiliate_id=affiliate_id,
+            address=address,
+            city=city,
+            state=state,
+            zip=zip_code,
+            phone=phone
+        )
+        perform_new_account_actions(
+            db=g.db, account_id=account_obj.id(), user_id=user.id(),
+            event_type_id=event_type_by_name["API Signup"], sector_id=account_obj.sector_id(),
+            partner_id=partner, email=email
+        )
+
+    except Exception as e:
+        raise e
