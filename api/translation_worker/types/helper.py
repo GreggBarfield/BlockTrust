@@ -178,7 +178,7 @@ def process_weaning_data(db, input_data, eid, partner_account, account_link, api
                 )
 
 
-def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None, timezone=None):
+def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id=None, timezone=None, is_paid=None):
     try:
         characteristics = {"eid": eid, "api_insert_id": api_insert_id}
         if visual_id:
@@ -210,6 +210,8 @@ def process_animal_characteristics(db, input_data, eid, api_insert_id, visual_id
                 all_to_unix(input_data["terminal_reimplant_date"], timezone)
                 if timezone else all_to_unix(input_data["terminal_reimplant_date"])
             )
+        if is_paid:
+            characteristics["is_paid"] = is_paid
 
         Animals(db).create_or_fail_animal(**characteristics)
     except AnimalsException as e:

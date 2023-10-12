@@ -109,6 +109,7 @@ IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
 
 RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER = config_file["run_jobs"]["notify_admin_if_no_data_received_from_partner"]
+PAYMENTS = config_file["run_jobs"]["payments"]
 
 HERDWHISTLE_API_KEY = config_file["herdwhistle"]["api_key"]
 HERDWHISTLE_API_ENDPOINT = config_file["herdwhistle"]["api_endpoint"]
