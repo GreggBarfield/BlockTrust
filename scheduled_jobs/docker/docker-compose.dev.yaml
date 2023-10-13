@@ -15,6 +15,7 @@ services:
       - ../../core/renderers:/home/ubuntu/core/renderers
       - ../../core/reports:/home/ubuntu/core/reports
       - ../../core/utilities:/home/ubuntu/core/utilities
+      - ../../core/templates:/home/ubuntu/core/templates
       - ../:/home/ubuntu/scheduled_jobs
 
 networks:
