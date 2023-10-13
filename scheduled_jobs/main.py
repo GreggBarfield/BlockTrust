@@ -1,3 +1,4 @@
+import os
 from usda_data_retriever import get_usda_data
 from blockchain import run_bc_tasks
 from reports import run_report_tasks
@@ -86,13 +87,13 @@ try:
         #     print('Main: appended thread TransferDataILS', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 8 and 9 AM
-        if PAYMENTS and datetime.datetime.today().day == 5 and (datetime.time(8, 0, 0) <= current_time < datetime.time(9, 0, 0)):
-            if not any(t.getName() == "Payments" for t in threads):
-                job_run_id = JobRuns(db).insert("Payments", scheduled_jobs["Payments"][0].__name__ + ".py", scheduled_jobs["Payments"][1].__name__)
-                t = Thread(target=scheduled_jobs["Payments"][1], name="Payments", args=[job_run_id, Database(MYSQL_CONFIG)])
-                t.start()
-                threads.append(t)
-                print('Main: appended thread Payments', 'Total number of threads:', len(threads), 'Current time:', current_time)
+        # if PAYMENTS and datetime.datetime.today().day == 5 and (datetime.time(8, 0, 0) <= current_time < datetime.time(9, 0, 0)):
+        #     if not any(t.getName() == "Payments" for t in threads):
+        #         job_run_id = JobRuns(db).insert("Payments", scheduled_jobs["Payments"][0].__name__ + ".py", scheduled_jobs["Payments"][1].__name__)
+        #         t = Thread(target=scheduled_jobs["Payments"][1], name="Payments", args=[job_run_id, Database(MYSQL_CONFIG), os.path.join(os.getcwd(), "core/templates")])
+        #         t.start()
+        #         threads.append(t)
+        #         print('Main: appended thread Payments', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 9 and 10 AM
         if datetime.time(9, 0, 0) <= current_time < datetime.time(10, 0, 0):
