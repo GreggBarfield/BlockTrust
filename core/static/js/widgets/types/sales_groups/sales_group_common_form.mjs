@@ -22,6 +22,9 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
+            this.videoAuctionSlide = this.data.reported.slide;
+            this.videoAuctionWeighingConditions = this.data.reported.weighing_conditions;
+            this.videoAuctionRepresentedBy = this.data.reported.represented_by;
             this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
             this.characteristicsBreedCommentsValue = this.data.breed_comments;
@@ -56,6 +59,9 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
+            this.videoAuctionSlideValue = "";
+            this.videoAuctionWeighingConditionsValue = "";
+            this.videoAuctionRepresentedByValue = "";
             this.characteristicsCategoryValue = "Mixed Steers and Heifers";
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
@@ -266,7 +272,7 @@ export class SalesGroupsCommonForm{
         if(this.marketingDeliveryLocationTypeValue === "Off Ranch"){
             deliveryLocation = this.marketingDeliveryLocationValue;
         }
-        else{
+        else if(this.marketingDeliveryLocationTypeValue === "Auction"){
             auctionMarket = this.marketingDeliveryLocationValue;
         }
         
@@ -281,7 +287,17 @@ export class SalesGroupsCommonForm{
         }, false, "", "", 4, true);
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
+        // Video Auction Inputs
+        let videoAuctionRow = createSection(form, "");
+
+        let videoAuctionSlide = createText(videoAuctionRow,"Slide",this.videoAuctionSlideValue || null,true,"videoAuctionSlide","", 4);
+
+        let videoAuctionWeighingConditions = createText(videoAuctionRow,"Weighing Conditions",this.videoAuctionWeighingConditionsValue || null,true,"videoAuctionWeighingConditions","", 4);
+
+        let videoAuctionRepresentedBy = createText(videoAuctionRow,"Represented By",this.videoAuctionRepresentedByValue || null,true,"videoAuctionRepresentedBy","", 4);
+
         marketingDeliveryLocationType.onchange = () => {
+            videoAuctionRow.className = "d-none";
             if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
                 // Remove comments when marketingPrice is enabled again
@@ -291,7 +307,7 @@ export class SalesGroupsCommonForm{
                 marketingAuctionMarketLocation.value="None";
                 marketingAuctionMarketLocation.disabled=true;
             }
-            else{
+            else if(marketingDeliveryLocationType.value === "Auction"){
                 marketingAuctionMarketLocation.disabled=false;
 
                 marketingOffRanchLocation.value="";
@@ -300,6 +316,9 @@ export class SalesGroupsCommonForm{
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = true;
                 //marketingPrice.value = 0;
+            }
+            else if(marketingDeliveryLocationType.value === "Video Auction"){
+                videoAuctionRow.className = "form-row";
             }
         }
         marketingDeliveryLocationType.onchange();
@@ -580,6 +599,9 @@ export class SalesGroupsCommonForm{
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
+                        video_auction_slide: videoAuctionSlide.value,
+                        video_auction_weighing_conditions: videoAuctionWeighingConditions.value,
+                        video_auction_represented_by: videoAuctionRepresentedBy.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
