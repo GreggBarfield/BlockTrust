@@ -68,7 +68,8 @@
         "check_ip": false
     },
     "run_jobs": {
-        "notify_admin_if_no_data_received_from_partner": false
+        "notify_admin_if_no_data_received_from_partner": false,
+        "payments": false
     },
     "herdwhistle": {
         "api_key": "9485d503e6c60da1370a430176ddadd2f1686ad6",
