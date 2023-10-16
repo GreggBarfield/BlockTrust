@@ -136,13 +136,12 @@ def serve_signup_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        
         if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
             raise ExportException("Please Select Auction Market(s)")
 
         if request.form.get('token', None) is not None:
             data = {
-                "secret" : RECAPTCHA_SECRET_KEY,
+                "secret": RECAPTCHA_SECRET_KEY,
                 "response": request.form['token']
             }
             verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
@@ -170,8 +169,9 @@ def serve_signup_action():
                         recaptcha_score=verification_response_json['score'],
                         ip_address=request.form['ip_address'],
                         ip_country=request.form['ip_country'],
-                        are_auction_markets_used_by_account=int(request.form["are_auction_markets_used_by_account"]),
-                        auction_markets=loads(request.form["auction_markets"])
+                        auction_markets_used=loads(request.form["auction_markets"]),
+                        preconditioning_programs=loads(request.form["preconditioning_programs"]),
+                        pvp_programs=loads(request.form["pvp_programs"])
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
