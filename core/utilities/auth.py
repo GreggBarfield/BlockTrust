@@ -219,12 +219,14 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             sector_id=account_obj.sector_id(), partner_id=partner, email=email
         )
 
+        are_auction_markets_used_by_account = False
         auction_market_names = []
         preconditioning_programs = []
         pvp_programs = []
         if account_obj.optional_fields() is not None:
             optional_fields = loads(account_obj.optional_fields())
             if "auction_market_ids" in optional_fields:
+                are_auction_markets_used_by_account = True
                 auction_market_ids = optional_fields["auction_market_ids"]
                 for auction_market_id in auction_market_ids:
                     auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
@@ -246,6 +248,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
                 'partner_account_company': partner_account_company,
                 'sectors_id_to_name': SECTORS_ID_TO_NAME,
                 'user': user,
+                "are_auction_markets_used_by_account": are_auction_markets_used_by_account,
                 "account_auction_market_names": auction_market_names,
                 "preconditioning_programs": preconditioning_programs,
                 "pvp_programs": pvp_programs
