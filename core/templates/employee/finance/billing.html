@@ -73,8 +73,7 @@
         if(chargeableAccounts.length == 0){
             alert("No accounts to send email to!")
         }
-        else{
-            
+        else{      
             emailButton.disabled = true;
             emailButton.querySelector('.spinner-border').classList.remove("d-none");
             const response = await fetch(document.URL, 
