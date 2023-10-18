@@ -35,8 +35,8 @@ export class SalesGroupsCommonForm{
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
             this.geneticsGenomicTestingValue = this.data.reported.genomic_testing;
-            this.geneticsEPD = this.data.reported.epd;
-            this.geneticsComments = this.data.reported.genetic_comments;
+            this.geneticsEPDValue = this.data.reported.epd;
+            this.geneticsCommentsValue = this.data.reported.genetics_comments;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
             this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
@@ -75,8 +75,8 @@ export class SalesGroupsCommonForm{
             this.characteristicsMusclingValue = "N/A";
             this.characteristicsHornsValue = "N/A";
             this.geneticsGenomicTestingValue = "Yes";
-            this.geneticsEPD = "Yes";
-            this.geneticsComments = "";
+            this.geneticsEPDValue = "Yes";
+            this.geneticsCommentsValue = "";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
             this.maintenanceAnnualCattleHerdVaccinationsValue = "Yes"
@@ -292,11 +292,8 @@ export class SalesGroupsCommonForm{
             placeholder: "Select Auction Market"
         }, false, "", "", 4, true);
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
-
         let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || null,true,"marketingSlide","", 4);
-
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || null,true,"marketingWeighingConditions","", 4);
-
         let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || null,true,"marketingRepresentedBy","", 4);
 
         marketingDeliveryLocationType.onchange = () => {
@@ -312,12 +309,14 @@ export class SalesGroupsCommonForm{
 
             if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
+                marketingOffRanchLocation.value = deliveryLocation;
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = false;
                 //marketingPrice.value = this.marketingPriceValue
             }
             else if(marketingDeliveryLocationType.value === "Auction"){
                 marketingAuctionMarketLocation.disabled=false;
+                marketingAuctionMarketLocation.value = auctionMarket;
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = true;
                 //marketingPrice.value = 0;
@@ -325,6 +324,8 @@ export class SalesGroupsCommonForm{
             else if(marketingDeliveryLocationType.value === "Video Auction"){
                 marketingSlide.disabled = false;
                 marketingWeighingConditions.disabled = false;
+                marketingSlide.value = this.marketingSlideValue;
+                marketingWeighingConditions.value = this.marketingWeighingConditionsValue;
             }
         }
         marketingDeliveryLocationType.onchange();
@@ -410,12 +411,12 @@ export class SalesGroupsCommonForm{
             row: geneticsRow,
             name: "Do you have the EPD's on the sires of the cattle you're planning to sell?",
             options: ["Yes", "No"],
-            values: this.geneticsEPD || "Yes",
+            values: this.geneticsEPDValue || "Yes",
             multiple: false,
             tags: false,
             placeholder: ""
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsComments || null,false,"geneticsComments","", 4);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsCommentsValue || null,false,"geneticsComments","", 4);
 
         let maintenanceRow = createSection(form, "Maintenance");
 
@@ -630,7 +631,7 @@ export class SalesGroupsCommonForm{
                         marketing_slide: marketingSlide.value,
                         marketing_weighing_conditions: marketingWeighingConditions.value,
                         marketing_represented_by: marketingRepresentedBy.value,
-                        genomics_tetsing: geneticsGenomicTesting.value,
+                        genomic_testing: geneticsGenomicTesting.value,
                         epd: geneticsEPD.value,
                         genetics_comments: geneticsComments.value
                     },
