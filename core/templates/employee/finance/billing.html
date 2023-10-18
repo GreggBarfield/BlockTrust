@@ -9,6 +9,10 @@
             <div class="card-header">
                 <h5>Billing</h5>
                 <a class="btn btn-outline-primary float-right"><i class="fa fa-download"></i>Download</a>
+                <button type="button" class="btn btn-outline-danger float-right" data-toggle="tooltip" data-placement="top" title="Invoice will be sent to accounts with card added">
+                    <i class="fa fa-envelope"></i>Send Invoices 
+                    <div class="spinner-border spinner-border-sm ml-1 d-none"></div> 
+                </button>
             </div>
             <div class="card-body mb-2">
                 <div class="col-lg-12">
@@ -62,5 +66,35 @@
     document.addEventListener('DOMContentLoaded', function () {
         $('.table').DataTable({pageLength:50});
     });
+
+    let emailButton = document.getElementsByClassName("btn-outline-danger")[0];
+    emailButton.addEventListener("click", async() => {
+        let chargeableAccounts = JSON.parse('{{ chargeable_accounts|tojson }}');
+        if(chargeableAccounts.length == 0){
+            alert("No accounts to send email to!")
+        }
+        else{      
+            emailButton.disabled = true;
+            emailButton.querySelector('.spinner-border').classList.remove("d-none");
+            const response = await fetch(document.URL, 
+                {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(chargeableAccounts)
+                }
+            )
+            if(response.ok){
+                alert("Emails sent successfully!");
+            }
+            else {
+                alert("An error occurred. Please try again later")
+            }
+            emailButton.disabled = false;
+            emailButton.querySelector('.spinner-border').classList.add("d-none");
+        }
+
+    })
 </script>
 {% endblock employee_content %}

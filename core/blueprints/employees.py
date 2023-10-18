@@ -824,6 +824,14 @@ def serve_recurring_payment_link(recurring_payment_id):
 @bp.route("/employee/billing", methods=["GET", "POST"])
 @crut.require_employee
 def serve_billing():
+    if request.method == "POST":
+        for account in request.json:
+            send_email_to_admin_users(
+                g.db, account["id"], "Your payment is due to be debited soon", render_email(
+                    "payment_debit_alert.html", {"company": account["company"], "unpaid_cattle": account["count_eid"]}
+                ),
+                add_log=True
+            )
     accounts = Accounts(g.db).get_accounts_for_charge()
     chargable_accounts = []
     for account in accounts:
