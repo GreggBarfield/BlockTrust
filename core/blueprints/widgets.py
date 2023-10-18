@@ -257,8 +257,10 @@ def serve_create_sales_group():
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
-        price=request.json["price"]
-        )
+        price=request.json["price"],
+        slide=request.json["reported"]["marketing_slide"],
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+    )
     # Alright, go ahead...
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
@@ -282,7 +284,8 @@ def serve_create_sales_group():
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
         are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
-        show_account_carcass_data=request.json["show_account_carcass_data"]
+        show_account_carcass_data=request.json["show_account_carcass_data"],
+        is_api_insert=0
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -314,8 +317,10 @@ def serve_update_sales_group():
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
-        price=request.json["price"]
-        )
+        price=request.json["price"],
+        slide=request.json["reported"]["marketing_slide"],
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+    )
     delivery_location = ""
     if request.json["delivery_location_type"] == "Off Ranch":
         delivery_location = request.json["delivery_location"]

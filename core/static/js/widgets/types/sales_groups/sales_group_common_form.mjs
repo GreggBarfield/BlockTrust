@@ -22,9 +22,9 @@ export class SalesGroupsCommonForm{
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
-            this.videoAuctionSlide = this.data.reported.slide;
-            this.videoAuctionWeighingConditions = this.data.reported.weighing_conditions;
-            this.videoAuctionRepresentedBy = this.data.reported.represented_by;
+            this.marketingSlideValue = this.data.reported.marketing_slide;
+            this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
+            this.marketingRepresentedByValue = this.data.reported.marketing_represented_by;
             this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
             this.characteristicsBreedCommentsValue = this.data.breed_comments;
@@ -34,6 +34,9 @@ export class SalesGroupsCommonForm{
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
+            this.geneticsGenomicTestingValue = this.data.reported.genomic_testing;
+            this.geneticsEPD = this.data.reported.epd;
+            this.geneticsComments = this.data.reported.genetic_comments;
             this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
             this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
@@ -59,9 +62,9 @@ export class SalesGroupsCommonForm{
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
-            this.videoAuctionSlideValue = "";
-            this.videoAuctionWeighingConditionsValue = "";
-            this.videoAuctionRepresentedByValue = "";
+            this.marketingSlideValue = "";
+            this.marketingWeighingConditionsValue = "";
+            this.marketingRepresentedByValue = "";
             this.characteristicsCategoryValue = "Mixed Steers and Heifers";
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
@@ -71,9 +74,12 @@ export class SalesGroupsCommonForm{
             this.characteristicsFrameValue = "N/A";
             this.characteristicsMusclingValue = "N/A";
             this.characteristicsHornsValue = "N/A";
+            this.geneticsGenomicTestingValue = "Yes";
+            this.geneticsEPD = "Yes";
+            this.geneticsComments = "";
             this.maintenancePreconditioningProgramValue = "None";
             this.maintenanceVaccinationsValue = [];
-            this.maintenanceCattleAnnualHerdVaccinationsValue = "Yes"
+            this.maintenanceAnnualCattleHerdVaccinationsValue = "Yes"
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
@@ -287,38 +293,38 @@ export class SalesGroupsCommonForm{
         }, false, "", "", 4, true);
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
 
-        // Video Auction Inputs
-        let videoAuctionRow = createSection(form, "");
+        let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || null,true,"marketingSlide","", 4);
 
-        let videoAuctionSlide = createText(videoAuctionRow,"Slide",this.videoAuctionSlideValue || null,true,"videoAuctionSlide","", 4);
+        let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || null,true,"marketingWeighingConditions","", 4);
 
-        let videoAuctionWeighingConditions = createText(videoAuctionRow,"Weighing Conditions",this.videoAuctionWeighingConditionsValue || null,true,"videoAuctionWeighingConditions","", 4);
-
-        let videoAuctionRepresentedBy = createText(videoAuctionRow,"Represented By",this.videoAuctionRepresentedByValue || null,true,"videoAuctionRepresentedBy","", 4);
+        let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || null,true,"marketingRepresentedBy","", 4);
 
         marketingDeliveryLocationType.onchange = () => {
-            videoAuctionRow.className = "d-none";
+            marketingSlide.disabled = true;
+            marketingWeighingConditions.disabled = true;
+            marketingAuctionMarketLocation.disabled=true;
+            marketingOffRanchLocation.disabled=true;
+
+            marketingSlide.value = "";
+            marketingWeighingConditions.value = "";
+            marketingOffRanchLocation.value= "";
+            marketingAuctionMarketLocation.value="None";
+
             if(marketingDeliveryLocationType.value === "Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = false;
                 //marketingPrice.value = this.marketingPriceValue
-
-                marketingAuctionMarketLocation.value="None";
-                marketingAuctionMarketLocation.disabled=true;
             }
             else if(marketingDeliveryLocationType.value === "Auction"){
                 marketingAuctionMarketLocation.disabled=false;
-
-                marketingOffRanchLocation.value="";
-                marketingOffRanchLocation.disabled=true;
-
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = true;
                 //marketingPrice.value = 0;
             }
             else if(marketingDeliveryLocationType.value === "Video Auction"){
-                videoAuctionRow.className = "form-row";
+                marketingSlide.disabled = false;
+                marketingWeighingConditions.disabled = false;
             }
         }
         marketingDeliveryLocationType.onchange();
@@ -388,6 +394,28 @@ export class SalesGroupsCommonForm{
         }, false, "", "", 4);
 
         // Maintenance
+
+        let geneticsRow = createSection(form, "Genetics");
+
+        let geneticsGenomicTesting = createSelect({
+            row: geneticsRow,
+            name: "Do you do genetic or genomic testing?",
+            options: ["Yes", "No"],
+            values: this.geneticsGenomicTestingValue || "Yes",
+            multiple: false,
+            tags: false,
+            placeholder: ""
+        }, false, "", "", 4);
+        let geneticsEPD = createSelect({
+            row: geneticsRow,
+            name: "Do you have the EPD's on the sires of the cattle you're planning to sell?",
+            options: ["Yes", "No"],
+            values: this.geneticsEPD || "Yes",
+            multiple: false,
+            tags: false,
+            placeholder: ""
+        }, false, "", "", 4);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsComments || null,false,"geneticsComments","", 4);
 
         let maintenanceRow = createSection(form, "Maintenance");
 
@@ -599,9 +627,12 @@ export class SalesGroupsCommonForm{
                         process_verified_program: maintenanceProcessVerifiedProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
-                        video_auction_slide: videoAuctionSlide.value,
-                        video_auction_weighing_conditions: videoAuctionWeighingConditions.value,
-                        video_auction_represented_by: videoAuctionRepresentedBy.value
+                        marketing_slide: marketingSlide.value,
+                        marketing_weighing_conditions: marketingWeighingConditions.value,
+                        marketing_represented_by: marketingRepresentedBy.value,
+                        genomics_tetsing: geneticsGenomicTesting.value,
+                        epd: geneticsEPD.value,
+                        genetics_comments: geneticsComments.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
