@@ -118,6 +118,9 @@ class Account:
     def optional_fields(self):
         return self._row["optional_fields"]
 
+    def optional_fields(self):
+        return self._row["optional_fields"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 
