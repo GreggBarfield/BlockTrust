@@ -282,7 +282,7 @@ def serve_upload_tags():
             EventLogs(g.db).insert_event_log(account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"])
             return "", 200
         except Exception as e:
-            return {'error':{'message': str(e)}}, 400
+            return {'error': {'message': str(e)}}, 400
     elif request.method == 'GET':
         return dashboard_render("data/upload-tags.html",  {"account": g.account, "user": g.user, "license": FLATFILE_LICENSE})
 
