@@ -1,10 +1,7 @@
 from api.translation_worker.types.helper import (
     process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
 )
-from core.database.combinations import (
-    create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
-)
-from core.sectors import SECTORS_NAME_TO_ID
+from core.database.tables.accounts import RED_ANGUS_PARTNER_COMPANY
 from ...exceptions import ExecutionException
 
 
@@ -49,7 +46,12 @@ def handle(db, insert):
             process_birth_date(
                 db, fields, eid, insert["account"], account_link["id"], api_insert
             )
-            process_animal_characteristics(db, fields, eid, api_insert, visual_id)
+            red_angus_partner = db.accounts.get_partners(company=RED_ANGUS_PARTNER_COMPANY)[0]
+            if insert["account"] == red_angus_partner["id"]:
+                is_paid = int(True)
+            else:
+                is_paid = int(False)
+            process_animal_characteristics(db, fields, eid, api_insert, visual_id, is_paid=is_paid)
 
         else:
             raise Exception(f"""No account exists for partner: {insert['account']}

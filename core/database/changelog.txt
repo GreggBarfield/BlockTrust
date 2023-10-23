@@ -2188,6 +2188,14 @@ CREATE TABLE `auction_markets_used_by_accounts`(
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
+/* Nisheet Thakur 09/03/2023 */
+ALTER TABLE `accounts`
+ADD COLUMN `optional_fields` JSON DEFAULT NULL;
+
+ALTER TABLE `accounts`
+DROP COLUMN `are_auction_markets_used_by_account`;
+DROP TABLE auction_markets_used_by_accounts;
+
 /* Rohan Sureshkumar 9/25/2023 */
 ALTER TABLE `animals` 
 DROP FOREIGN KEY `fk_animals_paid_by_account_id_id_accounts`;

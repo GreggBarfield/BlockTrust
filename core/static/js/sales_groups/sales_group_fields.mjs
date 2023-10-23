@@ -175,7 +175,8 @@ let commonVaccinations = [
 
 let commonDeliveryLocationTypes = [
 	"Off Ranch",
-	"Auction"
+	"Auction",
+	"Video Auction"
 ];
 
 let commonCastrated = [

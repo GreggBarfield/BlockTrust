@@ -1,5 +1,6 @@
 import bcrypt
 from flask import g, session
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.users import Users
 from ..database.objects.user import User
 from ..database.tables.users import UsersException
@@ -15,8 +16,10 @@ from ..renderers.email import render_email
 from ..utilities.general_utilities import validate_email, format_field
 from ..utilities.email import send_email
 from .constants import SECONDS_IN_ONE_DAY
-from ..config import SUPPORT_GENERAL_EMAIL
+from ..config import SUPPORT_GENERAL_EMAIL, ADMIN_EMAIL
 from ..sectors import SECTORS_ID_TO_NAME
+
+from json import loads
 
 SESSION_USER_ID_VAR = "abc"
 SESSION_ACCOUNT_ID_VAR = "def"
@@ -126,8 +129,9 @@ def load_account_to_context():
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
 
 
-def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id, sector, address, city, state, zip_code, 
-            personal_phone, recaptcha_score, ip_address, ip_country, are_auction_markets_used_by_account, auction_markets):
+def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id,
+           sector, address, city, state, zip_code, personal_phone, recaptcha_score, ip_address, ip_country,
+           auction_markets_used, preconditioning_programs, pvp_programs):
     """Create new user account.
 
     Params:
@@ -169,6 +173,15 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     personal_phone = format_field(personal_phone)
     ip_address = format_field(ip_address)
     ip_country = format_field(ip_country)
+    optional_fields = {}
+    if len(auction_markets_used) > 0:
+        optional_fields["auction_market_ids"] = auction_markets_used
+    if len(preconditioning_programs) > 0:
+        optional_fields["preconditioning_programs"] = preconditioning_programs
+    if len(pvp_programs) > 0:
+        optional_fields["pvp_programs"] = pvp_programs
+    if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
+        optional_fields = None
 
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
@@ -197,14 +210,49 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
             city=city,
             state=state,
             zip=zip_code,
-            phone=phone
+            phone=phone,
+            optional_fields=optional_fields
         )
 
         perform_new_account_actions(
-            db=g.db, account_id=account_obj.id(), user_id=user.id(),
-            event_type_id=event_type_by_name["Signup"], sector_id=account_obj.sector_id(),
-            partner_id=partner, email=email, are_auction_markets_used_by_account=are_auction_markets_used_by_account,
-            auction_markets=auction_markets
+            db=g.db, account_id=account_obj.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"],
+            sector_id=account_obj.sector_id(), partner_id=partner, email=email
+        )
+
+        are_auction_markets_used_by_account = False
+        auction_market_names = []
+        preconditioning_programs = []
+        pvp_programs = []
+        if account_obj.optional_fields() is not None:
+            optional_fields = loads(account_obj.optional_fields())
+            if "auction_market_ids" in optional_fields:
+                are_auction_markets_used_by_account = True
+                auction_market_ids = optional_fields["auction_market_ids"]
+                for auction_market_id in auction_market_ids:
+                    auction_market_data = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
+                    if len(auction_market_data) > 0:
+                        auction_market_names.append(auction_market_data[0]["name"])
+            if "preconditioning_programs" in optional_fields:
+                preconditioning_programs = optional_fields["preconditioning_programs"]
+            if "pvp_programs" in optional_fields:
+                pvp_programs = optional_fields["pvp_programs"]
+
+        partner_account_company = ""
+        if account_obj.partner_account_id() is not None:
+            partner_account = g.db.accounts.get_account_by_id(account_id=account_obj.partner_account_id())
+            partner_account_company = partner_account.company()
+        send_email(
+            "BlockTrust Network New Account Signup",
+            render_email("new_account_info.html", {
+                'user_account': account_obj,
+                'partner_account_company': partner_account_company,
+                'sectors_id_to_name': SECTORS_ID_TO_NAME,
+                'user': user,
+                "are_auction_markets_used_by_account": are_auction_markets_used_by_account,
+                "account_auction_market_names": auction_market_names,
+                "preconditioning_programs": preconditioning_programs,
+                "pvp_programs": pvp_programs
+            }), ADMIN_EMAIL
         )
 
     except Exception as e:
@@ -659,3 +707,80 @@ def login_as_employee(employee_id):
     """
     logout()
     load_employee(employee_id)
+
+
+def api_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner,
+               affiliate_id, sector, address, city, state, zip_code, personal_phone):
+    """Create new user account.
+
+    Params:
+        username: new username
+        email: new email
+        phone: company phone number (must be at least blank string)
+        first: first name
+        last: last name (must be at least blank string)
+        password: password
+        confirm_password: the confirmed password
+            (if password comes from a user field, confirm_password should too;
+            don't just duplicate password)
+        company: company name
+        affiliate_id: affliate id
+        city: city
+        state: state
+        zip: zip
+    Returns:
+        Nothing
+
+    Raises:
+        SignupFailedException on failure with the reason.
+    """
+    username = format_field(username)
+    email = format_field(email)
+    phone = format_field(phone)
+    first_name = format_field(first_name)
+    last_name = format_field(last_name)
+    password = format_field(password)
+    confirm_password = format_field(confirm_password)
+    company = format_field(company)
+    partner = format_field(partner)
+    affiliate_id = format_field(affiliate_id)
+    sector = format_field(sector)
+    address = format_field(address)
+    city = format_field(city)
+    state = format_field(state)
+    zip_code = format_field(zip_code)
+    personal_phone = format_field(personal_phone)
+
+    sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
+
+    user = g.db.users.validate_and_insert_user(
+        username=username,
+        password=password,
+        confirm_password=confirm_password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        phone=personal_phone,
+        email_verified=1
+    )
+    try:
+        account_obj = g.db.accounts.create_account_with_admin(
+            user=user,
+            company=company,
+            sector=sector,
+            partner=partner,
+            affiliate_id=affiliate_id,
+            address=address,
+            city=city,
+            state=state,
+            zip=zip_code,
+            phone=phone
+        )
+        perform_new_account_actions(
+            db=g.db, account_id=account_obj.id(), user_id=user.id(),
+            event_type_id=event_type_by_name["API Signup"], sector_id=account_obj.sector_id(),
+            partner_id=partner, email=email
+        )
+
+    except Exception as e:
+        raise e
