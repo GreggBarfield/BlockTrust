@@ -434,8 +434,9 @@ class SalesGroups:
         )
         return self._translate_json(sales_groups)
 
-    def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
-            breeds, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
+    def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight,
+                                     weight_variance, breeds, start, end, auction_sale, delivery_location,
+                                     auction_market_location, images, price, category, slide, weighing_conditions):
         """
         Validates that the values received for a sales group is valid
 
@@ -486,6 +487,11 @@ class SalesGroups:
         elif delivery_location_type == "Auction":
             if auction_market_location == "None":
                 raise ExportException("Please select an auction market location")
+        elif delivery_location_type == "Video Auction":
+            if len(slide.strip()) == 0:
+                raise ExportException("Video Auction Slide cannot be blank")
+            if len(weighing_conditions.strip()) == 0:
+                raise ExportException("Video Auction Weighing Conditions cannot be blank")
         if category == "":
             raise ExportException("Please select a category")
         if len(breeds) == 0:
