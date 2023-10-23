@@ -65,78 +65,78 @@ export class SearchSalesGroupsWidget extends Widget {
         this.inputs.zipCode.placeholder = "12345"
         zipCodeFormGroup.append(this.inputs.zipCode);
 
-        {
-            let expandControlFormGroup = document.createElement("div");
-            expandControlFormGroup.className = "form-group";
-            let expandControl = document.createElement("a");
-            expandControl.textContent = "More Search Options";
-            expandControl.href = "#";
-            expandControlFormGroup.append(expandControl);
-            this.form.append(expandControlFormGroup);
+        
+        let expandControlFormGroup = document.createElement("div");
+        expandControlFormGroup.className = "form-group";
+        let expandControl = document.createElement("a");
+        expandControl.textContent = "More Search Options";
+        expandControl.href = "#";
+        expandControlFormGroup.append(expandControl);
+        this.form.append(expandControlFormGroup);
 
-            let expandContainer = document.createElement("div");
-            expandContainer.style.display = "none";
-            this.form.append(expandContainer);
+        let expandContainer = document.createElement("div");
+        expandContainer.style.display = "none";
+        this.form.append(expandContainer);
 
-            expandControl.addEventListener("click", (e)=>{
-                e.preventDefault();
-                if (expandContainer.style.display == "none") {
-                    expandContainer.style.display = "block";
+        expandControl.addEventListener("click", (e)=>{
+            e.preventDefault();
+            if (expandContainer.style.display == "none") {
+                expandContainer.style.display = "block";
+            }
+            else {
+                expandContainer.style.display = "none";
+            }
+        });
+
+        let additionalRow = document.createElement("div");
+        additionalRow.className = "form-row";
+        expandContainer.append(additionalRow);
+
+        function createSearchControl(name, on) {
+            let formGroup = document.createElement("div");
+            formGroup.className = "form-group col-md-3";
+            additionalRow.append(formGroup);
+
+            let label = document.createElement("label");
+            label.textContent = name;
+            formGroup.append(label);
+
+            let select = document.createElement("select");
+            select.className = "form-control";
+            formGroup.append(select);
+
+            function addOption(text, value=null, selected=false) {
+                let option = document.createElement("option");
+                select.append(option);
+
+                option.textContent = text;
+
+                if (value == null) {
+                    option.value = text;
                 }
                 else {
-                    expandContainer.style.display = "none";
-                }
-            });
-
-            let additionalRow = document.createElement("div");
-            additionalRow.className = "form-row";
-            expandContainer.append(additionalRow);
-
-            function createSearchControl(name, on) {
-                let formGroup = document.createElement("div");
-                formGroup.className = "form-group col-md-3";
-                additionalRow.append(formGroup);
-
-                let label = document.createElement("label");
-                label.textContent = name;
-                formGroup.append(label);
-
-                let select = document.createElement("select");
-                select.className = "form-control";
-                formGroup.append(select);
-
-                function addOption(text, value=null, selected=false) {
-                    let option = document.createElement("option");
-                    select.append(option);
-
-                    option.textContent = text;
-
-                    if (value == null) {
-                        option.value = text;
-                    }
-                    else {
-                        option.value = value;
-                    }
-
-                    if (selected) {
-                        option.selected = true;
-                    }
-                }
-                addOption("", "", true);
-
-                for (const value of on) {
-                    addOption(value, value);
+                    option.value = value;
                 }
 
-                return select;
+                if (selected) {
+                    option.selected = true;
+                }
+            }
+            addOption("", "", true);
+
+            for (const value of on) {
+                addOption(value, value);
             }
 
-            this.inputs.category = createSearchControl("Category", SalesGroupFields.commonCategoryNames);
-            this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames);
-            this.inputs.minimumWeight = createSearchControl("Minimum Weight", SalesGroupFields.commonWeights);
-            this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
-            this.inputs.processVerifiedProgram = createSearchControl("PVP Program", SalesGroupFields.commonPVPProgramNames);
+            return select;
         }
+
+        this.inputs.category = createSearchControl("Category", SalesGroupFields.commonCategoryNames);
+        this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames);
+        this.inputs.minimumWeight = createSearchControl("Minimum Weight", SalesGroupFields.commonWeights);
+        this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
+        this.inputs.processVerifiedProgram = createSearchControl("PVP Program", SalesGroupFields.commonPVPProgramNames);
+
         
         {
             let submitFormGroup = document.createElement("div");
@@ -148,6 +148,15 @@ export class SearchSalesGroupsWidget extends Widget {
             submitButton.type = "submit";
             submitButton.value = "Search";
             submitFormGroup.append(submitButton);
+
+            let saveButton = document.createElement("input");
+            saveButton.className = "btn btn-info";
+            saveButton.type = "button";
+            saveButton.value = "Save";
+            saveButton.addEventListener("click", (e)=>{
+                this.save();
+            });
+            submitFormGroup.append(saveButton);
         }
 
         this.searchErrorAlert = document.createElement("div");
@@ -173,6 +182,18 @@ export class SearchSalesGroupsWidget extends Widget {
         this.searchErrorAlert.textContent = error;
     }
 
+    processDropdown(value, isInt=false) {
+        if (value == "") {
+            return null;
+        }
+
+        if (isInt) {
+            return parseInt(value);
+        }
+
+        return value;
+    }
+
     search() {
         this.searchErrorAlert.style.display = "none";
 
@@ -194,18 +215,6 @@ export class SearchSalesGroupsWidget extends Widget {
                     <span class="sr-only">Loading...</span>\
                 </div>\
             </div>';
-        
-        function processDropdown(value, isInt=false) {
-            if (value == "") {
-                return null;
-            }
-
-            if (isInt) {
-                return parseInt(value);
-            }
-
-            return value;
-        }
 
         this.getData(
             "search_sales_groups_2",
@@ -213,11 +222,11 @@ export class SearchSalesGroupsWidget extends Widget {
                 search: {
                     zip: parseInt(this.inputs.zipCode.value),
                     radius: parseInt(this.inputs.milesSelect.value),
-                    category: processDropdown(this.inputs.category.value),
-                    breed: processDropdown(this.inputs.breed.value),
-                    minimum_weight: processDropdown(this.inputs.minimumWeight.value, true),
-                    preconditioning_program: processDropdown(this.inputs.preconditioningProgram.value),
-                    process_verified_program: processDropdown(this.inputs.processVerifiedProgram.value),
+                    category: this.processDropdown(this.inputs.category.value),
+                    breed: this.processDropdown(this.inputs.breed.value),
+                    minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                    preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
+                    process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
                 }
             },
             true
@@ -227,6 +236,51 @@ export class SearchSalesGroupsWidget extends Widget {
             this.results.innerHTML = "";
             this.showError(message.toString());
         });
+    }
+
+    generateSavedSearchesTable(form) {
+
+    }
+
+    async save() {
+        if (this.inputs.milesSelect.value == "") {
+            this.showError("Please select a radius (in miles).");
+            return;
+        }
+
+        if (this.inputs.zipCode.value == "") {
+            this.showError("Please enter a valid ZIP Code.");
+            return;
+        }
+        let name = prompt("Enter a name to save");
+        if (name == null){
+            return;
+        }
+        else if (name == "") {
+            this.showError("Please enter a valid name.");
+            return;
+        }
+        try {
+            await this.getData(`sales_groups_searches`, 
+                {
+                    search: {
+                        name: name,
+                        zip: parseInt(this.inputs.zipCode.value),
+                        radius: parseInt(this.inputs.milesSelect.value),
+                        category: this.processDropdown(this.inputs.category.value),
+                        breed: this.processDropdown(this.inputs.breed.value),
+                        minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                        preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
+                        process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
+                    }
+                }, true     
+            )
+            alert("Search saved successfully");
+        }
+        catch(err){
+            console.log('error', err);
+            alert("An unexpected error occured. Please try again after sometime");
+        }
     }
 
     handleSearchResults(data) {
