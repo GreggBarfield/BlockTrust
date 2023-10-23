@@ -671,5 +671,5 @@ def serve_modify_tip(tip_id):
 
 @bp.route('/iframe/sales-group/create', methods=['GET'])
 def serve_create_sales_group():
-    form_post_route = url_for('widgets_bp.serve_create_sales_group')
-    return outside_render("/outside/iframes/create-sales-group.html", {"form_post_route": form_post_route})
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    return outside_render("/outside/iframes/create-sales-group.html", {"auction_markets": auction_markets})
