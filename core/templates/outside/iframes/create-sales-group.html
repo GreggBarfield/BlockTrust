@@ -1,0 +1,122 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Create Sales Group"| string %}
+
+{% block outside_content %}
+<div class="col-sm-12 widget" data-widget-type="create sales group" data-widget-form-post-route="{{form_post_route}}"></div>
+<div class="card m-11 p-1">
+    <div class="card-header form-group d-flex justify-content-between">
+        <h5>Create New Sales Group</h5>
+    </div>
+    <div class="card-body">
+        <div>
+            <form>
+                <h4>Marketing</h4>
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <label class="form-label">
+                            Sales Group Nickname
+                            <a 
+                            class="feather icon-info"
+                            style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
+                            data-toggle="true"
+                            data-placement="right"
+                            title="This is the name for this sales group"></a>
+                        </label>
+                        <input class="form-control" id="marketing-name" type="text" required>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="form-label">
+                            Total Animals
+                        </label>
+                        <input class="form-control" id="marketing-total-animals" type="number" required>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label class="form-label">
+                            Marketing Zip Code
+                            <a 
+                            class="feather icon-info"
+                            style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
+                            data-toggle="true"
+                            data-placement="right"
+                            title="This is the zip code of location where the cattle will be picked up."></a>
+                        </label>
+                        <input class="form-control" id="marketing-zip" type="text" required>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="form-label">
+                            Marketing Dates
+                            <a 
+                            class="feather icon-info"
+                            style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
+                            data-toggle="true"
+                            data-placement="right"
+                            title="This is the date range for the sale."></a>
+                        </label>
+                        <div class="d-flex">
+                            <input class="form-control col-md-5" id="marketing-start-date" type="date" required>
+                            <h6 class="col-md-2">TO</h6>
+                            <input class="form-control col-md-5" id="marketing-end-date" type="date" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label class="form-label">
+                            Delivery Location Type
+                        </label>
+                        <select class="form-control" id="marketing-delivery-location-type"></select>
+                    </div>
+                </div>
+                <h4>Characteristics</h4>
+                <div class="form-row">
+                </div>
+                <h4>Maintenance</h4>
+                <div class="form-row">
+                </div>
+                <h4>Comments</h4>
+                <div class="form-row">
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/outside/iframes/create_sales_group.mjs"></script>
+{% endblock outside_content %}
+
+<!--
+
+Text Input
+
+                    <div class="form-group col-md-4">
+                        <label class="form-label">
+                            Sales Group Nickname
+                            <a 
+                            class="feather icon-info"
+                            style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
+                            data-toggle="true"
+                            data-placement="right"
+                            title="This is the name for this sales group"></a>
+                        </label>
+                        <input class="form-control" id="id1" type="text" required>
+                    </div>
+
+Select 
+
+
+
+                    
+                    <div class="form-group col-md-4">
+                        <label class="form-label">
+                            Delivery Location Type
+                            <a 
+                            class="feather icon-info"
+                            style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
+                            data-toggle="true"
+                            data-placement="right"
+                            title="This is the name for this sales group"></a>
+                        </label>
+                        <select class="form-control" id="marketing-delivery-location-type"></select>
+                    </div>
+
+
+
+-->

@@ -128,6 +128,7 @@ import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
         else {
             widgets.push(w);
         }
+        console.log("Testing")
     });
 
     // Init widgets later so that loading symbols can be displayed while everything initializes
