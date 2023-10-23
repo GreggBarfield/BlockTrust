@@ -13,7 +13,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from ..utilities import auth
+from ..utilities import auth, csrf
 from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -43,56 +43,52 @@ def serve_logout():
     return outside_render('logged-out.html', {"login_url": login_url})
 
 
-@bp.route('/login', methods=['GET'])
+@bp.route('/login', methods=['GET', 'POST'])
+@csrf.csrf_protect
 def serve_login():
-    redirect_to = ''
+    if request.method == 'POST':
+        try:
+            if 'identifier' not in request.form:
+                raise ExportException("internal error, identifier missing from form")
 
+            if 'password' not in request.form:
+                raise ExportException("internal error, password missing from form")
+            try:
+                user_id = auth.login(
+                    identifier=request.form['identifier'],
+                    password=request.form['password']
+                )
+                auth.load_user(user_id)
+                account_users = g.db.account_users.get_account_users(user=g.user.id())
+                if len(account_users) == 1:
+                    auth.load_account(account_users[0]["account"])
+                else:
+                    return {"redirect": url_for("dashboard_bp.serve_accounts")}
+
+                if (
+                    'requestRedirectTo' in request.form and
+                    request.form['requestRedirectTo'] is not None and
+                    request.form['requestRedirectTo'] != ''
+                ):
+                    redirect_to = request.form['requestRedirectTo']
+                elif g.account.is_partner():
+                    redirect_to = url_for("partner_bp.serve_dashboard")
+                else:
+                    redirect_to = url_for("dashboard_bp.serve_dashboard")
+                return {"redirect": redirect_to}
+            except auth.LoginException as e:
+                raise ExportException(str(e))
+            except auth.EmailNotVerifiedException as e:
+                raise ExportException(str(e))
+            except auth.SignupFailedException as e:
+                raise ExportException("internal error in Users.login")
+        except ExportException as e:
+            return jsonify({"error": str(e)}), 400
+    redirect_to = ''
     # Might want to revisit this eventually to protect against users getting tricked
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
-
     return outside_render('login.html', {"redirect_to": redirect_to})
-
-
-@bp.route('/login/action', methods=['POST'])
-def serve_login_action():
-    try:
-        if 'identifier' not in request.form:
-            raise ExportException("internal error, identifier missing from form")
-
-        if 'password' not in request.form:
-            raise ExportException("internal error, password missing from form")
-        try:
-            user_id = auth.login(
-                identifier=request.form['identifier'],
-                password=request.form['password']
-            )
-            auth.load_user(user_id)
-            account_users = g.db.account_users.get_account_users(user=g.user.id())
-            if len(account_users) == 1:
-                auth.load_account(account_users[0]["account"])
-            else:
-                return {"redirect": url_for("dashboard_bp.serve_accounts")}
-
-            if (
-                'requestRedirectTo' in request.form and
-                request.form['requestRedirectTo'] is not None and
-                request.form['requestRedirectTo'] != ''
-            ):
-                redirect_to = request.form['requestRedirectTo']
-            elif g.account.is_partner():
-                redirect_to = url_for("partner_bp.serve_dashboard")
-            else:
-                redirect_to = url_for("dashboard_bp.serve_dashboard")
-            return {"redirect": redirect_to}
-        except auth.LoginException as e:
-            raise ExportException(str(e))
-        except auth.EmailNotVerifiedException as e:
-            raise ExportException(str(e))
-        except auth.SignupFailedException as e:
-            raise ExportException("internal error in Users.login")
-    except ExportException as e:
-        return jsonify({"error": str(e)}), 400
 
 
 @bp.route('/signup', methods=['GET'])
