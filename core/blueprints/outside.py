@@ -667,3 +667,9 @@ def serve_modify_tip(tip_id):
         return Response(status=HTTP_NO_CONTENT)
     else:
         return Response(status=HTTP_BAD_REQUEST)
+
+
+@bp.route('/iframe/sales-group/create', methods=['GET'])
+def serve_create_sales_group():
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    return outside_render("/outside/iframes/create-sales-group.html", {"auction_markets": auction_markets})
