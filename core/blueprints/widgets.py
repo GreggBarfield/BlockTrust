@@ -1,7 +1,10 @@
 import json
 from flask import (
-    request, Blueprint, g, url_for
+    Response, request, Blueprint, g, url_for
 )
+from core.database.tables.sales_group_searches import SalesGroupSearches
+
+from core.utilities.constants import HTTP_CREATED
 
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
@@ -210,6 +213,25 @@ def serve_search_sales_groups_2():
     return {
         "sales_groups": results
     }
+
+
+@bp.route('/widgets/data/sales_groups_searches', methods=['GET', 'POST'])
+@crut.require_account
+def serve_save_search_sales_group():
+    if request.method == 'POST':
+        SalesGroupSearches(g.db).insert(
+            name=request.json["search"]["name"],
+            user_id=g.user.id(),
+            zip=request.json["search"]["zip"],
+            radius=request.json["search"]["radius"],
+            category=request.json["search"]["category"],
+            breed=request.json["search"]["breed"],
+            minimum_weight=request.json["search"]["minimum_weight"],
+            preconditioning_program=request.json["search"]["preconditioning_program"],
+            process_verified_program=request.json["search"]["process_verified_program"]
+        )
+        return Response(status=HTTP_CREATED)
+    return {}
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])

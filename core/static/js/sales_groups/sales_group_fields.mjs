@@ -95,7 +95,6 @@ let commonBreedNames = [
 ];
 
 let commonPVPProgramNames = [
-    "None",
     "American Certified Brands",
     "AzTx Cattle Co.",
     "BeefTraxx",
@@ -128,7 +127,6 @@ let commonWeights = [];
 for (let i = 400; i <= 950; i+=50) { commonWeights.push(i); }
 
 let commonPreconditioningProgramNames = [
-	"None",
 	"Health Track",
 	"Value Added Calf-45",
 	"OQBN Vac-45 Program",

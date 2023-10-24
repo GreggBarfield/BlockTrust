@@ -11,7 +11,7 @@ if (loginForm[0].hasAttribute("request_redirect_to")) {
 }
 
 let form = new AsyncForm({
-    action: "/login/action",
+    action: "/login",
     form: loginForm[0],
     status: statusMessage[0],
     error: errorMessage[0],

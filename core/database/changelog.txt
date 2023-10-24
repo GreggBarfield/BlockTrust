@@ -2236,3 +2236,19 @@ CREATE TABLE `sent_emails` (
   `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Rohan Sureshkumar 10/10/2023 */
+CREATE TABLE `sales_group_searches` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100),
+  `user_id` INT NOT NULL,
+  `radius` VARCHAR(50) NULL,
+  `zip` VARCHAR(50) NULL,
+  `category` VARCHAR(50) NULL,
+  `breed` VARCHAR(50) NULL,
+  `minimum_weight` VARCHAR(50) NULL,
+  `preconditioning_program` VARCHAR(50) NULL,
+  `process_verified_program` VARCHAR(50) NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
