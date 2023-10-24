@@ -3,7 +3,7 @@
 {% set page_title = "Create Sales Group"| string %}
 
 {% block outside_content %}
-<div class="col-sm-12 widget" data-widget-type="create sales group" data-widget-form-post-route="{{form_post_route}}"></div>
+<div class="col-sm-12 widget" data-widget-type="create sales group" data-widget-form-post-route="abcd"></div>
 <div class="card m-11 p-1">
     <div class="card-header form-group d-flex justify-content-between">
         <h5>Create New Sales Group</h5>
@@ -82,25 +82,25 @@
                             data-placement="right"
                             title="This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)"></a>
                         </label>
-                        <input class="form-control" id="marketing-delivery-location" type="text" required>
+                        <input class="form-control" id="marketing-delivery-location" type="text">
                     </div>
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
                             Slide
                         </label>
-                        <input class="form-control" id="marketing-slide" type="text" required>
+                        <input class="form-control" id="marketing-slide" type="text">
                     </div>
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
                             Weighing Conditions
                         </label>
-                        <input class="form-control" id="marketing-weighing-conditions" type="text" required>
+                        <input class="form-control" id="marketing-weighing-conditions" type="text">
                     </div>
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
                             Represented By
                         </label>
-                        <input class="form-control" id="marketing-represented-by" type="text" required>
+                        <input class="form-control" id="marketing-represented-by" type="text">
                     </div>
                 </div>
 
@@ -128,7 +128,7 @@
                         <label class="form-label">
                             Breed Comments
                         </label>
-                        <input class="form-control" id="characteristics-breed-comments" type="text" required>
+                        <input class="form-control" id="characteristics-breed-comments" type="text">
                     </div>
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
@@ -158,7 +158,7 @@
                         <label class="form-label">
                             Weighing Conditions
                         </label>
-                        <input class="form-control" id="characteristics-weighing-conditions" type="text" required>
+                        <input class="form-control" id="characteristics-weighing-conditions" type="text">
                     </div>
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
@@ -179,7 +179,7 @@
                         <select class="form-control" id="characteristics-horns"></select>
                     </div>
                 </div>
-                <h4>Gentics</h4>
+                <h4>Genetics</h4>
                 <div class="form-row">
                     <div class="form-group d-block col-md-4">
                         <label class="form-label">
@@ -197,7 +197,7 @@
                         <label class="form-label">
                             Enter any comment related to genetics.
                         </label>
-                        <input class="form-control" id="genetics-comments" type="text" required>
+                        <input class="form-control" id="genetics-comments" type="text">
                     </div>
                 </div>
                 <h4>Maintenance</h4>
@@ -216,7 +216,7 @@
                     </div>
                     <div class="form-group d-block col-md-2">
                         <label class="form-label">
-                            Precon Program
+                            Vaccinations
                             <a 
                             class="feather icon-info"
                             style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px"
@@ -279,19 +279,20 @@
                 </div>
                 <div class="form-row m-1 p-1 d-flex">
                     <div><input type="checkbox" id="show-carcass-data"></div>
-                    <div class="ml-2"><h5>Show Carcass Data</h5></div>
+                    <div class="ml-2"><h5>Display Historical Carcass Data Averages</h5></div>
                 </div>
                 <div class="form-group d-block">
-                    <button class="btn btn-primary" disabled>Save</button>
-                    <p class="d-none mt-2 mb-0" id="status-message"></p>
-                    <p class="d-none mt-2 mb-0  alert alert-danger" id="error-message"></p>
+                    <button class="btn btn-primary" id="submit-button">Save</button>
                 </div>
+                <p class="mt-2 mb-0 alert alert-warning" id="status-message" style="display:none;"></p>
+                <p class="mt-2 mb-0  alert alert-danger" id="error-message" style="display:none;"></p>
             </form>
         </div>
     </div>
 </div>
 <script type="text/javascript">
     var auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
+    var postRoute = '{{form_post_route}}';
 </script>
 <script type="module" src="/static/entry_points/outside/iframes/create_sales_group.mjs"></script>
 {% endblock outside_content %}
