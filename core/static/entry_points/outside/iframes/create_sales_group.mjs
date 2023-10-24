@@ -25,7 +25,6 @@ $("#maintenance-implants").select2({data: SalesGroupFields.commonImplants, multi
 $("#maintenance-castrated").select2({data: SalesGroupFields.commonCastrated, multiple: false});
 $("#maintenance-pvp-program").select2({data: SalesGroupFields.commonPVPProgramNames, multiple: false});
 
-// TO-DO: Create a method to submit the form and authenticate account submitting the sales group
 let salesGroupForm = document.getElementById("create-sales-group-form");
 
 let salesGroupName = document.getElementById("marketing-name");
