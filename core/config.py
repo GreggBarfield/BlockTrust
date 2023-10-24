@@ -61,7 +61,8 @@ CSP = {
         'blocktrustnetwork.com',
         'uscattletrace.org',
         'www.uscattletrace.org',
-        'www-uscattletrace-org.filesusr.com'
+        'www-uscattletrace-org.filesusr.com',
+        'partner.blocktrustnetwork.com'
     ]
 }
 
