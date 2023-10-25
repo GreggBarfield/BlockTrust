@@ -1,6 +1,7 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
 import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class SearchSalesGroupsWidget extends Widget {
     constructor(frame) {
@@ -197,48 +198,54 @@ export class SearchSalesGroupsWidget extends Widget {
         return value;
     }
 
-    search() {
+    validateForm(){
         this.searchErrorAlert.style.display = "none";
-
         if (this.inputs.milesSelect.value == "") {
             this.showError("Please select a radius (in miles).");
-            return;
+            return false;
         }
 
         if (this.inputs.zipCode.value == "") {
             this.showError("Please enter a valid ZIP Code.");
-            return;
+            return false;
         }
 
-        this.resultsHr.style.display = "block";
-        this.results.style.display = "block";
-        this.results.innerHTML = '\
-            <div class="d-flex justify-content-center">\
-                <div class="spinner-border" role="status">\
-                    <span class="sr-only">Loading...</span>\
-                </div>\
-            </div>';
+        return true;
+    }
 
-        this.getData(
-            "search_sales_groups_2",
-            {
-                search: {
-                    zip: parseInt(this.inputs.zipCode.value),
-                    radius: parseInt(this.inputs.milesSelect.value),
-                    category: this.processDropdown(this.inputs.category.value),
-                    breed: this.processDropdown(this.inputs.breed.value),
-                    minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
-                    preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
-                    process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
-                }
-            },
-            true
-        ).then((data) => {
-            this.handleSearchResults(data);
-        }).catch((message) => {
-            this.results.innerHTML = "";
-            this.showError(message.toString());
-        });
+    search() {
+
+        if(this.validateForm()) {
+            this.resultsHr.style.display = "block";
+            this.results.style.display = "block";
+            this.results.innerHTML = '\
+                <div class="d-flex justify-content-center">\
+                    <div class="spinner-border" role="status">\
+                        <span class="sr-only">Loading...</span>\
+                    </div>\
+                </div>';
+
+            this.getData(
+                "search_sales_groups_2",
+                {
+                    search: {
+                        zip: parseInt(this.inputs.zipCode.value),
+                        radius: parseInt(this.inputs.milesSelect.value),
+                        category: this.processDropdown(this.inputs.category.value),
+                        breed: this.processDropdown(this.inputs.breed.value),
+                        minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                        preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
+                        process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
+                    }
+                },
+                true
+            ).then((data) => {
+                this.handleSearchResults(data);
+            }).catch((message) => {
+                this.results.innerHTML = "";
+                this.showError(message.toString());
+            });
+        }
     }
 
     async generateSavedSearchesTable() {
@@ -302,42 +309,64 @@ export class SearchSalesGroupsWidget extends Widget {
     }
 
     async save() {
-        if (this.inputs.milesSelect.value == "") {
-            this.showError("Please select a radius (in miles).");
-            return;
-        }
 
-        if (this.inputs.zipCode.value == "") {
-            this.showError("Please enter a valid ZIP Code.");
-            return;
-        }
-        let name = prompt("Enter a name to save");
-        if (name == null){
-            return;
-        }
-        else if (name == "") {
-            this.showError("Please enter a valid name.");
-            return;
-        }
-        try {
-            await this.getData(`sales_group_searches`, 
-                {
-                    search: {
-                        name: name,
-                        zip: parseInt(this.inputs.zipCode.value),
-                        radius: parseInt(this.inputs.milesSelect.value),
-                        category: this.processDropdown(this.inputs.category.value),
-                        breed: this.processDropdown(this.inputs.breed.value),
-                        minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
-                        preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
-                        process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
-                    }
-                }, true     
-            )
-            window.location.reload();
-        }
-        catch(err){
-            alert("An unexpected error occured. Please try again after sometime");
+        if (this.validateForm()){
+
+            let infoModal = new InfoModal(`Enter a name to save`);
+            let modalBody = infoModal.getBody();
+
+            let form = document.createElement("form");
+
+            let formGroup = document.createElement("div");
+            formGroup.className = "form-group";
+
+            let label = document.createElement("label");
+            label.textContent = "Name:";
+            formGroup.append(label);
+
+            let nameInput = document.createElement("input");
+            nameInput.className = "form-control";
+            formGroup.append(nameInput);
+    
+            form.append(formGroup);       
+            modalBody.append(form);
+
+            let saveButton = document.createElement("button");
+            saveButton.textContent = "Save";
+            saveButton.className = "btn btn-primary";
+            infoModal.getActionButtonDiv().append(saveButton);
+
+            let alert = document.createElement("div");
+            modalBody.append(alert);
+
+            saveButton.addEventListener("click", async()=>{
+                saveButton.disabled = true;
+                alert.className = "d-none";
+                try {
+                    await this.getData(`sales_group_searches`, 
+                        {
+                            search: {
+                                name: nameInput.value,
+                                zip: parseInt(this.inputs.zipCode.value),
+                                radius: parseInt(this.inputs.milesSelect.value),
+                                category: this.processDropdown(this.inputs.category.value),
+                                breed: this.processDropdown(this.inputs.breed.value),
+                                minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                                preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
+                                process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
+                            }
+                        }, true
+                    )
+                    alert.className = "alert alert-success";
+                    alert.textContent = "Saved. Reloading...";
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+                catch(err){
+                    alert.className = "alert alert-danger";
+                    alert.textContent = "An unexpected error occured. Please try again after sometime";
+                    saveButton.disabled = false;
+                }
+            });
         }
     }
 
