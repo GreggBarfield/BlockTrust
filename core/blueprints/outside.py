@@ -735,6 +735,9 @@ def serve_create_sales_group():
 def serve_sales_group_created():
     return outside_render("/outside/iframes/sales-group-created.html")
 
+
 @bp.route('/iframe/login', methods=['GET'])
 def serve_iframe_login():
+    if 'account' in g:
+        return redirect('/iframe/sales-group/create')
     return outside_render("/outside/iframes/login.html")
