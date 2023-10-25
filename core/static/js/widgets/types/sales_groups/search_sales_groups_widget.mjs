@@ -248,16 +248,17 @@ export class SearchSalesGroupsWidget extends Widget {
 
         let expandControl = document.createElement("a");
         expandControl.innerHTML = "Saved Searches";
-        expandControl.href = "#";
+        expandControl.href = "javascript:void(0);";
+        expandControl.title = "Toggle saved searches";
         expandControl.className = "h6";
         tableContainer.append(expandControl);
 
         let table = document.createElement("table");
-        table.className = "table table-sm text-center mt-3 d-none";
+        table.className = "table table-sm text-center mt-3";
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Search Name",""];
+        const headers = ["Name", "Saved Date"];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -273,11 +274,21 @@ export class SearchSalesGroupsWidget extends Widget {
             td.innerText = search["name"];
             tr.append(td);
             td = document.createElement("td");
-            let loadLink = document.createElement("a");
-            loadLink.className = "btn btn-sm btn-secondary";
-            loadLink.href = "#";
-            loadLink.innerText = "Load";
-            td.append(loadLink);
+            let UTCDate = new Date(search["created_timestamp"] + " UTC");
+            td.innerText = UTCDate.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            });
+
+            // td = document.createElement("td");
+            // let loadLink = document.createElement("a");
+            // loadLink.className = "btn btn-sm btn-secondary";
+            // loadLink.href = "#";
+            // loadLink.innerText = "Load";
+            // td.append(loadLink);
             tr.append(td);
             table.append(tr);
         }
@@ -323,11 +334,9 @@ export class SearchSalesGroupsWidget extends Widget {
                     }
                 }, true     
             )
-            alert("Search saved successfully!");
             window.location.reload();
         }
         catch(err){
-            console.log('error', err);
             alert("An unexpected error occured. Please try again after sometime");
         }
     }
