@@ -15,15 +15,18 @@ export class SearchSalesGroupsWidget extends Widget {
 
     }
 
-    generate() {
+    async generate() {
+        
+        this.frame.append(await this.generateSavedSearchesTable());
+
         this.form = document.createElement("form");
         this.form.addEventListener("submit", (e)=>{
             e.preventDefault();
             this.search();
         });
-
+        
         let locationHeader = document.createElement("h6");
-        locationHeader.textContent = "Location";
+        locationHeader.textContent = "Search Options";
         this.form.append(locationHeader);
 
         let firstFormRow = document.createElement("div");
@@ -69,7 +72,7 @@ export class SearchSalesGroupsWidget extends Widget {
         let expandControlFormGroup = document.createElement("div");
         expandControlFormGroup.className = "form-group";
         let expandControl = document.createElement("a");
-        expandControl.textContent = "More Search Options";
+        expandControl.textContent = "More Options";
         expandControl.href = "#";
         expandControlFormGroup.append(expandControl);
         this.form.append(expandControlFormGroup);
@@ -238,8 +241,53 @@ export class SearchSalesGroupsWidget extends Widget {
         });
     }
 
-    generateSavedSearchesTable(form) {
+    async generateSavedSearchesTable() {
 
+        let tableContainer = document.createElement("div");
+        tableContainer.className = "mb-5";
+
+        let expandControl = document.createElement("a");
+        expandControl.innerHTML = "Saved Searches";
+        expandControl.href = "#";
+        expandControl.className = "h6";
+        tableContainer.append(expandControl);
+
+        let table = document.createElement("table");
+        table.className = "table table-sm text-center mt-3 d-none";
+        let thead = document.createElement("thead");
+        thead.classList += "thead-light";
+        let tr = document.createElement("tr");
+        const headers = ["Search Name",""];
+        for(const header of headers){
+            let th = document.createElement("th");
+            th.innerText = header;
+            tr.append(th);
+        }
+        thead.append(tr);
+        table.append(thead);
+        
+        const response = await this.getData("sales_group_searches",{}, false, "GET");
+        for(let search of response){
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.innerText = search["name"];
+            tr.append(td);
+            td = document.createElement("td");
+            let loadLink = document.createElement("a");
+            loadLink.className = "btn btn-sm btn-secondary";
+            loadLink.href = "#";
+            loadLink.innerText = "Load";
+            td.append(loadLink);
+            tr.append(td);
+            table.append(tr);
+        }
+        tableContainer.append(table);
+
+        expandControl.addEventListener("click", (e)=>{
+            e.preventDefault();
+            table.classList.toggle("d-none");
+        });
+        return tableContainer;
     }
 
     async save() {
@@ -261,7 +309,7 @@ export class SearchSalesGroupsWidget extends Widget {
             return;
         }
         try {
-            await this.getData(`sales_groups_searches`, 
+            await this.getData(`sales_group_searches`, 
                 {
                     search: {
                         name: name,
@@ -275,7 +323,8 @@ export class SearchSalesGroupsWidget extends Widget {
                     }
                 }, true     
             )
-            alert("Search saved successfully");
+            alert("Search saved successfully!");
+            window.location.reload();
         }
         catch(err){
             console.log('error', err);

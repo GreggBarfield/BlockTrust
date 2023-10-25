@@ -215,7 +215,7 @@ def serve_search_sales_groups_2():
     }
 
 
-@bp.route('/widgets/data/sales_groups_searches', methods=['GET', 'POST'])
+@bp.route('/widgets/data/sales_group_searches', methods=['GET', 'POST'])
 @crut.require_account
 def serve_save_search_sales_group():
     if request.method == 'POST':
@@ -231,7 +231,7 @@ def serve_save_search_sales_group():
             process_verified_program=request.json["search"]["process_verified_program"]
         )
         return Response(status=HTTP_CREATED)
-    return {}
+    return SalesGroupSearches(g.db).get(user_id=g.user.id())
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
