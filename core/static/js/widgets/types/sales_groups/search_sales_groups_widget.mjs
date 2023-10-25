@@ -299,6 +299,15 @@ export class SearchSalesGroupsWidget extends Widget {
             tr.append(td);
             table.append(tr);
         }
+        if( table.rows.length == 1){
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.setAttribute("colspan", "2");
+            td.innerText = "Nothing to show currently";
+            td.className = "font-italic";
+            tr.append(td);
+            table.append(tr);     
+        }
         tableContainer.append(table);
 
         expandControl.addEventListener("click", (e)=>{
