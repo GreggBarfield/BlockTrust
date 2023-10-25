@@ -13,7 +13,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from ..utilities import auth, csrf
+from ..utilities import auth, csrf, crut
 from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -665,7 +665,79 @@ def serve_modify_tip(tip_id):
         return Response(status=HTTP_BAD_REQUEST)
 
 
-@bp.route('/iframe/sales-group/create', methods=['GET'])
+@bp.route('/iframe/sales-group/create', methods=['GET', 'POST'])
+@crut.require_account
 def serve_create_sales_group():
-    auction_markets = AuctionMarkets(g.db).get_auction_markets()
-    return outside_render("/outside/iframes/create-sales-group.html", {"auction_markets": auction_markets})
+    if request.method == 'GET':
+        auction_markets = AuctionMarkets(g.db).get_auction_markets()
+        form_post_route = url_for('outside_bp.serve_create_sales_group')
+        return outside_render("/outside/iframes/create-sales-group.html", {
+            "auction_markets": auction_markets,
+            "form_post_route": form_post_route
+        })
+    if request.method == 'POST':
+        images = []
+        if 'images' in request.json["reported"]:
+            images = request.json["reported"]["images"]
+        try:
+            SalesGroups(g.db).validate_or_fail_sales_group(
+                account_id=g.account.id(),
+                group_name=request.json["group_name"],
+                zip=request.json["zip"],
+                delivery_location_type=request.json["delivery_location_type"],
+                count=request.json["reported"]["count"],
+                weight=request.json["reported"]["weight"],
+                weight_variance=request.json["reported"]["weight_variance"],
+                category=request.json["category"],
+                breeds=request.json["reported"]["breeds"],
+                start=request.json["start"],
+                end=request.json["end"],
+                auction_sale=request.json["auction_sale"],
+                delivery_location=request.json["delivery_location"],
+                auction_market_location=request.json["auction_market_location"],
+                images=images,
+                price=request.json["price"],
+                slide=request.json["reported"]["marketing_slide"],
+                weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+            )
+        except ExportException as e:
+            return {"error": str(e)}
+        delivery_location = ""
+        if request.json["delivery_location_type"] == "Off Ranch":
+            delivery_location = request.json["delivery_location"]
+        else:
+            delivery_location = request.json["auction_market_location"]
+        sales_group_id = SalesGroups(g.db).insert_sales_group(
+            account=g.account.id(),
+            reported=request.json["reported"],
+            published=request.json["published"],
+            zip_code=request.json["zip"],
+            delivery_location=delivery_location,
+            start=request.json["start"],
+            end=request.json["end"],
+            auction_sale=request.json["auction_sale"],
+            group_name=request.json["group_name"],
+            is_archived=0,
+            delivery_location_type=request.json["delivery_location_type"],
+            price=request.json["price"],
+            category=request.json["category"],
+            breed_comments=request.json["breed_comments"],
+            weighing_conditions=request.json["weighing_conditions"],
+            are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+            show_account_carcass_data=request.json["show_account_carcass_data"],
+            is_api_insert=0
+        )
+        return {"redirect": "/iframe/sales-group/sales-group-created"}
+
+
+@bp.route('/iframe/sales-group/sales-group-created')
+@crut.require_account
+def serve_sales_group_created():
+    return outside_render("/outside/iframes/sales-group-created.html")
+
+
+@bp.route('/iframe/login', methods=['GET'])
+def serve_iframe_login():
+    if 'account' in g:
+        return redirect('/iframe/sales-group/create')
+    return outside_render("/outside/iframes/login.html")
