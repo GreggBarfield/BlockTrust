@@ -4,6 +4,7 @@ from flask import (
 
 from core.config import ADMIN_EMAIL, FLATFILE_LICENSE, STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY
 from core.database.tables.matches import Matches
+from core.database.tables.sales_group_searches import SalesGroupSearches
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
@@ -153,10 +154,19 @@ def serve_messages_specific(open_message_id):
     return serve_messages(open_message_id)
 
 
-@bp.route('/dashboard/sales-groups', methods=['GET'])
+@bp.route('/dashboard/sales-groups/', defaults={'id': ''}, methods=['GET'])
+@bp.route('/dashboard/sales-groups/<int:id>', methods=['GET'])
 @crut.require_paid_account
-def serve_sales_groups():
-    return dashboard_render("sales-groups/list.html")
+def serve_sales_groups(id):
+    search = {}
+    if id:
+        if len(search := SalesGroupSearches(g.db).get(id=id, user_id=g.user.id())) > 0:
+            search = search[0]
+        else:
+            raise ExportException("Bad Request")
+    return dashboard_render("sales-groups/list.html", {
+        "search": search, "search_link": url_for(request.endpoint)
+    })
 
 
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])

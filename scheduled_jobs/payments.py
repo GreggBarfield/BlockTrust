@@ -18,25 +18,6 @@ stripe.api_key = STRIPE_SECRET_KEY
 
 
 def run_payment_tasks(job_run_id, db, template_folder):
-    email_body = """
-        <div>
-            <p>
-                Hello,
-                <br><br>
-                We wanted to inform you that the following payment has failed:
-                <table border="0">
-                    <tr><td>Card (last 4): {last_4}</td></tr>
-                    <tr><td>Amount: ${amount:.2f}</td></tr>
-                    <tr><td>Reason: {reason}</td></tr>
-                </table>
-            </p>
-            <p>
-                Please update your card information on the <a href="{link}">payment page</a>
-                to continue paying for your cattle in the system.
-            </p>
-            <p>Thank you.</p>
-        </div>
-    """
     try:
         app = Flask(__name__, template_folder=template_folder)
         with app.app_context():
