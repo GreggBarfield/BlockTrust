@@ -53,7 +53,12 @@ export class Widget {
                 method: method
             };
             if (method == "POST"){
-                requestParams["data"] = JSON.stringify(params);
+                requestParams.data = JSON.stringify(params);
+            }
+            else if(method == "GET"){
+                for(let p of params){
+                    requestParams.url += `/${p}`
+                }
             }
             ajax(requestParams)
                 .then((networkResult) => {

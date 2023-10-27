@@ -12,12 +12,11 @@ export class SearchSalesGroupsWidget extends Widget {
         this.frame.innerHTML = "";
 
         this.inputs = {};
-        this.generate();
-
+        this.generate(JSON.parse(this.frame.getAttribute("data-widget-search")));
     }
 
-    async generate() {
-        
+    async generate(searchValues) {
+
         this.frame.append(await this.generateSavedSearchesTable());
 
         this.form = document.createElement("form");
@@ -27,7 +26,9 @@ export class SearchSalesGroupsWidget extends Widget {
         });
         
         let locationHeader = document.createElement("h6");
-        locationHeader.textContent = "Search Options";
+        locationHeader.innerHTML = `Search Options ${
+            Object.keys(searchValues).length > 0?"<span class='text-brown'>(options loaded from: " + searchValues.name + ")</span>":""
+        }` ;
         this.form.append(locationHeader);
 
         let firstFormRow = document.createElement("div");
@@ -52,8 +53,6 @@ export class SearchSalesGroupsWidget extends Widget {
             milesOption.textContent = miles + " Miles";
             this.inputs.milesSelect.append(milesOption);
         }
-
-        this.inputs.milesSelect.children[0].setAttribute("selected", true);
 
         let zipCodeFormGroup = document.createElement("div");
         zipCodeFormGroup.className = "form-group col-md-6";
@@ -141,27 +140,45 @@ export class SearchSalesGroupsWidget extends Widget {
         this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
         this.inputs.processVerifiedProgram = createSearchControl("PVP Program", SalesGroupFields.commonPVPProgramNames);
 
-        
-        {
-            let submitFormGroup = document.createElement("div");
-            submitFormGroup.className = "form-group";
-            this.form.append(submitFormGroup);
-
-            let submitButton = document.createElement("input");
-            submitButton.className = "btn btn-primary";
-            submitButton.type = "submit";
-            submitButton.value = "Search";
-            submitFormGroup.append(submitButton);
-
-            let saveButton = document.createElement("input");
-            saveButton.className = "btn btn-info";
-            saveButton.type = "button";
-            saveButton.value = "Save";
-            saveButton.addEventListener("click", (e)=>{
-                this.save();
-            });
-            submitFormGroup.append(saveButton);
+        if(Object.keys(searchValues).length){
+            this.inputs.milesSelect.value = searchValues.radius;
+            this.inputs.zipCode.value = searchValues.zip;
+            if(searchValues.category){
+                this.inputs.category.value = searchValues.category;
+            }
+            if(searchValues.breed){
+                this.inputs.breed.value = searchValues.breed;
+            }
+            if(searchValues.minimum_weight){
+                this.inputs.minimumWeight.value = searchValues.minimum_weight;
+            }
+            if(searchValues.preconditioning_program){
+                this.inputs.preconditioningProgram.value = searchValues.preconditioning_program;
+            }
+            if(searchValues.process_verified_program){
+                this.inputs.processVerifiedProgram.value = searchValues.process_verified_program;
+            }
+            expandContainer.style.display = "block";
         }
+        
+        let submitFormGroup = document.createElement("div");
+        submitFormGroup.className = "form-group";
+        this.form.append(submitFormGroup);
+
+        let submitButton = document.createElement("input");
+        submitButton.className = "btn btn-primary";
+        submitButton.type = "submit";
+        submitButton.value = "Search";
+        submitFormGroup.append(submitButton);
+
+        let saveButton = document.createElement("input");
+        saveButton.className = "btn btn-info";
+        saveButton.type = "button";
+        saveButton.value = "Save";
+        saveButton.addEventListener("click", (e)=>{
+            this.save();
+        });
+        submitFormGroup.append(saveButton);
 
         this.searchErrorAlert = document.createElement("div");
         this.searchErrorAlert.className = "alert alert-danger";
@@ -265,7 +282,7 @@ export class SearchSalesGroupsWidget extends Widget {
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Name", "Saved Date"];
+        const headers = ["Name", "Saved Date", ""];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -274,7 +291,7 @@ export class SearchSalesGroupsWidget extends Widget {
         thead.append(tr);
         table.append(thead);
         
-        const response = await this.getData("sales_group_searches",{}, false, "GET");
+        const response = await this.getData("sales_group_searches", [], false, "GET");
         for(let search of response){
             let tr = document.createElement("tr");
             let td = document.createElement("td");
@@ -289,20 +306,20 @@ export class SearchSalesGroupsWidget extends Widget {
                 hour: 'numeric',
                 minute: 'numeric'
             });
-
-            // td = document.createElement("td");
-            // let loadLink = document.createElement("a");
-            // loadLink.className = "btn btn-sm btn-secondary";
-            // loadLink.href = "#";
-            // loadLink.innerText = "Load";
-            // td.append(loadLink);
+            tr.append(td);
+            td = document.createElement("td");
+            let loadLink = document.createElement("a");
+            loadLink.className = "btn btn-sm btn-secondary";
+            loadLink.href = `/dashboard/sales-groups/${search["id"]}`;
+            loadLink.innerText = "Load";
+            td.append(loadLink);
             tr.append(td);
             table.append(tr);
         }
         if( table.rows.length == 1){
             let tr = document.createElement("tr");
             let td = document.createElement("td");
-            td.setAttribute("colspan", "2");
+            td.setAttribute("colspan", "3");
             td.innerText = "Nothing to show currently";
             td.className = "font-italic";
             tr.append(td);
