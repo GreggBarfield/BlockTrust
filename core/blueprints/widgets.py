@@ -217,7 +217,7 @@ def serve_search_sales_groups_2():
 
 @bp.route('/widgets/data/sales_group_searches', methods=['GET', 'POST'])
 @crut.require_account
-def serve_save_search_sales_group():
+def serve_sales_group_searches():
     if request.method == 'POST':
         SalesGroupSearches(g.db).insert(
             name=request.json["search"]["name"],
