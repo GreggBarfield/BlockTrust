@@ -666,7 +666,7 @@ def serve_modify_tip(tip_id):
 
 
 @bp.route('/iframe/sales-group/create', methods=['GET', 'POST'])
-@crut.require_account
+@crut.require_user_iframe
 def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
@@ -731,13 +731,90 @@ def serve_create_sales_group():
 
 
 @bp.route('/iframe/sales-group/sales-group-created')
-@crut.require_account
+@crut.require_user_iframe
 def serve_sales_group_created():
     return outside_render("/outside/iframes/sales-group-created.html")
 
 
 @bp.route('/iframe/login', methods=['GET'])
 def serve_iframe_login():
-    if 'account' in g:
-        return redirect('/iframe/sales-group/create')
-    return outside_render("/outside/iframes/login.html")
+    redirect_to = ''
+    # Might want to revisit this eventually to protect against users getting tricked
+    if 'redirect' in request.args:
+        redirect_to = request.args['redirect']
+    return outside_render("/outside/iframes/login.html", {"redirect_to": redirect_to})
+
+
+@bp.route('/iframe/sales-group/manage-sales-groups', methods=['GET'])
+@crut.require_user_iframe
+def serve_manage_sales_groups():
+    sales_groups = SalesGroups(g.db).get_sales_groups(account_id=g.account.id(), is_archived=0)
+    return outside_render("/outside/iframes/manage-sales-groups.html", {"sales_groups": sales_groups})
+
+
+@bp.route('/iframe/sales-group/edit/<int:sales_group_id>', methods=['GET', 'POST'])
+@crut.require_user_iframe
+def serve_edit_sales_group(sales_group_id):
+    if request.method == 'GET':
+        sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+        auction_markets = AuctionMarkets(g.db).get_auction_markets()
+        form_post_route = url_for('outside_bp.serve_edit_sales_group', sales_group_id=sales_group_id)
+        if(sales_group["account"] != g.account.id()):
+            return outside_render("/outside/iframes/unauthorized.html")
+        return outside_render("/outside/iframes/edit-sales-group.html", {
+            "sales_group": sales_group,
+            "auction_markets": auction_markets,
+            "form_post_route": form_post_route
+        })
+    if request.method == 'POST':
+        # Check that the account selected is the owner of the sales group
+        original_row = SalesGroups(g.db).get_sales_group_by_id(request.json["id"])
+        if original_row["account"] != g.account.id():
+            raise ExportException("Insufficient permissions to edit this sales group.")
+        # Validate sales group fields
+        images = []
+        SalesGroups(g.db).validate_or_fail_sales_group(
+            account_id=g.account.id(),
+            group_name=request.json["group_name"],
+            zip=request.json["zip"],
+            delivery_location_type=request.json["delivery_location_type"],
+            count=request.json["reported"]["count"],
+            weight=request.json["reported"]["weight"],
+            weight_variance=request.json["reported"]["weight_variance"],
+            category=request.json["category"],
+            breeds=request.json["reported"]["breeds"],
+            start=request.json["start"],
+            end=request.json["end"],
+            auction_sale=request.json["auction_sale"],
+            delivery_location=request.json["delivery_location"],
+            auction_market_location=request.json["auction_market_location"],
+            images=images,
+            price=request.json["price"],
+            slide=request.json["reported"]["marketing_slide"],
+            weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+        )
+        delivery_location = ""
+        if request.json["delivery_location_type"] == "Off Ranch":
+            delivery_location = request.json["delivery_location"]
+        else:
+            delivery_location = request.json["auction_market_location"]
+        SalesGroups(g.db).update_sales_group(
+            id=request.json["id"],
+            reported=request.json["reported"],
+            published=request.json["published"],
+            zip_code=request.json["zip"],
+            delivery_location=delivery_location,
+            start=request.json["start"],
+            end=request.json["end"],
+            auction_sale=request.json["auction_sale"],
+            group_name=request.json["group_name"],
+            is_archived=0,
+            delivery_location_type=request.json["delivery_location_type"],
+            price=request.json["price"],
+            category=request.json["category"],
+            breed_comments=request.json["breed_comments"],
+            weighing_conditions=request.json["weighing_conditions"],
+            are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
+            show_account_carcass_data=request.json["show_account_carcass_data"]
+        )
+        return {"redirect": "/iframe/sales-group/manage-sales-groups"}
