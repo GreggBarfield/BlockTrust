@@ -164,7 +164,9 @@ def serve_sales_groups(id):
             search = search[0]
         else:
             raise ExportException("Bad Request")
-    return dashboard_render("sales-groups/list.html", {"search":search})
+    return dashboard_render("sales-groups/list.html", {
+        "search": search, "search_link": url_for(request.endpoint)
+    })
 
 
 @bp.route('/dashboard/sales-groups/new', methods=['GET'])

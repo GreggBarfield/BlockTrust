@@ -310,7 +310,7 @@ export class SearchSalesGroupsWidget extends Widget {
             td = document.createElement("td");
             let loadLink = document.createElement("a");
             loadLink.className = "btn btn-sm btn-secondary";
-            loadLink.href = `/dashboard/sales-groups/${search["id"]}`;
+            loadLink.href = `${this.frame.getAttribute("data-widget-link")}${search["id"]}`;
             loadLink.innerText = "Load";
             td.append(loadLink);
             tr.append(td);
