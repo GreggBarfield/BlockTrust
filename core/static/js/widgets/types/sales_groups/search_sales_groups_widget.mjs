@@ -12,10 +12,10 @@ export class SearchSalesGroupsWidget extends Widget {
         this.frame.innerHTML = "";
 
         this.inputs = {};
-        this.generate(JSON.parse(this.frame.getAttribute("data-widget-search")));
+        this.generate(JSON.parse(this.frame.getAttribute("data-widget-search")), this.frame.getAttribute("data-widget-link"));
     }
 
-    async generate(searchValues) {
+    async generate(searchValues, link) {
 
         this.frame.append(await this.generateSavedSearchesTable());
 
@@ -176,7 +176,7 @@ export class SearchSalesGroupsWidget extends Widget {
         saveButton.type = "button";
         saveButton.value = "Save";
         saveButton.addEventListener("click", (e)=>{
-            this.save();
+            this.save(link);
         });
         submitFormGroup.append(saveButton);
 
@@ -270,15 +270,8 @@ export class SearchSalesGroupsWidget extends Widget {
         let tableContainer = document.createElement("div");
         tableContainer.className = "mb-5";
 
-        let expandControl = document.createElement("a");
-        expandControl.innerHTML = "Saved Searches";
-        expandControl.href = "javascript:void(0);";
-        expandControl.title = "Toggle saved searches";
-        expandControl.className = "h6";
-        tableContainer.append(expandControl);
-
         let table = document.createElement("table");
-        table.className = "table table-sm text-center mt-3";
+        table.className = "table table-sm text-center mt-3 table-bordered";
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
@@ -325,16 +318,22 @@ export class SearchSalesGroupsWidget extends Widget {
             tr.append(td);
             table.append(tr);     
         }
-        tableContainer.append(table);
 
+        let expandControl = document.createElement("a");
+        expandControl.innerHTML = "Saved Searches";
+        expandControl.href = "javascript:void(0);";
+        expandControl.title = "Toggle saved searches";
+        expandControl.className = "h6";
         expandControl.addEventListener("click", (e)=>{
             e.preventDefault();
             table.classList.toggle("d-none");
         });
+        tableContainer.append(expandControl);
+        tableContainer.append(table);
         return tableContainer;
     }
 
-    async save() {
+    async save(link) {
 
         if (this.validateForm()){
 
@@ -385,7 +384,7 @@ export class SearchSalesGroupsWidget extends Widget {
                     )
                     alert.className = "alert alert-success";
                     alert.textContent = "Saved. Reloading...";
-                    setTimeout(() => window.location.reload(), 1000);
+                    setTimeout(() => window.location.href = link, 1000);
                 }
                 catch(err){
                     alert.className = "alert alert-danger";
