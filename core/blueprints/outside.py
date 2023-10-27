@@ -739,7 +739,6 @@ def serve_sales_group_created():
 @bp.route('/iframe/login', methods=['GET'])
 def serve_iframe_login():
     redirect_to = ''
-    # Might want to revisit this eventually to protect against users getting tricked
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
     return outside_render("/outside/iframes/login.html", {"redirect_to": redirect_to})

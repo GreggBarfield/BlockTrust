@@ -8,7 +8,6 @@ for(let auctionMarket of auctionMarkets){
     auctionMarketsList.push(optionText);
 }
 
-
 $("#marketing-delivery-location-type").select2({data: SalesGroupFields.commonDeliveryLocationTypes, multiple: false});
 $("#marketing-auction-market").select2({data: auctionMarketsList, multiple: false});
 $("#characteristics-category").select2({data: SalesGroupFields.commonCategoryNames, multiple: false});
