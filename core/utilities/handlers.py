@@ -7,6 +7,7 @@ from .crut.requirements import (
     RequireNonPartnerAccountFailed,
     RequireUserOrEmployeeFailed,
     RequireUserFailed,
+    RequireUserIframeFailed,
     RequirePaidAccountFailed,
     RequirePartnerFailed,
     RequireEmployeeFailed
@@ -51,6 +52,17 @@ def attach_handlers(app):
                 return employee_render("errors/no-access.html")
             return redirect(
                 "/login?" + urllib.parse.urlencode({
+                    'redirect': request.url
+                })
+            )
+        else:
+            return respond(401, 'Not logged in')
+
+    @app.errorhandler(RequireUserIframeFailed)
+    def handle_require_user_iframe_failed(e):
+        if request.method == 'GET':
+            return redirect(
+                "/iframe/login?" + urllib.parse.urlencode({
                     'redirect': request.url
                 })
             )

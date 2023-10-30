@@ -3,8 +3,7 @@ import { AsyncForm } from "/static/global/async_form.mjs";
 let loginForm = $("#login_form");
 let statusMessage = loginForm.find("#login_status_message");
 let errorMessage = loginForm.find("#login_error_message");
-
-let requestRedirectTo = "/iframe/sales-group/create";
+let requestRedirectTo = null;
 
 if (loginForm[0].hasAttribute("request_redirect_to")) {
     requestRedirectTo = loginForm[0].getAttribute("request_redirect_to");
