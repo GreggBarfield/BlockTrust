@@ -13,7 +13,7 @@ from .crut.requirements import (
     RequireEmployeeFailed
 )
 from ..common_exceptions import ExportException, FriendlyException, DebugException
-
+from core.config import ROOT
 from ..renderers.dashboard import dashboard_render
 from ..renderers.partner import partner_render
 from flask_wtf.csrf import CSRFError
@@ -61,9 +61,14 @@ def attach_handlers(app):
     @app.errorhandler(RequireUserIframeFailed)
     def handle_require_user_iframe_failed(e):
         if request.method == 'GET':
+            redirect_url = ROOT
+            if request.url.count("localhost:5000") == 1:
+                redirect_url = request.url.replace("localhost:5000", ROOT)
+            if request.url.count("127.0.0.1:5000") == 1:
+                redirect_url = request.url.replace("127.0.0.1:5000", ROOT)
             return redirect(
                 "/iframe/login?" + urllib.parse.urlencode({
-                    'redirect': request.url
+                    'redirect': redirect_url
                 })
             )
         else:
