@@ -23,7 +23,7 @@ $("#maintenance-annual-cattle-herd-vaccinations").select2({data: ["Yes", "No"], 
 $("#maintenance-feeding-program").select2({data: SalesGroupFields.commonFeedingPrograms, multiple: true, placeholder: "Select Feeding Programs"});
 $("#maintenance-implants").select2({data: SalesGroupFields.commonImplants, multiple: true, placeholder: "Select Implants"});
 $("#maintenance-castrated").select2({data: SalesGroupFields.commonCastrated, multiple: false});
-$("#maintenance-pvp-program").select2({data: SalesGroupFields.commonPVPProgramNames, multiple: false});
+$("#maintenance-pvp-program").select2({data: SalesGroupFields.commonProgramNames, multiple: false});
 
 let salesGroupForm = document.getElementById("create-sales-group-form");
 

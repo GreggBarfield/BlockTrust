@@ -265,7 +265,7 @@ export class SalesGroupsCommonForm{
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
-            name: "Delivery Location Type",
+            name: "Market Type",
             options: SalesGroupFields.commonDeliveryLocationTypes,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
@@ -344,7 +344,7 @@ export class SalesGroupsCommonForm{
         
         let characteristicsCategory = createSelect({
             row: characteristicsRow,
-            name: "Category",
+            name: "Category/Sex",
             options: SalesGroupFields.commonCategoryNames,
             values: this.characteristicsCategoryValue,
             multiple: false,
@@ -477,8 +477,8 @@ export class SalesGroupsCommonForm{
         }, false, "", "", 4);
         let maintenanceProcessVerifiedProgram = createSelect({
             row: maintenanceRow,
-            name: "PVP Program",
-            options: SalesGroupFields.commonPVPProgramNames,
+            name: "Program",
+            options: SalesGroupFields.commonProgramNames,
             values: this.maintenanceProcessVerifiedProgramValue,
             multiple: false,
             tags: false,
