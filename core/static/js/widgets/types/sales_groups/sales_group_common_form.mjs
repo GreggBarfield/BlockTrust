@@ -20,7 +20,7 @@ export class SalesGroupsCommonForm{
             this.marketingStartDateValue = this.data.start;
             this.marketingEndDateValue = this.data.end;
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
-            this.marketingDeliveryLocationValue = this.data.delivery_location;
+            this.marketingDeliveryLocationValue = this.data.delivery_location ? this.data.delivery_location: "";
             this.marketingPriceValue = this.data.price;
             this.marketingSlideValue = this.data.reported.marketing_slide;
             this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
@@ -59,6 +59,7 @@ export class SalesGroupsCommonForm{
             this.marketingStartDateValue = null;
             this.marketingEndDateValue = null;
             this.marketingDeliveryLocationTypeValue = "Direct/Off Ranch";
+            this.marketingDeliveryLocationValue = "";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
