@@ -94,22 +94,11 @@ let commonBreedNames = [
 	"Not Reported",
 ];
 
-let commonPVPProgramNames = [
-    "American Certified Brands",
-    "AzTx Cattle Co.",
-    "BeefTraxx",
-    "Big Blue Sale Barn Passport Program®",
-    "Cal Poly State Univ Animal Science",
-    "Frost PLLC dba FACTA",
-    "IdentiGEN North America",
-    "IMI Global",
-    "Legacy Verified",
-    "Ranchers Connecting Ranchers",
-    "Red Angus Association of America",
-    "Samson",
-    "TechniTrack",
-    "Zoetis Genetics",
-    "Other"
+let commonProgramNames = [
+	"Conventional",
+	"Natural",
+	"NHTC",
+	"ALL"
 ];
 
 let commonMiles = [
@@ -174,9 +163,10 @@ let commonVaccinations = [
 ];
 
 let commonDeliveryLocationTypes = [
-	"Off Ranch",
+	"Direct/Off Ranch",
 	"Auction",
-	"Video Auction"
+	"Video Auction",
+	"Internet"
 ];
 
 let commonCastrated = [
@@ -215,7 +205,7 @@ let commonCategoryNames = [
 
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
-    commonPVPProgramNames: commonPVPProgramNames,
+    commonProgramNames: commonProgramNames,
 	commonMiles: commonMiles,
 	commonWeights: commonWeights,
 	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
