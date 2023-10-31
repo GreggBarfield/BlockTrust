@@ -9,16 +9,26 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
-                        Sales Group {{sales_group["id"]}}
+                        <h4 class="text-primary">Sales Group {{sales_group["id"]}}</h4>
                     </div>
                     <div class="card-body">
                         <div class="row mb-1">
-                            <dt class="col-sm-1">Location:</dt>
+                            <dt class="col-sm-2">Location:</dt>
                             <dd>
-                                {% if sales_group["market_location"] == "None" %}
+                                {% if sales_group["delivery_location"] == "None" %}
                                 N/A
                                 {% else %}
-                                {{sales_group["market_location"]}}
+                                {{sales_group["delivery_location"]}}
+                                {% endif %}                     
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-2">Category:</dt>
+                            <dd>
+                                {% if sales_group["category"] == "None" %}
+                                N/A
+                                {% else %}
+                                {{sales_group["category"]}}
                                 {% endif %}                     
                             </dd>
                         </div>
@@ -31,6 +41,11 @@
                         Animal Data
                     </div>
                     <div class="card-body">
+                        <div class="row mb-1">
+                            <h5 class="text-primary">
+                                Characteristics
+                            </h5>
+                        </div>
                         <div class="row mb-1">
                             <dt class="col-sm-6">Breed:</dt>
                             <dd class="col-sm-6 text-right">
@@ -70,6 +85,11 @@
                                 {{sales_group["reported"]["horns"]}}
                                 {% endif %}
                             </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <h5 class="text-primary">
+                                Maintenance
+                            </h5>
                         </div>
                         <div class="row mb-1">
                             <dt class="col-sm-6">Precon Program</dt>
@@ -112,6 +132,16 @@
                             </dd>
                         </div>
                         <div class="row mb-1">
+                            <dt class="col-sm-6">Annual Cattle Herd Vaccinations</dt>
+                            <dd class="col-sm-6 text-right">
+                                {% if sales_group["are_annual_cattle_herd_vaccinations_given"] == 1 %}
+                                Yes
+                                {% else %}
+                                No
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Feeding Program</dt>
                             <dd class="col-sm-6 text-right">
                                 {% if sales_group["reported"]["feeding_programs"]|length == 0%}
@@ -129,6 +159,29 @@
                                 {% else %}
                                 {{sales_group["reported"]["process_verified_program"]}}
                                 {% endif %}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <h5 class="text-primary">
+                                Genetics
+                            </h5>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genetic or genomic testing performed?</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["genomic_testing"] }}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Possess EPD's on the sires of the cattle planning to be sold</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["epd"] }}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genomics Comments</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["genetics_comments"] }}
                             </dd>
                         </div>
                     </div>
@@ -151,16 +204,6 @@
                             </dd>
                         </div>
                         <div class="row mb-1">
-                            <dt class="col-sm-6">Delivery Location:</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["delivery_location"] == "None"%}
-                                N/A
-                                {% else %}
-                                {{sales_group["delivery_location"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
                             <dt class="col-sm-6">Sales Date:</dt>
                             <dd class="col-sm-6 text-right" id="start_date">
                             </dd>
@@ -170,6 +213,37 @@
                             <dd class="col-sm-6 text-right" id="days_remaining">
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Delivery Location Type:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["delivery_location_type"]}}
+                            </dd>
+                        </div>
+                        {% if sales_group["delivery_location_type"] == "Video Auction" %}
+                            <div class="row mb-1">
+                                <dt class="col-sm-6">Slide:</dt>
+                                <dd class="col-sm-6 text-right">
+                                    {{sales_group["reported"]["marketing_slide"]}}
+                                </dd>
+                            </div>
+                            <div class="row mb-1">
+                                <dt class="col-sm-6">Weighing Conditions:</dt>
+                                <dd class="col-sm-6 text-right">
+                                    {{sales_group["reported"]["marketing_weighing_conditions"]}}
+                                </dd>
+                            </div>
+                        {% else %}
+                            <div class="row mb-1">
+                                <dt class="col-sm-6">Delivery Location:</dt>
+                                <dd class="col-sm-6 text-right">
+                                    {% if sales_group["delivery_location"] == "None"%}
+                                    N/A
+                                    {% else %}
+                                    {{sales_group["delivery_location"]}}
+                                    {% endif %}
+                                </dd>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -207,5 +281,4 @@
         daysRemaining.textContent = "--"
     }
 </script>
-<script type="module" src="/static/entry_points/outside/external-sales-group-viewer.mjs"></script>
 {% endblock outside_content %}

@@ -825,4 +825,4 @@ def serve_view_sales_group(sales_group_id):
     sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     if(sales_group["account"] != g.account.id()):
         return outside_render("/outside/iframes/unauthorized.html")
-    return outside_render("/outside/iframes/view-sales-group.html",{"sales_group": sales_group})
+    return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})
