@@ -43,7 +43,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
-            this.maintenanceProcessVerifiedProgramValue = this.data.reported.process_verified_program;
+            this.maintenanceProgramValue = this.data.reported.program;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
             this.fileAuths = this.data.file_auths
@@ -83,7 +83,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
-            this.maintenanceProcessVerifiedProgramValue = "None";
+            this.maintenanceProgramValue = "None";
             this.reportedImages = [];
             this.reportedVideos = [];
             this.fileAuths = null;
@@ -475,15 +475,15 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Select Castration Method"
         }, false, "", "", 4);
-        let maintenanceProcessVerifiedProgram = createSelect({
+        let maintenanceProgram = createSelect({
             row: maintenanceRow,
             name: "Program",
             options: SalesGroupFields.commonProgramNames,
-            values: this.maintenanceProcessVerifiedProgramValue,
+            values: this.maintenanceProgramValue,
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -625,7 +625,7 @@ export class SalesGroupsCommonForm{
                         feeding_programs: $(maintenanceFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
-                        process_verified_program: maintenanceProcessVerifiedProgram.value,
+                        program: maintenanceProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
                         marketing_slide: marketingSlide.value,
