@@ -59,6 +59,7 @@ export class SalesGroupsCommonForm{
             this.marketingStartDateValue = null;
             this.marketingEndDateValue = null;
             this.marketingDeliveryLocationTypeValue = "Direct/Off Ranch";
+            this.marketingDeliveryLocationValue = "";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
