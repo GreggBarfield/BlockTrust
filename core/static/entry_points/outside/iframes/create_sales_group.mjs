@@ -75,7 +75,7 @@ deliveryLocationType.onchange = () =>{
     weighingConditions.value = "";
     offRanchDeliveryLocation.value = "";
     auctionMarketLocation.value = "None";
-    if(deliveryLocationType.value === "Off Ranch"){
+    if(deliveryLocationType.value === "Direct/Off Ranch"){
         offRanchDeliveryLocation.disabled = false;
     }
     else if(deliveryLocationType.value == "Auction"){

@@ -134,7 +134,7 @@ export class SearchSalesGroupsWidget extends Widget {
             return select;
         }
 
-        this.inputs.category = createSearchControl("Category", SalesGroupFields.commonCategoryNames);
+        this.inputs.category = createSearchControl("Category/Sex", SalesGroupFields.commonCategoryNames);
         this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames);
         this.inputs.minimumWeight = createSearchControl("Minimum Weight", SalesGroupFields.commonWeights);
         this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);

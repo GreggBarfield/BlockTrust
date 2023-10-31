@@ -239,7 +239,7 @@ def serve_insert_sales_group():
             "videos": []
         }
         delivery_location = ""
-        if sales_group_data["delivery_location_type"] == "Off Ranch":
+        if sales_group_data["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = sales_group_data["delivery_location"]
         else:
             delivery_location = sales_group_data["auction_market"]

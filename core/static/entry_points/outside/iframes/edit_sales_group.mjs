@@ -75,7 +75,7 @@ deliveryLocationType.onchange = () =>{
     weighingConditions.value = "";
     offRanchDeliveryLocation.value = "";
     auctionMarketLocation.value = "None";
-    if(deliveryLocationType.value === "Off Ranch"){
+    if(deliveryLocationType.value === "Direct/Off Ranch"){
         offRanchDeliveryLocation.disabled = false;
     }
     else if(deliveryLocationType.value == "Auction"){
@@ -119,7 +119,7 @@ let setSalesGroupFieldsValues = (salesGroup) =>{
         $(auctionMarketLocation).val(salesGroup.delivery_location);
         $(auctionMarketLocation).trigger('change');
     }
-    else if(salesGroup.delivery_location_type == "Off Ranch"){
+    else if(salesGroup.delivery_location_type == "Direct/Off Ranch"){
         offRanchDeliveryLocation.value = salesGroup.delivery_location;
     }
     else if(salesGroup.delivery_location_type == "Video Auction"){
