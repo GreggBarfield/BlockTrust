@@ -2253,7 +2253,7 @@ CREATE TABLE `sales_group_searches` (
   `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
-  /* Rohan Sureshkumar 10/30/2023 */
+/* Rohan Sureshkumar 10/30/2023 */
 ALTER TABLE `sales_groups` 
 CHANGE COLUMN `delivery_location_type` `delivery_location_type` VARCHAR(50) NULL DEFAULT "Direct/Off Ranch" ;
 UPDATE sales_groups SET delivery_location_type = 'Direct/Off Ranch' where delivery_location_type = "Off Ranch";
