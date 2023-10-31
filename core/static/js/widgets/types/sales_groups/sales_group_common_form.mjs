@@ -58,7 +58,7 @@ export class SalesGroupsCommonForm{
             this.marketingZIPValue = null;
             this.marketingStartDateValue = null;
             this.marketingEndDateValue = null;
-            this.marketingDeliveryLocationTypeValue = "Off Ranch";
+            this.marketingDeliveryLocationTypeValue = "Direct/Off Ranch";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
@@ -275,7 +275,7 @@ export class SalesGroupsCommonForm{
         
         let deliveryLocation = "";
         let auctionMarket = "";
-        if(this.marketingDeliveryLocationTypeValue === "Off Ranch"){
+        if(this.marketingDeliveryLocationTypeValue === "Direct/Off Ranch"){
             deliveryLocation = this.marketingDeliveryLocationValue;
         }
         else if(this.marketingDeliveryLocationTypeValue === "Auction"){
@@ -291,7 +291,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Select Auction Market"
         }, false, "", "", 4, true);
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
         let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || null,true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || null,true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || null,true,"marketingRepresentedBy","", 4);
@@ -307,7 +307,7 @@ export class SalesGroupsCommonForm{
             marketingOffRanchLocation.value= "";
             marketingAuctionMarketLocation.value="None";
 
-            if(marketingDeliveryLocationType.value === "Off Ranch"){
+            if(marketingDeliveryLocationType.value === "Direct/Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
                 marketingOffRanchLocation.value = deliveryLocation;
                 // Remove comments when marketingPrice is enabled again

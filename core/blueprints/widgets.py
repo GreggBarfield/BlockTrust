@@ -285,7 +285,7 @@ def serve_create_sales_group():
     )
     # Alright, go ahead...
     delivery_location = ""
-    if request.json["delivery_location_type"] == "Off Ranch":
+    if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
@@ -344,7 +344,7 @@ def serve_update_sales_group():
         weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
     )
     delivery_location = ""
-    if request.json["delivery_location_type"] == "Off Ranch":
+    if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
