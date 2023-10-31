@@ -444,7 +444,7 @@ class SalesGroups:
             group_name: Nickname for the sales group
             zip: Zip code of the sales group
             account_id: Account ID of the owner account
-            delivery_location_type: Off ranch or auction market
+            delivery_location_type: Direct/Off Ranch or auction market
             count: Cattle count
             weight: Average weight for cattle in group
             weight_variance: Variance of weight average
@@ -481,7 +481,7 @@ class SalesGroups:
             raise ExportException("Sorry, check the market start and end dates (specifically the order).")
         if delivery_location_type is None:
             raise ExportException("Sale location type is not selected.")
-        elif delivery_location_type == "Off Ranch":
+        elif delivery_location_type == "Direct/Off Ranch":
             if len(delivery_location.strip()) == 0:
                 raise ExportException("Delivery Location cannot be blank")
         elif delivery_location_type == "Auction":

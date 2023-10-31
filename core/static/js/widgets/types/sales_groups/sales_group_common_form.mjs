@@ -43,7 +43,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
-            this.maintenanceProcessVerifiedProgramValue = this.data.reported.process_verified_program;
+            this.maintenanceProgramValue = this.data.reported.program;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
             this.fileAuths = this.data.file_auths
@@ -58,7 +58,8 @@ export class SalesGroupsCommonForm{
             this.marketingZIPValue = null;
             this.marketingStartDateValue = null;
             this.marketingEndDateValue = null;
-            this.marketingDeliveryLocationTypeValue = "Off Ranch";
+            this.marketingDeliveryLocationTypeValue = "Direct/Off Ranch";
+            this.marketingDeliveryLocationValue = "";
             this.marketingAuctionMarketLocationValue = "None";
             this.marketingOffRanchLocationValue = null;
             this.marketingPriceValue = 0;
@@ -83,7 +84,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "Not Castrated";
-            this.maintenanceProcessVerifiedProgramValue = "None";
+            this.maintenanceProgramValue = "None";
             this.reportedImages = [];
             this.reportedVideos = [];
             this.fileAuths = null;
@@ -265,7 +266,7 @@ export class SalesGroupsCommonForm{
         let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
-            name: "Delivery Location Type",
+            name: "Market Type",
             options: SalesGroupFields.commonDeliveryLocationTypes,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
@@ -275,7 +276,7 @@ export class SalesGroupsCommonForm{
         
         let deliveryLocation = "";
         let auctionMarket = "";
-        if(this.marketingDeliveryLocationTypeValue === "Off Ranch"){
+        if(this.marketingDeliveryLocationTypeValue === "Direct/Off Ranch"){
             deliveryLocation = this.marketingDeliveryLocationValue;
         }
         else if(this.marketingDeliveryLocationTypeValue === "Auction"){
@@ -291,7 +292,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Select Auction Market"
         }, false, "", "", 4, true);
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Off Ranch”)", 4);
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
         let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || null,true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || null,true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || null,true,"marketingRepresentedBy","", 4);
@@ -307,7 +308,7 @@ export class SalesGroupsCommonForm{
             marketingOffRanchLocation.value= "";
             marketingAuctionMarketLocation.value="None";
 
-            if(marketingDeliveryLocationType.value === "Off Ranch"){
+            if(marketingDeliveryLocationType.value === "Direct/Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
                 marketingOffRanchLocation.value = deliveryLocation;
                 // Remove comments when marketingPrice is enabled again
@@ -344,7 +345,7 @@ export class SalesGroupsCommonForm{
         
         let characteristicsCategory = createSelect({
             row: characteristicsRow,
-            name: "Category",
+            name: "Category/Sex",
             options: SalesGroupFields.commonCategoryNames,
             values: this.characteristicsCategoryValue,
             multiple: false,
@@ -475,15 +476,15 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Select Castration Method"
         }, false, "", "", 4);
-        let maintenanceProcessVerifiedProgram = createSelect({
+        let maintenanceProgram = createSelect({
             row: maintenanceRow,
-            name: "PVP Program",
-            options: SalesGroupFields.commonPVPProgramNames,
-            values: this.maintenanceProcessVerifiedProgramValue,
+            name: "Program",
+            options: SalesGroupFields.commonProgramNames,
+            values: this.maintenanceProgramValue,
             multiple: false,
             tags: false,
             placeholder: "Select Process Verified Program"
-        }, true, "maintenanceProcessVerifiedProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -625,7 +626,7 @@ export class SalesGroupsCommonForm{
                         feeding_programs: $(maintenanceFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
-                        process_verified_program: maintenanceProcessVerifiedProgram.value,
+                        program: maintenanceProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
                         marketing_slide: marketingSlide.value,
