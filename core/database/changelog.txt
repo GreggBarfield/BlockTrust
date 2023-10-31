@@ -2257,4 +2257,4 @@ CREATE TABLE `sales_group_searches` (
 ALTER TABLE `sales_groups` 
 CHANGE COLUMN `delivery_location_type` `delivery_location_type` VARCHAR(50) NULL DEFAULT "Direct/Off Ranch" ;
 UPDATE sales_groups SET delivery_location_type = 'Direct/Off Ranch' where delivery_location_type = "Off Ranch";
-UPDATE `sales_groups` SET `reported` = JSON_INSERT(JSON_REMOVE(`reported`, "$.process_verified_program"), "$.program", "None");
+UPDATE `sales_groups` SET `reported` = JSON_MERGE_PRESERVE(`reported`, '{"program":"None"}');
