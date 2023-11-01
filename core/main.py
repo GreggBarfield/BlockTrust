@@ -18,6 +18,7 @@ from flask import (
 from flask_cors import CORS
 from flask_talisman import Talisman
 from flask_qrcode import QRcode
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .config import *
 from .database.database import Database
@@ -36,6 +37,7 @@ Talisman(
 )
 CORS(app)
 qrcode = QRcode(app)
+app.wsgi_app = ProxyFix(app.wsgi, x_for=1, x_proto=1)
 
 attach_handlers(app)
 csrf.add_csrf(app)
