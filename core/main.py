@@ -37,7 +37,7 @@ Talisman(
 )
 CORS(app)
 qrcode = QRcode(app)
-app.wsgi_app = ProxyFix(app.wsgi, x_for=1, x_proto=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 attach_handlers(app)
 csrf.add_csrf(app)
