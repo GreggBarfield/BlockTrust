@@ -817,3 +817,12 @@ def serve_edit_sales_group(sales_group_id):
             show_account_carcass_data=request.json["show_account_carcass_data"]
         )
         return {"redirect": "/iframe/sales-group/manage-sales-groups"}
+
+
+@bp.route('/iframe/sales-group/view/<int:sales_group_id>', methods=['GET', 'POST'])
+@crut.require_user_iframe
+def serve_view_sales_group(sales_group_id):
+    sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    if(sales_group["account"] != g.account.id()):
+        return outside_render("/outside/iframes/unauthorized.html")
+    return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})

@@ -1,6 +1,6 @@
 {% extends "outside/iframes/iframe-standard.html" %}
 
-{% set page_title = "Sales Group Created"| string %}
+{% set page_title = "Manage Sales Groups"| string %}
 
 {% block outside_content %}
 <div class="card m-2 p-2">
@@ -30,7 +30,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        <a class="btn btn-sm btn-info" href="">
+                        <a class="btn btn-sm btn-info" href="/iframe/sales-group/view/{{sales_group.id}}">
                             View
                         </a>
                         <a class="btn btn-sm btn-info" href="/iframe/sales-group/edit/{{sales_group.id}}">

@@ -15,6 +15,7 @@ __name__ = "core.main"
 from flask import (
     Flask, request, g
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_talisman import Talisman
 from flask_qrcode import QRcode
@@ -36,6 +37,7 @@ Talisman(
 )
 CORS(app)
 qrcode = QRcode(app)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 attach_handlers(app)
 csrf.add_csrf(app)
