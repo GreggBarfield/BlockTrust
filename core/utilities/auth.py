@@ -709,7 +709,7 @@ def login_as_employee(employee_id):
     load_employee(employee_id)
 
 
-def api_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner,
+def verified_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner,
                affiliate_id, sector, address, city, state, zip_code, personal_phone):
     """Create new user account.
 

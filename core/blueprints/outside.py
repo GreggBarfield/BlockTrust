@@ -7,7 +7,8 @@ from ..database.combinations import send_email_to_admin_users
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import Accounts, AccountsException
+from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
 from ..database.tables.sales_groups import SalesGroups
@@ -25,8 +26,10 @@ from core.config import (
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from json import loads
 from requests import post
+from traceback import format_exc
 from ..match_types import MATCH_TYPES_NAME_TO_ID
 
+import json
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -826,3 +829,80 @@ def serve_view_sales_group(sales_group_id):
     if(sales_group["account"] != g.account.id()):
         return outside_render("/outside/iframes/unauthorized.html")
     return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})
+
+
+@bp.route('/iframe/signup', methods=['GET'])
+def serve_iframe_signup():
+    if request.method == 'GET':
+        available_sectors = {
+            "Cow Calf Ranch": SECTORS_NAME_TO_ID["Cow-Calf"],
+            "Stocker/Backgrounder": SECTORS_NAME_TO_ID["Stocker/Backgrounder"]
+        }
+        partners = g.db.accounts.get_accounts(
+            sectors=[s for s in available_sectors.values()],
+            is_partner=1,
+            is_partner_used_for_signup=1
+        )
+        auction_markets = AuctionMarkets(g.db).get_auction_markets(
+            is_archived=0,
+            auction_markets_order_by="name",
+            auction_markets_sort_by="ASC"
+        )
+        return outside_render("/outside/iframes/signup.html", {
+            "available_sectors": available_sectors,
+            "SECTORS_NAME_TO_ID": SECTORS_NAME_TO_ID,
+            "partners": partners,
+            "site_key": RECAPTCHA_SITE_KEY,
+            "ipinfo_access_token": IPINFO_TOKEN,
+            "check_ip": CHECK_IP,
+            "auction_markets": auction_markets
+        })
+    if request.method == 'POST':
+        try:
+            try:
+                request_data = json.loads(request.data)
+            except json.decoder.JSONDecodeError:
+                return {"error": "Decoding request JSON has failed"}, 400
+            accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
+            if len(accounts_list) == 0:
+                raise ExportException("Bad token. You are not authorized to insert a new account")
+            required = {
+                'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+                'address': None, 'city': None, 'state': None, 'zip_code': None,
+                'username': None, 'email': None, 'password': None, 'confirm_password': None
+            }
+            for required_field in required:
+                if required_field not in request_data:
+                    raise ExportException("Missing Required Field: " + required_field)
+                required[required_field] = request_data[required_field]
+                if len(required[required_field].strip()) == 0:
+                    raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        
+            try:
+                auth.verified_signup(
+                    username=required['username'],
+                    email=required['email'],
+                    phone=request_data['phone'],
+                    first_name=required['first_name'],
+                    last_name=required['last_name'],
+                    password=required['password'],
+                    confirm_password=required['confirm_password'],
+                    company=required['company'],
+                    partner=request_data['partner'],
+                    affiliate_id=request_data['affiliate_id'],
+                    sector=required['sector'],
+                    address=required['address'],
+                    city=required['city'],
+                    state=required['state'],
+                    zip_code=required['zip_code'],
+                    personal_phone=request_data['personal_phone']
+                )
+            except (auth.SignupFailedException, AccountsException, UsersException) as e:
+                raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
+
+        except ExportException as e:
+            raise e
+        except Exception as e:
+            print("Create Account Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
+            ErrorLogs(g.db).insert_error_log("Create Account using Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
+            return {"error": "Internal Server Error"}, 500
