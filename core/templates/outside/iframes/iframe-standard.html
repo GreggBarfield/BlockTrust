@@ -25,6 +25,17 @@
 {% endblock scripts %}
 
 {% block header %}
+{% if outside_standard_logged_in %}
+<header class="header header-style-03">
+  <div class="col-md-12 d-flex justify-content-end">
+    <div class="p-1 m-1">
+      <a class="btn btn-primary" href="/iframe/logout">
+        <i class="feather icon-lock"></i> Logout
+      </a>
+    </div>
+  </div>
+</header>
+{% endif %}
 {% endblock header %}
 
 
