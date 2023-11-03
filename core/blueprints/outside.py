@@ -741,6 +741,8 @@ def serve_iframe_login():
     redirect_to = ''
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
+    if 'user' in g and g.user is not None:
+        return redirect(redirect_to)
     return outside_render("/outside/iframes/login.html", {"redirect_to": redirect_to})
 
 
@@ -826,3 +828,9 @@ def serve_view_sales_group(sales_group_id):
     if(sales_group["account"] != g.account.id()):
         return outside_render("/outside/iframes/unauthorized.html")
     return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})
+
+
+@bp.route('/iframe/logout', methods=['GET'])
+def serve_iframe_logout():
+    auth.logout()
+    return outside_render('/outside/iframes/logged-out.html')
