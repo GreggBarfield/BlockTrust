@@ -831,7 +831,7 @@ def serve_view_sales_group(sales_group_id):
     return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})
 
 
-@bp.route('/iframe/signup', methods=['GET'])
+@bp.route('/iframe/signup', methods=['GET', 'POST'])
 def serve_iframe_signup():
     if request.method == 'GET':
         available_sectors = {
@@ -859,22 +859,15 @@ def serve_iframe_signup():
         })
     if request.method == 'POST':
         try:
-            try:
-                request_data = json.loads(request.data)
-            except json.decoder.JSONDecodeError:
-                return {"error": "Decoding request JSON has failed"}, 400
-            accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
-            if len(accounts_list) == 0:
-                raise ExportException("Bad token. You are not authorized to insert a new account")
             required = {
                 'company': None, 'sector': None, 'first_name': None, 'last_name': None,
                 'address': None, 'city': None, 'state': None, 'zip_code': None,
                 'username': None, 'email': None, 'password': None, 'confirm_password': None
             }
             for required_field in required:
-                if required_field not in request_data:
+                if required_field not in request.form:
                     raise ExportException("Missing Required Field: " + required_field)
-                required[required_field] = request_data[required_field]
+                required[required_field] = request.form[required_field]
                 if len(required[required_field].strip()) == 0:
                     raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         
@@ -882,31 +875,35 @@ def serve_iframe_signup():
                 auth.verified_signup(
                     username=required['username'],
                     email=required['email'],
-                    phone=request_data['phone'],
+                    phone=request.form['phone'],
                     first_name=required['first_name'],
                     last_name=required['last_name'],
                     password=required['password'],
                     confirm_password=required['confirm_password'],
                     company=required['company'],
-                    partner=request_data['partner'],
-                    affiliate_id=request_data['affiliate_id'],
+                    partner=request.form['partner'],
+                    affiliate_id=request.form['affiliate_id'],
                     sector=required['sector'],
                     address=required['address'],
                     city=required['city'],
                     state=required['state'],
                     zip_code=required['zip_code'],
-                    personal_phone=request_data['personal_phone']
+                    personal_phone=request.form['personal_phone'],
+                    auction_markets_used=loads(request.form["auction_markets"]),
+                    preconditioning_programs=loads(request.form["preconditioning_programs"]),
+                    pvp_programs=loads(request.form["pvp_programs"])
                 )
             except (auth.SignupFailedException, AccountsException, UsersException) as e:
                 raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
             redirect_to = ""
             if (
-                    'redirect_to' in request.form and
-                    request.form['redirect_to'] is not None and
-                    request.form['redirect_to'] != ''
+                    'requestRedirectTo' in request.form and
+                    request.form['requestRedirectTo'] is not None and
+                    request.form['requestRedirectTo'] != ''
                 ):
-                redirect_to = request.form['redirect_to']
+                print("Redirecting to" + redirect_to)
+                redirect_to = request.form['requestRedirectTo']
             return {"redirect": redirect_to}
         except ExportException as e:
             raise e

@@ -710,7 +710,8 @@ def login_as_employee(employee_id):
 
 
 def verified_signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner,
-               affiliate_id, sector, address, city, state, zip_code, personal_phone):
+                    affiliate_id, sector, address, city, state, zip_code, personal_phone,auction_markets_used,
+                    preconditioning_programs, pvp_programs):
     """Create new user account.
 
     Params:
@@ -750,6 +751,15 @@ def verified_signup(username, email, phone, first_name, last_name, password, con
     state = format_field(state)
     zip_code = format_field(zip_code)
     personal_phone = format_field(personal_phone)
+    optional_fields = {}
+    if len(auction_markets_used) > 0:
+        optional_fields["auction_market_ids"] = auction_markets_used
+    if len(preconditioning_programs) > 0:
+        optional_fields["preconditioning_programs"] = preconditioning_programs
+    if len(pvp_programs) > 0:
+        optional_fields["pvp_programs"] = pvp_programs
+    if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
+        optional_fields = None
 
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
@@ -774,7 +784,8 @@ def verified_signup(username, email, phone, first_name, last_name, password, con
             city=city,
             state=state,
             zip=zip_code,
-            phone=phone
+            phone=phone,
+            optional_fields=optional_fields
         )
         perform_new_account_actions(
             db=g.db, account_id=account_obj.id(), user_id=user.id(),

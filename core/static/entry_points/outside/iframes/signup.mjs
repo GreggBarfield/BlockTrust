@@ -35,10 +35,27 @@ if(checkIP.toLowerCase() === "true") {
     }
 }
 
-let redirect_to = "/iframe/login?redirect=http%3A%2F%2Flocalhost%3A5000%2Fiframe%2Fsales-group%2Fcreate";
+let requestRedirectTo = "/iframe/login?redirect=http%3A%2F%2Flocalhost%3A5000%2Fiframe%2Fsales-group%2Fcreate";
 let preconditioningProgramsList = [];
 let pvpProgramsList = [];
 let auctionMarketsList = [];
+let pvpPrograms = [
+    "American Certified Brands",
+    "AzTx Cattle Co.",
+    "BeefTraxx",
+    "Big Blue Sale Barn Passport Program®",
+    "Cal Poly State Univ Animal Science",
+    "Frost PLLC dba FACTA",
+    "IdentiGEN North America",
+    "IMI Global",
+    "Legacy Verified",
+    "Ranchers Connecting Ranchers",
+    "Red Angus Association of America",
+    "Samson",
+    "TechniTrack",
+    "Zoetis Genetics",
+    "Other"
+];
 
 for(let auctionMarket of auctionMarkets){
     auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state});
@@ -46,7 +63,7 @@ for(let auctionMarket of auctionMarkets){
 for(let preconditioningProgram of SalesGroupFields.commonPreconditioningProgramNames){
     preconditioningProgramsList.push({id: preconditioningProgram, text: preconditioningProgram});
 }
-for(let pvpProgram of SalesGroupFields.commonProgramNames){
+for(let pvpProgram of pvpPrograms){
     pvpProgramsList.push({id: pvpProgram, text: pvpProgram});
 }
 $("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
@@ -54,7 +71,7 @@ $("#signup_form_preconditioning_programs").select2({data: preconditioningProgram
 $("#signup_form_pvp_programs").select2({data: pvpProgramsList, multiple: true, placeholder: "Select PVP Programs"});
 
 let form = new AsyncForm({
-    action: "/signup/action",
+    action: "/iframe/signup",
     form: signupForm[0],
     status: statusMessage[0],
     error: errorMessage[0],
@@ -89,7 +106,7 @@ let form = new AsyncForm({
             pvp_programs: JSON.stringify(pvp_programs.val())
         }
     },
-    redirect_to: redirect_to
+    requestRedirectTo: requestRedirectTo
 });
 
 partner.on('change', function() {
