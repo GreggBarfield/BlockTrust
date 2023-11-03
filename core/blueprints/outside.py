@@ -744,6 +744,8 @@ def serve_iframe_login():
     redirect_to = ''
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
+    if 'user' in g and g.user is not None:
+        return redirect(redirect_to)
     return outside_render("/outside/iframes/login.html", {"redirect_to": redirect_to})
 
 
@@ -911,3 +913,9 @@ def serve_iframe_signup():
             print("Create Account Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
             ErrorLogs(g.db).insert_error_log("Create Account using Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
             return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/iframe/logout', methods=['GET'])
+def serve_iframe_logout():
+    auth.logout()
+    return outside_render('/outside/iframes/logged-out.html')
