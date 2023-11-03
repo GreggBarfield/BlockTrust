@@ -900,6 +900,14 @@ def serve_iframe_signup():
             except (auth.SignupFailedException, AccountsException, UsersException) as e:
                 raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
 
+            redirect_to = ""
+            if (
+                    'redirect_to' in request.form and
+                    request.form['redirect_to'] is not None and
+                    request.form['redirect_to'] != ''
+                ):
+                redirect_to = request.form['redirect_to']
+            return {"redirect": redirect_to}
         except ExportException as e:
             raise e
         except Exception as e:

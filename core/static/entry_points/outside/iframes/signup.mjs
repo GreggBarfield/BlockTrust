@@ -35,6 +35,7 @@ if(checkIP.toLowerCase() === "true") {
     }
 }
 
+let redirect_to = "/iframe/login?redirect=http%3A%2F%2Flocalhost%3A5000%2Fiframe%2Fsales-group%2Fcreate";
 let preconditioningProgramsList = [];
 let pvpProgramsList = [];
 let auctionMarketsList = [];
@@ -87,7 +88,8 @@ let form = new AsyncForm({
             preconditioning_programs: JSON.stringify(preconditioning_programs.val()),
             pvp_programs: JSON.stringify(pvp_programs.val())
         }
-    }
+    },
+    redirect_to: redirect_to
 });
 
 partner.on('change', function() {
