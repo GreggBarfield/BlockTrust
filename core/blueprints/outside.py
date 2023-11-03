@@ -265,10 +265,7 @@ def serve_contact_form_response():
 
 @bp.route('/request-password-reset', methods=['GET'])
 def serve_request_password_reset():
-    redirect_to = ''
-    if 'redirect' in request.args:
-        redirect_to = request.args['redirect']
-
+    redirect_to = '/password-reset-message'
     return outside_render('request_password_reset.html', {"redirect_to": redirect_to})
 
 # Request password reset action
@@ -293,7 +290,14 @@ def serve_password_request_action():
                     'password_reset_url': password_reset_url
                 }), request.form['email']
         )
-        return {"redirect": "/password-reset-message"}
+        redirect_to = "/password-reset-message"
+        if (
+            'requestRedirectTo' in request.form and
+            request.form['requestRedirectTo'] is not None and
+            request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
+        return {"redirect": redirect_to}
 
 
 # Password reset message page
@@ -834,3 +838,14 @@ def serve_view_sales_group(sales_group_id):
 def serve_iframe_logout():
     auth.logout()
     return outside_render('/outside/iframes/logged-out.html')
+
+
+@bp.route('/iframe/request-password-reset', methods=['GET'])
+def serve_iframe_request_password_reset():
+    redirect_to = "/iframe/password-reset-message"
+    return outside_render('/outside/iframes/request-password-reset.html', {"redirect_to": redirect_to})
+
+
+@bp.route('/iframe/password-reset-message')
+def serve_iframe_password_reset_message():
+    return outside_render('/outside/iframes/password-reset-message.html')
