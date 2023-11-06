@@ -4,7 +4,7 @@ let resetPasswordForm=$("#password_reset_form");
 let statusMessage=resetPasswordForm.find("#reset_status_message")
 let errorMessage=resetPasswordForm.find("#reset_error_message")
 
-let requestRedirectTo= null;
+let requestRedirectTo = null;
 
 if(resetPasswordForm[0].hasAttribute("request_redirect_to")){
     requestRedirectTo=resetPasswordForm[0].getAttribute("request_redirect_to")
