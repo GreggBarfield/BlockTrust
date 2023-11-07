@@ -10,7 +10,7 @@ from ..database.tables.users import UsersException
 from ..database.tables.accounts import AccountsException
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
-from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.sales_groups import SalesGroups, SalesGroupsException
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from ..utilities import auth, csrf, crut
@@ -572,7 +572,10 @@ def serve_add_invited_user():
 
 @bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
 def serve_external_sales_group_viewer(sales_group_id):
-    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    try:
+        sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    except SalesGroupsException:
+        return outside_render("/outside/error.html", {"error_reason": "Sales Group Not Found"})
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
 
 
@@ -766,10 +769,13 @@ def serve_edit_sales_group(sales_group_id):
         form_post_route = url_for('outside_bp.serve_edit_sales_group', sales_group_id=sales_group_id)
         if(sales_group["account"] != g.account.id()):
             return outside_render("/outside/iframes/unauthorized.html")
+        external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
+            sales_group_id=sales_group['id'])
         return outside_render("/outside/iframes/edit-sales-group.html", {
             "sales_group": sales_group,
             "auction_markets": auction_markets,
-            "form_post_route": form_post_route
+            "form_post_route": form_post_route,
+            "external_shareable_link": external_shareable_link
         })
     if request.method == 'POST':
         # Check that the account selected is the owner of the sales group
@@ -831,7 +837,12 @@ def serve_view_sales_group(sales_group_id):
     sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     if(sales_group["account"] != g.account.id()):
         return outside_render("/outside/iframes/unauthorized.html")
-    return outside_render("/outside/iframes/view-sales-group.html", {"sales_group": sales_group})
+    external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
+        sales_group_id=sales_group['id'])
+    return outside_render("/outside/iframes/view-sales-group.html", {
+        "sales_group": sales_group,
+        "external_shareable_link": external_shareable_link
+    })
 
 
 @bp.route('/iframe/logout', methods=['GET'])
