@@ -11,6 +11,7 @@ from ..database.tables.accounts import AccountsException
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
 from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
 from ..utilities import auth, csrf, crut
@@ -849,3 +850,18 @@ def serve_iframe_request_password_reset():
 @bp.route('/iframe/password-reset-message')
 def serve_iframe_password_reset_message():
     return outside_render('/outside/iframes/password-reset-message.html')
+
+
+@bp.route('/iframe/sales-group/search/', defaults={'id': ''}, methods=['GET'])
+@bp.route('/iframe/sales-group/search/<int:id>', methods=['GET'])
+@crut.require_user_iframe
+def serve_iframe_search_sales_groups(id):
+    search = {}
+    if id:
+        if len(search := SalesGroupSearches(g.db).get(id=id, user_id=g.user.id())) > 0:
+            search = search[0]
+        else:
+            raise ExportException("Bad Request")
+    return outside_render("/outside/iframes/search-sales-groups.html", {
+        "search": search, "search_link": url_for(request.endpoint)
+    })
