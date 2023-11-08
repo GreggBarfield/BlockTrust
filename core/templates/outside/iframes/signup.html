@@ -1,0 +1,335 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Signup"| string %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 mb-2">
+                <form class="bg-white shadow p-3" id="signup_form" method="POST"> {# POST so that if JS fails the password doesn't get leaked #}
+                    <div class="row">
+                        <h4>Company Information:</h4>
+                        <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                            title="This section is relative to your organization. If you are a cattle rancher, this would be the name of your ranch.">
+                        </a>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12 form-group">
+                            <small class="text-muted"><span style="color: red;">*Required</span></small>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_sector">
+                                    Sector
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="Select the sector for your account">
+                                    </a>
+                                </label>
+                                <select class="form-control" id="signup_form_sector"> 
+                                    {% for key,value in available_sectors.items() %}
+                                    <option value="{{value}}">{{key}}</option>
+                                    {% endfor %}
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_partner">
+                                    Partner
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="These are cattle producer organizations or cooperatives where you may be a member.   If you don’t see yours on the list, please choose “No Partner”.">
+                                    </a>
+                                </label>
+                                <select class="form-control" id="signup_form_partner">                                    
+                                    <option value="">No Partner</option>
+                                    {% for p in partners %}
+                                    {% if p["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"] %}
+                                    <option value="{{p['id']}}">{{p["name"]}}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="signup_form_affiliate_id">
+                                    Partner ID
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="This is an internal number assigned by your partner organization which associates you with their organization.  May be an “account number” or “patron ID”. A partner ID is not needed if there is no partner. ">
+                                    </a>
+                                </label>
+                                <input type="text" class="form-control" id="signup_form_partner_id" disabled=true>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_company">
+                                    Company
+                                    <a class="feather icon-info"
+                                        style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;"
+                                        data-toggle="tooltip"
+                                        data-placement="right"
+                                        title="This is the name of your company or your ranch.  This will identify your account, even if you have multiple users.">
+                                    </a>
+                                </label>
+                                <input type="text" class="form-control" id="signup_form_company" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_phone">Company Phone</label>
+                                <input type="text" class="form-control" id="signup_form_phone">
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>    
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>     
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_first" class="">First name</label>
+                                <input type="text" class="form-control required" id="signup_form_first" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_last">Last name</label>
+                                <input type="text" class="form-control" id="signup_form_last" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
+                    <div class="form-group required">
+                        <label for="signup_form_address">Address</label>
+                        <input type="text" class="form-control" id="signup_form_address" required>
+                        <span class="focus-border"></span>
+                    </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group required">
+                                <label for="signup_form_city">City</label>
+                                <input type="text" class="form-control" id="signup_form_city" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group required">
+                                <label for="signup_form_state">State</label>
+                                <select class="form-control" id="signup_form_state" required>
+                                    <option value=""></option>
+                                    <option value="AL">Alabama</option>
+                                    <option value="AK">Alaska</option>
+                                    <option value="AZ">Arizona</option>
+                                    <option value="AR">Arkansas</option>
+                                    <option value="CA">California</option>
+                                    <option value="CO">Colorado</option>
+                                    <option value="CT">Connecticut</option>
+                                    <option value="DE">Delaware</option>
+                                    <option value="DC">District Of Columbia</option>
+                                    <option value="FL">Florida</option>
+                                    <option value="GA">Georgia</option>
+                                    <option value="HI">Hawaii</option>
+                                    <option value="ID">Idaho</option>
+                                    <option value="IL">Illinois</option>
+                                    <option value="IN">Indiana</option>
+                                    <option value="IA">Iowa</option>
+                                    <option value="KS">Kansas</option>
+                                    <option value="KY">Kentucky</option>
+                                    <option value="LA">Louisiana</option>
+                                    <option value="ME">Maine</option>
+                                    <option value="MD">Maryland</option>
+                                    <option value="MA">Massachusetts</option>
+                                    <option value="MI">Michigan</option>
+                                    <option value="MN">Minnesota</option>
+                                    <option value="MS">Mississippi</option>
+                                    <option value="MO">Missouri</option>
+                                    <option value="MT">Montana</option>
+                                    <option value="NE">Nebraska</option>
+                                    <option value="NV">Nevada</option>
+                                    <option value="NH">New Hampshire</option>
+                                    <option value="NJ">New Jersey</option>
+                                    <option value="NM">New Mexico</option>
+                                    <option value="NY">New York</option>
+                                    <option value="NC">North Carolina</option>
+                                    <option value="ND">North Dakota</option>
+                                    <option value="OH">Ohio</option>
+                                    <option value="OK">Oklahoma</option>
+                                    <option value="OR">Oregon</option>
+                                    <option value="PA">Pennsylvania</option>
+                                    <option value="RI">Rhode Island</option>
+                                    <option value="SC">South Carolina</option>
+                                    <option value="SD">South Dakota</option>
+                                    <option value="TN">Tennessee</option>
+                                    <option value="TX">Texas</option>
+                                    <option value="UT">Utah</option>
+                                    <option value="VT">Vermont</option>
+                                    <option value="VA">Virginia</option>
+                                    <option value="WA">Washington</option>
+                                    <option value="WV">West Virginia</option>
+                                    <option value="WI">Wisconsin</option>
+                                    <option value="WY">Wyoming</option>
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group required">
+                                <label for="signup_form_zip">Zip</label>
+                                <input type="text" class="form-control" id="signup_form_zip" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5>We want to help you get more value for your cattle so we ask that you please answer these optional questions:</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_are_auction_market_utilizied">
+                                    Do you sell your calves at an auction market?
+                                </label>
+                                <select class="form-control" id="signup_form_are_auction_market_utilizied" required>
+                                    <option value=1 selected>Yes</option>
+                                    <option value=0>No</option>
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_auction_markets">Please tell us which markets you usually use</label>
+                                <select class="form-control" id="signup_form_auction_markets">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5>Tell us if your calves are in any of these programs:</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_preconditioning_programs">
+                                    Pre-Conditioning Programs
+                                </label>
+                                <select class="form-control" id="signup_form_preconditioning_programs">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_pvp_programs">PVP Programs</label>
+                                <select class="form-control" id="signup_form_pvp_programs">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="height:2px;background:black"/>
+                    <div class="row">
+                        <h4>User Information:</h4>
+                        <a class="feather icon-info" style="color:#2962FF;padding-left:6px;vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                            title="A company is able to have multiple users. This section is relative to the 'main' user. The main user will be able to invite other users within the company to join.">
+                        </a>
+                    </div>
+                    <div class="form-group required">
+                        <label for="signup_form_email">Email address (will also be your User ID)</label>
+                        <input type="email" class="form-control" id="signup_form_email" required>
+                        <span class="focus-border"></span>
+                    </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
+                    <div class="form-group required">
+                        <label for="signup_form_personal_phone">
+                            Cell Phone Number
+                            <a class="feather icon-info" style="color:#2962FF;padding-left:6px;width:100%; vertical-align:-1px;" data-toggle="tooltip" data-placement="right"
+                            title="This is optional but recommended so we can implement 2 factor authentication and offer better customer service. Your personal information will NEVER be shared.">
+                        </a>
+                        </label>
+                        <input type="text" class="form-control" id="signup_form_personal_phone" required>
+                        <span class="focus-border"></span>
+                    </div>
+                    <hr style="height:1px;background:#00000026;margin-top:0;margin-bottom:0;"/>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_password">Password</label>
+                                <input type="password" class="form-control" id="signup_form_password" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_confirm_password">Confirm password</label>
+                                <input type="password" class="form-control" id="signup_form_confirm_password" required>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                    <p class="mt-2 mb-0" id="signup_status_message" style="display:none;">Hang on, we're setting up your
+                        account...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="signup_error_message">Loading
+                        error...</p>
+                    <p class="mt-2 mb-0">Looking to sign in?<a href="/iframe/login"> Right this way</a></p>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+    document.getElementById("signup_form_sector").onchange = (event) => {
+        let partnersDropDown = document.getElementById("signup_form_partner");
+        /* It is important to remove the options backwards as the remove() method rearranges the options collection.
+           This way, it's guaranteed that the element to be removed still exists */
+        for(let i = partnersDropDown.options.length - 1; i >= 0; i--){
+            if(i != 0){
+                partnersDropDown.remove(i);
+            }
+        }
+        let partners = JSON.parse('{{partners|tojson}}');
+        for(let p of partners){
+            if(p.sector == event.target.value){
+                partnersDropDown.add(new Option(p.name, p.id));
+            }
+        }
+    };
+    var siteKey = '{{site_key}}';
+    var ipInfoAccessToken = '{{ipinfo_access_token}}';
+    var checkIP = '{{check_ip}}';
+    var auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
+</script>
+
+<script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
+<script type="module" src="/static/entry_points/outside/iframes/signup.mjs"></script>
+{% endblock outside_content %}
