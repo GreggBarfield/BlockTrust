@@ -220,6 +220,7 @@ def serve_fetch_all_sales_groups_data():
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
 
+
 @bp.route("/fetch-sales-group-data-by-id", methods=["POST"])
 def serve_fetch_sales_group_data_by_id():
     try:
