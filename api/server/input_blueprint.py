@@ -297,7 +297,7 @@ def serve_create_new_account():
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
         
         try:
-            auth.api_signup(
+            auth.verified_signup(
                 username=required['username'],
                 email=required['email'],
                 phone=request_data['phone'],
