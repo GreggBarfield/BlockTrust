@@ -8,6 +8,7 @@ from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME
 from core.database.tables.api_data_requests import APIDataRequests
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.matches import Matches
+from core.database.tables.sales_groups import SalesGroups, SalesGroupsException
 from core.database.tables.sustainability_responses import SustainabilityResponses
 from core.database.tables.view_logs import ViewLogs, DATA_TYPE_NAME_TO_ID
 from core.config import MYSQL_CONFIG
@@ -203,4 +204,38 @@ def serve_get_animal_data():
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("External API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route("/fetch-all-sales-groups-data", methods=["POST"])
+def serve_fetch_all_sales_groups_data():
+    try:
+        sales_groups_data = SalesGroups(g.db).get_sales_groups(is_archived=0)
+        for sales_group in sales_groups_data:
+            if sales_group["reported"] is not None:
+                sales_group["reported"] = json.loads(sales_group["reported"])
+        return sales_groups_data
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route("/fetch-sales-group-data-by-id", methods=["POST"])
+def serve_fetch_sales_group_data_by_id():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if 'sales_group_id' in request_data:
+            sales_group_data = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
+            return sales_group_data
+        else:
+            raise SalesGroupsException("Sales Group ID not specified")
+    except SalesGroupsException as e:
+        return {"error": str(e)}, 400
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
