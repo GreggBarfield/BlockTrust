@@ -305,7 +305,7 @@ export class SalesGroupViewer {
             addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
             addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
-            addInfo("PVP Program", this.formatData(this.data.reported.process_verified_program), animalBody);
+            addInfo("Program", this.formatData(this.data.reported.program), animalBody);
             addSubHeader("Genetics", animalBody);
             addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), animalBody);
             addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), animalBody);
