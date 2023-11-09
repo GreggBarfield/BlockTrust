@@ -201,7 +201,7 @@ let commonCategoryNames = [
 	"Heifer Calves",
 	"Replacement Heifers",
 	"Bred Cows"
-]
+];
 
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,

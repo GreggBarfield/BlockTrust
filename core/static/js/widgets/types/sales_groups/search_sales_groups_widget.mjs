@@ -12,12 +12,23 @@ export class SearchSalesGroupsWidget extends Widget {
         this.frame.innerHTML = "";
 
         this.inputs = {};
-        this.generate(JSON.parse(this.frame.getAttribute("data-widget-search")), this.frame.getAttribute("data-widget-link"));
+
+        this.generate(
+            JSON.parse(this.frame.getAttribute("data-widget-search")), 
+            this.frame.getAttribute("data-widget-link"),
+            JSON.parse(this.frame.getAttribute("data-widget-dates"))
+        );
     }
 
-    async generate(searchValues, link) {
+    async generate(searchValues, link, dates) {
 
         this.frame.append(await this.generateSavedSearchesTable());
+
+        let searchName, searchID;
+        if(Object.keys(searchValues).length){
+            searchName = searchValues.name;
+            searchID = searchValues.id;
+        }
 
         this.form = document.createElement("form");
         this.form.addEventListener("submit", (e)=>{
@@ -27,7 +38,7 @@ export class SearchSalesGroupsWidget extends Widget {
         
         let locationHeader = document.createElement("h6");
         locationHeader.innerHTML = `Search Options ${
-            Object.keys(searchValues).length > 0?"<span class='text-brown'>(options loaded from: " + searchValues.name + ")</span>":""
+            searchName?"<span class='text-brown'>(options loaded from: " + searchName + ")</span>":""
         }` ;
         this.form.append(locationHeader);
 
@@ -95,7 +106,7 @@ export class SearchSalesGroupsWidget extends Widget {
         additionalRow.className = "form-row";
         expandContainer.append(additionalRow);
 
-        function createSearchControl(name, on) {
+        function createSearchControl(name, on, isMultiple) {
             let formGroup = document.createElement("div");
             formGroup.className = "form-group col-md-3";
             additionalRow.append(formGroup);
@@ -125,29 +136,42 @@ export class SearchSalesGroupsWidget extends Widget {
                     option.selected = true;
                 }
             }
-            addOption("", "", true);
+
+            if(isMultiple){
+                select.setAttribute("multiple", "multiple");
+                $(select).select2();
+            }
+            else {
+                addOption("", "", true);
+            }
 
             for (const value of on) {
                 addOption(value, value);
             }
-
             return select;
         }
 
-        this.inputs.category = createSearchControl("Category/Sex", SalesGroupFields.commonCategoryNames);
-        this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames);
+        this.inputs.category = createSearchControl("Category/Sex", SalesGroupFields.commonCategoryNames, true);
+        this.inputs.breed = createSearchControl("Breed", SalesGroupFields.commonBreedNames, true);
         this.inputs.minimumWeight = createSearchControl("Minimum Weight", SalesGroupFields.commonWeights);
+        this.inputs.maximumWeight = createSearchControl("Maximum Weight", SalesGroupFields.commonWeights.map(w => w + 100));
         this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
-        this.inputs.processVerifiedProgram = createSearchControl("PVP Program", SalesGroupFields.commonProgramNames);
+        this.inputs.program = createSearchControl("Program", SalesGroupFields.commonProgramNames, true);
+        this.inputs.targetDate = createSearchControl("Target Date", dates);
 
         if(Object.keys(searchValues).length){
             this.inputs.milesSelect.value = searchValues.radius;
             this.inputs.zipCode.value = searchValues.zip;
-            if(searchValues.category){
-                this.inputs.category.value = searchValues.category;
-            }
-            if(searchValues.breed){
-                this.inputs.breed.value = searchValues.breed;
+            if(searchValues.multi_select_fields){
+                if(searchValues.multi_select_fields.categories){
+                    $(this.inputs.category).val(searchValues.multi_select_fields.categories).trigger("change");
+                }
+                if(searchValues.multi_select_fields.breeds){
+                    $(this.inputs.breed).val(searchValues.multi_select_fields.breeds).trigger("change");
+                }
+                if(searchValues.multi_select_fields.programs){
+                    $(this.inputs.program).val(searchValues.multi_select_fields.programs).trigger("change");
+                }
             }
             if(searchValues.minimum_weight){
                 this.inputs.minimumWeight.value = searchValues.minimum_weight;
@@ -155,8 +179,8 @@ export class SearchSalesGroupsWidget extends Widget {
             if(searchValues.preconditioning_program){
                 this.inputs.preconditioningProgram.value = searchValues.preconditioning_program;
             }
-            if(searchValues.process_verified_program){
-                this.inputs.processVerifiedProgram.value = searchValues.process_verified_program;
+            if(searchValues.target_date_description){
+                this.inputs.targetDate.value = searchValues.target_date_description;
             }
             expandContainer.style.display = "block";
         }
@@ -171,14 +195,7 @@ export class SearchSalesGroupsWidget extends Widget {
         submitButton.value = "Search";
         submitFormGroup.append(submitButton);
 
-        let saveButton = document.createElement("input");
-        saveButton.className = "btn btn-info";
-        saveButton.type = "button";
-        saveButton.value = "Save";
-        saveButton.addEventListener("click", (e)=>{
-            this.save(link);
-        });
-        submitFormGroup.append(saveButton);
+        this.createSaveButtons(link, submitFormGroup, searchID, searchName);
 
         this.searchErrorAlert = document.createElement("div");
         this.searchErrorAlert.className = "alert alert-danger";
@@ -196,6 +213,32 @@ export class SearchSalesGroupsWidget extends Widget {
         this.results = document.createElement("div");
         this.results.style.display = "none";
         this.frame.append(this.results);
+    }
+
+    createSaveButtons(link, submitFormGroup, searchID, searchName){
+        let saveButton = document.createElement("input");
+        saveButton.className = "btn btn-info";
+        saveButton.type = "button";
+        saveButton.value = "Save";
+
+        if (searchID) {
+            saveButton.addEventListener("click", ()=>{
+                this.save(link, searchID, searchName);
+            });
+            submitFormGroup.append(saveButton); 
+            let saveAsButton = saveButton.cloneNode(true);
+            saveAsButton.value = "Save As New";
+            saveAsButton.addEventListener("click", ()=>{
+                this.save(link);
+            });           
+            submitFormGroup.append(saveAsButton);
+        }
+        else {
+            saveButton.addEventListener("click", ()=>{
+                this.save(link);
+            });
+            submitFormGroup.append(saveButton); 
+        }
     }
 
     showError(error) {
@@ -241,18 +284,19 @@ export class SearchSalesGroupsWidget extends Widget {
                         <span class="sr-only">Loading...</span>\
                     </div>\
                 </div>';
-
             this.getData(
                 "search_sales_groups_2",
                 {
                     search: {
                         zip: parseInt(this.inputs.zipCode.value),
                         radius: parseInt(this.inputs.milesSelect.value),
-                        category: this.processDropdown(this.inputs.category.value),
-                        breed: this.processDropdown(this.inputs.breed.value),
+                        categories: $(this.inputs.category).val() != "" ? $(this.inputs.category).val() : null,
+                        breeds: $(this.inputs.breed).val() != "" ? $(this.inputs.breed).val() : null,
                         minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                        maximum_weight: this.processDropdown(this.inputs.maximumWeight.value, true),
                         preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
-                        process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
+                        programs: $(this.inputs.program).val() != "" ? $(this.inputs.program).val() : null,
+                        target_date: this.processDropdown(this.inputs.targetDate.value)
                     }
                 },
                 true
@@ -275,7 +319,7 @@ export class SearchSalesGroupsWidget extends Widget {
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Name", "Saved Date", ""];
+        const headers = ["Name", "Category/Sex", "Breed", "Saved Date", ""];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -291,7 +335,13 @@ export class SearchSalesGroupsWidget extends Widget {
             td.innerText = search["name"];
             tr.append(td);
             td = document.createElement("td");
-            let UTCDate = new Date(search["created_timestamp"] + " UTC");
+            td.innerText = search["multi_select_fields"]? search["multi_select_fields"]["categories"].join(", ") : "";
+            tr.append(td);
+            td = document.createElement("td");
+            td.innerText = search["multi_select_fields"]? search["multi_select_fields"]["breeds"].join(", ") : "";
+            tr.append(td);
+            td = document.createElement("td");
+            let UTCDate = new Date(search["last_updated_timestamp"] + " UTC");
             td.innerText = UTCDate.toLocaleString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -312,7 +362,7 @@ export class SearchSalesGroupsWidget extends Widget {
         if( table.rows.length == 1){
             let tr = document.createElement("tr");
             let td = document.createElement("td");
-            td.setAttribute("colspan", "3");
+            td.setAttribute("colspan", "5");
             td.innerText = "Nothing to show currently";
             td.className = "font-italic";
             tr.append(td);
@@ -333,11 +383,22 @@ export class SearchSalesGroupsWidget extends Widget {
         return tableContainer;
     }
 
-    async save(link) {
+    async save(link, searchID=null, searchName=null) {
 
         if (this.validateForm()){
 
-            let infoModal = new InfoModal(`Enter a name to save`);
+            let url, name, method;
+            if(searchID){
+                url = `sales_group_searches/${searchID}`;
+                name = searchName;
+                method = "PUT";
+            }
+            else {
+                url = `sales_group_searches`;
+                name = "";
+                method = "POST";
+            }
+            let infoModal = new InfoModal("Enter a search name");
             let modalBody = infoModal.getBody();
 
             let form = document.createElement("form");
@@ -351,6 +412,7 @@ export class SearchSalesGroupsWidget extends Widget {
 
             let nameInput = document.createElement("input");
             nameInput.className = "form-control";
+            nameInput.value = name;
             formGroup.append(nameInput);
     
             form.append(formGroup);       
@@ -367,29 +429,38 @@ export class SearchSalesGroupsWidget extends Widget {
             saveButton.addEventListener("click", async()=>{
                 saveButton.disabled = true;
                 alert.className = "d-none";
-                try {
-                    await this.getData(`sales_group_searches`, 
-                        {
-                            search: {
-                                name: nameInput.value,
-                                zip: parseInt(this.inputs.zipCode.value),
-                                radius: parseInt(this.inputs.milesSelect.value),
-                                category: this.processDropdown(this.inputs.category.value),
-                                breed: this.processDropdown(this.inputs.breed.value),
-                                minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
-                                preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
-                                process_verified_program: this.processDropdown(this.inputs.processVerifiedProgram.value),
-                            }
-                        }, true
-                    )
-                    alert.className = "alert alert-success";
-                    alert.textContent = "Saved. Reloading...";
-                    setTimeout(() => window.location.href = link, 1000);
-                }
-                catch(err){
+                if(!nameInput.value){
                     alert.className = "alert alert-danger";
-                    alert.textContent = "An unexpected error occured. Please try again after sometime";
+                    alert.textContent = "Please enter a valid name";
                     saveButton.disabled = false;
+                }
+                else{
+                    try {
+                        let response = await this.getData(url, 
+                            {
+                                search: {
+                                    name: nameInput.value,
+                                    zip: parseInt(this.inputs.zipCode.value),
+                                    radius: parseInt(this.inputs.milesSelect.value),
+                                    categories: $(this.inputs.category).val() != "" ? $(this.inputs.category).val() : null,
+                                    breeds: $(this.inputs.breed).val() != "" ? $(this.inputs.breed).val() : null,
+                                    minimum_weight: this.processDropdown(this.inputs.minimumWeight.value, true),
+                                    maximum_weight: this.processDropdown(this.inputs.maximumWeight.value, true),
+                                    preconditioning_program: this.processDropdown(this.inputs.preconditioningProgram.value),
+                                    programs: $(this.inputs.program).val() != "" ? $(this.inputs.program).val() : null,
+                                    target_date: this.processDropdown(this.inputs.targetDate.value)
+                                }
+                            }, true, method
+                        )
+                        alert.className = "alert alert-success";
+                        alert.textContent = "Saved! Redirecting...";
+                        setTimeout(() => window.location.href = `${link}/${searchID ? searchID : response}`, 1000);
+                    }
+                    catch(err){
+                        alert.className = "alert alert-danger";
+                        alert.textContent = "An unexpected error occured. Please try again after sometime";
+                        saveButton.disabled = false;
+                    }
                 }
             });
         }

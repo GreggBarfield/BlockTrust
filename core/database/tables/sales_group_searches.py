@@ -1,3 +1,4 @@
+from json import dumps, loads
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
@@ -8,8 +9,8 @@ class SalesGroupSearches:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, name, user_id, radius=None, zip=None, category=None, breed=None, minimum_weight=None,
-               preconditioning_program=None, process_verified_program=None):
+    def insert(self, name, user_id, radius=None, zip=None, minimum_weight=None,
+               preconditioning_program=None, target_date_description=None, multi_select_fields=None):
         """
         Inserts a new sales group search
 
@@ -19,21 +20,20 @@ class SalesGroupSearches:
 
         self._db.execute(
             """
-                INSERT INTO sales_group_searches (name, user_id, radius, zip, category, breed, minimum_weight,
-                    preconditioning_program, process_verified_program)
-                VALUES (%(name)s, %(user_id)s, %(radius)s, %(zip)s, %(category)s, %(breed)s, %(minimum_weight)s,
-                    %(preconditioning_program)s, %(process_verified_program)s)
+                INSERT INTO sales_group_searches (name, user_id, radius, zip, minimum_weight,
+                    preconditioning_program, target_date_description, multi_select_fields)
+                VALUES (%(name)s, %(user_id)s, %(radius)s, %(zip)s, %(minimum_weight)s,
+                    %(preconditioning_program)s, %(target_date_description)s, %(multi_select_fields)s)
             """,
             {
                 "name": name,
                 "user_id": user_id,
                 "radius": radius,
                 "zip": zip,
-                "category": category,
-                "breed": breed,
                 "minimum_weight": minimum_weight,
                 "preconditioning_program": preconditioning_program,
-                "process_verified_program": process_verified_program
+                "target_date_description": target_date_description,
+                "multi_select_fields": dumps(multi_select_fields) if multi_select_fields else None
             }
         )
         return self._db.last_row_id()
@@ -65,6 +65,53 @@ class SalesGroupSearches:
         rows = self._db.execute_d(query, query_values)
 
         if len(rows) > 0:
+            for row in rows:
+                row["multi_select_fields"] = loads(row["multi_select_fields"]) if row["multi_select_fields"] else None
             return rows
         else:
             return []
+
+    def update(self, id, name=NO_VALUE, radius=NO_VALUE, zip=NO_VALUE,
+               minimum_weight=NO_VALUE, preconditioning_program=NO_VALUE, target_date_description=NO_VALUE,
+               multi_select_fields=NO_VALUE):
+        """
+        Update sales group search
+
+        Returns:
+            id of row inserted
+        """
+
+        base_query = "UPDATE sales_group_searches"
+
+        query_conditions = []
+        query_values = {}
+        query_values["id"] = id
+
+        if name is not NO_VALUE:
+            query_conditions.append("name = %(name)s")
+            query_values["name"] = name
+        if radius is not NO_VALUE:
+            query_conditions.append("radius = %(radius)s")
+            query_values["radius"] = radius
+        if zip is not NO_VALUE:
+            query_conditions.append("zip = %(zip)s")
+            query_values["zip"] = zip
+        if minimum_weight is not NO_VALUE:
+            query_conditions.append("minimum_weight = %(minimum_weight)s")
+            query_values["minimum_weight"] = minimum_weight
+        if preconditioning_program is not NO_VALUE:
+            query_conditions.append("preconditioning_program = %(preconditioning_program)s")
+            query_values["preconditioning_program"] = preconditioning_program
+        if multi_select_fields is not NO_VALUE:
+            query_conditions.append("multi_select_fields = %(multi_select_fields)s")
+            query_values["multi_select_fields"] = dumps(multi_select_fields) if multi_select_fields else None
+        if target_date_description is not NO_VALUE:
+            query_conditions.append("target_date_description = %(target_date_description)s")
+            query_values["target_date_description"] = target_date_description
+        if len(query_conditions) >= 1:
+            combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
+            query = base_query + combined_query_condition
+            self._db.execute(query, query_values)
+        else:
+            raise Exception("No values given for update!")
+        return self._db.row_count()

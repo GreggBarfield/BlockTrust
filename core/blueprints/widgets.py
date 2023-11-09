@@ -2,9 +2,6 @@ import json
 from flask import (
     Response, request, Blueprint, g, url_for
 )
-from core.database.tables.sales_group_searches import SalesGroupSearches
-
-from core.utilities.constants import HTTP_CREATED
 
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
@@ -23,6 +20,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.usda_reports import USDAReports
@@ -31,6 +29,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -158,11 +157,13 @@ def serve_search_sales_groups_2():
         miles=request.json["search"]["radius"],
         sale_date=time.time(),
         is_archived=0,
-        category=request.json["search"]["category"],
-        breed=request.json["search"]["breed"],
+        categories=request.json["search"]["categories"],
+        breeds=request.json["search"]["breeds"],
         minimum_weight=request.json["search"]["minimum_weight"],
+        maximum_weight=request.json["search"]["maximum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
-        process_verified_program=request.json["search"]["process_verified_program"],
+        programs=request.json["search"]["programs"],
+        target_date_description=request.json["search"]["target_date"]
     )
 
     results = []
@@ -215,19 +216,48 @@ def serve_search_sales_groups_2():
 @crut.require_account
 def serve_sales_group_searches():
     if request.method == 'POST':
-        SalesGroupSearches(g.db).insert(
+        multi_select_fields = {}
+        if request.json["search"]["categories"]:
+            multi_select_fields["categories"] = request.json["search"]["categories"]
+        if request.json["search"]["breeds"]:
+            multi_select_fields["breeds"] = request.json["search"]["breeds"]
+        if request.json["search"]["programs"]:
+            multi_select_fields["programs"] = request.json["search"]["programs"]
+        id = SalesGroupSearches(g.db).insert(
             name=request.json["search"]["name"],
             user_id=g.user.id(),
             zip=request.json["search"]["zip"],
             radius=request.json["search"]["radius"],
-            category=request.json["search"]["category"],
-            breed=request.json["search"]["breed"],
             minimum_weight=request.json["search"]["minimum_weight"],
             preconditioning_program=request.json["search"]["preconditioning_program"],
-            process_verified_program=request.json["search"]["process_verified_program"]
+            multi_select_fields=multi_select_fields,
+            target_date_description=request.json["search"]["target_date"]
         )
-        return Response(status=HTTP_CREATED)
+        return Response(str(id), status=HTTP_CREATED)
     return SalesGroupSearches(g.db).get(user_id=g.user.id())
+
+
+@bp.route('/widgets/data/sales_group_searches/<int:id>', methods=['PUT'])
+@crut.require_account
+def sales_group_search(id):
+    multi_select_fields = {}
+    if request.json["search"]["categories"]:
+        multi_select_fields["categories"] = request.json["search"]["categories"]
+    if request.json["search"]["breeds"]:
+        multi_select_fields["breeds"] = request.json["search"]["breeds"]
+    if request.json["search"]["programs"]:
+        multi_select_fields["programs"] = request.json["search"]["programs"]
+    SalesGroupSearches(g.db).update(
+        id=id,
+        name=request.json["search"]["name"],
+        zip=request.json["search"]["zip"],
+        radius=request.json["search"]["radius"],
+        minimum_weight=request.json["search"]["minimum_weight"],
+        preconditioning_program=request.json["search"]["preconditioning_program"],
+        multi_select_fields=multi_select_fields,
+        target_date_description=request.json["search"]["target_date"]
+    )
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
@@ -895,5 +925,5 @@ def serve_get_count_distribution_for_account():
         request.json["account_id"],
         "USDA Quality Grade",
         0
-    ))                        
+    ))
     return count_distribution_data

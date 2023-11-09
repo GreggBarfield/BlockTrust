@@ -52,13 +52,13 @@ export class Widget {
                 contentType: 'application/json',
                 method: method
             };
-            if (method == "POST"){
-                requestParams.data = JSON.stringify(params);
-            }
-            else if(method == "GET"){
+            if(method == "GET"){
                 for(let p of params){
                     requestParams.url += `/${p}`
                 }
+            }
+            else{
+                requestParams.data = JSON.stringify(params);
             }
             ajax(requestParams)
                 .then((networkResult) => {

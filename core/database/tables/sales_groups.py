@@ -1,7 +1,9 @@
 import json
+from time import time
 from core.database.no_value import NoValue
 from core.database.tables.auction_sales import AuctionSales
 from core.database.tables.files import Files
+from core.utilities.constants import SECONDS_IN_ONE_DAY
 from core.utilities.data.zip_codes_data import ZIP_CODES
 from core.utilities.zip_codes import get_locations, zips_nearby_zip
 
@@ -11,6 +13,14 @@ NO_VALUE = NoValue()
 sales_group_cols = ("id", "reported", "account", "published", "sale_date", "zip", "market_location",
                     "delivery_location", "auction_sale", "group_name", "is_archived", "delivery_location_type",
                     "price", "sold", "is_sold", "buyer_account_id", "accept_offers")
+
+TARGET_DATE_KEYS_TO_DESC = {
+    "ASAP": "ASAP",
+    "<30": "Under 30 Days",
+    "<60": "Under 60 Days",
+    "<90": "Under 90 Days",
+    ">90": "Over 90 Days"
+}
 
 
 class SalesGroupsException(Exception):
@@ -127,7 +137,7 @@ class SalesGroups:
         if account_id is not NO_VALUE:
             query_conditions.append(" sales_groups.account = %(account_id)s")
             query_values["account_id"] = account_id
-        
+
         if is_archived is not NO_VALUE:
             query_conditions.append(" sales_groups.is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
@@ -361,7 +371,8 @@ class SalesGroups:
 
     def search_within(
         self, zip_code, miles, sale_date, skip=0, limit=10, is_archived=0,
-        category=None, breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
+        categories=None, breeds=None, minimum_weight=None, preconditioning_program=None, programs=None,
+        maximum_weight=None, target_date_description=None
     ):
         """Searches for sales groups.
 
@@ -381,31 +392,59 @@ class SalesGroups:
         """
         zip_codes = zips_nearby_zip(zip_code, miles)
 
-        # TODO: Optimize
-        # TODO: Add skip, limit
-
         additionals = []
         sql_additionals_total = ""
 
-        if category is not None:
-            sql_additionals_total += "AND category = %s"
-            additionals.append(category)
+        if categories is not None:
+            categories_clause = []
+            for category in categories:
+                categories_clause.append("%s")
+                additionals.append(category)
+            sql_additionals_total += f" AND category IN ({','.join(categories_clause)})"
 
-        if breed is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.breeds')"
-            additionals.append(json.dumps(breed))
+        if breeds is not None:
+            breeds_clause = []
+            for breed in breeds:
+                breeds_clause.append("JSON_CONTAINS(reported, %s, '$.breeds')")
+                additionals.append(json.dumps(breed))
+            sql_additionals_total += "AND (" + " OR ".join(breeds_clause) + ")"
 
         if preconditioning_program is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.preconditioning_program')"
+            sql_additionals_total += " AND JSON_CONTAINS(reported, %s, '$.preconditioning_program')"
             additionals.append(json.dumps(preconditioning_program))
 
-        if process_verified_program is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.process_verified_program')"
-            additionals.append(json.dumps(process_verified_program))
+        if programs is not None:
+            programs_clause = []
+            for p in programs:
+                programs_clause.append("JSON_CONTAINS(reported, %s, '$.program')")
+                additionals.append(json.dumps(p))
+            sql_additionals_total += f"AND ({' OR '.join(programs_clause)})"
 
         if minimum_weight is not None:
-            sql_additionals_total += "AND JSON_EXTRACT(reported, '$.weight') >= %s"
+            sql_additionals_total += " AND JSON_EXTRACT(reported, '$.weight') >= %s"
             additionals.append(minimum_weight)
+
+        if maximum_weight is not None:
+            sql_additionals_total += " AND JSON_EXTRACT(reported, '$.weight') <= %s"
+            additionals.append(maximum_weight)
+
+        if target_date_description is not None:
+            if target_date_description == TARGET_DATE_KEYS_TO_DESC["<30"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 30
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC["<60"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 60
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC["<90"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 90
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC[">90"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 90
+                sql_additionals_total += " AND sale_date >= %s"
+                additionals.append(required_time)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
 

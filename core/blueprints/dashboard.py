@@ -20,7 +20,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.account_users import NoAccountUserFound
-from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
@@ -165,7 +165,8 @@ def serve_sales_groups(id):
         else:
             raise ExportException("Bad Request")
     return dashboard_render("sales-groups/list.html", {
-        "search": search, "search_link": url_for(request.endpoint)
+        "search": search, "search_link": url_for(request.endpoint),
+        "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()]
     })
 
 
