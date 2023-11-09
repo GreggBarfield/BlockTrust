@@ -17,8 +17,7 @@ export class SalesGroupsCommonForm{
             this.salesGroupNameValue = this.data.group_name;
             this.marketingCountValue = this.data.reported.count;
             this.marketingZIPValue = this.data.zip;
-            this.marketingStartDateValue = this.data.start;
-            this.marketingEndDateValue = this.data.end;
+            this.marketingSaleDateValue = this.data.sale_date;
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
             this.marketingPriceValue = this.data.price;
@@ -56,8 +55,7 @@ export class SalesGroupsCommonForm{
             this.salesGroupNameValue = null;
             this.marketingCountValue = null;
             this.marketingZIPValue = null;
-            this.marketingStartDateValue = null;
-            this.marketingEndDateValue = null;
+            this.marketingSaleDateValue = null;
             this.marketingDeliveryLocationTypeValue = "Direct/Off Ranch";
             this.marketingDeliveryLocationValue = "";
             this.marketingAuctionMarketLocationValue = "None";
@@ -263,7 +261,8 @@ export class SalesGroupsCommonForm{
         let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
-        let marketingDates = createDateRangePicker(marketingRow, "Market Dates", this.marketingStartDateValue, this.marketingEndDateValue, true, "marketingRange","This is the date range for the sale.");
+        let marketingDate = createDate(marketingRow, "Market Date", this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
+        
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
             name: "Market Type",
@@ -639,8 +638,7 @@ export class SalesGroupsCommonForm{
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
                     "zip": parseInt(marketingZIP.value),
-                    "start": marketingDates.getStartTime(),
-                    "end": marketingDates.getEndTime(),
+                    "sale_date": marketingDate.getTime(),
                     "group_name": salesGroupName.value,
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": marketingAuctionMarketLocation.value,

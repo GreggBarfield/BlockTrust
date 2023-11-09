@@ -2258,3 +2258,9 @@ ALTER TABLE `sales_groups`
 CHANGE COLUMN `delivery_location_type` `delivery_location_type` VARCHAR(50) NULL DEFAULT "Direct/Off Ranch" ;
 UPDATE sales_groups SET delivery_location_type = 'Direct/Off Ranch' where delivery_location_type = "Off Ranch";
 UPDATE `sales_groups` SET `reported` = JSON_MERGE_PRESERVE(`reported`, '{"program":"None"}');
+
+/* Nisheet Thakur 11/8/2023 */
+ALTER TABLE `sales_groups`
+RENAME COLUMN `start` TO `sale_date`;
+ALTER TABLE `sales_groups`
+DROP COLUMN `end`;

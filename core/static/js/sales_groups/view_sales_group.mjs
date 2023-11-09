@@ -339,15 +339,8 @@ export class SalesGroupViewer {
 
             addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
 
-            let daysRemaining = "--";
-
-            if ("end" in this.data && this.data.end !== null) {
-                let currentEpoch = Date.now() / 1000;
-                daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
-            }
-            var date = new Date(this.data.start * 1000);
+            var date = new Date(this.data.sale_date * 1000);
             addInfo("Sales Date", date.toDateString(), marketBody);
-            addInfo("Days Remaining", daysRemaining, marketBody);
 
             addInfo("Delivery Location Type", this.formatData(this.data.delivery_location_type), marketBody);
             if(this.data.delivery_location_type == "Video Auction"){
