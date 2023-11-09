@@ -365,7 +365,7 @@ export class SalesGroupsCommonForm{
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
-        let characteristicsWeighingConditions = createText(characteristicsRow,"Weighing Conditions",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Other Comments",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
