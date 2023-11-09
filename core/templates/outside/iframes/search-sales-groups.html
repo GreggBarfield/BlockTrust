@@ -1,0 +1,14 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Search Sales Groups"| string %}
+
+{% block outside_content %}
+<div class="row">
+    <div class="col">
+        <div class="card" style="width:100%;">
+            <h5 class="card-header">Search Sales Groups</h5>
+            <div class="card-body widget" class="mb-0 widget" data-widget-type="search sales groups" data-widget-search='{{search|tojson}}' data-widget-link="{{search_link}}"></div>
+        </div>
+    </div>
+</div>
+{% endblock outside_content %}
