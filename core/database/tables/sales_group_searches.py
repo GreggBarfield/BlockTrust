@@ -9,7 +9,7 @@ class SalesGroupSearches:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, name, user_id, radius=None, zip=None, minimum_weight=None,
+    def insert(self, name, user_id, radius=None, zip=None, minimum_weight=None, maximum_weight=None,
                preconditioning_program=None, target_date_description=None, multi_select_fields=None):
         """
         Inserts a new sales group search
@@ -20,9 +20,9 @@ class SalesGroupSearches:
 
         self._db.execute(
             """
-                INSERT INTO sales_group_searches (name, user_id, radius, zip, minimum_weight,
+                INSERT INTO sales_group_searches (name, user_id, radius, zip, minimum_weight, maximum_weight,
                     preconditioning_program, target_date_description, multi_select_fields)
-                VALUES (%(name)s, %(user_id)s, %(radius)s, %(zip)s, %(minimum_weight)s,
+                VALUES (%(name)s, %(user_id)s, %(radius)s, %(zip)s, %(minimum_weight)s, %(maximum_weight)s,
                     %(preconditioning_program)s, %(target_date_description)s, %(multi_select_fields)s)
             """,
             {
@@ -31,6 +31,7 @@ class SalesGroupSearches:
                 "radius": radius,
                 "zip": zip,
                 "minimum_weight": minimum_weight,
+                "maximum_weight": maximum_weight,
                 "preconditioning_program": preconditioning_program,
                 "target_date_description": target_date_description,
                 "multi_select_fields": dumps(multi_select_fields) if multi_select_fields else None
@@ -71,7 +72,7 @@ class SalesGroupSearches:
         else:
             return []
 
-    def update(self, id, name=NO_VALUE, radius=NO_VALUE, zip=NO_VALUE,
+    def update(self, id, name=NO_VALUE, radius=NO_VALUE, zip=NO_VALUE, maximum_weight=NO_VALUE,
                minimum_weight=NO_VALUE, preconditioning_program=NO_VALUE, target_date_description=NO_VALUE,
                multi_select_fields=NO_VALUE):
         """
@@ -99,6 +100,9 @@ class SalesGroupSearches:
         if minimum_weight is not NO_VALUE:
             query_conditions.append("minimum_weight = %(minimum_weight)s")
             query_values["minimum_weight"] = minimum_weight
+        if maximum_weight is not NO_VALUE:
+            query_conditions.append("maximum_weight = %(maximum_weight)s")
+            query_values["maximum_weight"] = maximum_weight
         if preconditioning_program is not NO_VALUE:
             query_conditions.append("preconditioning_program = %(preconditioning_program)s")
             query_values["preconditioning_program"] = preconditioning_program
