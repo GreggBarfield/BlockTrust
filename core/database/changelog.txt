@@ -2247,6 +2247,7 @@ CREATE TABLE `sales_group_searches` (
   `category` VARCHAR(50) NULL,
   `breed` VARCHAR(50) NULL,
   `minimum_weight` VARCHAR(50) NULL,
+  `maximum_weight` VARCHAR(50) NULL,
   `preconditioning_program` VARCHAR(50) NULL,
   `process_verified_program` VARCHAR(50) NULL,
   `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
