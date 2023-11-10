@@ -57,13 +57,11 @@ export class EditSalesGroupWidget extends Widget {
         card.className = "card";
 
         let editGroupName = document.createElement("h5");
-        editGroupName.className = "mt-2";
-        editGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        editGroupName.className = "mt-2 font-weight-bold p-1 text-center";
         editGroupName.textContent = `Edit Sales Group ${this.data.id}: ${this.data.group_name}`;
 
         let cardHeader = document.createElement("div");
-        cardHeader.className = "card-header form-group d-flex justify-content-between";
-        cardHeader.style = "padding:5px;padding-left: 15px;"
+        cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
         cardHeader.append(editGroupName);
 
         let btnQrDiv = document.createElement("div");

@@ -295,7 +295,7 @@ export class SalesGroupViewer {
             addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
             addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
             addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
-            addInfo("Weighing Conditions", this.formatData(this.data.weighing_conditions), animalBody);
+            addInfo("Other Comments", this.formatData(this.data.weighing_conditions), animalBody);
             addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
             addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
             addSubHeader("Maintenance", animalBody);

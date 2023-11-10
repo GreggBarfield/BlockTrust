@@ -37,14 +37,12 @@ export class CreateSalesGroupWidget extends Widget {
     card.className = "card";
 
     let createGroupName = document.createElement("h5");
-    createGroupName.className = "mt-2";
-    createGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+    createGroupName.className = "mt-2 font-weight-bold p-1 text-center";
 
     createGroupName.textContent = "Create New Sales Group ";
 
     let cardHeader = document.createElement("div");
-    cardHeader.className = "card-header form-group d-flex justify-content-between";
-    cardHeader.style = "padding:5px;padding-left: 15px;"
+    cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
     cardHeader.append(createGroupName);
     card.append(cardHeader)
 

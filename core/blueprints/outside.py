@@ -11,7 +11,7 @@ from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
-from ..database.tables.sales_groups import SalesGroups, SalesGroupsException
+from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
@@ -698,7 +698,6 @@ def serve_create_sales_group():
                 delivery_location_type=request.json["delivery_location_type"],
                 count=request.json["reported"]["count"],
                 weight=request.json["reported"]["weight"],
-                weight_variance=request.json["reported"]["weight_variance"],
                 category=request.json["category"],
                 breeds=request.json["reported"]["breeds"],
                 sale_date=request.json["sale_date"],
@@ -793,7 +792,6 @@ def serve_edit_sales_group(sales_group_id):
             delivery_location_type=request.json["delivery_location_type"],
             count=request.json["reported"]["count"],
             weight=request.json["reported"]["weight"],
-            weight_variance=request.json["reported"]["weight_variance"],
             category=request.json["category"],
             breeds=request.json["reported"]["breeds"],
             sale_date=request.json["sale_date"],
@@ -955,5 +953,6 @@ def serve_iframe_search_sales_groups(id):
         else:
             raise ExportException("Bad Request")
     return outside_render("/outside/iframes/search-sales-groups.html", {
-        "search": search, "search_link": url_for(request.endpoint)
+        "search": search, "search_link": url_for(request.endpoint),
+        "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()]
     })
