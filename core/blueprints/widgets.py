@@ -229,6 +229,7 @@ def serve_sales_group_searches():
             zip=request.json["search"]["zip"],
             radius=request.json["search"]["radius"],
             minimum_weight=request.json["search"]["minimum_weight"],
+            maximum_weight=request.json["search"]["maximum_weight"],
             preconditioning_program=request.json["search"]["preconditioning_program"],
             multi_select_fields=multi_select_fields,
             target_date_description=request.json["search"]["target_date"]
@@ -253,6 +254,7 @@ def sales_group_search(id):
         zip=request.json["search"]["zip"],
         radius=request.json["search"]["radius"],
         minimum_weight=request.json["search"]["minimum_weight"],
+        maximum_weight=request.json["search"]["maximum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
         multi_select_fields=multi_select_fields,
         target_date_description=request.json["search"]["target_date"]

@@ -176,6 +176,9 @@ export class SearchSalesGroupsWidget extends Widget {
             if(searchValues.minimum_weight){
                 this.inputs.minimumWeight.value = searchValues.minimum_weight;
             }
+            if(searchValues.maximum_weight){
+                this.inputs.maximumWeight.value = searchValues.maximum_weight;
+            }
             if(searchValues.preconditioning_program){
                 this.inputs.preconditioningProgram.value = searchValues.preconditioning_program;
             }
@@ -335,10 +338,10 @@ export class SearchSalesGroupsWidget extends Widget {
             td.innerText = search["name"];
             tr.append(td);
             td = document.createElement("td");
-            td.innerText = search["multi_select_fields"]? search["multi_select_fields"]["categories"].join(", ") : "";
+            td.innerText = search["multi_select_fields"]? ("categories" in search["multi_select_fields"]? search["multi_select_fields"]["categories"].join(", "): "" ): "";
             tr.append(td);
             td = document.createElement("td");
-            td.innerText = search["multi_select_fields"]? search["multi_select_fields"]["breeds"].join(", ") : "";
+            td.innerText = search["multi_select_fields"]? ("breeds" in search["multi_select_fields"]? search["multi_select_fields"]["breeds"].join(", "): "" ) : "";
             tr.append(td);
             td = document.createElement("td");
             let UTCDate = new Date(search["last_updated_timestamp"] + " UTC");
