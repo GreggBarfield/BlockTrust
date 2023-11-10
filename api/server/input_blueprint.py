@@ -209,7 +209,6 @@ def serve_insert_sales_group():
             delivery_location_type=sales_group_data["delivery_location_type"],
             count=sales_group_data["total_animals"],
             weight=sales_group_data["base_weight"],
-            weight_variance=sales_group_data["weight_variance"],
             category=sales_group_data["category"],
             breeds=sales_group_data["breeds"],
             auction_sale=None,
