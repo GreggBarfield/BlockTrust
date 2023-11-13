@@ -70,7 +70,7 @@ export class SearchSalesGroupsWidget extends Widget {
         firstFormRow.append(zipCodeFormGroup);
 
         let zipCodeLabel = document.createElement("label");
-        zipCodeLabel.textContent = "Center Zip Code";
+        zipCodeLabel.textContent = "Buyer Zip Code";
         zipCodeFormGroup.append(zipCodeLabel);
 
         this.inputs.zipCode = document.createElement("input");
@@ -157,7 +157,7 @@ export class SearchSalesGroupsWidget extends Widget {
         this.inputs.maximumWeight = createSearchControl("Maximum Weight", SalesGroupFields.commonWeights.map(w => w + 100));
         this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
         this.inputs.program = createSearchControl("Program", SalesGroupFields.commonProgramNames, true);
-        this.inputs.targetDate = createSearchControl("Target Date", dates);
+        this.inputs.targetDate = createSearchControl("Target Delivery Date", dates);
 
         if(Object.keys(searchValues).length){
             this.inputs.milesSelect.value = searchValues.radius;

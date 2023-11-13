@@ -82,7 +82,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = "";
-            this.maintenanceProgramValue = "";
+            this.maintenanceProgramValue = [];
             this.reportedImages = [];
             this.reportedVideos = [];
             this.fileAuths = null;
@@ -481,7 +481,7 @@ export class SalesGroupsCommonForm{
             name: "Program",
             options: SalesGroupFields.commonProgramNames,
             values: this.maintenanceProgramValue,
-            multiple: false,
+            multiple: true,
             tags: false,
             placeholder: "Please Select"
         }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
