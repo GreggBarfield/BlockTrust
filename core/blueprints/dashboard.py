@@ -166,7 +166,8 @@ def serve_sales_groups(id):
             raise ExportException("Bad Request")
     return dashboard_render("sales-groups/list.html", {
         "search": search, "search_link": url_for(request.endpoint),
-        "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()]
+        "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()],
+        "view_link": url_for("dashboard_bp.serve_view_sales_group")
     })
 
 
@@ -202,6 +203,7 @@ def serve_sales_group_archive():
     return dashboard_render("sales-groups/sales-group/archive.html", {"account_id": g.account.id()})
 
 
+@bp.route('/dashboard/sales-groups/view/', defaults={'sales_group_id': ''}, methods=['GET'])
 @bp.route('/dashboard/sales-groups/view/<int:sales_group_id>', methods=['GET'])
 @crut.require_paid_account
 def serve_view_sales_group(sales_group_id):
