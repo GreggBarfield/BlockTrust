@@ -2279,8 +2279,7 @@ DROP COLUMN `end`;
 ALTER TABLE `sales_group_searches` 
 DROP COLUMN `programs`,
 DROP COLUMN `breed`,
-DROP COLUMN `category`;
-ALTER TABLE `sales_group_searches` 
-CHANGE COLUMN `radius` `radius` INT NULL DEFAULT NULL ,
-CHANGE COLUMN `minimum_weight` `minimum_weight` INT NULL DEFAULT NULL ,
-CHANGE COLUMN `maximum_weight` `maximum_weight` INT NULL DEFAULT NULL ;
+DROP COLUMN `category`,
+CHANGE COLUMN `radius` `radius` INT NULL DEFAULT NULL,
+CHANGE COLUMN `minimum_weight` `minimum_weight` INT NULL DEFAULT NULL,
+CHANGE COLUMN `maximum_weight` `maximum_weight` INT NULL DEFAULT NULL;
