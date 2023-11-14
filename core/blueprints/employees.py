@@ -268,16 +268,47 @@ def serve_edit_selected_account(account_id):
         )
         return employee_render("/employee/accounts/edit-selected-account.html", {"account_row": account_row, "partners": partners})
     if request.method == "POST":
-        Accounts(g.db).modify_account(
-            account_id=account_id,
-            company=format_field(request.form["company"]),
-            phone=format_field(request.form["phone"]),
-            address=format_field(request.form["address"]),
-            city=format_field(request.form["city"]),
-            state=format_field(request.form["state"]),
-            zip=format_field(request.form["zip_code"])
-        )
-        return {"redirect": "/employee/dashboard"}
+        try:
+            account_data = Accounts(g.db).get_account_by_id(account_id)
+            if account_data is not None:
+                previous_partner_id = account_data.partner_account_id()
+                previous_affiliate_id = account_data.affiliate_id()
+                updated_partner_id = int(request.form["partner"])
+                updated_affiliate_id = request.form["affiliate_id"]
+                if previous_partner_id == updated_partner_id and previous_affiliate_id == updated_affiliate_id:
+                    Accounts(g.db).modify_account(
+                        account_id=account_id,
+                        company=format_field(request.form["company"]),
+                        phone=format_field(request.form["phone"]),
+                        address=format_field(request.form["address"]),
+                        city=format_field(request.form["city"]),
+                        state=format_field(request.form["state"]),
+                        zip=format_field(request.form["zip_code"])
+                    )
+                else:
+                    sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
+                        account_data.sector_id(),
+                        request.form["partner"],
+                        request.form["affiliate_id"],
+                        format_field(request.form["phone"])
+                    )
+                    print("Updating partner account")
+                    print(updated_partner_id)
+                    print(updated_affiliate_id)
+                    Accounts(g.db).modify_account(
+                        account_id=account_id,
+                        company=format_field(request.form["company"]),
+                        phone=format_field(request.form["phone"]),
+                        address=format_field(request.form["address"]),
+                        city=format_field(request.form["city"]),
+                        state=format_field(request.form["state"]),
+                        zip=format_field(request.form["zip_code"]),
+                        partner_account=updated_partner_id,
+                        affiliate_id=format_field(updated_affiliate_id)
+                    )
+        except (Exception, AccountsException) as e:
+            return {"error": str(e)}
+        return {"redirect": "/employee/dashboard/view-accounts"}
 
 
 @bp.route("/employee/dashboard/edit-partner/<int:partner_id>", methods=["GET", "POST"])
