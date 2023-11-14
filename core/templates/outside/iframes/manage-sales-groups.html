@@ -36,9 +36,9 @@
                         <a class="btn btn-sm btn-info" href="/iframe/sales-group/edit/{{sales_group.id}}">
                             Edit
                         </a>
-                        <a class="btn btn-sm btn-info" href="">
+                        <button class="btn btn-sm btn-info" href="" onclick="archive('{{sales_group.id}}')">
                             Archive
-                        </a>
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -46,4 +46,18 @@
         </table>
     </div>
 </div>
+<script>
+    async function archive(salesGroupID){
+        const response = await fetch(
+            "/widgets/data/archive_sales_group",{
+                method: "POST",
+                body: JSON.stringify({"sales_group_id": salesGroupID}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+</script>
 {% endblock outside_content %}
