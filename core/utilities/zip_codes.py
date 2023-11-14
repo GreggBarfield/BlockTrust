@@ -33,7 +33,7 @@ def zips_nearby_zip(zip_code, dist):
     results = []
 
     if zip_code not in ZIP_CODES:
-        raise Exception(f"ZIP Code not recognized: {zip_code}")
+        raise ExportException(f"ZIP Code not recognized: {zip_code}")
 
     for itr_zip_code in ZIP_CODES:
         if distance(ZIP_CODES[itr_zip_code]["ecef"], ZIP_CODES[zip_code]["ecef"]) < miles_to_meters(dist):
