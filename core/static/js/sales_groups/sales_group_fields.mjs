@@ -97,8 +97,7 @@ let commonBreedNames = [
 let commonProgramNames = [
 	"Conventional",
 	"Natural",
-	"NHTC",
-	"ALL"
+	"NHTC"
 ];
 
 let commonMiles = [
