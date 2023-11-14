@@ -332,30 +332,41 @@ export class SearchSalesGroupsWidget extends Widget {
         thead.append(tr);
         table.append(thead);
         const salesGroups = await this.getData("search_summary", [], false, "GET");
-        for(let salesGroup of salesGroups){
+        if(salesGroups.length > 0){
+            for(let salesGroup of salesGroups){
+                let tr = document.createElement("tr");
+                let td = document.createElement("td");
+                td.innerText = salesGroup["group_name"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["count"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["breeds"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["weight"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["delivery_location_type"] == "Auction"? salesGroup["delivery_location"] : salesGroup["delivery_location_type"];
+                tr.append(td);
+                td = document.createElement("td");
+                let loadLink = document.createElement("a");
+                loadLink.className = "btn btn-sm btn-secondary";
+                loadLink.href = `${viewLink}${salesGroup["id"]}`;
+                loadLink.target = "_blank";
+                loadLink.innerText = "View";
+                td.append(loadLink);
+                tr.append(td);
+                table.append(tr);            
+            }
+        }
+        else {
             let tr = document.createElement("tr");
             let td = document.createElement("td");
-            td.innerText = salesGroup["group_name"];
-            tr.append(td);
-            td = document.createElement("td");
-            td.innerText = salesGroup["reported"]["count"];
-            tr.append(td);
-            td = document.createElement("td");
-            td.innerText = salesGroup["reported"]["breeds"];
-            tr.append(td);
-            td = document.createElement("td");
-            td.innerText = salesGroup["reported"]["weight"];
-            tr.append(td);
-            td = document.createElement("td");
-            td.innerText = salesGroup["delivery_location_type"] == "Auction"? salesGroup["delivery_location"] : salesGroup["delivery_location_type"];
-            tr.append(td);
-            td = document.createElement("td");
-            let loadLink = document.createElement("a");
-            loadLink.className = "btn btn-sm btn-secondary";
-            loadLink.href = `${viewLink}${salesGroup["id"]}`;
-            loadLink.target = "_blank";
-            loadLink.innerText = "View";
-            td.append(loadLink);
+            td.setAttribute("colspan", "6");
+            td.innerText = "Nothing to show currently";
+            td.className = "font-italic";
             tr.append(td);
             table.append(tr);            
         }
