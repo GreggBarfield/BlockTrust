@@ -262,6 +262,29 @@ def sales_group_search(id):
     return Response(status=HTTP_NO_CONTENT)
 
 
+@bp.route('/widgets/data/search_summary', methods=['GET'])
+@crut.require_account
+def search_summary():
+    searches = SalesGroupSearches(g.db).get(user_id=g.user.id())
+    results = []
+    for search in searches:
+        sales_group_rows = SalesGroups(g.db).search_within(
+            zip_code=int(search["zip"]),
+            miles=search["radius"],
+            sale_date=time.time(),
+            is_archived=0,
+            categories=search["multi_select_fields"].get("categories", None) if search["multi_select_fields"] else None,
+            breeds=search["multi_select_fields"].get("breeds", None) if search["multi_select_fields"] else None,
+            minimum_weight=search["minimum_weight"] if search["minimum_weight"] else None,
+            maximum_weight=search["maximum_weight"] if search["maximum_weight"] else None,
+            preconditioning_program=search["preconditioning_program"],
+            programs=search["multi_select_fields"].get("programs", None) if search["multi_select_fields"] else None,
+            target_date_description=search["target_date_description"]
+        )
+        results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
+    return results
+
+
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
 @crut.require_account
 def serve_search_by_eid_and_visual_id():
