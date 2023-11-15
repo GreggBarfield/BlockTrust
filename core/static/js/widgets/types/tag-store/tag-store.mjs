@@ -24,7 +24,6 @@ export class TagStoreWidget extends Widget {
     }
 
     makeShoppingCartLinkContainer = (shoppingCartLink) =>{
-        console.log(shoppingCartLink);
         let shoppingCartLinkContainer = document.createElement("div");
         shoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
         let shoppingCartLinkButton = generateButtonLink("VIEW CART", shoppingCartLink, true, "fas fa-shopping-cart");
