@@ -268,11 +268,11 @@ def serve_shopping_cart():
 @crut.require_account
 def serve_checkout():
     shop_homepage_link = WEBSITE_ROOT + url_for('shop_bp.serve_tag_store')
-    checkout_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout')
+    shopping_cart_link = WEBSITE_ROOT + url_for('shop_bp.serve_shopping_cart')
     checkout_payment_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout_payment')
     return dashboard_render("tag-store/checkout.html", {
         "shop_homepage_link": shop_homepage_link,
-        "checkout_link": checkout_link,
+        "shopping_cart_link": shopping_cart_link,
         "checkout_payment_link": checkout_payment_link
     })
 
