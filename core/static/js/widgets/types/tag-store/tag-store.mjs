@@ -12,9 +12,10 @@ export class TagStoreWidget extends Widget {
         let products = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
         let productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
         let productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
+        let shoppingCartLink = this.frame.getAttribute("data-widget-shopping-cart-link");
 
         this.frame.innerHTML = "";
-        let shoppingCartLinkContainer = this.makeShoppingCartLinkContainer();
+        let shoppingCartLinkContainer = this.makeShoppingCartLinkContainer(shoppingCartLink);
         this.frame.append(shoppingCartLinkContainer);
         for(let productCategory of productCategories){
             let productCategoryContainer = this.makeProductCategoryContainer(productCategory, products, productVendorIdsToNames);
@@ -22,10 +23,11 @@ export class TagStoreWidget extends Widget {
         }
     }
 
-    makeShoppingCartLinkContainer = () =>{
+    makeShoppingCartLinkContainer = (shoppingCartLink) =>{
+        console.log(shoppingCartLink);
         let shoppingCartLinkContainer = document.createElement("div");
         shoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
-        let shoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        let shoppingCartLinkButton = generateButtonLink("VIEW CART", shoppingCartLink, true, "fas fa-shopping-cart");
         shoppingCartLinkContainer.append(shoppingCartLinkButton);
         return shoppingCartLinkContainer;
     }
