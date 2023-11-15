@@ -21,10 +21,10 @@ export class SearchSalesGroupsWidget extends Widget {
         );
     }
 
-    async generate(searchValues, link, dates, viewLink) {
+    async generate(searchValues, searchLink, dates, viewLink) {
 
         this.frame.append(await this.generateSummaryTable(viewLink));
-        this.frame.append(await this.generateSavedSearchesTable());
+        this.frame.append(await this.generateSavedSearchesTable(searchLink));
 
         let searchName, searchID;
         if(Object.keys(searchValues).length){
@@ -200,7 +200,7 @@ export class SearchSalesGroupsWidget extends Widget {
         submitButton.value = "Search";
         submitFormGroup.append(submitButton);
 
-        this.createSaveButtons(link, submitFormGroup, searchID, searchName);
+        this.createSaveButtons(searchLink, submitFormGroup, searchID, searchName);
 
         this.searchErrorAlert = document.createElement("div");
         this.searchErrorAlert.className = "alert alert-danger";
@@ -352,7 +352,7 @@ export class SearchSalesGroupsWidget extends Widget {
                 tr.append(td);
                 td = document.createElement("td");
                 let loadLink = document.createElement("a");
-                loadLink.className = "btn btn-sm btn-secondary";
+                loadLink.className = "btn btn-sm btn-info";
                 loadLink.href = `${viewLink}${salesGroup["id"]}`;
                 loadLink.target = "_blank";
                 loadLink.innerText = "View";
@@ -384,7 +384,7 @@ export class SearchSalesGroupsWidget extends Widget {
         return tableContainer;
     }
 
-    async generateSavedSearchesTable() {
+    async generateSavedSearchesTable(searchLink) {
 
         let tableContainer = document.createElement("div");
         tableContainer.className = "mb-5";
@@ -427,10 +427,18 @@ export class SearchSalesGroupsWidget extends Widget {
             tr.append(td);
             td = document.createElement("td");
             let loadLink = document.createElement("a");
-            loadLink.className = "btn btn-sm btn-secondary";
+            loadLink.className = "btn btn-sm btn-info";
             loadLink.href = `${this.frame.getAttribute("data-widget-link")}${search["id"]}`;
             loadLink.innerText = "Load";
             td.append(loadLink);
+            let buttonDelete = document.createElement("button");
+            buttonDelete.className = "btn btn-danger btn-sm";
+            let icon = document.createElement("i");
+            icon.className = "fa fa-trash";
+            icon.setAttribute("title", `Delete search ${search.id}`);
+            buttonDelete.append(icon);
+            buttonDelete.onclick = () => this.deleteSearch(search.id, searchLink);
+            td.append(buttonDelete);
             tr.append(td);
             table.append(tr);
         }
@@ -539,6 +547,11 @@ export class SearchSalesGroupsWidget extends Widget {
                 }
             });
         }
+    }
+
+    async deleteSearch(id, link){
+        this.getData(`sales_group_searches`, [id], false, "DELETE");
+        new InfoModal(`Search deleted successfully!`, null, false, "d-none", () => window.location.href = link);
     }
 
     handleSearchResults(data) {

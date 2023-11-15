@@ -119,3 +119,11 @@ class SalesGroupSearches:
         else:
             raise Exception("No values given for update!")
         return self._db.row_count()
+
+    def delete(self, id):
+        """
+        DELETE a sales group search
+        """
+
+        query = "DELETE FROM sales_group_searches WHERE id = %s"
+        self._db.execute(query, [id])
