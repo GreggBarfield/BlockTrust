@@ -435,8 +435,8 @@ export class SearchSalesGroupsWidget extends Widget {
             buttonDelete.className = "btn btn-danger btn-sm";
             let icon = document.createElement("i");
             icon.className = "fa fa-trash";
-            icon.setAttribute("title", `Delete search ${search.id}`);
             buttonDelete.append(icon);
+            buttonDelete.title = "Delete search";
             buttonDelete.onclick = () => this.deleteSearch(search.id, searchLink);
             td.append(buttonDelete);
             tr.append(td);
