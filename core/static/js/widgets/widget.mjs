@@ -52,7 +52,7 @@ export class Widget {
                 contentType: 'application/json',
                 method: method
             };
-            if(method == "GET"){
+            if(method == "GET" || method == "DELETE"){
                 for(let p of params){
                     requestParams.url += `/${p}`
                 }

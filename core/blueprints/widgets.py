@@ -238,28 +238,32 @@ def serve_sales_group_searches():
     return SalesGroupSearches(g.db).get(user_id=g.user.id())
 
 
-@bp.route('/widgets/data/sales_group_searches/<int:id>', methods=['PUT'])
+@bp.route('/widgets/data/sales_group_searches/<int:id>', methods=['PUT', 'DELETE'])
 @crut.require_account
 def sales_group_search(id):
-    multi_select_fields = {}
-    if request.json["search"]["categories"]:
-        multi_select_fields["categories"] = request.json["search"]["categories"]
-    if request.json["search"]["breeds"]:
-        multi_select_fields["breeds"] = request.json["search"]["breeds"]
-    if request.json["search"]["programs"]:
-        multi_select_fields["programs"] = request.json["search"]["programs"]
-    SalesGroupSearches(g.db).update(
-        id=id,
-        name=request.json["search"]["name"],
-        zip=request.json["search"]["zip"],
-        radius=request.json["search"]["radius"],
-        minimum_weight=request.json["search"]["minimum_weight"],
-        maximum_weight=request.json["search"]["maximum_weight"],
-        preconditioning_program=request.json["search"]["preconditioning_program"],
-        multi_select_fields=multi_select_fields,
-        target_date_description=request.json["search"]["target_date"]
-    )
-    return Response(status=HTTP_NO_CONTENT)
+    if request.method == 'PUT':
+        multi_select_fields = {}
+        if request.json["search"]["categories"]:
+            multi_select_fields["categories"] = request.json["search"]["categories"]
+        if request.json["search"]["breeds"]:
+            multi_select_fields["breeds"] = request.json["search"]["breeds"]
+        if request.json["search"]["programs"]:
+            multi_select_fields["programs"] = request.json["search"]["programs"]
+        SalesGroupSearches(g.db).update(
+            id=id,
+            name=request.json["search"]["name"],
+            zip=request.json["search"]["zip"],
+            radius=request.json["search"]["radius"],
+            minimum_weight=request.json["search"]["minimum_weight"],
+            maximum_weight=request.json["search"]["maximum_weight"],
+            preconditioning_program=request.json["search"]["preconditioning_program"],
+            multi_select_fields=multi_select_fields,
+            target_date_description=request.json["search"]["target_date"]
+        )
+        return Response(status=HTTP_NO_CONTENT)
+    else:
+        SalesGroupSearches(g.db).delete(id=id)
+        return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/widgets/data/search_summary', methods=['GET'])
