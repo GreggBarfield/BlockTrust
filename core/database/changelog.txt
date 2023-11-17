@@ -2247,6 +2247,7 @@ CREATE TABLE `sales_group_searches` (
   `category` VARCHAR(50) NULL,
   `breed` VARCHAR(50) NULL,
   `minimum_weight` VARCHAR(50) NULL,
+  `maximum_weight` VARCHAR(50) NULL,
   `preconditioning_program` VARCHAR(50) NULL,
   `process_verified_program` VARCHAR(50) NULL,
   `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2273,3 +2274,12 @@ ALTER TABLE `sales_groups`
 RENAME COLUMN `start` TO `sale_date`;
 ALTER TABLE `sales_groups`
 DROP COLUMN `end`;
+
+/* Rohan Sureshkumar 11/10/23 */
+ALTER TABLE `sales_group_searches` 
+DROP COLUMN `programs`,
+DROP COLUMN `breed`,
+DROP COLUMN `category`,
+CHANGE COLUMN `radius` `radius` INT NULL DEFAULT NULL,
+CHANGE COLUMN `minimum_weight` `minimum_weight` INT NULL DEFAULT NULL,
+CHANGE COLUMN `maximum_weight` `maximum_weight` INT NULL DEFAULT NULL;
