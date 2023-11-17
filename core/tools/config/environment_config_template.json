@@ -77,6 +77,6 @@
         "db": "herdwhistle-staging-10160549",
         "username": "blocktrust",
         "invoice_id": 5230,
-        "fetch_eids_from_api": true
+        "fetch_eids_from_api": false
     }
 }
