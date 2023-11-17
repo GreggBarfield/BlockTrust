@@ -11,6 +11,7 @@ from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
@@ -955,4 +956,26 @@ def serve_iframe_search_sales_groups(id):
     return outside_render("/outside/iframes/search-sales-groups.html", {
         "search": search, "search_link": url_for(request.endpoint),
         "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()]
+    })
+
+
+@bp.route('/iframe/shop/checkout-payment', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_checkout_payment():
+    herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    invoice_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_invoice')
+    return outside_render("/outside/iframes/checkout-payment.html", {
+        "stripe_key": STRIPE_PUBLISHABLE_KEY,
+        "herd_whistle_vendor_id": herd_whistle_vendor_id,
+        "invoice_link": invoice_link
+    })
+
+
+@bp.route('/iframe/shop/invoice', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_invoice():
+    shop_homepage_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_invoice')
+    return outside_render("/outside/iframes/invoice.html", {
+        "shop_homepage_link": shop_homepage_link
     })
