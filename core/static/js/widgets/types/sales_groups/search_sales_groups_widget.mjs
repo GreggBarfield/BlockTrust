@@ -16,13 +16,15 @@ export class SearchSalesGroupsWidget extends Widget {
         this.generate(
             JSON.parse(this.frame.getAttribute("data-widget-search")), 
             this.frame.getAttribute("data-widget-link"),
-            JSON.parse(this.frame.getAttribute("data-widget-dates"))
+            JSON.parse(this.frame.getAttribute("data-widget-dates")),
+            this.frame.getAttribute("data-widget-view-link")
         );
     }
 
-    async generate(searchValues, link, dates) {
+    async generate(searchValues, searchLink, dates, viewLink) {
 
-        this.frame.append(await this.generateSavedSearchesTable());
+        this.frame.append(await this.generateSummaryTable(viewLink));
+        this.frame.append(await this.generateSavedSearchesTable(searchLink));
 
         let searchName, searchID;
         if(Object.keys(searchValues).length){
@@ -70,7 +72,7 @@ export class SearchSalesGroupsWidget extends Widget {
         firstFormRow.append(zipCodeFormGroup);
 
         let zipCodeLabel = document.createElement("label");
-        zipCodeLabel.textContent = "Center Zip Code";
+        zipCodeLabel.textContent = "Buyer Zip Code";
         zipCodeFormGroup.append(zipCodeLabel);
 
         this.inputs.zipCode = document.createElement("input");
@@ -157,7 +159,7 @@ export class SearchSalesGroupsWidget extends Widget {
         this.inputs.maximumWeight = createSearchControl("Maximum Weight", SalesGroupFields.commonWeights.map(w => w + 100));
         this.inputs.preconditioningProgram = createSearchControl("Precon Program", SalesGroupFields.commonPreconditioningProgramNames);
         this.inputs.program = createSearchControl("Program", SalesGroupFields.commonProgramNames, true);
-        this.inputs.targetDate = createSearchControl("Target Date", dates);
+        this.inputs.targetDate = createSearchControl("Target Delivery Date", dates);
 
         if(Object.keys(searchValues).length){
             this.inputs.milesSelect.value = searchValues.radius;
@@ -198,7 +200,7 @@ export class SearchSalesGroupsWidget extends Widget {
         submitButton.value = "Search";
         submitFormGroup.append(submitButton);
 
-        this.createSaveButtons(link, submitFormGroup, searchID, searchName);
+        this.createSaveButtons(searchLink, submitFormGroup, searchID, searchName);
 
         this.searchErrorAlert = document.createElement("div");
         this.searchErrorAlert.className = "alert alert-danger";
@@ -312,7 +314,77 @@ export class SearchSalesGroupsWidget extends Widget {
         }
     }
 
-    async generateSavedSearchesTable() {
+    async generateSummaryTable(viewLink) {
+        let tableContainer = document.createElement("div");
+        tableContainer.className = "mb-5";
+
+        let table = document.createElement("table");
+        table.className = "table table-sm text-center mt-3 table-bordered";
+        let thead = document.createElement("thead");
+        thead.classList += "thead-light";
+        let tr = document.createElement("tr");
+        const headers = ["Name", "Number of Head", "Breed", "Weight", "Market Name/Location", ""];
+        for(const header of headers){
+            let th = document.createElement("th");
+            th.innerText = header;
+            tr.append(th);
+        }
+        thead.append(tr);
+        table.append(thead);
+        const salesGroups = await this.getData("search_summary", [], false, "GET");
+        if(salesGroups.length > 0){
+            for(let salesGroup of salesGroups){
+                let tr = document.createElement("tr");
+                let td = document.createElement("td");
+                td.innerText = salesGroup["group_name"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["count"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["breeds"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["reported"]["weight"];
+                tr.append(td);
+                td = document.createElement("td");
+                td.innerText = salesGroup["delivery_location_type"] == "Auction"? salesGroup["delivery_location"] : salesGroup["delivery_location_type"];
+                tr.append(td);
+                td = document.createElement("td");
+                let loadLink = document.createElement("a");
+                loadLink.className = "btn btn-sm btn-info";
+                loadLink.href = `${viewLink}${salesGroup["id"]}`;
+                loadLink.target = "_blank";
+                loadLink.innerText = "View";
+                td.append(loadLink);
+                tr.append(td);
+                table.append(tr);            
+            }
+        }
+        else {
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.setAttribute("colspan", "6");
+            td.innerText = "Nothing to show currently";
+            td.className = "font-italic";
+            tr.append(td);
+            table.append(tr);            
+        }
+        let expandControl = document.createElement("a");
+        expandControl.innerHTML = "Search Results Quick Summary";
+        expandControl.href = "javascript:void(0);";
+        expandControl.title = "Toggle saved searches";
+        expandControl.className = "h6";
+        expandControl.addEventListener("click", (e)=>{
+            e.preventDefault();
+            table.classList.toggle("d-none");
+        });
+        tableContainer.append(expandControl);
+        tableContainer.append(table);
+        return tableContainer;
+    }
+
+    async generateSavedSearchesTable(searchLink) {
 
         let tableContainer = document.createElement("div");
         tableContainer.className = "mb-5";
@@ -355,10 +427,18 @@ export class SearchSalesGroupsWidget extends Widget {
             tr.append(td);
             td = document.createElement("td");
             let loadLink = document.createElement("a");
-            loadLink.className = "btn btn-sm btn-secondary";
+            loadLink.className = "btn btn-sm btn-info";
             loadLink.href = `${this.frame.getAttribute("data-widget-link")}${search["id"]}`;
             loadLink.innerText = "Load";
             td.append(loadLink);
+            let buttonDelete = document.createElement("button");
+            buttonDelete.className = "btn btn-danger btn-sm";
+            let icon = document.createElement("i");
+            icon.className = "fa fa-trash";
+            buttonDelete.append(icon);
+            buttonDelete.title = "Delete search";
+            buttonDelete.onclick = () => this.deleteSearch(search.id, searchLink);
+            td.append(buttonDelete);
             tr.append(td);
             table.append(tr);
         }
@@ -467,6 +547,11 @@ export class SearchSalesGroupsWidget extends Widget {
                 }
             });
         }
+    }
+
+    async deleteSearch(id, link){
+        this.getData(`sales_group_searches`, [id], false, "DELETE");
+        new InfoModal(`Search deleted successfully!`, null, false, "d-none", () => window.location.href = link);
     }
 
     handleSearchResults(data) {
