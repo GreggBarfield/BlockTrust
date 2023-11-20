@@ -11,13 +11,9 @@ from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
-<<<<<<< HEAD
-from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
-=======
 from ..database.tables.product_categories import ProductCategories
-from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.products import ProductTable
->>>>>>> 7289a83bed149a450564e253211b56f71858361a
 from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
@@ -1029,7 +1025,7 @@ def serve_iframe_checkout_payment():
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
     invoice_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_invoice')
-    return outside_render("/outside/iframes/checkout-payment.html", {
+    return outside_render("/outside/iframes/tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
         "herd_whistle_vendor_id": herd_whistle_vendor_id,
         "invoice_link": invoice_link
@@ -1040,6 +1036,6 @@ def serve_iframe_checkout_payment():
 @crut.require_user_iframe
 def serve_iframe_invoice():
     shop_homepage_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_invoice')
-    return outside_render("/outside/iframes/invoice.html", {
+    return outside_render("/outside/iframes/tag-store/invoice.html", {
         "shop_homepage_link": shop_homepage_link
     })
