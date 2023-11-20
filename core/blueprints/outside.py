@@ -11,7 +11,13 @@ from ..database.tables.accounts import Accounts, AccountsException
 from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
+<<<<<<< HEAD
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
+=======
+from ..database.tables.product_categories import ProductCategories
+from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.products import ProductTable
+>>>>>>> 7289a83bed149a450564e253211b56f71858361a
 from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
@@ -683,7 +689,7 @@ def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
         form_post_route = url_for('outside_bp.serve_create_sales_group')
-        return outside_render("/outside/iframes/create-sales-group.html", {
+        return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
             "form_post_route": form_post_route
         })
@@ -742,7 +748,7 @@ def serve_create_sales_group():
 @bp.route('/iframe/sales-group/sales-group-created')
 @crut.require_user_iframe
 def serve_sales_group_created():
-    return outside_render("/outside/iframes/sales-group-created.html")
+    return outside_render("/outside/iframes/sales-groups/sales-group-created.html")
 
 
 @bp.route('/iframe/login', methods=['GET'])
@@ -759,7 +765,7 @@ def serve_iframe_login():
 @crut.require_user_iframe
 def serve_manage_sales_groups():
     sales_groups = SalesGroups(g.db).get_sales_groups(account_id=g.account.id(), is_archived=0)
-    return outside_render("/outside/iframes/manage-sales-groups.html", {"sales_groups": sales_groups})
+    return outside_render("/outside/iframes/sales-groups/manage-sales-groups.html", {"sales_groups": sales_groups})
 
 
 @bp.route('/iframe/sales-group/edit/<int:sales_group_id>', methods=['GET', 'POST'])
@@ -770,10 +776,10 @@ def serve_edit_sales_group(sales_group_id):
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
         form_post_route = url_for('outside_bp.serve_edit_sales_group', sales_group_id=sales_group_id)
         if(sales_group["account"] != g.account.id()):
-            return outside_render("/outside/iframes/unauthorized.html")
+            return outside_render("/outside/iframes/sales-groups/unauthorized.html")
         external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
             sales_group_id=sales_group['id'])
-        return outside_render("/outside/iframes/edit-sales-group.html", {
+        return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
             "sales_group": sales_group,
             "auction_markets": auction_markets,
             "form_post_route": form_post_route,
@@ -835,10 +841,10 @@ def serve_edit_sales_group(sales_group_id):
 def serve_view_sales_group(sales_group_id):
     sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
     if(sales_group["account"] != g.account.id()):
-        return outside_render("/outside/iframes/unauthorized.html")
+        return outside_render("/outside/iframes/sales-groups/unauthorized.html")
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
         sales_group_id=sales_group['id'])
-    return outside_render("/outside/iframes/view-sales-group.html", {
+    return outside_render("/outside/iframes/sales-groups/view-sales-group.html", {
         "sales_group": sales_group,
         "external_shareable_link": external_shareable_link
     })
@@ -953,9 +959,67 @@ def serve_iframe_search_sales_groups(id):
             search = search[0]
         else:
             raise ExportException("Bad Request")
-    return outside_render("/outside/iframes/search-sales-groups.html", {
+    return outside_render("/outside/iframes/sales-groups/search-sales-groups.html", {
         "search": search, "search_link": url_for(request.endpoint),
         "dates": [v for v in TARGET_DATE_KEYS_TO_DESC.values()]
+    })
+
+
+@bp.route('/iframe/shop/tag-store', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_tag_store():
+    all_product_data = []
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    for product_vendor in product_vendors:
+        vendor_products_data = ProductTable(g.db).get_products(
+            product_vendor_id=product_vendor["id"],
+            include_images=True,
+            is_internal=int(True)
+        )
+        all_product_data.extend(vendor_products_data)
+    
+    product_categories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+
+    shopping_cart_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_shopping_cart')
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
+    return outside_render("/outside/iframes/tag-store/homepage.html", {
+        "all_product_data": all_product_data,
+        "product_categories": product_categories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names,
+        "shopping_cart_link": shopping_cart_link
+    })
+
+
+@bp.route('/iframe/shop/shopping-cart', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_shopping_cart():
+    shop_homepage_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_tag_store')
+    checkout_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_checkout')
+    return outside_render("/outside/iframes/tag-store/shopping-cart.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "checkout_link": checkout_link
+    })
+
+
+@bp.route('/iframe/shop/checkout', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_checkout():
+    user_first_name = g.user.first_name()
+    user_last_name = g.user.last_name()
+    user_account = g.account
+    shop_homepage_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_tag_store')
+    shopping_cart_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_shopping_cart')
+    checkout_payment_link = WEBSITE_ROOT + url_for('outside_bp.serve_iframe_checkout_payment')
+    return outside_render("/outside/iframes/tag-store/checkout.html", {
+        "user_first_name": user_first_name,
+        "user_last_name": user_last_name,
+        "user_account": user_account,
+        "shop_homepage_link": shop_homepage_link,
+        "shopping_cart_link": shopping_cart_link,
+        "checkout_payment_link": checkout_payment_link
     })
 
 
