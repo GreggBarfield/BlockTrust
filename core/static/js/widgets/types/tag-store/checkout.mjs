@@ -19,6 +19,9 @@ export class CheckoutWidget extends Widget {
         this.inputs.zipCodeInput = this.generateCheckoutFormTextInput("*Zip Code", "text", "zip_code", true, this.frame.getAttribute("data-widget-zip"));
         this.inputs.phoneInput = this.generateCheckoutFormTextInput("*Phone", "text", "phone", true, this.frame.getAttribute("data-widget-phone"));
         this.inputs.emailInput = this.generateCheckoutFormTextInput("*Email", "email", "email", true);
+        this.shopHomepageLink = this.frame.getAttribute("data-widget-shop-homepage-link");
+        this.shoppingCartLink = this.frame.getAttribute("data-widget-shopping-cart-link");
+        this.checkoutPaymentLink = this.frame.getAttribute("data-widget-checkout-payment-link");
         let checkoutPage = this.makeCheckoutPage();
         this.frame.append(checkoutPage);
     }
@@ -120,9 +123,9 @@ export class CheckoutWidget extends Widget {
 
     makeCheckoutPageLinksContainer = () =>{
         let linksContainer = document.createElement("div");
-        let backToCartButton = generateButtonLink("BACK TO CART  ", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        let backToCartButton = generateButtonLink("BACK TO CART  ", this.shoppingCartLink, true, "fas fa-shopping-cart");
         linksContainer.append(backToCartButton);
-        let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", "/shop/tag-store", true, "fas fa-shopping-cart");
+        let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", this.shopHomepageLink, true, "fas fa-shopping-cart");
         linksContainer.append(continueShoppingButton);
         return linksContainer;
     }
@@ -222,6 +225,6 @@ export class CheckoutWidget extends Widget {
             grand_total: localStorage.getItem("grandTotal")
         }
         localStorage.setItem("orderDetails", JSON.stringify(orderDetails));
-        window.location.href = "/shop/checkout-payment";
+        window.location.href = this.checkoutPaymentLink;
     }
 }

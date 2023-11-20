@@ -4,7 +4,7 @@ from flask import (
 from ..renderers.outside import outside_render
 from ..renderers.dashboard import dashboard_render
 from ..common_exceptions import ExportException
-from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER
+from ..config import ADMIN_EMAIL, STRIPE_PUBLISHABLE_KEY, EMAIL_SENDER, ROOT as WEBSITE_ROOT
 from ..database.tables.orders import Orders
 from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable
@@ -241,25 +241,40 @@ def serve_tag_store():
     product_categories = ProductCategories(g.db).get_product_categories()
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
+
+    shopping_cart_link = WEBSITE_ROOT + url_for('shop_bp.serve_shopping_cart')
     for product_vendor in product_vendors:
         product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
     return dashboard_render("tag-store/homepage.html", {
         "all_product_data": all_product_data,
         "product_categories": product_categories,
-        "product_vendor_ids_to_names": product_vendor_ids_to_names
+        "product_vendor_ids_to_names": product_vendor_ids_to_names,
+        "shopping_cart_link": shopping_cart_link
     })
 
 
 @bp.route("/shop/shopping-cart", methods=["GET"])
 @crut.require_account
 def serve_shopping_cart():
-    return dashboard_render("tag-store/shopping-cart.html")
+    shop_homepage_link = WEBSITE_ROOT + url_for('shop_bp.serve_tag_store')
+    checkout_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout')
+    return dashboard_render("tag-store/shopping-cart.html", {
+        "shop_homepage_link": shop_homepage_link, 
+        "checkout_link": checkout_link
+    })
 
 
 @bp.route("/shop/checkout", methods=["GET"])
 @crut.require_account
 def serve_checkout():
-    return dashboard_render("tag-store/checkout.html")
+    shop_homepage_link = WEBSITE_ROOT + url_for('shop_bp.serve_tag_store')
+    shopping_cart_link = WEBSITE_ROOT + url_for('shop_bp.serve_shopping_cart')
+    checkout_payment_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout_payment')
+    return dashboard_render("tag-store/checkout.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "shopping_cart_link": shopping_cart_link,
+        "checkout_payment_link": checkout_payment_link
+    })
 
 
 @bp.route("/shop/invoice", methods=["GET"])
