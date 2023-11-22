@@ -280,7 +280,8 @@ def serve_checkout():
 @bp.route("/shop/invoice", methods=["GET"])
 @crut.require_account
 def serve_invoice():
-    return dashboard_render("tag-store/invoice.html")
+    shop_homepage_link = WEBSITE_ROOT + url_for("shop_bp.serve_tag_store")
+    return dashboard_render("tag-store/invoice.html", {"shop_homepage_link": shop_homepage_link})
 
 
 @bp.route("/shop/checkout-payment", methods=["GET"])
@@ -288,6 +289,7 @@ def serve_invoice():
 def serve_checkout_payment():
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    invoice_link = WEBSITE_ROOT + url_for('shop_bp.serve_invoice')
     return dashboard_render("tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
         "herd_whistle_vendor_id": herd_whistle_vendor_id
