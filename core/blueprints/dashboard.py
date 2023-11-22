@@ -710,7 +710,7 @@ def serve_tag_store():
     product_vendors = ProductVendors(g.db).get_product_vendors()
     product_vendor_ids_to_names = {}
 
-    shopping_cart_link = WEBSITE_ROOT + url_for('shop_bp.serve_shopping_cart')
+    shopping_cart_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_shopping_cart')
     for product_vendor in product_vendors:
         product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
     return dashboard_render("tag-store/homepage.html", {
@@ -724,8 +724,8 @@ def serve_tag_store():
 @bp.route("/shop/shopping-cart", methods=["GET"])
 @crut.require_account
 def serve_shopping_cart():
-    shop_homepage_link = WEBSITE_ROOT + url_for('shop_bp.serve_tag_store')
-    checkout_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout')
+    shop_homepage_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_tag_store')
+    checkout_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_checkout')
     return dashboard_render("tag-store/shopping-cart.html", {
         "shop_homepage_link": shop_homepage_link, 
         "checkout_link": checkout_link
@@ -735,9 +735,9 @@ def serve_shopping_cart():
 @bp.route("/shop/checkout", methods=["GET"])
 @crut.require_account
 def serve_checkout():
-    shop_homepage_link = WEBSITE_ROOT + url_for('shop_bp.serve_tag_store')
-    shopping_cart_link = WEBSITE_ROOT + url_for('shop_bp.serve_shopping_cart')
-    checkout_payment_link = WEBSITE_ROOT + url_for('shop_bp.serve_checkout_payment')
+    shop_homepage_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_tag_store')
+    shopping_cart_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_shopping_cart')
+    checkout_payment_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_checkout_payment')
     return dashboard_render("tag-store/checkout.html", {
         "shop_homepage_link": shop_homepage_link,
         "shopping_cart_link": shopping_cart_link,
@@ -748,7 +748,7 @@ def serve_checkout():
 @bp.route("/shop/invoice", methods=["GET"])
 @crut.require_account
 def serve_invoice():
-    shop_homepage_link = WEBSITE_ROOT + url_for("shop_bp.serve_tag_store")
+    shop_homepage_link = WEBSITE_ROOT + url_for("dashboard_bp.serve_tag_store")
     return dashboard_render("tag-store/invoice.html", {"shop_homepage_link": shop_homepage_link})
 
 
@@ -757,10 +757,11 @@ def serve_invoice():
 def serve_checkout_payment():
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
-    invoice_link = WEBSITE_ROOT + url_for('shop_bp.serve_invoice')
+    invoice_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_invoice')
     return dashboard_render("tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
-        "herd_whistle_vendor_id": herd_whistle_vendor_id
+        "herd_whistle_vendor_id": herd_whistle_vendor_id,
+        "invoice_link": invoice_link
     })
 
 
@@ -840,7 +841,7 @@ def serve_update_order():
                     'premise_id': premise_id
                 }),
                 vendor_email,
-            EMAIL_SENDER
+                EMAIL_SENDER
             )
 
         send_multiple_tag_store_email(

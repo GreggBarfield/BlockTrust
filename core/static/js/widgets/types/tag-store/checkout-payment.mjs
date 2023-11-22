@@ -181,8 +181,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
 
         this.updatePaymentButton("Order Confirmed!", true);
-        this.updatePaymentButton("Pay", false);
-        // window.location.href = invoiceLink;
+        window.location.href = invoiceLink;
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{

@@ -4,7 +4,7 @@ from flask import (
 
 from ..common_exceptions import ExportException
 from core.config import (
-    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY
+    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL
 )
 from ..database.tables.accounts import AccountsException
 from ..database.tables.auction_markets import AuctionMarkets
@@ -388,7 +388,7 @@ def serve_iframe_checkout_payment():
 @bp.route('/iframe/shop/invoice', methods=["GET"])
 @crut.require_user_iframe
 def serve_iframe_invoice():
-    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_invoice')
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_tag_store')
     return outside_render("/outside/iframes/tag-store/invoice.html", {
         "shop_homepage_link": shop_homepage_link
     })

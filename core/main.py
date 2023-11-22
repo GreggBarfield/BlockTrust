@@ -23,7 +23,7 @@ from flask_qrcode import QRcode
 from .config import *
 from .database.database import Database
 
-from .blueprints import dashboard, outside, widgets, stripe, shop, employees, partners, iframes
+from .blueprints import dashboard, outside, widgets, stripe, employees, partners, iframes
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth, csrf
@@ -73,7 +73,6 @@ app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
-app.register_blueprint(shop.bp)
 app.register_blueprint(employees.bp)
 app.register_blueprint(partners.bp)
 app.register_blueprint(iframes.bp)

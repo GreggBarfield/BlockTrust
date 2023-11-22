@@ -10,7 +10,7 @@ export class InvoiceWidget extends Widget {
         this.frame.innerHTML = "";
         let shopHomepageLink = this.frame.getAttribute("data-widget-shop-homepage-link")
         if(localStorage.shoppingCart == null || localStorage.orderDetails == null){
-            window.location.href = "/shop/tag-store";
+            window.location.href = shopHomepageLink;
         }
         else{
             let invoiceContainer = this.makeInvoiceContainer();
@@ -18,9 +18,9 @@ export class InvoiceWidget extends Widget {
             let returnToShopButton = this.generateReturnToShopButton(shopHomepageLink);
             this.frame.append(returnToShopButton);
         }
-//        window.addEventListener('beforeunload', ()=>{
-//            localStorage.clear();
-//        });
+        window.addEventListener('beforeunload', ()=>{
+            localStorage.clear();
+        });
     }
 
     makeInvoiceContainer = () =>{
