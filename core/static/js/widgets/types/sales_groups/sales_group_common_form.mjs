@@ -20,6 +20,7 @@ export class SalesGroupsCommonForm{
             this.marketingSaleDateValue = this.data.sale_date;
             this.marketingDeliveryLocationTypeValue = this.data.delivery_location_type;
             this.marketingDeliveryLocationValue = this.data.delivery_location;
+            this.auctionMarketID = this.data.auction_market_id;
             this.marketingPriceValue = this.data.price;
             this.marketingSlideValue = this.data.reported.marketing_slide;
             this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
@@ -194,7 +195,7 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false) {
+        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false, optionsObject=null) {
             let id = "domuid" + window.DOMUIDNext++;
             if (!Array.isArray(values)) {
                 values = [values];
@@ -206,28 +207,29 @@ export class SalesGroupsCommonForm{
             select.required = true
             group.append(select);
             let optionsStacked = [];
-            for (const option of options) {
-                optionsStacked.push({
-                    id: option,
-                    text: option
-                })
-            }
 
+            if(optionsObject){
+                for (const [key,value] of Object.entries(optionsObject)) {
+                    optionsStacked.push({
+                        id: key,
+                        text: value
+                    })
+                }               
+            }
+            else{
+                for (const option of options) {
+                    optionsStacked.push({
+                        id: option,
+                        text: option
+                    })
+                }
+            }
             for (const value of values) {
-                let good = false;
                 for (const option of optionsStacked) {
                     if (option.id == value) {
                         option.selected = true;
-                        good = true;
                         break;
                     }
-                }
-                if (!good) {
-                    optionsStacked.push({
-                        id: value,
-                        text: value,
-                        selected: true
-                    });
                 }
             }
 
@@ -280,18 +282,18 @@ export class SalesGroupsCommonForm{
             deliveryLocation = this.marketingDeliveryLocationValue;
         }
         else if(this.marketingDeliveryLocationTypeValue === "Auction"){
-            auctionMarket = this.marketingDeliveryLocationValue;
+            auctionMarket = this.auctionMarketID;
         }
-        
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market: ",
-            options: this.auctionMarketsData,
             values: auctionMarket || "None",
             multiple: false,
             tags: false,
             placeholder: "Please Select"
-        }, false, "", "", 4, true);
+        }, false, "", "", 4, true, this.auctionMarketsData);
+
+
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
         let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
@@ -331,14 +333,6 @@ export class SalesGroupsCommonForm{
         }
         marketingDeliveryLocationType.onchange();
 
-        //TODO: below code adds a dropdown to select auction sale which is retained in case needed in future.
-        // let marketingAuctionSale = new SelectAuctionSaleFormGroup(
-        //     marketingRow,
-        //     this.data.auction_sale || null,
-        //     this.data.auction_sale_name || null
-        // );
-        // marketingAuctionSale.getFormGroup().classList.add("col-md-4");
-        
         // Characteristics
 
         let characteristicsRow = createSection(form, "Characteristics");
@@ -481,7 +475,7 @@ export class SalesGroupsCommonForm{
             name: "Program",
             options: SalesGroupFields.commonProgramNames,
             values: this.maintenanceProgramValue,
-            multiple: true,
+            multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
@@ -541,19 +535,6 @@ export class SalesGroupsCommonForm{
         commentsGroup.append(commentsTA);
 
         form.append(document.createElement("br"));
-
-        // EIDs
-        
-        // Leaving this here just in case we will need it for new in house UI
-        // let eidsHeader = document.createElement("h6");
-        // eidsHeader.textContent = "EIDs";
-        // form.append(eidsHeader);
-
-        // let eidButton = document.createElement("button");
-        // eidButton.className = "btn btn-primary";
-        // eidButton.textContent = "Add EID's";
-        // eidButton.type = "button";
-        // form.append(eidButton);
 
         // Publish
 
@@ -638,18 +619,16 @@ export class SalesGroupsCommonForm{
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
+                    "auction_market_id": marketingAuctionMarketLocation.value,
                     "zip": parseInt(marketingZIP.value),
                     "sale_date": marketingDate.getTime(),
                     "group_name": salesGroupName.value,
                     "price": 0, //marketingPrice.value,
-                    "auction_market_location": marketingAuctionMarketLocation.value,
+                    "auction_market_location": $(marketingAuctionMarketLocation).find(':selected').text(),
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsBreedComments.value,
                     "weighing_conditions": characteristicsWeighingConditions.value,
-                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,
-                    //TODO: Removed auction_sale for now. Retained incase needed in future.
-                    //auction_sale: marketingAuctionSale.getID()
-                    auction_sale: null                   
+                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,              
                 }
             }
         });

@@ -241,29 +241,6 @@ def serve_manage_sales_groups():
     return dashboard_render("sales-groups/manage.html", {"account": g.account})
 
 
-@bp.route('/dashboard/auction-sales', methods=['GET'])
-@bp.route('/dashboard/auction-sales/manage', methods=['GET'])
-@crut.require_paid_account
-def serve_auction_sales_manage(new_auction_sale=False):
-    manage_auction_sales_attr = ""
-
-    if new_auction_sale:
-        manage_auction_sales_attr = " data-widget-manage-auction-sales-new "
-
-    return dashboard_render(
-        "auction-sales/manage.html",
-        {
-            "manage_auction_sales_attr": manage_auction_sales_attr
-        }
-    )
-
-
-@bp.route('/dashboard/auction-sales/new', methods=['GET'])
-@crut.require_paid_account
-def serve_auction_sales_new():
-    return serve_auction_sales_manage(True)
-
-
 @bp.route('/dashboard/plans', methods=['GET'])
 @crut.require_account
 def serve_plans():

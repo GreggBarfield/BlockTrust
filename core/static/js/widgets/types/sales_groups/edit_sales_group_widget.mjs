@@ -39,11 +39,11 @@ export class EditSalesGroupWidget extends Widget {
     }
 
     processAuctionMarketsData(auctionMarkets){
-        let selectData=[];
-        selectData.push("None");
+        let selectData={};
+        selectData[0] = "None";
         for(const auctionMarket of auctionMarkets){
             let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
-            selectData.push(optionText);
+            selectData[auctionMarket.id] = optionText;
         }
         return selectData;
     }

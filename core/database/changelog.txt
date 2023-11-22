@@ -2283,3 +2283,25 @@ DROP COLUMN `category`,
 CHANGE COLUMN `radius` `radius` INT NULL DEFAULT NULL,
 CHANGE COLUMN `minimum_weight` `minimum_weight` INT NULL DEFAULT NULL,
 CHANGE COLUMN `maximum_weight` `maximum_weight` INT NULL DEFAULT NULL;
+
+/* Rohan Sureshkumar 11/17/23 */
+ALTER TABLE `accounts` 
+ADD COLUMN `auction_market_id` INT NULL AFTER `partner_stripe_publishable_key`;
+ALTER TABLE `accounts` 
+ADD INDEX `fk_accounts_auction_market_id_id_auction_markets_idx` (`auction_market_id` ASC) VISIBLE;
+ALTER TABLE `accounts` 
+ADD CONSTRAINT `fk_accounts_auction_market_id_id_auction_markets`
+  FOREIGN KEY (`auction_market_id`)
+  REFERENCES `auction_markets` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `sales_groups` 
+ADD COLUMN `auction_market_id` INT NULL AFTER `family_farm_or_ranch`;
+ALTER TABLE `sales_groups` 
+ADD INDEX `fk_sales_groups_auction_market_id_id_auction_markets_idx` (`auction_market_id` ASC) VISIBLE;
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_auction_market_id_id_auction_markets`
+  FOREIGN KEY (`auction_market_id`)
+  REFERENCES `auction_markets` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;

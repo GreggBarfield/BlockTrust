@@ -149,7 +149,7 @@ class Accounts:
             raise AccountsException("Sector number is not listed internally.")
 
         # Process phone
-        if phone != None:
+        if phone is not None:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:
@@ -164,7 +164,7 @@ class Accounts:
         return sector, phone, affiliate_id
 
     def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                       optional_fields=None):
+                       auction_market_id=None, optional_fields=None):
         """Creates a new account without a user.
 
         Params:
@@ -188,10 +188,10 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
-                optional_fields)
+                auction_market_id, optional_fields)
                 VALUES
                     (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
-                    %(phone)s, %(show_real_name)s, %(optional_fields)s)
+                    %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s)
             """,
             {
                 "company": company,
@@ -204,6 +204,7 @@ class Accounts:
                 "zip": zip,
                 "phone": phone,
                 "show_real_name": int(False),
+                "auction_market_id": auction_market_id,
                 "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None
             }
         )
@@ -313,7 +314,8 @@ class Accounts:
                      city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
                      token=NO_VALUE, stripe_customer_id=NO_VALUE, stripe_account_id=NO_VALUE,
                      accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
-                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, columns=()):
+                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, auction_market_id=NO_VALUE,
+                     columns=()):
         """
         Get an account by the values specified.
 
@@ -406,6 +408,10 @@ class Accounts:
         if is_stripe_payouts_enabled is not NO_VALUE:
             query_conditions.append(" is_stripe_payouts_enabled = %(is_stripe_payouts_enabled)s ")
             query_values["is_stripe_payouts_enabled"] = is_stripe_payouts_enabled
+
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append(" auction_market_id = %(auction_market_id)s ")
+            query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

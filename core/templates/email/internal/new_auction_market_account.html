@@ -1,0 +1,25 @@
+{% extends "email/standard.html" %}
+
+{% block email_standard_center %}
+<table>
+    <tr>
+        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
+            <p style="margin: 0;">{{title}}</p>
+        </td>
+    </tr>
+</table>
+{% endblock email_standard_center %}
+
+{% block email_standard_subdescription %}
+
+<br>
+<p>A new auction market account has been created. Details below:</p>
+<div style="border-left: 1px solid black;padding-left:20px;">
+    <ul>
+        <li>Account Number: {{account_id}}</li>
+        <li>Company: {{market_name}}</li>
+        <li>Sales Group: {{group_name}}</li>
+    </ul>
+</div>
+(Please don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}
