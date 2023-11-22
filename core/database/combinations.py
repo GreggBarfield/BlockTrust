@@ -4,8 +4,9 @@ from datetime import datetime
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
+from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.connection_invites import ConnectionInvites
-from core.database.tables.event_logs import EventLogs
+from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.database.tables.reports import Reports
 from core.database.tables.sent_emails import SentEmails
 from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
@@ -20,7 +21,7 @@ from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from .tables.debug_logs import DebugLogs
-from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
+from core.config import ADMIN_EMAIL, SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 
 
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
@@ -227,3 +228,36 @@ def create_connection_with_all_sighted_accounts_for_eid(db, eid, connecting_acco
                 )
             except ConnectionException:
                 pass
+
+
+def convert_auction_market_to_account(db, auction_market_id, group_name):
+    am = AuctionMarkets(db).get_auction_markets(id=auction_market_id)[0]
+    account = Accounts(db).get_accounts(auction_market_id=am["id"])
+    if not account:
+        account_obj = Accounts(db).create_account(
+                phone=None,
+                company=am["name"],
+                partner=None,
+                affiliate_id=None,
+                sector=SECTORS_NAME_TO_ID["Auction"],
+                address=am["address"],
+                city=am["city"],
+                state=am["state"],
+                zip=am["zip_code"],
+                auction_market_id=am["id"]
+        )
+        user_id = Users(db).create_pseudo_user(account_obj.id(), False)
+        AccountUsers(db).insert_account_user(user_id, account_obj.id(), int(True))
+        send_email(
+            "New Auction Market Account",
+            render_email("internal/new_auction_market_account.html", {
+                "account_id": account_obj.id(),
+                "market_name": am["name"],
+                "group_name": group_name
+            }), ADMIN_EMAIL
+        )
+        perform_new_account_actions(
+            db=db, account_id=account_obj.id(), user_id=user_id,
+            event_type_id=event_type_by_name["Auction Market Account Created"],
+            sector_id=account_obj.sector_id()
+        )

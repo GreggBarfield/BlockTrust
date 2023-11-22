@@ -178,7 +178,7 @@ class SalesGroups:
     def insert_sales_group(self, reported, published=None, zip_code=None, account=None,
                            delivery_location=None, sale_date=None, auction_sale=None,
                            group_name=None, is_archived=None, delivery_location_type=None, price=None,
-                           category=None, breed_comments=None, weighing_conditions=None,
+                           category=None, breed_comments=None, weighing_conditions=None, auction_market_id=None,
                            are_annual_cattle_herd_vaccinations_given=None, seller_id=None, vaccination_date=None,
                            vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
                            home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None,
@@ -206,14 +206,14 @@ class SalesGroups:
         """
         self._db.execute(
             """
-            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, sale_date, auction_sale,
-                group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
-                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire, 
+            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, auction_market_id, sale_date,
+                auction_sale, group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
+                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire,
                 ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data,
                 is_api_insert
             )
             VALUES (
-                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(sale_date)s,
+                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(auction_market_id)s, %(sale_date)s,
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
                 %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s, %(seller_id)s,
                 %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
@@ -226,6 +226,7 @@ class SalesGroups:
                 "published": published,
                 "zip_code": zip_code,
                 "delivery_location": delivery_location,
+                "auction_market_id": auction_market_id,
                 "sale_date": sale_date,
                 "auction_sale": auction_sale,
                 "group_name": group_name,
@@ -251,8 +252,8 @@ class SalesGroups:
         return self._db.last_row_id()
 
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
-                           zip_code=NO_VALUE, delivery_location=NO_VALUE, sale_date=NO_VALUE,
-                           auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
+                           zip_code=NO_VALUE, delivery_location=NO_VALUE, auction_market_id=NO_VALUE,
+                           sale_date=NO_VALUE, auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
                            delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
                            category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
                            are_annual_cattle_herd_vaccinations_given=NO_VALUE, seller_id=NO_VALUE, 
@@ -298,6 +299,9 @@ class SalesGroups:
         if delivery_location is not NO_VALUE:
             query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append("auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
         if sale_date is not NO_VALUE:
             query_conditions.append("sale_date = %(sale_date)s")
             query_values["sale_date"] = sale_date
@@ -466,8 +470,8 @@ class SalesGroups:
         return self._translate_json(sales_groups)
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight,
-                                     breeds, sale_date, auction_sale, delivery_location, auction_market_location,
-                                     images, price, category, slide, weighing_conditions):
+                                     breeds, sale_date, delivery_location, auction_market_location,
+                                     images, price, category, slide, weighing_conditions, auction_sale=None):
         """
         Validates that the values received for a sales group is valid
 

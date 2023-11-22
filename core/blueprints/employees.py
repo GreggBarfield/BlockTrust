@@ -93,9 +93,7 @@ def serve_employee_create_account_action():
                 zip=format_field(required['zip_code'])
         )
 
-        # Creating a default pseudo admin user for created account
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
-        # Assigning user as admin
         AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
