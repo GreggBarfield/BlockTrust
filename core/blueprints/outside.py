@@ -12,7 +12,7 @@ from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
 from ..database.tables.matches import Matches
 from ..database.tables.product_categories import ProductCategories
-from ..database.tables.product_vendors import ProductVendors
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.products import ProductTable
 from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_searches import SalesGroupSearches

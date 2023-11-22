@@ -8,7 +8,7 @@ from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
 
 from ..common_exceptions import ExportException
 
-from ..database.combinations import send_connection_request_email_to_admin_users
+from ..database.combinations import convert_auction_market_to_account, send_connection_request_email_to_admin_users
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
@@ -97,7 +97,8 @@ def serve_sales_group():
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
         "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
-        "show_account_carcass_data": sales_group_row["show_account_carcass_data"]
+        "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
+        "auction_market_id": sales_group_row["auction_market_id"]
     }
 
 
@@ -328,7 +329,6 @@ def serve_create_sales_group():
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         sale_date=request.json["sale_date"],
-        auction_sale=request.json["auction_sale"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
@@ -338,18 +338,22 @@ def serve_create_sales_group():
     )
     # Alright, go ahead...
     delivery_location = ""
+    auction_market_id = None
     if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
+        if request.json["delivery_location_type"] == "Auction":
+            auction_market_id = request.json["auction_market_id"]
+            convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     sales_group_id = SalesGroups(g.db).insert_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
         published=request.json["published"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
+        auction_market_id=auction_market_id,
         sale_date=request.json["sale_date"],
-        auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
@@ -385,7 +389,6 @@ def serve_update_sales_group():
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
         sale_date=request.json["sale_date"],
-        auction_sale=request.json["auction_sale"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
@@ -394,18 +397,22 @@ def serve_update_sales_group():
         weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
     )
     delivery_location = ""
+    auction_market_id = None
     if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
+        if request.json["delivery_location_type"] == "Auction":
+            auction_market_id = request.json["auction_market_id"]
+            convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     SalesGroups(g.db).update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
+        auction_market_id=auction_market_id,
         sale_date=request.json["sale_date"],
-        auction_sale=request.json["auction_sale"],
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
@@ -586,53 +593,6 @@ def serve_send_message():
                 user["email"]
             )
     return {}, 200
-
-# Deprecated 11/9/22
-# @bp.route('/widgets/data/get_auction_sales', methods=['POST'])
-# @crut.require_account
-# def serve_get_auction_sales():
-#     return {
-#         "auction_sales": AuctionSales(g.db).get_auction_sales_by_account(g.account.id())
-#     }
-
-
-# @bp.route('/widgets/data/search_auction_sales', methods=['POST'])
-# @crut.require_account
-# def serve_search_auction_sales():
-#     return {
-#         "auction_sales": AuctionSales(g.db).search_auction_sales(request.json["term"])
-#     }
-
-
-# @bp.route('/widgets/data/new_auction_sale', methods=['POST'])
-# @crut.require_account
-# def serve_new_auction_sale():
-#     AuctionSales(g.db).new_auction_sale(
-#         name=request.json["name"],
-#         at=request.json["at"],
-#         account_id=g.account.id(),
-#         comments=request.json["comments"],
-#         published=request.json["published"]
-#     )
-#     return {}, 200
-
-
-# @bp.route('/widgets/data/update_auction_sale', methods=['POST'])
-# @crut.require_account
-# def serve_update_auction_sale():
-#     if AuctionSales(g.db).get_auction_sale_by_id(request.json["id"])["account"] == g.account.id():
-#         AuctionSales(g.db).update_auction_sale(
-#             name=request.json["name"],
-#             at=request.json["at"],
-#             auction_sale_id=request.json["id"],
-#             comments=request.json["comments"],
-#             published=request.json["published"]
-#         )
-#         return {}, 200
-#     else:
-#         return {
-#             "Account does not match"
-#         }, 400
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])
