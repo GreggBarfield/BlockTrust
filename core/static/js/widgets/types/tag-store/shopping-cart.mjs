@@ -32,7 +32,7 @@ export class ShoppingCartWidget extends Widget {
 
         let shoppingCartString = localStorage.getItem("shoppingCart");
         let shoppingCart = JSON.parse(shoppingCartString);
-        let shoppingCartTable = makeShoppingCartTable(shoppingCart, true);
+        let shoppingCartTable = makeShoppingCartTable(shoppingCart, true, shopHomepageLink);
         cardBody.append(shoppingCartTable);
         let shoppingCartTotalsContainer = document.createElement("div");
         shoppingCartTotalsContainer.className = "col-md-6";

@@ -540,7 +540,8 @@ class SalesGroups:
                          delivery_location=NO_VALUE, sale_date=NO_VALUE, auction_sale=NO_VALUE,
                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
-                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[]):
+                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[],
+                         auction_market_id=NO_VALUE):
         """
         Gets the sales groups based on attributes provided
         
@@ -627,6 +628,9 @@ class SalesGroups:
         if weighing_conditions is not NO_VALUE:
             query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append(" auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -636,5 +640,8 @@ class SalesGroups:
         query = base_query + combined_query_condition
         sales_groups = self._db.execute_d(query, query_values)
         if len(sales_groups) > 0:
+            for sales_group in sales_groups:
+                if "reported" in sales_group:
+                    sales_group["reported"] = json.loads(sales_group["reported"])
             return sales_groups
         return []

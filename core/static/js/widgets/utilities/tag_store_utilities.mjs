@@ -147,12 +147,12 @@ const generateRemoveProductButton = (product_id) =>{
         delete shoppingCart[product_id];
         localStorage.setItem('shoppingCart', JSON.stringify(shoppingCart));
         updateShoppingCartTotalsInLocalStorage();
-        window.location.href = "/shop/shopping-cart";
+        location.reload();
     }
     return removeButton;
 }
 
-const makeShoppingCartTable = (shoppingCart, includeRemoveProductButton) =>{
+const makeShoppingCartTable = (shoppingCart, includeRemoveProductButton, shopHomepageLink) =>{
     let shoppingCartTable = document.createElement("table");
     shoppingCartTable.className = "table table-striped";
     let shoppingCartTableHead = document.createElement("thead");
@@ -171,7 +171,7 @@ const makeShoppingCartTable = (shoppingCart, includeRemoveProductButton) =>{
 
     let shoppingCartTableBody = document.createElement("tbody");
     if(shoppingCart == null){
-        window.location.href = "/shop/tag-store";
+        window.location.href = shopHomepageLink;
         return;
     }
     for(let productData of Object.values(shoppingCart)){
