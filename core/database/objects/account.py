@@ -102,7 +102,7 @@ class Account:
 
     def stripe_account_id(self):
         return self._row['stripe_account_id']
-    
+
     def is_stripe_payouts_enabled(self):
         return self._row['is_stripe_payouts_enabled']
 
@@ -118,8 +118,8 @@ class Account:
     def optional_fields(self):
         return self._row["optional_fields"]
 
-    def optional_fields(self):
-        return self._row["optional_fields"]
+    def auction_market_id(self):
+        return self._row["auction_market_id"]
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

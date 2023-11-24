@@ -81,6 +81,10 @@ def serve_dashboard():
     }
 
     if g.account.sector_id() in (SECTORS_NAME_TO_ID["Auction"], SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"]):
+        if g.account.sector_id() == SECTORS_NAME_TO_ID["Auction"] and g.account.auction_market_id():
+            account_params["sales_groups"] = SalesGroups(g.db).get_sales_groups(
+                auction_market_id=g.account.auction_market_id()
+            )
         return dashboard_render("sectors/auction-feedlot-packer.html", account_params)
     elif g.account.sector_id() == SECTORS_NAME_TO_ID["Buyer"]:
         return dashboard_render("sectors/buyer.html", account_params)
@@ -106,7 +110,7 @@ def serve_animal_eid(animal_eid):
         owner_account_name = owner_account_match["name"]
         healthtrack_partner = g.db.accounts.get_partners(company=HEALTH_TRACK_PARTNER_COMPANY)[0]
         display_certificate = True if owner_account_match["partner_account"] == healthtrack_partner["id"] else False
-        
+
         if owner_account_id in available_account_ids:
             if owner_account_id != g.account.id():
                 ViewLogs(g.db).insert_view_logs(
