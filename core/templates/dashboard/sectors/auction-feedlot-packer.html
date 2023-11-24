@@ -13,6 +13,45 @@
 
 {% block dashboard_content %}
 <div class="row">
+    {% if account.sector_name() == "Auction" %}
+    <div class="col-xl-12">
+        <div class="card">
+            <h5 class="card-header">Sales Group Summary</h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Number of Head</th>
+                                <th>Breed</th>
+                                <th>Weight</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if sales_groups %}
+                            {% for group in sales_groups %}
+                            <tr>
+                                <td>{{group.group_name}}</td>
+                                <td>{{group.reported.count}}</td>
+                                <td>{{group.reported.breeds|join(", ")}}</td>
+                                <td>{{group.reported.weight}}</td>
+                                <td><a class="btn btn-sm btn-info" href="/dashboard/sales-groups/view/{{group.id}}" target="_blank">View</a></td>                     
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr class="text-center">
+                                <td colspan="5" class="font-italic">Nothing to show currently</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="col-xl-6">
         <div class="card">
             <h5 class="card-header">Calf-Crop Summary</h5>
