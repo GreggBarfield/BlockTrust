@@ -10,9 +10,9 @@
 <div class="card col-md-12 d-inline-block">
     <div class="card-header">
         <h5>Auction Markets</h5>
-        <a class="btn btn-sm btn-primary float-right" href="/employee/dashboard/create-new-account">
+        <button class="btn btn-sm btn-primary float-right" id="create-new-auction-market">
             Create New Auction Market
-        </a>
+        </button>
     </div>
     <div class="card-body">
         <table class="table" id="auction-markets-table">
@@ -28,7 +28,6 @@
                     <th>Phone</th>
                     <th>Created</th>
                     <th>Is Archived</th>
-                    <th>Archive</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,18 +43,11 @@
                     <td>{{auction_market.phone or "N/A"}}</td>
                     <td>{{auction_market.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
                     <td>{{ "Yes" if auction_market.is_archived else "No"}}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary">Archive</button>
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        $('#auction-markets-table').DataTable({pageLength:50});
-    });
-</script>
+<script type="module" src="/static/entry_points/employee/auction-markets/auction-markets.mjs"></script>
 {% endblock employee_content %}
