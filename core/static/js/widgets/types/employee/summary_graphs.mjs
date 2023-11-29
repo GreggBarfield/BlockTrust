@@ -22,10 +22,10 @@ export class SummaryGraphWidget extends Widget {
         let graphsRow = document.createElement("div");
         graphsRow.className = "row m-1 p-1";
         let ranchesGraph = this.makeLineGraphContainer("Ranches", this.data.ranches, false);
-        let feedyardsGraph = this.makeLineGraphContainer("Feedyards", this.data.feedyards, false);
-        let tagsCountGraph = this.makeLineGraphContainer("Tags", this.data.tags_count_list, true);
         graphsRow.append(ranchesGraph);
+        let feedyardsGraph = this.makeLineGraphContainer("Feedyards", this.data.feedyards, false);
         graphsRow.append(feedyardsGraph);
+        let tagsCountGraph = this.makeLineGraphContainer("Tags", this.data.tags_count_list, true);
         graphsRow.append(tagsCountGraph);
         return graphsRow;
     }
