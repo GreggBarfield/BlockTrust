@@ -10,7 +10,8 @@ export class SummaryGraphWidget extends Widget {
             {}
         ).then((data) => {
             this.data = data;
-            this.makeSummaryGraphs();
+            let summaryGraphs = this.makeSummaryGraphs();
+            this.frame.append(summaryGraphs);
         });
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
@@ -18,17 +19,20 @@ export class SummaryGraphWidget extends Widget {
     }
     
     makeSummaryGraphs = () => {
-        let cardBody = document.getElementById("card");
+        let graphsRow = document.createElement("div");
+        graphsRow.className = "row m-1 p-1";
         let ranchesGraph = this.makeLineGraphContainer("Ranches", this.data.ranches, false);
         let feedyardsGraph = this.makeLineGraphContainer("Feedyards", this.data.feedyards, false);
         let tagsCountGraph = this.makeLineGraphContainer("Tags", this.data.tags_count_list, true);
-        cardBody.append(ranchesGraph);
-        cardBody.append(feedyardsGraph);
-        cardBody.append(tagsCountGraph);
+        graphsRow.append(ranchesGraph);
+        graphsRow.append(feedyardsGraph);
+        graphsRow.append(tagsCountGraph);
+        return graphsRow;
     }
 
     makeLineGraphContainer = (title, values, tagsCountData) => {
         let lineGraphOutline = document.createElement("div");
+        lineGraphOutline.className = "col-md-4";
         let lineGraphContainer = document.createElement("div");
         lineGraphContainer.style = "height: 18em;";
         let graphLabel = document.createElement("span");
