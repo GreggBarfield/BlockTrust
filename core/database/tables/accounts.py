@@ -574,7 +574,8 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, partner_account=NO_VALUE,
+                       affiliate_id=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
@@ -600,7 +601,8 @@ class Accounts:
             manual_paid=manual_paid, stripe_customer_id=stripe_customer_id, 
             stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
             retail_name=retail_name, retail_description=retail_description, subscription_start_date=subscription_start_date,
-            subscription_end_date=subscription_end_date, show_real_name=show_real_name
+            subscription_end_date=subscription_end_date, show_real_name=show_real_name, partner_account=partner_account,
+            affiliate_id=affiliate_id
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -608,7 +610,8 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, partner_account=NO_VALUE,
+                       affiliate_id=NO_VALUE):
         """
         Updates an account.
 
@@ -629,6 +632,9 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
+        print("---------")
+        print(partner_account)
+        print(affiliate_id)
         base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
@@ -695,6 +701,12 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
+        if partner_account is not NO_VALUE:
+            query_conditions.append("a.partner_account = %(partner_account)s")
+            query_values["partner_account"] = partner_account
+        if affiliate_id is not NO_VALUE:
+            query_conditions.append("a.affiliate_id = %(affiliate_id)s")
+            query_values["affiliate_id"] = affiliate_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
