@@ -290,9 +290,6 @@ def serve_edit_selected_account(account_id):
                         request.form["affiliate_id"],
                         format_field(request.form["phone"])
                     )
-                    print("Updating partner account")
-                    print(updated_partner_id)
-                    print(updated_affiliate_id)
                     Accounts(g.db).modify_account(
                         account_id=account_id,
                         company=format_field(request.form["company"]),

@@ -632,9 +632,6 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
-        print("---------")
-        print(partner_account)
-        print(affiliate_id)
         base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
