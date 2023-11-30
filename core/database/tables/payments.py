@@ -5,7 +5,8 @@ NO_VALUE = NoValue()
 
 PAYMENT_STATUS_NAMES_TO_IDS = {
     "unpaid": 0,
-    "paid": 1
+    "paid": 1,
+    "failed": 2
 }
 
 PAYMENT_STATUS_IDS_TO_NAMES = {value: key.capitalize() for key, value in PAYMENT_STATUS_NAMES_TO_IDS.items()}
@@ -18,7 +19,7 @@ class Payments:
 
     def insert(self, account_id=None, employee_id=None, amount=None, status=None, reason=None, description=None,
                recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None, details=None,
-               stripe_invoice_id=None):
+               stripe_invoice_id=None, stripe_payment_intent_id=None, stripe_error_code=None):
         """
         Inserts a new payment
 
@@ -30,10 +31,10 @@ class Payments:
             """
                 INSERT INTO payments (account_id, employee_id, amount, status, reason, description,
                     recurring_payment_id, paid_date, email, stripe_customer_id, details,
-                    stripe_invoice_id)
+                    stripe_invoice_id, stripe_payment_intent_id, stripe_error_code)
                 VALUES (%(account_id)s, %(employee_id)s, %(amount)s, %(status)s, %(reason)s, %(description)s,
                     %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s,
-                    %(stripe_invoice_id)s)
+                    %(stripe_invoice_id)s, %(stripe_payment_intent_id)s, %(stripe_error_code)s)
             """,
             {
                 "account_id": account_id,
@@ -47,7 +48,9 @@ class Payments:
                 "email": email,
                 "stripe_customer_id": stripe_customer_id,
                 "details": dumps(details) if details else None,
-                "stripe_invoice_id": stripe_invoice_id
+                "stripe_invoice_id": stripe_invoice_id,
+                "stripe_payment_intent_id": stripe_payment_intent_id,
+                "stripe_error_code": stripe_error_code
             }
         )
         return self._db.last_row_id()

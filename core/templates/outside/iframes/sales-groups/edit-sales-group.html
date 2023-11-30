@@ -1,0 +1,22 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Edit Sales Group"| string %}
+
+{% block outside_content %}
+
+<script src="/static/libs/jspdf/jspdf.min.js"></script>
+<script src="/static/libs/html2canvas/html2canvas.min.js"></script>
+<div class="row">
+    <div class="col">
+        <div 
+            class="col-sm-12 widget" 
+            data-widget-type="edit sales group" 
+            data-widget-sales-group="{{sales_group['id']|e}}"
+            data-widget-qr-src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}" 
+            data-widget-shareable-link="{{external_shareable_link}}"
+            data-widget-form-post-route="{{form_post_route}}"
+        >
+        </div>
+    </div>
+</div>
+{% endblock outside_content %}

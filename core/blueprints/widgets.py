@@ -1,6 +1,6 @@
 import json
 from flask import (
-    request, Blueprint, g, url_for
+    Response, request, Blueprint, g, url_for
 )
 
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
@@ -8,7 +8,7 @@ from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
 
 from ..common_exceptions import ExportException
 
-from ..database.combinations import send_connection_request_email_to_admin_users
+from ..database.combinations import convert_auction_market_to_account, send_connection_request_email_to_admin_users
 from ..database.tables.account_links import AccountLinks
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
@@ -21,6 +21,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.usda_reports import USDAReports
@@ -29,6 +30,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -81,8 +83,7 @@ def serve_sales_group():
         "market_location": sales_group_row["market_location"],
         "delivery_location_type": sales_group_row["delivery_location_type"],
         "delivery_location": sales_group_row["delivery_location"],
-        "start": sales_group_row["start"],
-        "end": sales_group_row["end"],
+        "sale_date": sales_group_row["sale_date"],
         "auction_sale": sales_group_row["auction_sale"],
         "auction_sale_name": sales_group_row["auction_sale_name"],
         "group_name": sales_group_row["group_name"],
@@ -97,7 +98,8 @@ def serve_sales_group():
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
         "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
-        "show_account_carcass_data": sales_group_row["show_account_carcass_data"]
+        "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
+        "auction_market_id": sales_group_row["auction_market_id"]
     }
 
 
@@ -135,8 +137,7 @@ def serve_search_sales_groups():
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
                 "delivery_location": sales_group_row["delivery_location"],
-                "start": sales_group_row["start"],
-                "end": sales_group_row["end"],
+                "sale_date": sales_group_row["sale_date"],
                 "auction_sale": sales_group_row["auction_sale"],
                 "auction_sale_name": sales_group_row["auction_sale_name"],
                 "group_name": sales_group_row["group_name"],
@@ -156,14 +157,15 @@ def serve_search_sales_groups_2():
     sales_group_rows = SalesGroups(g.db).search_within(
         zip_code=request.json["search"]["zip"],
         miles=request.json["search"]["radius"],
-        start=time.time(),
-        end=9999999999,
+        sale_date=time.time(),
         is_archived=0,
-        category=request.json["search"]["category"],
-        breed=request.json["search"]["breed"],
+        categories=request.json["search"]["categories"],
+        breeds=request.json["search"]["breeds"],
         minimum_weight=request.json["search"]["minimum_weight"],
+        maximum_weight=request.json["search"]["maximum_weight"],
         preconditioning_program=request.json["search"]["preconditioning_program"],
-        process_verified_program=request.json["search"]["process_verified_program"],
+        programs=request.json["search"]["programs"],
+        target_date_description=request.json["search"]["target_date"]
     )
 
     results = []
@@ -187,8 +189,7 @@ def serve_search_sales_groups_2():
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
             "delivery_location":sales_group_row["delivery_location"],
-            "start": sales_group_row["start"],
-            "end": sales_group_row["end"],
+            "sale_date": sales_group_row["sale_date"],
             "context": {
                 "milesAway": meters_to_miles(distance(
                     ZIP_CODES[request.json["search"]["zip"]]["ecef"],
@@ -211,6 +212,83 @@ def serve_search_sales_groups_2():
     return {
         "sales_groups": results
     }
+
+
+@bp.route('/widgets/data/sales_group_searches', methods=['GET', 'POST'])
+@crut.require_account
+def serve_sales_group_searches():
+    if request.method == 'POST':
+        multi_select_fields = {}
+        if request.json["search"]["categories"]:
+            multi_select_fields["categories"] = request.json["search"]["categories"]
+        if request.json["search"]["breeds"]:
+            multi_select_fields["breeds"] = request.json["search"]["breeds"]
+        if request.json["search"]["programs"]:
+            multi_select_fields["programs"] = request.json["search"]["programs"]
+        id = SalesGroupSearches(g.db).insert(
+            name=request.json["search"]["name"],
+            user_id=g.user.id(),
+            zip=request.json["search"]["zip"],
+            radius=request.json["search"]["radius"],
+            minimum_weight=request.json["search"]["minimum_weight"],
+            maximum_weight=request.json["search"]["maximum_weight"],
+            preconditioning_program=request.json["search"]["preconditioning_program"],
+            multi_select_fields=multi_select_fields,
+            target_date_description=request.json["search"]["target_date"]
+        )
+        return Response(str(id), status=HTTP_CREATED)
+    return SalesGroupSearches(g.db).get(user_id=g.user.id())
+
+
+@bp.route('/widgets/data/sales_group_searches/<int:id>', methods=['PUT', 'DELETE'])
+@crut.require_account
+def sales_group_search(id):
+    if request.method == 'PUT':
+        multi_select_fields = {}
+        if request.json["search"]["categories"]:
+            multi_select_fields["categories"] = request.json["search"]["categories"]
+        if request.json["search"]["breeds"]:
+            multi_select_fields["breeds"] = request.json["search"]["breeds"]
+        if request.json["search"]["programs"]:
+            multi_select_fields["programs"] = request.json["search"]["programs"]
+        SalesGroupSearches(g.db).update(
+            id=id,
+            name=request.json["search"]["name"],
+            zip=request.json["search"]["zip"],
+            radius=request.json["search"]["radius"],
+            minimum_weight=request.json["search"]["minimum_weight"],
+            maximum_weight=request.json["search"]["maximum_weight"],
+            preconditioning_program=request.json["search"]["preconditioning_program"],
+            multi_select_fields=multi_select_fields,
+            target_date_description=request.json["search"]["target_date"]
+        )
+        return Response(status=HTTP_NO_CONTENT)
+    else:
+        SalesGroupSearches(g.db).delete(id=id)
+        return Response(status=HTTP_NO_CONTENT)
+
+
+@bp.route('/widgets/data/search_summary', methods=['GET'])
+@crut.require_account
+def search_summary():
+    searches = SalesGroupSearches(g.db).get(user_id=g.user.id())
+    results = []
+    for search in searches:
+        sales_group_rows = SalesGroups(g.db).search_within(
+            zip_code=int(search["zip"]),
+            miles=search["radius"],
+            sale_date=time.time(),
+            is_archived=0,
+            categories=search["multi_select_fields"].get("categories", None) if search["multi_select_fields"] else None,
+            breeds=search["multi_select_fields"].get("breeds", None) if search["multi_select_fields"] else None,
+            minimum_weight=search["minimum_weight"] if search["minimum_weight"] else None,
+            maximum_weight=search["maximum_weight"] if search["maximum_weight"] else None,
+            preconditioning_program=search["preconditioning_program"],
+            programs=search["multi_select_fields"].get("programs", None) if search["multi_select_fields"] else None,
+            target_date_description=search["target_date_description"]
+        )
+        results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
+    return results
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
@@ -249,32 +327,34 @@ def serve_create_sales_group():
         delivery_location_type=request.json["delivery_location_type"],
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
-        weight_variance=request.json["reported"]["weight_variance"],
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        start=request.json["start"],
-        end=request.json["end"],
-        auction_sale=request.json["auction_sale"],
+        sale_date=request.json["sale_date"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
-        price=request.json["price"]
-        )
+        price=request.json["price"],
+        slide=request.json["reported"]["marketing_slide"],
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+    )
     # Alright, go ahead...
     delivery_location = ""
-    if request.json["delivery_location_type"] == "Off Ranch":
+    auction_market_id = None
+    if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
+        if request.json["delivery_location_type"] == "Auction":
+            auction_market_id = request.json["auction_market_id"]
+            convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     sales_group_id = SalesGroups(g.db).insert_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
         published=request.json["published"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
-        start=request.json["start"],
-        end=request.json["end"],
-        auction_sale=request.json["auction_sale"],
+        auction_market_id=auction_market_id,
+        sale_date=request.json["sale_date"],
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
@@ -283,7 +363,8 @@ def serve_create_sales_group():
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
         are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
-        show_account_carcass_data=request.json["show_account_carcass_data"]
+        show_account_carcass_data=request.json["show_account_carcass_data"],
+        is_api_insert=0
     )
     return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
 
@@ -306,31 +387,33 @@ def serve_update_sales_group():
         delivery_location_type=request.json["delivery_location_type"],
         count=request.json["reported"]["count"],
         weight=request.json["reported"]["weight"],
-        weight_variance=request.json["reported"]["weight_variance"],
         category=request.json["category"],
         breeds=request.json["reported"]["breeds"],
-        start=request.json["start"],
-        end=request.json["end"],
-        auction_sale=request.json["auction_sale"],
+        sale_date=request.json["sale_date"],
         delivery_location=request.json["delivery_location"],
         auction_market_location=request.json["auction_market_location"],
         images=images,
-        price=request.json["price"]
-        )
+        price=request.json["price"],
+        slide=request.json["reported"]["marketing_slide"],
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+    )
     delivery_location = ""
-    if request.json["delivery_location_type"] == "Off Ranch":
+    auction_market_id = None
+    if request.json["delivery_location_type"] == "Direct/Off Ranch":
         delivery_location = request.json["delivery_location"]
     else:
         delivery_location = request.json["auction_market_location"]
+        if request.json["delivery_location_type"] == "Auction":
+            auction_market_id = request.json["auction_market_id"]
+            convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     SalesGroups(g.db).update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
         published=request.json["published"],
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
-        start=request.json["start"],
-        end=request.json["end"],
-        auction_sale=request.json["auction_sale"],
+        auction_market_id=auction_market_id,
+        sale_date=request.json["sale_date"],
         group_name=request.json["group_name"],
         is_archived=0,
         delivery_location_type=request.json["delivery_location_type"],
@@ -381,8 +464,7 @@ def serve_archived_sales_group():
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
             "delivery_location": sales_group_row["delivery_location"],
-            "start": sales_group_row["start"],
-            "end": sales_group_row["end"],
+            "sale_date": sales_group_row["sale_date"],
             "auction_sale": sales_group_row["auction_sale"],
             "auction_sale_name": sales_group_row["auction_sale_name"],
             "group_name": sales_group_row["group_name"],
@@ -512,53 +594,6 @@ def serve_send_message():
                 user["email"]
             )
     return {}, 200
-
-# Deprecated 11/9/22
-# @bp.route('/widgets/data/get_auction_sales', methods=['POST'])
-# @crut.require_account
-# def serve_get_auction_sales():
-#     return {
-#         "auction_sales": AuctionSales(g.db).get_auction_sales_by_account(g.account.id())
-#     }
-
-
-# @bp.route('/widgets/data/search_auction_sales', methods=['POST'])
-# @crut.require_account
-# def serve_search_auction_sales():
-#     return {
-#         "auction_sales": AuctionSales(g.db).search_auction_sales(request.json["term"])
-#     }
-
-
-# @bp.route('/widgets/data/new_auction_sale', methods=['POST'])
-# @crut.require_account
-# def serve_new_auction_sale():
-#     AuctionSales(g.db).new_auction_sale(
-#         name=request.json["name"],
-#         at=request.json["at"],
-#         account_id=g.account.id(),
-#         comments=request.json["comments"],
-#         published=request.json["published"]
-#     )
-#     return {}, 200
-
-
-# @bp.route('/widgets/data/update_auction_sale', methods=['POST'])
-# @crut.require_account
-# def serve_update_auction_sale():
-#     if AuctionSales(g.db).get_auction_sale_by_id(request.json["id"])["account"] == g.account.id():
-#         AuctionSales(g.db).update_auction_sale(
-#             name=request.json["name"],
-#             at=request.json["at"],
-#             auction_sale_id=request.json["id"],
-#             comments=request.json["comments"],
-#             published=request.json["published"]
-#         )
-#         return {}, 200
-#     else:
-#         return {
-#             "Account does not match"
-#         }, 400
 
 
 @bp.route('/widgets/data/data_request', methods=['POST'])

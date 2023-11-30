@@ -1,0 +1,34 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Login"| string %}
+
+{% block outside_content %}
+<section style="background-color: white;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 mb-2 login-form">
+                <form class="bg-white shadow p-3" id="login_form" method="POST" request_redirect_to="{{redirect_to}}">
+                    <div class="form-group">
+                        <label for="login_username">Email or User ID</label>
+                        <input type="text" class="form-control" placeholder="JohnDoe6" name="identifier" id="login_username">
+                        <span class="focus-border"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="login_password">Password</label>
+                        <input type="password" class="form-control" placeholder="App623Ten!HHW" name="password" id="login_password">
+                        <span class="focus-border"></span>
+                    </div>
+
+                    <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}"></input>
+                    <p><button type="submit" class="btn btn-primary">Login</button></p>
+                    <p class="mt-2 mb-0" id="login_status_message" style="display:none;">Hang on, we're logging you in...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="login_error_message">Loading error...</p>
+                    <p class="mt-2 mb-0">Looking to register?<a href="/iframe/signup"> Right this way</a></p>
+                    <p class="mt-2 mb-0"><a href="/iframe/request-password-reset"> Forgot your password?</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script type="module" src="/static/entry_points/outside/iframes/login.mjs"></script>
+{% endblock outside_content %}

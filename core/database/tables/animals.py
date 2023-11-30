@@ -30,7 +30,7 @@ class Animals:
                               harvest_date=None, program_certification=None, marbling_score=None,
                               marbling_score_code=None, ribeye_area=None, fat_thickness=None,
                               calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
-                              packer_api_insert_id=None, feeder_api_insert_id=None):
+                              packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None):
         """
         Validates and inserts a new animal record
 
@@ -51,7 +51,7 @@ class Animals:
             vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
             harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area, fat_thickness,
             calculated_live_weight, total_gain, days_on_test, average_daily_gain, packer_api_insert_id,
-            feeder_api_insert_id
+            feeder_api_insert_id, is_paid
         )
 
     def insert_animal(self, eid, visual_id=None, breed=None, calf_registration_number=None,
@@ -63,7 +63,7 @@ class Animals:
                       home_raised=None, family_farm_or_ranch=None, harvest_date=None, program_certification=None,
                       marbling_score=None, marbling_score_code=None, ribeye_area=None, fat_thickness=None,
                       calculated_live_weight=None, total_gain=None, days_on_test=None, average_daily_gain=None,
-                      packer_api_insert_id=None, feeder_api_insert_id=None):
+                      packer_api_insert_id=None, feeder_api_insert_id=None, is_paid=None):
         """
         Inserts a new animal record
 
@@ -81,7 +81,7 @@ class Animals:
                     vaccination_summary, herd_sire, ranch_source_county, ranch_size, home_raised, family_farm_or_ranch,
                     harvest_date, program_certification, marbling_score, marbling_score_code, ribeye_area,
                     fat_thickness, calculated_live_weight, total_gain, days_on_test, average_daily_gain,
-                    packer_api_insert_id, feeder_api_insert_id
+                    packer_api_insert_id, feeder_api_insert_id, is_paid
                 )
                 VALUES (
                     %(eid)s, %(visual_id)s, %(breed)s, %(calf_registration_number)s, %(sire_registration_number)s,
@@ -92,7 +92,7 @@ class Animals:
                     %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(harvest_date)s,
                     %(program_certification)s, %(marbling_score)s, %(marbling_score_code)s, %(ribeye_area)s,
                     %(fat_thickness)s, %(calculated_live_weight)s, %(total_gain)s, %(days_on_test)s,
-                    %(average_daily_gain)s, %(packer_api_insert_id)s, %(feeder_api_insert_id)s
+                    %(average_daily_gain)s, %(packer_api_insert_id)s, %(feeder_api_insert_id)s, %(is_paid)s
                 )
             """,
             {
@@ -132,7 +132,8 @@ class Animals:
                 "days_on_test": days_on_test,
                 "average_daily_gain": average_daily_gain,
                 "packer_api_insert_id": packer_api_insert_id,
-                "feeder_api_insert_id": feeder_api_insert_id
+                "feeder_api_insert_id": feeder_api_insert_id,
+                "is_paid": is_paid
             }
         )
         return self._db.last_row_id()
@@ -181,7 +182,7 @@ class Animals:
                       marbling_score=NO_VALUE, marbling_score_code=NO_VALUE, ribeye_area=NO_VALUE,
                       fat_thickness=NO_VALUE, calculated_live_weight=NO_VALUE, total_gain=NO_VALUE,
                       days_on_test=NO_VALUE, average_daily_gain=NO_VALUE, packer_api_insert_id=NO_VALUE,
-                      feeder_api_insert_id=NO_VALUE, is_paid=NO_VALUE, paid_by_account_id=NO_VALUE):
+                      feeder_api_insert_id=NO_VALUE, is_paid=NO_VALUE, payment_id=NO_VALUE):
         """
         Updates an animal.
         """
@@ -302,9 +303,9 @@ class Animals:
         if is_paid is not NO_VALUE:
             query_conditions.append("is_paid = %(is_paid)s")
             query_values["is_paid"] = is_paid
-        if paid_by_account_id is not NO_VALUE:
-            query_conditions.append("paid_by_account_id = %(paid_by_account_id)s")
-            query_values["paid_by_account_id"] = paid_by_account_id
+        if payment_id is not NO_VALUE:
+            query_conditions.append("payment_id = %(payment_id)s")
+            query_values["payment_id"] = payment_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE eid=%(eid)s"

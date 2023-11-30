@@ -1,16 +1,26 @@
 import json
+from time import time
 from core.database.no_value import NoValue
 from core.database.tables.auction_sales import AuctionSales
 from core.database.tables.files import Files
+from core.utilities.constants import SECONDS_IN_ONE_DAY
 from core.utilities.data.zip_codes_data import ZIP_CODES
 from core.utilities.zip_codes import get_locations, zips_nearby_zip
 
 from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
-sales_group_cols = ("id", "reported", "account", "published", "start", "end", "zip", "market_location",
+sales_group_cols = ("id", "reported", "account", "published", "sale_date", "zip", "market_location",
                     "delivery_location", "auction_sale", "group_name", "is_archived", "delivery_location_type",
                     "price", "sold", "is_sold", "buyer_account_id", "accept_offers")
+
+TARGET_DATE_KEYS_TO_DESC = {
+    "ASAP": "ASAP",
+    "<30": "Under 30 Days",
+    "<60": "Under 60 Days",
+    "<90": "Under 90 Days",
+    ">90": "Over 90 Days"
+}
 
 
 class SalesGroupsException(Exception):
@@ -127,7 +137,7 @@ class SalesGroups:
         if account_id is not NO_VALUE:
             query_conditions.append(" sales_groups.account = %(account_id)s")
             query_values["account_id"] = account_id
-        
+
         if is_archived is not NO_VALUE:
             query_conditions.append(" sales_groups.is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
@@ -166,9 +176,9 @@ class SalesGroups:
         return self.get_sales_group_by_id(self._db.last_row_id())
 
     def insert_sales_group(self, reported, published=None, zip_code=None, account=None,
-                           delivery_location=None, start=None, end=None, auction_sale=None,
+                           delivery_location=None, sale_date=None, auction_sale=None,
                            group_name=None, is_archived=None, delivery_location_type=None, price=None,
-                           category=None, breed_comments=None, weighing_conditions=None,
+                           category=None, breed_comments=None, weighing_conditions=None, auction_market_id=None,
                            are_annual_cattle_herd_vaccinations_given=None, seller_id=None, vaccination_date=None,
                            vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
                            home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None,
@@ -182,8 +192,7 @@ class SalesGroups:
             zip_code: The zip code
             delivery_location_type: Sale location type
             delivery_location: city and state of the zip code
-            start: The start time
-            end: The end time
+            sale_date: The sale_date time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
             category: Category of the sales group
@@ -197,14 +206,14 @@ class SalesGroups:
         """
         self._db.execute(
             """
-            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, start, end, auction_sale,
-                group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
-                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire, 
+            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, auction_market_id, sale_date,
+                auction_sale, group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
+                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire,
                 ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data,
                 is_api_insert
             )
             VALUES (
-                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(start)s, %(end)s,
+                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(auction_market_id)s, %(sale_date)s,
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
                 %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s, %(seller_id)s,
                 %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
@@ -217,8 +226,8 @@ class SalesGroups:
                 "published": published,
                 "zip_code": zip_code,
                 "delivery_location": delivery_location,
-                "start": start,
-                "end": end,
+                "auction_market_id": auction_market_id,
+                "sale_date": sale_date,
                 "auction_sale": auction_sale,
                 "group_name": group_name,
                 "is_archived": is_archived,
@@ -243,8 +252,8 @@ class SalesGroups:
         return self._db.last_row_id()
 
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
-                           zip_code=NO_VALUE, delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE,
-                           auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
+                           zip_code=NO_VALUE, delivery_location=NO_VALUE, auction_market_id=NO_VALUE,
+                           sale_date=NO_VALUE, auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
                            delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
                            category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
                            are_annual_cattle_herd_vaccinations_given=NO_VALUE, seller_id=NO_VALUE, 
@@ -260,8 +269,7 @@ class SalesGroups:
             zip_code: The zip code
             delivery_location_type: Sale location type
             delivery_location: city and state of the zip code
-            start: The start time
-            end: The end time
+            sale_date: The sale_date time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
             category: Category of the sales group
@@ -291,12 +299,12 @@ class SalesGroups:
         if delivery_location is not NO_VALUE:
             query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
-        if start is not NO_VALUE:
-            query_conditions.append("start = %(start)s")
-            query_values["start"] = start
-        if end is not NO_VALUE:
-            query_conditions.append("end = %(end)s")
-            query_values["end"] = end
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append("auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
+        if sale_date is not NO_VALUE:
+            query_conditions.append("sale_date = %(sale_date)s")
+            query_values["sale_date"] = sale_date
         if auction_sale is not NO_VALUE:
             query_conditions.append("auction_sale = %(auction_sale)s")
             query_values["auction_sale"] = auction_sale
@@ -366,16 +374,16 @@ class SalesGroups:
             raise Exception("Must give values for fields to update on Sales Group")
 
     def search_within(
-        self, zip_code, miles, start, end, skip=0, limit=10, is_archived=0,
-        category=None, breed=None, minimum_weight=None, preconditioning_program=None, process_verified_program=None
+        self, zip_code, miles, sale_date, skip=0, limit=10, is_archived=0,
+        categories=None, breeds=None, minimum_weight=None, preconditioning_program=None, programs=None,
+        maximum_weight=None, target_date_description=None
     ):
         """Searches for sales groups.
 
         Params:
             zip_code: Origin zip code
             miles: Radius in miles
-            start: Start time
-            end: End time
+            sale_date: sale_date time
             skip: Number of records to skip
             limit: Number of records to select
             breed, minimum_weight, preconditioning_program, process_verified_program:
@@ -388,39 +396,66 @@ class SalesGroups:
         """
         zip_codes = zips_nearby_zip(zip_code, miles)
 
-        # TODO: Optimize
-        # TODO: Add skip, limit
-
         additionals = []
         sql_additionals_total = ""
 
-        if category is not None:
-            sql_additionals_total += "AND category = %s"
-            additionals.append(category)
+        if categories is not None:
+            categories_clause = []
+            for category in categories:
+                categories_clause.append("%s")
+                additionals.append(category)
+            sql_additionals_total += f" AND category IN ({','.join(categories_clause)})"
 
-        if breed is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.breeds')"
-            additionals.append(json.dumps(breed))
+        if breeds is not None:
+            breeds_clause = []
+            for breed in breeds:
+                breeds_clause.append("JSON_CONTAINS(reported, %s, '$.breeds')")
+                additionals.append(json.dumps(breed))
+            sql_additionals_total += "AND (" + " OR ".join(breeds_clause) + ")"
 
         if preconditioning_program is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.preconditioning_program')"
+            sql_additionals_total += " AND JSON_CONTAINS(reported, %s, '$.preconditioning_program')"
             additionals.append(json.dumps(preconditioning_program))
 
-        if process_verified_program is not None:
-            sql_additionals_total += "AND JSON_CONTAINS(reported, %s, '$.process_verified_program')"
-            additionals.append(json.dumps(process_verified_program))
+        if programs is not None:
+            programs_clause = []
+            for p in programs:
+                programs_clause.append("JSON_CONTAINS(reported, %s, '$.program')")
+                additionals.append(json.dumps(p))
+            sql_additionals_total += f"AND ({' OR '.join(programs_clause)})"
 
         if minimum_weight is not None:
-            sql_additionals_total += "AND JSON_EXTRACT(reported, '$.weight') >= %s"
+            sql_additionals_total += " AND JSON_EXTRACT(reported, '$.weight') >= %s"
             additionals.append(minimum_weight)
+
+        if maximum_weight is not None:
+            sql_additionals_total += " AND JSON_EXTRACT(reported, '$.weight') <= %s"
+            additionals.append(maximum_weight)
+
+        if target_date_description is not None:
+            if target_date_description == TARGET_DATE_KEYS_TO_DESC["<30"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 30
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC["<60"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 60
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC["<90"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 90
+                sql_additionals_total += " AND sale_date < %s"
+                additionals.append(required_time)
+            elif target_date_description == TARGET_DATE_KEYS_TO_DESC[">90"]:
+                required_time = int(time()) + SECONDS_IN_ONE_DAY * 90
+                sql_additionals_total += " AND sale_date >= %s"
+                additionals.append(required_time)
 
         sql_zip_codes = ','.join(("%s" for i in zip_codes))
 
         sql = SalesGroups._STANDARD_SELECT + """
                 WHERE
                     (
-                        %s <= start AND start <= %s OR
-                        %s <= end AND end <= %s
+                        %s <= sale_date
                     )
                     AND sales_groups.is_archived = %s
                     AND sales_groups.published > 0
@@ -430,12 +465,13 @@ class SalesGroups:
 
         sales_groups = self._db.execute_d(
             sql,
-            [start, end, start, end, is_archived] + zip_codes + additionals
+            [sale_date, is_archived] + zip_codes + additionals
         )
         return self._translate_json(sales_groups)
 
-    def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight, weight_variance,
-            breeds, start, end, auction_sale, delivery_location, auction_market_location, images, price, category):
+    def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight,
+                                     breeds, sale_date, delivery_location, auction_market_location,
+                                     images, price, category, slide, weighing_conditions, auction_sale=None):
         """
         Validates that the values received for a sales group is valid
 
@@ -443,16 +479,14 @@ class SalesGroups:
             group_name: Nickname for the sales group
             zip: Zip code of the sales group
             account_id: Account ID of the owner account
-            delivery_location_type: Off ranch or auction market
+            delivery_location_type: Direct/Off Ranch or auction market
             count: Cattle count
             weight: Average weight for cattle in group
-            weight_variance: Variance of weight average
             breeds: Breeds of cattle in group
             usda_frame_size: Frame size
             muscling: Muscling type
             horns: Horns type
-            start: Start date for sale
-            end: End date for sale
+            sale_date: sale_date date for sale
             auction_sale: Auction sale
             delivery_location: Off ranch delivery location
             auction_market_location: Auction market value
@@ -474,26 +508,27 @@ class SalesGroups:
             raise ExportException("Zip code cannot be blank")
         if zip not in ZIP_CODES:
             raise ExportException("Sorry, that zip code could not be found.")
-        if start is None or end is None:
-            raise ExportException("Sorry, start or end date missing.")
-        if start > end:
-            raise ExportException("Sorry, check the market start and end dates (specifically the order).")
+        if sale_date is None:
+            raise ExportException("Sorry, sale date date missing.")
         if delivery_location_type is None:
             raise ExportException("Sale location type is not selected.")
-        elif delivery_location_type == "Off Ranch":
+        elif delivery_location_type == "Direct/Off Ranch":
             if len(delivery_location.strip()) == 0:
                 raise ExportException("Delivery Location cannot be blank")
         elif delivery_location_type == "Auction":
             if auction_market_location == "None":
                 raise ExportException("Please select an auction market location")
+        elif delivery_location_type == "Video Auction":
+            if len(slide.strip()) == 0:
+                raise ExportException("Video Auction Slide cannot be blank")
+            if len(weighing_conditions.strip()) == 0:
+                raise ExportException("Video Auction Weighing Conditions cannot be blank")
         if category == "":
             raise ExportException("Please select a category")
         if len(breeds) == 0:
             raise ExportException("Please select one or more breeds")
         if weight is None:
             raise ExportException("Base weight does not have a value")
-        if len(weight_variance.strip()) == 0:
-            raise ExportException("Weight variance does not have a value")
         if auction_sale is not None:
             # it was changed to a non-None value, verify new is published
             if not AuctionSales(self._db).auction_sales.get_auction_sale_by_id(auction_sale)["published"]:
@@ -502,10 +537,11 @@ class SalesGroups:
             raise ExportException("Sales Group price is not provided")
 
     def get_sales_groups(self, id=NO_VALUE, reported=NO_VALUE, published=NO_VALUE, zip_code=NO_VALUE,
-                         delivery_location=NO_VALUE, start=NO_VALUE, end=NO_VALUE, auction_sale=NO_VALUE,
+                         delivery_location=NO_VALUE, sale_date=NO_VALUE, auction_sale=NO_VALUE,
                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
-                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[]):
+                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[],
+                         auction_market_id=NO_VALUE):
         """
         Gets the sales groups based on attributes provided
         
@@ -516,8 +552,7 @@ class SalesGroups:
             zip_code: The zip code
             delivery_location_type: Sale location type
             delivery_location: city and state of the zip code
-            start: The start time
-            end: The end time
+            sale_date: The sale_date time
             auction_sale: The auction sale ID
             is_archived: 0 for no, 1 for yes
             category: Category of the sales group
@@ -560,12 +595,9 @@ class SalesGroups:
         if delivery_location is not NO_VALUE:
             query_conditions.append(" delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
-        if start is not NO_VALUE:
-            query_conditions.append(" start = %(start)s")
-            query_values["start"] = start
-        if end is not NO_VALUE:
-            query_conditions.append(" end = %(end)s")
-            query_values["end"] = end
+        if sale_date is not NO_VALUE:
+            query_conditions.append(" sale_date = %(sale_date)s")
+            query_values["sale_date"] = sale_date
         if auction_sale is not NO_VALUE:
             query_conditions.append(" auction_sale = %(auction_sale)s")
             query_values["auction_sale"] = auction_sale
@@ -596,6 +628,9 @@ class SalesGroups:
         if weighing_conditions is not NO_VALUE:
             query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append(" auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -605,5 +640,8 @@ class SalesGroups:
         query = base_query + combined_query_condition
         sales_groups = self._db.execute_d(query, query_values)
         if len(sales_groups) > 0:
+            for sales_group in sales_groups:
+                if "reported" in sales_group:
+                    sales_group["reported"] = json.loads(sales_group["reported"])
             return sales_groups
         return []

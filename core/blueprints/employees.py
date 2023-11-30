@@ -5,7 +5,8 @@ from core.database.tables.reports import Reports
 from flask import (
     Response, request, Blueprint, g, redirect, url_for
 )
-
+import json
+import stripe
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
 from core.database.tables.account_users import AccountUsers
@@ -25,7 +26,7 @@ from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
-from ..database.combinations import perform_new_account_actions, update_partner_payment_of_account
+from ..database.combinations import perform_new_account_actions, send_email_to_admin_users, update_partner_payment_of_account
 from ..database.tables.event_logs import event_type_by_name
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
@@ -38,7 +39,6 @@ from random import randint
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
 from datetime import datetime
-import json
 
 bp = Blueprint('employee_bp', __name__)
 
@@ -93,9 +93,7 @@ def serve_employee_create_account_action():
                 zip=format_field(required['zip_code'])
         )
 
-        # Creating a default pseudo admin user for created account
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
-        # Assigning user as admin
         AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
@@ -818,4 +816,36 @@ def serve_recurring_payment_link(recurring_payment_id):
             raise ExportException("Bad Request")
     return employee_render("/employee/finance/payment-link.html", {
         "accounts": accounts, "payment": recurring_payment, "STATUS_IDS_TO_NAMES": RECURRING_STATUS_IDS_TO_NAMES
+    })
+
+
+@bp.route("/employee/billing", methods=["GET", "POST"])
+@crut.require_employee
+def serve_billing():
+    if request.method == "POST":
+        for account in request.json:
+            send_email_to_admin_users(
+                g.db, account["id"], "Your payment is due to be debited soon", render_email(
+                    "payment_debit_alert.html", {"company": account["company"], "unpaid_cattle": account["count_eid"]}
+                ),
+                add_log=True
+            )
+    accounts = Accounts(g.db).get_accounts_for_charge()
+    chargable_accounts = []
+    for account in accounts:
+        account["last4"] = "Not Added"
+        account["expiration"] = "N/A"
+        if account["stripe_customer_id"]:
+            payment_methods = stripe.PaymentMethod.list(
+                customer=account["stripe_customer_id"],
+                type="card",
+            )["data"]
+            if payment_methods:
+                account["last4"] = payment_methods[0].card.last4
+                account["expiration"] = (
+                    str(payment_methods[0].card.exp_month) + "/" + str(payment_methods[0].card.exp_year)
+                )
+                chargable_accounts.append(account)
+    return employee_render("/employee/finance/billing.html", {
+        "accounts": accounts, "chargeable_accounts": chargable_accounts
     })

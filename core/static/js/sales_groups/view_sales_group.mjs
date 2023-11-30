@@ -132,6 +132,16 @@ export class SalesGroupViewer {
             position.append(kvp);
         }
 
+        function addSubHeader(text, position){
+            let subHeaderContainer = document.createElement("div");
+            subHeaderContainer.className = "row m-1";
+            let subHeaderText = document.createElement("h5");
+            subHeaderText.className = "text-primary";
+            subHeaderText.textContent = text;
+            subHeaderContainer.append(subHeaderText);
+            position.append(subHeaderContainer);
+        }
+
         // Configure header
         {
             let row = document.createElement("div");
@@ -280,20 +290,26 @@ export class SalesGroupViewer {
             animalBody.className = "card-body";
             animalDataCol.append(animalBody);
 
+            addSubHeader("Characteristics", animalBody);
             addInfo("Breed", this.formatData(this.data.reported.breeds), animalBody);
             addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
             addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
             addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
-            addInfo("Weighing Conditions", this.formatData(this.data.weighing_conditions), animalBody);
+            addInfo("Other Comments", this.formatData(this.data.weighing_conditions), animalBody);
             addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
             addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
+            addSubHeader("Maintenance", animalBody);
             addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), animalBody);
             addInfo("Implants", this.formatData(this.data.reported.implants), animalBody);
             addInfo("Castrated", this.formatData(this.data.reported.castrated), animalBody);
             addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
             addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
-            addInfo("PVP Program", this.formatData(this.data.reported.process_verified_program), animalBody);
+            addInfo("Program", this.formatData(this.data.reported.program), animalBody);
+            addSubHeader("Genetics", animalBody);
+            addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), animalBody);
+            addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), animalBody);
+            addInfo("Genomics Comments", this.formatData(this.data.reported.genetics_comments), animalBody);
         }
 
         //Configure market data 
@@ -322,17 +338,19 @@ export class SalesGroupViewer {
             marketInfoText.className = "dl-horizontal row";
 
             addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
-            addInfo("Delivery Location", this.formatData(this.data.delivery_location), marketBody);
 
-            let daysRemaining = "--";
-
-            if ("end" in this.data && this.data.end !== null) {
-                let currentEpoch = Date.now() / 1000;
-                daysRemaining = Math.floor((this.data.end - currentEpoch) / (60 * 60 * 24));
-            }
-            var date = new Date(this.data.start * 1000);
+            var date = new Date(this.data.sale_date * 1000);
             addInfo("Sales Date", date.toDateString(), marketBody);
-            addInfo("Days Remaining", daysRemaining, marketBody);
+
+            addInfo("Delivery Location Type", this.formatData(this.data.delivery_location_type), marketBody);
+            if(this.data.delivery_location_type == "Video Auction"){
+                addInfo("Slide", this.formatData(this.data.reported.marketing_slide), marketBody);
+                addInfo("Weighing Conditions", this.formatData(this.data.reported.marketing_weighing_conditions), marketBody);
+            }
+            else{
+                addInfo("Delivery Location", this.formatData(this.data.delivery_location), marketBody);
+            }
+            addInfo("Represented By", this.formatData(this.data.reported.marketing_represented_by), marketBody);
 
             marketInfo.append(marketInfoText);
             let commentCol = document.createElement("div");
@@ -640,8 +658,8 @@ export class SalesGroupViewer {
     }
     
     formatData(data) {
-        if (data === null)
-            return "";
+        if (data === null || data === undefined)
+            return "N/A";
         else
             return data;
     }

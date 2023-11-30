@@ -1,0 +1,21 @@
+{% extends "email/standard.html" %}
+{% block email_standard_subdescription %}
+<div>
+    <p>
+        Hello,
+        <br><br>
+        We wanted to inform you that the following payment has failed:
+        <table border="0">
+            <tr><td>Card: ************{{last_4}}</td></tr>
+            <tr><td>Amount: {{"$%.2f"|format(amount)}}</td></tr>
+            <tr><td>Reason: {{reason}}</td></tr>
+        </table>
+    </p>
+    <p>
+        Please update your card information on the <a href="{{link}}">payment page</a>
+        to continue paying for your cattle in the system.
+    </p>
+    <p>Thank you.</p>
+</div>
+(Please don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

@@ -1,5 +1,5 @@
 from flask import g, request, render_template, redirect
-from werkzeug.urls import url_encode
+import urllib.parse
 
 from core.renderers.employee import employee_render
 
@@ -7,6 +7,7 @@ from .crut.requirements import (
     RequireNonPartnerAccountFailed,
     RequireUserOrEmployeeFailed,
     RequireUserFailed,
+    RequireUserIframeFailed,
     RequirePaidAccountFailed,
     RequirePartnerFailed,
     RequireEmployeeFailed
@@ -50,7 +51,18 @@ def attach_handlers(app):
             if "employee" in g:
                 return employee_render("errors/no-access.html")
             return redirect(
-                "/login?" + url_encode({
+                "/login?" + urllib.parse.urlencode({
+                    'redirect': request.url
+                })
+            )
+        else:
+            return respond(401, 'Not logged in')
+
+    @app.errorhandler(RequireUserIframeFailed)
+    def handle_require_user_iframe_failed(e):
+        if request.method == 'GET':
+            return redirect(
+                "/iframe/login?" + urllib.parse.urlencode({
                     'redirect': request.url
                 })
             )
@@ -95,7 +107,7 @@ def attach_handlers(app):
             elif "user" in g:
                 return dashboard_render("errors/no-access.html")
             return redirect(
-                "/employee/login?" + url_encode({
+                "/employee/login?" + urllib.parse.urlencode({
                     'redirect': request.url
                 })
             )

@@ -2,6 +2,8 @@ from ...sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..objects.account import Account
 from ..no_value import NoValue
 
+import json
+
 NO_VALUE = NoValue()
 HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
@@ -147,7 +149,7 @@ class Accounts:
             raise AccountsException("Sector number is not listed internally.")
 
         # Process phone
-        if phone != None:
+        if phone is not None:
             digits = ''.join(chr(ord('0') + i) for i in range(10))
             temp_phone = ""
             for c in phone:
@@ -161,7 +163,8 @@ class Accounts:
 
         return sector, phone, affiliate_id
 
-    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                       auction_market_id=None, optional_fields=None):
         """Creates a new account without a user.
 
         Params:
@@ -184,9 +187,11 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name)
+                (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
+                auction_market_id, optional_fields)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(show_real_name)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
+                    %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s)
             """,
             {
                 "company": company,
@@ -198,7 +203,9 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "show_real_name": int(False)
+                "show_real_name": int(False),
+                "auction_market_id": auction_market_id,
+                "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -213,7 +220,8 @@ class Accounts:
 
         return account
 
-    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone):
+    def create_account_with_admin(self, user, company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                                  optional_fields=None):
         """Creates a new account with the user automatically added as the admin.
 
         Params:
@@ -235,7 +243,9 @@ class Accounts:
             AccountsException
         """
 
-        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone)
+        account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone,
+                                      optional_fields
+        )
 
         # make the first user the account admin
         account.add_user(user, 1)
@@ -304,7 +314,8 @@ class Accounts:
                      city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
                      token=NO_VALUE, stripe_customer_id=NO_VALUE, stripe_account_id=NO_VALUE,
                      accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
-                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, columns=()):
+                     generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, auction_market_id=NO_VALUE,
+                     columns=()):
         """
         Get an account by the values specified.
 
@@ -397,6 +408,10 @@ class Accounts:
         if is_stripe_payouts_enabled is not NO_VALUE:
             query_conditions.append(" is_stripe_payouts_enabled = %(is_stripe_payouts_enabled)s ")
             query_values["is_stripe_payouts_enabled"] = is_stripe_payouts_enabled
+
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append(" auction_market_id = %(auction_market_id)s ")
+            query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -593,8 +608,7 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE,
-                       are_auction_markets_used_by_account=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
         """
         Updates an account.
 
@@ -681,9 +695,6 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
-        if are_auction_markets_used_by_account is not NO_VALUE:
-            query_conditions.append("are_auction_markets_used_by_account = %(are_auction_markets_used_by_account)s")
-            query_values["are_auction_markets_used_by_account"] = are_auction_markets_used_by_account
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
@@ -700,3 +711,18 @@ class Accounts:
         else:
             name = f"{SECTORS_ID_TO_NAME[sector]} {id}"
         return name
+
+    def get_accounts_for_charge(self):
+        accounts_data = self._db.execute_d(
+            """
+                SELECT ac.id, ac.company, ac.stripe_customer_id, COUNT(a.eid) AS count_eid FROM accounts ac
+                INNER JOIN account_links al ON al.account = ac.id
+                INNER JOIN matches m on m.account_link = al.id
+                INNER JOIN animals a on m.eid = a.eid
+                WHERE a.is_paid=0 AND m.type=1 AND ac.sector=4
+                GROUP BY ac.id, ac.company, ac.stripe_customer_id
+                HAVING COUNT(a.eid)>0
+                ORDER BY ac.id
+            """
+        )
+        return accounts_data

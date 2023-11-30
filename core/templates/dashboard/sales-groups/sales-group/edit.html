@@ -1,7 +1,7 @@
 {% extends "dashboard/standard.html" %}
 
 {% set page_title = "Edit Sales Group" %}
-{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/edit/" + sales_group['id']|string, "Edit Sales Group " + sales_group['id']|string)] %}
+{% set dashboard_locations = [("/dashboard/sales-groups/manage", "Sales Groups"), ("/dashboard/sales-groups/edit/" + sales_group['id']|string, "Edit Sales Group " + sales_group['id']|string)] %}
 
 {% block dashboard_content_header %}
 Edit Sales Group {{sales_group['id']}}

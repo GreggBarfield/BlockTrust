@@ -15,8 +15,11 @@ from core.database.database import Database
 from core.database.tables.accounts import Accounts
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.sales_groups import SalesGroups
+from core.database.tables.users import UsersException
 from core.config import MYSQL_CONFIG, API_MYSQL_CONFIG, DEV_MYSQL_CONFIG
 from core.common_exceptions import ExportException
+from core.utilities import auth
+
 from traceback import format_exc
 
 
@@ -166,7 +169,7 @@ def serve_insert_sales_group():
             "sales_group_name": "",
             "total_animals": 0,
             "zip_code": 0,
-            "start_time": 0,
+            "sale_date": 0,
             "end_time": 0,
             "delivery_location_type": "",
             "auction_market": "",
@@ -206,12 +209,10 @@ def serve_insert_sales_group():
             delivery_location_type=sales_group_data["delivery_location_type"],
             count=sales_group_data["total_animals"],
             weight=sales_group_data["base_weight"],
-            weight_variance=sales_group_data["weight_variance"],
             category=sales_group_data["category"],
             breeds=sales_group_data["breeds"],
             auction_sale=None,
-            start=sales_group_data["start_time"],
-            end=sales_group_data["end_time"],
+            sale_date=sales_group_data["sale_date"],
             delivery_location=sales_group_data["delivery_location"],
             auction_market_location=sales_group_data["auction_market"],
             images=[],
@@ -236,7 +237,7 @@ def serve_insert_sales_group():
             "videos": []
         }
         delivery_location = ""
-        if sales_group_data["delivery_location_type"] == "Off Ranch":
+        if sales_group_data["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = sales_group_data["delivery_location"]
         else:
             delivery_location = sales_group_data["auction_market"]
@@ -246,8 +247,7 @@ def serve_insert_sales_group():
             published=sales_group_data["publish_sales_group"],
             zip_code=sales_group_data["zip_code"],
             delivery_location=delivery_location,
-            start=sales_group_data["start_time"],
-            end=sales_group_data["end_time"],
+            sale_date=sales_group_data["sale_date"],
             auction_sale=None,
             group_name=sales_group_data["sales_group_name"],
             is_archived=0,
@@ -265,5 +265,60 @@ def serve_insert_sales_group():
         raise e
     except Exception as e:
         print("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
+        return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/create_new_account', methods=["POST"])
+def serve_create_new_account():
+    try:
+        try:
+            request_data = json.loads(request.data)
+        except json.decoder.JSONDecodeError:
+            return {"error": "Decoding request JSON has failed"}, 400
+        if "token" not in request_data:
+            raise ExportException("Bad request. Missing token.")
+        accounts_list = Accounts(g.db).get_accounts(token=request_data["token"])
+        if len(accounts_list) == 0:
+            raise ExportException("Bad token. You are not authorized to insert a new account")
+        required = {
+            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+            'address': None, 'city': None, 'state': None, 'zip_code': None,
+            'username': None, 'email': None, 'password': None, 'confirm_password': None
+        }
+        for required_field in required:
+            if required_field not in request_data:
+                raise ExportException("Missing Required Field: " + required_field)
+            required[required_field] = request_data[required_field]
+            if len(required[required_field].strip()) == 0:
+                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        
+        try:
+            auth.verified_signup(
+                username=required['username'],
+                email=required['email'],
+                phone=request_data['phone'],
+                first_name=required['first_name'],
+                last_name=required['last_name'],
+                password=required['password'],
+                confirm_password=required['confirm_password'],
+                company=required['company'],
+                partner=request_data['partner'],
+                affiliate_id=request_data['affiliate_id'],
+                sector=required['sector'],
+                address=required['address'],
+                city=required['city'],
+                state=required['state'],
+                zip_code=required['zip_code'],
+                personal_phone=request_data['personal_phone']
+            )
+        except (auth.SignupFailedException, AccountsException, UsersException) as e:
+            raise ExportException("Signup failed for " + required['company'] +" : " + str(e))
+
+        return {"response": "New Account Created for " + required['company']}
+    except ExportException as e:
+        raise e
+    except Exception as e:
+        print("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
