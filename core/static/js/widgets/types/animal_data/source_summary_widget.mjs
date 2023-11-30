@@ -77,6 +77,7 @@ export class SourceSummaryWidget extends Widget {
         let exportTable = [["EID", "VISUAL ID", "QUALITY GRADE", "YIELD GRADE", "CREEP FEED", "FIRST 14 DAY FEED METHOD", 
             "SECOND 31 DAY FEED METHOD", "HOT WEIGHT", "MARKETING DATE", "MARKETING METHOD NAME", "NUMBER OF CALVES", "SALE LOCATION", "WEAN DATE", 
             "WEAN WEIGHT", "WEANING STRATEGY"]];
+
         for(const match_row of matchRows){
             let row = [match_row["eid"], match_row["visual_id"], match_row["quality_grade"], match_row["yield_grade"]]
 
@@ -86,7 +87,7 @@ export class SourceSummaryWidget extends Widget {
                 match_row["number_of_calves"] ?? "", saleLocation, match_row["wean_date"] ?? "", match_row["wean_weight"] ?? "", 
                 match_row["weaning_strategy"]  ?? ""])
 
-            exportTable.push(row);
+            exportTable.push(row)
         }
         return exportTable;
     }
