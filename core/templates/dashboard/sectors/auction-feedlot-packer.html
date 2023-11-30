@@ -26,6 +26,7 @@
                                 <th>Number of Head</th>
                                 <th>Breed</th>
                                 <th>Weight</th>
+                                <th>Sale Date</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -37,12 +38,13 @@
                                 <td>{{group.reported.count}}</td>
                                 <td>{{group.reported.breeds|join(", ")}}</td>
                                 <td>{{group.reported.weight}}</td>
+                                <td name="sale-date">{{group.sale_date}}</td>
                                 <td><a class="btn btn-sm btn-info" href="/dashboard/sales-groups/view/{{group.id}}" target="_blank">View</a></td>                     
                             </tr>
                             {% endfor %}
                             {% else %}
                             <tr class="text-center">
-                                <td colspan="5" class="font-italic">Nothing to show currently</td>
+                                <td colspan="6" class="font-italic">Nothing to show currently</td>
                             </tr>
                             {% endif %}
                         </tbody>
@@ -128,5 +130,14 @@
         </div>
     </div>
 </div>
-
+<script>
+    let elements = document.getElementsByName("sale-date");
+    for (let element of elements){
+        element.innerText = new Date(element.innerText*1000).toLocaleString("en-US", {
+            year:"numeric",
+            month:"long",
+            day:"numeric"
+        });
+    }
+</script>
 {% endblock dashboard_content %}
