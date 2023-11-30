@@ -323,7 +323,7 @@ export class SearchSalesGroupsWidget extends Widget {
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Name", "Number of Head", "Breed", "Weight", "Market Name/Location", ""];
+        const headers = ["Name", "Number of Head", "Breed", "Weight", "Market Name/Location","Sale Date", ""];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -351,6 +351,13 @@ export class SearchSalesGroupsWidget extends Widget {
                 td.innerText = salesGroup["delivery_location_type"] == "Auction"? salesGroup["delivery_location"] : salesGroup["delivery_location_type"];
                 tr.append(td);
                 td = document.createElement("td");
+                td.innerText = new Date(salesGroup["sale_date"]*1000).toLocaleString("en-US", {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                });
+                tr.append(td);
+                td = document.createElement("td");
                 let loadLink = document.createElement("a");
                 loadLink.className = "btn btn-sm btn-info";
                 loadLink.href = `${viewLink}${salesGroup["id"]}`;
@@ -364,7 +371,7 @@ export class SearchSalesGroupsWidget extends Widget {
         else {
             let tr = document.createElement("tr");
             let td = document.createElement("td");
-            td.setAttribute("colspan", "6");
+            td.setAttribute("colspan", "7");
             td.innerText = "Nothing to show currently";
             td.className = "font-italic";
             tr.append(td);
