@@ -77,7 +77,6 @@ export class SourceSummaryWidget extends Widget {
         let exportTable = [["EID", "VISUAL ID", "QUALITY GRADE", "YIELD GRADE", "CREEP FEED", "FIRST 14 DAY FEED METHOD", 
             "SECOND 31 DAY FEED METHOD", "HOT WEIGHT", "MARKETING DATE", "MARKETING METHOD NAME", "NUMBER OF CALVES", "SALE LOCATION", "WEAN DATE", 
             "WEAN WEIGHT", "WEANING STRATEGY"]];
-        //console.log(matchRows)
         for(const match_row of matchRows){
             let row = [match_row["eid"], match_row["visual_id"], match_row["quality_grade"], match_row["yield_grade"]]
 
@@ -96,7 +95,6 @@ export class SourceSummaryWidget extends Widget {
 
     checkForEmptyRow = (row) =>{
         for(let [columnName, columnValue] of Object.entries(row)){
-            //console.log(columnName); console.log(columnValue)
             if(columnName !== "eid"){
                 if(columnValue != ""){
                     return false;
