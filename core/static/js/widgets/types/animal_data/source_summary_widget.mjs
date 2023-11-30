@@ -86,22 +86,9 @@ export class SourceSummaryWidget extends Widget {
                 match_row["number_of_calves"] ?? "", saleLocation, match_row["wean_date"] ?? "", match_row["wean_weight"] ?? "", 
                 match_row["weaning_strategy"]  ?? ""])
 
-            if(!this.checkForEmptyRow(match_row)){
-                exportTable.push(row);
-            }
+            exportTable.push(row);
         }
         return exportTable;
-    }
-
-    checkForEmptyRow = (row) =>{
-        for(let [columnName, columnValue] of Object.entries(row)){
-            if(columnName !== "eid"){
-                if(columnValue != ""){
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     makeAnimals(matchRows, isNameAvailable) {
