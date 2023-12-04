@@ -550,6 +550,7 @@ export class SearchSalesGroupsWidget extends Widget {
                         setTimeout(() => window.location.href = `${link}/${searchID ? searchID : response}`, 1000);
                     }
                     catch(err){
+                        console.log(err);
                         alert.className = "alert alert-danger";
                         alert.textContent = "An unexpected error occured. Please try again after sometime";
                         saveButton.disabled = false;
