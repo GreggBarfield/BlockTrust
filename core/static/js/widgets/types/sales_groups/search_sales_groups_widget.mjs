@@ -323,7 +323,7 @@ export class SearchSalesGroupsWidget extends Widget {
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Name", "Number of Head", "Breed", "Weight", "Market Name/Location","Sale Date", ""];
+        const headers = ["Name", "No. Head", "Category/Sex", "Breed", "Weight", "Market Name/Location","Sale Date", ""];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -342,6 +342,9 @@ export class SearchSalesGroupsWidget extends Widget {
                 td.innerText = salesGroup["reported"]["count"];
                 tr.append(td);
                 td = document.createElement("td");
+                td.innerText = salesGroup["category"];
+                tr.append(td);
+                td = document.createElement("td");
                 td.innerText = salesGroup["reported"]["breeds"];
                 tr.append(td);
                 td = document.createElement("td");
@@ -353,7 +356,7 @@ export class SearchSalesGroupsWidget extends Widget {
                 td = document.createElement("td");
                 td.innerText = new Date(salesGroup["sale_date"]*1000).toLocaleString("en-US", {
                     year: 'numeric',
-                    month: 'long',
+                    month: 'numeric',
                     day: 'numeric',
                 });
                 tr.append(td);
@@ -547,6 +550,7 @@ export class SearchSalesGroupsWidget extends Widget {
                         setTimeout(() => window.location.href = `${link}/${searchID ? searchID : response}`, 1000);
                     }
                     catch(err){
+                        console.log(err);
                         alert.className = "alert alert-danger";
                         alert.textContent = "An unexpected error occured. Please try again after sometime";
                         saveButton.disabled = false;

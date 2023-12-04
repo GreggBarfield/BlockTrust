@@ -6,6 +6,7 @@ from ..common_exceptions import ExportException
 from core.config import (
     ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL
 )
+from ..database.combinations import convert_auction_market_to_account
 from ..database.tables.accounts import AccountsException
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.error_logs import ErrorLogs
@@ -40,7 +41,9 @@ def serve_create_sales_group():
         form_post_route = url_for('iframe_bp.serve_create_sales_group')
         return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
-            "form_post_route": form_post_route
+            "form_post_route": form_post_route,
+            "pre_select_auction_market": False,
+            "pre_selected_auction_market_id": None
         })
     if request.method == 'POST':
         images = []
@@ -57,7 +60,6 @@ def serve_create_sales_group():
                 category=request.json["category"],
                 breeds=request.json["reported"]["breeds"],
                 sale_date=request.json["sale_date"],
-                auction_sale=request.json["auction_sale"],
                 delivery_location=request.json["delivery_location"],
                 auction_market_location=request.json["auction_market_location"],
                 images=images,
@@ -68,10 +70,14 @@ def serve_create_sales_group():
         except ExportException as e:
             return {"error": str(e)}
         delivery_location = ""
+        auction_market_id = None
         if request.json["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = request.json["delivery_location"]
         else:
             delivery_location = request.json["auction_market_location"]
+            if request.json["delivery_location_type"] == "Auction":
+                auction_market_id = request.json["auction_market_id"]
+                convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
         sales_group_id = SalesGroups(g.db).insert_sales_group(
             account=g.account.id(),
             reported=request.json["reported"],
@@ -79,7 +85,7 @@ def serve_create_sales_group():
             zip_code=request.json["zip"],
             delivery_location=delivery_location,
             sale_date=request.json["sale_date"],
-            auction_sale=request.json["auction_sale"],
+            auction_market_id=auction_market_id,
             group_name=request.json["group_name"],
             is_archived=0,
             delivery_location_type=request.json["delivery_location_type"],
@@ -93,6 +99,20 @@ def serve_create_sales_group():
         )
         return {"redirect": "/iframe/sales-group/sales-group-created"}
 
+
+@bp.route('/iframe/sales-group/create/<int:auction_market_id>', methods=["GET"])
+@crut.require_user_iframe
+def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(id=auction_market_id)
+    if len(auction_markets) == 0:
+        auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    form_post_route = url_for('iframe_bp.serve_create_sales_group')
+    return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
+        "auction_markets": auction_markets,
+        "form_post_route": form_post_route,
+        "pre_select_auction_market": True,
+        "pre_selected_auction_market_id": auction_market_id
+    })
 
 @bp.route('/iframe/sales-group/sales-group-created')
 @crut.require_user_iframe
@@ -151,7 +171,6 @@ def serve_edit_sales_group(sales_group_id):
             category=request.json["category"],
             breeds=request.json["reported"]["breeds"],
             sale_date=request.json["sale_date"],
-            auction_sale=request.json["auction_sale"],
             delivery_location=request.json["delivery_location"],
             auction_market_location=request.json["auction_market_location"],
             images=images,
@@ -160,10 +179,14 @@ def serve_edit_sales_group(sales_group_id):
             weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
         )
         delivery_location = ""
+        auction_market_id = None
         if request.json["delivery_location_type"] == "Direct/Off Ranch":
             delivery_location = request.json["delivery_location"]
         else:
             delivery_location = request.json["auction_market_location"]
+            if request.json["delivery_location_type"] == "Auction":
+                auction_market_id = request.json["auction_market_id"]
+                convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
         SalesGroups(g.db).update_sales_group(
             id=request.json["id"],
             reported=request.json["reported"],
@@ -171,7 +194,7 @@ def serve_edit_sales_group(sales_group_id):
             zip_code=request.json["zip"],
             delivery_location=delivery_location,
             sale_date=request.json["sale_date"],
-            auction_sale=request.json["auction_sale"],
+            auction_market_id=auction_market_id,
             group_name=request.json["group_name"],
             is_archived=0,
             delivery_location_type=request.json["delivery_location_type"],

@@ -7,17 +7,12 @@ export class CreateSalesGroupWidget extends Widget {
     }
 
     initType() {
-        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
-    this.getData(
-        "auction_markets"
-    ).then((data) => {
-        this.auctionMarketsData = this.processAuctionMarketsData(data.auction_markets);
-        this.makeForm();
-    });
-
-    this.onSomeDataLoaded(function () {
         this.frame.innerHTML = "";
-    });
+        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
+        this.auctionMarkets = this.processAuctionMarketsData(JSON.parse(this.frame.getAttribute("data-widget-auction-markets")));
+        this.preSelectAuctionMarket = this.frame.getAttribute("data-widget-pre-select-auction-market").toLowerCase();
+        this.preSelectedAuctionMarketId = this.frame.getAttribute("data-widget-pre-selected-auction-market-id");
+        this.makeForm();
     }
 
     processAuctionMarketsData(auctionMarkets){
@@ -51,7 +46,7 @@ export class CreateSalesGroupWidget extends Widget {
     card.append(cardBody);
     this.frame.append(card)
     // Widget containing common input fields used in sales group form
-    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarketsData, this.postRoute);
+    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId);
     cardBody.append(salesGroupForm);
     }
 }
