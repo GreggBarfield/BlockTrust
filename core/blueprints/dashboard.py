@@ -188,12 +188,16 @@ def serve_sales_groups(id):
 @crut.require_paid_account
 def serve_new_sales_group():
     auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(
+        sales_group_form_type=SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
+    )
     form_post_route = url_for('widgets_bp.serve_create_sales_group')
     return dashboard_render("sales-groups/sales-group/create.html", {
         "form_post_route": form_post_route,
         "auction_markets": auction_markets,
         "pre_select_auction_market": False,
-        "pre_selected_auction_market_id": None
+        "pre_selected_auction_market_id": None,
+        "sales_group_fields_values": sales_group_fields_values
     })
 
 
@@ -208,11 +212,16 @@ def serve_edit_sales_group(sales_group_id):
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
         sales_group_id=sales_group_row['id'])
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(
+        sales_group_form_type=SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
+    )
     return dashboard_render(
         "sales-groups/sales-group/edit.html", {
             "sales_group": sales_group_row,
             "external_shareable_link": external_shareable_link,
-            "form_post_route": form_post_route}
+            "form_post_route": form_post_route,
+            "sales_group_fields_values": sales_group_fields_values
+        }
     )
 
 

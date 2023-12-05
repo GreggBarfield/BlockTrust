@@ -927,7 +927,7 @@ def serve_add_new_vaccination():
         SalesGroupFieldsValues(g.db).insert_new_value_for_specified_field(
             FIELD_NAME_TO_COLUMN_NAME_MAPPING["Vaccinations"],
             format_field(request.form["vaccination_name"].strip()),
-            SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["External"]
+            SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
         )
         return {"vaccination_name": format_field(request.form["vaccination_name"].strip())}
     except ExportException as e:

@@ -13,6 +13,7 @@ export class EditSalesGroupWidget extends Widget {
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
         this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
+        this.salesGroupFieldsValues = JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values"));
 
         const getSalesGroupData = this.getData(
             "sales_group",
@@ -92,7 +93,7 @@ export class EditSalesGroupWidget extends Widget {
         // Setup
         this.frame.append(card);
         // Widget containing common input fields used in sales group form
-        let salesGroupForm = new SalesGroupsCommonForm(this.data, this.auctionMarketsData, this.postRoute);
+        let salesGroupForm = new SalesGroupsCommonForm(this.data, this.auctionMarketsData, this.postRoute, this.salesGroupFieldsValues);
         cardBody.append(salesGroupForm);
     }
 
