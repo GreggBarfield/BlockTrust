@@ -315,8 +315,8 @@ export class SearchSalesGroupsWidget extends Widget {
     }
 
     async generateSummaryTable(viewLink) {
-        let tableContainer = document.createElement("div");
-        tableContainer.className = "mb-5";
+        let container = document.createElement("div");
+        container.className = "mb-5  table-responsive";
 
         let table = document.createElement("table");
         table.className = "table table-sm text-center mt-3 table-bordered";
@@ -389,15 +389,15 @@ export class SearchSalesGroupsWidget extends Widget {
             e.preventDefault();
             table.classList.toggle("d-none");
         });
-        tableContainer.append(expandControl);
-        tableContainer.append(table);
-        return tableContainer;
+        container.append(expandControl);
+        container.append(table);
+        return container;
     }
 
     async generateSavedSearchesTable(searchLink) {
 
         let tableContainer = document.createElement("div");
-        tableContainer.className = "mb-5";
+        tableContainer.className = "mb-5 table-responsive";
 
         let table = document.createElement("table");
         table.className = "table table-sm text-center mt-3 table-bordered";
