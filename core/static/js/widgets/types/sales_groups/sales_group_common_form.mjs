@@ -129,7 +129,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, attachWidget=false, attachedWidget=null) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, attachWidget=false, attachedWidget=null, widgetLinkText="") {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -144,7 +144,7 @@ export class SalesGroupsCommonForm{
             if(attachWidget){
                 let newLink = document.createElement("a");
                 newLink.className = "form-label text-primary";
-                newLink.textContent = "Not Listed?";
+                newLink.textContent = widgetLinkText;
                 newLink.onclick = () => {
                     // let widget = new CreateAuctionMarketWidget();
                     let widget = new attachedWidget();
@@ -199,11 +199,11 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, id, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, attachWidget=false, optionsObject=null, attachedWidget=null) {
+        function createSelect({row, name, id, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, attachWidget=false, optionsObject=null, attachedWidget=null, widgetLinkText="") {
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget, widgetLinkText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -296,7 +296,7 @@ export class SalesGroupsCommonForm{
             multiple: false,
             tags: false,
             placeholder: "Please Select"
-        }, false, "", "", 4, true, this.auctionMarketsData, CreateAuctionMarketWidget);
+        }, false, "", "", 4, true, this.auctionMarketsData, CreateAuctionMarketWidget, "Not Listed?");
 
 
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location", salesGroupFormInputIds.marketingOffRanchLocation,deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
@@ -458,7 +458,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Please Select"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2, true, null, CreateVaccinationWidget);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2, true, null, CreateVaccinationWidget, "Add New");
 
         let maintenanceAnnualCattleHerdVaccinations = createSelect({
             row: maintenanceRow,
