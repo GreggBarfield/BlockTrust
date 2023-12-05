@@ -20,6 +20,9 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.sales_group_fields_values import (
+    SalesGroupFieldsValues, SALES_GROUP_FORM_TYPES_NAMES_TO_IDS, FIELD_NAME_TO_COLUMN_NAME_MAPPING
+)
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -29,7 +32,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -914,3 +917,20 @@ def serve_get_count_distribution_for_account():
         0
     ))
     return count_distribution_data
+
+
+@bp.route('/widgets/data/add_new_vaccination', methods=["POST"])
+def serve_add_new_vaccination():
+    try:
+        if len(request.form["vaccination_name"].strip()) == 0:
+            raise ExportException("Vaccination name cannot be blank")
+        SalesGroupFieldsValues(g.db).insert_new_value_for_specified_field(
+            FIELD_NAME_TO_COLUMN_NAME_MAPPING["Vaccinations"],
+            format_field(request.form["vaccination_name"].strip()),
+            SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["External"]
+        )
+        return {"vaccination_name": format_field(request.form["vaccination_name"].strip())}
+    except ExportException as e:
+        return {"error": str(e)}
+    except Exception as e:
+        raise e

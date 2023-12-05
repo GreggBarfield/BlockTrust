@@ -2305,3 +2305,13 @@ ADD CONSTRAINT `fk_sales_groups_auction_market_id_id_auction_markets`
   REFERENCES `auction_markets` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+
+/* Nisheet Thakur  12/04/2023*/
+CREATE TABLE `sales_group_fields_values` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `vaccinations` JSON DEFAULT NULL,
+  `sales_group_form_type` TINYINT DEFAULT 0,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

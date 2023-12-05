@@ -6,6 +6,8 @@ import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs'
+import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
+import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute) {
@@ -124,7 +126,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, addAuctionMarketLink=false) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, attachWidget=false, attachedWidget=null) {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -136,12 +138,13 @@ export class SalesGroupsCommonForm{
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
-            if(addAuctionMarketLink){
+            if(attachWidget){
                 let newLink = document.createElement("a");
                 newLink.className = "form-label text-primary";
                 newLink.textContent = "Not Listed?";
                 newLink.onclick = () => {
-                    let widget = new CreateAuctionMarketWidget();
+                    // let widget = new CreateAuctionMarketWidget();
+                    let widget = new attachedWidget();
                     widget.init();
                 }
                 groupLabel.append(newLink);
@@ -150,8 +153,7 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createNumber(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
@@ -166,8 +168,7 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createText(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "text";
@@ -195,12 +196,11 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false, optionsObject=null) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createSelect({row, name, id, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, attachWidget=false, optionsObject=null, attachedWidget=null) {
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, addAuctionMarketLink);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -260,15 +260,16 @@ export class SalesGroupsCommonForm{
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupName = createText(marketingRow,"Sales Group Nickname", this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
-        let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
+        let salesGroupName = createText(marketingRow,"Sales Group Nickname", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
+        let marketingCount = createNumber(marketingRow, "Total Animals", salesGroupFormInputIds.marketingCount, this.marketingCountValue, false, "", "", 2);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
-        let marketingDate = createDate(marketingRow, "Market Date", this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
+        let marketingDate = createDate(marketingRow, "Market Date", salesGroupFormInputIds.marketingDate, this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
         
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
             name: "Market Type",
+            id: salesGroupFormInputIds.marketingDeliveryLocationType,
             options: SalesGroupFields.commonDeliveryLocationTypes,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
@@ -287,17 +288,18 @@ export class SalesGroupsCommonForm{
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market: ",
+            id: salesGroupFormInputIds.marketingAuctionMarketLocation,
             values: auctionMarket || "None",
             multiple: false,
             tags: false,
             placeholder: "Please Select"
-        }, false, "", "", 4, true, this.auctionMarketsData);
+        }, false, "", "", 4, true, this.auctionMarketsData, CreateAuctionMarketWidget);
 
 
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
-        let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || "",true,"marketingSlide","", 4);
-        let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
-        let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location", salesGroupFormInputIds.marketingOffRanchLocation,deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
+        let marketingSlide = createText(marketingRow,"Slide", salesGroupFormInputIds.marketingSlide,this.marketingSlideValue || "",true,"marketingSlide","", 4);
+        let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions,this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
+        let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy,this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -340,6 +342,7 @@ export class SalesGroupsCommonForm{
         let characteristicsCategory = createSelect({
             row: characteristicsRow,
             name: "Category/Sex",
+            id: salesGroupFormInputIds.characteristicsCategory,
             options: SalesGroupFields.commonCategoryNames,
             values: this.characteristicsCategoryValue,
             multiple: false,
@@ -349,21 +352,23 @@ export class SalesGroupsCommonForm{
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
+            id: salesGroupFormInputIds.characteristicBreeds,
             options: SalesGroupFields.commonBreedNames,
             values: this.characteristicBreedsValue,
             multiple: true,
             tags: true,
             placeholder: "Please Select"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
-        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
+        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments", salesGroupFormInputIds.characteristicsBreedComments,this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
+        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight", salesGroupFormInputIds.characteristicsWeight,this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
-        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
+        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", salesGroupFormInputIds.characteristicsWeightVariance, this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
-        let characteristicsWeighingConditions = createText(characteristicsRow,"Other Comments",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
+        let characteristicsWeighingConditions = createText(characteristicsRow,"Other Comments", salesGroupFormInputIds.characteristicsWeighingConditions,this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
+            id: salesGroupFormInputIds.characteristicsFrame,
             options: SalesGroupFields.commonFrames,
             values: this.characteristicsFrameValue,
             multiple: false,
@@ -373,6 +378,7 @@ export class SalesGroupsCommonForm{
         let characteristicsMuscling = createSelect({
             row: characteristicsRow,
             name: "Muscling",
+            id: salesGroupFormInputIds.characteristicsMuscling,
             options: SalesGroupFields.commonMusclings,
             values: this.characteristicsMusclingValue,
             multiple: false,
@@ -382,6 +388,7 @@ export class SalesGroupsCommonForm{
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
+            id: salesGroupFormInputIds.characteristicsHorns,
             options: SalesGroupFields.commonHorns,
             values: this.characteristicsHornsValue,
             multiple: false,
@@ -396,6 +403,7 @@ export class SalesGroupsCommonForm{
         let geneticsGenomicTesting = createSelect({
             row: geneticsRow,
             name: "Do you do genetic or genomic testing?",
+            id: salesGroupFormInputIds.geneticsGenomicTesting,
             options: ["Yes", "No"],
             values: this.geneticsGenomicTestingValue || "",
             multiple: false,
@@ -405,19 +413,21 @@ export class SalesGroupsCommonForm{
         let geneticsEPD = createSelect({
             row: geneticsRow,
             name: "Do you have the EPD's on the sires of the cattle you're planning to sell?",
+            id: salesGroupFormInputIds.geneticsEPD,
             options: ["Yes", "No"],
             values: this.geneticsEPDValue || "",
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsCommentsValue || "",false,"geneticsComments","", 4);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 4);
 
         let maintenanceRow = createSection(form, "Maintenance");
 
         let maintenancePreconditioningProgram = createSelect({
             row: maintenanceRow,
             name: "Precon Program",
+            id: salesGroupFormInputIds.maintenancePreconditioningProgram,
             options: SalesGroupFields.commonPreconditioningProgramNames,
             values: this.maintenancePreconditioningProgramValue,
             multiple: false,
@@ -427,16 +437,18 @@ export class SalesGroupsCommonForm{
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
             name: "Vaccinations",
+            id: salesGroupFormInputIds.maintenanceVaccinations,
             options: SalesGroupFields.commonVaccinations,
             values: this.maintenanceVaccinationsValue,
             multiple: true,
             tags: true,
             placeholder: "Please Select"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2, true, null, CreateVaccinationWidget);
 
         let maintenanceAnnualCattleHerdVaccinations = createSelect({
             row: maintenanceRow,
             name: "Annual Cattle Herd Vaccinations",
+            id: salesGroupFormInputIds.maintenanceAnnualCattleHerdVaccinations,
             options: ["Yes", "No"],
             values: this.maintenanceAnnualCattleHerdVaccinationsValue,
             multiple: false,
@@ -446,6 +458,7 @@ export class SalesGroupsCommonForm{
         let maintenanceFeedingProgram = createSelect({
             row: maintenanceRow,
             name: "Feeding Program",
+            id: salesGroupFormInputIds.maintenanceFeedingProgram,
             options: SalesGroupFields.commonFeedingPrograms,
             values: this.maintenanceFeedingProgramValue,
             multiple: true,
@@ -455,6 +468,7 @@ export class SalesGroupsCommonForm{
         let maintenanceImplants = createSelect({
             row: maintenanceRow,
             name: "Implants",
+            id: salesGroupFormInputIds.maintenanceImplants,
             options: SalesGroupFields.commonImplants,
             values: this.maintenanceImplantsValue,
             multiple: true,
@@ -464,6 +478,7 @@ export class SalesGroupsCommonForm{
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
+            id: salesGroupFormInputIds.maintenanceCastrated,
             options: SalesGroupFields.commonCastrated,
             values: this.maintenanceCastratedValue,
             multiple: false,
@@ -473,6 +488,7 @@ export class SalesGroupsCommonForm{
         let maintenanceProgram = createSelect({
             row: maintenanceRow,
             name: "Program",
+            id: salesGroupFormInputIds.maintenanceProgram,
             options: SalesGroupFields.commonProgramNames,
             values: this.maintenanceProgramValue,
             multiple: false,
