@@ -2315,3 +2315,6 @@ CREATE TABLE `sales_group_fields_values` (
   `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+INSERT INTO `sales_group_fields_values` (vaccinations, sales_group_form_type)
+VALUES ('{"values": ["Not Applicable","Blackleg","H. Somnus","Pasturella","4-way virus (MLV)","4-way virus (Killed)","5-way virus (MLV)","5-way virus (Killed)","Internal Parasites","External Parasites"]}', 1);
