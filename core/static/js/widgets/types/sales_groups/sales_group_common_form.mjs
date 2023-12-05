@@ -10,7 +10,7 @@ import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 
 export class SalesGroupsCommonForm{
-    constructor(data, auctionMarketsData, postRoute) {
+    constructor(data, auctionMarketsData, postRoute, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -95,6 +95,8 @@ export class SalesGroupsCommonForm{
         }
         this.auctionMarketsData = auctionMarketsData;
         this.postRoute = postRoute;
+        this.preSelectAuctionMarket = preSelectAuctionMarket;
+        this.preSelectedAuctionMarketId = preSelectedAuctionMarketId;
         this.makeForm();
         return this.box;
     }
@@ -334,6 +336,18 @@ export class SalesGroupsCommonForm{
             }
         }
         marketingDeliveryLocationType.onchange();
+
+        if(this.preSelectAuctionMarket === "true"){
+            $(marketingDeliveryLocationType).val("Auction");
+            $(marketingDeliveryLocationType).trigger('change');
+            marketingDeliveryLocationType.disabled=true;
+            $(marketingAuctionMarketLocation).val(this.preSelectedAuctionMarketId);
+            $(marketingAuctionMarketLocation).trigger('change');
+            marketingAuctionMarketLocation.disabled=true;
+            marketingOffRanchLocation.disabled=true;
+            marketingSlide.disabled=true;
+            marketingWeighingConditions.disabled=true;
+        }
 
         // Characteristics
 
