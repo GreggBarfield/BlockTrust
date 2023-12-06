@@ -17,7 +17,7 @@ from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscounts, ProductDiscountException
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import SalesGroups, TARGET_DATE_KEYS_TO_DESC
-from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FORM_TYPES_NAMES_TO_IDS
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.users import UsersException
 from ..renderers.email import render_email
@@ -40,9 +40,7 @@ def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
         form_post_route = url_for('iframe_bp.serve_create_sales_group')
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(
-            sales_group_form_type=SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
-        )
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
         return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
             "form_post_route": form_post_route,
@@ -112,9 +110,7 @@ def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
     if len(auction_markets) == 0:
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
     form_post_route = url_for('iframe_bp.serve_create_sales_group')
-    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(
-        sales_group_form_type=SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
-    )
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
     return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
         "auction_markets": auction_markets,
         "form_post_route": form_post_route,
@@ -157,9 +153,7 @@ def serve_edit_sales_group(sales_group_id):
             return outside_render("/outside/iframes/sales-groups/unauthorized.html")
         external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
             sales_group_id=sales_group['id'])
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(
-            sales_group_form_type=SALES_GROUP_FORM_TYPES_NAMES_TO_IDS["Internal"]
-        )
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
         return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
             "sales_group": sales_group,
             "auction_markets": auction_markets,

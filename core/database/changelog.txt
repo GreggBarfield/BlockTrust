@@ -2310,11 +2310,20 @@ ADD CONSTRAINT `fk_sales_groups_auction_market_id_id_auction_markets`
 /* Nisheet Thakur  12/04/2023*/
 CREATE TABLE `sales_group_fields_values` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `vaccinations` JSON DEFAULT NULL,
-  `sales_group_form_type` TINYINT DEFAULT 0,
+  `field_name` VARCHAR(50) DEFAULT NULL,
+  `value` VARCHAR(100) DEFAULT NULL,
   `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
 
-INSERT INTO `sales_group_fields_values` (vaccinations, sales_group_form_type)
-VALUES ('{"values": ["Not Applicable","Blackleg","H. Somnus","Pasturella","4-way virus (MLV)","4-way virus (Killed)","5-way virus (MLV)","5-way virus (Killed)","Internal Parasites","External Parasites"]}', 1);
+INSERT INTO `sales_group_fields_values` (field_name, value)
+VALUES ("vaccination", "Not Applicable"),
+("vaccination", "Blackleg"),
+("vaccination", "H. Somnus"),
+("vaccination", "Pasturella"),
+("vaccination", "4-way virus (MLV)"),
+("vaccination", "4-way virus (Killed)"),
+("vaccination", "5-way virus (MLV)"),
+("vaccination", "5-way virus (Killed)"),
+("vaccination", "Internal Parasites"),
+("vaccination", "External Parasites");

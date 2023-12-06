@@ -453,7 +453,7 @@ export class SalesGroupsCommonForm{
             row: maintenanceRow,
             name: "Vaccinations",
             id: salesGroupFormInputIds.maintenanceVaccinations,
-            options: this.salesGroupFieldsValues.vaccinations.values,
+            options: this.salesGroupFieldsValues.vaccination,
             values: this.maintenanceVaccinationsValue,
             multiple: true,
             tags: true,
