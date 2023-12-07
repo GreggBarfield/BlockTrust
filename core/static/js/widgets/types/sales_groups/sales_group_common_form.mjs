@@ -146,7 +146,6 @@ export class SalesGroupsCommonForm{
                 newLink.className = "form-label text-primary";
                 newLink.textContent = widgetLinkText;
                 newLink.onclick = () => {
-                    // let widget = new CreateAuctionMarketWidget();
                     let widget = new attachedWidget();
                     widget.init();
                 }

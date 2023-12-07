@@ -63,7 +63,7 @@ export class CreateVaccinationWidget extends Widget{
         this.addVaccinationModalFooter.prepend(submitButton);
 
         this.asyncForm = new AsyncForm({
-            action: "/widgets/data/add_new_vaccination",
+            action: "/widgets/data/add_new_sales_group_field_value",
             form: form,
             status: statusMessage,
             error: errorMessage,
@@ -71,11 +71,12 @@ export class CreateVaccinationWidget extends Widget{
             loadingMessage: "Saving...",
             getData: () => {
                 return {
-                    vaccination_name: vaccinationNameInput.value,          
+                    field_name: "Vaccinations",
+                    new_field_value: vaccinationNameInput.value          
                 }
             },
             onFinished: (data) =>{
-                let newVaccinationOption = new Option(data.vaccination_name, data.vaccination_name, false, false);
+                let newVaccinationOption = new Option(data.new_field_value, data.new_field_value, false, false);
                 let maintenanceVaccinations = document.getElementById(salesGroupFormInputIds.maintenanceVaccinations);
                 $(maintenanceVaccinations).append(newVaccinationOption).trigger('change');
                 this.infoModal.close();

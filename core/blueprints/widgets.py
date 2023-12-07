@@ -917,16 +917,16 @@ def serve_get_count_distribution_for_account():
     return count_distribution_data
 
 
-@bp.route('/widgets/data/add_new_vaccination', methods=["POST"])
-def serve_add_new_vaccination():
+@bp.route('/widgets/data/add_new_sales_group_field_value', methods=["POST"])
+def serve_add_new_sales_group_field_value():
     try:
-        if len(request.form["vaccination_name"].strip()) == 0:
-            raise ExportException("Vaccination name cannot be blank")
+        if len(request.form["new_field_value"].strip()) == 0:
+            raise ExportException("Field cannot be blank")
         SalesGroupFieldsValues(g.db).insert(
-            field_id=FIELD_NAMES_TO_IDS["vaccination"],
-            value=format_field(request.form["vaccination_name"].strip())
+            field_name=FIELD_NAMES_TO_IDS[request.form["field_name"]],
+            value=format_field(request.form["new_field_value"].strip())
         )
-        return {"vaccination_name": format_field(request.form["vaccination_name"].strip())}
+        return {"new_field_value": format_field(request.form["new_field_value"].strip())}
     except ExportException as e:
         return {"error": str(e)}
     except Exception as e:
