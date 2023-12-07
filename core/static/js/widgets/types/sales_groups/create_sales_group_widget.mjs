@@ -12,6 +12,7 @@ export class CreateSalesGroupWidget extends Widget {
         this.auctionMarkets = this.processAuctionMarketsData(JSON.parse(this.frame.getAttribute("data-widget-auction-markets")));
         this.preSelectAuctionMarket = this.frame.getAttribute("data-widget-pre-select-auction-market").toLowerCase();
         this.preSelectedAuctionMarketId = this.frame.getAttribute("data-widget-pre-selected-auction-market-id");
+        this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
         this.makeForm();
     }
@@ -31,7 +32,8 @@ export class CreateSalesGroupWidget extends Widget {
             "vaccination": []
         }
         for(const fieldData of salesGroupFieldsValues){
-            let fieldName = fieldData.field_name;
+            let fieldId = fieldData.field_id;
+            let fieldName = this.fieldIdsToNames[fieldId];
             processedSalesGroupFieldsValues[fieldName].push(fieldData.value);
         }
         return processedSalesGroupFieldsValues;

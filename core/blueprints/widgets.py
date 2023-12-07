@@ -20,7 +20,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
-from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, FIELD_NAMES_MAPPING
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, FIELD_NAMES_TO_IDS
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -923,7 +923,7 @@ def serve_add_new_vaccination():
         if len(request.form["vaccination_name"].strip()) == 0:
             raise ExportException("Vaccination name cannot be blank")
         SalesGroupFieldsValues(g.db).insert(
-            field_name=FIELD_NAMES_MAPPING["Vaccinations"],
+            field_id=FIELD_NAMES_TO_IDS["vaccination"],
             value=format_field(request.form["vaccination_name"].strip())
         )
         return {"vaccination_name": format_field(request.form["vaccination_name"].strip())}
