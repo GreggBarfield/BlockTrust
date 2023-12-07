@@ -13,6 +13,7 @@ export class EditSalesGroupWidget extends Widget {
         this.shareableLink = this.frame.getAttribute("data-widget-shareable-link");
         this.formElements = {};
         this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
+        this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
 
         const getSalesGroupData = this.getData(
@@ -54,7 +55,8 @@ export class EditSalesGroupWidget extends Widget {
             "vaccination": []
         }
         for(const fieldData of salesGroupFieldsValues){
-            let fieldName = fieldData.field_name;
+            let fieldId = fieldData.field_id;
+            let fieldName = this.fieldIdsToNames[fieldId];
             processedSalesGroupFieldsValues[fieldName].push(fieldData.value);
         }
         return processedSalesGroupFieldsValues;

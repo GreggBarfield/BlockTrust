@@ -918,6 +918,7 @@ def serve_get_count_distribution_for_account():
 
 
 @bp.route('/widgets/data/add_new_sales_group_field_value', methods=["POST"])
+@crut.require_account
 def serve_add_new_sales_group_field_value():
     try:
         if len(request.form["new_field_value"].strip()) == 0:

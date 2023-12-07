@@ -20,6 +20,10 @@ class SalesGroupFieldsValues:
     def insert(self, field_id=NO_VALUE, value=NO_VALUE):
         """
         Inserts a new row for sales group field values
+
+        Params:
+            field_id: Field ID for the value
+            value: Option value for the field
         """
         self._db.execute(
             """
@@ -37,7 +41,8 @@ class SalesGroupFieldsValues:
         Gets the sales group fields values based on provided parameters
 
         Params:
-            sales_group_form_type: Type of form fields values are requested for
+            id: ID of the sales group field value
+            field_id: Field ID for the value
 
         Returns:
             A list of sales group fields values
@@ -63,10 +68,12 @@ class SalesGroupFieldsValues:
         
     def update(self, id, field_id=NO_VALUE, value=NO_VALUE):
         """
-        Updates the JSON value for a given column wiht field values
+        Updates the row based on the provided attributes
 
         Params:
-            updated_field_names_and_values: A dictionary containing the field names to be updated and updated values
+            id: ID of the sales group field value
+            field_id: Field ID for the 
+            value: Option value for the field
         """
         base_query = "UPDATE sales_group_fields_values"
 
@@ -87,6 +94,3 @@ class SalesGroupFieldsValues:
             self._db.execute(query, query_values)
         else:
             raise Exception("No values given for update!")
-
-        
-            
