@@ -98,7 +98,8 @@ def serve_sales_group():
         "weighing_conditions": sales_group_row["weighing_conditions"],
         "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
         "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
-        "auction_market_id": sales_group_row["auction_market_id"]
+        "auction_market_id": sales_group_row["auction_market_id"],
+        "created_date": sales_group_row["created_timestamp"].strftime("%m/%d/%Y")
     }
 
 
