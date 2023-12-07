@@ -71,7 +71,7 @@ export class CreateVaccinationWidget extends Widget{
             loadingMessage: "Saving...",
             getData: () => {
                 return {
-                    field_name: "Vaccinations",
+                    field_name: "vaccination",
                     new_field_value: vaccinationNameInput.value          
                 }
             },

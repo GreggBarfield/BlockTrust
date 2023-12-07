@@ -147,19 +147,6 @@ let commonHorns = [
 	"N/A",
 	"Horns",
 	"No Horns"
-]
-
-let commonVaccinations = [
-	"Not Applicable",
-	"Blackleg",
-	"H. Somnus",
-	"Pasturella",
-	"4-way virus (MLV)",
-	"4-way virus (Killed)",
-	"5-way virus (MLV)",
-	"5-way virus (Killed)",
-	"Internal Parasites",
-	"External Parasites"
 ];
 
 let commonDeliveryLocationTypes = [
@@ -210,7 +197,6 @@ export let SalesGroupFields = {
 	commonWeights: commonWeights,
 	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
 	commonFrames: commonFrames,
-	commonVaccinations: commonVaccinations,
 	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
 	commonCastrated: commonCastrated,
 	commonFeedingPrograms: commonFeedingPrograms,

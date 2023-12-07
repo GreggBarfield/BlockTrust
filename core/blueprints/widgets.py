@@ -923,7 +923,7 @@ def serve_add_new_sales_group_field_value():
         if len(request.form["new_field_value"].strip()) == 0:
             raise ExportException("Field cannot be blank")
         SalesGroupFieldsValues(g.db).insert(
-            field_name=FIELD_NAMES_TO_IDS[request.form["field_name"]],
+            field_id=FIELD_NAMES_TO_IDS[request.form["field_name"]],
             value=format_field(request.form["new_field_value"].strip())
         )
         return {"new_field_value": format_field(request.form["new_field_value"].strip())}

@@ -1,7 +1,7 @@
 import { ProgressBar } from '../../../core/progress_bar.mjs';
 import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
-import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { SalesGroupFields } from './sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
