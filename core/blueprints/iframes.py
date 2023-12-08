@@ -17,6 +17,7 @@ from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_discounts import ProductDiscounts, ProductDiscountException
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import SalesGroups, TARGET_DATE_KEYS_TO_DESC
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, FIELD_IDS_TO_NAMES
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.users import UsersException
 from ..renderers.email import render_email
@@ -39,11 +40,14 @@ def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
         form_post_route = url_for('iframe_bp.serve_create_sales_group')
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
         return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
             "form_post_route": form_post_route,
             "pre_select_auction_market": False,
-            "pre_selected_auction_market_id": None
+            "pre_selected_auction_market_id": None,
+            "sales_group_fields_values": sales_group_fields_values,
+            "field_ids_to_names": FIELD_IDS_TO_NAMES
         })
     if request.method == 'POST':
         images = []
@@ -107,11 +111,14 @@ def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
     if len(auction_markets) == 0:
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
     form_post_route = url_for('iframe_bp.serve_create_sales_group')
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
     return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
         "auction_markets": auction_markets,
         "form_post_route": form_post_route,
         "pre_select_auction_market": True,
-        "pre_selected_auction_market_id": auction_market_id
+        "pre_selected_auction_market_id": auction_market_id,
+        "sales_group_fields_values": sales_group_fields_values,
+        "field_ids_to_names": FIELD_IDS_TO_NAMES
     })
 
 @bp.route('/iframe/sales-group/sales-group-created')
@@ -148,11 +155,14 @@ def serve_edit_sales_group(sales_group_id):
             return outside_render("/outside/iframes/sales-groups/unauthorized.html")
         external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
             sales_group_id=sales_group['id'])
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
         return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
             "sales_group": sales_group,
             "auction_markets": auction_markets,
             "form_post_route": form_post_route,
-            "external_shareable_link": external_shareable_link
+            "external_shareable_link": external_shareable_link,
+            "sales_group_fields_values": sales_group_fields_values,
+            "field_ids_to_names": FIELD_IDS_TO_NAMES
         })
     if request.method == 'POST':
         # Check that the account selected is the owner of the sales group
@@ -293,13 +303,11 @@ def serve_iframe_signup():
                     request.form['requestRedirectTo'] is not None and
                     request.form['requestRedirectTo'] != ''
                 ):
-                print("Redirecting to" + redirect_to)
                 redirect_to = request.form['requestRedirectTo']
             return {"redirect": redirect_to}
         except ExportException as e:
             raise e
         except Exception as e:
-            print("Create Account Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
             ErrorLogs(g.db).insert_error_log("Create Account using Iframe", e.__class__.__name__ + ": " + str(e), format_exc())
             return {"error": "Internal Server Error"}, 500
 

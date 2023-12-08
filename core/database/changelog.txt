@@ -2305,3 +2305,25 @@ ADD CONSTRAINT `fk_sales_groups_auction_market_id_id_auction_markets`
   REFERENCES `auction_markets` (`id`)
   ON DELETE RESTRICT
   ON UPDATE RESTRICT;
+
+
+/* Nisheet Thakur  12/04/2023*/
+CREATE TABLE `sales_group_fields_values` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `field_id` INT NOT NULL,
+  `value` VARCHAR(100) DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (1, "Not Applicable"),
+(1, "Blackleg"),
+(1, "H. Somnus"),
+(1, "Pasturella"),
+(1, "4-way virus (MLV)"),
+(1, "4-way virus (Killed)"),
+(1, "5-way virus (MLV)"),
+(1, "5-way virus (Killed)"),
+(1, "Internal Parasites"),
+(1, "External Parasites");

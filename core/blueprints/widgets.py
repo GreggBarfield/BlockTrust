@@ -20,6 +20,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, FIELD_NAMES_TO_IDS
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -29,7 +30,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -914,3 +915,20 @@ def serve_get_count_distribution_for_account():
         0
     ))
     return count_distribution_data
+
+
+@bp.route('/widgets/data/add_new_sales_group_field_value', methods=["POST"])
+@crut.require_account
+def serve_add_new_sales_group_field_value():
+    try:
+        if len(request.form["new_field_value"].strip()) == 0:
+            raise ExportException("Field cannot be blank")
+        SalesGroupFieldsValues(g.db).insert(
+            field_id=FIELD_NAMES_TO_IDS[request.form["field_name"]],
+            value=format_field(request.form["new_field_value"].strip())
+        )
+        return {"new_field_value": format_field(request.form["new_field_value"].strip())}
+    except ExportException as e:
+        return {"error": str(e)}
+    except Exception as e:
+        raise e
