@@ -300,6 +300,7 @@ export class SalesGroupsCommonForm{
         let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
+        let marketingComments = createText(marketingRow,"Marketing Comments",this.marketingComments || "",true,"marketingComments","", 12);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -384,15 +385,6 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let characteristicsMuscling = createSelect({
-            row: characteristicsRow,
-            name: "Muscling",
-            options: SalesGroupFields.commonMusclings,
-            values: this.characteristicsMusclingValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, false, "", "", 4);
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
@@ -402,6 +394,25 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let characteristicsMuscling = createSelect({
+            row: characteristicsRow,
+            name: "Muscling",
+            options: SalesGroupFields.commonMusclings,
+            values: this.characteristicsMusclingValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let characteristicsPregnancyStatus = createSelect({
+            row: characteristicsRow,
+            name: "Pregnancy Status (Heifers)",
+            options: ["Open", "Guaranteed Open", "Lutalysed", "Spayed"],
+            values: this.characteristicsMusclingValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",this.marketingComments || "",true,"characteristicsComments","", 12);
 
         // Maintenance
 
@@ -425,7 +436,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsCommentsValue || "",false,"geneticsComments","", 4);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
 
         let maintenanceRow = createSection(form, "Maintenance");
 
