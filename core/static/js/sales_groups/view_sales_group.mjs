@@ -268,7 +268,11 @@ export class SalesGroupViewer {
                 carcassData.append(tooltip);
                 left.append(carcassData);
             }
-            
+
+            let addedDate = document.createElement("div");
+            addedDate.style = "color:black";
+            addedDate.textContent =`Added: ${this.data.created_date}`;
+            left.append(addedDate);
         }
 
         // Configure Animal data

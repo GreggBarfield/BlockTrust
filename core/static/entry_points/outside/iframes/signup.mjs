@@ -1,5 +1,5 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
-import { SalesGroupFields } from '/static/js/sales_groups/sales_group_fields.mjs'
+import { SalesGroupFields } from '../../../js/widgets/types/sales_groups/sales_group_fields.mjs';
 
 let signupForm = $("#signup_form");
 let statusMessage = signupForm.find("#signup_status_message");

@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
-import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { SalesGroupFields } from './sales_group_fields.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class SearchSalesGroupsWidget extends Widget {

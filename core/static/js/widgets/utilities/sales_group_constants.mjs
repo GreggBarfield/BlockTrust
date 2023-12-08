@@ -1,0 +1,33 @@
+let salesGroupFormInputIds = {
+    marketingGroupName: "marketing-group-name",
+    marketingCount: "marketing-count",
+    marketingZIP: "marketing-zip",
+    marketingDate: "marketing-date",
+    marketingDeliveryLocationType: "marketing-delivery-location-type",
+    marketingAuctionMarketLocation: "marketing-auction-market-location",
+    marketingOffRanchLocation: "marketing-off-ranch-location",
+    marketingSlide: "marketing-slide",
+    marketingWeighingConditions: "marketing-weighing-conditions",
+    marketingRepresentedBy: "marketing-represented-by",
+    characteristicsCategory: "characteristics-category",
+    characteristicBreeds: "characteristis-breeds",
+    characteristicsBreedComments: "characteristics-breed-comments",
+    characteristicsWeight: "characteristics-weight",
+    characteristicsWeightVariance: "characteristics-weight-variance",
+    characteristicsWeighingConditions: "characteristics-weighing-conditions",
+    characteristicsFrame: "characteristics-frame",
+    characteristicsMuscling: "characteristics-fuscling",
+    characteristicsHorns: "characteristics-horns",
+    geneticsGenomicTesting: "genetics-genomic-testing",
+    geneticsEPD: "genetics-epd",
+    geneticsComments: "genetics-comments",
+    maintenancePreconditioningProgram: "maintenance-preconditioning-program",
+    maintenanceVaccinations: "maintenance-vaccinations",
+    maintenanceAnnualCattleHerdVaccinations: "maintenance-annual-cattle-herd-vaccinations",
+    maintenanceFeedingProgram: "maintenance-feeding-program",
+    maintenanceImplants: "maintenance-implants",
+    maintenanceCastrated: "maintenance-castrated",
+    maintenanceProgram: "maintenance-program"
+}
+
+export {salesGroupFormInputIds};

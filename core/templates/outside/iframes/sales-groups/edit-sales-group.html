@@ -15,6 +15,8 @@
             data-widget-qr-src="{{ qrcode(external_shareable_link, box_size=3, border=2) }}" 
             data-widget-shareable-link="{{external_shareable_link}}"
             data-widget-form-post-route="{{form_post_route}}"
+            data-widget-sales-group-fields-values='{{sales_group_fields_values|tojson}}'
+            data-widget-sales-group-field-ids-to-names='{{field_ids_to_names|tojson}}'
         >
         </div>
     </div>
