@@ -4,11 +4,11 @@ from ...common_exceptions import ExportException
 
 NO_VALUE = NoValue()
 
-FIELD_NAMES_TO_IDS = {
+SALES_GROUP_FIELD_NAMES_TO_IDS = {
     "vaccination": 1
 }
 
-FIELD_IDS_TO_NAMES = {value: key for key, value in FIELD_NAMES_TO_IDS.items()}
+SALES_GROUP_FIELD_IDS_TO_NAMES = {value: key for key, value in SALES_GROUP_FIELD_NAMES_TO_IDS.items()}
 
 sales_group_fields_values_cols = ("id", "field_id", "value")
 

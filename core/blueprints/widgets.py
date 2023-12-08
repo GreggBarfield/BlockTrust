@@ -20,7 +20,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
-from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, FIELD_NAMES_TO_IDS
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_NAMES_TO_IDS
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -925,7 +925,7 @@ def serve_add_new_sales_group_field_value():
         if len(request.form["new_field_value"].strip()) == 0:
             raise ExportException("Field cannot be blank")
         SalesGroupFieldsValues(g.db).insert(
-            field_id=FIELD_NAMES_TO_IDS[request.form["field_name"]],
+            field_id=SALES_GROUP_FIELD_NAMES_TO_IDS[request.form["field_name"]],
             value=format_field(request.form["new_field_value"].strip())
         )
         return {"new_field_value": format_field(request.form["new_field_value"].strip())}
