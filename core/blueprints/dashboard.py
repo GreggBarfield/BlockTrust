@@ -27,6 +27,7 @@ from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
@@ -187,12 +188,15 @@ def serve_sales_groups(id):
 @crut.require_paid_account
 def serve_new_sales_group():
     auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
     form_post_route = url_for('widgets_bp.serve_create_sales_group')
     return dashboard_render("sales-groups/sales-group/create.html", {
         "form_post_route": form_post_route,
         "auction_markets": auction_markets,
         "pre_select_auction_market": False,
-        "pre_selected_auction_market_id": None
+        "pre_selected_auction_market_id": None,
+        "sales_group_fields_values": sales_group_fields_values,
+        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
     })
 
 
@@ -207,11 +211,15 @@ def serve_edit_sales_group(sales_group_id):
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
         sales_group_id=sales_group_row['id'])
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
     return dashboard_render(
         "sales-groups/sales-group/edit.html", {
             "sales_group": sales_group_row,
             "external_shareable_link": external_shareable_link,
-            "form_post_route": form_post_route}
+            "form_post_route": form_post_route,
+            "sales_group_fields_values": sales_group_fields_values,
+            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+        }
     )
 
 
