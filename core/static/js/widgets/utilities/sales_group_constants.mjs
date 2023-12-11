@@ -1,6 +1,5 @@
 let salesGroupFormInputIds = {
     marketingGroupName: "marketing-group-name",
-    marketingCount: "marketing-count",
     marketingZIP: "marketing-zip",
     marketingDate: "marketing-date",
     marketingDeliveryLocationType: "marketing-delivery-location-type",
@@ -9,6 +8,8 @@ let salesGroupFormInputIds = {
     marketingSlide: "marketing-slide",
     marketingWeighingConditions: "marketing-weighing-conditions",
     marketingRepresentedBy: "marketing-represented-by",
+    marketingComments: "marketing-comments",
+    characteristicsCount: "characteristics-count",
     characteristicsCategory: "characteristics-category",
     characteristicBreeds: "characteristis-breeds",
     characteristicsBreedComments: "characteristics-breed-comments",
@@ -18,16 +19,25 @@ let salesGroupFormInputIds = {
     characteristicsFrame: "characteristics-frame",
     characteristicsMuscling: "characteristics-fuscling",
     characteristicsHorns: "characteristics-horns",
+    characteristicsPregnancyStatus: "characteristics-pregnancy-status",
+    characteristicsComments: "characteristics-comments",
     geneticsGenomicTesting: "genetics-genomic-testing",
     geneticsEPD: "genetics-epd",
+    geneticsVerification: "genetics-verification",
     geneticsComments: "genetics-comments",
     maintenancePreconditioningProgram: "maintenance-preconditioning-program",
     maintenanceVaccinations: "maintenance-vaccinations",
+    maintenanceComingledStatus: "maintenance-comingled-status",
+    maintenanceCreepFeed: "maintenance-creep-feed",
     maintenanceAnnualCattleHerdVaccinations: "maintenance-annual-cattle-herd-vaccinations",
     maintenanceFeedingProgram: "maintenance-feeding-program",
     maintenanceImplants: "maintenance-implants",
     maintenanceCastrated: "maintenance-castrated",
-    maintenanceProgram: "maintenance-program"
+    maintenanceWeaned: "maintenance-weaned",
+    valueAddProgramProgramType: "value-add-program-program-type",
+    valueAddProgramPreconditioningProgram: "value-add-program-preconditioning=program",
+    valueAddProgramFeedingProgram: "value-add-program-feeding-program",
+    valueAddProgramProgramComments: "value-add-program-program-comments"
 }
 
 export {salesGroupFormInputIds};

@@ -79,7 +79,7 @@ export class SalesGroupsCommonForm{
             this.geneticsGenomicTestingValue = "";
             this.geneticsEPDValue = "";
             this.geneticsCommentsValue = "";
-            this.maintenancePreconditioningProgramValue = "";
+            this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
             this.maintenanceAnnualCattleHerdVaccinationsValue = ""
             this.maintenanceFeedingProgramValue = [];
@@ -263,8 +263,7 @@ export class SalesGroupsCommonForm{
         let marketingRow = createSection(form, "Marketing");
 
         let salesGroupName = createText(marketingRow,"Sales Group Nickname", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
-        let marketingCount = createNumber(marketingRow, "Total Animals", salesGroupFormInputIds.marketingCount, this.marketingCountValue, false, "", "", 2);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 4);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDate = createDate(marketingRow, "Market Date", salesGroupFormInputIds.marketingDate, this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
         
@@ -302,7 +301,7 @@ export class SalesGroupsCommonForm{
         let marketingSlide = createText(marketingRow, "Slide", salesGroupFormInputIds.marketingSlide, this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
-        let marketingComments = createText(marketingRow,"Marketing Comments", "ss", this.marketingComments || "",true,"marketingComments","", 12);
+        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.marketingComments || "",true,"marketingComments","", 12);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -354,6 +353,17 @@ export class SalesGroupsCommonForm{
 
         let characteristicsRow = createSection(form, "Characteristics");
         
+        let characteristicsCount = createNumber(characteristicsRow, "Total Head Count", salesGroupFormInputIds.characteristicsCount, this.marketingCountValue, false, "", "", 4);
+        let characteristicBreeds = createSelect({
+            row: characteristicsRow,
+            name: "Breed",
+            id: salesGroupFormInputIds.characteristicBreeds,
+            options: this.salesGroupFieldsValues.breed,
+            values: this.characteristicBreedsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
         let characteristicsCategory = createSelect({
             row: characteristicsRow,
             name: "Category/Sex",
@@ -364,22 +374,10 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         },false,"","", 4);
-        let characteristicBreeds = createSelect({
-            row: characteristicsRow,
-            name: "Breed",
-            id: salesGroupFormInputIds.characteristicBreeds,
-            options: SalesGroupFields.commonBreedNames,
-            values: this.characteristicBreedsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments", salesGroupFormInputIds.characteristicsBreedComments,this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
         let characteristicsWeight = createNumber(characteristicsRow,"Base Weight", salesGroupFormInputIds.characteristicsWeight,this.characteristicsWeightValue,true,"characteristicsWeight",
         "Please enter the average weight of the cattle in the group", 4);
         let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", salesGroupFormInputIds.characteristicsWeightVariance, this.characteristicsWeightVarianceValue,
         true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
-        let characteristicsWeighingConditions = createText(characteristicsRow,"Other Comments", salesGroupFormInputIds.characteristicsWeighingConditions,this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
         let characteristicsFrame = createSelect({
             row: characteristicsRow,
             name: "Frame",
@@ -413,15 +411,81 @@ export class SalesGroupsCommonForm{
         let characteristicsPregnancyStatus = createSelect({
             row: characteristicsRow,
             name: "Pregnancy Status (Heifers)",
+            id: salesGroupFormInputIds.characteristicsPregnancyStatus,
             options: ["Open", "Guaranteed Open", "Lutalysed", "Spayed"],
             values: this.characteristicsMusclingValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",this.marketingComments || "",true,"characteristicsComments","", 12);
+        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.marketingComments || "",true,"characteristicsComments","", 12);
 
         // Maintenance
+
+        let maintenanceRow = createSection(form, "Maintenance");
+
+        let maintenanceVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Vaccinations",
+            id: salesGroupFormInputIds.maintenanceVaccinations,
+            options: this.salesGroupFieldsValues.vaccination,
+            values: this.maintenanceVaccinationsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
+        let maintenanceComingledStatus = createSelect({
+            row: maintenanceRow,
+            name: "Comingled Status",
+            id: salesGroupFormInputIds.maintenanceComingledStatus,
+            options: this.salesGroupFieldsValues.comingled_status,
+            values: this.maintenanceCastratedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceCreepFeed = createSelect({
+            row: maintenanceRow,
+            name: "Creep Feed",
+            id: salesGroupFormInputIds.maintenanceCreepFeed,
+            options: this.salesGroupFieldsValues.creep_feed,
+            values: this.maintenanceCastratedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceImplants = createSelect({
+            row: maintenanceRow,
+            name: "Implants",
+            id: salesGroupFormInputIds.maintenanceImplants,
+            options: SalesGroupFields.commonImplants,
+            values: this.maintenanceImplantsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, false, "" , "", 4);
+        let maintenanceCastrated = createSelect({
+            row: maintenanceRow,
+            name: "Castrated",
+            id: salesGroupFormInputIds.maintenanceCastrated,
+            options: SalesGroupFields.commonCastrated,
+            values: this.maintenanceCastratedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceWeaned = createSelect({
+            row: maintenanceRow,
+            name: "Weaned",
+            id: salesGroupFormInputIds.maintenanceWeaned,
+            options: this.salesGroupFieldsValues.weaned,
+            values: this.maintenanceCastratedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+
+        // Genetics
 
         let geneticsRow = createSection(form, "Genetics");
 
@@ -445,81 +509,53 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 4);
+        let geneticsVerification = createSelect({
+            row: geneticsRow,
+            name: "Genetics Verification Co.",
+            id: salesGroupFormInputIds.geneticsVerification,
+            options: this.salesGroupFieldsValues.genetics_verification,
+            values: this.geneticsVerificationValue || "",
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
 
-        let maintenanceRow = createSection(form, "Maintenance");
+        // Value-Add Programs
 
-        let maintenancePreconditioningProgram = createSelect({
-            row: maintenanceRow,
-            name: "Precon Program",
-            id: salesGroupFormInputIds.maintenancePreconditioningProgram,
-            options: SalesGroupFields.commonPreconditioningProgramNames,
+        let valueAddProgramsRow = createSection(form, "Value-Add Programss");
+        let valueAddProgramsProgram = createSelect({
+            row: valueAddProgramsRow,
+            name: "Program",
+            id: salesGroupFormInputIds.valueAddProgramProgramType,
+            options: this.salesGroupFieldsValues.pvp_program,
+            values: this.maintenanceProgramValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsPreconditioningProgram = createSelect({
+            row: valueAddProgramsRow,
+            name: "Preconditioning Program",
+            id: salesGroupFormInputIds.valueAddProgramPreconditioningProgram,
+            options: this.salesGroupFieldsValues.preconditioning_program,
             values: this.maintenancePreconditioningProgramValue,
             multiple: false,
             tags: true,
             placeholder: "Please Select"
         }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4);
-        let maintenanceVaccinations = createSelect({
-            row: maintenanceRow,
-            name: "Vaccinations",
-            id: salesGroupFormInputIds.maintenanceVaccinations,
-            options: this.salesGroupFieldsValues.vaccination,
-            values: this.maintenanceVaccinationsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2, true, null, CreateVaccinationWidget, "Add New");
-
-        let maintenanceAnnualCattleHerdVaccinations = createSelect({
-            row: maintenanceRow,
-            name: "Annual Cattle Herd Vaccinations",
-            id: salesGroupFormInputIds.maintenanceAnnualCattleHerdVaccinations,
-            options: ["Yes", "No"],
-            values: this.maintenanceAnnualCattleHerdVaccinationsValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, false, "", "", 2);
-        let maintenanceFeedingProgram = createSelect({
-            row: maintenanceRow,
+        let valueAddProgramsFeedingProgram = createSelect({
+            row: valueAddProgramsRow,
             name: "Feeding Program",
-            id: salesGroupFormInputIds.maintenanceFeedingProgram,
+            id: salesGroupFormInputIds.valueAddProgramFeedingProgram,
             options: SalesGroupFields.commonFeedingPrograms,
             values: this.maintenanceFeedingProgramValue,
             multiple: true,
             tags: true,
             placeholder: "Please Select"
         }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
-        let maintenanceImplants = createSelect({
-            row: maintenanceRow,
-            name: "Implants",
-            id: salesGroupFormInputIds.maintenanceImplants,
-            options: SalesGroupFields.commonImplants,
-            values: this.maintenanceImplantsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, false, "" , "", 4);
-        let maintenanceCastrated = createSelect({
-            row: maintenanceRow,
-            name: "Castrated",
-            id: salesGroupFormInputIds.maintenanceCastrated,
-            options: SalesGroupFields.commonCastrated,
-            values: this.maintenanceCastratedValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, false, "", "", 4);
-        let maintenanceProgram = createSelect({
-            row: maintenanceRow,
-            name: "Program",
-            id: salesGroupFormInputIds.maintenanceProgram,
-            options: SalesGroupFields.commonProgramNames,
-            values: this.maintenanceProgramValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
+
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -648,7 +684,7 @@ export class SalesGroupsCommonForm{
                         feeding_programs: $(maintenanceFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
-                        program: maintenanceProgram.value,
+                        program: valueAddProgramsProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
                         marketing_slide: marketingSlide.value,
@@ -667,9 +703,6 @@ export class SalesGroupsCommonForm{
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": $(marketingAuctionMarketLocation).find(':selected').text(),
                     "category": characteristicsCategory.value,
-                    "breed_comments": characteristicsBreedComments.value,
-                    "weighing_conditions": characteristicsWeighingConditions.value,
-                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,              
                 }
             }
         });

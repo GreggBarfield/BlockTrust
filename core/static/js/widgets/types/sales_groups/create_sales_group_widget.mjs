@@ -29,7 +29,14 @@ export class CreateSalesGroupWidget extends Widget {
 
     processSalesGroupFieldsValues = (salesGroupFieldsValues) =>{
         let processedSalesGroupFieldsValues = {
-            "vaccination": []
+            "vaccination": [],
+            "genetics_verification": [],
+            "comingled_status": [],
+            "creep_feed": [],
+            "weaned": [],
+            "breed": [],
+            "pvp_program": [],
+            "preconditioning_program": []
         }
         for(const fieldData of salesGroupFieldsValues){
             let fieldId = fieldData.field_id;

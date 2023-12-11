@@ -2327,3 +2327,220 @@ VALUES (1, "Not Applicable"),
 (1, "5-way virus (Killed)"),
 (1, "Internal Parasites"),
 (1, "External Parasites");
+
+/* Nisheet Thakur 12/11/2023 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (2, "Top Dollar Angus"),
+(2, "Angus Link - GMS"),
+(2, "Feeder Profit Calculator"),
+(2, "Igenity Feeder"),
+(2, "Igenity Beef"),
+(2, "Zoetis GeneMax"),
+(2, "Zoetis Inherit");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (3, "Home Raised/Single Source"),
+(3, "Comingled");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (4, "Yes"),
+(4, "No"),
+(4, "N/A");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (5, "No"),
+(5, "15+ Days"),
+(5, "30+ Days"),
+(5, "45+ Days"),
+(5, "60+ Days");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (6, "Amerifax"),
+(6, "Angus"),
+(6, "Angus Cross"),
+(6, "Angus F1"),
+(6, "Angus Plus"),
+(6, "Aubrac"),
+(6, "Balancer"),
+(6, "Barzona"),
+(6, "Beef Friesian"),
+(6, "Beefalo"),
+(6, "Beefmaster"),
+(6, "Beefmaster Cross"),
+(6, "Belgian Blue"),
+(6, "Belted Galloway"),
+(6, "Black Angus"),
+(6, "Black Hereford"),
+(6, "Black Simmental"),
+(6, "Blonde d' Aquitaine"),
+(6, "Braford"),
+(6, "Brahman"),
+(6, "Brahman Cross"),
+(6, "Brahman F1"),
+(6, "Brahmousin"),
+(6, "Brangus"),
+(6, "Brangus Cross"),
+(6, "Braunvieh"),
+(6, "Braunvieh F1"),
+(6, "British White"),
+(6, "Charbray"),
+(6, "Charloais F1"),
+(6, "Charolais"),
+(6, "Charolais Cross"),
+(6, "Chianina"),
+(6, "Corriente"),
+(6, "Criollo"),
+(6, "Crossbred"),
+(6, "Devon"),
+(6, "Dexter"),
+(6, "Fleckvieh"),
+(6, "Galloway"),
+(6, "Gelbvieh"),
+(6, "Gelbvieh Cross"),
+(6, "Gelbvieh F1"),
+(6, "Hereford"),
+(6, "Hereford Cross"),
+(6, "Hereford F1"),
+(6, "Holstein"),
+(6, "Irish Blacks"),
+(6, "Jersey"),
+(6, "LimFlex"),
+(6, "Limousin"),
+(6, "Limousin Cross"),
+(6, "Limousin F1"),
+(6, "Longhorn"),
+(6, "Lowline"),
+(6, "Maine-Anjou"),
+(6, "Murray Grey"),
+(6, "Piedmontese"),
+(6, "Pinzgauer"),
+(6, "Polled Hereford"),
+(6, "Randall"),
+(6, "Red Angus"),
+(6, "Red Angus Cross"),
+(6, "Red Brangus"),
+(6, "Red Poll"),
+(6, "Romagnola"),
+(6, "Salers"),
+(6, "Santa Cruz"),
+(6, "Santa Gertrudis"),
+(6, "Santa Gertrudis Cross"),
+(6, "Scottish Highlander"),
+(6, "Senepol"),
+(6, "Shorthorn"),
+(6, "Shorthorn Cross"),
+(6, "Shorthorn F1"),
+(6, "SimAngus"),
+(6, "Simbrah"),
+(6, "Simmental"),
+(6, "Simmental Cross"),
+(6, "Simmental F1"),
+(6, "South Devon"),
+(6, "South Poll"),
+(6, "Star 5"),
+(6, "Tarentaise"),
+(6, "Texas Cross"),
+(6, "Tigerstripe"),
+(6, "Wagyu"),
+(6, "White Park"),
+(6, "Not Reported");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (7, "Conventional"),
+(7, "Natural"),
+(7, "NHTC");
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (8, "Yes / Name Unknown"),
+(8, "Health Track"),
+(8, "Value Added Calf-45"),
+(8, "OQBN Vac-45 Program"),
+(8, "JRS Wean-Vac 45"),
+(8, "Superior Livestock Vac-45"),
+(8, "TAMU Vac-45"),
+(8, "Integrity Beef Alliance Vac-45"),
+(8, "MFA Health Track Vac-45"),
+(8, "NMSU Vac-45"),
+(8, "MCA Vac-45"),
+(8, "PrimeVac Vac-45"),
+(8, "SelectVac WeanVac");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

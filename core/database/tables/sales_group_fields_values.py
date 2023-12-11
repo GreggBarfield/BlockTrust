@@ -5,7 +5,14 @@ from ...common_exceptions import ExportException
 NO_VALUE = NoValue()
 
 SALES_GROUP_FIELD_NAMES_TO_IDS = {
-    "vaccination": 1
+    "vaccination": 1,
+    "genetics_verification": 2,
+    "comingled_status": 3,
+    "creep_feed": 4,
+    "weaned": 5,
+    "breed": 6,
+    "pvp_program": 7,
+    "preconditioning_program": 8
 }
 
 SALES_GROUP_FIELD_IDS_TO_NAMES = {value: key for key, value in SALES_GROUP_FIELD_NAMES_TO_IDS.items()}
