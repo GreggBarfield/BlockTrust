@@ -2496,9 +2496,3 @@ VALUES (1, "No"),
 (17, "Spayed");
 
 ALTER TABLE `sales_groups` DROP COLUMN `are_annual_cattle_herd_vaccinations_given`;
-
-
-
-
-
-

@@ -49,6 +49,8 @@ export class SalesGroupsCommonForm{
             this.maintenanceProgramValue = this.data.reported.program;
             this.maintenanceComingledStatusValue = this.data.reported.comingled_status;
             this.maintenanceCreepFeedValue = this.data.reported.creep_feed;
+            this.maintenanceWeanedValue = this.data.reported.weaned;
+            this.maintenanceCommentsValue = this.data.reported.maintenance_comments;
             this.valueAddProgramsProgramValue = this.data.reported.program;
             this.valueAddProgramsPreconditioningProgramsValue = this.data.reported.preconditioning_program;
             this.valueAddedProgramsFeedingProgramsValue = this.data.reported.feeding_programs;
@@ -98,6 +100,8 @@ export class SalesGroupsCommonForm{
             this.maintenanceProgramValue = [];
             this.maintenanceComingledStatusValue = [];
             this.maintenanceCreepFeedValue = [];
+            this.maintenanceWeanedValue = [];
+            this.maintenanceCommentsValue = "";
             this.valueAddProgramsProgramValue = [];
             this.valueAddProgramsPreconditioningProgramsValue = [];
             this.valueAddedProgramsFeedingProgramsValue = [];
@@ -495,11 +499,12 @@ export class SalesGroupsCommonForm{
             name: "Weaned",
             id: salesGroupFormInputIds.maintenanceWeaned,
             options: this.salesGroupFieldsValues.weaned,
-            values: this.maintenanceCastratedValue,
+            values: this.maintenanceWeanedValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12);
 
         // Genetics
 
@@ -715,7 +720,9 @@ export class SalesGroupsCommonForm{
                         comingled_status: maintenanceComingledStatus.value,
                         creep_feed: maintenanceCreepFeed.value,
                         verification: geneticsVerification.value,
-                        program_comments: valueAddProgramsComments.value
+                        program_comments: valueAddProgramsComments.value,
+                        weaned: maintenanceWeaned.value,
+                        maintenance_comments: ""
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,

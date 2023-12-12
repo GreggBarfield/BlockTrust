@@ -34,6 +34,7 @@ let salesGroupFormInputIds = {
     maintenanceImplants: "maintenance-implants",
     maintenanceCastrated: "maintenance-castrated",
     maintenanceWeaned: "maintenance-weaned",
+    maintenanceComments: "maintenance-comments",
     valueAddProgramProgramType: "value-add-program-program-type",
     valueAddProgramPreconditioningProgram: "value-add-program-preconditioning=program",
     valueAddProgramFeedingProgram: "value-add-program-feeding-program",
