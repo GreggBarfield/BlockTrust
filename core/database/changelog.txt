@@ -2336,26 +2336,18 @@ VALUES (2, "Top Dollar Angus"),
 (2, "Igenity Feeder"),
 (2, "Igenity Beef"),
 (2, "Zoetis GeneMax"),
-(2, "Zoetis Inherit");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (3, "Home Raised/Single Source"),
-(3, "Comingled");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (4, "Yes"),
+(2, "Zoetis Inherit"),
+(3, "Home Raised/Single Source"),
+(3, "Comingled"),
+(4, "Yes"),
 (4, "No"),
-(4, "N/A");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (5, "No"),
+(4, "N/A"),
+(5, "No"),
 (5, "15+ Days"),
 (5, "30+ Days"),
 (5, "45+ Days"),
-(5, "60+ Days");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (6, "Amerifax"),
+(5, "60+ Days"),
+(6, "Amerifax"),
 (6, "Angus"),
 (6, "Angus Cross"),
 (6, "Angus F1"),
@@ -2443,15 +2435,11 @@ VALUES (6, "Amerifax"),
 (6, "Tigerstripe"),
 (6, "Wagyu"),
 (6, "White Park"),
-(6, "Not Reported");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (7, "Conventional"),
+(6, "Not Reported"),
+(7, "Conventional"),
 (7, "Natural"),
-(7, "NHTC");
-
-INSERT INTO `sales_group_fields_values` (field_id, value)
-VALUES (8, "Yes / Name Unknown"),
+(7, "NHTC"),
+(8, "Yes / Name Unknown"),
 (8, "Health Track"),
 (8, "Value Added Calf-45"),
 (8, "OQBN Vac-45 Program"),
@@ -2463,79 +2451,43 @@ VALUES (8, "Yes / Name Unknown"),
 (8, "NMSU Vac-45"),
 (8, "MCA Vac-45"),
 (8, "PrimeVac Vac-45"),
-(8, "SelectVac WeanVac");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(8, "SelectVac WeanVac"),
+(9, "N/A"),
+(9, "Small"),
+(9, "Medium"),
+(9, "Large"),
+(10, "N/A"),
+(10, "Light"),
+(10, "Heavy"),
+(11, "N/A"),
+(11, "Horns"),
+(11, "No Horns"),
+(12, "Direct/Off Ranch"),
+(12, "Auction"),
+(12, "Video Auction"),
+(12, "Internet"),
+(13, "Not Applicable"),
+(13, "Not Castrated"),
+(13, "Banded"),
+(13, "Blade"),
+(13, "Chemicals"),
+(13, "Other"),
+(14, "Not Applicable"),
+(14, "Native Range"),
+(14, "Improved Pasture"),
+(15, "Not Applicable"),
+(15, "Ralgro"),
+(16, "Mixed Steers and Heifers"),
+(16, "Feeder Steers"),
+(16, "Feeder Heifers"),
+(16, "Beef Dairy Cross Steers"),
+(16, "Beef Dairy Cross Heifers"),
+(16, "Weaned Heifer Calves"),
+(16, "Weaned Steer Calves"),
+(16, "Steer Calves"),
+(16, "Heifer Calves"),
+(16, "Replacement Heifers"),
+(16, "Bred Cows");
 
 
 

@@ -36,7 +36,15 @@ export class CreateSalesGroupWidget extends Widget {
             "weaned": [],
             "breed": [],
             "pvp_program": [],
-            "preconditioning_program": []
+            "preconditioning_program": [],
+            "frame": [],
+            "muscling": [],
+            "horn": [],
+            "delivery_location_type": [],
+            "castrated": [],
+            "feeding_program": [],
+            "implant": [],
+            "category": []
         }
         for(const fieldData of salesGroupFieldsValues){
             let fieldId = fieldData.field_id;

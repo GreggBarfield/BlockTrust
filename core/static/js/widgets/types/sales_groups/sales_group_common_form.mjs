@@ -67,24 +67,24 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = "";
             this.marketingWeighingConditionsValue = "";
             this.marketingRepresentedByValue = "";
-            this.characteristicsCategoryValue = "";
+            this.characteristicsCategoryValue = [];
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
             this.characteristicsWeighingConditionsValue = null;
-            this.characteristicsFrameValue = "";
-            this.characteristicsMusclingValue = "";
-            this.characteristicsHornsValue = "";
-            this.geneticsGenomicTestingValue = "";
-            this.geneticsEPDValue = "";
+            this.characteristicsFrameValue = [];
+            this.characteristicsMusclingValue = [];
+            this.characteristicsHornsValue = [];
+            this.geneticsGenomicTestingValue = [];
+            this.geneticsEPDValue = [];
             this.geneticsCommentsValue = "";
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
             this.maintenanceAnnualCattleHerdVaccinationsValue = ""
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
-            this.maintenanceCastratedValue = "";
+            this.maintenanceCastratedValue = [];
             this.maintenanceProgramValue = [];
             this.reportedImages = [];
             this.reportedVideos = [];
@@ -271,7 +271,7 @@ export class SalesGroupsCommonForm{
             row: marketingRow,
             name: "Market Type",
             id: salesGroupFormInputIds.marketingDeliveryLocationType,
-            options: SalesGroupFields.commonDeliveryLocationTypes,
+            options: this.salesGroupFieldsValues.delivery_location_type,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
             tags: false,
@@ -368,7 +368,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Category/Sex",
             id: salesGroupFormInputIds.characteristicsCategory,
-            options: SalesGroupFields.commonCategoryNames,
+            options: this.salesGroupFieldsValues.category,
             values: this.characteristicsCategoryValue,
             multiple: false,
             tags: false,
@@ -382,7 +382,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Frame",
             id: salesGroupFormInputIds.characteristicsFrame,
-            options: SalesGroupFields.commonFrames,
+            options: this.salesGroupFieldsValues.frame,
             values: this.characteristicsFrameValue,
             multiple: false,
             tags: false,
@@ -392,7 +392,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Horns",
             id: salesGroupFormInputIds.characteristicsHorns,
-            options: SalesGroupFields.commonHorns,
+            options: this.salesGroupFieldsValues.horn,
             values: this.characteristicsHornsValue,
             multiple: false,
             tags: false,
@@ -402,7 +402,7 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Muscling",
             id: salesGroupFormInputIds.characteristicsMuscling,
-            options: SalesGroupFields.commonMusclings,
+            options: this.salesGroupFieldsValues.muscling,
             values: this.characteristicsMusclingValue,
             multiple: false,
             tags: false,
@@ -413,7 +413,7 @@ export class SalesGroupsCommonForm{
             name: "Pregnancy Status (Heifers)",
             id: salesGroupFormInputIds.characteristicsPregnancyStatus,
             options: ["Open", "Guaranteed Open", "Lutalysed", "Spayed"],
-            values: this.characteristicsMusclingValue,
+            values: this.characteristicsPregnancyStatusValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -458,7 +458,7 @@ export class SalesGroupsCommonForm{
             row: maintenanceRow,
             name: "Implants",
             id: salesGroupFormInputIds.maintenanceImplants,
-            options: SalesGroupFields.commonImplants,
+            options: this.salesGroupFieldsValues.implant,
             values: this.maintenanceImplantsValue,
             multiple: true,
             tags: true,
@@ -468,7 +468,7 @@ export class SalesGroupsCommonForm{
             row: maintenanceRow,
             name: "Castrated",
             id: salesGroupFormInputIds.maintenanceCastrated,
-            options: SalesGroupFields.commonCastrated,
+            options: this.salesGroupFieldsValues.castrated,
             values: this.maintenanceCastratedValue,
             multiple: false,
             tags: false,
@@ -548,7 +548,7 @@ export class SalesGroupsCommonForm{
             row: valueAddProgramsRow,
             name: "Feeding Program",
             id: salesGroupFormInputIds.valueAddProgramFeedingProgram,
-            options: SalesGroupFields.commonFeedingPrograms,
+            options: this.salesGroupFieldsValues.feeding_program,
             values: this.maintenanceFeedingProgramValue,
             multiple: true,
             tags: true,

@@ -12,7 +12,15 @@ SALES_GROUP_FIELD_NAMES_TO_IDS = {
     "weaned": 5,
     "breed": 6,
     "pvp_program": 7,
-    "preconditioning_program": 8
+    "preconditioning_program": 8,
+    "frame": 9,
+    "muscling": 10,
+    "horn": 11,
+    "delivery_location_type": 12,
+    "castrated": 13,
+    "feeding_program": 14,
+    "implant": 15,
+    "category": 16
 }
 
 SALES_GROUP_FIELD_IDS_TO_NAMES = {value: key for key, value in SALES_GROUP_FIELD_NAMES_TO_IDS.items()}
