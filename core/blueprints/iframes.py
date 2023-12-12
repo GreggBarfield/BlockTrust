@@ -97,7 +97,6 @@ def serve_create_sales_group():
             category=request.json["category"],
             breed_comments=request.json["breed_comments"],
             weighing_conditions=request.json["weighing_conditions"],
-            are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
             show_account_carcass_data=request.json["show_account_carcass_data"],
             is_api_insert=0
         )
@@ -212,7 +211,6 @@ def serve_edit_sales_group(sales_group_id):
             category=request.json["category"],
             breed_comments=request.json["breed_comments"],
             weighing_conditions=request.json["weighing_conditions"],
-            are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
             show_account_carcass_data=request.json["show_account_carcass_data"]
         )
         return {"redirect": "/iframe/sales-group/manage-sales-groups"}

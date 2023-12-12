@@ -27,6 +27,7 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = this.data.reported.marketing_slide;
             this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
             this.marketingRepresentedByValue = this.data.reported.marketing_represented_by;
+            this.markertingCommentsValue = this.data.reported.marketing_comments;
             this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
             this.characteristicsBreedCommentsValue = this.data.breed_comments;
@@ -36,16 +37,22 @@ export class SalesGroupsCommonForm{
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
+            this.characteristicsPregnancyStatusValue = this.data.reported.pregnancy_status;
+            this.characteristicsCommentsValue = this.data.reported.characteristics_comments;
             this.geneticsGenomicTestingValue = this.data.reported.genomic_testing;
             this.geneticsEPDValue = this.data.reported.epd;
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
-            this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
+            this.geneticsVerificationValue = this.data.reported.verification;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
-            this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
-            this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
             this.maintenanceProgramValue = this.data.reported.program;
+            this.maintenanceComingledStatusValue = this.data.reported.comingled_status;
+            this.maintenanceCreepFeedValue = this.data.reported.creep_feed;
+            this.valueAddProgramsProgramValue = this.data.reported.program;
+            this.valueAddProgramsPreconditioningProgramsValue = this.data.reported.preconditioning_program;
+            this.valueAddedProgramsFeedingProgramsValue = this.data.reported.feeding_programs;
+            this.valueAddedProgramsCommentsValue = this.data.reported.program_comments;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
             this.fileAuths = this.data.file_auths
@@ -67,6 +74,7 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = "";
             this.marketingWeighingConditionsValue = "";
             this.marketingRepresentedByValue = "";
+            this.markertingCommentsValue = "";
             this.characteristicsCategoryValue = [];
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
@@ -76,16 +84,24 @@ export class SalesGroupsCommonForm{
             this.characteristicsFrameValue = [];
             this.characteristicsMusclingValue = [];
             this.characteristicsHornsValue = [];
+            this.characteristicsPregnancyStatusValue = [];
+            this.characteristicsCommentsValue = "";
             this.geneticsGenomicTestingValue = [];
             this.geneticsEPDValue = [];
             this.geneticsCommentsValue = "";
+            this.geneticsVerificationValue = [];
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
-            this.maintenanceAnnualCattleHerdVaccinationsValue = ""
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
             this.maintenanceCastratedValue = [];
             this.maintenanceProgramValue = [];
+            this.maintenanceComingledStatusValue = [];
+            this.maintenanceCreepFeedValue = [];
+            this.valueAddProgramsProgramValue = [];
+            this.valueAddProgramsPreconditioningProgramsValue = [];
+            this.valueAddedProgramsFeedingProgramsValue = [];
+            this.valueAddedProgramsCommentsValue = "";
             this.reportedImages = [];
             this.reportedVideos = [];
             this.fileAuths = null;
@@ -301,7 +317,7 @@ export class SalesGroupsCommonForm{
         let marketingSlide = createText(marketingRow, "Slide", salesGroupFormInputIds.marketingSlide, this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
-        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.marketingComments || "",true,"marketingComments","", 12);
+        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -412,13 +428,13 @@ export class SalesGroupsCommonForm{
             row: characteristicsRow,
             name: "Pregnancy Status (Heifers)",
             id: salesGroupFormInputIds.characteristicsPregnancyStatus,
-            options: ["Open", "Guaranteed Open", "Lutalysed", "Spayed"],
+            options: this.salesGroupFieldsValues.pregnancy_status,
             values: this.characteristicsPregnancyStatusValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.marketingComments || "",true,"characteristicsComments","", 12);
+        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12);
 
         // Maintenance
 
@@ -439,7 +455,7 @@ export class SalesGroupsCommonForm{
             name: "Comingled Status",
             id: salesGroupFormInputIds.maintenanceComingledStatus,
             options: this.salesGroupFieldsValues.comingled_status,
-            values: this.maintenanceCastratedValue,
+            values: this.maintenanceComingledStatusValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -449,7 +465,7 @@ export class SalesGroupsCommonForm{
             name: "Creep Feed",
             id: salesGroupFormInputIds.maintenanceCreepFeed,
             options: this.salesGroupFieldsValues.creep_feed,
-            values: this.maintenanceCastratedValue,
+            values: this.maintenanceCreepFeedValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -514,7 +530,7 @@ export class SalesGroupsCommonForm{
             name: "Genetics Verification Co.",
             id: salesGroupFormInputIds.geneticsVerification,
             options: this.salesGroupFieldsValues.genetics_verification,
-            values: this.geneticsVerificationValue || "",
+            values: this.geneticsVerificationValue || [],
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -529,7 +545,7 @@ export class SalesGroupsCommonForm{
             name: "Program",
             id: salesGroupFormInputIds.valueAddProgramProgramType,
             options: this.salesGroupFieldsValues.pvp_program,
-            values: this.maintenanceProgramValue,
+            values: this.valueAddProgramsProgramValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -539,7 +555,7 @@ export class SalesGroupsCommonForm{
             name: "Preconditioning Program",
             id: salesGroupFormInputIds.valueAddProgramPreconditioningProgram,
             options: this.salesGroupFieldsValues.preconditioning_program,
-            values: this.maintenancePreconditioningProgramValue,
+            values: this.valueAddProgramsPreconditioningProgramsValue,
             multiple: false,
             tags: true,
             placeholder: "Please Select"
@@ -549,12 +565,12 @@ export class SalesGroupsCommonForm{
             name: "Feeding Program",
             id: salesGroupFormInputIds.valueAddProgramFeedingProgram,
             options: this.salesGroupFieldsValues.feeding_program,
-            values: this.maintenanceFeedingProgramValue,
+            values: this.valueAddedProgramsFeedingProgramsValue,
             multiple: true,
             tags: true,
             placeholder: "Please Select"
         }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
-        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
+        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12);
 
         // Media
 
@@ -672,16 +688,16 @@ export class SalesGroupsCommonForm{
                     eids: [],
                     reported: {
                         comments: commentsTA.value,
-                        count: safeInt(marketingCount.value),
+                        count: safeInt(characteristicsCount.value),
                         weight: safeInt(characteristicsWeight.value),
                         weight_variance: characteristicsWeightVariance.value,
                         breeds: $(characteristicBreeds).val(),
                         horns: characteristicsHorns.value,
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,
-                        preconditioning_program: maintenancePreconditioningProgram.value,
+                        preconditioning_program: valueAddProgramsPreconditioningProgram.value,
                         vaccinations: $(maintenanceVaccinations).val(),
-                        feeding_programs: $(maintenanceFeedingProgram).val(),
+                        feeding_programs: $(valueAddProgramsFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
                         program: valueAddProgramsProgram.value,
@@ -692,7 +708,14 @@ export class SalesGroupsCommonForm{
                         marketing_represented_by: marketingRepresentedBy.value,
                         genomic_testing: geneticsGenomicTesting.value,
                         epd: geneticsEPD.value,
-                        genetics_comments: geneticsComments.value
+                        marketing_comments: marketingComments.value,
+                        genetics_comments: geneticsComments.value,
+                        pregnancy_status: characteristicsPregnancyStatus.value,
+                        characteristics_comments: characteristicsComments.value,
+                        comingled_status: maintenanceComingledStatus.value,
+                        creep_feed: maintenanceCreepFeed.value,
+                        verification: geneticsVerification.value,
+                        program_comments: valueAddProgramsComments.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
@@ -703,6 +726,8 @@ export class SalesGroupsCommonForm{
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": $(marketingAuctionMarketLocation).find(':selected').text(),
                     "category": characteristicsCategory.value,
+                    "breed_comments": characteristicsComments.value,
+                    "weighing_conditions": marketingWeighingConditions.value
                 }
             }
         });

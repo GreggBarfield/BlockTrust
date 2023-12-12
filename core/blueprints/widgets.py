@@ -97,7 +97,6 @@ def serve_sales_group():
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
-        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
         "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
         "auction_market_id": sales_group_row["auction_market_id"],
         "created_date": sales_group_row["created_timestamp"].strftime("%m/%d/%Y")
@@ -206,7 +205,6 @@ def serve_search_sales_groups_2():
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
-            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
             "owner_account_sustainability_score_average": owner_account_sustainability_score_average
         })
 
@@ -363,7 +361,6 @@ def serve_create_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
         show_account_carcass_data=request.json["show_account_carcass_data"],
         is_api_insert=0
     )
@@ -422,7 +419,6 @@ def serve_update_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
         show_account_carcass_data=request.json["show_account_carcass_data"]
     )
 
