@@ -25,6 +25,9 @@ EMAILS = {
         "SUBJECT": "Congratulations, match found!",
         "BODY": """Congratulations, one or more of your cattle has been matched in the beef supply chain.
             <a href='https://blocktrustnetwork.com/login' target='_blank'>Login</a> to see details."""
+    },
+    "SALES GROUP SEARCH RESULTS": {
+        "SUBJECT": "New Sales Group Search Results Found!"
     }
 }
 

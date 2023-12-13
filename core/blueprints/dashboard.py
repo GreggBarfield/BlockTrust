@@ -966,3 +966,15 @@ def serve_view_order(order_id):
             raise ExportException("Sorry, the requested order was not found. ")
     except ExportException as e:
         return dashboard_render("tag-store/view-order.html", {"error": str(e)})
+
+
+@bp.route("/dashboard/sendtestemail", methods=["GET"])
+def serve_test_email():
+    send_email(
+        "New Saved Sales Group Search Results",
+        render_email("/internal/sales_group_search_summary.html", {
+            
+        }),
+        "nisheet.thakur@blocktrustnetwork.com"
+        )
+    return {}
