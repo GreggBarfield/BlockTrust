@@ -16,14 +16,9 @@ def run_email_tasks(job_run_id, db):
         with app.app_context():
             print(join("email", "contact_us.html"))
             send_email(
-            "New Dashboard Support Response",
-            render_template(join("email", "contact_us_response.html"), **{
-                'first': "test",
-                'last': "test",
-                'phone': "test",
-                'email': "test",
-                'message': "test",
-                'message_title': "New Dashboard Support Response"
+            "New Email",
+            render_template(join("email/internal", "sales_group_search_summary.html"), **{
+                "test": "test"
             }),
             "nisheet.thakur@blocktrustnetwork.com"
             )
