@@ -563,69 +563,69 @@ class SalesGroups:
             base_query += " " + ",".join(c for c in sales_group_cols)
         else:
             base_query += " *"
-        base_query += " FROM sales_groups "
+        base_query += " FROM sales_groups"
         query_conditions = []
         query_values = {}
         if id is not NO_VALUE:
             query_conditions.append("id = %(id)s")
             query_values["id"] = id
         if account_id is not NO_VALUE:
-            query_conditions.append(" account = %(account_id)s")
+            query_conditions.append("account = %(account_id)s")
             query_values["account_id"] = account_id
         if reported is not NO_VALUE:
-            query_conditions.append(" reported = %(reported)s")
+            query_conditions.append("reported = %(reported)s")
             query_values["reported"] = json.dumps(reported)
         if published is not NO_VALUE:
-            query_conditions.append(" published = %(published)s")
+            query_conditions.append("published = %(published)s")
             query_values["published"] = published
         if zip_code is not NO_VALUE:
-            query_conditions.append(" zip = %(zip_code)s")
+            query_conditions.append("zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
             market_location = get_locations(zip_code)
-            query_conditions.append(" market_location = %(market_location)s")
+            query_conditions.append("market_location = %(market_location)s")
             query_values["market_location"] = market_location
         if delivery_location is not NO_VALUE:
-            query_conditions.append(" delivery_location = %(delivery_location)s")
+            query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
         if sale_date is not NO_VALUE:
-            query_conditions.append(" sale_date = %(sale_date)s")
+            query_conditions.append("sale_date = %(sale_date)s")
             query_values["sale_date"] = sale_date
         if auction_sale is not NO_VALUE:
-            query_conditions.append(" auction_sale = %(auction_sale)s")
+            query_conditions.append("auction_sale = %(auction_sale)s")
             query_values["auction_sale"] = auction_sale
         if group_name is not NO_VALUE:
-            query_conditions.append(" group_name = %(group_name)s")
+            query_conditions.append("group_name = %(group_name)s")
             query_values["group_name"] = group_name
         if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
+            query_conditions.append("is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
         if delivery_location_type is not NO_VALUE:
-            query_conditions.append(" delivery_location_type = %(delivery_location_type)s")
+            query_conditions.append("delivery_location_type = %(delivery_location_type)s")
             query_values["delivery_location_type"] = delivery_location_type
         if price is not NO_VALUE:
-            query_conditions.append(" price = %(price)s")
+            query_conditions.append("price = %(price)s")
             query_values["price"] = price
         if is_sold is not NO_VALUE:
-            query_conditions.append(" is_sold = %(is_sold)s")
+            query_conditions.append("is_sold = %(is_sold)s")
             query_values["is_sold"] = is_sold
         if buyer_account_id is not NO_VALUE:
-            query_conditions.append(" buyer_account_id = %(buyer_account_id)s")
+            query_conditions.append("buyer_account_id = %(buyer_account_id)s")
             query_values["buyer_account_id"] = buyer_account_id
         if category is not NO_VALUE:
-            query_conditions.append(" category = %(category)s")
+            query_conditions.append("category = %(category)s")
             query_values["category"] = category
         if breed_comments is not NO_VALUE:
-            query_conditions.append(" breed_comments = %(breed_comments)s")
+            query_conditions.append("breed_comments = %(breed_comments)s")
             query_values["breed_comments"] = breed_comments
         if weighing_conditions is not NO_VALUE:
-            query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
+            query_conditions.append("weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
         if auction_market_id is not NO_VALUE:
-            query_conditions.append(" auction_market_id = %(auction_market_id)s")
+            query_conditions.append("auction_market_id = %(auction_market_id)s")
             query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
 
