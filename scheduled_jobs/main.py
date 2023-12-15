@@ -7,7 +7,6 @@ from partners import run_partner_tasks
 from sales_groups_search_summary_emails import run_sales_group_search_summary_emails
 from tag_store import run_tag_store_tasks
 import payments
-import sales_groups_search_summary_emails
 from threading import Thread
 import traceback
 import time
@@ -72,7 +71,7 @@ try:
                 print('Main: appended thread Reports', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         # this will run once between 7 and 8 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
+        if datetime.time(7, 0, 0) <= current_time < datetime.time(8, 0, 0):
             if not any(t.getName() == "Emails" for t in threads):
                 job_run_id = JobRuns(db).insert("Emails", scheduled_jobs["Emails"].split('|')[0], scheduled_jobs["Emails"].split('|')[1])
                 t = Thread(target=run_email_tasks, name="Emails", args=[job_run_id, Database(MYSQL_CONFIG)])
@@ -119,8 +118,8 @@ try:
                 else:
                     print("Tag Store thread: Tag Store HerdWhistle EID fetch turned off. Exiting")
                 
-        # this will run once between 10 and 11 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(1, 0, 0):
+        # this will run once between 6 and 7 AM
+        if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
             if not any(t.getName() == "Tag Store" for t in threads):
                 job_run_id = JobRuns(db).insert(
                     "Sales Groups Search Summary Emails",

@@ -7,8 +7,6 @@ from datetime import datetime
 
 from json import loads
 
-import jinja2
-
 NO_VALUE = NoValue()
 
 SCHEDULED_EMAIL_COLUMNS = ("id", "user_id", "account_id" "subject", "body", "variables", "template_name", "status_id", "error_details", "sent_date_time")
@@ -236,6 +234,8 @@ class ScheduledEmails:
                     user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
                     if len(user_rows) == 1:
                         user_email = user_rows[0]["email"]
+                    else:
+                        raise Exception("User not found or has an unverified email")
                 elif unprocessed_email["email_address"]:
                     user_email = unprocessed_email["email_address"]
                 else:
