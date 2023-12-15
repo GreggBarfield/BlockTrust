@@ -229,22 +229,17 @@ def serve_fetch_all_sales_groups_data():
 def sales_groups(number):
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
-        if number:
-            if len(sales_groups := SalesGroups(g.db).get_sales_groups(
-                id=number, is_archived=int(False), published=int(True))
-            ) > 0:
-                sales_group = sales_groups[0]
-                account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
-                sales_group["owner"] = account["company"]
-                for key in ("account", "created_timestamp", "last_updated_timestamp"):
-                    del sales_group[key]
-                return sales_group
-            else:
-                return {}
+        if len(sales_groups := SalesGroups(g.db).get_sales_groups(
+            id=number, is_archived=int(False), published=int(True)
+        )) > 0:
+            sales_group = sales_groups[0]
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            for key in ("account", "created_timestamp", "last_updated_timestamp"):
+                del sales_group[key]
+            return sales_group
         else:
-            raise ExportException("Invalid Sales Group Number")
-    except ExportException:
-        raise
+            return {}
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
