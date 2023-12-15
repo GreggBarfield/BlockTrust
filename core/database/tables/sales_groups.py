@@ -179,10 +179,9 @@ class SalesGroups:
                            delivery_location=None, sale_date=None, auction_sale=None,
                            group_name=None, is_archived=None, delivery_location_type=None, price=None,
                            category=None, breed_comments=None, weighing_conditions=None, auction_market_id=None,
-                           are_annual_cattle_herd_vaccinations_given=None, seller_id=None, vaccination_date=None,
-                           vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
-                           home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None,
-                           is_api_insert=None):
+                           seller_id=None, vaccination_date=None, vaccination_summary=None, herd_sire=None,
+                           ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None,
+                           show_account_carcass_data=None, is_api_insert=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -208,17 +207,15 @@ class SalesGroups:
             """
             INSERT INTO sales_groups (account, reported, published, zip, delivery_location, auction_market_id, sale_date,
                 auction_sale, group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
-                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire,
-                ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data,
-                is_api_insert
+                seller_id, vaccination_date, vaccination_summary, herd_sire, ranch_source_county, ranch_size, 
+                home_raised, family_farm_or_ranch, show_account_carcass_data, is_api_insert
             )
             VALUES (
                 %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(auction_market_id)s, %(sale_date)s,
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
-                %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s, %(seller_id)s,
-                %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
-                %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(show_account_carcass_data)s,
-                %(is_api_insert)s
+                %(breed_comments)s, %(weighing_conditions)s, %(seller_id)s, %(vaccination_date)s,
+                %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s, %(ranch_size)s, %(home_raised)s,
+                %(family_farm_or_ranch)s, %(show_account_carcass_data)s, %(is_api_insert)s
             )
             """, {
                 "account": account,
@@ -236,7 +233,6 @@ class SalesGroups:
                 "category": category,
                 "breed_comments": breed_comments,
                 "weighing_conditions": weighing_conditions,
-                "are_annual_cattle_herd_vaccinations_given": are_annual_cattle_herd_vaccinations_given,
                 "seller_id": seller_id,
                 "vaccination_date": vaccination_date,
                 "vaccination_summary": vaccination_summary,
@@ -256,9 +252,8 @@ class SalesGroups:
                            sale_date=NO_VALUE, auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
                            delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
                            category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
-                           are_annual_cattle_herd_vaccinations_given=NO_VALUE, seller_id=NO_VALUE, 
-                           vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE, herd_sire=NO_VALUE,
-                           ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
+                           seller_id=NO_VALUE,vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE,
+                           herd_sire=NO_VALUE, ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
                            family_farm_or_ranch=NO_VALUE, show_account_carcass_data=NO_VALUE):
         """Updates a row.
 
@@ -335,9 +330,6 @@ class SalesGroups:
         if weighing_conditions is not NO_VALUE:
             query_conditions.append("weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
-        if are_annual_cattle_herd_vaccinations_given is not NO_VALUE:
-            query_conditions.append("are_annual_cattle_herd_vaccinations_given = %(are_annual_cattle_herd_vaccinations_given)s")
-            query_values["are_annual_cattle_herd_vaccinations_given"] = are_annual_cattle_herd_vaccinations_given
         if seller_id is not NO_VALUE:
             query_conditions.append("seller_id = %(seller_id)s")
             query_values["seller_id"] = seller_id
