@@ -47,7 +47,7 @@ def run_sales_group_search_summary_emails(job_run_id, db):
                     status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
                 )
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
-        print("Emails Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
+        print("Sales Group Search Summary Emails Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
         ErrorLogs(db).insert_error_log("Sales Group Search Summary Email", e.__class__.__name__ + ": " + str(e), traceback.format_exc())
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"), {"error": str(e)})

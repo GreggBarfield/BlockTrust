@@ -28,7 +28,6 @@ from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
-from ..database.tables.scheduled_emails import ScheduledEmails
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
@@ -967,9 +966,3 @@ def serve_view_order(order_id):
             raise ExportException("Sorry, the requested order was not found. ")
     except ExportException as e:
         return dashboard_render("tag-store/view-order.html", {"error": str(e)})
-
-
-@bp.route("/dashboard/sendtestemail", methods=["GET"])
-def serve_test_email():
-    ScheduledEmails(g.db).process_pending_emails()
-    return {}

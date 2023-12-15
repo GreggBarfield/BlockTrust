@@ -1,10 +1,10 @@
 from core.database.tables.error_logs import ErrorLogs
 from core.database.tables.job_runs import JobRuns
 from core.database.tables.scheduled_emails import ScheduledEmails
-from core.utilities.email import send_email
 import traceback
 import datetime
 import time
+
 
 def run_email_tasks(job_run_id, db):
     try:
