@@ -202,8 +202,8 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createDate(row, name, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
-            let dateFormGroup = new DateFormGroup(row, name, epoch);
+        function createDate(row, name, id, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
+            let dateFormGroup = new DateFormGroup(row, name, id, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
             if (hasTooltip)
                 addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
