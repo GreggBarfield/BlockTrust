@@ -19,13 +19,13 @@
     <div class="container">
         <div class="row" style="border: 1px solid rgb(192, 192, 192); padding: 15px; border-radius: 25px;">
             <div class="col-12">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Sales Group {{sales_group["id"]}}
                     </div>
                     <div class="card-body">
-                        <div class="row mb-1">
-                            <dt class="col-sm-1">Location:</dt>
+                        <div class="row mb-2">
+                            <dt class="col-sm-2">Location:</dt>
                             <dd>
                                 {{sales_group["delivery_location"] or "N/A"}}
                             </dd>
@@ -34,7 +34,7 @@
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Market Data
                     </div>
@@ -71,11 +71,17 @@
                             <dd class="col-sm-6 text-right" id="days_remaining">
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Marketing Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["marketing_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Characteristics
                     </div>
@@ -128,11 +134,17 @@
                                 {{ sales_group["reported"]["pregnancy_status"] or "N/A"}}
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Characteristics Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["characteristics_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Maintenance
                     </div>
@@ -173,11 +185,17 @@
                                 {{ sales_group["reported"]["weaned"] or "N/A"}}
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Maintenance Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["maintenance_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Genetics
                     </div>
@@ -200,11 +218,17 @@
                                 {{ sales_group["reported"]["verification"] or "N/A"}}
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genetics Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["genetics_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Value Add Programs
                     </div>
@@ -227,11 +251,17 @@
                                 {{ ", ".join(sales_group["reported"]["feeding_programs"]) if sales_group["reported"]["feeding_programs"]|length > 0 else "N/A"}}
                             </dd>
                         </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Program Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["program_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-12">
-                <div class="card"></div>
+                <div class="card m-1"></div>
                 <div class="card-body">
                     <p><a href="/login">Login</a> or <a href="/signup">Sign Up</a> to see more information.</p>
                 </div>
