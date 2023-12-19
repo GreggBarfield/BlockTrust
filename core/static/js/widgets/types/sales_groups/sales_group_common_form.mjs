@@ -722,7 +722,7 @@ export class SalesGroupsCommonForm{
                         verification: geneticsVerification.value,
                         program_comments: valueAddProgramsComments.value,
                         weaned: maintenanceWeaned.value,
-                        maintenance_comments: ""
+                        maintenance_comments: maintenanceComments.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
