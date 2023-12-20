@@ -19,135 +19,22 @@
     <div class="container">
         <div class="row" style="border: 1px solid rgb(192, 192, 192); padding: 15px; border-radius: 25px;">
             <div class="col-12">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Sales Group {{sales_group["id"]}}
                     </div>
                     <div class="card-body">
-                        <div class="row mb-1">
-                            <dt class="col-sm-1">Location:</dt>
+                        <div class="row mb-2">
+                            <dt class="col-sm-2">Location:</dt>
                             <dd>
-                                {% if sales_group["market_location"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["market_location"]}}
-                                {% endif %}                     
+                                {{sales_group["delivery_location"] or "N/A"}}
                             </dd>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card">
-                    <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
-                        Animal Data
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Breed:</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["breeds"]|length == 0%}
-                                N/A
-                                {% else %}
-                                {{ ",".join(sales_group["reported"]["breeds"])}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Base Weight:</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["weight"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["weight"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Wt. Variance Frame</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["weight_variance"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["weight_variance"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Horns</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["horns"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["horns"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Precon Program</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["preconditioning_program"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["preconditioning_program"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Implants</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["implants"]|length == 0%}
-                                N/A
-                                {% else %}
-                                {{ ",".join(sales_group["reported"]["implants"])}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Castrated</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["castrated"] == "None"%}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["castrated"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Vaccinations</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["vaccinations"]|length == 0%}
-                                N/A
-                                {% else %}
-                                {{ ",".join(sales_group["reported"]["vaccinations"])}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">Feeding Program</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["feeding_programs"]|length == 0%}
-                                N/A
-                                {% else %}
-                                {{ ",".join(sales_group["reported"]["feeding_programs"])}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                        <div class="row mb-1">
-                            <dt class="col-sm-6">PVP Program</dt>
-                            <dd class="col-sm-6 text-right">
-                                {% if sales_group["reported"]["process_verified_program"] == "None" %}
-                                N/A
-                                {% else %}
-                                {{sales_group["reported"]["process_verified_program"]}}
-                                {% endif %}
-                            </dd>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-6">
-                <div class="card">
+                <div class="card m-1">
                     <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
                         Market Data
                     </div>
@@ -163,18 +50,20 @@
                             </dd>
                         </div>
                         <div class="row mb-1">
+                            <dt class="col-sm-6">Delivery Location Type:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["delivery_location_type"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
                             <dt class="col-sm-6">Delivery Location:</dt>
                             <dd class="col-sm-6 text-right">
-                                {% if sales_group["delivery_location"] == "None"%}
-                                N/A
-                                {% else %}
-                                {{sales_group["delivery_location"]}}
-                                {% endif %}
+                                {{sales_group["delivery_location"] or "N/A"}}
                             </dd>
                         </div>
                         <div class="row mb-1">
                             <dt class="col-sm-6">Sales Date:</dt>
-                            <dd class="col-sm-6 text-right" id="start_date">
+                            <dd class="col-sm-6 text-right" id="sale_date">
                             </dd>
                         </div>
                         <div class="row mb-1">
@@ -182,12 +71,197 @@
                             <dd class="col-sm-6 text-right" id="days_remaining">
                             </dd>
                         </div>
-                    
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Marketing Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["marketing_comments"] or "N/A"}}
+                            </dd>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="card"></div>
+                <div class="card m-1">
+                    <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
+                        Characteristics
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Breed:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ ", ".join(sales_group["reported"]["breeds"]) if sales_group["reported"]["breeds"]|length > 0 else "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Category:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["category"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Base Weight:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["weight"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Wt. Variance:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["weight_variance"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Frame:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["frame"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Horns:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["horns"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Muscling:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["muscling"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Pregnancy Status:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["pregnancy_status"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Characteristics Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["characteristics_comments"] or "N/A"}}
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card m-1">
+                    <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
+                        Maintenance
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Vaccinations:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ ", ".join(sales_group["reported"]["vaccinations"]) if sales_group["reported"]["vaccinations"]|length > 0 else "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Comingled Status:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["comingled_status"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Creep Feed:/dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["creep_feed"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Implants:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ ", ".join(sales_group["reported"]["implants"]) if sales_group["reported"]["implants"]|length > 0 else "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Castrated:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["castrated"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Weaned:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["weaned"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Maintenance Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["maintenance_comments"] or "N/A"}}
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card m-1">
+                    <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
+                        Genetics
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genetic or genomic testing performed?</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["genomic_testing"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Possess EPD's on the sires of the cattle planning to be sold:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["epd"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genetics Verification Co.:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["verification"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Genetics Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["genetics_comments"] or "N/A"}}
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="card m-1">
+                    <div class="card-header" style="color: rgb(139, 69, 19); border-bottom: 1px solid rgb(192, 192, 192);">
+                        Value Add Programs
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Program:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["program"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Precon Program:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ sales_group["reported"]["preconditioning_program"] or "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Feeding Program:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{ ", ".join(sales_group["reported"]["feeding_programs"]) if sales_group["reported"]["feeding_programs"]|length > 0 else "N/A"}}
+                            </dd>
+                        </div>
+                        <div class="row mb-1">
+                            <dt class="col-sm-6">Program Comments:</dt>
+                            <dd class="col-sm-6 text-right">
+                                {{sales_group["reported"]["program_comments"] or "N/A"}}
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-12">
+                <div class="card m-1"></div>
                 <div class="card-body">
                     <p><a href="/login">Login</a> or <a href="/signup">Sign Up</a> to see more information.</p>
                 </div>
@@ -197,24 +271,23 @@
     </div>
 </section>
 <script type="text/javascript">
-    let start = '{{ sales_group["start"] }}'
-    let end = '{{ sales_group["end"] }}'
-    let startDate=document.getElementById("start_date");
+    let saleDate = '{{ sales_group["sale_date"] }}'
+    let saleDateContainer = document.getElementById("sale_date");
     let daysRemaining = document.getElementById("days_remaining");
     let numberDaysRemaining = "--";
 
-    if (start !== null){
+    if (saleDate !== null){
         // Converting Unix timestamp to JS date timestamp
         // Unix timestamp is in unit of second and JS Date timestamp is in unit of millisecond 
-        let date = new Date(start * 1000);
-        startDate.textContent = date.toDateString();
+        let date = new Date(saleDate * 1000);
+        saleDateContainer.textContent = date.toDateString();
     }
     else{
-        startDate.textContent = "N/A"
+        saleDateContainer.textContent = "N/A"
     }
-    if (end !== null) {
+    if (saleDate !== null) {
         let currentEpoch = Date.now() / 1000;
-        numberDaysRemaining = Math.floor((end - currentEpoch) / (60 * 60 * 24));
+        numberDaysRemaining = Math.floor((saleDate - currentEpoch) / (60 * 60 * 24));
         if(numberDaysRemaining > 0){
             daysRemaining.textContent = numberDaysRemaining
         }
@@ -226,5 +299,4 @@
         daysRemaining.textContent = "--"
     }
 </script>
-<script type="module" src="/static/entry_points/outside/external-sales-group-viewer.mjs"></script>
 {% endblock outside_content %}

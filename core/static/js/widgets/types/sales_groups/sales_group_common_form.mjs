@@ -202,8 +202,8 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createDate(row, name, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
-            let dateFormGroup = new DateFormGroup(row, name, epoch);
+        function createDate(row, name, id, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
+            let dateFormGroup = new DateFormGroup(row, name, id, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
             if (hasTooltip)
                 addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
@@ -722,7 +722,7 @@ export class SalesGroupsCommonForm{
                         verification: geneticsVerification.value,
                         program_comments: valueAddProgramsComments.value,
                         weaned: maintenanceWeaned.value,
-                        maintenance_comments: ""
+                        maintenance_comments: maintenanceComments.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
