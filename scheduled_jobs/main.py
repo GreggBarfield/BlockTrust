@@ -4,6 +4,7 @@ from blockchain import run_bc_tasks
 from reports import run_report_tasks
 from emails import run_email_tasks
 from partners import run_partner_tasks
+from sales_groups_search_summary_emails import run_sales_group_search_summary_emails
 from tag_store import run_tag_store_tasks
 import payments
 from threading import Thread
@@ -23,7 +24,8 @@ try:
         "Emails": "emails.py|run_email_tasks",
         "Partners": "partners.py|run_partner_tasks",
         "Tag Store": "tag_store.py|run_tag_store_tasks",
-        "Payments": (payments, payments.run_payment_tasks)
+        "Payments": (payments, payments.run_payment_tasks),
+        "Sales Groups Search Summary Emails": "sales_group_search_summary_emails.py|run_sales_group_search_summary_emails"
     }
     print("Executing main.py")
     db = Database(MYSQL_CONFIG)
@@ -115,6 +117,19 @@ try:
                     print('Main: appended thread Tag Store', 'Total number of threads:', len(threads), 'Current time:', current_time)
                 else:
                     print("Tag Store thread: Tag Store HerdWhistle EID fetch turned off. Exiting")
+                
+        # this will run once between 6 and 7 AM
+        if datetime.time(6, 0, 0) <= current_time < datetime.time(7, 0, 0):
+            if not any(t.getName() == "Tag Store" for t in threads):
+                job_run_id = JobRuns(db).insert(
+                    "Sales Groups Search Summary Emails",
+                    scheduled_jobs["Sales Groups Search Summary Emails"].split('|')[0],
+                    scheduled_jobs["Sales Groups Search Summary Emails"].split('|')[1]
+                )
+                t = Thread(target=run_sales_group_search_summary_emails, name="Sales Groups Search Summary Emails", args=[job_run_id, Database(MYSQL_CONFIG)])
+                t.start()
+                threads.append(t)
+                print('Main: appended thread Sales Groups Search Summary Emails', 'Total number of threads:', len(threads), 'Current time:', current_time)
 
         print("Main: Sleeping for 60 mins. Current_time:", datetime.datetime.today().strftime('%Y-%m-%d'), current_time)
         time.sleep(3600)
