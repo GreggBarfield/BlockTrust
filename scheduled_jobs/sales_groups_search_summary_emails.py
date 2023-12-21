@@ -41,7 +41,7 @@ def run_sales_group_search_summary_emails(job_run_id, db):
                 if len(user_search_results) > 0:
                     email_body = generate_sales_group_search_summary_email_body(sales_group_rows)
                     ScheduledEmails(db).insert_scheduled_email(
-                        email_address= "nisheet.thakur@blocktrustnetwork.com", # user_data[0]["email"],
+                        email_address=user_data[0]["email"],
                         subject=EMAILS["SALES GROUP SEARCH RESULTS"]["SUBJECT"],
                         body=email_body,
                         status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
