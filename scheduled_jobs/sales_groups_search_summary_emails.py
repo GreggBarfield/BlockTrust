@@ -19,9 +19,8 @@ def run_sales_group_search_summary_emails(job_run_id, db):
                 user_based_sales_group_searches[search['user_id']] = [search]
             else:
                 user_based_sales_group_searches[search['user_id']].append(search)
-        results = []
         for user_id, searches in user_based_sales_group_searches.items():
-            user_data = Users(db).get_users(id=user_id)
+            user_data = Users(db).get_users(id=user_id, is_system_generated=int(False))
             if len(user_data) > 0:
                 user_search_results = []
                 for search in searches:
@@ -38,14 +37,15 @@ def run_sales_group_search_summary_emails(job_run_id, db):
                         programs=search["multi_select_fields"].get("programs", None) if search["multi_select_fields"] else None,
                         target_date_description=search["target_date_description"]
                     )
-                    user_search_results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
-                email_body = generate_sales_group_search_summary_email_body(sales_group_rows)
-                ScheduledEmails(db).insert_scheduled_email(
-                    email_address= user_data[0]["email"],
-                    subject=EMAILS["SALES GROUP SEARCH RESULTS"]["SUBJECT"],
-                    body=email_body,
-                    status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
-                )
+                    user_search_results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in user_search_results), sales_group_rows)))
+                if len(user_search_results) > 0:
+                    email_body = generate_sales_group_search_summary_email_body(sales_group_rows)
+                    ScheduledEmails(db).insert_scheduled_email(
+                        email_address= "nisheet.thakur@blocktrustnetwork.com", # user_data[0]["email"],
+                        subject=EMAILS["SALES GROUP SEARCH RESULTS"]["SUBJECT"],
+                        body=email_body,
+                        status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"]
+                    )
         JobRuns(db).update_job_run(job_run_id, time.strftime("%Y-%m-%d %H:%M:%S"))
         print("Sales Group Search Summary Emails Job Exiting. Current time: ", datetime.datetime.today().strftime('%Y-%m-%d'), datetime.datetime.now().time())
     except Exception as e:
