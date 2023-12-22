@@ -17,23 +17,16 @@ export class CreateSalesGroupWidget extends Widget {
         this.accountId = this.frame.getAttribute("data-widget-account-id");
 
         // Checking for availability of carcass data
-        let carcassDataAvailable = true;
-        // try using this.getData()
-        const fetchAccountCarcassData = await fetch(
-            '/widgets/data/get_count_distribution_for_account', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({account_id: parseInt(this.accountId)}),
+        this.carcassDataAvailable = true;
+        this.getData(
+            "get_count_distribution_for_account", {account_id: parseInt(this.accountId)}
+        ).then((data) => {
+            let accountUSDAQualityGradeDistribution = data.result.count_distribution;
+            if(accountUSDAQualityGradeDistribution.length == 0){
+                this.carcassDataAvailable = false;
+            }
+            this.makeForm();
         });
-
-        const accountUSDAQualityGradeDistributionData = await fetchAccountCarcassData.json();
-        let accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result;
-        if(accountUSDAQualityGradeDistribution.length == 0){
-            carcassDataAvailable = false;
-        }
-        console.log(carcassDataAvailable);
-
-        this.makeForm();
     }
 
     processAuctionMarketsData(auctionMarkets){
@@ -95,7 +88,7 @@ export class CreateSalesGroupWidget extends Widget {
     card.append(cardBody);
     this.frame.append(card)
     // Widget containing common input fields used in sales group form
-    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId);
+    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable);
     cardBody.append(salesGroupForm);
     }
 }
