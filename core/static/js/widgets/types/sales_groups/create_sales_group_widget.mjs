@@ -14,6 +14,25 @@ export class CreateSalesGroupWidget extends Widget {
         this.preSelectedAuctionMarketId = this.frame.getAttribute("data-widget-pre-selected-auction-market-id");
         this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
+        this.accountId = this.frame.getAttribute("data-widget-account-id");
+
+        // Checking for availability of carcass data
+        let carcassDataAvailable = true;
+        // try using this.getData()
+        const fetchAccountCarcassData = await fetch(
+            '/widgets/data/get_count_distribution_for_account', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({account_id: parseInt(this.accountId)}),
+        });
+
+        const accountUSDAQualityGradeDistributionData = await fetchAccountCarcassData.json();
+        let accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result;
+        if(accountUSDAQualityGradeDistribution.length == 0){
+            carcassDataAvailable = false;
+        }
+        console.log(carcassDataAvailable);
+
         this.makeForm();
     }
 
