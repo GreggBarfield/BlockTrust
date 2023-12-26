@@ -1,16 +1,15 @@
 import { ProgressBar } from '../../../core/progress_bar.mjs';
 import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
-import { SalesGroupFields } from './sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
-import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs'
+import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs';
 import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 
 export class SalesGroupsCommonForm{
-    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null) {
+    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -118,6 +117,7 @@ export class SalesGroupsCommonForm{
         this.salesGroupFieldsValues = salesGroupFieldsValues;
         this.preSelectAuctionMarket = preSelectAuctionMarket;
         this.preSelectedAuctionMarketId = preSelectedAuctionMarketId;
+        this.carcassDataAvailable = carcassDataAvailable;
         this.makeForm();
         return this.box;
     }
@@ -638,8 +638,11 @@ export class SalesGroupsCommonForm{
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.published);
 
-        let showAccountCarcassDataSwitch = new SwitchFormGroup(form, "Show Carcass History", this.showAccountCarcassData);
 
+        let showAccountCarcassDataSwitch = new SwitchFormGroup(form, "Show Carcass History", this.showAccountCarcassData);
+        if(!this.carcassDataAvailable){
+            showAccountCarcassDataSwitch.hideSwitch();
+        }
         // Save
 
         let submitFormGroup = document.createElement("div");

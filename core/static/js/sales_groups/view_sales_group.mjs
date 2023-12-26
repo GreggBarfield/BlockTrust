@@ -133,7 +133,7 @@ export class SalesGroupViewer {
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
 
             let valueText = document.createElement("p");
-            valueText.className = "text-right";
+            valueText.className = "text-right m-0 p-0";
 
             if (highlighting) {
                 urlHighlighter(str, valueText);
@@ -147,14 +147,35 @@ export class SalesGroupViewer {
             position.append(kvp);
         }
 
-        function addSubHeader(text, position){
-            let subHeaderContainer = document.createElement("div");
-            subHeaderContainer.className = "row m-1";
-            let subHeaderText = document.createElement("h5");
-            subHeaderText.className = "text-primary";
-            subHeaderText.textContent = text;
-            subHeaderContainer.append(subHeaderText);
-            position.append(subHeaderContainer);
+        const createSectionContainer = (sectionHeaderText) =>{
+            let sectionContainer = document.createElement("div");
+            sectionContainer.className = "card";
+            sectionContainer.style = "border-radius: 5%";
+
+            let sectionHeader = document.createElement("div");
+            sectionHeader.className = "card-header p-4";
+            sectionHeader.style = "color:#8B4513;";
+            sectionHeader.style.borderBottom = "solid 1px #c0c0c0";
+            sectionHeader.textContent = sectionHeaderText;
+            sectionContainer.append(sectionHeader);
+            return sectionContainer;
+        }
+
+        const createCommentSection = (text) =>{
+            let commentCard = document.createElement("div");
+            commentCard.className = "card";
+
+            let commentHeader = document.createElement("div");
+            commentHeader.className = "card-header border-bottom-0 pb-0";
+            commentHeader.style = "color:#8B4513";
+            commentHeader.textContent = "Comments";
+            commentCard.append(commentHeader);
+
+            let commentBody = document.createElement("div");
+            commentBody.className = "card-body pt-0";
+            commentBody.textContent = text;
+            commentCard.append(commentBody);
+            return commentCard;
         }
 
         // Configure header
@@ -258,7 +279,7 @@ export class SalesGroupViewer {
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
             
-            if(this.data.show_account_carcass_data == 1){
+            if(this.data.show_account_carcass_data == 1 && accountUSDAQualityGradeDistribution.length > 0){
                 let carcassData = document.createElement("div");
                 carcassData.style = "color:black";
                 let qualityGradeDistribution = "";
@@ -292,28 +313,12 @@ export class SalesGroupViewer {
 
         //Configure market data 
         {
-            let marketDataCol = document.createElement("div");
-            marketDataCol.className = "card";
-            marketDataCol.style = "border-radius: 5%";
-            layout.marketData.append(marketDataCol);
-
-            let marketHeader = document.createElement("div");
-            marketHeader.className = "card-header";
-            marketHeader.style = "color:#8B4513; height:75px";
-            marketHeader.style.borderBottom = "solid 1px #c0c0c0";
-            marketHeader.textContent = "Market Data";
-            marketDataCol.append(marketHeader);
+            let marketDataContainer = createSectionContainer("Market Data");
+            layout.marketData.append(marketDataContainer);
 
             let marketBody = document.createElement("div");
             marketBody.className = "card-body";
-            marketDataCol.append(marketBody);
-
-            let marketInfo = document.createElement("div");
-            marketInfo.className = "col-sm-12";
-            marketBody.append(marketInfo);
-
-            let marketInfoText = document.createElement("dl");
-            marketInfoText.className = "dl-horizontal row";
+            marketDataContainer.append(marketBody);
 
             addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
 
@@ -330,40 +335,18 @@ export class SalesGroupViewer {
             }
             addInfo("Represented By", this.formatData(this.data.reported.marketing_represented_by), marketBody);
 
-            marketInfo.append(marketInfoText);
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            marketDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.marketing_comments;
-            commentCol.append(commentBody);
+            let commentCard = createCommentSection(this.data.reported.marketing_comments);
+            marketDataContainer.append(commentCard);
         }
 
         //Configure media data
         {
-            let mediaDataCol = document.createElement("div");
-            mediaDataCol.className = "card";
-            mediaDataCol.style = "border-radius: 5%";
-            layout.media.append(mediaDataCol);
-
-            let mediaHeader = document.createElement("div");
-            mediaHeader.className = "card-header";
-            mediaHeader.style = "color:#8B4513; height:75px";
-            mediaHeader.style.borderBottom = "solid 1px #c0c0c0";
-            mediaHeader.textContent = "Media";
-            mediaDataCol.append(mediaHeader);
+            let mediaDataContainer = createSectionContainer("Media");
+            layout.media.append(mediaDataContainer);
 
             let mediaBody = document.createElement("div")
             mediaBody.className = "card-body";
-            mediaDataCol.append(mediaBody);
+            mediaDataContainer.append(mediaBody);
 
             let mediaNav = document.createElement("ul");
             mediaNav.className = "nav nav-tabs";
@@ -499,21 +482,12 @@ export class SalesGroupViewer {
 
         // Characteristics
         {
-            let characteristicsDataCol = document.createElement("div");
-            characteristicsDataCol.className = "card";
-            characteristicsDataCol.style = "border-radius: 5%";
-            layout.characteristicsData.append(characteristicsDataCol);
-
-            let characteristicsHeader = document.createElement("div");
-            characteristicsHeader.className = "card-header";
-            characteristicsHeader.style = "color:#8B4513; height:75px";
-            characteristicsHeader.style.borderBottom = "solid 1px #c0c0c0";
-            characteristicsHeader.textContent = "Characteristics";
-            characteristicsDataCol.append(characteristicsHeader);
+            let characteristicsDataContainer = createSectionContainer("Characteristics");
+            layout.characteristicsData.append(characteristicsDataContainer);
 
             let characteristicsBody = document.createElement("div");
             characteristicsBody.className = "card-body";
-            characteristicsDataCol.append(characteristicsBody);
+            characteristicsDataContainer.append(characteristicsBody);
 
             addInfo("Breed", this.formatData(this.data.reported.breeds), characteristicsBody);
             addInfo("Category", this.formatData(this.data.category), characteristicsBody);
@@ -524,39 +498,18 @@ export class SalesGroupViewer {
             addInfo("Muscling", this.formatData(this.data.reported.muscling), characteristicsBody);
             addInfo("Pregnancy Status", this.formatData(this.data.reported.pregnancy_status), characteristicsBody);
 
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            characteristicsDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.characteristics_comments;
-            commentCol.append(commentBody);
+            let commentCard = createCommentSection(this.data.reported.characteristics_comments);
+            characteristicsDataContainer.append(commentCard);
         }
 
         // Maintenance
         {
-            let maintenanceDataCol = document.createElement("div");
-            maintenanceDataCol.className = "card";
-            maintenanceDataCol.style = "border-radius: 5%";
-            layout.maintenanceData.append(maintenanceDataCol);
-
-            let maintenanceHeader = document.createElement("div");
-            maintenanceHeader.className = "card-header";
-            maintenanceHeader.style = "color:#8B4513; height:75px";
-            maintenanceHeader.style.borderBottom = "solid 1px #c0c0c0";
-            maintenanceHeader.textContent = "Maintenance";
-            maintenanceDataCol.append(maintenanceHeader);
+            let maintenanceDataContainer = createSectionContainer("Maintenance");
+            layout.maintenanceData.append(maintenanceDataContainer);
 
             let maintenanceBody = document.createElement("div");
             maintenanceBody.className = "card-body";
-            maintenanceDataCol.append(maintenanceBody);
+            maintenanceDataContainer.append(maintenanceBody);
 
             addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), maintenanceBody);
             addInfo("Comingled Status", this.formatData(this.data.reported.comingled_status), maintenanceBody);
@@ -565,96 +518,42 @@ export class SalesGroupViewer {
             addInfo("Castrated", this.formatData(this.data.reported.castrated), maintenanceBody);
             addInfo("Weaned", this.formatData(this.data.reported.weaned), maintenanceBody);
 
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            maintenanceDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.maintenance_comments;
-            commentCol.append(commentBody);
+            let commentCard = createCommentSection(this.data.reported.maintenance_comments);
+            maintenanceDataContainer.append(commentCard);
         }
 
         // Genetics
         {
-            let geneticsDataCol = document.createElement("div");
-            geneticsDataCol.className = "card";
-            geneticsDataCol.style = "border-radius: 5%";
-            layout.geneticsData.append(geneticsDataCol);
-
-            let geneticsHeader = document.createElement("div");
-            geneticsHeader.className = "card-header";
-            geneticsHeader.style = "color:#8B4513; height:75px";
-            geneticsHeader.style.borderBottom = "solid 1px #c0c0c0";
-            geneticsHeader.textContent = "Genetics";
-            geneticsDataCol.append(geneticsHeader);
+            let geneticsDataContainer = createSectionContainer("Genetics");
+            layout.geneticsData.append(geneticsDataContainer);
 
             let geneticsBody = document.createElement("div");
             geneticsBody.className = "card-body";
-            geneticsDataCol.append(geneticsBody);
+            geneticsDataContainer.append(geneticsBody);
             
             addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), geneticsBody);
             addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), geneticsBody);
             addInfo("Genetics Verification Co.", this.formatData(this.data.reported.verification), geneticsBody);
-
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            geneticsDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.genetics_comments;
-            commentCol.append(commentBody);
+            
+            let commentCard = createCommentSection(this.data.reported.genetics_comments);
+            geneticsDataContainer.append(commentCard);
         }
 
         // Value Add Programs
         {
-            let valueAddDataCol = document.createElement("div");
-            valueAddDataCol.className = "card";
-            valueAddDataCol.style = "border-radius: 5%";
-            layout.valueAddData.append(valueAddDataCol);
-
-            let valueAddHeader = document.createElement("div");
-            valueAddHeader.className = "card-header";
-            valueAddHeader.style = "color:#8B4513; height:75px";
-            valueAddHeader.style.borderBottom = "solid 1px #c0c0c0";
-            valueAddHeader.textContent = "Value Add Programs";
-            valueAddDataCol.append(valueAddHeader);
+            let valueAddDataContainer = createSectionContainer("Value Add Programs");
+            layout.valueAddData.append(valueAddDataContainer);
 
             let valueAddBody = document.createElement("div");
             valueAddBody.className = "card-body";
-            valueAddDataCol.append(valueAddBody);
+            valueAddDataContainer.append(valueAddBody);
             
             addInfo("Program", this.formatData(this.data.reported.program), valueAddBody);
             addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), valueAddBody);
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), valueAddBody);
 
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            valueAddDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.program_comments;
-            commentCol.append(commentBody);
+            let commentCard = createCommentSection(this.data.reported.program_comments);
+            valueAddDataContainer.append(commentCard);
         }
 
         this.box.append(layout.content);

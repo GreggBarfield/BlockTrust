@@ -14,7 +14,19 @@ export class CreateSalesGroupWidget extends Widget {
         this.preSelectedAuctionMarketId = this.frame.getAttribute("data-widget-pre-selected-auction-market-id");
         this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
-        this.makeForm();
+        this.accountId = this.frame.getAttribute("data-widget-account-id");
+
+        // Checking for availability of carcass data
+        this.carcassDataAvailable = true;
+        this.getData(
+            "get_count_distribution_for_account", {account_id: parseInt(this.accountId)}
+        ).then((data) => {
+            let accountUSDAQualityGradeDistribution = data.result.count_distribution;
+            if(accountUSDAQualityGradeDistribution.length == 0){
+                this.carcassDataAvailable = false;
+            }
+            this.makeForm();
+        });
     }
 
     processAuctionMarketsData(auctionMarkets){
@@ -76,7 +88,7 @@ export class CreateSalesGroupWidget extends Widget {
     card.append(cardBody);
     this.frame.append(card)
     // Widget containing common input fields used in sales group form
-    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId);
+    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable);
     cardBody.append(salesGroupForm);
     }
 }
