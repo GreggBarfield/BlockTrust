@@ -47,7 +47,8 @@ def serve_create_sales_group():
             "pre_select_auction_market": False,
             "pre_selected_auction_market_id": None,
             "sales_group_fields_values": sales_group_fields_values,
-            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+            "account_id": g.account.id()
         })
     if request.method == 'POST':
         images = []
@@ -117,7 +118,8 @@ def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
         "pre_select_auction_market": True,
         "pre_selected_auction_market_id": auction_market_id,
         "sales_group_fields_values": sales_group_fields_values,
-        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+        "account_id": g.account.id()
     })
 
 @bp.route('/iframe/sales-group/sales-group-created')
@@ -161,7 +163,8 @@ def serve_edit_sales_group(sales_group_id):
             "form_post_route": form_post_route,
             "external_shareable_link": external_shareable_link,
             "sales_group_fields_values": sales_group_fields_values,
-            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+            "account_id": g.account.id()
         })
     if request.method == 'POST':
         # Check that the account selected is the owner of the sales group

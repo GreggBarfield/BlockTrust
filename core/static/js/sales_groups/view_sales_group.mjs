@@ -279,7 +279,7 @@ export class SalesGroupViewer {
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
             
-            if(this.data.show_account_carcass_data == 1){
+            if(this.data.show_account_carcass_data == 1 && accountUSDAQualityGradeDistribution.length > 0){
                 let carcassData = document.createElement("div");
                 carcassData.style = "color:black";
                 let qualityGradeDistribution = "";
