@@ -242,9 +242,8 @@ class Accounts:
         Raises:
             AccountsException
         """
-
         account = self.create_account(company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                                      optional_fields
+                                      optional_fields=optional_fields
         )
 
         # make the first user the account admin

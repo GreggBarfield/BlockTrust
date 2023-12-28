@@ -181,8 +181,8 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
     if len(pvp_programs) > 0:
         optional_fields["pvp_programs"] = pvp_programs
     if len(auction_markets_used) == 0 and len(preconditioning_programs) == 0 and len(pvp_programs) == 0:
+        print("Setting as None")
         optional_fields = None
-
     sector, phone, affiliate_id = g.db.accounts.validate_new_account(sector, partner, affiliate_id, phone)
 
     user = g.db.users.validate_and_insert_user(
