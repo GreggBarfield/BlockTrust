@@ -88,14 +88,4 @@
         </div>
     </div>
 </div>
-<script>
-    let elements = document.getElementsByName("sale-date");
-    for (let element of elements){
-        element.innerText = new Date(element.innerText*1000).toLocaleString("en-US", {
-            year:"numeric",
-            month:"long",
-            day:"numeric"
-        });
-    }
-</script>
 {% endblock dashboard_content %}
