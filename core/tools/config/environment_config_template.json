@@ -72,11 +72,11 @@
         "payments": false
     },
     "herdwhistle": {
-        "api_key": "9485d503e6c60da1370a430176ddadd2f1686ad6",
-        "api_endpoint": "https://herdwhistle-staging-8866134.dev.odoo.com",
-        "db": "herdwhistle-staging-8866134",
+        "api_key": "438b049e5dc62b50477cab6b9c7a5a04c128e112",
+        "api_endpoint": "https://herdwhistle-staging-10160549.dev.odoo.com",
+        "db": "herdwhistle-staging-10160549",
         "username": "blocktrust",
-        "invoice_id": 4977,
+        "invoice_id": 5230,
         "fetch_eids_from_api": false
     }
 }

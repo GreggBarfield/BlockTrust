@@ -10,12 +10,13 @@ export class CheckoutPaymentWidget extends Widget {
         this.frame.innerHTML = "";
         let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
         let herdWhistleVendorId = this.frame.getAttribute("data-widget-herd-whistle-vendor-id");
-        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId);
+        let invoiceLink = this.frame.getAttribute("data-widget-invoice-link");
+        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId, invoiceLink);
         this.frame.append(checkoutPaymentCard);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
 
-    makeCheckoutPaymentCard = (herdWhistleVendorId) =>{
+    makeCheckoutPaymentCard = (herdWhistleVendorId, invoiceLink) =>{
         let checkoutPaymentCard = document.createElement("div");
         checkoutPaymentCard.className = "card border rounded";
 
@@ -54,7 +55,7 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentSubmitButton.textContent = "SUBMIT";
         paymentContainer.append(checkoutPaymentSubmitButton);
         checkoutPaymentSubmitButton.onclick = () =>{
-            this.performStripePaymentActions(herdWhistleVendorId);
+            this.performStripePaymentActions(herdWhistleVendorId, invoiceLink);
         }
 
         let checkoutPaymentStatusMessage = document.createElement("div");
@@ -81,7 +82,7 @@ export class CheckoutPaymentWidget extends Widget {
         this.card.mount('#checkout-card-element');
     }
 
-    performStripePaymentActions = async (herdWhistleVendorId) =>{
+    performStripePaymentActions = async (herdWhistleVendorId, invoiceLink) =>{
         this.updatePaymentButton("Processing...", true);
         // Creating a new order
         let {error, orderId} = await fetch(
@@ -180,7 +181,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
 
         this.updatePaymentButton("Order Confirmed!", true);
-        window.location.href = '/shop/invoice';
+        window.location.href = invoiceLink;
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{

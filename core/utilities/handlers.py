@@ -56,7 +56,7 @@ def attach_handlers(app):
                 })
             )
         else:
-            return respond(401, 'Not logged in')
+            return respond(401, 'User Not logged in')
 
     @app.errorhandler(RequireUserIframeFailed)
     def handle_require_user_iframe_failed(e):
@@ -67,7 +67,7 @@ def attach_handlers(app):
                 })
             )
         else:
-            return respond(401, 'Not logged in')
+            return respond(401, 'Iframe Not logged in')
 
     @app.errorhandler(RequireNonPartnerAccountFailed)
     def handle_require_account_failed(e):

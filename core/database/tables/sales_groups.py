@@ -178,11 +178,10 @@ class SalesGroups:
     def insert_sales_group(self, reported, published=None, zip_code=None, account=None,
                            delivery_location=None, sale_date=None, auction_sale=None,
                            group_name=None, is_archived=None, delivery_location_type=None, price=None,
-                           category=None, breed_comments=None, weighing_conditions=None,
-                           are_annual_cattle_herd_vaccinations_given=None, seller_id=None, vaccination_date=None,
-                           vaccination_summary=None, herd_sire=None, ranch_source_county=None, ranch_size=None,
-                           home_raised=None, family_farm_or_ranch=None, show_account_carcass_data=None,
-                           is_api_insert=None):
+                           category=None, breed_comments=None, weighing_conditions=None, auction_market_id=None,
+                           seller_id=None, vaccination_date=None, vaccination_summary=None, herd_sire=None,
+                           ranch_source_county=None, ranch_size=None, home_raised=None, family_farm_or_ranch=None,
+                           show_account_carcass_data=None, is_api_insert=None):
         """
         Inserts a new sales group into the table
         Params:
@@ -206,19 +205,17 @@ class SalesGroups:
         """
         self._db.execute(
             """
-            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, sale_date, auction_sale,
-                group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
-                are_annual_cattle_herd_vaccinations_given, seller_id, vaccination_date, vaccination_summary, herd_sire, 
-                ranch_source_county, ranch_size, home_raised, family_farm_or_ranch, show_account_carcass_data,
-                is_api_insert
+            INSERT INTO sales_groups (account, reported, published, zip, delivery_location, auction_market_id, sale_date,
+                auction_sale, group_name, is_archived, delivery_location_type, price, category, breed_comments, weighing_conditions,
+                seller_id, vaccination_date, vaccination_summary, herd_sire, ranch_source_county, ranch_size, 
+                home_raised, family_farm_or_ranch, show_account_carcass_data, is_api_insert
             )
             VALUES (
-                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(sale_date)s,
+                %(account)s, %(reported)s, %(published)s, %(zip_code)s, %(delivery_location)s, %(auction_market_id)s, %(sale_date)s,
                 %(auction_sale)s, %(group_name)s, %(is_archived)s, %(delivery_location_type)s, %(price)s, %(category)s,
-                %(breed_comments)s, %(weighing_conditions)s, %(are_annual_cattle_herd_vaccinations_given)s, %(seller_id)s,
-                %(vaccination_date)s, %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s,
-                %(ranch_size)s, %(home_raised)s, %(family_farm_or_ranch)s, %(show_account_carcass_data)s,
-                %(is_api_insert)s
+                %(breed_comments)s, %(weighing_conditions)s, %(seller_id)s, %(vaccination_date)s,
+                %(vaccination_summary)s, %(herd_sire)s, %(ranch_source_county)s, %(ranch_size)s, %(home_raised)s,
+                %(family_farm_or_ranch)s, %(show_account_carcass_data)s, %(is_api_insert)s
             )
             """, {
                 "account": account,
@@ -226,6 +223,7 @@ class SalesGroups:
                 "published": published,
                 "zip_code": zip_code,
                 "delivery_location": delivery_location,
+                "auction_market_id": auction_market_id,
                 "sale_date": sale_date,
                 "auction_sale": auction_sale,
                 "group_name": group_name,
@@ -235,7 +233,6 @@ class SalesGroups:
                 "category": category,
                 "breed_comments": breed_comments,
                 "weighing_conditions": weighing_conditions,
-                "are_annual_cattle_herd_vaccinations_given": are_annual_cattle_herd_vaccinations_given,
                 "seller_id": seller_id,
                 "vaccination_date": vaccination_date,
                 "vaccination_summary": vaccination_summary,
@@ -251,13 +248,12 @@ class SalesGroups:
         return self._db.last_row_id()
 
     def update_sales_group(self, id, reported=NO_VALUE, published=NO_VALUE,
-                           zip_code=NO_VALUE, delivery_location=NO_VALUE, sale_date=NO_VALUE,
-                           auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
+                           zip_code=NO_VALUE, delivery_location=NO_VALUE, auction_market_id=NO_VALUE,
+                           sale_date=NO_VALUE, auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
                            delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
                            category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
-                           are_annual_cattle_herd_vaccinations_given=NO_VALUE, seller_id=NO_VALUE, 
-                           vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE, herd_sire=NO_VALUE,
-                           ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
+                           seller_id=NO_VALUE,vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE,
+                           herd_sire=NO_VALUE, ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
                            family_farm_or_ranch=NO_VALUE, show_account_carcass_data=NO_VALUE):
         """Updates a row.
 
@@ -298,6 +294,9 @@ class SalesGroups:
         if delivery_location is not NO_VALUE:
             query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append("auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
         if sale_date is not NO_VALUE:
             query_conditions.append("sale_date = %(sale_date)s")
             query_values["sale_date"] = sale_date
@@ -331,9 +330,6 @@ class SalesGroups:
         if weighing_conditions is not NO_VALUE:
             query_conditions.append("weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
-        if are_annual_cattle_herd_vaccinations_given is not NO_VALUE:
-            query_conditions.append("are_annual_cattle_herd_vaccinations_given = %(are_annual_cattle_herd_vaccinations_given)s")
-            query_values["are_annual_cattle_herd_vaccinations_given"] = are_annual_cattle_herd_vaccinations_given
         if seller_id is not NO_VALUE:
             query_conditions.append("seller_id = %(seller_id)s")
             query_values["seller_id"] = seller_id
@@ -466,8 +462,8 @@ class SalesGroups:
         return self._translate_json(sales_groups)
 
     def validate_or_fail_sales_group(self, group_name, zip, account_id, delivery_location_type, count, weight,
-                                     breeds, sale_date, auction_sale, delivery_location, auction_market_location,
-                                     images, price, category, slide, weighing_conditions):
+                                     breeds, sale_date, delivery_location, auction_market_location,
+                                     images, price, category, slide, weighing_conditions, auction_sale=None):
         """
         Validates that the values received for a sales group is valid
 
@@ -536,7 +532,8 @@ class SalesGroups:
                          delivery_location=NO_VALUE, sale_date=NO_VALUE, auction_sale=NO_VALUE,
                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
-                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[]):
+                         breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[],
+                         auction_market_id=NO_VALUE):
         """
         Gets the sales groups based on attributes provided
         
@@ -566,71 +563,77 @@ class SalesGroups:
             base_query += " " + ",".join(c for c in sales_group_cols)
         else:
             base_query += " *"
-        base_query += " FROM sales_groups "
+        base_query += " FROM sales_groups"
         query_conditions = []
         query_values = {}
         if id is not NO_VALUE:
             query_conditions.append("id = %(id)s")
             query_values["id"] = id
         if account_id is not NO_VALUE:
-            query_conditions.append(" account = %(account_id)s")
+            query_conditions.append("account = %(account_id)s")
             query_values["account_id"] = account_id
         if reported is not NO_VALUE:
-            query_conditions.append(" reported = %(reported)s")
+            query_conditions.append("reported = %(reported)s")
             query_values["reported"] = json.dumps(reported)
         if published is not NO_VALUE:
-            query_conditions.append(" published = %(published)s")
+            query_conditions.append("published = %(published)s")
             query_values["published"] = published
         if zip_code is not NO_VALUE:
-            query_conditions.append(" zip = %(zip_code)s")
+            query_conditions.append("zip = %(zip_code)s")
             query_values["zip_code"] = zip_code
             market_location = get_locations(zip_code)
-            query_conditions.append(" market_location = %(market_location)s")
+            query_conditions.append("market_location = %(market_location)s")
             query_values["market_location"] = market_location
         if delivery_location is not NO_VALUE:
-            query_conditions.append(" delivery_location = %(delivery_location)s")
+            query_conditions.append("delivery_location = %(delivery_location)s")
             query_values["delivery_location"] = delivery_location
         if sale_date is not NO_VALUE:
-            query_conditions.append(" sale_date = %(sale_date)s")
+            query_conditions.append("sale_date = %(sale_date)s")
             query_values["sale_date"] = sale_date
         if auction_sale is not NO_VALUE:
-            query_conditions.append(" auction_sale = %(auction_sale)s")
+            query_conditions.append("auction_sale = %(auction_sale)s")
             query_values["auction_sale"] = auction_sale
         if group_name is not NO_VALUE:
-            query_conditions.append(" group_name = %(group_name)s")
+            query_conditions.append("group_name = %(group_name)s")
             query_values["group_name"] = group_name
         if is_archived is not NO_VALUE:
-            query_conditions.append(" is_archived = %(is_archived)s")
+            query_conditions.append("is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
         if delivery_location_type is not NO_VALUE:
-            query_conditions.append(" delivery_location_type = %(delivery_location_type)s")
+            query_conditions.append("delivery_location_type = %(delivery_location_type)s")
             query_values["delivery_location_type"] = delivery_location_type
         if price is not NO_VALUE:
-            query_conditions.append(" price = %(price)s")
+            query_conditions.append("price = %(price)s")
             query_values["price"] = price
         if is_sold is not NO_VALUE:
-            query_conditions.append(" is_sold = %(is_sold)s")
+            query_conditions.append("is_sold = %(is_sold)s")
             query_values["is_sold"] = is_sold
         if buyer_account_id is not NO_VALUE:
-            query_conditions.append(" buyer_account_id = %(buyer_account_id)s")
+            query_conditions.append("buyer_account_id = %(buyer_account_id)s")
             query_values["buyer_account_id"] = buyer_account_id
         if category is not NO_VALUE:
-            query_conditions.append(" category = %(category)s")
+            query_conditions.append("category = %(category)s")
             query_values["category"] = category
         if breed_comments is not NO_VALUE:
-            query_conditions.append(" breed_comments = %(breed_comments)s")
+            query_conditions.append("breed_comments = %(breed_comments)s")
             query_values["breed_comments"] = breed_comments
         if weighing_conditions is not NO_VALUE:
-            query_conditions.append(" weighing_conditions = %(weighing_conditions)s")
+            query_conditions.append("weighing_conditions = %(weighing_conditions)s")
             query_values["weighing_conditions"] = weighing_conditions
+        if auction_market_id is not NO_VALUE:
+            query_conditions.append("auction_market_id = %(auction_market_id)s")
+            query_values["auction_market_id"] = auction_market_id
 
         if len(query_conditions) >= 1:
-            combined_query_condition = " WHERE" + " AND ".join(query_conditions)
+            combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
 
         query = base_query + combined_query_condition
         sales_groups = self._db.execute_d(query, query_values)
         if len(sales_groups) > 0:
+            for sales_group in sales_groups:
+                if "reported" in sales_group:
+                    sales_group["reported"] = json.loads(sales_group["reported"])
             return sales_groups
         return []

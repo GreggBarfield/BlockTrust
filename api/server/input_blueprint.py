@@ -185,7 +185,6 @@ def serve_insert_sales_group():
             "horns": "",
             "preconditioning_program": "",
             "vaccinations": [],
-            "are_annual_cattle_herd_vaccinations_given": 0,
             "feeding_program": [],
             "implants": [],
             "castrated": "",
@@ -256,7 +255,6 @@ def serve_insert_sales_group():
             category=sales_group_data["category"],
             breed_comments=sales_group_data["breed_comments"],
             weighing_conditions=sales_group_data["weighing_conditions"],
-            are_annual_cattle_herd_vaccinations_given=sales_group_data["are_annual_cattle_herd_vaccinations_given"],
             show_account_carcass_data=1,
             is_api_insert=1
         )

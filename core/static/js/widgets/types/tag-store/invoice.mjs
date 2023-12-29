@@ -8,13 +8,14 @@ export class InvoiceWidget extends Widget {
 
     initType = () =>{
         this.frame.innerHTML = "";
+        let shopHomepageLink = this.frame.getAttribute("data-widget-shop-homepage-link")
         if(localStorage.shoppingCart == null || localStorage.orderDetails == null){
-            window.location.href = "/shop/tag-store";
+            window.location.href = shopHomepageLink;
         }
         else{
             let invoiceContainer = this.makeInvoiceContainer();
             this.frame.append(invoiceContainer);
-            let returnToShopButton = this.generateReturnToShopButton();
+            let returnToShopButton = this.generateReturnToShopButton(shopHomepageLink);
             this.frame.append(returnToShopButton);
         }
         window.addEventListener('beforeunload', ()=>{
@@ -158,7 +159,7 @@ export class InvoiceWidget extends Widget {
         return horizontalRule;
     }
 
-    generateReturnToShopButton = () =>{
+    generateReturnToShopButton = (shopHomepageLink) =>{
         let button = document.createElement("button");
         button.className = "btn btn-outline-primary rounded";
         button.textContent = "RETURN TO SHOP";
@@ -167,7 +168,7 @@ export class InvoiceWidget extends Widget {
         button.appendChild(icon);
         button.onclick = () =>{
             localStorage.clear();
-            window.location.href = "/shop/tag-store";
+            window.location.href = shopHomepageLink;
         }
         return button;
     }

@@ -89,9 +89,19 @@ export class SwitchFormGroup {
         publishFormGroup.append(publishSwitchLabelLabel);
 
         this._input = publishSwitchInput;
+        this._input_container = publishFormGroup;
     }
 
     isChecked() {
         return this._input.checked;
+    }
+
+    disableSwitch = () =>{
+        this._input.checked = false;
+        this._input.disabled = true;
+    }
+
+    hideSwitch = () =>{
+        this._input_container.classList.add("d-none");
     }
 }
