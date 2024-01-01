@@ -130,65 +130,6 @@ let commonPreconditioningProgramNames = [
 	"SelectVac WeanVac"
 ];
 
-let commonFrames = [
-	"N/A",
-	"Small",
-	"Medium",
-	"Large"
-];
-
-let commonMusclings = [
-	"N/A",
-	"Light",
-	"Heavy"
-];
-
-let commonHorns = [
-	"N/A",
-	"Horns",
-	"No Horns"
-]
-
-let commonVaccinations = [
-	"Not Applicable",
-	"Blackleg",
-	"H. Somnus",
-	"Pasturella",
-	"4-way virus (MLV)",
-	"4-way virus (Killed)",
-	"5-way virus (MLV)",
-	"5-way virus (Killed)",
-	"Internal Parasites",
-	"External Parasites"
-];
-
-let commonDeliveryLocationTypes = [
-	"Direct/Off Ranch",
-	"Auction",
-	"Video Auction",
-	"Internet"
-];
-
-let commonCastrated = [
-	"Not Applicable",
-	"Not Castrated",
-	"Banded",
-	"Blade",
-	"Chemicals",
-	"Other"
-];
-
-let commonFeedingPrograms = [
-	"Not Applicable",
-	"Native Range",
-	"Improved Pasture"
-];
-
-let commonImplants = [
-	"Not Applicable",
-	"Ralgro"
-];
-
 let commonCategoryNames = [
 	"Mixed Steers and Heifers",
 	"Feeder Steers",
@@ -209,13 +150,5 @@ export let SalesGroupFields = {
 	commonMiles: commonMiles,
 	commonWeights: commonWeights,
 	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
-	commonFrames: commonFrames,
-	commonVaccinations: commonVaccinations,
-	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
-	commonCastrated: commonCastrated,
-	commonFeedingPrograms: commonFeedingPrograms,
-	commonImplants: commonImplants,
-	commonCategoryNames: commonCategoryNames,
-	commonMusclings: commonMusclings,
-	commonHorns: commonHorns
+	commonCategoryNames: commonCategoryNames
 };

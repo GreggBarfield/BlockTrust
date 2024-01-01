@@ -14,6 +14,7 @@ from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
@@ -877,3 +878,10 @@ def serve_billing():
     return employee_render("/employee/finance/billing.html", {
         "accounts": accounts, "chargeable_accounts": chargable_accounts
     })
+
+
+@bp.route('/employee/auction-markets', methods=["GET"])
+@crut.require_employee
+def serve_auction_markets():
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    return employee_render("/employee/auction-markets/auction-markets.html", {"auction_markets": auction_markets})

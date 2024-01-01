@@ -1,9 +1,11 @@
 import json
 from ..no_value import NoValue
+from ...renderers.email import render_email
 from .users import Users
 from ...utilities.email import send_email
 from datetime import datetime
 
+from json import loads
 
 NO_VALUE = NoValue()
 
@@ -25,6 +27,9 @@ EMAILS = {
         "SUBJECT": "Congratulations, match found!",
         "BODY": """Congratulations, one or more of your cattle has been matched in the beef supply chain.
             <a href='https://blocktrustnetwork.com/login' target='_blank'>Login</a> to see details."""
+    },
+    "SALES GROUP SEARCH RESULTS": {
+        "SUBJECT": "New Sales Group Search Results Found!"
     }
 }
 
@@ -138,7 +143,7 @@ class ScheduledEmails:
                 "account_id": account_id,
                 "subject": subject,
                 "body": body,
-                "variables": json.dumps(variables) if variables is not None else None,
+                "variables": json.dumps(variables, default=str) if variables is not None else None,
                 "template_name": template_name,
                 "status_id": status_id
             }
@@ -206,6 +211,7 @@ class ScheduledEmails:
         unprocessed_emails = self.get_scheduled_emails(status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Not Sent"])
         for unprocessed_email in unprocessed_emails:
             try:
+                """
                 if unprocessed_email["user_id"]:
                     user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
                     if len(user_rows) == 1:
@@ -215,7 +221,35 @@ class ScheduledEmails:
                     else:
                         raise Exception("User not found or has an unverified email")
                 elif unprocessed_email["email_address"]:
-                    send_email(unprocessed_email["subject"], unprocessed_email["body"], unprocessed_email["email_address"])
+                    if unprocessed_email["template_name"] is not None:
+                        send_email(unprocessed_email["subject"], render_email(unprocessed_email["template_name"], loads(unprocessed_email["variables"])), unprocessed_email["email_address"])
+                    else:
+                        send_email(unprocessed_email["subject"], unprocessed_email["body"], unprocessed_email["email_address"])
                     self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Sent"], sent_date_time=datetime.now())
+                
+                """
+                user_email = ""
+
+                if unprocessed_email["user_id"]:
+                    user_rows = Users(self._db).get_users(id=unprocessed_email["user_id"], is_email_verified=1)
+                    if len(user_rows) == 1:
+                        user_email = user_rows[0]["email"]
+                    else:
+                        raise Exception("User not found or has an unverified email")
+                elif unprocessed_email["email_address"]:
+                    user_email = unprocessed_email["email_address"]
+                else:
+                    raise Exception("No Valid Email specified for Scheduled Email Row ID: " + unprocessed_email["id"])
+
+                if unprocessed_email["template_name"]:
+                    send_email(
+                        unprocessed_email["subject"],
+                        render_email(unprocessed_email["template_name"], loads(unprocessed_email["variables"])),
+                        user_email
+                    )
+                else:
+                    send_email(unprocessed_email["subject"], unprocessed_email["body"], user_email)
+                self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Sent"], sent_date_time=datetime.now())
             except Exception as e:
+                print(str(e))
                 self.update_scheduled_emails(id=unprocessed_email["id"], status_id=SCHEDULED_EMAIL_STATUS_NAME_TO_ID["Error"], error_details=str(e))

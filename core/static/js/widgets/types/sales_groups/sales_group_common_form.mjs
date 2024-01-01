@@ -1,14 +1,15 @@
 import { ProgressBar } from '../../../core/progress_bar.mjs';
 import { BasicFileEditor } from '../../../files/basic_file_editor.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
-import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
 import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
-import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs'
+import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs';
+import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
+import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 
 export class SalesGroupsCommonForm{
-    constructor(data, auctionMarketsData, postRoute) {
+    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -25,6 +26,7 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = this.data.reported.marketing_slide;
             this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
             this.marketingRepresentedByValue = this.data.reported.marketing_represented_by;
+            this.markertingCommentsValue = this.data.reported.marketing_comments;
             this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
             this.characteristicsBreedCommentsValue = this.data.breed_comments;
@@ -34,16 +36,24 @@ export class SalesGroupsCommonForm{
             this.characteristicsFrameValue = this.data.reported.usda_frame_size;
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
+            this.characteristicsPregnancyStatusValue = this.data.reported.pregnancy_status;
+            this.characteristicsCommentsValue = this.data.reported.characteristics_comments;
             this.geneticsGenomicTestingValue = this.data.reported.genomic_testing;
             this.geneticsEPDValue = this.data.reported.epd;
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
-            this.maintenancePreconditioningProgramValue = this.data.reported.preconditioning_program;
+            this.geneticsVerificationValue = this.data.reported.verification;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
-            this.maintenanceAnnualCattleHerdVaccinationsValue = Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No";
-            this.maintenanceFeedingProgramValue = this.data.reported.feeding_programs;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
             this.maintenanceProgramValue = this.data.reported.program;
+            this.maintenanceComingledStatusValue = this.data.reported.comingled_status;
+            this.maintenanceCreepFeedValue = this.data.reported.creep_feed;
+            this.maintenanceWeanedValue = this.data.reported.weaned;
+            this.maintenanceCommentsValue = this.data.reported.maintenance_comments;
+            this.valueAddProgramsProgramValue = this.data.reported.program;
+            this.valueAddProgramsPreconditioningProgramsValue = this.data.reported.preconditioning_program;
+            this.valueAddedProgramsFeedingProgramsValue = this.data.reported.feeding_programs;
+            this.valueAddedProgramsCommentsValue = this.data.reported.program_comments;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
             this.fileAuths = this.data.file_auths
@@ -65,25 +75,36 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = "";
             this.marketingWeighingConditionsValue = "";
             this.marketingRepresentedByValue = "";
-            this.characteristicsCategoryValue = "";
+            this.markertingCommentsValue = "";
+            this.characteristicsCategoryValue = [];
             this.characteristicBreedsValue = [];
             this.characteristicsBreedCommentsValue = null;
             this.characteristicsWeightValue = null;
             this.characteristicsWeightVarianceValue = null;
             this.characteristicsWeighingConditionsValue = null;
-            this.characteristicsFrameValue = "";
-            this.characteristicsMusclingValue = "";
-            this.characteristicsHornsValue = "";
-            this.geneticsGenomicTestingValue = "";
-            this.geneticsEPDValue = "";
+            this.characteristicsFrameValue = [];
+            this.characteristicsMusclingValue = [];
+            this.characteristicsHornsValue = [];
+            this.characteristicsPregnancyStatusValue = [];
+            this.characteristicsCommentsValue = "";
+            this.geneticsGenomicTestingValue = [];
+            this.geneticsEPDValue = [];
             this.geneticsCommentsValue = "";
-            this.maintenancePreconditioningProgramValue = "";
+            this.geneticsVerificationValue = [];
+            this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
-            this.maintenanceAnnualCattleHerdVaccinationsValue = ""
             this.maintenanceFeedingProgramValue = [];
             this.maintenanceImplantsValue = [];
-            this.maintenanceCastratedValue = "";
+            this.maintenanceCastratedValue = [];
             this.maintenanceProgramValue = [];
+            this.maintenanceComingledStatusValue = [];
+            this.maintenanceCreepFeedValue = [];
+            this.maintenanceWeanedValue = [];
+            this.maintenanceCommentsValue = "";
+            this.valueAddProgramsProgramValue = [];
+            this.valueAddProgramsPreconditioningProgramsValue = [];
+            this.valueAddedProgramsFeedingProgramsValue = [];
+            this.valueAddedProgramsCommentsValue = "";
             this.reportedImages = [];
             this.reportedVideos = [];
             this.fileAuths = null;
@@ -93,6 +114,10 @@ export class SalesGroupsCommonForm{
         }
         this.auctionMarketsData = auctionMarketsData;
         this.postRoute = postRoute;
+        this.salesGroupFieldsValues = salesGroupFieldsValues;
+        this.preSelectAuctionMarket = preSelectAuctionMarket;
+        this.preSelectedAuctionMarketId = preSelectedAuctionMarketId;
+        this.carcassDataAvailable = carcassDataAvailable;
         this.makeForm();
         return this.box;
     }
@@ -124,7 +149,7 @@ export class SalesGroupsCommonForm{
             return row;
         }
 
-        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, addAuctionMarketLink=false) {
+        function createGroup(row, name, htmlFor, hasTooltip, dataToggle, tooltipText, groupColumnSize=4, attachWidget=false, attachedWidget=null, widgetLinkText="") {
             let group = document.createElement("div");
             group.className = `form-group col-md-${groupColumnSize}`;
             row.append(group);
@@ -136,12 +161,12 @@ export class SalesGroupsCommonForm{
             if (htmlFor !== null) {
                 groupLabel.htmlFor = htmlFor;
             }
-            if(addAuctionMarketLink){
+            if(attachWidget){
                 let newLink = document.createElement("a");
                 newLink.className = "form-label text-primary";
-                newLink.textContent = "Not Listed?";
+                newLink.textContent = widgetLinkText;
                 newLink.onclick = () => {
-                    let widget = new CreateAuctionMarketWidget();
+                    let widget = new attachedWidget();
                     widget.init();
                 }
                 groupLabel.append(newLink);
@@ -150,8 +175,7 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createNumber(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createNumber(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "number";
@@ -166,8 +190,7 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createText(row, name, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createText(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "text";
@@ -179,8 +202,8 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createDate(row, name, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
-            let dateFormGroup = new DateFormGroup(row, name, epoch);
+        function createDate(row, name, id, epoch, hasTooltip=false, dataToggle="", tooltipText="") {
+            let dateFormGroup = new DateFormGroup(row, name, id, epoch);
             dateFormGroup.getFormGroup().classList.add("col-md-4");
             if (hasTooltip)
                 addTooltip(dataToggle,tooltipText,dateFormGroup.getFormLabel());
@@ -195,12 +218,11 @@ export class SalesGroupsCommonForm{
             return startDate;
         }
 
-        function createSelect({row, name, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, addAuctionMarketLink=false, optionsObject=null) {
-            let id = "domuid" + window.DOMUIDNext++;
+        function createSelect({row, name, id, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, attachWidget=false, optionsObject=null, attachedWidget=null, widgetLinkText="") {
             if (!Array.isArray(values)) {
                 values = [values];
             }
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, addAuctionMarketLink);
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget, widgetLinkText);
             let select = document.createElement("select");
             select.className = "select2-hidden-accessible";
             select.id = id;
@@ -260,16 +282,16 @@ export class SalesGroupsCommonForm{
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupName = createText(marketingRow,"Sales Group Nickname", this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
-        let marketingCount = createNumber(marketingRow, "Total Animals", this.marketingCountValue, false, "", "", 2);
-        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 2);
+        let salesGroupName = createText(marketingRow,"Sales Group Nickname", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
+        let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 4);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
-        let marketingDate = createDate(marketingRow, "Market Date", this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
+        let marketingDate = createDate(marketingRow, "Market Date", salesGroupFormInputIds.marketingDate, this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
         
         let marketingDeliveryLocationType = createSelect({
             row: marketingRow,
             name: "Market Type",
-            options: SalesGroupFields.commonDeliveryLocationTypes,
+            id: salesGroupFormInputIds.marketingDeliveryLocationType,
+            options: this.salesGroupFieldsValues.delivery_location_type,
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
             tags: false,
@@ -287,17 +309,19 @@ export class SalesGroupsCommonForm{
         let marketingAuctionMarketLocation = createSelect({
             row: marketingRow,
             name: "Auction Market: ",
+            id: salesGroupFormInputIds.marketingAuctionMarketLocation,
             values: auctionMarket || "None",
             multiple: false,
             tags: false,
             placeholder: "Please Select"
-        }, false, "", "", 4, true, this.auctionMarketsData);
+        }, false, "", "", 4, true, this.auctionMarketsData, CreateAuctionMarketWidget, "Not Listed?");
 
 
-        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location",deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
-        let marketingSlide = createText(marketingRow,"Slide",this.marketingSlideValue || "",true,"marketingSlide","", 4);
-        let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions",this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
-        let marketingRepresentedBy = createText(marketingRow,"Represented By",this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
+        let marketingOffRanchLocation = createText(marketingRow,"Delivery Location", salesGroupFormInputIds.marketingOffRanchLocation, deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
+        let marketingSlide = createText(marketingRow, "Slide", salesGroupFormInputIds.marketingSlide, this.marketingSlideValue || "",true,"marketingSlide","", 4);
+        let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
+        let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
+        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -333,48 +357,53 @@ export class SalesGroupsCommonForm{
         }
         marketingDeliveryLocationType.onchange();
 
+        if(this.preSelectAuctionMarket === "true"){
+            $(marketingDeliveryLocationType).val("Auction");
+            $(marketingDeliveryLocationType).trigger('change');
+            marketingDeliveryLocationType.disabled=true;
+            $(marketingAuctionMarketLocation).val(this.preSelectedAuctionMarketId);
+            $(marketingAuctionMarketLocation).trigger('change');
+            marketingAuctionMarketLocation.disabled=true;
+            marketingOffRanchLocation.disabled=true;
+            marketingSlide.disabled=true;
+            marketingWeighingConditions.disabled=true;
+        }
+
         // Characteristics
 
         let characteristicsRow = createSection(form, "Characteristics");
         
-        let characteristicsCategory = createSelect({
-            row: characteristicsRow,
-            name: "Category/Sex",
-            options: SalesGroupFields.commonCategoryNames,
-            values: this.characteristicsCategoryValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        },false,"","", 4);
+        let characteristicsCount = createNumber(characteristicsRow, "Total Head Count", salesGroupFormInputIds.characteristicsCount, this.marketingCountValue, false, "", "", 4);
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
-            options: SalesGroupFields.commonBreedNames,
+            id: salesGroupFormInputIds.characteristicBreeds,
+            options: this.salesGroupFieldsValues.breed,
             values: this.characteristicBreedsValue,
             multiple: true,
             tags: true,
             placeholder: "Please Select"
         },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
-        let characteristicsBreedComments = createText(characteristicsRow,"Breed Comments",this.characteristicsBreedCommentsValue,false,"characteristicsBreedComments","",4);
-        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight",this.characteristicsWeightValue,true,"characteristicsWeight",
-        "Please enter the average weight of the cattle in the group", 4);
-        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", this.characteristicsWeightVarianceValue,
-        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
-        let characteristicsWeighingConditions = createText(characteristicsRow,"Other Comments",this.characteristicsWeighingConditionsValue,false,"characteristicsWeighingConditions","",4);
-        let characteristicsFrame = createSelect({
+        let characteristicsCategory = createSelect({
             row: characteristicsRow,
-            name: "Frame",
-            options: SalesGroupFields.commonFrames,
-            values: this.characteristicsFrameValue,
+            name: "Category/Sex",
+            id: salesGroupFormInputIds.characteristicsCategory,
+            options: this.salesGroupFieldsValues.category,
+            values: this.characteristicsCategoryValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
-        }, false, "", "", 4);
-        let characteristicsMuscling = createSelect({
+        },false,"","", 4);
+        let characteristicsWeight = createNumber(characteristicsRow,"Base Weight", salesGroupFormInputIds.characteristicsWeight,this.characteristicsWeightValue,true,"characteristicsWeight",
+        "Please enter the average weight of the cattle in the group", 4);
+        let characteristicsWeightVariance = createText(characteristicsRow, "Weight Variance", salesGroupFormInputIds.characteristicsWeightVariance, this.characteristicsWeightVarianceValue,
+        true,"characteristicsWeightVariance","Please enter the variance of the weight average since it is not exact. (example: “20 lbs”)", 4);
+        let characteristicsFrame = createSelect({
             row: characteristicsRow,
-            name: "Muscling",
-            options: SalesGroupFields.commonMusclings,
-            values: this.characteristicsMusclingValue,
+            name: "Frame",
+            id: salesGroupFormInputIds.characteristicsFrame,
+            options: this.salesGroupFieldsValues.frame,
+            values: this.characteristicsFrameValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -382,20 +411,109 @@ export class SalesGroupsCommonForm{
         let characteristicsHorns = createSelect({
             row: characteristicsRow,
             name: "Horns",
-            options: SalesGroupFields.commonHorns,
+            id: salesGroupFormInputIds.characteristicsHorns,
+            options: this.salesGroupFieldsValues.horn,
             values: this.characteristicsHornsValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let characteristicsMuscling = createSelect({
+            row: characteristicsRow,
+            name: "Muscling",
+            id: salesGroupFormInputIds.characteristicsMuscling,
+            options: this.salesGroupFieldsValues.muscling,
+            values: this.characteristicsMusclingValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let characteristicsPregnancyStatus = createSelect({
+            row: characteristicsRow,
+            name: "Pregnancy Status (Heifers)",
+            id: salesGroupFormInputIds.characteristicsPregnancyStatus,
+            options: this.salesGroupFieldsValues.pregnancy_status,
+            values: this.characteristicsPregnancyStatusValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12);
 
         // Maintenance
+
+        let maintenanceRow = createSection(form, "Maintenance");
+
+        let maintenanceVaccinations = createSelect({
+            row: maintenanceRow,
+            name: "Vaccinations",
+            id: salesGroupFormInputIds.maintenanceVaccinations,
+            options: this.salesGroupFieldsValues.vaccination,
+            values: this.maintenanceVaccinationsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
+        let maintenanceComingledStatus = createSelect({
+            row: maintenanceRow,
+            name: "Comingled Status",
+            id: salesGroupFormInputIds.maintenanceComingledStatus,
+            options: this.salesGroupFieldsValues.comingled_status,
+            values: this.maintenanceComingledStatusValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceCreepFeed = createSelect({
+            row: maintenanceRow,
+            name: "Creep Feed",
+            id: salesGroupFormInputIds.maintenanceCreepFeed,
+            options: this.salesGroupFieldsValues.creep_feed,
+            values: this.maintenanceCreepFeedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceImplants = createSelect({
+            row: maintenanceRow,
+            name: "Implants",
+            id: salesGroupFormInputIds.maintenanceImplants,
+            options: this.salesGroupFieldsValues.implant,
+            values: this.maintenanceImplantsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, false, "" , "", 4);
+        let maintenanceCastrated = createSelect({
+            row: maintenanceRow,
+            name: "Castrated",
+            id: salesGroupFormInputIds.maintenanceCastrated,
+            options: this.salesGroupFieldsValues.castrated,
+            values: this.maintenanceCastratedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceWeaned = createSelect({
+            row: maintenanceRow,
+            name: "Weaned",
+            id: salesGroupFormInputIds.maintenanceWeaned,
+            options: this.salesGroupFieldsValues.weaned,
+            values: this.maintenanceWeanedValue,
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12);
+
+        // Genetics
 
         let geneticsRow = createSection(form, "Genetics");
 
         let geneticsGenomicTesting = createSelect({
             row: geneticsRow,
             name: "Do you do genetic or genomic testing?",
+            id: salesGroupFormInputIds.geneticsGenomicTesting,
             options: ["Yes", "No"],
             values: this.geneticsGenomicTestingValue || "",
             multiple: false,
@@ -405,80 +523,60 @@ export class SalesGroupsCommonForm{
         let geneticsEPD = createSelect({
             row: geneticsRow,
             name: "Do you have the EPD's on the sires of the cattle you're planning to sell?",
+            id: salesGroupFormInputIds.geneticsEPD,
             options: ["Yes", "No"],
             values: this.geneticsEPDValue || "",
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.",this.geneticsCommentsValue || "",false,"geneticsComments","", 4);
-
-        let maintenanceRow = createSection(form, "Maintenance");
-
-        let maintenancePreconditioningProgram = createSelect({
-            row: maintenanceRow,
-            name: "Precon Program",
-            options: SalesGroupFields.commonPreconditioningProgramNames,
-            values: this.maintenancePreconditioningProgramValue,
-            multiple: false,
-            tags: true,
-            placeholder: "Please Select"
-        }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4);
-        let maintenanceVaccinations = createSelect({
-            row: maintenanceRow,
-            name: "Vaccinations",
-            options: SalesGroupFields.commonVaccinations,
-            values: this.maintenanceVaccinationsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 2);
-
-        let maintenanceAnnualCattleHerdVaccinations = createSelect({
-            row: maintenanceRow,
-            name: "Annual Cattle Herd Vaccinations",
-            options: ["Yes", "No"],
-            values: this.maintenanceAnnualCattleHerdVaccinationsValue,
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, false, "", "", 2);
-        let maintenanceFeedingProgram = createSelect({
-            row: maintenanceRow,
-            name: "Feeding Program",
-            options: SalesGroupFields.commonFeedingPrograms,
-            values: this.maintenanceFeedingProgramValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
-        let maintenanceImplants = createSelect({
-            row: maintenanceRow,
-            name: "Implants",
-            options: SalesGroupFields.commonImplants,
-            values: this.maintenanceImplantsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, false, "" , "", 4);
-        let maintenanceCastrated = createSelect({
-            row: maintenanceRow,
-            name: "Castrated",
-            options: SalesGroupFields.commonCastrated,
-            values: this.maintenanceCastratedValue,
+        let geneticsVerification = createSelect({
+            row: geneticsRow,
+            name: "Genetics Verification Co.",
+            id: salesGroupFormInputIds.geneticsVerification,
+            options: this.salesGroupFieldsValues.genetics_verification,
+            values: this.geneticsVerificationValue || [],
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let maintenanceProgram = createSelect({
-            row: maintenanceRow,
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
+
+        // Value-Add Programs
+
+        let valueAddProgramsRow = createSection(form, "Value-Add Programss");
+        let valueAddProgramsProgram = createSelect({
+            row: valueAddProgramsRow,
             name: "Program",
-            options: SalesGroupFields.commonProgramNames,
-            values: this.maintenanceProgramValue,
+            id: salesGroupFormInputIds.valueAddProgramProgramType,
+            options: this.salesGroupFieldsValues.pvp_program,
+            values: this.valueAddProgramsProgramValue,
             multiple: false,
             tags: false,
             placeholder: "Please Select"
         }, true, "maintenanceProgram", "Please enter the Processed Verified  program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsPreconditioningProgram = createSelect({
+            row: valueAddProgramsRow,
+            name: "Preconditioning Program",
+            id: salesGroupFormInputIds.valueAddProgramPreconditioningProgram,
+            options: this.salesGroupFieldsValues.preconditioning_program,
+            values: this.valueAddProgramsPreconditioningProgramsValue,
+            multiple: false,
+            tags: true,
+            placeholder: "Please Select"
+        }, true, "maintenancePreconditioningProgram", "Please enter the pre-conditioning program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsFeedingProgram = createSelect({
+            row: valueAddProgramsRow,
+            name: "Feeding Program",
+            id: salesGroupFormInputIds.valueAddProgramFeedingProgram,
+            options: this.salesGroupFieldsValues.feeding_program,
+            values: this.valueAddedProgramsFeedingProgramsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12);
+
         // Media
 
         let mediaRow = createSection(form, "Image");
@@ -540,8 +638,11 @@ export class SalesGroupsCommonForm{
 
         let publishSwitch = new SwitchFormGroup(form, "Publish", this.published);
 
-        let showAccountCarcassDataSwitch = new SwitchFormGroup(form, "Show Carcass History", this.showAccountCarcassData);
 
+        let showAccountCarcassDataSwitch = new SwitchFormGroup(form, "Show Carcass History", this.showAccountCarcassData);
+        if(!this.carcassDataAvailable){
+            showAccountCarcassDataSwitch.hideSwitch();
+        }
         // Save
 
         let submitFormGroup = document.createElement("div");
@@ -595,19 +696,19 @@ export class SalesGroupsCommonForm{
                     eids: [],
                     reported: {
                         comments: commentsTA.value,
-                        count: safeInt(marketingCount.value),
+                        count: safeInt(characteristicsCount.value),
                         weight: safeInt(characteristicsWeight.value),
                         weight_variance: characteristicsWeightVariance.value,
                         breeds: $(characteristicBreeds).val(),
                         horns: characteristicsHorns.value,
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,
-                        preconditioning_program: maintenancePreconditioningProgram.value,
+                        preconditioning_program: valueAddProgramsPreconditioningProgram.value,
                         vaccinations: $(maintenanceVaccinations).val(),
-                        feeding_programs: $(maintenanceFeedingProgram).val(),
+                        feeding_programs: $(valueAddProgramsFeedingProgram).val(),
                         implants: $(maintenanceImplants).val(),
                         castrated: maintenanceCastrated.value,
-                        program: maintenanceProgram.value,
+                        program: valueAddProgramsProgram.value,
                         images: fileEditor.getFileIDs(),
                         videos: videoEditor.getVideoLinks(),
                         marketing_slide: marketingSlide.value,
@@ -615,7 +716,16 @@ export class SalesGroupsCommonForm{
                         marketing_represented_by: marketingRepresentedBy.value,
                         genomic_testing: geneticsGenomicTesting.value,
                         epd: geneticsEPD.value,
-                        genetics_comments: geneticsComments.value
+                        marketing_comments: marketingComments.value,
+                        genetics_comments: geneticsComments.value,
+                        pregnancy_status: characteristicsPregnancyStatus.value,
+                        characteristics_comments: characteristicsComments.value,
+                        comingled_status: maintenanceComingledStatus.value,
+                        creep_feed: maintenanceCreepFeed.value,
+                        verification: geneticsVerification.value,
+                        program_comments: valueAddProgramsComments.value,
+                        weaned: maintenanceWeaned.value,
+                        maintenance_comments: maintenanceComments.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
@@ -626,9 +736,8 @@ export class SalesGroupsCommonForm{
                     "price": 0, //marketingPrice.value,
                     "auction_market_location": $(marketingAuctionMarketLocation).find(':selected').text(),
                     "category": characteristicsCategory.value,
-                    "breed_comments": characteristicsBreedComments.value,
-                    "weighing_conditions": characteristicsWeighingConditions.value,
-                    "are_annual_cattle_herd_vaccinations_given": maintenanceAnnualCattleHerdVaccinations.value=="Yes"?1:0,              
+                    "breed_comments": characteristicsComments.value,
+                    "weighing_conditions": marketingWeighingConditions.value
                 }
             }
         });
