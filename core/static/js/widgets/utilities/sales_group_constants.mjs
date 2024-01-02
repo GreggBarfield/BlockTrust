@@ -24,6 +24,7 @@ let salesGroupFormInputIds = {
     geneticsGenomicTesting: "genetics-genomic-testing",
     geneticsEPD: "genetics-epd",
     geneticsVerification: "genetics-verification",
+    geneticsBreedProgramCertificationCo: "genetics-breed-program-certification-co",
     geneticsComments: "genetics-comments",
     maintenancePreconditioningProgram: "maintenance-preconditioning-program",
     maintenanceVaccinations: "maintenance-vaccinations",

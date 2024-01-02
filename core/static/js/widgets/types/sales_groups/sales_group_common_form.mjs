@@ -42,6 +42,7 @@ export class SalesGroupsCommonForm{
             this.geneticsEPDValue = this.data.reported.epd;
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
             this.geneticsVerificationValue = this.data.reported.verification;
+            this.geneticsBreedProgramCertificationCoValue = this.data.reported.breed_program_certification_co;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -91,6 +92,7 @@ export class SalesGroupsCommonForm{
             this.geneticsEPDValue = [];
             this.geneticsCommentsValue = "";
             this.geneticsVerificationValue = [];
+            this.geneticsBreedProgramCertificationCoValue = [];
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
             this.maintenanceFeedingProgramValue = [];
@@ -442,7 +444,7 @@ export class SalesGroupsCommonForm{
 
         // Maintenance
 
-        let maintenanceRow = createSection(form, "Maintenance");
+        let maintenanceRow = createSection(form, "Management");
 
         let maintenanceVaccinations = createSelect({
             row: maintenanceRow,
@@ -532,10 +534,20 @@ export class SalesGroupsCommonForm{
         }, false, "", "", 4);
         let geneticsVerification = createSelect({
             row: geneticsRow,
-            name: "Genetics Verification Co.",
+            name: "Genetics Merit Verification Co.",
             id: salesGroupFormInputIds.geneticsVerification,
             options: this.salesGroupFieldsValues.genetics_verification,
             values: this.geneticsVerificationValue || [],
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let geneticsBreedProgramCertificationCo = createSelect({
+            row: geneticsRow,
+            name: "Breed Program Certification Co.",
+            id: salesGroupFormInputIds.geneticsBreedProgramCertificationCo,
+            options: this.salesGroupFieldsValues.breed_program_certification_co,
+            values: this.geneticsBreedProgramCertificationCoValue || [],
             multiple: false,
             tags: false,
             placeholder: "Please Select"
@@ -544,7 +556,7 @@ export class SalesGroupsCommonForm{
 
         // Value-Add Programs
 
-        let valueAddProgramsRow = createSection(form, "Value-Add Programss");
+        let valueAddProgramsRow = createSection(form, "Value-Add Programs");
         let valueAddProgramsProgram = createSelect({
             row: valueAddProgramsRow,
             name: "Program",
@@ -725,7 +737,9 @@ export class SalesGroupsCommonForm{
                         verification: geneticsVerification.value,
                         program_comments: valueAddProgramsComments.value,
                         weaned: maintenanceWeaned.value,
-                        maintenance_comments: maintenanceComments.value
+                        maintenance_comments: maintenanceComments.value,
+                        breed_program_certification_co: geneticsBreedProgramCertificationCo.value
+                        
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,

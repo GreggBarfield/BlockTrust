@@ -2496,3 +2496,17 @@ VALUES (1, "No"),
 (17, "Spayed");
 
 ALTER TABLE `sales_groups` DROP COLUMN `are_annual_cattle_herd_vaccinations_given`;
+
+/* Nisheet Thakur 12/27/2023 */
+UPDATE `sales_group_fields_values` SET value='Angus Link Genetic Merit Screening' WHERE value='Angus Link – GMS';
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (18, "Angus Verified"),
+(18, "ABS InFocus Genetics"),
+(18, "American Aberdeen Premium Beef"),
+(18, "Certified Piedmontese"),
+(18, "Charolais Advantage"),
+(18, "Gelbvieh Balancer Edge"),
+(18, "Hereford Advantage"),
+(18, "Red Angus FCCP"),
+(18, "Allied Access");

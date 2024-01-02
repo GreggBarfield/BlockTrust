@@ -504,7 +504,7 @@ export class SalesGroupViewer {
 
         // Maintenance
         {
-            let maintenanceDataContainer = createSectionContainer("Maintenance");
+            let maintenanceDataContainer = createSectionContainer("Management");
             layout.maintenanceData.append(maintenanceDataContainer);
 
             let maintenanceBody = document.createElement("div");
@@ -533,7 +533,8 @@ export class SalesGroupViewer {
             
             addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), geneticsBody);
             addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), geneticsBody);
-            addInfo("Genetics Verification Co.", this.formatData(this.data.reported.verification), geneticsBody);
+            addInfo("Genetics Merit Verification Co.", this.formatData(this.data.reported.verification), geneticsBody);
+            addInfo("Breed Program Verification Co.", this.formatData(this.data.reported.breed_program_certification_co), geneticsBody);
             
             let commentCard = createCommentSection(this.data.reported.genetics_comments);
             geneticsDataContainer.append(commentCard);
