@@ -34,8 +34,13 @@ export class EditSalesGroupWidget extends Widget {
         const getAccountUSDAQualityGradeDistribution = this.getData(
             "get_count_distribution_for_account", {account_id: parseInt(this.accountId)}
         ).then((data) => {
-            let accountUSDAQualityGradeDistribution = data.result.count_distribution;
-            if(accountUSDAQualityGradeDistribution.length == 0){
+            if("result" in data && "count_distribution" in data.result){
+                let accountUSDAQualityGradeDistribution = data.result.count_distribution;
+                if(accountUSDAQualityGradeDistribution.length == 0){
+                    this.carcassDataAvailable = false;
+                }
+            }
+            else{
                 this.carcassDataAvailable = false;
             }
         });
