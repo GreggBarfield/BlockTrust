@@ -313,22 +313,20 @@
                 {% endif %}
                 </ul>
             </li>
-        {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"]%}
-            <li>
-                <a href="/dashboard">
-                    <span><i class="feather icon-trending-up"></i></span>
-                    <span>Dashboards</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
-                    <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
-                    <li><a href="/dashboard/sustainability">Sustainability</a></li>
-                    {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
-                    <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
-                    {% endif %} 
-                </ul>
-            </li>
-        {% endif %}
+        <li>
+            <a href="/dashboard">
+                <span><i class="feather icon-trending-up"></i></span>
+                <span>Dashboards</span>
+            </a>
+            <ul>
+                <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
+                <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
+                <li><a href="/dashboard/sustainability">Sustainability</a></li>
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
+                <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
+                {% endif %} 
+            </ul>
+        </li>
         <li>
             <a href="/dashboard">
                 <span><i class="feather icon-shopping-cart"></i></span>
