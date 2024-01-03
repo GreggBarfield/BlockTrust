@@ -1,6 +1,7 @@
 from flask import (
     request, Blueprint, g
 )
+from flask_jwt_extended import create_access_token, jwt_required
 from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
 from core.database.no_value import NoValue
@@ -17,7 +18,9 @@ from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
+from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
+from core.utilities import auth
 import json
 from datetime import datetime
 from traceback import format_exc
@@ -226,6 +229,7 @@ def serve_fetch_all_sales_groups_data():
 
 
 @bp.route("/sales-groups/<int:number>", methods=["GET"])
+@jwt_required()
 def sales_groups(number):
     try:
         APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
@@ -243,6 +247,21 @@ def sales_groups(number):
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return "Internal Server Error", 500
+
+
+@bp.route("/login", methods=["POST"])
+def serve_login():
+    username = request.json["username"]
+    password = request.json["password"]
+    try:
+        user_id = auth.login(identifier=username, password=password)
+        user = g.db.users.get_users(id=user_id)[0]
+        access_token = create_access_token(identity=username)
+    except auth.LoginException as e:
+        return str(e), HTTP_UNAUTHORISED
+    except Exception as e:
+        raise ExportException(str(e))
+    return {"user": user["first_name"] + " " + user["last_name"], "token": access_token}
 
 
 @bp.route("/fetch-accounts-data", methods=['POST'])
