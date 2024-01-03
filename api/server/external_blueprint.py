@@ -1,7 +1,10 @@
+from datetime import datetime
 from flask import (
     request, Blueprint, g
 )
 from flask_jwt_extended import create_access_token, jwt_required
+import json
+from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
 from core.database.no_value import NoValue
@@ -21,9 +24,6 @@ from core.sectors import SECTORS_NAME_TO_ID
 from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
 from core.utilities import auth
-import json
-from datetime import datetime
-from traceback import format_exc
 
 bp = Blueprint('external_blueprint', __name__)
 
