@@ -1,6 +1,5 @@
+from datetime import timedelta
 import os
-import json
-import random
 import sys
 
 
@@ -17,11 +16,14 @@ __name__ = "api.server.main"
 
 
 from flask import (
-    Flask, jsonify, request, render_template, session, redirect, url_for, g,
-    Response
+    Flask
 )
+from flask_jwt_extended import JWTManager
 
 app = Flask(__name__, template_folder=os.path.abspath('core/templates'))
+app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "super-secret")
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
+jwt = JWTManager(app)
 
 
 from . import input_blueprint
