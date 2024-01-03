@@ -8,6 +8,7 @@ export class SalesGroupViewer {
         this.frame = null;
 
         this.box = document.createElement("div");
+        this.box.id = "sales-group-viewer";
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
