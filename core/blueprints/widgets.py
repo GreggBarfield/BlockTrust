@@ -21,6 +21,7 @@ from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_NAMES_TO_IDS
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
@@ -30,7 +31,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -97,9 +98,9 @@ def serve_sales_group():
         "category": sales_group_row["category"],
         "breed_comments": sales_group_row["breed_comments"],
         "weighing_conditions": sales_group_row["weighing_conditions"],
-        "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
         "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
-        "auction_market_id": sales_group_row["auction_market_id"]
+        "auction_market_id": sales_group_row["auction_market_id"],
+        "created_date": sales_group_row["created_timestamp"].strftime("%m/%d/%Y")
     }
 
 
@@ -205,7 +206,6 @@ def serve_search_sales_groups_2():
             "category": sales_group_row["category"],
             "breed_comments": sales_group_row["breed_comments"],
             "weighing_conditions": sales_group_row["weighing_conditions"],
-            "are_annual_cattle_herd_vaccinations_given": sales_group_row["are_annual_cattle_herd_vaccinations_given"],
             "owner_account_sustainability_score_average": owner_account_sustainability_score_average
         })
 
@@ -362,7 +362,6 @@ def serve_create_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
         show_account_carcass_data=request.json["show_account_carcass_data"],
         is_api_insert=0
     )
@@ -421,7 +420,6 @@ def serve_update_sales_group():
         category=request.json["category"],
         breed_comments=request.json["breed_comments"],
         weighing_conditions=request.json["weighing_conditions"],
-        are_annual_cattle_herd_vaccinations_given=request.json["are_annual_cattle_herd_vaccinations_given"],
         show_account_carcass_data=request.json["show_account_carcass_data"]
     )
 
@@ -921,7 +919,7 @@ def serve_get_count_distribution_for_account():
 @crut.require_account
 def serve_get_all_matches_for_an_account():
     eids_carcass_data = {}
-    account_links = AccountLinks(g.db).get_by_account_id(account_id=g.account.id())
+    account_links = AccountLinks(g.db).get_account_links(account_id=g.account.id())
     for account_link in account_links:
         account_matches = Matches(g.db).get_matches(account_link=account_link.id())
         for account_match in account_matches:
@@ -936,3 +934,20 @@ def serve_get_all_matches_for_an_account():
                 else:
                     eids_carcass_data[account_match["eid"]] = {"yield_grade": account_match["data"]}
     return eids_carcass_data
+
+
+@bp.route('/widgets/data/add_new_sales_group_field_value', methods=["POST"])
+@crut.require_account
+def serve_add_new_sales_group_field_value():
+    try:
+        if len(request.form["new_field_value"].strip()) == 0:
+            raise ExportException("Field cannot be blank")
+        SalesGroupFieldsValues(g.db).insert(
+            field_id=SALES_GROUP_FIELD_NAMES_TO_IDS[request.form["field_name"]],
+            value=format_field(request.form["new_field_value"].strip())
+        )
+        return {"new_field_value": format_field(request.form["new_field_value"].strip())}
+    except ExportException as e:
+        return {"error": str(e)}
+    except Exception as e:
+        raise e

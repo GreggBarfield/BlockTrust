@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
-import { SalesGroupFields } from '../../../sales_groups/sales_group_fields.mjs';
+import { SalesGroupFields } from './sales_group_fields.mjs';
 import { InfoModal } from '../../../core/info_modal.mjs';
 
 export class SearchSalesGroupsWidget extends Widget {
@@ -315,15 +315,15 @@ export class SearchSalesGroupsWidget extends Widget {
     }
 
     async generateSummaryTable(viewLink) {
-        let tableContainer = document.createElement("div");
-        tableContainer.className = "mb-5";
+        let container = document.createElement("div");
+        container.className = "mb-5  table-responsive";
 
         let table = document.createElement("table");
         table.className = "table table-sm text-center mt-3 table-bordered";
         let thead = document.createElement("thead");
         thead.classList += "thead-light";
         let tr = document.createElement("tr");
-        const headers = ["Name", "Number of Head", "Breed", "Weight", "Market Name/Location","Sale Date", ""];
+        const headers = ["Name", "No. Head", "Category/Sex", "Breed", "Weight", "Market Name/Location","Sale Date", ""];
         for(const header of headers){
             let th = document.createElement("th");
             th.innerText = header;
@@ -342,6 +342,9 @@ export class SearchSalesGroupsWidget extends Widget {
                 td.innerText = salesGroup["reported"]["count"];
                 tr.append(td);
                 td = document.createElement("td");
+                td.innerText = salesGroup["category"];
+                tr.append(td);
+                td = document.createElement("td");
                 td.innerText = salesGroup["reported"]["breeds"];
                 tr.append(td);
                 td = document.createElement("td");
@@ -353,7 +356,7 @@ export class SearchSalesGroupsWidget extends Widget {
                 td = document.createElement("td");
                 td.innerText = new Date(salesGroup["sale_date"]*1000).toLocaleString("en-US", {
                     year: 'numeric',
-                    month: 'long',
+                    month: 'numeric',
                     day: 'numeric',
                 });
                 tr.append(td);
@@ -386,15 +389,15 @@ export class SearchSalesGroupsWidget extends Widget {
             e.preventDefault();
             table.classList.toggle("d-none");
         });
-        tableContainer.append(expandControl);
-        tableContainer.append(table);
-        return tableContainer;
+        container.append(expandControl);
+        container.append(table);
+        return container;
     }
 
     async generateSavedSearchesTable(searchLink) {
 
         let tableContainer = document.createElement("div");
-        tableContainer.className = "mb-5";
+        tableContainer.className = "mb-5 table-responsive";
 
         let table = document.createElement("table");
         table.className = "table table-sm text-center mt-3 table-bordered";
@@ -547,6 +550,7 @@ export class SearchSalesGroupsWidget extends Widget {
                         setTimeout(() => window.location.href = `${link}/${searchID ? searchID : response}`, 1000);
                     }
                     catch(err){
+                        console.log(err);
                         alert.className = "alert alert-danger";
                         alert.textContent = "An unexpected error occured. Please try again after sometime";
                         saveButton.disabled = false;

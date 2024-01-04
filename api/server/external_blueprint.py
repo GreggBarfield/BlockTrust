@@ -1,8 +1,14 @@
+from datetime import datetime
 from flask import (
     request, Blueprint, g
 )
+from flask_jwt_extended import create_access_token, jwt_required
+import json
+from traceback import format_exc
 from core.database.combinations import send_connection_request_email_to_admin_users
 from core.database.database import Database
+from core.database.no_value import NoValue
+from core.database.tables.accounts import Accounts
 from core.database.tables.animals import Animals
 from core.database.tables.connections import Connections, CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_NAME_TO_ID
 from core.database.tables.api_data_requests import APIDataRequests
@@ -15,12 +21,13 @@ from core.config import MYSQL_CONFIG
 from core.common_exceptions import ExportException
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
+from core.utilities.constants import HTTP_UNAUTHORISED
 from core.utilities.general_utilities import str_to_bool
-import json
-from datetime import datetime
-from traceback import format_exc
+from core.utilities import auth
 
 bp = Blueprint('external_blueprint', __name__)
+
+NO_VALUE = NoValue()
 
 
 @bp.before_request
@@ -221,21 +228,65 @@ def serve_fetch_all_sales_groups_data():
         return {"error": "Internal Server Error"}, 500
 
 
-@bp.route("/fetch-sales-group-data-by-id", methods=["POST"])
-def serve_fetch_sales_group_data_by_id():
+@bp.route("/sales-groups/<int:number>", methods=["GET"])
+@jwt_required()
+def sales_groups(number):
+    try:
+        APIDataRequests(g.db).insert_api_data_request(api_route=request.path, request_data={'number': number})
+        sales_group = {}
+        if len(sales_groups := SalesGroups(g.db).get_sales_groups(
+            id=number, is_archived=int(False), published=int(True)
+        )) > 0:
+            sales_group = sales_groups[0]
+            account = g.db.accounts.get_accounts(id=sales_group["account"])[0]
+            sales_group["owner"] = account["company"]
+            for key in ("account", "created_timestamp", "last_updated_timestamp"):
+                del sales_group[key]
+        return sales_group
+    except Exception as e:
+        print("API", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        return "Internal Server Error", 500
+
+
+@bp.route("/login", methods=["POST"])
+def serve_login():
+    username = request.json["username"]
+    password = request.json["password"]
+    try:
+        user_id = auth.login(identifier=username, password=password)
+        user = g.db.users.get_users(id=user_id)[0]
+        access_token = create_access_token(identity=username)
+    except auth.LoginException as e:
+        return str(e), HTTP_UNAUTHORISED
+    except Exception as e:
+        raise ExportException(str(e))
+    return {"user": user["first_name"] + " " + user["last_name"], "token": access_token}
+
+
+@bp.route("/fetch-accounts-data", methods=['POST'])
+def serve_fetch_account_data():
     try:
         try:
             request_data = json.loads(request.data)
         except json.decoder.JSONDecodeError:
             return {"error": "Decoding request JSON has failed"}, 400
-        if 'sales_group_id' in request_data:
-            sales_group_data = SalesGroups(g.db).get_sales_group_by_id(request_data["sales_group_id"])
-            return sales_group_data
-        else:
-            raise SalesGroupsException("Sales Group ID not specified")
-    except SalesGroupsException as e:
-        return {"error": str(e)}, 400
+        sector = request_data.get('sector', NO_VALUE)
+        is_partner = request_data.get('is_partner', NO_VALUE)
+        partner_account = request_data.get('partner_account', NO_VALUE)
+        affiliate_id = request_data.get('affiliate_id', NO_VALUE)
+        auction_market_id = request_data.get('auction_market_id', NO_VALUE)
+        generated_paid = request_data.get('generated_paid', NO_VALUE)
+        accounts_data = Accounts(g.db).get_accounts(
+            sector=sector,
+            is_partner=is_partner,
+            partner_account=partner_account,
+            affiliate_id=affiliate_id,
+            auction_market_id=auction_market_id,
+            generated_paid=generated_paid
+        )
+        return accounts_data
     except Exception as e:
         print("API", e.__class__.__name__ + ": " + str(e), format_exc())
-        ErrorLogs(g.db).insert_error_log("Sales Group Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
+        ErrorLogs(g.db).insert_error_log("Accoounts Data Retrieval", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500

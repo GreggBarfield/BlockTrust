@@ -1,0 +1,53 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Auction Markets" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card col-md-12 d-inline-block">
+    <div class="card-header">
+        <h5>Auction Markets</h5>
+        <button class="btn btn-sm btn-primary float-right" id="create-new-auction-market">
+            Create New Auction Market
+        </button>
+    </div>
+    <div class="card-body">
+        <table class="table" id="auction-markets-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip Code</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Created</th>
+                    <th>Is Archived</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for auction_market in auction_markets %}
+                <tr>    
+                    <td>{{auction_market.id}}</td>
+                    <td>{{auction_market.name or "N/A"}}</td>
+                    <td>{{auction_market.address or "N/A"}}</td>
+                    <td>{{auction_market.city or "N/A"}}</td>
+                    <td>{{auction_market.state or "N/A"}}</td>
+                    <td>{{auction_market.zip_code or "N/A"}}</td>
+                    <td>{{auction_market.email or "N/A"}}</td>
+                    <td>{{auction_market.phone or "N/A"}}</td>
+                    <td>{{auction_market.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
+                    <td>{{ "Yes" if auction_market.is_archived else "No"}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="module" src="/static/entry_points/employee/auction-markets/auction-markets.mjs"></script>
+{% endblock employee_content %}

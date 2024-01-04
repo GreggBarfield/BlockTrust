@@ -69,15 +69,30 @@ export class SalesGroupViewer {
         layout.media.style.paddingTop = "10px";
         layout.content.append(layout.media);
 
-        layout.animalData = document.createElement("div");
-        layout.animalData.className = "col-12 col-md-4";
-        layout.animalData.style.paddingTop = "10px";
-        layout.content.append(layout.animalData);
-
         layout.marketData = document.createElement("div");
         layout.marketData.className = "col-12 col-md-4";
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
+
+        layout.characteristicsData = document.createElement("div");
+        layout.characteristicsData.className = "col-12 col-md-4";
+        layout.characteristicsData.style.paddingTop = "10px";
+        layout.content.append(layout.characteristicsData);
+
+        layout.maintenanceData = document.createElement("div");
+        layout.maintenanceData.className = "col-12 col-md-4";
+        layout.maintenanceData.style.paddingTop = "10px";
+        layout.content.append(layout.maintenanceData);
+
+        layout.geneticsData = document.createElement("div");
+        layout.geneticsData.className = "col-12 col-md-4";
+        layout.geneticsData.style.paddingTop = "10px";
+        layout.content.append(layout.geneticsData);
+
+        layout.valueAddData = document.createElement("div");
+        layout.valueAddData.className = "col-12 col-md-4";
+        layout.valueAddData.style.paddingTop = "10px";
+        layout.content.append(layout.valueAddData);
 
         layout.tabs = document.createElement("div");
         layout.tabs.className = "row";
@@ -118,7 +133,7 @@ export class SalesGroupViewer {
             kvpValue.style.maxHeight = "200px";// To prevent trolls from making it completely usable
 
             let valueText = document.createElement("p");
-            valueText.className = "text-right";
+            valueText.className = "text-right m-0 p-0";
 
             if (highlighting) {
                 urlHighlighter(str, valueText);
@@ -132,14 +147,35 @@ export class SalesGroupViewer {
             position.append(kvp);
         }
 
-        function addSubHeader(text, position){
-            let subHeaderContainer = document.createElement("div");
-            subHeaderContainer.className = "row m-1";
-            let subHeaderText = document.createElement("h5");
-            subHeaderText.className = "text-primary";
-            subHeaderText.textContent = text;
-            subHeaderContainer.append(subHeaderText);
-            position.append(subHeaderContainer);
+        const createSectionContainer = (sectionHeaderText) =>{
+            let sectionContainer = document.createElement("div");
+            sectionContainer.className = "card";
+            sectionContainer.style = "border-radius: 5%";
+
+            let sectionHeader = document.createElement("div");
+            sectionHeader.className = "card-header p-4";
+            sectionHeader.style = "color:#8B4513;";
+            sectionHeader.style.borderBottom = "solid 1px #c0c0c0";
+            sectionHeader.textContent = sectionHeaderText;
+            sectionContainer.append(sectionHeader);
+            return sectionContainer;
+        }
+
+        const createCommentSection = (text) =>{
+            let commentCard = document.createElement("div");
+            commentCard.className = "card";
+
+            let commentHeader = document.createElement("div");
+            commentHeader.className = "card-header border-bottom-0 pb-0";
+            commentHeader.style = "color:#8B4513";
+            commentHeader.textContent = "Comments";
+            commentCard.append(commentHeader);
+
+            let commentBody = document.createElement("div");
+            commentBody.className = "card-body pt-0";
+            commentBody.textContent = text;
+            commentCard.append(commentBody);
+            return commentCard;
         }
 
         // Configure header
@@ -243,7 +279,7 @@ export class SalesGroupViewer {
             category.textContent =`Category: ${this.data.category}`;
             left.append(category);
             
-            if(this.data.show_account_carcass_data == 1){
+            if(this.data.show_account_carcass_data == 1 && accountUSDAQualityGradeDistribution.length > 0){
                 let carcassData = document.createElement("div");
                 carcassData.style = "color:black";
                 let qualityGradeDistribution = "";
@@ -268,74 +304,21 @@ export class SalesGroupViewer {
                 carcassData.append(tooltip);
                 left.append(carcassData);
             }
-            
-        }
 
-        // Configure Animal data
-        {
-
-            let animalDataCol = document.createElement("div");
-            animalDataCol.className = "card";
-            animalDataCol.style = "border-radius: 5%";
-            layout.animalData.append(animalDataCol);
-
-            let animalHeader = document.createElement("div");
-            animalHeader.className = "card-header";
-            animalHeader.style = "color:#8B4513; height:75px";
-            animalHeader.style.borderBottom = "solid 1px #c0c0c0";
-            animalHeader.textContent = "Animal Data";
-            animalDataCol.append(animalHeader);
-
-            let animalBody = document.createElement("div");
-            animalBody.className = "card-body";
-            animalDataCol.append(animalBody);
-
-            addSubHeader("Characteristics", animalBody);
-            addInfo("Breed", this.formatData(this.data.reported.breeds), animalBody);
-            addInfo("Breed Comments", this.formatData(this.data.breed_comments), animalBody);
-            addInfo("Base Weight", this.formatData(this.data.reported.weight), animalBody);
-            addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), animalBody);
-            addInfo("Other Comments", this.formatData(this.data.weighing_conditions), animalBody);
-            addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), animalBody);
-            addInfo("Horns", this.formatData(this.data.reported.horns), animalBody);
-            addSubHeader("Maintenance", animalBody);
-            addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), animalBody);
-            addInfo("Implants", this.formatData(this.data.reported.implants), animalBody);
-            addInfo("Castrated", this.formatData(this.data.reported.castrated), animalBody);
-            addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), animalBody);
-            addInfo("Annual Cattle Herd Vaccinations", this.formatData(Boolean(this.data.are_annual_cattle_herd_vaccinations_given)?"Yes":"No"), animalBody);          
-            addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), animalBody);
-            addInfo("Program", this.formatData(this.data.reported.program), animalBody);
-            addSubHeader("Genetics", animalBody);
-            addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), animalBody);
-            addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), animalBody);
-            addInfo("Genomics Comments", this.formatData(this.data.reported.genetics_comments), animalBody);
+            let addedDate = document.createElement("div");
+            addedDate.style = "color:black";
+            addedDate.textContent =`Added: ${this.data.created_date}`;
+            left.append(addedDate);
         }
 
         //Configure market data 
         {
-            let marketDataCol = document.createElement("div");
-            marketDataCol.className = "card";
-            marketDataCol.style = "border-radius: 5%";
-            layout.marketData.append(marketDataCol);
-
-            let marketHeader = document.createElement("div");
-            marketHeader.className = "card-header";
-            marketHeader.style = "color:#8B4513; height:75px";
-            marketHeader.style.borderBottom = "solid 1px #c0c0c0";
-            marketHeader.textContent = "Market Data";
-            marketDataCol.append(marketHeader);
+            let marketDataContainer = createSectionContainer("Market Data");
+            layout.marketData.append(marketDataContainer);
 
             let marketBody = document.createElement("div");
             marketBody.className = "card-body";
-            marketDataCol.append(marketBody);
-
-            let marketInfo = document.createElement("div");
-            marketInfo.className = "col-sm-12";
-            marketBody.append(marketInfo);
-
-            let marketInfoText = document.createElement("dl");
-            marketInfoText.className = "dl-horizontal row";
+            marketDataContainer.append(marketBody);
 
             addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
 
@@ -352,40 +335,18 @@ export class SalesGroupViewer {
             }
             addInfo("Represented By", this.formatData(this.data.reported.marketing_represented_by), marketBody);
 
-            marketInfo.append(marketInfoText);
-            let commentCol = document.createElement("div");
-            commentCol.className = "card";
-            marketDataCol.append(commentCol);
-
-            let commentHeader = document.createElement("div");
-            commentHeader.className = "card-header";
-            commentHeader.style = "color:#8B4513";
-            commentHeader.textContent = "Comments";
-            commentCol.append(commentHeader);
-
-            let commentBody = document.createElement("div");
-            commentBody.className = "card-body";
-            commentBody.textContent = this.data.reported.comments;
-            commentCol.append(commentBody);
+            let commentCard = createCommentSection(this.data.reported.marketing_comments);
+            marketDataContainer.append(commentCard);
         }
 
         //Configure media data
         {
-            let mediaDataCol = document.createElement("div");
-            mediaDataCol.className = "card";
-            mediaDataCol.style = "border-radius: 5%";
-            layout.media.append(mediaDataCol);
-
-            let mediaHeader = document.createElement("div");
-            mediaHeader.className = "card-header";
-            mediaHeader.style = "color:#8B4513; height:75px";
-            mediaHeader.style.borderBottom = "solid 1px #c0c0c0";
-            mediaHeader.textContent = "Media";
-            mediaDataCol.append(mediaHeader);
+            let mediaDataContainer = createSectionContainer("Media");
+            layout.media.append(mediaDataContainer);
 
             let mediaBody = document.createElement("div")
             mediaBody.className = "card-body";
-            mediaDataCol.append(mediaBody);
+            mediaDataContainer.append(mediaBody);
 
             let mediaNav = document.createElement("ul");
             mediaNav.className = "nav nav-tabs";
@@ -517,6 +478,83 @@ export class SalesGroupViewer {
                 photo.className = "tab-pane fade";
             }
 
+        }
+
+        // Characteristics
+        {
+            let characteristicsDataContainer = createSectionContainer("Characteristics");
+            layout.characteristicsData.append(characteristicsDataContainer);
+
+            let characteristicsBody = document.createElement("div");
+            characteristicsBody.className = "card-body";
+            characteristicsDataContainer.append(characteristicsBody);
+
+            addInfo("Breed", this.formatData(this.data.reported.breeds), characteristicsBody);
+            addInfo("Category", this.formatData(this.data.category), characteristicsBody);
+            addInfo("Base Weight", this.formatData(this.data.reported.weight), characteristicsBody);
+            addInfo("Wt. Variance", this.formatData(this.data.reported.weight_variance), characteristicsBody);
+            addInfo("Frame", this.formatData(this.data.reported.usda_frame_size), characteristicsBody);
+            addInfo("Horns", this.formatData(this.data.reported.horns), characteristicsBody);
+            addInfo("Muscling", this.formatData(this.data.reported.muscling), characteristicsBody);
+            addInfo("Pregnancy Status", this.formatData(this.data.reported.pregnancy_status), characteristicsBody);
+
+            let commentCard = createCommentSection(this.data.reported.characteristics_comments);
+            characteristicsDataContainer.append(commentCard);
+        }
+
+        // Maintenance
+        {
+            let maintenanceDataContainer = createSectionContainer("Management");
+            layout.maintenanceData.append(maintenanceDataContainer);
+
+            let maintenanceBody = document.createElement("div");
+            maintenanceBody.className = "card-body";
+            maintenanceDataContainer.append(maintenanceBody);
+
+            addInfo("Vaccinations", this.formatData(this.data.reported.vaccinations), maintenanceBody);
+            addInfo("Comingled Status", this.formatData(this.data.reported.comingled_status), maintenanceBody);
+            addInfo("Creep Feed", this.formatData(this.data.reported.creep_feed), maintenanceBody);
+            addInfo("Implants", this.formatData(this.data.reported.implants), maintenanceBody);
+            addInfo("Castrated", this.formatData(this.data.reported.castrated), maintenanceBody);
+            addInfo("Weaned", this.formatData(this.data.reported.weaned), maintenanceBody);
+
+            let commentCard = createCommentSection(this.data.reported.maintenance_comments);
+            maintenanceDataContainer.append(commentCard);
+        }
+
+        // Genetics
+        {
+            let geneticsDataContainer = createSectionContainer("Genetics");
+            layout.geneticsData.append(geneticsDataContainer);
+
+            let geneticsBody = document.createElement("div");
+            geneticsBody.className = "card-body";
+            geneticsDataContainer.append(geneticsBody);
+            
+            addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), geneticsBody);
+            addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), geneticsBody);
+            addInfo("Genetics Merit Verification Co.", this.formatData(this.data.reported.verification), geneticsBody);
+            addInfo("Breed Program Verification Co.", this.formatData(this.data.reported.breed_program_certification_co), geneticsBody);
+            
+            let commentCard = createCommentSection(this.data.reported.genetics_comments);
+            geneticsDataContainer.append(commentCard);
+        }
+
+        // Value Add Programs
+        {
+            let valueAddDataContainer = createSectionContainer("Value Add Programs");
+            layout.valueAddData.append(valueAddDataContainer);
+
+            let valueAddBody = document.createElement("div");
+            valueAddBody.className = "card-body";
+            valueAddDataContainer.append(valueAddBody);
+            
+            addInfo("Program", this.formatData(this.data.reported.program), valueAddBody);
+            addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), valueAddBody);
+            addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), valueAddBody);
+
+            let commentCard = createCommentSection(this.data.reported.program_comments);
+            valueAddDataContainer.append(commentCard);
         }
 
         this.box.append(layout.content);
