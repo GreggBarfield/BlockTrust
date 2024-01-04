@@ -45,7 +45,7 @@ export class SalesGroupViewer {
         layout.formatRow.className = "row";
 
         layout.formatCol = document.createElement("div");
-        layout.formatCol.className = "col-sm-12 col-sm-12";
+        layout.formatCol.className = "col-sm-12";
         layout.formatRow.append(layout.formatCol);
 
         layout.format = document.createElement("div");
