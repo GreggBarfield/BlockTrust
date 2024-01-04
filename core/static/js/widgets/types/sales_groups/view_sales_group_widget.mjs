@@ -1,6 +1,5 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
-import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 import { printContainerById } from '../../utilities/general_utilities.mjs';
 
 export class ViewSalesGroupWidget extends Widget {
