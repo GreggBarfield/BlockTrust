@@ -192,7 +192,7 @@ export class SalesGroupsCommonForm{
             return input;
         }
 
-        function createText(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4) {
+        function createText(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, maxLength=null) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
             input.type = "text";
@@ -200,6 +200,9 @@ export class SalesGroupsCommonForm{
             input.className = "form-control";
             input.id = id;
             input.required = true
+            if (maxLength!==null){
+                input.maxLength = maxLength;
+            }
             group.append(input);
             return input;
         }
@@ -323,7 +326,7 @@ export class SalesGroupsCommonForm{
         let marketingSlide = createText(marketingRow, "Slide", salesGroupFormInputIds.marketingSlide, this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
-        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12);
+        let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12, 150);
 
         marketingDeliveryLocationType.onchange = () => {
             marketingSlide.disabled = true;
@@ -440,7 +443,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12);
+        let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12, 150);
 
         // Maintenance
 
@@ -506,7 +509,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12);
+        let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
         // Genetics
 
@@ -552,7 +555,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12);
+        let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12, 150);
 
         // Value-Add Programs
 
@@ -587,7 +590,7 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Please Select"
         }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
-        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12);
+        let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12, 150);
 
         // Media
 
@@ -638,7 +641,7 @@ export class SalesGroupsCommonForm{
         commentsRow.append(commentsGroup);
 
         let commentsTA = document.createElement("textarea");
-        commentsTA.maxLength = 1000;
+        commentsTA.maxLength = 150;
         commentsTA.className = "form-control max-textarea";
         commentsTA.rows = 4;
         commentsTA.value = this.comments;
