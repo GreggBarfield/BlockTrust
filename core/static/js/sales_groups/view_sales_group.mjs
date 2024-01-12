@@ -21,7 +21,7 @@ export class SalesGroupViewer {
 
     createDisplay = async() =>{
         // Get USDA Quality Grade distribution for sales group account
-        let accountUSDAQualityGradeDistribution = null;
+        let accountUSDAQualityGradeDistribution = [];
         const fetchAccountCarcassData = await fetch(
             '/widgets/data/get_count_distribution_for_account', {
                 method: 'POST',
@@ -33,8 +33,10 @@ export class SalesGroupViewer {
                 }),
         });
         const accountUSDAQualityGradeDistributionData = await fetchAccountCarcassData.json();
-        if(accountUSDAQualityGradeDistributionData.result !== null){
-            accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result.count_distribution;
+        if("result" in accountUSDAQualityGradeDistributionData && "count_distribution" in accountUSDAQualityGradeDistributionData.result){
+            if(accountUSDAQualityGradeDistribution.length > 0){
+                accountUSDAQualityGradeDistribution = accountUSDAQualityGradeDistributionData.result.count_distribution;
+            }
         }
         // General layout
 

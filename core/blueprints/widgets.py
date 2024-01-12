@@ -31,7 +31,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -912,7 +912,9 @@ def serve_get_count_distribution_for_account():
         "USDA Quality Grade",
         0
     ))
-    return count_distribution_data
+    if count_distribution_data is not None:
+        return count_distribution_data
+    return {}
 
 
 @bp.route('/widgets/data/get_yield_and_quality_grades_for_owned_eids', methods=["POST"])

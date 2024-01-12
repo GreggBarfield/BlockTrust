@@ -5,34 +5,11 @@ $(document).ready(function(){
         $("#signup_form_partner").empty();
         $("#signup_form_partner").append('<option disabled selected value>-- Select an option --</option>');
         $("#signup_form_partner").append('<option value="">No Partner</option>')
-        if($(this).val()==sectors_name_to_id["Cow-Calf"]){
-            for(let val in partners){
-                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Cow-Calf"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
-                }
+       for(let partner of partners){
+            if(partner.name !== "" && partner.name !== null && partner.sector == $(this).val()){
+                $("#signup_form_partner").append(`<option value="${partner.id}">${partner.name}</option>`);
             }
-        }
-        if($(this).val()==sectors_name_to_id["Auction"]){
-            for(let val in partners){
-                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Auction"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
-                }
-            }
-        }
-        if($(this).val()==sectors_name_to_id["Feedlot"]){
-            for(let val in partners){
-                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Feedlot"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
-                }
-            }
-        }
-        if($(this).val()==sectors_name_to_id["Packer"]){
-            for(let val in partners){
-                if(partners[val].name!=="" && partners[val].name!==null && partners[val].sector==sectors_name_to_id["Packer"]){
-                    $("#signup_form_partner").append(`<option value="${partners[val].id}">${partners[val].name}</option>`);
-                }
-            }
-        }
+       }
     })
 
     $("#signup_form_partner").change(function(){

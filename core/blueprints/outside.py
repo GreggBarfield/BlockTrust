@@ -103,7 +103,8 @@ def serve_signup():
     available_sectors = {
         "Cow Calf Ranch": SECTORS_NAME_TO_ID["Cow-Calf"],
         "Stocker/Backgrounder": SECTORS_NAME_TO_ID["Stocker/Backgrounder"],
-        "Buyer": SECTORS_NAME_TO_ID["Buyer"]
+        "Buyer": SECTORS_NAME_TO_ID["Buyer"],
+        "Seedstock Producer": SECTORS_NAME_TO_ID["Seedstock Producer"]
     }
     partners = g.db.accounts.get_accounts(
         sectors=[s for s in available_sectors.values()],
