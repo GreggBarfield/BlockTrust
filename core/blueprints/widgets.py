@@ -9,6 +9,7 @@ from ..match_types import MATCH_TYPES_NAME_TO_ID, MATCH_TYPES_ID_TO_NAME
 from ..common_exceptions import ExportException
 
 from ..database.combinations import convert_auction_market_to_account, send_connection_request_email_to_admin_users
+from ..database.tables.account_links import AccountLinks
 from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
@@ -912,6 +913,27 @@ def serve_get_count_distribution_for_account():
         0
     ))
     return count_distribution_data
+
+
+@bp.route('/widgets/data/get_yield_and_quality_grades_for_owned_eids', methods=["POST"])
+@crut.require_account
+def serve_get_all_matches_for_an_account():
+    eids_carcass_data = {}
+    account_links = AccountLinks(g.db).get_account_links(account_id=g.account.id())
+    for account_link in account_links:
+        account_matches = Matches(g.db).get_matches(account_link=account_link.id())
+        for account_match in account_matches:
+            if account_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
+                if account_match["eid"] in eids_carcass_data:
+                    eids_carcass_data[account_match["eid"]]["quality_grade"] = account_match["data"]
+                else:
+                    eids_carcass_data[account_match["eid"]] = {"quality_grade": account_match["data"]}
+            if account_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Yield Grade"]:
+                if account_match["eid"] in eids_carcass_data:
+                    eids_carcass_data[account_match["eid"]]["yield_grade"] = account_match["data"]
+                else:
+                    eids_carcass_data[account_match["eid"]] = {"yield_grade": account_match["data"]}
+    return eids_carcass_data
 
 
 @bp.route('/widgets/data/add_new_sales_group_field_value', methods=["POST"])

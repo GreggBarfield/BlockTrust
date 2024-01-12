@@ -9,6 +9,7 @@ export class TableWidget extends Widget {
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
         this.companyName = this.frame.getAttribute("data-widget-company-name");
         this.downloadButtonId = this.frame.getAttribute("data-widget-button-id");
+        this.detailDownloadButtonId = this.frame.getAttribute("data-widget-detail-button-id");
 
         this.frame.innerHTML = "";
         this.makeTable();
@@ -136,10 +137,17 @@ export class TableWidget extends Widget {
                     this.count_eid_distinct_sighted = data.result.count_eid_distinct_sighted;
                 }
                 this.displayGlobal();
+            }),
+
+            this.getData(
+                "get_yield_and_quality_grades_for_owned_eids"
+            ).then((data) =>{
+                this.eid_based_yield_and_quality_grade_data = data;
             })
         ]).then(() => {
             if (this.downloadButtonId && this.account_usda_quality_grade_distribution) {
-                this.createSummaryTableExport()
+                this.createSummaryTableExport();
+                this.createDetailTableExport();
             }
         })
     }
@@ -231,6 +239,28 @@ export class TableWidget extends Widget {
         let downloadButton = document.getElementById(this.downloadButtonId)
         downloadButton.setAttribute("href", encodedUri);
         downloadButton.setAttribute("download", "Calf-Crop Summary.csv");
+        downloadButton.classList.remove("d-none")
+    }
+
+    createDetailTableExport = () =>{
+        let tableExport = [];
+        let tableHeaders = ["EID", "Quality Grade", "Yield Grade"]
+        tableExport.push(tableHeaders);
+
+        for(const [eid, carcassData] of Object.entries(this.eid_based_yield_and_quality_grade_data)){
+            let eidCarcassDataRow = [];
+            eidCarcassDataRow.push(
+                eid,
+                carcassData.quality_grade !== undefined ? carcassData.quality_grade : "N/A",
+                carcassData.yield_grade !== undefined ? carcassData.yield_grade : "N/A"
+            );
+            tableExport.push(eidCarcassDataRow);
+        }
+        let csvContent = "data:text/csv;charset=utf-8," + tableExport.map(e => e.join(",")).join("\n");
+        var encodedUri = encodeURI(csvContent);
+        let downloadButton = document.getElementById(this.detailDownloadButtonId);
+        downloadButton.setAttribute("href", encodedUri);
+        downloadButton.setAttribute("download", "Detailed Carcass Report.csv");
         downloadButton.classList.remove("d-none")
     }
 
