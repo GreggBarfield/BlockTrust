@@ -1,6 +1,7 @@
 import { Widget } from '../../widget.mjs';
-import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
 import { SalesGroupsCommonForm } from './sales_group_common_form.mjs';
+import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
+import { printContainer } from '../../utilities/general_utilities.mjs';
 
 export class EditSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -50,7 +51,19 @@ export class EditSalesGroupWidget extends Widget {
         });
     }
 
-    processAuctionMarketsData(auctionMarkets){
+    createPrintFlyerButton = () =>{
+        let printFlyerButton = document.createElement("button");
+        printFlyerButton.className = "btn btn-outline-primary btn-sm";
+        printFlyerButton.innerHTML = "Print Flyer";
+        let salesGroupViewerContainer = document.createElement("div");
+        new SalesGroupViewer(this.data, salesGroupViewerContainer);
+        printFlyerButton.onclick =  () => {
+            printContainer(salesGroupViewerContainer);
+        };
+        return printFlyerButton;
+    }
+
+    processAuctionMarketsData = (auctionMarkets) =>{
         let selectData={};
         selectData[0] = "None";
         for(const auctionMarket of auctionMarkets){
@@ -108,7 +121,7 @@ export class EditSalesGroupWidget extends Widget {
         let btnQrDiv = document.createElement("div");
         btnQrDiv.className = "d-flex align-items-end flex-row";
 
-        this.printFlyerButton = CreatePrintFlyerButton(this.data);
+        this.printFlyerButton = this.createPrintFlyerButton();
         btnQrDiv.appendChild(this.printFlyerButton);
 
         let copyLinkButton = document.createElement("button");

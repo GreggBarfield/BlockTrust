@@ -8,6 +8,7 @@ export class SalesGroupViewer {
         this.frame = null;
 
         this.box = document.createElement("div");
+        this.box.id = "sales-group-viewer";
         if (!"id" in data || !"reported" in data) {
             throw "data incomplete";
         }
@@ -44,7 +45,7 @@ export class SalesGroupViewer {
         layout.formatRow.className = "row";
 
         layout.formatCol = document.createElement("div");
-        layout.formatCol.className = "col-md-12 col-sm-12";
+        layout.formatCol.className = "col-sm-12";
         layout.formatRow.append(layout.formatCol);
 
         layout.format = document.createElement("div");
@@ -65,32 +66,32 @@ export class SalesGroupViewer {
         layout.content.append(layout.header);
 
         layout.media = document.createElement("div");
-        layout.media.className = "col-12 col-md-4";
+        layout.media.className = "col-12 col-sm-4";
         layout.media.style.paddingTop = "10px";
         layout.content.append(layout.media);
 
         layout.marketData = document.createElement("div");
-        layout.marketData.className = "col-12 col-md-4";
+        layout.marketData.className = "col-12 col-sm-4";
         layout.marketData.style.paddingTop = "10px";
         layout.content.append(layout.marketData);
 
         layout.characteristicsData = document.createElement("div");
-        layout.characteristicsData.className = "col-12 col-md-4";
+        layout.characteristicsData.className = "col-12 col-sm-4";
         layout.characteristicsData.style.paddingTop = "10px";
         layout.content.append(layout.characteristicsData);
 
         layout.maintenanceData = document.createElement("div");
-        layout.maintenanceData.className = "col-12 col-md-4";
+        layout.maintenanceData.className = "col-12 col-sm-4";
         layout.maintenanceData.style.paddingTop = "10px";
         layout.content.append(layout.maintenanceData);
 
         layout.geneticsData = document.createElement("div");
-        layout.geneticsData.className = "col-12 col-md-4";
+        layout.geneticsData.className = "col-12 col-sm-4";
         layout.geneticsData.style.paddingTop = "10px";
         layout.content.append(layout.geneticsData);
 
         layout.valueAddData = document.createElement("div");
-        layout.valueAddData.className = "col-12 col-md-4";
+        layout.valueAddData.className = "col-12 col-sm-4";
         layout.valueAddData.style.paddingTop = "10px";
         layout.content.append(layout.valueAddData);
 
@@ -398,7 +399,7 @@ export class SalesGroupViewer {
             mediaContent.append(photo);
 
             let img = document.createElement("div");
-            img.className = "col-12 col-md";
+            img.className = "col-12 col-sm";
             img.style.height = "240px";
             img.style.padding = "0px";
             photo.append(img);
