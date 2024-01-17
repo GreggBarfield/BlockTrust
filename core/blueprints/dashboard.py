@@ -966,3 +966,12 @@ def serve_view_order(order_id):
             raise ExportException("Sorry, the requested order was not found. ")
     except ExportException as e:
         return dashboard_render("tag-store/view-order.html", {"error": str(e)})
+
+
+@bp.route("/dashboard/genetics", methods=["GET", "POST"])
+@crut.require_account
+def serve_genetics():
+    if request.method == "GET":
+        return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE})
+    elif request.method == "POST":
+        return {}
