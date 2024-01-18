@@ -923,7 +923,7 @@ def serve_get_all_matches_for_an_account():
     eids_carcass_data = {}
     account_links = AccountLinks(g.db).get_account_links(account_id=g.account.id())
     for account_link in account_links:
-        account_matches = Matches(g.db).get_matches(account_link=account_link.id())
+        account_matches = Matches(g.db).get_matches(account_link=account_link["id"])
         for account_match in account_matches:
             if account_match["type"] == MATCH_TYPES_NAME_TO_ID["USDA Quality Grade"]:
                 if account_match["eid"] in eids_carcass_data:
