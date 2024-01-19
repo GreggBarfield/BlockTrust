@@ -7,8 +7,8 @@ class Genetics:
     def __init__(self, db):
         self._db = db
 
-    def insert(self, owner_account_id=NO_VALUE, uid=NO_VALUE, breed=NO_VALUE, ranch_name=NO_VALUE, address=NO_VALUE,
-               city=NO_VALUE, state=NO_VALUE, zip_code=NO_VALUE):
+    def insert(self, owner_account_id=None, uid=None, breed=None, ranch_name=None, address=None,
+               city=None, state=None, zip_code=None):
         """
         Inserts a new row for sales group field values
 
@@ -19,7 +19,7 @@ class Genetics:
         self._db.execute(
             """
             INSERT INTO genetics(owner_account_id, uid, breed, ranch_name, address, city, state, zip_code)
-            VALUES(%(breed)s)
+            VALUES(%(owner_account_id)s, %(uid)s, %(breed)s, %(ranch_name)s, %(address)s, %(city)s, %(state)s, %(zip_code)s)
             """,
             {
                 "owner_account_id": owner_account_id,
