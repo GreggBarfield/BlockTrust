@@ -8,4 +8,97 @@
 
 {% block dashboard_content %}
 
+<div class="card">
+    <div class="card-body">
+        <button class="btn btn-primary" onclick="createFlatFileImporter()">Start Upload</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+<script>
+    const createFlatFileImporter = () =>{
+        const importer = new FlatfileImporter('{{license}}', {
+            type: "Genetics Import",
+            title: "Genetics Import",
+            managed: true,
+            fields: [
+            {
+                key: "uid", label: "UID",
+                validators: [
+                    { validate: "required" },
+                    { validate: "unique" },
+                ]
+            },
+            {
+                key: "breed", label: "Breed",
+                validators: [
+                { validate: "required" }
+                ]
+            },
+            {
+                key: "ranch_name", label: "Ranch Name",
+                validators: []
+            },
+            {
+                key: "address", label: "Address",
+                validators: []
+            },
+            {
+                key: "city", label: "City",
+                validators: []
+            },
+            {
+                key: "state", label: "State",
+                validators: []
+            },
+            {
+                key: "zip_code", label: "Zip Code",
+                validators: []
+            }
+            ],
+            i18nOverrides: {
+            en: {
+              otherLocales: ["en-US", "en-CA", "en-GB"],
+              overrides: {}
+            }
+          },
+          theme: {
+              buttons: {
+                  primary: {
+                      backgroundColor: "#8b4513",
+                      border: "1px solid #8b4513",
+                      ":hover": {
+                          backgroundColor: "#722C00",
+                          border: "1px solid #722C00"
+                      }
+                  }
+              },
+            }
+        });
+
+    importer.setCustomer({userId: '1' , name:'dashboard_standard_user_first' + 'dashboard_standard_user_last', email:'1'});
+
+    importer.requestDataFromUser().then(function(results) {
+    console.log(results)
+        $('#popup').removeClass('d-none');
+        $('#popup').addClass('d-flex');
+        $('#popupText').html('You successfully uploaded ' + results.data.length + ' tag(s) on ' + 
+                            new Date().toLocaleString() + '. ' + 
+                            'Some supply chain data may be processed overnight. Once processed, it will be reflected ' + 
+                            '<a href="/dashboard"><u>on your dashboard. </u></a>' +
+                            'If you have any questions, please contact us.');
+
+        importer.displaySuccess('Thanks for uploading your data!');
+        fetch('/dashboard/genetics', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                    eids: results.data
+                }),
+        });
+    });
+    }
+</script>
 {% endblock dashboard_content %}
