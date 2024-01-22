@@ -14,7 +14,7 @@ class Transactions:
     def __init__(self, db):
         self._db = db
 
-    def insert_transaction(self, transaction_type_id, partner_id, account_id=None,
+    def insert(self, transaction_type_id, partner_id, account_id=None,
                            subscription_credits=None, employee_id=None):
         """
         Inserts a new transaction record
