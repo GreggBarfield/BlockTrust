@@ -298,10 +298,6 @@ def confirm(email):
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
     g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
     EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
-    partner_account_company = ""
-    if user_account["partner_account"] is not None:
-        partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
-        partner_account_company = partner_account.company()
 
 
 def login(identifier, password=""):
