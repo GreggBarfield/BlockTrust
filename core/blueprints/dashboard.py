@@ -966,3 +966,9 @@ def serve_view_order(order_id):
             raise ExportException("Sorry, the requested order was not found. ")
     except ExportException as e:
         return dashboard_render("tag-store/view-order.html", {"error": str(e)})
+
+
+@bp.route("/dashboard/seedstock-producers", methods=["GET"])
+@crut.require_account
+def serve_seedstock_producers():
+    return dashboard_render("marketplace/seedstock-producers.html")

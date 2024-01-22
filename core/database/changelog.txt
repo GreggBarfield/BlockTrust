@@ -2510,3 +2510,17 @@ VALUES (18, "Angus Verified"),
 (18, "Hereford Advantage"),
 (18, "Red Angus FCCP"),
 (18, "Allied Access");
+
+/* Nisheet Thakur 01/22/2024 */
+CREATE TABLE `seedstock_producers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `marketplace_account_name` VARCHAR(100) NULL,
+  `marketplace_account_email` VARCHAR(100) NULL,
+  `short_description` VARCHAR(100) NULL,
+  `long_description` VARCHAR(1000) NULL,
+  `is_archived` TINYINT NULL DEFAULT 0,
+  `logo_file_id` INT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
