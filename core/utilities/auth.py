@@ -302,14 +302,6 @@ def confirm(email):
     if user_account["partner_account"] is not None:
         partner_account = g.db.accounts.get_account_by_id(account_id=user_account["partner_account"])
         partner_account_company = partner_account.company()
-    send_email(
-        "BlockTrust Network New Registration Information",
-        render_email("new_account_info.html", {
-            'user_account': user_account,
-            'partner_account_company': partner_account_company,
-            'sectors_id_to_name': SECTORS_ID_TO_NAME
-        }), SUPPORT_GENERAL_EMAIL
-    )
 
 
 def login(identifier, password=""):
