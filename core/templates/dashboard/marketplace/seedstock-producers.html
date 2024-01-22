@@ -10,7 +10,7 @@ Seedstock Producers
 {% block dashboard_content %}
 <div class="row">
     <div class="col">
-       <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="seedstock producers"></div>
+       <div class="col-sm-12 widget" class="mb-0 widget" data-widget-type="seedstock producers" data-widget-seedstock-producers='{{seedstock_producers|tojson}}'></div>
     </div>
 </div>
 {% endblock dashboard_content %}

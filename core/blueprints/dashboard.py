@@ -28,6 +28,7 @@ from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
+from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
 from ..database.tables.users import UsersException
@@ -971,4 +972,5 @@ def serve_view_order(order_id):
 @bp.route("/dashboard/seedstock-producers", methods=["GET"])
 @crut.require_account
 def serve_seedstock_producers():
-    return dashboard_render("marketplace/seedstock-producers.html")
+    seedstock_producers = SeedstockProducers(g.db).get(is_archived=0)
+    return dashboard_render("marketplace/seedstock-producers.html", {"seedstock_producers": seedstock_producers})
