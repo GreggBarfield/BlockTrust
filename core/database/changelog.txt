@@ -2517,6 +2517,8 @@ CREATE TABLE `seedstock_producers` (
   `account_id` INT NOT NULL,
   `marketplace_account_name` VARCHAR(100) NULL,
   `marketplace_account_email` VARCHAR(100) NULL,
+  `marketplace_account_contact_name` VARCHAR(100) NULL,
+  `marketplace_account_phone` BIGINT NULL,
   `short_description` VARCHAR(100) NULL,
   `long_description` VARCHAR(1000) NULL,
   `is_archived` TINYINT NULL DEFAULT 0,

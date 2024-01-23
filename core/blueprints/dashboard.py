@@ -972,5 +972,14 @@ def serve_view_order(order_id):
 @bp.route("/dashboard/seedstock-producers", methods=["GET"])
 @crut.require_account
 def serve_seedstock_producers():
-    seedstock_producers = SeedstockProducers(g.db).get(is_archived=0)
+    seedstock_producers = SeedstockProducers(g.db).get(is_archived=0, include_logo_url=True)
     return dashboard_render("marketplace/seedstock-producers.html", {"seedstock_producers": seedstock_producers})
+
+
+@bp.route("/dashboard/edit/edit-seedstock-producer-data", methods=["GET"])
+@crut.require_account
+def serve_edit_seedstock_producer_data():
+    seedstock_producer_data = SeedstockProducers(g.db).get(account_id=g.account.id(), is_archived=0)
+    return dashboard_render("accounts/edit_seedstock_producer_data.html", {
+        "seedstock_producer_data": seedstock_producer_data
+    })

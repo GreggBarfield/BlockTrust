@@ -1,0 +1,17 @@
+{% extends "dashboard/standard.html" %}
+{% block head_section_per_dashboard_page %}
+{% endblock head_section_per_dashboard_page %}
+
+{% set dashboard_locations = [("/dashboard/edit/edit-seedstock-producer-data", "Edit Seedstock Producer Data")] %}
+
+{% block dashboard_content_header %}
+Edit Seedstock Producer Data
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col">
+        {{seedstock_producer_data}}
+    </div>
+</div>
+{% endblock dashboard_content %}

@@ -229,11 +229,19 @@
                                     <i class="feather icon-briefcase"></i> Edit Account
                                 </a>
                             </li>
+                            {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
+                            <li>
+                                <a href="/dashboard/edit/edit-seedstock-producer-data">
+                                    <i class="feather icon-briefcase"></i> Edit Seedstock Producer Data
+                                </a>
+                            </li>
+                            {% else %}
                             <li>
                                 <a href="/dashboard/edit/edit-account-retail-data">
                                     <i class="feather icon-briefcase"></i> Edit Account Retail Data
                                 </a>
                             </li>
+                            {% endif %}
                         </ul>
                     </div>
                 </li>
