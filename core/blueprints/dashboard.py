@@ -16,7 +16,7 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
-from ..database.tables.files import Files
+from ..database.tables.files import Files, MARKETPLACE_FILES_S3_PATH
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
@@ -976,10 +976,41 @@ def serve_seedstock_producers():
     return dashboard_render("marketplace/seedstock-producers.html", {"seedstock_producers": seedstock_producers})
 
 
-@bp.route("/dashboard/edit/edit-seedstock-producer-data", methods=["GET"])
+@bp.route("/dashboard/edit/edit-seedstock-producer-data", methods=["GET", "POST"])
 @crut.require_account
 def serve_edit_seedstock_producer_data():
-    seedstock_producer_data = SeedstockProducers(g.db).get(account_id=g.account.id(), is_archived=0)
-    return dashboard_render("accounts/edit_seedstock_producer_data.html", {
-        "seedstock_producer_data": seedstock_producer_data
-    })
+    if request.method == "GET":
+        return dashboard_render("accounts/edit_seedstock_producer_data.html", {
+            "marketplace_files_s3_path": MARKETPLACE_FILES_S3_PATH
+        })
+    if request.method == "POST":
+        if request.form["existing_ad_available"]:
+            existing_seedstock_producer_data = SeedstockProducers(g.db).get(id=request.form["existing_ad_id"])
+            logo_file_id = existing_seedstock_producer_data[0]["logo_file_id"]
+            if "logo_file_id" in request.form:
+                logo_file_id = request.form["logo_file_id"]
+            SeedstockProducers(g.db).update(
+                id=request.form["existing_ad_id"],
+                account_id=g.account.id(),
+                marketplace_account_name=request.form["name"],
+                marketplace_account_email=request.form["email"],
+                marketplace_account_contact_name=request.form["contact_name"],
+                marketplace_account_phone=request.form["phone"],
+                short_description=request.form["short_description"],
+                long_description=request.form["long_description"],
+                logo_file_id=logo_file_id
+            )
+            return {"redirect": "/dashboard"}
+        else:
+            SeedstockProducers(g.db).insert(
+                account_id=g.account.id(),
+                marketplace_account_name=request.form["name"],
+                marketplace_account_email=request.form["email"],
+                marketplace_account_contact_name=request.form["contact_name"],
+                marketplace_account_phone=request.form["phone"],
+                short_description=request.form["short_description"],
+                long_description=request.form["long_description"],
+                logo_file_id=request.form.get("logo_file_id", None)
+            )
+            return {"redirect": "/dashboard"}
+    

@@ -11,7 +11,12 @@ Edit Seedstock Producer Data
 {% block dashboard_content %}
 <div class="row">
     <div class="col">
-        {{seedstock_producer_data}}
+        <div 
+            class="col-sm-12 widget"
+            class="mb-0 widget"
+            data-widget-type="edit seedstock producer data"
+            data-widget-marketplace-files-s3-path="{{marketplace_files_s3_path}}"
+        ></div>
     </div>
 </div>
 {% endblock dashboard_content %}

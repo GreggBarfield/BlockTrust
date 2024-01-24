@@ -23,6 +23,7 @@ from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_NAMES_TO_IDS
 from ..database.tables.sales_group_searches import SalesGroupSearches
+from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_favorites_for_accounts import USDAFavoritesForAccounts
 from ..database.tables.usda_reports import USDAReports
@@ -953,3 +954,16 @@ def serve_add_new_sales_group_field_value():
         return {"error": str(e)}
     except Exception as e:
         raise e
+
+
+@bp.route('/widgets/data/get_seedstock_producer_data', methods=["POST"])
+@crut.require_account
+def serve_get_seedstock_producer_data():
+    seedstock_producer_data = {}
+    seedstock_producer_data_rows = SeedstockProducers(g.db).get(
+        account_id=g.account.id(),
+        is_archived=0
+    )
+    if len(seedstock_producer_data_rows) > 0:
+        seedstock_producer_data = seedstock_producer_data_rows[0]
+    return seedstock_producer_data
