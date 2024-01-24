@@ -40,6 +40,8 @@ let preconditioningProgramsList = [];
 let pvpProgramsList = [];
 let auctionMarketsList = [];
 let pvpPrograms = [
+    "No",
+    "Yes/Unknown",
     "American Certified Brands",
     "AzTx Cattle Co.",
     "BeefTraxx",

@@ -115,6 +115,7 @@ let commonWeights = [];
 for (let i = 400; i <= 950; i+=50) { commonWeights.push(i); }
 
 let commonPreconditioningProgramNames = [
+	"No",
 	"Yes / Name Unknown",
 	"Health Track",
 	"Value Added Calf-45",
