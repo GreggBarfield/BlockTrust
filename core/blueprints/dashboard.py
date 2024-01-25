@@ -16,7 +16,6 @@ from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
-from ..database.tables.files import Files, MARKETPLACE_FILES_S3_PATH
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients

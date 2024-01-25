@@ -954,20 +954,3 @@ def serve_add_new_sales_group_field_value():
         return {"error": str(e)}
     except Exception as e:
         raise e
-
-
-@bp.route('/widgets/data/get_seedstock_producer_data', methods=["POST"])
-@crut.require_account
-def serve_get_seedstock_producer_data():
-    seedstock_producer_data = {}
-    seedstock_producer_data_rows = SeedstockProducers(g.db).get(
-        account_id=g.account.id(),
-        is_archived=0
-    )
-    if len(seedstock_producer_data_rows) > 0:
-        seedstock_producer_data = seedstock_producer_data_rows[0]
-        seedstock_producer_data["logo_file_name"] = ""
-        logo_file_data = Files(g.db).get_files(id=seedstock_producer_data["id"])
-        if len(logo_file_data) > 0:
-            seedstock_producer_data["logo_file_name"] = logo_file_data[0]["name"]
-    return seedstock_producer_data
