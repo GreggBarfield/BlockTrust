@@ -1,10 +1,10 @@
 import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { saveAndUploadFile } from '../../../files/files.mjs';
-import { generateTextInput, generateUploadInput, validateFormCompletion } from "../../utilities/advertisement_utilities.mjs";
+import { generateTextInput, generateUploadInput, generateDropDownInput, validateFormCompletion } from "../../utilities/advertisement_utilities.mjs";
 
 
-export class EditSeedstockProducerDataWidget extends Widget {
+export class AddSeedstockProducerDataWidget extends Widget {
     constructor(frame) {
         super(frame);
     }
@@ -12,21 +12,20 @@ export class EditSeedstockProducerDataWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         let marketplaceFilesS3Path = this.frame.getAttribute("data-widget-marketplace-files-s3-path");
-        let seedstockProducerData = await this.getData("get_seedstock_producer_data");
-        let editForm = this.createEditForm(marketplaceFilesS3Path);
-        this.frame.append(editForm);
-
-        this.existingAdAvailable = false;
-        this.existingAdID = null;
-        if(Object.entries(seedstockProducerData).length !== 0){
-            this.existingAdAvailable = true;
-            this.existingAdID = seedstockProducerData.id;
-            this.seedstockProducerData = seedstockProducerData;
-            this.prefillFormFields(seedstockProducerData);
-        }
+        let seedstockAccounts = this.formatAccountsData(JSON.parse(this.frame.getAttribute("data-widget-seedstock-accounts")));
+        let addForm = this.createAddForm(marketplaceFilesS3Path, seedstockAccounts);
+        this.frame.append(addForm);
     }
 
-    createEditForm = (marketplaceFilesS3Path) =>{
+    formatAccountsData = (accountsData) =>{
+        let formattedData = {};
+        for(const accountData of accountsData){
+            formattedData[accountData.id] = accountData.name;
+        }
+        return formattedData;
+    }
+
+    createAddForm = (marketplaceFilesS3Path, seedstockAccounts) =>{
         let card = document.createElement("div");
         card.className = "card col-md-12";
 
@@ -42,6 +41,8 @@ export class EditSeedstockProducerDataWidget extends Widget {
         let inputsRow = document.createElement("row");
 
 
+        let accountInput = generateDropDownInput("account_id", seedstockAccounts, "-Please select Seedstock Account-", true);
+        inputsRow.append(accountInput);
         let nameInput = generateTextInput("*MarketPlace Company Name", "text", "account_name", true, "col-md-6");
         inputsRow.append(nameInput);
         let emailInput = generateTextInput("*MarketPlace Company Email", "text", "account_email", true, "col-md-6");
@@ -72,6 +73,8 @@ export class EditSeedstockProducerDataWidget extends Widget {
 
         submitButton.onclick = async() =>{
             let formResponseValues = [];
+            let accountId = document.getElementById("account_id").value;
+            formResponseValues.push(accountId);
             let name = document.getElementById("account_name").value;
             formResponseValues.push(name);
             let email = document.getElementById("account_email").value;
@@ -99,21 +102,20 @@ export class EditSeedstockProducerDataWidget extends Widget {
                     loadingMessage: "Saving...",
                     getData: () => {
                         return {
+                            account_id: accountId,
                             name: name,
                             email: email,
                             contact_name: contactName,
                             phone: phone,
                             short_description: shortDescription,
                             long_description: longDescription,
-                            logo_file_id: logoFileID,
-                            existing_ad_available: this.existingAdAvailable,
-                            existing_ad_id: this.existingAdID
+                            logo_file_id: logoFileID
                         };
                     }
                 });
                 if(Object.entries(uploadedFile).length > 0){
                     let uploadedLogoFile = uploadedFile[0];
-                    logoFileID = await saveAndUploadFile(true, true, uploadedLogoFile, null, null, false, marketplaceFilesS3Path);
+                    logoFileID = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, marketplaceFilesS3Path);
                 }
                 seedstockProducerDataForm.submit();
             }
@@ -124,20 +126,5 @@ export class EditSeedstockProducerDataWidget extends Widget {
         }
         card.append(cardBody);
         return card;
-    }
-
-    prefillFormFields = (seedstockProducerData) =>{
-        document.getElementById("account_name").value = seedstockProducerData.marketplace_account_name;
-        document.getElementById("account_email").value = seedstockProducerData.marketplace_account_email;
-        document.getElementById("account_contact_name").value = seedstockProducerData.marketplace_account_contact_name;
-        document.getElementById("account_phone").value = seedstockProducerData.marketplace_account_phone;
-        document.getElementById("short_description").value = seedstockProducerData.short_description;
-        document.getElementById("long_description").value = seedstockProducerData.long_description;
-        if(this.existingAdAvailable && this.seedstockProducerData.logo_file_id !== null){
-            let existingLogoMessage = document.createElement("p");
-            existingLogoMessage.className = "text-primary font-italic ml-2";
-            existingLogoMessage.textContent = "*You have already uploaded a MarketPlace Logo. Upload a new one if you would like to replace it.";
-            this.inputsRow.append(existingLogoMessage);
-        }
     }
 }

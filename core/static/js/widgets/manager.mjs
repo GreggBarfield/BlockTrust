@@ -49,7 +49,7 @@ import { MapV2Widget } from './types/animal_data/map_v2_widget.mjs';
 import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
 import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
 import { SeedstockProducersWidget } from './types/marketplace/seedstock_producers.mjs';
-import { EditSeedstockProducerDataWidget } from './types/marketplace/edit_seedstock_producer_data.mjs';
+import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstock_producer_data.mjs';
 
 // Immediately invoked
 (function () {
@@ -114,7 +114,7 @@ import { EditSeedstockProducerDataWidget } from './types/marketplace/edit_seedst
     attach("checkout payment", CheckoutPaymentWidget);
     attach("view order", ViewOrderWidget);
     attach("seedstock producers", SeedstockProducersWidget);
-    attach("edit seedstock producer data", EditSeedstockProducerDataWidget);
+    attach("add seedstock producer data", AddSeedstockProducerDataWidget);
 
     // Find widgets
     $(".widget").each(function () {
