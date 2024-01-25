@@ -6,7 +6,8 @@ from .files import MARKETPLACE_FILES_S3_PATH
 NO_VALUE = NoValue()
 
 seedstock_producers_cols = ("id", "account_id", "marketplace_account_name", "marketplace_account_email",
-                            "short_description", "long_description", "is_archived", "logo_file_id")
+                            "marketplace_account_contact_name", "marketplace_account_phone", "short_description",
+                            "long_description", "is_archived", "logo_file_id")
 
 class SeedstockProducers:
 
