@@ -84,17 +84,12 @@ export class SeedstockProducersWidget extends Widget {
 
     generateCompanyInformationContainer = (seedstockProducer) =>{
         let companyInformationContainer = document.createElement("div");
-        let addressLine = this.generateFormattedTextLine(seedstockProducer.address, "h6", "font-weight-bold text-secondary m-0");
-        companyInformationContainer.append(addressLine);
-        let cityLine = this.generateFormattedTextLine(seedstockProducer.city + ", " + seedstockProducer.state + " " +seedstockProducer.zip_code, "h6", "font-weight-bold text-secondary m-0");
-        companyInformationContainer.append(cityLine);
         let contactNameLine = this.generateFormattedTextLine(seedstockProducer.marketplace_account_contact_name, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(contactNameLine);
         let phoneLine = this.generateFormattedTextLine(seedstockProducer.marketplace_account_phone, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(phoneLine);
         let emailLine = this.generateFormattedTextLine(seedstockProducer.marketplace_account_email, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(emailLine);
-
         return companyInformationContainer;
     }
 

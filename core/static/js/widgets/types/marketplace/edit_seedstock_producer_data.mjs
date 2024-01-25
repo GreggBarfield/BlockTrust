@@ -2,7 +2,6 @@ import { Widget } from '../../widget.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { saveAndUploadFile } from '../../../files/files.mjs';
 import { generateTextInput, generateUploadInput, validateFormCompletion } from "../../utilities/advertisement_utilities.mjs";
-import { states } from '../../../core/common_constants.mjs';
 
 
 export class EditSeedstockProducerDataWidget extends Widget {
@@ -13,19 +12,18 @@ export class EditSeedstockProducerDataWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         let marketplaceFilesS3Path = this.frame.getAttribute("data-widget-marketplace-files-s3-path");
+        let seedstockProducerData = await this.getData("get_seedstock_producer_data");
         let editForm = this.createEditForm(marketplaceFilesS3Path);
         this.frame.append(editForm);
 
         this.existingAdAvailable = false;
         this.existingAdID = null;
-        let seedstockProducerData = await this.getData("get_seedstock_producer_data");
         if(Object.entries(seedstockProducerData).length !== 0){
             this.existingAdAvailable = true;
             this.existingAdID = seedstockProducerData.id;
             this.seedstockProducerData = seedstockProducerData;
             this.prefillFormFields(seedstockProducerData);
         }
-        console.log(seedstockProducerData);
     }
 
     createEditForm = (marketplaceFilesS3Path) =>{
@@ -58,10 +56,7 @@ export class EditSeedstockProducerDataWidget extends Widget {
         inputsRow.append(longDescriptionInput);
         let logoUploadContainer = generateUploadInput("Upload Logo: ");
         inputsRow.append(logoUploadContainer);
-        if(this.existingAdAvailable && this.seedstockProducerData.logo_file_id !== null){
-            let existingLogoMessage = document.createElement("h6");
-            existingLogoMessage.textContent = "You have already uploaded a MarketPlace Logo. Upload a new one if you would like to replace it."
-        }
+        this.inputsRow = inputsRow;
         form.append(inputsRow);
         cardBody.append(form);
 
@@ -127,7 +122,7 @@ export class EditSeedstockProducerDataWidget extends Widget {
                 errorMessage.textContent = "Please fill in all required fields";
             }
         }
-        card.append(cardBody)
+        card.append(cardBody);
         return card;
     }
 
@@ -138,5 +133,11 @@ export class EditSeedstockProducerDataWidget extends Widget {
         document.getElementById("account_phone").value = seedstockProducerData.marketplace_account_phone;
         document.getElementById("short_description").value = seedstockProducerData.short_description;
         document.getElementById("long_description").value = seedstockProducerData.long_description;
+        if(this.existingAdAvailable && this.seedstockProducerData.logo_file_id !== null){
+            let existingLogoMessage = document.createElement("p");
+            existingLogoMessage.className = "text-primary font-italic ml-2";
+            existingLogoMessage.textContent = "*You have already uploaded a MarketPlace Logo. Upload a new one if you would like to replace it.";
+            this.inputsRow.append(existingLogoMessage);
+        }
     }
 }
