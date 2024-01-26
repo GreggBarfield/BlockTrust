@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { makeShoppingCartTotalsContainer, generateCheckoutFormTextInput } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateCheckoutFormTextInput, getShoppingCartTotalsData } from '../../utilities/tag_store_utilities.mjs';
 
 export class CheckoutPaymentWidget extends Widget {
     constructor(frame) {
@@ -9,12 +9,14 @@ export class CheckoutPaymentWidget extends Widget {
     initType = async() => {
         this.frame.innerHTML = "";
         let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
-        let checkoutPaymentCard = this.makeCheckoutPaymentCard();
+        let herdWhistleVendorId = this.frame.getAttribute("data-widget-herd-whistle-vendor-id");
+        let invoiceLink = this.frame.getAttribute("data-widget-invoice-link");
+        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId, invoiceLink);
         this.frame.append(checkoutPaymentCard);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
 
-    makeCheckoutPaymentCard = () =>{
+    makeCheckoutPaymentCard = (herdWhistleVendorId, invoiceLink) =>{
         let checkoutPaymentCard = document.createElement("div");
         checkoutPaymentCard.className = "card border rounded";
 
@@ -35,7 +37,8 @@ export class CheckoutPaymentWidget extends Widget {
         let totalsContainer = document.createElement("div");
         totalsContainer.className = "col-md-6 p-0 m-0";
 
-        let cartTotalsContainer = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let cartTotalsContainer = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         totalsContainer.append(cartTotalsContainer);
 
         let checkoutPaymentNameInputContainer = generateCheckoutFormTextInput("*Name", "text", "name", true);
@@ -52,7 +55,7 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentSubmitButton.textContent = "SUBMIT";
         paymentContainer.append(checkoutPaymentSubmitButton);
         checkoutPaymentSubmitButton.onclick = () =>{
-            this.performStripePaymentActions();
+            this.performStripePaymentActions(herdWhistleVendorId, invoiceLink);
         }
 
         let checkoutPaymentStatusMessage = document.createElement("div");
@@ -79,7 +82,7 @@ export class CheckoutPaymentWidget extends Widget {
         this.card.mount('#checkout-card-element');
     }
 
-    performStripePaymentActions = async () =>{
+    performStripePaymentActions = async (herdWhistleVendorId, invoiceLink) =>{
         this.updatePaymentButton("Processing...", true);
         // Creating a new order
         let {error, orderId} = await fetch(
@@ -92,7 +95,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         ).then((r) => r.json());
         if(error){
-            this.updatePaymentStatusMessage(error, "text-danger");
+            this.updatePaymentStatusMessage(error, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -112,7 +115,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         ).then((r) => r.json());
         if(backendError){
-            this.updatePaymentStatusMessage(backendError.message, "text-danger");
+            this.updatePaymentStatusMessage(backendError.message, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -129,7 +132,7 @@ export class CheckoutPaymentWidget extends Widget {
             }
         );
         if(stripeError){
-            this.updatePaymentStatusMessage(stripeError.message, "text-danger");
+            this.updatePaymentStatusMessage(stripeError.message, "d-block mt-2 mb-0 alert alert-danger");
             this.updatePaymentButton("Pay", false);
             return;
         }
@@ -149,15 +152,40 @@ export class CheckoutPaymentWidget extends Widget {
                 }
             );
             if(response.ok){
-                this.updatePaymentButton("Success! Redirecting...", true);
+                this.updatePaymentButton("Payment Successful! Confirming Order ...", true);
             }
         }
-        window.location.href = '/shop/invoice';
+        
+        let orderContainsHerdWhistleProducts = false;
+        let shoppingCartString = localStorage.getItem("shoppingCart");
+        let shoppingCart = JSON.parse(shoppingCartString);
+        for(let productData of Object.values(shoppingCart)){
+            if(productData.product_vendor_id == herdWhistleVendorId){
+                orderContainsHerdWhistleProducts = true;
+                break;
+            }
+        }
+        if(orderContainsHerdWhistleProducts){
+            let sendOrderToHerdWhistle = await fetch(
+                '/shop/send-order-to-herdwhistle-api',{
+                    method: 'POST',
+                    header: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: orderId,
+                        orderDetails: localStorage.getItem("orderDetails")
+                    })
+                }
+            );
+        }
+
+        this.updatePaymentButton("Order Confirmed!", true);
+        window.location.href = invoiceLink;
     }
 
     updatePaymentStatusMessage = (statusTextContent, statusClassName) =>{
         let paymentStatusMessage = document.getElementById("checkout-payment-status-message");
-        paymentStatusMessage.style.display = 'block';
         paymentStatusMessage.className = statusClassName;
         paymentStatusMessage.textContent = statusTextContent;
     }

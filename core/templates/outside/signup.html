@@ -234,6 +234,58 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5>We want to help you get more value for your cattle so we ask that you please answer these optional questions:</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group required">
+                                <label for="signup_form_are_auction_market_utilizied">
+                                    Do you sell your calves at an auction market?
+                                </label>
+                                <select class="form-control" id="signup_form_are_auction_market_utilizied" required>
+                                    <option value=1 selected>Yes</option>
+                                    <option value=0>No</option>
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_auction_markets">Please tell us which markets you usually use</label>
+                                <select class="form-control" id="signup_form_auction_markets">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5>Tell us if your calves are in any of these programs:</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_preconditioning_programs">
+                                    Pre-Conditioning Programs
+                                </label>
+                                <select class="form-control" id="signup_form_preconditioning_programs">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="signup_form_pvp_programs">PVP Programs</label>
+                                <select class="form-control" id="signup_form_pvp_programs">
+                                </select>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
                     <hr style="height:2px;background:black"/>
                     <div class="row">
                         <h4>User Information:</h4>
@@ -306,10 +358,9 @@
     var siteKey = '{{site_key}}';
     var ipInfoAccessToken = '{{ipinfo_access_token}}';
     var checkIP = '{{check_ip}}';
+    var auctionMarkets = JSON.parse('{{auction_markets|tojson}}');
 </script>
 
 <script src="https://www.google.com/recaptcha/api.js?render={{site_key}}&badge=bottomleft"></script>
-
 <script type="module" src="/static/entry_points/outside/signup.mjs"></script>
-
 {% endblock outside_content %}

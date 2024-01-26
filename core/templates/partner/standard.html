@@ -174,6 +174,11 @@
         <span>Utility</span>
         <div class="b-nav-utility">
             <ul>
+                <li title="{{'You have pending connection requests' if pending_connection_requests_count else 'Manage Connections in the Beef Supply Chain'}}">  
+                  <a href="/partner/connections"  class={{"text-danger" if pending_connection_requests_count else ""}}>
+                      <i class="icon feather icon-users h2"></i>
+                  </a>
+                </li>
                 <li class="b-user-settings-li" title="User Settings">
                     <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
                         <i class="icon feather icon-user h2"></i>
@@ -231,6 +236,12 @@
                 <span>Upload Packer Data</span>
             </a>
         </li>
+        <li>
+          <a href="/partner/view-partner-accounts-sustainability-data">
+              <span><i class="feather icon-file-text"></i></span>
+              <span>Supply Chain</span>
+          </a>
+      </li>
         </ul>
     </nav>
 </header>

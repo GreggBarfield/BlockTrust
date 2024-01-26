@@ -8,7 +8,7 @@ export class InfoModal extends CoreModal {
      * @param {string|null} [contentText] Text for the content, or null for nothing
      * @param {boolean} [wide] Whether to make the modal wide. Default false
      */
-    constructor(headerText, contentText=null, wide=false) {
+    constructor(headerText, contentText=null, wide=false, bodyClass=null, callback=null) {
         super(wide);
         let that = this;
 
@@ -16,7 +16,7 @@ export class InfoModal extends CoreModal {
         this.modalHeader.className = "modal-header";
         
         let modalHeaderH5 = document.createElement("h5");
-        modalHeaderH5.className = "modal-title";
+        modalHeaderH5.className = "modal-title m-1";
         modalHeaderH5.innerHTML = headerText;
         this.modalHeader.append(modalHeaderH5);
 
@@ -24,6 +24,9 @@ export class InfoModal extends CoreModal {
         modalHeaderX.className = "close";
         modalHeaderX.addEventListener("click", ()=>{
             that.close();
+            if (typeof callback === 'function') {
+                callback(); 
+            }
         });
         modalHeaderX.textContent = "x";
         this.modalHeader.append(modalHeaderX);
@@ -32,7 +35,7 @@ export class InfoModal extends CoreModal {
 
         let modalBody = document.createElement("div");
         this.modalBody = modalBody;
-        modalBody.className = "modal-body";
+        modalBody.className = bodyClass? `modal-body ${bodyClass}`: "modal-body";
 
         if (contentText !== null) {
             // Sometimes stuff is just appended to body manually
@@ -55,6 +58,9 @@ export class InfoModal extends CoreModal {
         closeButton.textContent = "Close";
         closeButton.addEventListener("click", ()=>{
             that.close();
+            if (typeof callback === 'function') {
+                callback(); 
+            }
         });
         modalFooter.append(closeButton);
 

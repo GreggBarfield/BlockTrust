@@ -74,7 +74,7 @@ let manageAuctionSale = (auctionSale={}) => {
     let at;
 
     {
-        at = new DateFormGroup(form, "At:", auctionSale.at || null);
+        at = new DateFormGroup(form, "At:", "auction-sale-date", auctionSale.at || null);
     }
 
     let publishSwitch = new SwitchFormGroup(form, "Publish", ((!isNew) ? auctionSale.published : false));

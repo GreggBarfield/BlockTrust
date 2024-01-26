@@ -68,4 +68,4 @@ def handle(db: Database, insert):
         zipcode = str(fields['zipcode'])
         process_sighting(db, eid, account_link, api_insert, zipcode, fields['appdate'], partner_account, visual_id)
 
-    process_animal_characteristics(db, fields, eid, api_insert, visual_id)
+    process_animal_characteristics(db, fields, eid, api_insert, visual_id, is_paid=int(True))

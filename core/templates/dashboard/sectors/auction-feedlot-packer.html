@@ -13,6 +13,47 @@
 
 {% block dashboard_content %}
 <div class="row">
+    {% if account.sector_name() == "Auction" %}
+    <div class="col-xl-12">
+        <div class="card">
+            <h5 class="card-header">Sales Group Summary</h5>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Number of Head</th>
+                                <th>Breed</th>
+                                <th>Weight</th>
+                                <th>Sale Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if sales_groups %}
+                            {% for group in sales_groups %}
+                            <tr>
+                                <td>{{group.group_name}}</td>
+                                <td>{{group.reported.count}}</td>
+                                <td>{{group.reported.breeds|join(", ")}}</td>
+                                <td>{{group.reported.weight}}</td>
+                                <td name="sale-date">{{group.sale_date}}</td>
+                                <td><a class="btn btn-sm btn-info" href="/dashboard/sales-groups/view/{{group.id}}" target="_blank">View</a></td>                     
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr class="text-center">
+                                <td colspan="6" class="font-italic">Nothing to show currently</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
     <div class="col-xl-6">
         <div class="card">
             <h5 class="card-header">Calf-Crop Summary</h5>
@@ -45,7 +86,7 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="sightings" role="tabpanel"
                         aria-labelledby="sightings-tab">
-                        <p class="mb-0 widget" data-widget-type="map" data-widget-match-types="Sighting"
+                        <p class="mb-0 widget" data-widget-type="map v2" data-widget-match-types="Sighting"
                             data-widget-account="{{ account.id() }}" style='height:400px;'></p>
                     </div>
                     <div class="tab-pane fade" id="carcass-quality" role="tabpanel"
@@ -89,5 +130,14 @@
         </div>
     </div>
 </div>
-
+<script>
+    let elements = document.getElementsByName("sale-date");
+    for (let element of elements){
+        element.innerText = new Date(element.innerText*1000).toLocaleString("en-US", {
+            year:"numeric",
+            month:"long",
+            day:"numeric"
+        });
+    }
+</script>
 {% endblock dashboard_content %}

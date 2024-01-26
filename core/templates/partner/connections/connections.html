@@ -1,0 +1,190 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Connections" %}
+{% set partner_locations = [(url_for(request.endpoint), "Connections")] %}
+
+{% block partner_content_header %}
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+<div class="row">
+    <div class="col-md">   
+        <div class="card">
+            <div class="card-header">
+                <h5>View Invites</h5>
+            </div>
+            <table class="table table-xs">  
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Account Name</th>
+                        <th class="col-md-2">Received On</th>
+                        <th class="col-md-2"></th>
+                        <th class="col-md-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if requests %}
+                {% for request in requests %}
+                    <tr>
+                        <td>{{request.from_account_name}}</td>
+                        <td name="received-date">{{request.create_timestamp}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-success float-right acceptButton" style="width:150px" onClick="accept({{request.from_account_id}})">
+                                <i class="feather icon-check"></i>Accept
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{request.id}})">
+                                <i class="feather icon-x"></i>Block
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% else %}
+                    <tr class="text-center font-italic">
+                        <td colspan="4">Nothing to show</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>Connections</h5>
+                <button class="btn btn-sm btn-primary float-right" onclick=window.location.href="/partner/add-connection">Add Connections</button>
+            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Account Name</th>
+                        <th class="col-md-2">Type</th>
+                        <th class="col-md-2"></th>
+                        <th class="col-md-2"></th>
+                    </tr>
+                </thead>
+            <tbody>
+            {% if account_connections %}
+            {% for connection in account_connections %}
+                <tr>
+                    <td>{{connection.to_account_name if connection.from_account_id == partner.id() else connection.from_account_name }}</td>
+                    <td>{{CONNECTION_TYPE_ID_TO_NAME[connection.connection_type_id]|upper}}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary float-right" style="width:150px" onclick=window.location.href='/partner/profile/{{connection.to_account_id if connection.from_account_id == partner.id() else connection.from_account_id}}'>
+                            <i class="feather icon-user"></i>View Profile
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-danger float-right" style="width:150px" onClick="block({{connection.id}})">
+                            <i class="feather icon-x"></i>Block
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            {% else %}
+                <tr class="text-center font-italic"><td colspan="4">Nothing to show</td></tr>
+            {% endif %}
+            </tbody>
+            </table>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h5>Blocked Connections</h5>
+            </div>
+            <table class="table table-xs">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Account Name</th>
+                        <th class="col-md-2">Type</th>
+                        <th class="col-md-2">Blocked By</th>
+                        <th class="col-md-2"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if blocked_connections %}
+                    {% for blocked_connection in blocked_connections %}
+                        <tr>
+                            <td>{{blocked_connection.to_account_name if blocked_connection.from_account_id == partner.id() else blocked_connection.from_account_name}}</td>
+                            <td>{{CONNECTION_TYPE_ID_TO_NAME[blocked_connection.connection_type_id]|upper}}</td>
+                            <td>{{blocked_connection.from_account_name if blocked_connection.blocked_by_account_id == blocked_connection.from_account_id else blocked_connection.to_account_name}} </td>
+                            <td>
+                                {% if blocked_connection.blocked_by_account_id == partner.id() %}
+                                <button class="btn btn-sm btn-success float-right" style="width:150px" onClick="unblock({{blocked_connection.id}})">
+                                    <i class="feather icon-x"></i>Unblock
+                                </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    {% else %}
+                        <tr class="text-center font-italic"><td colspan="4">Nothing to show</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    let receivedDates = document.getElementsByName("received-date");
+    for(date of receivedDates){
+        let UTCDate = new Date(date.innerText + " UTC");
+        date.innerText = UTCDate.toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric'
+        });
+    }
+    async function accept(fromAccountId){
+        const response = await fetch(
+            "/dashboard/accept-invite",{
+                method: "POST",
+                body: JSON.stringify({"account_id": fromAccountId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+    // Deprecated 10/04/2022
+    function decline(current){
+        fetch(
+            "/dashboard/decline-invite",{
+            method: "POST",
+            body: JSON.stringify({"account_id": current.value}),
+            headers: {"Content-type": "application/json; charset=UTF-8"}
+            })
+            .then(function(response){
+            if(response.status == 200){
+                location.reload();
+            }
+            });
+    }
+    async function block(connectionId){
+        const response = await fetch(
+            "/dashboard/block-connection",{
+                method: "POST",
+                body: JSON.stringify({"connection_id": connectionId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+    async function unblock(connectionId){
+        const response = await fetch(
+            "/dashboard/unblock-connection",{
+                method: "POST",
+                body: JSON.stringify({"connection_id": connectionId}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+</script> 
+{% endblock partner_content %}

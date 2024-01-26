@@ -1,10 +1,14 @@
-"""Reusable functions which perform actions using multiple table routines. Prevents circular imports"""
+"""Reusable functions which perform actions using multiple table routines"""
+import os
+from datetime import datetime
 from core.database.tables.account_links import AccountLinks
 from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
+from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.connection_invites import ConnectionInvites
-from core.database.tables.event_logs import EventLogs
+from core.database.tables.event_logs import EventLogs, event_type_by_name
 from core.database.tables.reports import Reports
+from core.database.tables.sent_emails import SentEmails
 from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from core.database.tables.users import Users
 from core.renderers.email import render_email
@@ -17,8 +21,7 @@ from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.sectors import SECTORS_NAME_TO_ID
 from .tables.scheduled_emails import ScheduledEmails, EMAILS, SCHEDULED_EMAIL_STATUS_NAME_TO_ID
 from .tables.debug_logs import DebugLogs
-from core.config import SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
-from datetime import datetime
+from core.config import ADMIN_EMAIL, SECONDARY_EMAIL_RECIPIENT_FOR_MATCH_FOUND
 
 
 def create_connections_for_supply_chain(db, cow_calf_account_link_id, cow_calf_account_id, dry_run=False):
@@ -142,7 +145,7 @@ def update_partner_payment_of_account(db, partner, account_id, paid_by_partner, 
         partner["id"],
         partner_subscription_credits=partner["partner_subscription_credits"] + change_in_credits
     )
-    Transactions(db).insert_transaction(
+    Transactions(db).insert(
         transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
         partner_id=partner["id"],
         account_id=account_id,
@@ -174,11 +177,19 @@ def send_connection_request_email_to_admin_users(db, to_account_id, from_account
                 )
 
 
-def send_email_to_admin_users(db, account_id, subject, body):
+def send_email_to_admin_users(db, account_id, subject, body, add_log=False):
     if len(admin_account_users := AccountUsers(db).get_account_users(account=account_id, is_admin=1)) > 0:
         for admin_account_user in admin_account_users:
             if len(email_verified_user := Users(db).get_users(id=admin_account_user["user"], is_email_verified=1)) > 0:
                 send_email(subject, body, email_verified_user[0]["email"])
+                if add_log:
+                    SentEmails(db).insert(
+                        account_id=account_id,
+                        user_id=email_verified_user[0]["id"],
+                        email_address=email_verified_user[0]["email"],
+                        subject=subject, file=os.path.basename(__file__),
+                        routine=send_email_to_admin_users.__name__
+                    )
 
 
 def create_connection_with_eid_owner(db, eid, connecting_account_id, details=None):
@@ -188,7 +199,7 @@ def create_connection_with_eid_owner(db, eid, connecting_account_id, details=Non
     )) > 0:
         owner_match_account_link = sightings[0]
         try:
-            if connecting_account_id:
+            if connecting_account_id and connecting_account_id != owner_match_account_link["account"]:
                 Connections(db).create_or_fail_connection(
                     from_account_id=connecting_account_id,
                     to_account_id=owner_match_account_link["account"],
@@ -217,3 +228,36 @@ def create_connection_with_all_sighted_accounts_for_eid(db, eid, connecting_acco
                 )
             except ConnectionException:
                 pass
+
+
+def convert_auction_market_to_account(db, auction_market_id, group_name):
+    am = AuctionMarkets(db).get_auction_markets(id=auction_market_id)[0]
+    account = Accounts(db).get_accounts(auction_market_id=am["id"])
+    if not account:
+        account_obj = Accounts(db).create_account(
+                phone=None,
+                company=am["name"],
+                partner=None,
+                affiliate_id=None,
+                sector=SECTORS_NAME_TO_ID["Auction"],
+                address=am["address"],
+                city=am["city"],
+                state=am["state"],
+                zip=am["zip_code"],
+                auction_market_id=am["id"]
+        )
+        user_id = Users(db).create_pseudo_user(account_obj.id(), False)
+        AccountUsers(db).insert_account_user(user_id, account_obj.id(), int(True))
+        send_email(
+            "New Auction Market Account",
+            render_email("internal/new_auction_market_account.html", {
+                "account_id": account_obj.id(),
+                "market_name": am["name"],
+                "group_name": group_name
+            }), ADMIN_EMAIL
+        )
+        perform_new_account_actions(
+            db=db, account_id=account_obj.id(), user_id=user_id,
+            event_type_id=event_type_by_name["Auction Market Account Created"],
+            sector_id=account_obj.sector_id()
+        )

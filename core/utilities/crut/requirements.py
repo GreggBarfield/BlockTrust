@@ -73,6 +73,16 @@ def _require_user_or_employee():
     raise RequireUserOrEmployeeFailed()
 
 
+class RequireUserIframeFailed(Exception):
+    pass
+
+
+def _require_user_iframe():
+    if 'user' in g and g.user is not None:
+        return
+    raise RequireUserIframeFailed()
+
+
 def require_user(func):
     """Decorator to ensure a user is logged in."""
 
@@ -135,6 +145,17 @@ def require_user_or_employee(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         _require_user_or_employee()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
+def require_user_iframe(func):
+    """Decorator to ensure an employee or a user with a non partner account is logged in."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        _require_user_iframe()
         return func(*args, **kwargs)
 
     return wrapper

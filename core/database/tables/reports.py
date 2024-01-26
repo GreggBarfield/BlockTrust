@@ -73,15 +73,12 @@ class Reports:
         )
         return Reports._process_row(results[0]) if results else None
 
-    def insert_query(self, account_id, query, priority=30):
+    def insert_query(self, account_id, query):
         """Insert a new query. Status is always pending.
 
         Params:
             owner: The Account ID of the owner or None for system
             query: The query (dictionary)
-            issuer: The Account ID of the issuer or None for system
-                (optional, default None)
-            priority: Priority of the query (default 30)
         """
 
         self._db.exec_frag(
@@ -169,11 +166,26 @@ class Reports:
                 count_eid_distinct_by_account.create(account_id)
             ]
 
-            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction House"]):
+            if sector_id in (SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"]):
                 queries.append(count_distribution_for_sector_at_account.create(account_id, SECTORS_NAME_TO_ID["Cow-Calf"]))
 
             for query in queries:
                 self.insert_query(account_id, query)
+
+    def make_partner_reports(self, partner_id, sector_id):
+        if sector_id in (
+            SECTORS_NAME_TO_ID["Cow-Calf"], SECTORS_NAME_TO_ID["Packer"], SECTORS_NAME_TO_ID["Auction"],
+            SECTORS_NAME_TO_ID["Feedlot"], SECTORS_NAME_TO_ID["Financial"], SECTORS_NAME_TO_ID["Producer Service"]
+        ):
+            queries = [
+                count_distribution.create(partner_id, is_partner=True),
+                count_distribution.create(partner_id, "USDA Yield Grade", is_partner=True),
+                count_distribution.create(partner_id, "USDA Quality Grade", is_partner=True),
+                count_eid_distinct_by_account.create(partner_id, is_partner=True)
+            ]
+
+            for query in queries:
+                self.insert_query(partner_id, query)
 
     def make_global_reports(self):
         queries = [

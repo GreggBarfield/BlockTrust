@@ -6,6 +6,7 @@ Used in both blueprints and the data_requests system.
 
 from .requirements import (
     require_user,
+    require_user_iframe,
     require_account,
     require_employee,
     require_paid_account,

@@ -94,23 +94,10 @@ let commonBreedNames = [
 	"Not Reported",
 ];
 
-let commonPVPProgramNames = [
-    "None",
-    "American Certified Brands",
-    "AzTx Cattle Co.",
-    "BeefTraxx",
-    "Big Blue Sale Barn Passport Program®",
-    "Cal Poly State Univ Animal Science",
-    "Frost PLLC dba FACTA",
-    "IdentiGEN North America",
-    "IMI Global",
-    "Legacy Verified",
-    "Ranchers Connecting Ranchers",
-    "Red Angus Association of America",
-    "Samson",
-    "TechniTrack",
-    "Zoetis Genetics",
-    "Other"
+let commonProgramNames = [
+	"Conventional",
+	"Natural",
+	"NHTC"
 ];
 
 let commonMiles = [
@@ -128,7 +115,8 @@ let commonWeights = [];
 for (let i = 400; i <= 950; i+=50) { commonWeights.push(i); }
 
 let commonPreconditioningProgramNames = [
-	"None",
+	"No",
+	"Yes / Name Unknown",
 	"Health Track",
 	"Value Added Calf-45",
 	"OQBN Vac-45 Program",
@@ -143,63 +131,6 @@ let commonPreconditioningProgramNames = [
 	"SelectVac WeanVac"
 ];
 
-let commonFrames = [
-	"N/A",
-	"Small",
-	"Medium",
-	"Large"
-];
-
-let commonMusclings = [
-	"N/A",
-	"Light",
-	"Heavy"
-];
-
-let commonHorns = [
-	"N/A",
-	"Horns",
-	"No Horns"
-]
-
-let commonVaccinations = [
-	"Not Applicable",
-	"Blackleg",
-	"H. Somnus",
-	"Pasturella",
-	"4-way virus (MLV)",
-	"4-way virus (Killed)",
-	"5-way virus (MLV)",
-	"5-way virus (Killed)",
-	"Internal Parasites",
-	"External Parasites"
-];
-
-let commonDeliveryLocationTypes = [
-	"Off Ranch",
-	"Auction"
-];
-
-let commonCastrated = [
-	"Not Applicable",
-	"Not Castrated",
-	"Banded",
-	"Blade",
-	"Chemicals",
-	"Other"
-];
-
-let commonFeedingPrograms = [
-	"Not Applicable",
-	"Native Range",
-	"Improved Pasture"
-];
-
-let commonImplants = [
-	"Not Applicable",
-	"Ralgro"
-];
-
 let commonCategoryNames = [
 	"Mixed Steers and Heifers",
 	"Feeder Steers",
@@ -212,21 +143,13 @@ let commonCategoryNames = [
 	"Heifer Calves",
 	"Replacement Heifers",
 	"Bred Cows"
-]
+];
 
 export let SalesGroupFields = {
     commonBreedNames: commonBreedNames,
-    commonPVPProgramNames: commonPVPProgramNames,
+    commonProgramNames: commonProgramNames,
 	commonMiles: commonMiles,
 	commonWeights: commonWeights,
 	commonPreconditioningProgramNames: commonPreconditioningProgramNames,
-	commonFrames: commonFrames,
-	commonVaccinations: commonVaccinations,
-	commonDeliveryLocationTypes: commonDeliveryLocationTypes,
-	commonCastrated: commonCastrated,
-	commonFeedingPrograms: commonFeedingPrograms,
-	commonImplants: commonImplants,
-	commonCategoryNames: commonCategoryNames,
-	commonMusclings: commonMusclings,
-	commonHorns: commonHorns
+	commonCategoryNames: commonCategoryNames
 };

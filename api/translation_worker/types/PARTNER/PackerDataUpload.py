@@ -36,7 +36,11 @@ def handle(db: Database, insert):
             sighting_date = fields["harvest_date"] if fields.get("harvest_date", None) else str(insert["created"])
             process_sighting(
                 db, eid, packer_account_link_id, api_insert, f5,
-                sighting_date, partner_account
+                sighting_date, partner_account, account_id=packer["id"],
+                sector_id=packer["sector"],
+                connection_details={
+                    "created_by_operation": "Partner Packer Upload", "eid": eid, "api_insert": api_insert
+                }
             )
 
     process_grades_and_weight(

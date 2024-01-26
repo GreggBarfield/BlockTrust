@@ -9,7 +9,13 @@ Checkout Payment
 {% block dashboard_content %}
 <div class="row">
     <div class="col">
-        <div class="col-sm-12 mb-0 widget" data-widget-type="checkout payment" data-widget-stripe-key="{{stripe_key}}">
+        <div 
+            class="col-sm-12 mb-0 widget"
+            data-widget-type="checkout payment"
+            data-widget-stripe-key="{{stripe_key}}"
+            data-widget-herd-whistle-vendor-id="{{herd_whistle_vendor_id}}"
+            data-widget-invoice-link = "{{invoice_link}}"
+        >
         </div>
     </div>
 </div>

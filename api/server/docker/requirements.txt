@@ -3,3 +3,4 @@ mysql-connector-python
 boto3
 bcrypt
 pyzipcode
+flask-jwt-extended
