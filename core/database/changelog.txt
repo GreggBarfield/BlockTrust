@@ -2511,6 +2511,21 @@ VALUES (18, "Angus Verified"),
 (18, "Red Angus FCCP"),
 (18, "Allied Access");
 
+/* Nisheet Thakur 01/16/2024 */
+CREATE TABLE `genetics` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_account_id` INT NOT NULL,
+  `uid` VARCHAR(100) NOT NULL,
+  `breed` VARCHAR(100) DEFAULT NULL,
+  `ranch_name` VARCHAR(100) DEFAULT NULL,
+  `address` VARCHAR(255) DEFAULT NULL,
+  `city` VARCHAR(50) DEFAULT NULL,
+  `state` VARCHAR(10) DEFAULT NULL,
+  `zip_code` VARCHAR(10) DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
 /* Nisheet Thakur 01/22/2024 */
 CREATE TABLE `seedstock_producers` (
   `id` INT NOT NULL AUTO_INCREMENT,

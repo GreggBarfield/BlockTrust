@@ -323,6 +323,9 @@
             <ul>
                 <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
                 <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"] %}
+                <li><a href="/dashboard/genetics">Upload Genetics Data</a></li>
+                {% endif %}
                 <li><a href="/dashboard/sustainability">Sustainability</a></li>
                 {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] 
                     or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
