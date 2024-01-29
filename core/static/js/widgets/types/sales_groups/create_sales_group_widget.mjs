@@ -63,7 +63,8 @@ export class CreateSalesGroupWidget extends Widget {
             "implant": [],
             "category": [],
             "pregnancy_status": [],
-            "breed_program_certification_co": []
+            "breed_program_certification_co": [],
+            "certified_through": []
         }
         for(const fieldData of salesGroupFieldsValues){
             let fieldId = fieldData.field_id;

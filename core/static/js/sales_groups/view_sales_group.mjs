@@ -537,7 +537,6 @@ export class SalesGroupViewer {
             addInfo("Genetic or genomic testing performed?", this.formatData(this.data.reported.genomic_testing), geneticsBody);
             addInfo("Possess EPD's on the sires of the cattle planning to be sold", this.formatData(this.data.reported.epd), geneticsBody);
             addInfo("Genetics Merit Verification Co.", this.formatData(this.data.reported.verification), geneticsBody);
-            addInfo("Breed Program Verification Co.", this.formatData(this.data.reported.breed_program_certification_co), geneticsBody);
             
             let commentCard = createCommentSection(this.data.reported.genetics_comments);
             geneticsDataContainer.append(commentCard);
@@ -555,6 +554,8 @@ export class SalesGroupViewer {
             addInfo("Program", this.formatData(this.data.reported.program), valueAddBody);
             addInfo("Precon Program", this.formatData(this.data.reported.preconditioning_program), valueAddBody);
             addInfo("Feeding Program", this.formatData(this.data.reported.feeding_programs), valueAddBody);
+            addInfo("Breed Program Verification Co.", this.formatData(this.data.reported.breed_program_certification_co), valueAddBody);
+            addInfo("Certified Through", this.formatData(this.data.reported.certified_through), valueAddBody);
 
             let commentCard = createCommentSection(this.data.reported.program_comments);
             valueAddDataContainer.append(commentCard);
