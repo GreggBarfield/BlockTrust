@@ -17,6 +17,7 @@ from ..database.tables.connections import Connections
 from ..database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME
 from ..database.tables.event_logs import EventLogs, event_type_by_name
 from ..database.tables.files import Files
+from ..database.tables.genetics import Genetics
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
@@ -38,7 +39,7 @@ from ..renderers.email import render_email
 
 from ..utilities import crut, auth, csrf
 from ..utilities import token
-from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_NOT_FOUND
+from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK
 from ..utilities.email import send_email, send_tag_store_email, send_multiple_tag_store_email
 from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 
@@ -966,3 +967,23 @@ def serve_view_order(order_id):
             raise ExportException("Sorry, the requested order was not found. ")
     except ExportException as e:
         return dashboard_render("tag-store/view-order.html", {"error": str(e)})
+
+
+@bp.route("/dashboard/genetics", methods=["GET", "POST"])
+@crut.require_account
+def serve_genetics():
+    if request.method == "GET":
+        return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
+    elif request.method == "POST":
+        for genetics_data in request.json["genetics_data"]:
+            Genetics(g.db).insert(
+                owner_account_id=g.account.id(),
+                uid=genetics_data["uid"],
+                breed=genetics_data["breed"],
+                ranch_name=genetics_data["ranch_name"],
+                address=genetics_data["address"],
+                city=genetics_data["city"],
+                state=genetics_data["state"],
+                zip_code=genetics_data["zip_code"]
+            )
+        return Response(status=HTTP_OK)
