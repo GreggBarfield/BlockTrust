@@ -973,7 +973,10 @@ def serve_view_order(order_id):
 @crut.require_account
 def serve_genetics():
     if request.method == "GET":
-        return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
+        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            return dashboard_render("genetics/genetics-cow-calf.html")
+        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+            return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
     elif request.method == "POST":
         for genetics_data in request.json["genetics_data"]:
             Genetics(g.db).insert(
