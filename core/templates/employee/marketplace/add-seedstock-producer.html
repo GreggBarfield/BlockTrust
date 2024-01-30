@@ -1,0 +1,21 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Add Seedstock Producer Ad" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="row">
+    <div class="col">
+        <div 
+            class="col-sm-12 widget"
+            class="mb-0 widget"
+            data-widget-type="add seedstock producer data"
+            data-widget-marketplace-files-s3-path="{{marketplace_files_s3_path}}"
+            data-widget-seedstock-accounts='{{seedstock_accounts|tojson}}'
+        ></div>
+    </div>
+</div>
+{% endblock employee_content %}
