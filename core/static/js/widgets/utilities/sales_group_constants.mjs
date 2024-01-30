@@ -24,7 +24,6 @@ let salesGroupFormInputIds = {
     geneticsGenomicTesting: "genetics-genomic-testing",
     geneticsEPD: "genetics-epd",
     geneticsVerification: "genetics-verification",
-    geneticsBreedProgramCertificationCo: "genetics-breed-program-certification-co",
     geneticsComments: "genetics-comments",
     maintenancePreconditioningProgram: "maintenance-preconditioning-program",
     maintenanceVaccinations: "maintenance-vaccinations",
@@ -39,6 +38,8 @@ let salesGroupFormInputIds = {
     valueAddProgramProgramType: "value-add-program-program-type",
     valueAddProgramPreconditioningProgram: "value-add-program-preconditioning=program",
     valueAddProgramFeedingProgram: "value-add-program-feeding-program",
+    valueAddProgramBreedProgramCertificationCo: "value-add-program-breed-program-certification-co",
+    valueAddProgramCertifiedThrough: "value-add-program-certified-through",
     valueAddProgramProgramComments: "value-add-program-program-comments"
 }
 

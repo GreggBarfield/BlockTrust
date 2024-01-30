@@ -22,7 +22,8 @@ SALES_GROUP_FIELD_NAMES_TO_IDS = {
     "implant": 15,
     "category": 16,
     "pregnancy_status": 17,
-    "breed_program_certification_co": 18
+    "breed_program_certification_co": 18,
+    "certified_through": 19
 }
 
 SALES_GROUP_FIELD_IDS_TO_NAMES = {value: key for key, value in SALES_GROUP_FIELD_NAMES_TO_IDS.items()}
