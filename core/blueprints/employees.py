@@ -22,6 +22,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.orders import Orders
+from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
@@ -857,3 +858,26 @@ def serve_billing():
 def serve_auction_markets():
     auction_markets = AuctionMarkets(g.db).get_auction_markets()
     return employee_render("/employee/auction-markets/auction-markets.html", {"auction_markets": auction_markets})
+
+
+@bp.route('/employee/seedstock-producers/add', methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_seedstock_producer():
+    if request.method == "GET":
+        seedstock_accounts = Accounts(g.db).get_accounts(sector=SECTORS_NAME_TO_ID["Seedstock Producer"])
+        return employee_render("/employee/marketplace/add-seedstock-producer.html", {
+            "marketplace_files_s3_path": MARKETPLACE_FILES_S3_PATH,
+            "seedstock_accounts": seedstock_accounts
+        })
+    if request.method == "POST":
+        SeedstockProducers(g.db).insert(
+            account_id=request.form["account_id"],
+            marketplace_account_name=request.form["name"],
+            marketplace_account_email=request.form["email"],
+            marketplace_account_contact_name=request.form["contact_name"],
+            marketplace_account_phone=request.form["phone"],
+            short_description=request.form["short_description"],
+            long_description=request.form["long_description"],
+            logo_file_id=request.form.get("logo_file_id", None)
+        )
+        return {"redirect": "/employee/dashboard"}
