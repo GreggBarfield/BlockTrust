@@ -12,26 +12,38 @@ Transfer Sustainability Survey Scores
     <div class="card-header d-flex">
         <h5>Transfer Sustainability Survey Scores</h5>
     </div>
-    <div class="card-body row d-flex">
-        <div class="col-md-6 d-flex">
-            <div class="col-md-6">
-                <h6>Accounts with completed Surveys: </h6>
+    <div class="card-body">
+        <form id="transfer-sustainability-scores-form">
+            <div class="col-md-12 row">
+                <div class="col-md-6 d-flex">
+                    <div class="col-md-6">
+                        <h6>Accounts with completed Surveys: </h6>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="accounts-with-completed-surveys" class="form-control" required>
+                            <option value="-1" disabled selected>--- Please select an Account ---</option>
+                            {% for account in accounts_with_filled_sustainability_survey %}
+                            <option value="{{account.account_id}}">{{account.account_id}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex">
+                    <div class="col-md-6">
+                        <h6>Transfer Score to Account(s): </h6>
+                    </div>
+                    <div class="col-md-6">
+                        <select id="transfer-scores-to" class="form-control" required>
+                            <option value="-1" disabled selected>--- Please select an Account ---</option>
+                            {% for account in accounts %}
+                            <option value="{{account.id}}">{{account.id}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary">Transfer Score</button>
             </div>
-            <div class="col-md-6">
-                <select id="accounts-with-completed-surveys" class="form-control" required></select>
-            </div>
-        </div>
-        <div class="col-md-6 d-flex">
-            <div class="col-md-6">
-                <h6>Transfer Score to Account(s): </h6>
-            </div>
-            <div class="col-md-6">
-                <select id="transfer-scores-to" class="form-control" required></select>
-            </div>
-        </div>
-        <div class="col-md-12 p-2 m-2">
-            <button class="btn btn-primary">Transfer Score</button>
-        </div>
+        </form>
     </div>
 </div>
 <script type="text/javascript">
