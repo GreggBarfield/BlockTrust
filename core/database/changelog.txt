@@ -2541,3 +2541,12 @@ CREATE TABLE `seedstock_producers` (
   `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 01/29/2024 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (7, "Age and Source"),
+(7, "GAP"),
+(7, "CARES"),
+(19, "IMI"),
+(19, "Red Angus"),
+(19, "Earth Claims");

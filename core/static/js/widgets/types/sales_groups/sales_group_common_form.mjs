@@ -42,7 +42,6 @@ export class SalesGroupsCommonForm{
             this.geneticsEPDValue = this.data.reported.epd;
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
             this.geneticsVerificationValue = this.data.reported.verification;
-            this.geneticsBreedProgramCertificationCoValue = this.data.reported.breed_program_certification_co;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
             this.maintenanceImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
@@ -54,6 +53,8 @@ export class SalesGroupsCommonForm{
             this.valueAddProgramsProgramValue = this.data.reported.program;
             this.valueAddProgramsPreconditioningProgramsValue = this.data.reported.preconditioning_program;
             this.valueAddedProgramsFeedingProgramsValue = this.data.reported.feeding_programs;
+            this.valueAddProgramsBreedProgramCertificationCoValue = this.data.reported.breed_program_certification_co;
+            this.valueAddProgramsCertifiedThroughValue = this.data.reported.certified_through;
             this.valueAddedProgramsCommentsValue = this.data.reported.program_comments;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
@@ -92,7 +93,6 @@ export class SalesGroupsCommonForm{
             this.geneticsEPDValue = [];
             this.geneticsCommentsValue = "";
             this.geneticsVerificationValue = [];
-            this.geneticsBreedProgramCertificationCoValue = [];
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
             this.maintenanceFeedingProgramValue = [];
@@ -106,6 +106,8 @@ export class SalesGroupsCommonForm{
             this.valueAddProgramsProgramValue = [];
             this.valueAddProgramsPreconditioningProgramsValue = [];
             this.valueAddedProgramsFeedingProgramsValue = [];
+            this.valueAddProgramsBreedProgramCertificationCoValue = [];
+            this.valueAddProgramsCertifiedThroughValue = [];
             this.valueAddedProgramsCommentsValue = "";
             this.reportedImages = [];
             this.reportedVideos = [];
@@ -545,16 +547,6 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let geneticsBreedProgramCertificationCo = createSelect({
-            row: geneticsRow,
-            name: "Breed Program Certification Co.",
-            id: salesGroupFormInputIds.geneticsBreedProgramCertificationCo,
-            options: this.salesGroupFieldsValues.breed_program_certification_co,
-            values: this.geneticsBreedProgramCertificationCoValue || [],
-            multiple: false,
-            tags: false,
-            placeholder: "Please Select"
-        }, false, "", "", 4);
         let geneticsComments = createText(geneticsRow,"Enter any comment related to genetics.", salesGroupFormInputIds.geneticsComments,this.geneticsCommentsValue || "",false,"geneticsComments","", 12, 150);
 
         // Value-Add Programs
@@ -590,6 +582,26 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Please Select"
         }, true, "maintenanceFeedingProgram", "Please enter the feeding program this group of cattle is on or “not listed”.", 4);
+        let valueAddProgramsBreedProgramCertificationCo = createSelect({
+            row: valueAddProgramsRow,
+            name: "Breed Program Certification Co.",
+            id: salesGroupFormInputIds.valueAddProgramBreedProgramCertificationCo,
+            options: this.salesGroupFieldsValues.breed_program_certification_co,
+            values: this.valueAddProgramsBreedProgramCertificationCoValue || [],
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
+        let valueAddProgramsCertifiedThrough = createSelect({
+            row: valueAddProgramsRow,
+            name: "Certified Through",
+            id: salesGroupFormInputIds.valueAddProgramCertifiedThrough,
+            options: this.salesGroupFieldsValues.certified_through,
+            values: this.valueAddProgramsCertifiedThroughValue || [],
+            multiple: false,
+            tags: false,
+            placeholder: "Please Select"
+        }, false, "", "", 4);
         let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12, 150);
 
         // Media
@@ -741,8 +753,8 @@ export class SalesGroupsCommonForm{
                         program_comments: valueAddProgramsComments.value,
                         weaned: maintenanceWeaned.value,
                         maintenance_comments: maintenanceComments.value,
-                        breed_program_certification_co: geneticsBreedProgramCertificationCo.value
-                        
+                        breed_program_certification_co: valueAddProgramsBreedProgramCertificationCo.value,
+                        certified_through: valueAddProgramsCertifiedThrough.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
