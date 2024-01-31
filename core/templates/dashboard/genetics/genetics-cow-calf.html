@@ -13,8 +13,45 @@
         <h5>Upload Genetics Insemination Data</h5>
     </div>
     <div class="card-body">
-        
+        <form id="genetics-form">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="eid">Animal EID</label>
+                        <input type="number" class="form-control" id="eid" required>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="genetics-uid">Genetics Kit UID</label>
+                        <input type="number" class="form-control" id="genetics-uid" required>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="animal-breed">Animal Breed</label>
+                        <select id="animal-breed" class="form-control" required>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label class="font-weight-bold" for="genetics-kit-breed">Genetics Kit Breed</label>
+                        <select id="genetics-kit-breed" class="form-control" required>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+            <p class="mt-2 mb-0" id="status_message" style="display:none;">Uploading...</p>
+            <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="error_message">Upload Error...</p>
+        </form>
     </div>
 </div>
-
+<script type="text/javascript">
+    var breeds = JSON.parse('{{breeds|tojson}}'); 
+</script>
+<script type="module" src="/static/entry_points/dashboard/genetics/genetics-cow-calf.mjs" ></script> 
 {% endblock dashboard_content %}
