@@ -881,3 +881,10 @@ def serve_add_seedstock_producer():
             logo_file_id=request.form.get("logo_file_id", None)
         )
         return {"redirect": "/employee/dashboard"}
+
+
+@bp.route('/employee/sales-groups/manage-sales-groups-field-values', methods=["GET"])
+@crut.require_employee
+def serve_manage_sales_groups_field_values():
+
+    return employee_render("/employee/sales-groups/manage-sales-groups-field-values.html")

@@ -2569,3 +2569,7 @@ ADD CONSTRAINT `fk_sales_groups_payment_id_id_payments`
 ALTER TABLE `payments` 
 ADD COLUMN `stripe_payment_method_id` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
 UPDATE `sales_groups` SET is_paid = 1 WHERE published = 1;
+
+/* Nisheet Thakur 02/01/2024 */
+ALTER TABLE `sales_group_fields_values`
+ADD COLUMN `is_archived` TINYINT DEFAULT 0;
