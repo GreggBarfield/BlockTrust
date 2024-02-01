@@ -590,7 +590,7 @@ def serve_sales_group_payment():
                             payment_intent_id = err.payment_intent['id']
                             payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
                             Payments(g.db).insert(
-                                account_id=g.account.id()["id"],
+                                account_id=g.account.id(),
                                 amount=sales_group["reported"]["count"],
                                 status=PAYMENT_STATUS_NAMES_TO_IDS["failed"],
                                 stripe_customer_id=g.account.stripe_customer_id(),
