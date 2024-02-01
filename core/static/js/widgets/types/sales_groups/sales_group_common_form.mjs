@@ -801,6 +801,9 @@ export class SalesGroupsCommonForm{
                                 if (response.redirected) {
                                     window.location.href = response.url;
                                 }
+                                else {
+                                    new InfoModal("An error occured. Please try again later.", null, false, "d-none", () => window.location.reload(), "OK");
+                                }
                             })
                         }
                         proceedButton.onclick = () => processPayment(this.salesGroupID);
