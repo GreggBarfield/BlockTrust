@@ -15,6 +15,8 @@ export class CreateSalesGroupWidget extends Widget {
         this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
         this.accountId = this.frame.getAttribute("data-widget-account-id");
+        this.paymentURL = this.frame.getAttribute("data-widget-payment-URL");
+        this.viewURL = this.frame.getAttribute("data-widget-view-URL");
 
         // Checking for availability of carcass data
         this.carcassDataAvailable = true;
@@ -76,26 +78,28 @@ export class CreateSalesGroupWidget extends Widget {
 
     makeForm(){
 
-    let that = this;
-    let card = document.createElement("div");
-    card.className = "card";
+        let that = this;
+        let card = document.createElement("div");
+        card.className = "card";
 
-    let createGroupName = document.createElement("h5");
-    createGroupName.className = "mt-2 font-weight-bold p-1 text-center";
+        let createGroupName = document.createElement("h5");
+        createGroupName.className = "mt-2 font-weight-bold p-1 text-center";
 
-    createGroupName.textContent = "Create New Sales Group ";
+        createGroupName.textContent = "Create New Sales Group ";
 
-    let cardHeader = document.createElement("div");
-    cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
-    cardHeader.append(createGroupName);
-    card.append(cardHeader)
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
+        cardHeader.append(createGroupName);
+        card.append(cardHeader)
 
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-    card.append(cardBody);
-    this.frame.append(card)
-    // Widget containing common input fields used in sales group form
-    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable);
-    cardBody.append(salesGroupForm);
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+        this.frame.append(card)
+        // Widget containing common input fields used in sales group form
+        let salesGroupForm = new SalesGroupsCommonForm(
+            null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable, this.viewURL, this.paymentURL
+        );
+        cardBody.append(salesGroupForm);
     }
 }

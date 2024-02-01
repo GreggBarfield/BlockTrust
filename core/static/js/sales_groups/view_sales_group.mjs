@@ -4,7 +4,7 @@ import { urlHighlighter } from "../core/url_highlighter.mjs";
 import { promptNewMessage } from "../widgets/types/messages/new_message.mjs";
 
 export class SalesGroupViewer {
-    constructor(data, attachTo = null) {
+    constructor(data, attachTo = null, currentAccountID = null) {
         this.frame = null;
 
         this.box = document.createElement("div");
@@ -13,13 +13,13 @@ export class SalesGroupViewer {
             throw "data incomplete";
         }
         this.data = data;
-        this.createDisplay();
+        this.createDisplay(currentAccountID);
 
         if (attachTo !== null)
             this.attach(attachTo);
     }
 
-    createDisplay = async() =>{
+    createDisplay = async(currentAccountID) =>{
         // Get USDA Quality Grade distribution for sales group account
         let accountUSDAQualityGradeDistribution = [];
         const fetchAccountCarcassData = await fetch(
@@ -196,6 +196,13 @@ export class SalesGroupViewer {
             salesGroupID.className = "mb-0 d-inline pr-2"
             salesGroupID.textContent = `Sales Group ${this.data.id}: ${this.data.group_name}`;
             left.append(salesGroupID);
+            if(currentAccountID == this.data.account && this.data["is_paid"]){
+                let paidIcon = document.createElement("div");
+                paidIcon.className = "d-inline-block position-relative font-weight-bold text-center text-success border-success"
+                paidIcon.style = "width:4.5em; padding:0.1%; border:2px solid; border-radius:10px; top:-0.4em;"
+                paidIcon.innerHTML = "PAID <i class='fa fa-check-circle'></i>";
+                left.append(paidIcon);
+            }
 
             let scoreText = document.createElement("h4");
             scoreText.className = "d-inline text-c-green";

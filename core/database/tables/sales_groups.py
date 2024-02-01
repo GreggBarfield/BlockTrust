@@ -252,9 +252,10 @@ class SalesGroups:
                            sale_date=NO_VALUE, auction_sale=NO_VALUE, group_name=NO_VALUE, is_archived=NO_VALUE,
                            delivery_location_type=NO_VALUE, price=NO_VALUE, is_sold=NO_VALUE, buyer_account_id=NO_VALUE,
                            category=NO_VALUE, breed_comments=NO_VALUE, weighing_conditions=NO_VALUE,
-                           seller_id=NO_VALUE,vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE,
+                           seller_id=NO_VALUE, vaccination_date=NO_VALUE, vaccination_summary=NO_VALUE,
                            herd_sire=NO_VALUE, ranch_source_county=NO_VALUE, ranch_size=NO_VALUE, home_raised=NO_VALUE,
-                           family_farm_or_ranch=NO_VALUE, show_account_carcass_data=NO_VALUE):
+                           family_farm_or_ranch=NO_VALUE, show_account_carcass_data=NO_VALUE, is_paid=NO_VALUE,
+                           payment_id=NO_VALUE):
         """Updates a row.
 
         Params:
@@ -357,6 +358,12 @@ class SalesGroups:
         if show_account_carcass_data is not NO_VALUE:
             query_conditions.append("show_account_carcass_data = %(show_account_carcass_data)s")
             query_values["show_account_carcass_data"] = show_account_carcass_data
+        if is_paid is not NO_VALUE:
+            query_conditions.append("is_paid = %(is_paid)s")
+            query_values["is_paid"] = is_paid
+        if payment_id is not NO_VALUE:
+            query_conditions.append("payment_id = %(payment_id)s")
+            query_values["payment_id"] = payment_id
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

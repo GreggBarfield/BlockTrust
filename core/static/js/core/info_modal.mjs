@@ -8,7 +8,7 @@ export class InfoModal extends CoreModal {
      * @param {string|null} [contentText] Text for the content, or null for nothing
      * @param {boolean} [wide] Whether to make the modal wide. Default false
      */
-    constructor(headerText, contentText=null, wide=false, bodyClass=null, callback=null) {
+    constructor(headerText, contentText=null, wide=false, bodyClass=null, callback=null, cancelButtonText="") {
         super(wide);
         let that = this;
 
@@ -55,7 +55,7 @@ export class InfoModal extends CoreModal {
 
         let closeButton = document.createElement("button");
         closeButton.className = "btn btn-secondary";
-        closeButton.textContent = "Close";
+        closeButton.textContent = cancelButtonText? cancelButtonText: "Cancel";
         closeButton.addEventListener("click", ()=>{
             that.close();
             if (typeof callback === 'function') {
