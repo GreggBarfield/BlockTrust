@@ -7,9 +7,11 @@ import { VideoSession } from '../../../files/video_links.mjs';
 import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs';
 import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
+import { InfoModal } from "../../../core/info_modal.mjs";
+import { spinner } from '../../../ui/spinner.mjs';
 
 export class SalesGroupsCommonForm{
-    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false) {
+    constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null) {
         this.box = document.createElement("div");
         this.data = data;
         // Initialize variables which hold field values
@@ -62,6 +64,7 @@ export class SalesGroupsCommonForm{
             this.comments = this.data.reported.comments;
             this.published = this.data.published;
             this.showAccountCarcassData = this.data.show_account_carcass_data;
+            this.isPaid = this.data.is_paid;
         }
         else{
             this.salesGroupID = null;
@@ -114,6 +117,7 @@ export class SalesGroupsCommonForm{
             this.fileAuths = null;
             this.comments = "";
             this.published = true;
+            this.isPaid = false;
             this.showAccountCarcassData = true;
         }
         this.auctionMarketsData = auctionMarketsData;
@@ -122,6 +126,8 @@ export class SalesGroupsCommonForm{
         this.preSelectAuctionMarket = preSelectAuctionMarket;
         this.preSelectedAuctionMarketId = preSelectedAuctionMarketId;
         this.carcassDataAvailable = carcassDataAvailable;
+        this.viewSalesGroupURL = viewSalesGroupURL;
+        this.paymentURL = paymentURL;
         this.makeForm();
         return this.box;
     }
@@ -280,6 +286,13 @@ export class SalesGroupsCommonForm{
             }
             $(select).trigger('change');
             return select;
+        }
+
+        function safeInt(v) {
+            if (v === "") {
+                return null;
+            }
+            return Math.floor(parseFloat(v));
         }
 
         let form = document.createElement("form");
@@ -709,13 +722,6 @@ export class SalesGroupsCommonForm{
             loadingMessage: "Saving...",
             asJSON: true,
             getData: () => {
-                function safeInt(v) {
-                    if (v === "") {
-                        return null;
-                    }
-                    return Math.floor(parseFloat(v));
-                }
-
                 return {
                     id: this.salesGroupID,
                     published: publishSwitch.isChecked(),
@@ -766,7 +772,41 @@ export class SalesGroupsCommonForm{
                     "auction_market_location": $(marketingAuctionMarketLocation).find(':selected').text(),
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsComments.value,
-                    "weighing_conditions": marketingWeighingConditions.value
+                    "weighing_conditions": marketingWeighingConditions.value,
+                    "is_paid": this.isPaid
+                }
+            },
+            onFinished: (data, status) =>{
+                if (this.paymentURL && 200<=status && status<300) {
+                    if(!this.salesGroupID){
+                        this.salesGroupID = data.id;
+                    }
+                    if (publishSwitch.isChecked() && !this.isPaid){
+                        let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
+                        If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
+                        <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
+                        null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);  
+                        infoModal.getHeader().classList.add("text-center", "p-4");
+                        let proceedButton = document.createElement("button");
+                        proceedButton.textContent = "OK";
+                        proceedButton.className = "btn btn-primary";
+                        let processPayment = (id) => {
+                            infoModal.getHeader().innerHTML = spinner;
+                            infoModal.getHeader().classList.add("justify-content-center");
+                            infoModal.getFooter().className = "d-none";
+                            fetch(this.paymentURL, {
+                                method:"POST",
+                                body:JSON.stringify({id: id})
+                            }).then(response => {
+                                window.location.href=response.url;
+                            })
+                        }
+                        proceedButton.onclick = () => processPayment(this.salesGroupID);
+                        infoModal.getActionButtonDiv().append(proceedButton);              
+                    }
+                    else {
+                        window.location.href = this.viewSalesGroupURL + this.salesGroupID;
+                    }
                 }
             }
         });

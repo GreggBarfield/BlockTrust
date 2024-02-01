@@ -7,6 +7,7 @@ from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, ST
 from core.database.tables.accounts import Accounts, AccountsException
 from core.database.tables.debug_logs import DebugLogs
 from core.database.tables.error_logs import ErrorLogs
+from core.database.tables.sales_groups import SalesGroups
 from core.database.tables.tips import Tips
 from core.database.tables.payments import PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
@@ -186,31 +187,52 @@ def create_subscription():
 
 
 @bp.route('/stripe/create-payment-intent', methods=['POST'])
-def create_payment():
+def create_payment_intent():
     data = json.loads(request.data)
     try:
-        if 'partner_id' in data:
-            account = g.db.accounts.get_account_by_id(data['partner_id'])
-            if account is not None:
-                stripe.api_key = account.partner_stripe_secret_key()
-            else:
-                raise Exception("Incorrect partner id.")
+        if 'sales_group_id' in data:
+            sales_group_id = data['sales_group_id']
+            sales_group = SalesGroups(g.db).get_sales_groups(id=sales_group_id)[0]
+            amount = sales_group['reported']['count'] * 100
+            params = {
+                'amount': amount,
+                'currency': 'usd',
+                'metadata': {'sales_group_id': sales_group_id},
+                'setup_future_usage': 'off_session',
+                'customer': g.account.stripe_customer_id()
+            }
+            intent = stripe.PaymentIntent.create(**params)
+            payment_id = Payments(g.db).insert(
+                account_id=g.account.id(),
+                amount=sales_group["reported"]["count"],
+                status=PAYMENT_STATUS_NAMES_TO_IDS["unpaid"],
+                stripe_customer_id=g.account.stripe_customer_id(),
+                stripe_payment_intent_id=intent.id,
+            )
+            return {'client_secret': intent.client_secret, 'payment_id': payment_id}
         else:
-            stripe.api_key = STRIPE_SECRET_KEY
-        payment_method_type = data['paymentMethodType']
-        currency = data['currency']
-        order_id = data['orderId']
-        amount = float(data['amount'])*100
-        amount = int(amount)
-        params = {
-            'payment_method_types': [payment_method_type],
-            'amount': amount,
-            'currency': currency,
-            'metadata': {'order_id':order_id}
-        }
-        intent = stripe.PaymentIntent.create(**params)
+            if 'partner_id' in data:
+                account = g.db.accounts.get_account_by_id(data['partner_id'])
+                if account is not None:
+                    stripe.api_key = account.partner_stripe_secret_key()
+                else:
+                    raise Exception("Incorrect partner id.")
+            else:
+                stripe.api_key = STRIPE_SECRET_KEY
+            payment_method_type = data['paymentMethodType']
+            currency = data['currency']
+            order_id = data['orderId']
+            amount = float(data['amount'])*100
+            amount = int(amount)
+            params = {
+                'payment_method_types': [payment_method_type],
+                'amount': amount,
+                'currency': currency,
+                'metadata': {'order_id': order_id}
+            }
+            intent = stripe.PaymentIntent.create(**params)
 
-        return {'clientSecret': intent.client_secret}
+            return {'clientSecret': intent.client_secret}
     except stripe.error.StripeError as e:
         return {'error': {'message': str(e)}}, 400
     except Exception as e:
@@ -223,7 +245,7 @@ def create_sales_group_payment():
     try:
         if len(account := g.db.accounts.get_accounts(id=data['account_id'])) > 0 and account[0]["stripe_account_id"] is not None \
          and account[0]["is_stripe_payouts_enabled"] == 1:
-            intent = create_intent_for_transfer_to_connected_account(
+            intent = _create_intent_for_transfer_to_connected_account(
                 amount=int(float(data['amount'])*100)*0.96,
                 charged_amount=int(float(data['amount'])*100),
                 account=account,
@@ -252,7 +274,7 @@ def create_account_payment(account_id):
                 input_post_data["email"] if input_post_data["email"] else None,
                 input_post_data["phone"] if input_post_data["phone"] else None
             )
-            intent = create_intent_for_transfer_to_connected_account(
+            intent = _create_intent_for_transfer_to_connected_account(
                 amount=int(float(input_post_data['amount'])*100),
                 charged_amount=int(charged_amount*100),
                 account=account,
@@ -270,7 +292,7 @@ def create_account_payment(account_id):
         return {'error': {'message': str(e)}}, 400
 
 
-def create_intent_for_transfer_to_connected_account(amount, charged_amount, account, metadata, currency):
+def _create_intent_for_transfer_to_connected_account(amount, charged_amount, account, metadata, currency):
     stripe.api_key = STRIPE_SECRET_KEY
     params = {
         'transfer_data': {
@@ -515,3 +537,68 @@ def setup_payment():
         return {'client_secret': intent.client_secret, "number_of_payment_methods": len(payment_methods)}
     except Exception as e:
         raise ExportException(str(e))
+
+
+@bp.route('/payment/sales_group', methods=['POST'])
+@crut.require_account
+def serve_sales_group_payment():
+    data = json.loads(request.data)
+    sales_group_id = int(data["id"])
+    if "payment_id" in data:
+        payment_id = int(data["payment_id"])
+        Payments(g.db).update(id=payment_id, paid_date=datetime.now(), status=PAYMENT_STATUS_NAMES_TO_IDS["paid"])
+        SalesGroups(g.db).update_sales_group(
+            id=sales_group_id, published=int(True), is_paid=int(True), payment_id=payment_id
+        )
+        return redirect(url_for("dashboard_bp.serve_view_sales_group", sales_group_id=sales_group_id))
+    else:
+        if g.account.stripe_customer_id():
+            payment_methods = stripe.PaymentMethod.list(
+                customer=g.account.stripe_customer_id(),
+                type="card",
+            )["data"]
+            if len(payment_methods):
+                sales_group = SalesGroups(g.db).get_sales_groups(id=sales_group_id)[0]
+                is_paid = False
+                for method in payment_methods:
+                    if not is_paid:
+                        try:
+                            payment_intent = stripe.PaymentIntent.create(
+                                amount=sales_group["reported"]["count"]*100,
+                                payment_method_types=['card'],
+                                currency='usd',
+                                customer=g.account.stripe_customer_id(),
+                                metadata={"sales_group_id": sales_group_id},
+                                payment_method=method["id"],
+                                confirm=True,
+                            )
+                            payment_id = Payments(g.db).insert(
+                                account_id=g.account.id(),
+                                amount=sales_group["reported"]["count"],
+                                status=PAYMENT_STATUS_NAMES_TO_IDS["paid"],
+                                paid_date=datetime.now(),
+                                stripe_customer_id=g.account.stripe_customer_id(),
+                                stripe_payment_intent_id=payment_intent.id,
+                                stripe_payment_method_id=method["id"]
+                            )
+                            SalesGroups(g.db).update_sales_group(
+                                id=sales_group_id, published=int(True), is_paid=int(True), payment_id=payment_id
+                            )
+                            is_paid = True
+                        except stripe.error.CardError as e:
+                            err = e.error
+                            payment_intent_id = err.payment_intent['id']
+                            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+                            Payments(g.db).insert(
+                                account_id=g.account.id()["id"],
+                                amount=sales_group["reported"]["count"],
+                                status=PAYMENT_STATUS_NAMES_TO_IDS["failed"],
+                                stripe_customer_id=g.account.stripe_customer_id(),
+                                stripe_payment_intent_id=payment_intent.id,
+                                stripe_error_code=err.code,
+                                stripe_payment_method_id=method["id"]
+                            )
+                            stripe.PaymentMethod.detach(method["id"])
+                if is_paid:
+                    return redirect(url_for("dashboard_bp.serve_view_sales_group", sales_group_id=sales_group_id))
+        return redirect(url_for("dashboard_bp.serve_payment", id=sales_group_id))

@@ -100,7 +100,8 @@ def serve_sales_group():
         "weighing_conditions": sales_group_row["weighing_conditions"],
         "show_account_carcass_data": sales_group_row["show_account_carcass_data"],
         "auction_market_id": sales_group_row["auction_market_id"],
-        "created_date": sales_group_row["created_timestamp"].strftime("%m/%d/%Y")
+        "created_date": sales_group_row["created_timestamp"].strftime("%m/%d/%Y"),
+        "is_paid": sales_group_row["is_paid"]
     }
 
 
@@ -350,7 +351,7 @@ def serve_create_sales_group():
     sales_group_id = SalesGroups(g.db).insert_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
-        published=request.json["published"],
+        published=int(False),
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
         auction_market_id=auction_market_id,
@@ -365,7 +366,7 @@ def serve_create_sales_group():
         show_account_carcass_data=request.json["show_account_carcass_data"],
         is_api_insert=0
     )
-    return {"redirect": "/dashboard/sales-groups/view/" + str(sales_group_id)}
+    return {"id": sales_group_id}
 
 
 @bp.route('/widgets/data/update_sales_group', methods=['POST'])
@@ -408,7 +409,7 @@ def serve_update_sales_group():
     SalesGroups(g.db).update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
-        published=request.json["published"],
+        published=request.json["published"] if request.json["is_paid"] else int(False),
         zip_code=request.json["zip"],
         delivery_location=delivery_location,
         auction_market_id=auction_market_id,
@@ -422,10 +423,8 @@ def serve_update_sales_group():
         weighing_conditions=request.json["weighing_conditions"],
         show_account_carcass_data=request.json["show_account_carcass_data"]
     )
-
-    return {
-        "redirect": "/dashboard/sales-groups/view/" + str(request.json["id"])
-    }
+  
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/widgets/data/archive_sales_group', methods=['POST'])

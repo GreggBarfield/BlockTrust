@@ -2550,3 +2550,22 @@ VALUES (7, "Age and Source"),
 (19, "IMI"),
 (19, "Red Angus"),
 (19, "Earth Claims");
+
+/* Rohan Sureshkumar 1/24/2023 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `is_paid` TINYINT NOT NULL DEFAULT '0' AFTER `is_api_insert`,
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `is_paid`,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+ALTER TABLE `sales_groups` 
+ADD COLUMN `payment_id` INT NULL DEFAULT NULL AFTER `is_paid`;
+ALTER TABLE `sales_groups` 
+ADD INDEX `fk_sales_groups_payment_id_id_payments_idx` (`payment_id` ASC) VISIBLE;
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_payment_id_id_payments`
+  FOREIGN KEY (`payment_id`)
+  REFERENCES `payments` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `payments` 
+ADD COLUMN `stripe_payment_method_id` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
+UPDATE `sales_groups` SET is_paid = 1 WHERE published = 1;

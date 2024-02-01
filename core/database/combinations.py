@@ -120,6 +120,9 @@ def perform_feeder_packer_data_received_actions(db, eid, schedule_email=False, f
 
 def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_id, partner_id=None, email=None,
                                 employee_id=None):
+    """
+        Performs multiple actions needed whenever a new account is created    
+    """
     if email:
         ConnectionInvites(db).convert_invites_to_connections(email, account_id)
     Reports(db).make_reports_for_account(account_id, sector_id)
