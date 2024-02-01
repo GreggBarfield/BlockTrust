@@ -55,7 +55,7 @@ export class InfoModal extends CoreModal {
 
         let closeButton = document.createElement("button");
         closeButton.className = "btn btn-secondary";
-        closeButton.textContent = "Close";
+        closeButton.textContent = "Cancel";
         closeButton.addEventListener("click", ()=>{
             that.close();
             if (typeof callback === 'function') {

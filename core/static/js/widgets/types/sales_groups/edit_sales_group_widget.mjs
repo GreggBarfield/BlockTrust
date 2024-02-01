@@ -18,6 +18,8 @@ export class EditSalesGroupWidget extends Widget {
         this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
         this.accountId = this.frame.getAttribute("data-widget-account-id");
         this.carcassDataAvailable = true;
+        this.paymentURL = this.frame.getAttribute("data-widget-payment-URL");
+        this.viewURL = this.frame.getAttribute("data-widget-view-URL");
 
         const getSalesGroupData = this.getData(
             "sales_group",
@@ -152,7 +154,9 @@ export class EditSalesGroupWidget extends Widget {
         // Setup
         this.frame.append(card);
         // Widget containing common input fields used in sales group form
-        let salesGroupForm = new SalesGroupsCommonForm(this.data, this.auctionMarketsData, this.postRoute, this.salesGroupFieldsValues, this.carcassDataAvailable);
+        let salesGroupForm = new SalesGroupsCommonForm(
+            this.data, this.auctionMarketsData, this.postRoute, this.salesGroupFieldsValues, "false", null, this.carcassDataAvailable, this.viewURL, this.paymentURL
+        );
         cardBody.append(salesGroupForm);
     }
 
@@ -161,75 +165,3 @@ export class EditSalesGroupWidget extends Widget {
         this.internalErrorMessage.textContent = error;
     }
 }
-
-/**
- * TODO: Below code used to add auction sale dropdown which is retained in case needed in future.
- * Presents a selector for auction sale.
- */
-
-
-// class SelectAuctionSaleFormGroup extends FormGroup {
-
-//     /**
-//      * Constructs SelectAuctionSale.
-//      * 
-//      * @param {Node} attachTo Where to place DOM elements
-//      * @param {number|null} auctionSaleID The ID for the auction sale or null
-//      * @param {string|null} auctionSaleName The auction sale name or null
-//      */
-//     constructor(attachTo, auctionSaleID, auctionSaleName) {
-//         super(attachTo, "Select auction sale (i/a):");
-        
-//         this._select = document.createElement("select");
-//         this._select.id = this._input_id;
-//         this._select.className = "select2-hidden-accessible";
-//         this._form_group.append(this._select);
-
-//         if (auctionSaleID !== null) {
-//             let option = document.createElement("option");
-//             option.value = auctionSaleID;
-//             option.textContent = auctionSaleName;
-//             this._select.append(option);
-//         }
-
-//         $(this._select).select2({
-//             ajax: {
-//                 url: "/widgets/data/search_auction_sales",
-//                 data: (params) => {
-//                     return JSON.stringify({
-//                         "term": params.term
-//                     })
-//                 },
-//                 contentType: 'application/json',
-//                 method: "POST",
-//                 delay: 250,
-//                 processResults: function (data) {
-//                     let results = [];
-//                     for (const auction_sale of data.auction_sales) {
-//                         results.push({
-//                             id: auction_sale.id,
-//                             text: (
-//                                 auction_sale.name + " (" +
-//                                 auction_sale.account_name + ")"
-//                             )
-//                         });
-//                     }
-//                     return { results };
-//                 },
-//             },
-//             placeholder: 'Type here to search...',
-//             minimumInputLength: 3,
-//             allowClear: true
-//         });
-//     }
-
-//     /**
-//      * Gets the ID of the auction sale selected.
-//      */
-//     getID() {
-//         if (this._select.value === null || this._select.value === "") {
-//             return null;
-//         }
-//         return parseInt(this._select.value);
-//     }
-// }

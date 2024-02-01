@@ -102,19 +102,19 @@ export class AsyncForm {
                 that.clearStatus();
                 that.submitting = false;
             })
-            .done(function(data){
+            .done(function(data, statusText, xhr){
                 try {
-                    if ('error' in data) {
+                    if (data && 'error' in data) {
                         that.setStatus(data.error);
                     }
-                    if ('redirect' in data) {
+                    if (data && 'redirect' in data) {
                         if (that.redirectMessage !== undefined) {
                             that.setStatus(that.redirectMessage);
                         }
                         location.replace(data.redirect);
                     }
                     if (that.onFinished !== undefined) {
-                        that.onFinished(data);
+                        that.onFinished(data, xhr.status);
                     }
                 }
                 catch(e) {

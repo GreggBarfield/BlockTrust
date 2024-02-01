@@ -25,7 +25,7 @@ export class ViewSalesGroupWidget extends Widget {
             firstRow.appendChild(this.createQRCodeImg());
             this.frame.append(firstRow);
 
-            new SalesGroupViewer(salesGroup, this.frame);
+            new SalesGroupViewer(salesGroup, this.frame, this.frame.getAttribute("data-widget-account"));
         });
 
         this.onSomeDataLoaded(function () {

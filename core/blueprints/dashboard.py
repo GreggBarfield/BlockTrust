@@ -198,7 +198,9 @@ def serve_new_sales_group():
         "pre_select_auction_market": False,
         "pre_selected_auction_market_id": None,
         "sales_group_fields_values": sales_group_fields_values,
-        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+        "payment_URL": url_for("stripe_bp.serve_sales_group_payment"),
+        "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group")
     })
 
 
@@ -211,7 +213,7 @@ def serve_edit_sales_group(sales_group_id):
         return dashboard_render("sales-groups/sales-group/no.html")
 
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
-        sales_group_id=sales_group_row['id'])
+                                                     sales_group_id=sales_group_row['id'])
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
     sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
     return dashboard_render(
@@ -220,7 +222,9 @@ def serve_edit_sales_group(sales_group_id):
             "external_shareable_link": external_shareable_link,
             "form_post_route": form_post_route,
             "sales_group_fields_values": sales_group_fields_values,
-            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+            "payment_URL": url_for("stripe_bp.serve_sales_group_payment"),
+            "view_sales_group_URL": url_for("dashboard_bp.serve_view_sales_group")
         }
     )
 
@@ -281,9 +285,22 @@ def serve_subscribe():
     return dashboard_render("stripe/subscribe.html")
 
 
-@bp.route('/dashboard/payment', methods=['GET'])
+@bp.route('/dashboard/payment', defaults={'id':''}, methods=['GET'])
+@bp.route('/dashboard/payment/<int:id>', methods=['GET'])
 @crut.require_account
-def serve_payment():
+def serve_payment(id):
+    if id:
+        sales_group = SalesGroups(g.db).get_sales_groups(id=id)[0]
+        if not sales_group["is_paid"]:
+            return dashboard_render("stripe/payment.html", {
+                "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY,
+                "route": url_for("stripe_bp.setup_payment"),
+                "sales_group_id": sales_group["id"],
+                "sales_group_name": sales_group["group_name"],
+                "amount": sales_group["reported"]["count"],
+                "payment_intent_URL": url_for("stripe_bp.create_payment_intent"),
+                "sales_group_payment_URL": url_for("stripe_bp.serve_sales_group_payment")
+            })
     return dashboard_render("stripe/payment.html", {
         "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY, "route": url_for("stripe_bp.setup_payment")
     })
