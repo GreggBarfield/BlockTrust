@@ -798,7 +798,9 @@ export class SalesGroupsCommonForm{
                                 method:"POST",
                                 body:JSON.stringify({id: id})
                             }).then(response => {
-                                window.location.href=response.url;
+                                if (response.redirected) {
+                                    window.location.href = response.url;
+                                }
                             })
                         }
                         proceedButton.onclick = () => processPayment(this.salesGroupID);
