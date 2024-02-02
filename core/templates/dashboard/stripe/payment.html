@@ -104,7 +104,6 @@ Payment Details
                e.preventDefault();
                form.querySelector('#submit').disabled=true;
                form.querySelector('.spinner-border').classList.remove("d-none");
-                // Trigger form validation and wallet collection
                 const {error: submitError} = await elements.submit();
                 if (submitError) {
                     handleError(form, submitError);
@@ -120,7 +119,7 @@ Payment Details
                     elements,
                     clientSecret,
                     confirmParams: {
-                        return_url: window.location.href //not used for card
+                        return_url: window.location.href
                     },
                     redirect: "if_required",
                 });
