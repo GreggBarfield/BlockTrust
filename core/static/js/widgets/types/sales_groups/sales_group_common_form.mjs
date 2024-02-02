@@ -352,7 +352,6 @@ export class SalesGroupsCommonForm{
             marketingAuctionMarketLocation.disabled=true;
             marketingOffRanchLocation.disabled=true;
             marketingExpectedShipDate.setInputDisabledStatus(true);
-            //expectedShipDateInput.disabled=true;
 
             marketingSlide.value = "";
             marketingWeighingConditions.value = "";

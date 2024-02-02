@@ -33,7 +33,6 @@ let salesGroupFormInputIds = {
     maintenanceCreepFeed: "maintenance-creep-feed",
     maintenanceAnnualCattleHerdVaccinations: "maintenance-annual-cattle-herd-vaccinations",
     maintenanceFeedingProgram: "maintenance-feeding-program",
-    maintenanceImplants: "maintenance-implants",
     maintenanceCastrated: "maintenance-castrated",
     maintenanceWeaned: "maintenance-weaned",
     maintenanceComments: "maintenance-comments",
