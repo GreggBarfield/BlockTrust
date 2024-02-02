@@ -767,7 +767,7 @@ export class SalesGroupsCommonForm{
                         maintenance_comments: maintenanceComments.value,
                         breed_program_certification_co: valueAddProgramsBreedProgramCertificationCo.value,
                         certified_through: valueAddProgramsCertifiedThrough.value,
-                        marketing_expected_ship_date: marketingExpectedShipDate.getTime()
+                        expected_ship_date: marketingExpectedShipDate.getTime()
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
