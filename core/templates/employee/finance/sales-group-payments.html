@@ -1,0 +1,105 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Sales Group Payments" %}
+{% block employee_content %}
+
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Sales Group Payments</h5>
+                <a class="btn btn-outline-primary float-right"><i class="fa fa-download"></i> Download</a>
+            </div>
+            <div class="card-body mb-2">
+                <div class="col-lg-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>SELLER ACCOUNT</th>
+                                <th>SELLER</th>
+                                <th>SALES GROUP</th>
+                                <th>SALE DATE</th>
+                                <th>DELIVERY LOCATION</th>
+                                <th>AMOUNT</th>
+                                <th>STATUS</th>
+                                <th>PAID DATE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sales_group_payments %}
+                            <tr>
+                                <td>{{row.account_number}}</td>
+                                <td>{{row.company}}</td>
+                                <td>{{row.name}}</td>
+                                <td name="sale-date">{{row.sale_date}}</td>
+                                <td>{{row.delivery_location}}</td>
+                                <td>{{row.amount}}</td>
+                                <td>{{row.status}}</td>
+                                <td name="paid-date">{{row.paid_date}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    let saleDates = document.getElementsByName("sale-date");
+    for(date of saleDates){
+        if (date.innerText !== "Unknown"){
+            date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        }
+    }
+    let paidDates = document.getElementsByName("paid-date");
+    for(date of paidDates){
+        date.innerText = new Date(date.innerText + " UTC").toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric'
+        });
+    }
+    let accountsAndTags = JSON.parse('{{ sales_group_payments|tojson }}');
+    let tableExport = [Array.from(document.getElementsByTagName("th")).map((tag) => tag.innerText)];
+    for(const row of accountsAndTags){
+        tableExport.push([
+            row.account_number, 
+            row.company,
+            row.name,
+            new Date(row.sale_date + " UTC").toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric'
+            }),
+            '"' + row.delivery_location + '"',
+            row.amount,
+            row.status,
+            '"'+ new Date(row.paid_date + " UTC").toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            }) + '"'
+        ]);
+    }
+
+    let csvContent =  tableExport.map(e => e.join(",")).join("\n");
+    let encoded = encodeURIComponent(csvContent);
+    let downloadButton = document.getElementsByClassName("btn-outline-primary")[0];
+    downloadButton.setAttribute("href", "data:text/csv;charset=utf-8," + encoded);
+    downloadButton.setAttribute("download", "Sales Group Payments.csv");
+    downloadButton.classList.remove("d-none")
+
+    document.addEventListener('DOMContentLoaded', function () {
+        $('.table').DataTable({pageLength:50});
+    });
+</script>
+{% endblock employee_content %}
