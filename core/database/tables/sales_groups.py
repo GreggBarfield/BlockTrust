@@ -540,7 +540,7 @@ class SalesGroups:
                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
                          breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[],
-                         auction_market_id=NO_VALUE):
+                         auction_market_id=NO_VALUE, payment_id_is_not_null=False):
         """
         Gets the sales groups based on attributes provided
         
@@ -630,6 +630,8 @@ class SalesGroups:
         if auction_market_id is not NO_VALUE:
             query_conditions.append("auction_market_id = %(auction_market_id)s")
             query_values["auction_market_id"] = auction_market_id
+        if payment_id_is_not_null:
+            query_conditions.append("payment_id IS NOT NULL")
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
