@@ -537,11 +537,10 @@ def send_file(path):
     return send_from_directory('static/images', path)
 
 
-@bp.route("/docs/<string:filename>")
-def return_pdf(filename):
-    return send_from_directory(directory='static/images',
-                               filename=filename,
-                               mimetype='application/pdf')
+@bp.route('/files/<path:path>')
+def send_document(path):
+    return send_from_directory('static/files', path)
+
 
 @bp.route('/add-user/<string:invite_token>', methods=['GET'])
 def serve_add_user(invite_token):
