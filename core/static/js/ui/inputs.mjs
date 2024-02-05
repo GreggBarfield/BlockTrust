@@ -75,6 +75,10 @@ export class DateFormGroup extends FormGroup {
         let d = new Date(values[0], values[1] - 1, values[2]);
         return Math.floor(d.getTime() / 1000);
     }
+
+    setInputDisabledStatus(status) {
+        this._input.disabled = status;
+    }
 }
 
 export class DateRangeFormGroup extends FormGroup {
