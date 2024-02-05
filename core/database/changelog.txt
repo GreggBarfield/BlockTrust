@@ -2569,3 +2569,11 @@ ADD CONSTRAINT `fk_sales_groups_payment_id_id_payments`
 ALTER TABLE `payments` 
 ADD COLUMN `stripe_payment_method_id` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
 UPDATE `sales_groups` SET is_paid = 1 WHERE published = 1;
+
+/* Nisheet Thakur 02/02/2024 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (5, "90+ Days");
+UPDATE `sales_group_fields_values`
+SET value="Pasture Grazing" WHERE value="Native Range";
+UPDATE `sales_group_fields_values`
+SET value="On Feed" WHERE value="Improved Pasture";

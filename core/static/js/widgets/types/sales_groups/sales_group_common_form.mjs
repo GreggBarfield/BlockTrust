@@ -28,6 +28,7 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = this.data.reported.marketing_slide;
             this.marketingWeighingConditionsValue = this.data.reported.marketing_weighing_conditions;
             this.marketingRepresentedByValue = this.data.reported.marketing_represented_by;
+            this.marketingExpectedShipDateValue = this.data.reported.expected_ship_date;
             this.markertingCommentsValue = this.data.reported.marketing_comments;
             this.characteristicsCategoryValue = this.data.category;
             this.characteristicBreedsValue = this.data.reported.breeds;
@@ -45,7 +46,7 @@ export class SalesGroupsCommonForm{
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
             this.geneticsVerificationValue = this.data.reported.verification;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
-            this.maintenanceImplantsValue = this.data.reported.implants;
+            this.characteristicsImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
             this.maintenanceProgramValue = this.data.reported.program;
             this.maintenanceComingledStatusValue = this.data.reported.comingled_status;
@@ -80,6 +81,7 @@ export class SalesGroupsCommonForm{
             this.marketingSlideValue = "";
             this.marketingWeighingConditionsValue = "";
             this.marketingRepresentedByValue = "";
+            this.marketingExpectedShipDateValue = null;
             this.markertingCommentsValue = "";
             this.characteristicsCategoryValue = [];
             this.characteristicBreedsValue = [];
@@ -99,7 +101,7 @@ export class SalesGroupsCommonForm{
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
             this.maintenanceFeedingProgramValue = [];
-            this.maintenanceImplantsValue = [];
+            this.characteristicsImplantsValue = [];
             this.maintenanceCastratedValue = [];
             this.maintenanceProgramValue = [];
             this.maintenanceComingledStatusValue = [];
@@ -340,7 +342,8 @@ export class SalesGroupsCommonForm{
         let marketingOffRanchLocation = createText(marketingRow,"Delivery Location", salesGroupFormInputIds.marketingOffRanchLocation, deliveryLocation || null,true,"marketingOffRanchLocation","This is the place where the cattle will be picked up (example “ABC Auction Market” or “Direct/Off Ranch”)", 4);
         let marketingSlide = createText(marketingRow, "Slide", salesGroupFormInputIds.marketingSlide, this.marketingSlideValue || "",true,"marketingSlide","", 4);
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
-        let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);
+        let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);  
+        let marketingExpectedShipDate = createDate(marketingRow, "Expected Ship Date", salesGroupFormInputIds.marketingExpectedShipDate, this.marketingExpectedShipDateValue, false, "marketingExpectedShipDate","");
         let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12, 150);
 
         marketingDeliveryLocationType.onchange = () => {
@@ -348,6 +351,7 @@ export class SalesGroupsCommonForm{
             marketingWeighingConditions.disabled = true;
             marketingAuctionMarketLocation.disabled=true;
             marketingOffRanchLocation.disabled=true;
+            marketingExpectedShipDate.setInputDisabledStatus(true);
 
             marketingSlide.value = "";
             marketingWeighingConditions.value = "";
@@ -357,6 +361,7 @@ export class SalesGroupsCommonForm{
             if(marketingDeliveryLocationType.value === "Direct/Off Ranch"){
                 marketingOffRanchLocation.disabled=false;
                 marketingOffRanchLocation.value = deliveryLocation;
+                marketingExpectedShipDate.setInputDisabledStatus(false);
                 // Remove comments when marketingPrice is enabled again
                 //marketingPrice.disabled = false;
                 //marketingPrice.value = this.marketingPriceValue
@@ -458,6 +463,16 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let characteristicsImplants = createSelect({
+            row: characteristicsRow,
+            name: "Implants",
+            id: salesGroupFormInputIds.characteristicsImplants,
+            options: this.salesGroupFieldsValues.implant,
+            values: this.characteristicsImplantsValue,
+            multiple: true,
+            tags: true,
+            placeholder: "Please Select"
+        }, false, "" , "", 4);
         let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12, 150);
 
         // Maintenance
@@ -494,16 +509,6 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let maintenanceImplants = createSelect({
-            row: maintenanceRow,
-            name: "Implants",
-            id: salesGroupFormInputIds.maintenanceImplants,
-            options: this.salesGroupFieldsValues.implant,
-            values: this.maintenanceImplantsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, false, "" , "", 4);
         let maintenanceCastrated = createSelect({
             row: maintenanceRow,
             name: "Castrated",
@@ -739,7 +744,7 @@ export class SalesGroupsCommonForm{
                         preconditioning_program: valueAddProgramsPreconditioningProgram.value,
                         vaccinations: $(maintenanceVaccinations).val(),
                         feeding_programs: $(valueAddProgramsFeedingProgram).val(),
-                        implants: $(maintenanceImplants).val(),
+                        implants: $(characteristicsImplants).val(),
                         castrated: maintenanceCastrated.value,
                         program: valueAddProgramsProgram.value,
                         images: fileEditor.getFileIDs(),
@@ -760,7 +765,8 @@ export class SalesGroupsCommonForm{
                         weaned: maintenanceWeaned.value,
                         maintenance_comments: maintenanceComments.value,
                         breed_program_certification_co: valueAddProgramsBreedProgramCertificationCo.value,
-                        certified_through: valueAddProgramsCertifiedThrough.value
+                        certified_through: valueAddProgramsCertifiedThrough.value,
+                        expected_ship_date: marketingExpectedShipDate.getTime()
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
