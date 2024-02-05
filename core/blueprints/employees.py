@@ -22,6 +22,7 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.orders import Orders
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
 from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
@@ -883,8 +884,11 @@ def serve_add_seedstock_producer():
         return {"redirect": "/employee/dashboard"}
 
 
-@bp.route('/employee/sales-groups/manage-sales-groups-field-values', methods=["GET"])
+@bp.route('/employee/sales-groups/sales-group-fields-values', methods=["GET"])
 @crut.require_employee
-def serve_manage_sales_groups_field_values():
-
-    return employee_render("/employee/sales-groups/manage-sales-groups-field-values.html")
+def serve_sales_groups_field_values():
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+    return employee_render("/employee/sales-groups/sales-group-fields-values.html",{
+        "sales_group_fields_values": sales_group_fields_values,
+        "sales_group_field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+    })
