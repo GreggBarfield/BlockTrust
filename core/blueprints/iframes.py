@@ -410,10 +410,16 @@ def serve_iframe_checkout_payment():
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
     invoice_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_invoice')
+    create_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_create_order')
+    update_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_update_order')
+    send_order_to_herdwhistle_api_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_send_order_to_herdwhistle_api')
     return outside_render("/outside/iframes/tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
         "herd_whistle_vendor_id": herd_whistle_vendor_id,
-        "invoice_link": invoice_link
+        "invoice_link": invoice_link,
+        "create_order_link": create_order_link,
+        "update_order_link": update_order_link,
+        "send_order_to_herdwhistle_api_link": send_order_to_herdwhistle_api_link
     })
 
 
@@ -625,3 +631,60 @@ def serve_external_paymentinfo(partner_id):
 def serve_external_invoice(partner_id):
     return outside_render('shop-iframe/invoice.html', {'partner_id': partner_id})
 
+
+@bp.route('/iframe/external/tag-store/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_tag_store(partner_id):
+    all_product_data = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
+    product_categories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+
+    shopping_cart_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_shopping_cart', partner_id=partner_id)
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
+    return outside_render("/outside/iframes/external-tag-store/homepage.html", {
+        "all_product_data": all_product_data,
+        "product_categories": product_categories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names,
+        "shopping_cart_link": shopping_cart_link
+    })
+
+
+@bp.route('/iframe/external/shopping-cart/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_shopping_cart(partner_id):
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    checkout_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_checkout', partner_id=partner_id)
+    return outside_render("/outside/iframes/external-tag-store/shopping-cart.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "checkout_link": checkout_link
+    })
+
+
+@bp.route('/iframe/external/checkout/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_checkout(partner_id):
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    shopping_cart_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_shopping_cart', partner_id=partner_id)
+    checkout_payment_link = WEBSITE_ROOT + url_for('iframe_bp.serve_external_checkout_payment', partner_id=partner_id)
+    return outside_render("/outside/iframes/external-tag-store/checkout.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "shopping_cart_link": shopping_cart_link,
+        "checkout_payment_link": checkout_payment_link
+    })
+
+
+@bp.route('/iframe/external/checkout-payment/<int:partner_id>', methods=["GET"])
+def serve_external_checkout_payment(partner_id):
+    herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    invoice_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    create_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_create_order')
+    update_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_update_order')
+    send_order_to_herdwhistle_api_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_send_order_to_herdwhistle_api')
+    return outside_render("/outside/iframes/external-tag-store/checkout-payment.html", {
+        "stripe_key": STRIPE_PUBLISHABLE_KEY,
+        "herd_whistle_vendor_id": herd_whistle_vendor_id,
+        "invoice_link": invoice_link,
+        "create_order_link": create_order_link,
+        "update_order_link": update_order_link,
+        "send_order_to_herdwhistle_api_link": send_order_to_herdwhistle_api_link
+    })

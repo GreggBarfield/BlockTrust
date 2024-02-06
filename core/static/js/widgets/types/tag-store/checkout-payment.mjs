@@ -11,7 +11,11 @@ export class CheckoutPaymentWidget extends Widget {
         let publishableKey = this.frame.getAttribute("data-widget-stripe-key");
         let herdWhistleVendorId = this.frame.getAttribute("data-widget-herd-whistle-vendor-id");
         let invoiceLink = this.frame.getAttribute("data-widget-invoice-link");
-        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId, invoiceLink);
+        let createOrderLink = this.frame.getAttribute("data-widget-create-order-link");
+        let updateOrderLink = this.frame.getAttribute("data-widget-update-order-link");
+        let sendOrderToHerdwhistleAPILink = this.frame.getAttribute("data-widget-send-order-to-herdwhistle-api-link");
+
+        let checkoutPaymentCard = this.makeCheckoutPaymentCard(herdWhistleVendorId, invoiceLink, createOrderLink, updateOrderLink, sendOrderToHerdwhistleAPILink);
         this.frame.append(checkoutPaymentCard);
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
@@ -55,7 +59,7 @@ export class CheckoutPaymentWidget extends Widget {
         checkoutPaymentSubmitButton.textContent = "SUBMIT";
         paymentContainer.append(checkoutPaymentSubmitButton);
         checkoutPaymentSubmitButton.onclick = () =>{
-            this.performStripePaymentActions(herdWhistleVendorId, invoiceLink);
+            this.performStripePaymentActions(herdWhistleVendorId, invoiceLink, createOrderLink, updateOrderLink, sendOrderToHerdwhistleAPILink);
         }
 
         let checkoutPaymentStatusMessage = document.createElement("div");
@@ -82,11 +86,11 @@ export class CheckoutPaymentWidget extends Widget {
         this.card.mount('#checkout-card-element');
     }
 
-    performStripePaymentActions = async (herdWhistleVendorId, invoiceLink) =>{
+    performStripePaymentActions = async (herdWhistleVendorId, invoiceLink, createOrderLink, updateOrderLink, sendOrderToHerdwhistleAPILink) =>{
         this.updatePaymentButton("Processing...", true);
         // Creating a new order
         let {error, orderId} = await fetch(
-            '/shop/create-order',{
+            createOrderLink,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -139,7 +143,7 @@ export class CheckoutPaymentWidget extends Widget {
         // Updating order as paid
         if(paymentIntent.status === 'succeeded'){
             let response = await fetch(
-                '/shop/update-order',{
+                updateOrderLink,{
                     method: 'POST',
                     header: {
                         'Content-Type': 'application/json',
@@ -167,7 +171,7 @@ export class CheckoutPaymentWidget extends Widget {
         }
         if(orderContainsHerdWhistleProducts){
             let sendOrderToHerdWhistle = await fetch(
-                '/shop/send-order-to-herdwhistle-api',{
+                sendOrderToHerdwhistleAPILink,{
                     method: 'POST',
                     header: {
                         'Content-Type': 'application/json',
