@@ -4,7 +4,7 @@ from flask import (
 
 from ..common_exceptions import ExportException
 from core.config import (
-    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL
+    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL, EMAIL_SENDER
 )
 from ..database.combinations import convert_auction_market_to_account
 from ..database.tables.accounts import AccountsException
@@ -24,6 +24,7 @@ from ..renderers.email import render_email
 from ..renderers.outside import outside_render
 from ..sectors import SECTORS_NAME_TO_ID
 from ..utilities import auth, crut
+from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
 
 from json import loads
@@ -677,8 +678,8 @@ def serve_external_checkout_payment(partner_id):
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
     invoice_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
-    create_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_create_order')
-    update_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_update_order')
+    create_order_link = WEBSITE_ROOT + url_for('iframe_bp.serve_external_create_order')
+    update_order_link = WEBSITE_ROOT + url_for('iframe_bp.serve_external_update_order')
     send_order_to_herdwhistle_api_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_send_order_to_herdwhistle_api')
     return outside_render("/outside/iframes/external-tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
@@ -688,3 +689,105 @@ def serve_external_checkout_payment(partner_id):
         "update_order_link": update_order_link,
         "send_order_to_herdwhistle_api_link": send_order_to_herdwhistle_api_link
     })
+
+
+@bp.route('/iframe/external/cerate-order', methods=["POST"])
+def serve_external_create_order():
+    try:
+        data = json.loads(request.data)
+        order_details = eval(data["orderDetails"])
+        order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
+                                          order_details["state"], order_details["zip_code"])
+        shopping_cart = json.loads(order_details['shopping_cart'])
+        for product_id, product_details in shopping_cart.items():
+            OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
+        return {"orderId": order_id}
+    except Exception as e:
+        return {"error": str(e)}, HTTP_BAD_REQUEST
+
+
+@bp.route('/iframe/external/update-order', methods=["POST"])
+def serve_external_update_order():
+    try:
+        data = json.loads(request.data)
+        Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+
+        order_details = json.loads(data["orderDetails"])
+        shopping_cart = json.loads(order_details["shopping_cart"])
+        # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if order_details["premise_id"] != "":
+            premise_id = order_details["premise_id"]
+        send_tag_store_email(
+            "Tag Store Purchase Summary",
+            render_email("internal_tag_store/purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            order_details["email"],
+            EMAIL_SENDER
+        )
+        vendor_oriented_cart = {}
+        for product_id, product_details in shopping_cart.items():
+            product_row = ProductTable(g.db).get_products(id=product_id)
+            product_vendor_id = product_row[0]["product_vendor_id"]
+            if product_vendor_id in vendor_oriented_cart:
+                vendor_oriented_cart[product_vendor_id].append(product_details)
+            else:
+                vendor_oriented_cart[product_vendor_id] = [product_details]
+
+        for vendor_id, products_list in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=vendor_id)
+            vendor_email = vendor_row[0]["vendor_email"]
+            send_tag_store_email(
+                "New order summary",
+                render_email("internal_tag_store/purchase_summary_vendor.html", {
+                    'order_id': data["orderId"],
+                    'first': order_details["first_name"],
+                    'last': order_details["last_name"],
+                    'shipping_address_line': order_details["address_line"],
+                    'shipping_city': order_details["city"],
+                    'shipping_state': order_details["state"],
+                    'shipping_zip_code': order_details["zip_code"],
+                    'cart': products_list,
+                    'premise_id': premise_id
+                }),
+                vendor_email,
+                EMAIL_SENDER
+            )
+
+        send_multiple_tag_store_email(
+            "New order summary",
+            render_email("internal_tag_store/purchase_summary_seller.html", {
+                'order_id': data["orderId"],
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            [ADMIN_EMAIL],
+            EMAIL_SENDER
+        )
+        return Response(status=HTTP_NO_CONTENT)
+    except Exception as e:
+        return {"error": str(e)}, HTTP_BAD_REQUEST
