@@ -22,7 +22,14 @@ Payment Details
                             </div>
                         </div>                       	
                     </div>  
-                    <button id="submit" class="btn btn-outline-primary mt-2 mr-2">Save</button>  
+                    <button id="submit" class="btn btn-primary mt-2 mr-2">Save</button>
+                    <a 
+                        href="/dashboard/sales-groups/view/{{sales_group_id}}" 
+                        class="{{'btn btn-secondary mt-2' if sales_group_id else 'd-none'}}" 
+                        data-toggle="tooltip" data-placement="top" title="{{sales_group_name}} will only be saved and not published"
+                    >
+                        Cancel
+                    </a>
                     <div class="spinner-border spinner-border-sm d-none"></div> 
                     <div id="card-errors" class="text-danger mt-3 font-weight-bold"></div>
                 </form>
@@ -93,6 +100,7 @@ Payment Details
                     mode: 'payment',
                     currency: 'usd',
                     amount: "{{amount}}"*100,
+                    paymentMethodTypes: ["card"],
                     setup_future_usage: 'off_session',
                     theme:'flat'
             };
@@ -160,7 +168,7 @@ Payment Details
             if(salesGroupID){
                 document.querySelector('.card-title').innerText = "Enter payment details";
                 let amount = "{{amount}}";
-                header.innerHTML = `Payment required for sales group: <span class='text-danger'>{{sales_group_name}}</span>. You will be charged <span class='text-danger'>$${parseInt(amount).toFixed(2)}</span>`
+                header.innerHTML = `Payment for: <span class='text-danger'>{{sales_group_name}}</span>. You will be charged <span class='text-danger'>$${parseInt(amount).toFixed(2)}</span>`
             }
             else {
                 header.innerText = "Enter payment details";
