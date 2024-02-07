@@ -737,8 +737,7 @@ def serve_iframe_external_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            "nisheet.thakur@blocktrustnetwork.com",
-            # order_details["email"],
+            order_details["email"],
             EMAIL_SENDER
         )
         vendor_oriented_cart = {}
@@ -766,8 +765,7 @@ def serve_iframe_external_update_order():
                     'cart': products_list,
                     'premise_id': premise_id
                 }),
-                "nisheet.thakur@blocktrustnetwork.com",
-            # vendor_email,
+                vendor_email,
                 EMAIL_SENDER
             )
 
@@ -789,8 +787,7 @@ def serve_iframe_external_update_order():
                 'cart': shopping_cart,
                 'premise_id': premise_id
             }),
-            ["nisheet.thakur@blocktrustnetwork.com"],
-            # [ADMIN_EMAIL],
+            [ADMIN_EMAIL],
             EMAIL_SENDER
         )
         return Response(status=HTTP_NO_CONTENT)
