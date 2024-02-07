@@ -50,15 +50,7 @@ Payment Details
             'setup_intent_client_secret'
         );
         if(!clientSecret) {
-            let response = await fetch("{{route}}");
-            let result = await response.json();
-            if (result["number_of_payment_methods"]) {
-                header.innerHTML = "You have already added a valid payment method <i class='fa fa-check-circle'></i>";
-                header.classList.add("text-info");               
-            }
-            else {
-                loadPayment(stripe, header, result["client_secret"], salesGroupID);
-            }
+            loadPayment(stripe, header, salesGroupID);
         }
         else {
             stripe.retrieveSetupIntent(clientSecret).then(async({setupIntent}) => {
@@ -93,7 +85,7 @@ Payment Details
         form.querySelector('.spinner-border').classList.add("d-none");        
     }
 
-    const loadPayment = async(stripe, header, setUpClientSecret, salesGroupID) => {
+    const loadPayment = async(stripe, header, salesGroupID=null) => {
         const form = document.getElementById('payment-form');
         if (salesGroupID){
             const options = {
@@ -117,7 +109,7 @@ Payment Details
                     handleError(form, submitError);
                     return;
                 }
-                const res = await fetch("{{payment_intent_URL}}", {
+                const res = await fetch("/stripe/create-payment-intent", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({'sales_group_id': salesGroupID})
@@ -135,7 +127,7 @@ Payment Details
                     handleError(form, result.error.message);
                 }
                 else{
-                    let paymentResponse = await fetch("{{sales_group_payment_URL}}", {
+                    let paymentResponse = await fetch("/payment/sales_group", {
                         method:"POST",
                         body:JSON.stringify({id: salesGroupID, payment_id: paymentID})
                     })
@@ -145,7 +137,14 @@ Payment Details
 
         }
         else {
-            const elements = stripe.elements({clientSecret: setUpClientSecret, appearance: {theme:'flat'}});
+            let response = await fetch("/stripe/setup-payment");
+            let result = await response.json();
+            if (result["number_of_payment_methods"]) {
+                header.innerHTML = "You have already added a valid payment method <i class='fa fa-check-circle'></i>";
+                header.classList.add("text-info");
+                return;           
+            }
+            const elements = stripe.elements({clientSecret: result["client_secret"], appearance: {theme:'flat'}});
             const paymentElement = elements.create('payment');
             paymentElement.mount('#payment-element');
             form.addEventListener('submit', async (e) => {
