@@ -295,17 +295,14 @@ def serve_payment(id):
         if not sales_group["is_paid"]:
             return dashboard_render("stripe/payment.html", {
                 "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY,
-                "route": url_for("stripe_bp.setup_payment"),
                 "sales_group_id": sales_group["id"],
                 "sales_group_name": sales_group["group_name"],
-                "amount": sales_group["reported"]["count"],
-                "payment_intent_URL": url_for("stripe_bp.create_payment_intent"),
-                "sales_group_payment_URL": url_for("stripe_bp.serve_sales_group_payment")
+                "amount": sales_group["reported"]["count"]
             })
         else:
             return redirect(url_for("dashboard_bp.serve_payment", id=''))
     return dashboard_render("stripe/payment.html", {
-        "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY, "route": url_for("stripe_bp.setup_payment")
+        "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY
     })
 
 
