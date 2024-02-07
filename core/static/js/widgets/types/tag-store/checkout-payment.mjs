@@ -20,7 +20,7 @@ export class CheckoutPaymentWidget extends Widget {
         this.prefilleNameInputAndGenerateStripeElements(publishableKey)
     }
 
-    makeCheckoutPaymentCard = (herdWhistleVendorId, invoiceLink) =>{
+    makeCheckoutPaymentCard = (herdWhistleVendorId, invoiceLink, createOrderLink, updateOrderLink, sendOrderToHerdwhistleAPILink) =>{
         let checkoutPaymentCard = document.createElement("div");
         checkoutPaymentCard.className = "card border rounded";
 
