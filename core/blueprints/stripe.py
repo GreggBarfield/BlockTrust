@@ -193,15 +193,12 @@ def create_payment_intent():
         if 'sales_group_id' in data:
             sales_group_id = data['sales_group_id']
             sales_group = SalesGroups(g.db).get_sales_groups(id=sales_group_id)[0]
-            amount = sales_group['reported']['count'] * 100
-            params = {
-                'amount': amount,
-                'currency': 'usd',
-                'metadata': {'sales_group_id': sales_group_id},
-                'setup_future_usage': 'off_session',
-                'customer': g.account.stripe_customer_id()
-            }
-            intent = stripe.PaymentIntent.create(**params)
+            intent = _create_payment_intent_for_sales_group(
+                count=sales_group["reported"]["count"],
+                customer_id=g.account.stripe_customer_id(),
+                metadata={"sales_group_id": sales_group_id},
+                setup_future_usage="off_session"
+            )
             payment_id = Payments(g.db).insert(
                 account_id=g.account.id(),
                 amount=sales_group["reported"]["count"],
@@ -563,14 +560,12 @@ def serve_sales_group_payment():
                 for method in payment_methods:
                     if not is_paid:
                         try:
-                            payment_intent = stripe.PaymentIntent.create(
-                                amount=sales_group["reported"]["count"]*100,
-                                payment_method_types=['card'],
-                                currency='usd',
-                                customer=g.account.stripe_customer_id(),
+                            payment_intent = _create_payment_intent_for_sales_group(
+                                count=sales_group["reported"]["count"],
+                                customer_id=g.account.stripe_customer_id(),
                                 metadata={"sales_group_id": sales_group_id},
-                                payment_method=method["id"],
-                                confirm=True,
+                                payment_method_id=method["id"],
+                                confirm=True
                             )
                             payment_id = Payments(g.db).insert(
                                 account_id=g.account.id(),
@@ -602,3 +597,22 @@ def serve_sales_group_payment():
                 if is_paid:
                     return redirect(url_for("dashboard_bp.serve_view_sales_group", sales_group_id=sales_group_id))
         return redirect(url_for("dashboard_bp.serve_payment", id=sales_group_id))
+
+
+def _create_payment_intent_for_sales_group(count, customer_id, metadata, payment_method_id=None, confirm=False,
+                                           setup_future_usage=None):
+    params = {
+        "amount": count*100,
+        "currency": "usd",
+        "customer": customer_id,
+        "metadata": metadata,
+        "payment_method_types": ["card"]
+    }
+    if payment_method_id:
+        params["payment_method"] = payment_method_id
+    if confirm:
+        params["confirm"] = True
+    if setup_future_usage:
+        params["setup_future_usage"] = setup_future_usage
+
+    return stripe.PaymentIntent.create(**params)

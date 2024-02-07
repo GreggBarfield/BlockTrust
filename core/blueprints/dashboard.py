@@ -302,6 +302,8 @@ def serve_payment(id):
                 "payment_intent_URL": url_for("stripe_bp.create_payment_intent"),
                 "sales_group_payment_URL": url_for("stripe_bp.serve_sales_group_payment")
             })
+        else:
+            return redirect(url_for("dashboard_bp.serve_payment", id=''))
     return dashboard_render("stripe/payment.html", {
         "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY, "route": url_for("stripe_bp.setup_payment")
     })
