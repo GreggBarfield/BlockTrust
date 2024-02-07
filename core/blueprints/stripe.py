@@ -193,9 +193,10 @@ def create_payment_intent():
         if 'sales_group_id' in data:
             sales_group_id = data['sales_group_id']
             sales_group = SalesGroups(g.db).get_sales_groups(id=sales_group_id)[0]
+            customer_id = g.account.stripe_customer_id() if g.account.stripe_customer_id() else _create_customer()
             intent = _create_payment_intent_for_sales_group(
                 count=sales_group["reported"]["count"],
-                customer_id=g.account.stripe_customer_id(),
+                customer_id=customer_id,
                 metadata={"sales_group_id": sales_group_id},
                 setup_future_usage="off_session"
             )
@@ -514,15 +515,7 @@ def setup_payment():
     try:
         payment_methods = []
         if not g.account.stripe_customer_id():
-            customer_id = stripe.Customer.create(
-                email=g.user.email() if g.user.is_email_verified() else None,
-                name=g.account.company(),
-                metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
-            ).id
-            g.db.accounts.update_account(
-                g.account.id(),
-                stripe_customer_id=customer_id
-            )
+            customer_id = _create_customer()
         else:
             customer_id = g.account.stripe_customer_id()
             payment_methods = stripe.PaymentMethod.list(
@@ -616,3 +609,16 @@ def _create_payment_intent_for_sales_group(count, customer_id, metadata, payment
         params["setup_future_usage"] = setup_future_usage
 
     return stripe.PaymentIntent.create(**params)
+
+
+def _create_customer():
+    customer_id = stripe.Customer.create(
+        email=g.user.email() if g.user.is_email_verified() else None,
+        name=g.account.company(),
+        metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
+    ).id
+    g.db.accounts.update_account(
+        g.account.id(),
+        stripe_customer_id=customer_id
+    )
+    return customer_id
