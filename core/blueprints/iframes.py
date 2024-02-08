@@ -4,7 +4,7 @@ from flask import (
 
 from ..common_exceptions import ExportException
 from core.config import (
-    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL
+    ROOT as WEBSITE_ROOT, RECAPTCHA_SITE_KEY, IPINFO_TOKEN, CHECK_IP, STRIPE_PUBLISHABLE_KEY, ADMIN_EMAIL, EMAIL_SENDER
 )
 from ..database.combinations import convert_auction_market_to_account
 from ..database.tables.accounts import AccountsException
@@ -20,11 +20,14 @@ from ..database.tables.sales_groups import SalesGroups, TARGET_DATE_KEYS_TO_DESC
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
 from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.users import UsersException
+from ..database.tables.vendor_identifiers_for_account import VendorIdentifiersForAccounts
 from ..renderers.email import render_email
 from ..renderers.outside import outside_render
 from ..sectors import SECTORS_NAME_TO_ID
 from ..utilities import auth, crut
+from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
 from ..utilities.email import send_tag_store_email, send_multiple_tag_store_email
+from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
 
 from json import loads
 from traceback import format_exc
@@ -410,10 +413,16 @@ def serve_iframe_checkout_payment():
     herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
     herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
     invoice_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_invoice')
+    create_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_create_order')
+    update_order_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_update_order')
+    send_order_to_herdwhistle_api_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_send_order_to_herdwhistle_api')
     return outside_render("/outside/iframes/tag-store/checkout-payment.html", {
         "stripe_key": STRIPE_PUBLISHABLE_KEY,
         "herd_whistle_vendor_id": herd_whistle_vendor_id,
-        "invoice_link": invoice_link
+        "invoice_link": invoice_link,
+        "create_order_link": create_order_link,
+        "update_order_link": update_order_link,
+        "send_order_to_herdwhistle_api_link": send_order_to_herdwhistle_api_link
     })
 
 
@@ -625,3 +634,214 @@ def serve_external_paymentinfo(partner_id):
 def serve_external_invoice(partner_id):
     return outside_render('shop-iframe/invoice.html', {'partner_id': partner_id})
 
+
+@bp.route('/iframe/external/tag-store/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_tag_store(partner_id):
+    all_product_data = ProductTable(g.db).get_products(partner=partner_id, include_images=True)
+    product_categories = ProductCategories(g.db).get_product_categories()
+    product_vendors = ProductVendors(g.db).get_product_vendors()
+    product_vendor_ids_to_names = {}
+
+    shopping_cart_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_shopping_cart', partner_id=partner_id)
+    for product_vendor in product_vendors:
+        product_vendor_ids_to_names[product_vendor["id"]] = product_vendor["vendor_name"]
+    return outside_render("/outside/iframes/external-tag-store/homepage.html", {
+        "all_product_data": all_product_data,
+        "product_categories": product_categories,
+        "product_vendor_ids_to_names": product_vendor_ids_to_names,
+        "shopping_cart_link": shopping_cart_link
+    })
+
+
+@bp.route('/iframe/external/shopping-cart/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_shopping_cart(partner_id):
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    checkout_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_checkout', partner_id=partner_id)
+    return outside_render("/outside/iframes/external-tag-store/shopping-cart.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "checkout_link": checkout_link
+    })
+
+
+@bp.route('/iframe/external/checkout/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_checkout(partner_id):
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    shopping_cart_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_shopping_cart', partner_id=partner_id)
+    checkout_payment_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_checkout_payment', partner_id=partner_id)
+    return outside_render("/outside/iframes/external-tag-store/checkout.html", {
+        "shop_homepage_link": shop_homepage_link,
+        "shopping_cart_link": shopping_cart_link,
+        "checkout_payment_link": checkout_payment_link
+    })
+
+
+@bp.route('/iframe/external/checkout-payment/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_checkout_payment(partner_id):
+    herd_whistle_vendor_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    herd_whistle_vendor_id = herd_whistle_vendor_data[0]["id"]
+    invoice_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_invoice', partner_id=partner_id)
+    create_order_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_create_order')
+    update_order_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_update_order')
+    send_order_to_herdwhistle_api_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_send_order_to_herdwhistle_api')
+    return outside_render("/outside/iframes/external-tag-store/checkout-payment.html", {
+        "stripe_key": STRIPE_PUBLISHABLE_KEY,
+        "herd_whistle_vendor_id": herd_whistle_vendor_id,
+        "invoice_link": invoice_link,
+        "create_order_link": create_order_link,
+        "update_order_link": update_order_link,
+        "send_order_to_herdwhistle_api_link": send_order_to_herdwhistle_api_link
+    })
+
+
+@bp.route('/iframe/external/create-order', methods=["POST"])
+def serve_iframe_external_create_order():
+    try:
+        data = json.loads(request.data)
+        order_details = eval(data["orderDetails"])
+        order_id = Orders(g.db).add_order(order_details, order_details["address_line"], order_details["city"],
+                                          order_details["state"], order_details["zip_code"])
+        shopping_cart = json.loads(order_details['shopping_cart'])
+        for product_id, product_details in shopping_cart.items():
+            OrderProducts(g.db).add_order_product(order_id, product_id, product_details["quantity"])
+        return {"orderId": order_id}
+    except Exception as e:
+        return {"error": str(e)}, HTTP_BAD_REQUEST
+
+
+@bp.route('/iframe/external/update-order', methods=["POST"])
+def serve_iframe_external_update_order():
+    try:
+        data = json.loads(request.data)
+        Orders(g.db).update_order_as_stripe_paid(data["orderId"], data["paymentIntent"])
+
+        order_details = json.loads(data["orderDetails"])
+        shopping_cart = json.loads(order_details["shopping_cart"])
+        # Once payment goes through sending email to confirm order to buyer
+        premise_id = "N/A"
+        if order_details["premise_id"] != "":
+            premise_id = order_details["premise_id"]
+        send_tag_store_email(
+            "Tag Store Purchase Summary",
+            render_email("internal_tag_store/purchase_summary_customer.html", {
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            order_details["email"],
+            EMAIL_SENDER
+        )
+        vendor_oriented_cart = {}
+        for product_id, product_details in shopping_cart.items():
+            product_row = ProductTable(g.db).get_products(id=product_id)
+            product_vendor_id = product_row[0]["product_vendor_id"]
+            if product_vendor_id in vendor_oriented_cart:
+                vendor_oriented_cart[product_vendor_id].append(product_details)
+            else:
+                vendor_oriented_cart[product_vendor_id] = [product_details]
+
+        for vendor_id, products_list in vendor_oriented_cart.items():
+            vendor_row = ProductVendors(g.db).get_product_vendors(id=vendor_id)
+            vendor_email = vendor_row[0]["vendor_email"]
+            send_tag_store_email(
+                "New order summary",
+                render_email("internal_tag_store/purchase_summary_vendor.html", {
+                    'order_id': data["orderId"],
+                    'first': order_details["first_name"],
+                    'last': order_details["last_name"],
+                    'shipping_address_line': order_details["address_line"],
+                    'shipping_city': order_details["city"],
+                    'shipping_state': order_details["state"],
+                    'shipping_zip_code': order_details["zip_code"],
+                    'cart': products_list,
+                    'premise_id': premise_id
+                }),
+                vendor_email,
+                EMAIL_SENDER
+            )
+
+        send_multiple_tag_store_email(
+            "New order summary",
+            render_email("internal_tag_store/purchase_summary_seller.html", {
+                'order_id': data["orderId"],
+                'first': order_details["first_name"],
+                'last': order_details["last_name"],
+                'total_price': order_details["total_price"],
+                'total_tax': order_details["total_tax"],
+                'discount': order_details["discount"],
+                'shipping': order_details["shipping"],
+                'grand_total': order_details["grand_total"],
+                'shipping_address_line': order_details["address_line"],
+                'shipping_city': order_details["city"],
+                'shipping_state': order_details["state"],
+                'shipping_zip_code': order_details["zip_code"],
+                'cart': shopping_cart,
+                'premise_id': premise_id
+            }),
+            [ADMIN_EMAIL],
+            EMAIL_SENDER
+        )
+        return Response(status=HTTP_NO_CONTENT)
+    except Exception as e:
+        return {"error": str(e)}, HTTP_BAD_REQUEST
+
+
+@bp.route('/iframe/external/send-order-to-herdwhistle-api', methods=["POST"])
+def serve_iframe_external_send_order_to_herdwhistle_api():
+    herd_whistle_data = ProductVendors(g.db).get_product_vendors(vendor_name=HERD_WHISTLE_VENDOR_NAME)
+    data = json.loads(request.data)
+    order_details = json.loads(data["orderDetails"])
+    shopping_cart = json.loads(order_details["shopping_cart"])
+    customer_details = {
+        'name': order_details["first_name"] + " " + order_details["last_name"],
+        'street': order_details["address_line"],
+        'street2': False,
+        'city': order_details["city"],
+        'state_id': order_details["state"],
+        'zip': order_details["zip_code"],
+        'country_id': 'United States',
+        'phone': order_details["phone"],
+        'email': order_details["email"],
+        'company_type': 'company',
+        'type': 'contact'
+    }
+    herdwhistle_customer_id, herdwhistle_customer_shipping_id = HerdWhistleAPI().create_new_herdwhistle_customer_credentials(
+        customer_details=customer_details
+    )
+    VendorIdentifiersForAccounts(g.db).insert(
+        product_vendor_id=herd_whistle_data[0]["id"],
+        vendor_customer_id=herdwhistle_customer_id,
+        vendor_customer_shipping_id=herdwhistle_customer_shipping_id
+    )
+    if HerdWhistleAPI().verify_herdwhistle_customer_credentials(
+        herdwhistle_customer_id=herdwhistle_customer_id,
+        herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id
+    ):
+        herdwhistle_products_shopping_cart = []
+        for product_details in shopping_cart.values():
+            if product_details["product_vendor_id"] == herd_whistle_data[0]["id"]:
+                herdwhistle_products_shopping_cart.append(product_details)
+        sale_order_id = HerdWhistleAPI().create_new_sale_order(
+            herdwhistle_customer_id=herdwhistle_customer_id,
+            herdwhistle_customer_shipping_id=herdwhistle_customer_shipping_id,
+            herdwhistle_products_shopping_cart=herdwhistle_products_shopping_cart
+        )
+        Orders(g.db).update(id=data["orderId"], herdwhistle_sale_order_id=sale_order_id)
+    return Response(status=HTTP_NO_CONTENT)
+
+
+@bp.route('/iframe/external/shop/invoice/<int:partner_id>', methods=["GET"])
+def serve_iframe_external_invoice(partner_id):
+    shop_homepage_link = WEBSITE_ROOT + url_for('iframe_bp.serve_iframe_external_tag_store', partner_id=partner_id)
+    return outside_render("/outside/iframes/external-tag-store/invoice.html", {
+        "shop_homepage_link": shop_homepage_link
+    })

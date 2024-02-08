@@ -8,6 +8,7 @@ from core.database.tables.sales_group_searches import SalesGroupSearches
 from ..renderers.dashboard import dashboard_render
 
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
+from ..match_types import MATCH_TYPES_NAME_TO_ID
 
 from ..common_exceptions import ExportException
 from core.database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
@@ -28,7 +29,7 @@ from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
 from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
-from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES, SALES_GROUP_FIELD_NAMES_TO_IDS
 from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from ..database.tables.usda_reports import USDAReports
@@ -294,15 +295,14 @@ def serve_payment(id):
         if not sales_group["is_paid"]:
             return dashboard_render("stripe/payment.html", {
                 "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY,
-                "route": url_for("stripe_bp.setup_payment"),
                 "sales_group_id": sales_group["id"],
                 "sales_group_name": sales_group["group_name"],
-                "amount": sales_group["reported"]["count"],
-                "payment_intent_URL": url_for("stripe_bp.create_payment_intent"),
-                "sales_group_payment_URL": url_for("stripe_bp.serve_sales_group_payment")
+                "amount": sales_group["reported"]["count"]
             })
+        else:
+            return redirect(url_for("dashboard_bp.serve_payment", id=''))
     return dashboard_render("stripe/payment.html", {
-        "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY, "route": url_for("stripe_bp.setup_payment")
+        "STRIPE_KEY": STRIPE_PUBLISHABLE_KEY
     })
 
 
@@ -997,17 +997,41 @@ def serve_seedstock_producers():
 @crut.require_account
 def serve_genetics():
     if request.method == "GET":
-        return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
+        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            breeds = SalesGroupFieldsValues(g.db).get(field_id=SALES_GROUP_FIELD_NAMES_TO_IDS["breed"])
+            return dashboard_render("genetics/genetics-cow-calf.html", {"breeds": breeds})
+        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+            return dashboard_render("genetics/genetics.html", {"license": FLATFILE_LICENSE, "user": g.user})
     elif request.method == "POST":
-        for genetics_data in request.json["genetics_data"]:
-            Genetics(g.db).insert(
-                owner_account_id=g.account.id(),
-                uid=genetics_data["uid"],
-                breed=genetics_data["breed"],
-                ranch_name=genetics_data["ranch_name"],
-                address=genetics_data["address"],
-                city=genetics_data["city"],
-                state=genetics_data["state"],
-                zip_code=genetics_data["zip_code"]
+        if g.account.sector_id() == SECTORS_NAME_TO_ID["Cow-Calf"]:
+            insemination_data = {
+                "genetics_uid": request.form["genetics_uid"],
+                "genetics_kit_breed": request.form["genetics_kit_breed"],
+                "animal_breed" : request.form["animal_breed"]
+            }
+            account_link_id = None
+            account_links = g.account.account_links()
+            if len(account_links) > 0:
+                account_link_data = account_links[0]
+                account_link_id = account_link_data.id()
+            Matches(g.db).insert(
+                eid=request.form["eid"],
+                type_int=MATCH_TYPES_NAME_TO_ID["Insemination"],
+                data=insemination_data,
+                partner_account=g.account.partner_account_id(),
+                account_link=account_link_id
             )
-        return Response(status=HTTP_OK)
+            return {"redirect": "/dashboard"}
+        if g.account.sector_id == SECTORS_NAME_TO_ID["Seedstock Producer"]:
+            for genetics_data in request.json["genetics_data"]:
+                Genetics(g.db).insert(
+                    owner_account_id=g.account.id(),
+                    uid=genetics_data["uid"],
+                    breed=genetics_data["breed"],
+                    ranch_name=genetics_data["ranch_name"],
+                    address=genetics_data["address"],
+                    city=genetics_data["city"],
+                    state=genetics_data["state"],
+                    zip_code=genetics_data["zip_code"]
+                )
+            return Response(status=HTTP_OK)

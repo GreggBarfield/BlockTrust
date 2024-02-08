@@ -22,7 +22,14 @@ Payment Details
                             </div>
                         </div>                       	
                     </div>  
-                    <button id="submit" class="btn btn-outline-primary mt-2 mr-2">Save</button>  
+                    <button id="submit" class="btn btn-primary mt-2 mr-2">Save</button>
+                    <a 
+                        href="/dashboard/sales-groups/view/{{sales_group_id}}" 
+                        class="{{'btn btn-secondary mt-2' if sales_group_id else 'd-none'}}" 
+                        data-toggle="tooltip" data-placement="top" title="{{sales_group_name}} will only be saved and not published"
+                    >
+                        Cancel
+                    </a>
                     <div class="spinner-border spinner-border-sm d-none"></div> 
                     <div id="card-errors" class="text-danger mt-3 font-weight-bold"></div>
                 </form>
@@ -43,15 +50,7 @@ Payment Details
             'setup_intent_client_secret'
         );
         if(!clientSecret) {
-            let response = await fetch("{{route}}");
-            let result = await response.json();
-            if (result["number_of_payment_methods"]) {
-                header.innerHTML = "You have already added a valid payment method <i class='fa fa-check-circle'></i>";
-                header.classList.add("text-info");               
-            }
-            else {
-                loadPayment(stripe, header, result["client_secret"], salesGroupID);
-            }
+            loadPayment(stripe, header, salesGroupID);
         }
         else {
             stripe.retrieveSetupIntent(clientSecret).then(async({setupIntent}) => {
@@ -86,13 +85,14 @@ Payment Details
         form.querySelector('.spinner-border').classList.add("d-none");        
     }
 
-    const loadPayment = async(stripe, header, setUpClientSecret, salesGroupID) => {
+    const loadPayment = async(stripe, header, salesGroupID=null) => {
         const form = document.getElementById('payment-form');
         if (salesGroupID){
             const options = {
                     mode: 'payment',
                     currency: 'usd',
                     amount: "{{amount}}"*100,
+                    paymentMethodTypes: ["card"],
                     setup_future_usage: 'off_session',
                     theme:'flat'
             };
@@ -104,13 +104,12 @@ Payment Details
                e.preventDefault();
                form.querySelector('#submit').disabled=true;
                form.querySelector('.spinner-border').classList.remove("d-none");
-                // Trigger form validation and wallet collection
                 const {error: submitError} = await elements.submit();
                 if (submitError) {
                     handleError(form, submitError);
                     return;
                 }
-                const res = await fetch("{{payment_intent_URL}}", {
+                const res = await fetch("/stripe/create-payment-intent", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({'sales_group_id': salesGroupID})
@@ -120,7 +119,7 @@ Payment Details
                     elements,
                     clientSecret,
                     confirmParams: {
-                        return_url: window.location.href //not used for card
+                        return_url: window.location.href
                     },
                     redirect: "if_required",
                 });
@@ -128,7 +127,7 @@ Payment Details
                     handleError(form, result.error.message);
                 }
                 else{
-                    let paymentResponse = await fetch("{{sales_group_payment_URL}}", {
+                    let paymentResponse = await fetch("/payment/sales_group", {
                         method:"POST",
                         body:JSON.stringify({id: salesGroupID, payment_id: paymentID})
                     })
@@ -138,7 +137,14 @@ Payment Details
 
         }
         else {
-            const elements = stripe.elements({clientSecret: setUpClientSecret, appearance: {theme:'flat'}});
+            let response = await fetch("/stripe/setup-payment");
+            let result = await response.json();
+            if (result["number_of_payment_methods"]) {
+                header.innerHTML = "You have already added a valid payment method <i class='fa fa-check-circle'></i>";
+                header.classList.add("text-info");
+                return;           
+            }
+            const elements = stripe.elements({clientSecret: result["client_secret"], appearance: {theme:'flat'}});
             const paymentElement = elements.create('payment');
             paymentElement.mount('#payment-element');
             form.addEventListener('submit', async (e) => {
@@ -161,7 +167,7 @@ Payment Details
             if(salesGroupID){
                 document.querySelector('.card-title').innerText = "Enter payment details";
                 let amount = "{{amount}}";
-                header.innerHTML = `Payment required for sales group: <span class='text-danger'>{{sales_group_name}}</span>. You will be charged <span class='text-danger'>$${parseInt(amount).toFixed(2)}</span>`
+                header.innerHTML = `Payment for: <span class='text-danger'>{{sales_group_name}}</span>. You will be charged <span class='text-danger'>$${parseInt(amount).toFixed(2)}</span>`
             }
             else {
                 header.innerText = "Enter payment details";

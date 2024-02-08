@@ -7,9 +7,10 @@ from flask import (
 )
 import json
 import stripe
+
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
-from core.database.tables.account_users import AccountUsers
+from ..database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
@@ -27,6 +28,7 @@ from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
+from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
 from ..database.combinations import perform_new_account_actions, send_email_to_admin_users, update_partner_payment_of_account
@@ -38,7 +40,6 @@ from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
 from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
-from random import randint
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
 from datetime import datetime
@@ -892,3 +893,25 @@ def serve_sales_groups_field_values():
         "sales_group_fields_values": sales_group_fields_values,
         "sales_group_field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
     })
+
+
+@bp.route('/employee/sales-group-payments', methods=["GET"])
+@crut.require_employee
+def serve_sales_group_payments():
+    sales_groups = SalesGroups(g.db).get_sales_groups(payment_id_is_not_null=True)
+    sales_group_payments = []
+    for group in sales_groups:
+        row = {}
+        row["name"] = group["group_name"]
+        row["sale_date"] = datetime.utcfromtimestamp(group["sale_date"])
+        row["delivery_location"] = group["delivery_location"]
+        account = Accounts(g.db).get_accounts(id=group["account"])[0]
+        row["account_number"] = account["id"]
+        row["company"] = account["company"]
+        payment = Payments(g.db).get(id=group["payment_id"])[0]
+        row["amount"] = payment["amount"]
+        row["status"] = PAYMENT_STATUS_IDS_TO_NAMES[payment["status"]].capitalize()
+        row["paid_date"] = payment["paid_date"]
+        sales_group_payments.append(row)
+    return employee_render("/employee/finance/sales-group-payments.html",
+                           {"sales_group_payments": sales_group_payments})

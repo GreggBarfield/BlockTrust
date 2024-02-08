@@ -1,0 +1,22 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Payment"| string %}
+
+{% block outside_content %}
+<div class="row">
+    <div class="col">
+        <div 
+            class="col-sm-12 mb-0 widget"
+            data-widget-type="checkout payment"
+            data-widget-stripe-key="{{stripe_key}}"
+            data-widget-herd-whistle-vendor-id="{{herd_whistle_vendor_id}}"
+            data-widget-invoice-link = "{{invoice_link}}"
+            data-widget-create-order-link = "{{create_order_link}}"
+            data-widget-update-order-link = "{{update_order_link}}"
+            data-widget-send-order-to-herdwhistle-api-link = "{{send_order_to_herdwhistle_api_link}}"
+        >
+        </div>
+    </div>
+</div>
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock outside_content %}
