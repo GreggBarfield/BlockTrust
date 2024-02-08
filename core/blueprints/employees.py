@@ -887,7 +887,7 @@ def serve_add_seedstock_producer():
 @bp.route('/employee/sales-groups/sales-group-fields-values', methods=["GET"])
 @crut.require_employee
 def serve_sales_groups_field_values():
-    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     return employee_render("/employee/sales-groups/sales-group-fields-values.html",{
         "sales_group_fields_values": sales_group_fields_values,
         "sales_group_field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES

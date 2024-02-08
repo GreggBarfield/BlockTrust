@@ -85,6 +85,25 @@ export class ManageSalesGroupFieldsValuesWidget extends Widget {
             optionsSelect.className = "form-control";
             modalBody.append(optionsSelect);
             $(optionsSelect).select2({data: fieldValuesList, dropdownParent: $(modalBody), multiple: true, placeholder: "Select Options to Remove"});
+            
+            let modalFooter = modal.getFooter();
+            let saveButton = document.createElement("button");
+            saveButton.className = "btn btn-primary";
+            saveButton.textContent = "Save";
+            modalFooter.prepend(saveButton);
+
+            saveButton.onclick = async() =>{
+                const response = await fetch(
+                    "/widgets/remove-sales-group-field-values",{
+                        method: "POST",
+                        body: JSON.stringify({"sales_group_field_value_ids": $(optionsSelect).val()}),
+                        headers: {"Content-type": "application/json; charset=UTF-8"}
+                    }
+                );
+                if(response.ok == true){
+                    location.reload();
+                }
+            }
         }
         return button;
     }
@@ -96,13 +115,41 @@ export class ManageSalesGroupFieldsValuesWidget extends Widget {
         button.onclick = () =>{
             let modal = new InfoModal("Add Options to " + salesGroupFieldsIdsToNames[fieldId].replaceAll("_", " ").toUpperCase(), null, true);
             let modalBody = modal.getBody();
+            let inputContainer = document.createElement("div");
+            inputContainer.className = "d-block";
             let inputLabel = document.createElement("label");
+            inputLabel.className = "d-block";
             inputLabel.textContent = "*Enter new values to be added separated by commas";
-            modalBody.append(inputLabel);
+            inputContainer.append(inputLabel);
             let input = document.createElement("input");
+            input.className = "d-block";
             input.type = "text";
             input.size = "100";
-            modalBody.append(input);
+            inputContainer.append(input);
+            modalBody.append(inputContainer);
+
+            let modalFooter = modal.getFooter();
+            let saveButton = document.createElement("button");
+            saveButton.className = "btn btn-primary";
+            saveButton.textContent = "Save";
+            modalFooter.prepend(saveButton);
+
+            saveButton.onclick = async() =>{
+                let newFieldValuesList = input.value.split(',');
+                const response = await fetch(
+                    "/widgets/add-new-sales-group-field-values",{
+                        method: "POST",
+                        body: JSON.stringify({
+                            "field_id": fieldId,
+                            "new_field_values": newFieldValuesList
+                        }),
+                        headers: {"Content-type": "application/json; charset=UTF-8"}
+                    }
+                );
+                if(response.ok == true){
+                    location.reload();
+                }
+            }
         }
         return button;
     }
