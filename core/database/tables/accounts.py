@@ -5,7 +5,7 @@ from ..no_value import NoValue
 import json
 
 NO_VALUE = NoValue()
-HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
+HEALTH_TRACK_PARTNER_COMPANY = "Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 ILS_PARTNER_COMPANY = "ILS, Inc."
 
@@ -135,7 +135,7 @@ class Accounts:
             if affiliate_id is None:
                 raise AccountsException("You have not entered a partner id for the selected partner")
             accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0:
+            if len(accounts) > 0 and int(affiliate_id) != 9999:
                 raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
             if affiliate_id and affiliate_id.isdigit():
                 affiliate_id = int(affiliate_id)
