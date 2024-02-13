@@ -45,7 +45,7 @@ let preconditioningPrograms = [
 	"Superior Livestock Vac-45",
 	"TAMU Vac-45",
 	"Integrity Beef Alliance Vac-45",
-	"MFA Health Track Vac-45",
+	"Health Track Vac-45",
 	"NMSU Vac-45",
 	"MCA Vac-45",
 	"PrimeVac Vac-45",

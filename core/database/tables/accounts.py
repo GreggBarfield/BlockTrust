@@ -5,7 +5,7 @@ from ..no_value import NoValue
 import json
 
 NO_VALUE = NoValue()
-HEALTH_TRACK_PARTNER_COMPANY = "MFA Health Track"
+HEALTH_TRACK_PARTNER_COMPANY = "Health Track"
 RED_ANGUS_PARTNER_COMPANY = "Red Angus Assoc"
 ILS_PARTNER_COMPANY = "ILS, Inc."
 

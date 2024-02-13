@@ -129,17 +129,17 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
     account_link_id = AccountLinks(db).get_account_links(account_id=account_id)[0]["id"]
     new_connections = create_connections_for_supply_chain(db, account_link_id, account_id)
 
+    if partner_id:
+        partner = Accounts(db).get_partners(id=partner_id)[0]
+        if partner["partner_subscription_credits"]:
+            update_partner_payment_of_account(db, partner, account_id, True, employee_id)
+
     event_details = {"connections": ",".join(str(n) for n in new_connections)}
     if employee_id:
         event_details["employee_id"] = employee_id
     EventLogs(db).insert_event_log(
         account_id=account_id, user_id=user_id, event_type_id=event_type_id, details=event_details
     )
-
-    if partner_id:
-        partner = Accounts(db).get_partners(id=partner_id)[0]
-        if partner["partner_subscription_credits"]:
-            update_partner_payment_of_account(db, partner, account_id, True, employee_id)
 
 
 def update_partner_payment_of_account(db, partner, account_id, paid_by_partner, employee_id=None):
