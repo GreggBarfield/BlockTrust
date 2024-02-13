@@ -293,6 +293,8 @@ def search_summary():
         if search["not_interested_sales_group_ids"] is not None:
             not_interested_sales_group_ids_data = json.loads(search["not_interested_sales_group_ids"])
             not_interested.extend(not_interested_sales_group_ids_data["sales_group_ids"])
+        for sales_group_row in sales_group_rows:
+            sales_group_row["sales_group_search_id"] = search["id"]
         results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
     filtered_results = list(filter(lambda row: not any(id == row["id"] for id in not_interested), results))
     return filtered_results

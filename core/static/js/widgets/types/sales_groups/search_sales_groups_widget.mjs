@@ -334,6 +334,7 @@ export class SearchSalesGroupsWidget extends Widget {
         const salesGroups = await this.getData("search_summary", [], false, "GET");
         if(salesGroups.length > 0){
             for(let salesGroup of salesGroups){
+                console.log(salesGroup);
                 let tr = document.createElement("tr");
                 let td = document.createElement("td");
                 td.innerText = salesGroup["group_name"];
@@ -376,7 +377,7 @@ export class SearchSalesGroupsWidget extends Widget {
                     const response = await fetch(
                         "/widgets/not-interested-in-sales-group",{
                             method: "POST",
-                            body: JSON.stringify({"sales_group_search_id": 1, "sales_group_id": salesGroup.id}),
+                            body: JSON.stringify({"sales_group_search_id": salesGroup.sales_group_search_id, "sales_group_id": salesGroup.id}),
                             headers: {"Content-type": "application/json; charset=UTF-8"}
                         }
                     );
