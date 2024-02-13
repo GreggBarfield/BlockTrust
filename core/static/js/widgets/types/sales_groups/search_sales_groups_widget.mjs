@@ -334,7 +334,6 @@ export class SearchSalesGroupsWidget extends Widget {
         const salesGroups = await this.getData("search_summary", [], false, "GET");
         if(salesGroups.length > 0){
             for(let salesGroup of salesGroups){
-                console.log(salesGroup);
                 let tr = document.createElement("tr");
                 let td = document.createElement("td");
                 td.innerText = salesGroup["group_name"];
