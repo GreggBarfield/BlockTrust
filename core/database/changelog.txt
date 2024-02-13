@@ -2597,4 +2597,4 @@ UPDATE sales_group_fields_values
 SET value = "Health Track Vac-45" where value = "MFA Health Track Vac-45";
 UPDATE accounts SET company="Health Track", name="Health Track" WHERE company="MFA Health Track";
 UPDATE sales_groups set reported = JSON_SET(reported, "$.preconditioning_program", "Health Track Vac-45") 
-WHERE JSON_UNQUOTE(JSON_EXTRACT(reported,'$.preconditioning_program')) = "MFA Health Track Vac-45";
+WHERE JSON_EXTRACT(reported,'$.preconditioning_program') = "MFA Health Track Vac-45";
