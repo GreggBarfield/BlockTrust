@@ -2591,3 +2591,7 @@ VALUES ("HerdWhistle™ One Piece UHF Ear Tags ","HW_one_piece_UHF_ear_tags.png"
 SET @partner_id := (SELECT id FROM accounts WHERE name="MFA Health Track");
 INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,partner,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)
 VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 35, 0, "", "Bag(s) of 20", @partner_id, 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.', @usda_840_id, @alldatatagsid, 1, 35, 0);
+
+/* Nisheet Thakur 02/12/2014 */
+ALTER TABLE `sales_group_searches`
+ADD COLUMN `not_interested_sales_group_ids` JSON NULL;

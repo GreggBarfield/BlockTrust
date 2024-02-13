@@ -31,7 +31,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -273,7 +273,9 @@ def sales_group_search(id):
 @crut.require_account
 def search_summary():
     searches = SalesGroupSearches(g.db).get(user_id=g.user.id())
+    not_interested = []
     results = []
+    filtered_results = []
     for search in searches:
         sales_group_rows = SalesGroups(g.db).search_within(
             zip_code=int(search["zip"]),
@@ -288,8 +290,12 @@ def search_summary():
             programs=search["multi_select_fields"].get("programs", None) if search["multi_select_fields"] else None,
             target_date_description=search["target_date_description"]
         )
+        if search["not_interested_sales_group_ids"] is not None:
+            not_interested_sales_group_ids_data = json.loads(search["not_interested_sales_group_ids"])
+            not_interested.extend(not_interested_sales_group_ids_data["sales_group_ids"])
         results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
-    return results
+    filtered_results = list(filter(lambda row: not any(id == row["id"] for id in not_interested), results))
+    return filtered_results
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
@@ -952,3 +958,25 @@ def serve_add_new_sales_group_field_value():
         return {"error": str(e)}
     except Exception as e:
         raise e
+
+
+@bp.route('/widgets/not-interested-in-sales-group', methods=["POST"])
+@crut.require_account
+def serve_not_interested_in_sales_group():
+    sales_group_search_data = SalesGroupSearches(g.db).get(id=request.json["sales_group_search_id"])
+    if len(sales_group_search_data) > 0:
+        not_interested_sales_group_ids = sales_group_search_data[0]["not_interested_sales_group_ids"]
+        not_interested_sales_group_ids_data = {"sales_group_ids": []}
+        if not_interested_sales_group_ids is not None:
+            not_interested_sales_group_ids_data = json.loads(not_interested_sales_group_ids)
+            sales_group_ids = not_interested_sales_group_ids_data["sales_group_ids"]
+            sales_group_ids.append(request.json["sales_group_id"])
+            not_interested_sales_group_ids_data["sales_group_ids"] = sales_group_ids
+        else:
+            sales_group_ids = [request.json["sales_group_id"]]
+            not_interested_sales_group_ids_data["sales_group_ids"] = sales_group_ids
+        SalesGroupSearches(g.db).update(
+            id=request.json["sales_group_search_id"],
+            not_interested_sales_group_ids=not_interested_sales_group_ids_data
+        )
+    return Response(status=HTTP_OK)

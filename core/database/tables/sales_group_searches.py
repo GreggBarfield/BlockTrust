@@ -74,7 +74,7 @@ class SalesGroupSearches:
 
     def update(self, id, name=NO_VALUE, radius=NO_VALUE, zip=NO_VALUE, maximum_weight=NO_VALUE,
                minimum_weight=NO_VALUE, preconditioning_program=NO_VALUE, target_date_description=NO_VALUE,
-               multi_select_fields=NO_VALUE):
+               multi_select_fields=NO_VALUE, not_interested_sales_group_ids=NO_VALUE):
         """
         Update sales group search
 
@@ -109,6 +109,9 @@ class SalesGroupSearches:
         if multi_select_fields is not NO_VALUE:
             query_conditions.append("multi_select_fields = %(multi_select_fields)s")
             query_values["multi_select_fields"] = dumps(multi_select_fields) if multi_select_fields else None
+        if not_interested_sales_group_ids is not NO_VALUE:
+            query_conditions.append("not_interested_sales_group_ids = %(not_interested_sales_group_ids)s")
+            query_values["not_interested_sales_group_ids"] = dumps(not_interested_sales_group_ids) if not_interested_sales_group_ids else None
         if target_date_description is not NO_VALUE:
             query_conditions.append("target_date_description = %(target_date_description)s")
             query_values["target_date_description"] = target_date_description
