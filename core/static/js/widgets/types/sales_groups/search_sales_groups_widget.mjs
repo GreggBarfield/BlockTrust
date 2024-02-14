@@ -376,7 +376,7 @@ export class SearchSalesGroupsWidget extends Widget {
                     const response = await fetch(
                         "/widgets/not-interested-in-sales-group",{
                             method: "POST",
-                            body: JSON.stringify({"sales_group_search_id": salesGroup.sales_group_search_id, "sales_group_id": salesGroup.id}),
+                            body: JSON.stringify({"sales_group_id": salesGroup.id}),
                             headers: {"Content-type": "application/json; charset=UTF-8"}
                         }
                     );

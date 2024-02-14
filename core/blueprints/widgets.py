@@ -19,6 +19,7 @@ from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files, DEFAULT_FILES_S3_PATH
 from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
+from ..database.tables.not_interested_sales_group_ids_for_accounts import NotInterestedSalesGroupIdsForAccounts
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_NAMES_TO_IDS
@@ -273,9 +274,9 @@ def sales_group_search(id):
 @crut.require_account
 def search_summary():
     searches = SalesGroupSearches(g.db).get(user_id=g.user.id())
-    not_interested = []
     results = []
     filtered_results = []
+    not_interested = NotInterestedSalesGroupIdsForAccounts(g.db).get(account_id=g.account.id())
     for search in searches:
         sales_group_rows = SalesGroups(g.db).search_within(
             zip_code=int(search["zip"]),
@@ -290,13 +291,8 @@ def search_summary():
             programs=search["multi_select_fields"].get("programs", None) if search["multi_select_fields"] else None,
             target_date_description=search["target_date_description"]
         )
-        if search["not_interested_sales_group_ids"] is not None:
-            not_interested_sales_group_ids_data = json.loads(search["not_interested_sales_group_ids"])
-            not_interested.extend(not_interested_sales_group_ids_data["sales_group_ids"])
-        for sales_group_row in sales_group_rows:
-            sales_group_row["sales_group_search_id"] = search["id"]
         results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
-    filtered_results = list(filter(lambda row: not any(id == row["id"] for id in not_interested), results))
+    filtered_results = list(filter(lambda row: not any(item["sales_group_id"] == row["id"] for item in not_interested), results))
     return filtered_results
 
 
@@ -965,22 +961,10 @@ def serve_add_new_sales_group_field_value():
 @bp.route('/widgets/not-interested-in-sales-group', methods=["POST"])
 @crut.require_account
 def serve_not_interested_in_sales_group():
-    sales_group_search_data = SalesGroupSearches(g.db).get(id=request.json["sales_group_search_id"])
-    if len(sales_group_search_data) > 0:
-        not_interested_sales_group_ids = sales_group_search_data[0]["not_interested_sales_group_ids"]
-        not_interested_sales_group_ids_data = {"sales_group_ids": []}
-        if not_interested_sales_group_ids is not None:
-            not_interested_sales_group_ids_data = json.loads(not_interested_sales_group_ids)
-            sales_group_ids = not_interested_sales_group_ids_data["sales_group_ids"]
-            sales_group_ids.append(request.json["sales_group_id"])
-            not_interested_sales_group_ids_data["sales_group_ids"] = sales_group_ids
-        else:
-            sales_group_ids = [request.json["sales_group_id"]]
-            not_interested_sales_group_ids_data["sales_group_ids"] = sales_group_ids
-        SalesGroupSearches(g.db).update(
-            id=request.json["sales_group_search_id"],
-            not_interested_sales_group_ids=not_interested_sales_group_ids_data
-        )
+    NotInterestedSalesGroupIdsForAccounts(g.db).insert(
+        account_id=g.account.id(),
+        sales_group_id=request.json["sales_group_id"]
+    )
     return Response(status=HTTP_OK)
 
 
