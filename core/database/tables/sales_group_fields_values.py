@@ -54,7 +54,7 @@ class SalesGroupFieldsValues:
             }
         )
 
-    def get(self, id=NO_VALUE, field_id=NO_VALUE):
+    def get(self, id=NO_VALUE, field_id=NO_VALUE, is_archived=NO_VALUE):
         """
         Gets the sales group fields values based on provided parameters
 
@@ -75,6 +75,9 @@ class SalesGroupFieldsValues:
         if field_id is not NO_VALUE:
             query_conditions.append("field_id = %(field_id)s")
             query_values["field_id"] = field_id
+        if is_archived is not NO_VALUE:
+            query_conditions.append("is_archived = %(is_archived)s")
+            query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -84,7 +87,7 @@ class SalesGroupFieldsValues:
         rows = self._db.execute_d(query, query_values)
         return rows
         
-    def update(self, id, field_id=NO_VALUE, value=NO_VALUE):
+    def update(self, id, field_id=NO_VALUE, value=NO_VALUE, is_archived=NO_VALUE):
         """
         Updates the row based on the provided attributes
 
@@ -101,10 +104,13 @@ class SalesGroupFieldsValues:
 
         if field_id is not NO_VALUE:
             query_conditions.append("field_id = %(field_id)s")
-            query_values["field_id"] = field_id        
+            query_values["field_id"] = field_id
         if value is not NO_VALUE:
             query_conditions.append("value = %(value)s")
             query_values["value"] = value
+        if is_archived is not NO_VALUE:
+            query_conditions.append("is_archived = %(is_archived)s")
+            query_values["is_archived"] = is_archived
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

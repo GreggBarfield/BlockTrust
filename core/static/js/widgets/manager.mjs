@@ -50,6 +50,7 @@ import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
 import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
 import { SeedstockProducersWidget } from './types/marketplace/seedstock_producers.mjs';
 import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstock_producer_data.mjs';
+import { ManageSalesGroupFieldsValuesWidget } from './types/employee/sales-groups/manage-sales-group-fields-values.mjs';
 
 // Immediately invoked
 (function () {
@@ -115,6 +116,7 @@ import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstoc
     attach("view order", ViewOrderWidget);
     attach("seedstock producers", SeedstockProducersWidget);
     attach("add seedstock producer data", AddSeedstockProducerDataWidget);
+    attach("manage sales group fields values", ManageSalesGroupFieldsValuesWidget);
 
     // Find widgets
     $(".widget").each(function () {

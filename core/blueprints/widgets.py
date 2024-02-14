@@ -31,7 +31,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -952,3 +952,19 @@ def serve_add_new_sales_group_field_value():
         return {"error": str(e)}
     except Exception as e:
         raise e
+
+
+@bp.route('/widgets/add-new-sales-group-field-values', methods=["POST"])
+@crut.require_employee
+def serve_add_new_sales_group_field_values():
+    for new_field_value in request.json["new_field_values"]:
+        SalesGroupFieldsValues(g.db).insert(field_id=request.json["field_id"], value=new_field_value)
+    return Response(status=HTTP_OK)
+
+
+@bp.route('/widgets/remove-sales-group-field-values', methods=["POST"])
+@crut.require_employee
+def serve_remove_sales_group_field_values():
+    for sales_group_field_value_id in request.json["sales_group_field_value_ids"]:
+        SalesGroupFieldsValues(g.db).update(id=sales_group_field_value_id, is_archived=1)
+    return Response(status=HTTP_OK)

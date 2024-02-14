@@ -43,7 +43,7 @@ def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
         form_post_route = url_for('iframe_bp.serve_create_sales_group')
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
         return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
             "form_post_route": form_post_route,
@@ -114,7 +114,7 @@ def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
     if len(auction_markets) == 0:
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
     form_post_route = url_for('iframe_bp.serve_create_sales_group')
-    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
         "auction_markets": auction_markets,
         "form_post_route": form_post_route,
@@ -159,7 +159,7 @@ def serve_edit_sales_group(sales_group_id):
             return outside_render("/outside/iframes/sales-groups/unauthorized.html")
         external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
             sales_group_id=sales_group['id'])
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
         return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
             "sales_group": sales_group,
             "auction_markets": auction_markets,
