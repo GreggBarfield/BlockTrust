@@ -982,3 +982,19 @@ def serve_not_interested_in_sales_group():
             not_interested_sales_group_ids=not_interested_sales_group_ids_data
         )
     return Response(status=HTTP_OK)
+
+
+@bp.route('/widgets/add-new-sales-group-field-values', methods=["POST"])
+@crut.require_employee
+def serve_add_new_sales_group_field_values():
+    for new_field_value in request.json["new_field_values"]:
+        SalesGroupFieldsValues(g.db).insert(field_id=request.json["field_id"], value=new_field_value)
+    return Response(status=HTTP_OK)
+
+
+@bp.route('/widgets/remove-sales-group-field-values', methods=["POST"])
+@crut.require_employee
+def serve_remove_sales_group_field_values():
+    for sales_group_field_value_id in request.json["sales_group_field_value_ids"]:
+        SalesGroupFieldsValues(g.db).update(id=sales_group_field_value_id, is_archived=1)
+    return Response(status=HTTP_OK)

@@ -1,0 +1,18 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Sales Group Fields Values" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="row">
+    <div 
+        class="col-md-12 mb-0 widget"
+        data-widget-type="manage sales group fields values"
+        data-widget-sales-group-fields-values='{{sales_group_fields_values|tojson}}'
+        data-widegt-sales-group-field-ids-to-names='{{sales_group_field_ids_to_names|tojson}}'
+    ></div>
+</div>
+{% endblock employee_content %}
