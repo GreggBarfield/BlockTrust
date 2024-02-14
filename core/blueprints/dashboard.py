@@ -191,7 +191,7 @@ def serve_sales_groups(id):
 @crut.require_paid_account
 def serve_new_sales_group():
     auction_markets = AuctionMarkets(g.db).get_auction_markets()
-    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     form_post_route = url_for('widgets_bp.serve_create_sales_group')
     return dashboard_render("sales-groups/sales-group/create.html", {
         "form_post_route": form_post_route,
@@ -216,7 +216,7 @@ def serve_edit_sales_group(sales_group_id):
     external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
                                                      sales_group_id=sales_group_row['id'])
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
-    sales_group_fields_values = SalesGroupFieldsValues(g.db).get()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     return dashboard_render(
         "sales-groups/sales-group/edit.html", {
             "sales_group": sales_group_row,
