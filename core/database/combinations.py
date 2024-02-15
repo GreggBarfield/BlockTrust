@@ -6,7 +6,7 @@ from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.connection_invites import ConnectionInvites
-from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.reports import Reports
 from core.database.tables.sent_emails import SentEmails
 from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
