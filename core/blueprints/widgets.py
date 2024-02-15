@@ -19,6 +19,7 @@ from ..database.tables.connection_invites import ConnectionInvites
 from ..database.tables.files import Files, DEFAULT_FILES_S3_PATH
 from ..database.tables.matches import Matches
 from ..database.tables.messages import Messages
+from ..database.tables.not_interested_sales_group_ids_for_accounts import NotInterestedSalesGroupIdsForAccounts
 from ..database.tables.reports import Reports
 from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_NAMES_TO_IDS
@@ -31,7 +32,7 @@ from ..database.tables.sales_groups import SalesGroups
 from ..reports.query_types import count_eid_distinct, count_distribution
 
 from ..renderers.email import render_email
-from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT, HTTP_OK
+from ..utilities.constants import HTTP_CREATED, HTTP_NO_CONTENT
 from ..utilities.email import send_email
 from ..utilities.general_utilities import format_field
 from ..utilities.spatial_math import meters_to_miles, distance
@@ -274,6 +275,8 @@ def sales_group_search(id):
 def search_summary():
     searches = SalesGroupSearches(g.db).get(user_id=g.user.id())
     results = []
+    filtered_results = []
+    not_interested = NotInterestedSalesGroupIdsForAccounts(g.db).get(account_id=g.account.id())
     for search in searches:
         sales_group_rows = SalesGroups(g.db).search_within(
             zip_code=int(search["zip"]),
@@ -289,7 +292,8 @@ def search_summary():
             target_date_description=search["target_date_description"]
         )
         results.extend(list(filter(lambda row: not any(item["id"] == row["id"] for item in results), sales_group_rows)))
-    return results
+    filtered_results = list(filter(lambda row: not any(item["sales_group_id"] == row["id"] for item in not_interested), results))
+    return filtered_results
 
 
 @bp.route('/widgets/data/search_by_eid_and_visual_id_for_account', methods=['POST'])
@@ -954,12 +958,22 @@ def serve_add_new_sales_group_field_value():
         raise e
 
 
+@bp.route('/widgets/not-interested-in-sales-group', methods=["POST"])
+@crut.require_account
+def serve_not_interested_in_sales_group():
+    NotInterestedSalesGroupIdsForAccounts(g.db).insert(
+        account_id=g.account.id(),
+        sales_group_id=request.json["sales_group_id"]
+    )
+    return Response(status=HTTP_NO_CONTENT)
+
+
 @bp.route('/widgets/add-new-sales-group-field-values', methods=["POST"])
 @crut.require_employee
 def serve_add_new_sales_group_field_values():
     for new_field_value in request.json["new_field_values"]:
         SalesGroupFieldsValues(g.db).insert(field_id=request.json["field_id"], value=new_field_value)
-    return Response(status=HTTP_OK)
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/widgets/remove-sales-group-field-values', methods=["POST"])
@@ -967,4 +981,4 @@ def serve_add_new_sales_group_field_values():
 def serve_remove_sales_group_field_values():
     for sales_group_field_value_id in request.json["sales_group_field_value_ids"]:
         SalesGroupFieldsValues(g.db).update(id=sales_group_field_value_id, is_archived=1)
-    return Response(status=HTTP_OK)
+    return Response(status=HTTP_NO_CONTENT)
