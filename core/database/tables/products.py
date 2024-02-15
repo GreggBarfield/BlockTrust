@@ -29,7 +29,7 @@ class ProductTable:
 
     def get_products(self, id=NO_VALUE, product=NO_VALUE, pic_1=NO_VALUE, pic_2=NO_VALUE, price=NO_VALUE, post=NO_VALUE,
                      subheader=NO_VALUE, details=NO_VALUE, unit=NO_VALUE, partner=NO_VALUE, product_vendor_id=NO_VALUE,
-                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE, include_images=False):
+                     is_premise_id_required=NO_VALUE, product_type=NO_VALUE, is_internal=NO_VALUE, include_images=False):
         """
         Gets the product based on the attributes provided
 
@@ -95,6 +95,9 @@ class ProductTable:
         if product_vendor_id is not NO_VALUE:
             query_conditions.append("product_vendor_id = %(product_vendor_id)s")
             query_values["product_vendor_id"] = product_vendor_id
+        if is_internal is not NO_VALUE:
+            query_conditions.append("is_internal = %(is_internal)s")
+            query_values["is_internal"] = is_internal
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

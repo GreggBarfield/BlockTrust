@@ -1,0 +1,63 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "Manage Sales Groups"| string %}
+
+{% block outside_content %}
+<div class="card m-2 p-2">
+    <div clas="card-header">
+        <h5>Manage Sales Groups</h5>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-xs">
+            <thead>     
+                <tr>
+                    <th>Sales Group ID</th>
+                    <th>Name</th>
+                    <th>Published</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sales_group in sales_groups %}
+                <tr>
+                    <td>{{sales_group.id}}</td>
+                    <td>{{sales_group.group_name or ""}}</td>
+                    <td>
+                        {% if sales_group.published == 1%}
+                        Yes
+                        {% else %}
+                        No
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-info" href="/iframe/sales-group/view/{{sales_group.id}}">
+                            View
+                        </a>
+                        <a class="btn btn-sm btn-info" href="/iframe/sales-group/edit/{{sales_group.id}}">
+                            Edit
+                        </a>
+                        <button class="btn btn-sm btn-info" href="" onclick="archive('{{sales_group.id}}')">
+                            Archive
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    async function archive(salesGroupID){
+        const response = await fetch(
+            "/widgets/data/archive_sales_group",{
+                method: "POST",
+                body: JSON.stringify({"sales_group_id": salesGroupID}),
+                headers: {"Content-type": "application/json; charset=UTF-8"}
+            }
+        );
+        if(response.ok == true){
+            location.reload();
+        }
+    }
+</script>
+{% endblock outside_content %}

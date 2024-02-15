@@ -12,9 +12,10 @@ export class TagStoreWidget extends Widget {
         let products = JSON.parse(this.frame.getAttribute("data-widget-all-product-data"));
         let productCategories = JSON.parse(this.frame.getAttribute("data-widget-product-categories"));
         let productVendorIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-product-vendor-ids-to-names"));
+        let shoppingCartLink = this.frame.getAttribute("data-widget-shopping-cart-link");
 
         this.frame.innerHTML = "";
-        let shoppingCartLinkContainer = this.makeShoppingCartLinkContainer();
+        let shoppingCartLinkContainer = this.makeShoppingCartLinkContainer(shoppingCartLink);
         this.frame.append(shoppingCartLinkContainer);
         for(let productCategory of productCategories){
             let productCategoryContainer = this.makeProductCategoryContainer(productCategory, products, productVendorIdsToNames);
@@ -22,10 +23,10 @@ export class TagStoreWidget extends Widget {
         }
     }
 
-    makeShoppingCartLinkContainer = () =>{
+    makeShoppingCartLinkContainer = (shoppingCartLink) =>{
         let shoppingCartLinkContainer = document.createElement("div");
         shoppingCartLinkContainer.className = "col-md-12 d-flex justify-content-end";
-        let shoppingCartLinkButton = generateButtonLink("VIEW CART", "/shop/shopping-cart", true, "fas fa-shopping-cart");
+        let shoppingCartLinkButton = generateButtonLink("VIEW CART", shoppingCartLink, true, "fas fa-shopping-cart");
         shoppingCartLinkContainer.append(shoppingCartLinkButton);
         return shoppingCartLinkContainer;
     }
@@ -46,8 +47,10 @@ export class TagStoreWidget extends Widget {
         cardBody.className = "card-body row";
         for(let product of products){
             if(product.is_active == 1 && product.product_category_id == productCategory.id){
+                let productCardContainer = document.createElement("div");
+                productCardContainer.className = "col-md-4";
                 let productCard = document.createElement("div");
-                productCard.className = "card col-md-4 border border-dark rounded";
+                productCard.className = "card border border-dark rounded m-1 p-1";
 
                 let productCardBody = document.createElement("div");
                 productCardBody.className = "card-body";
@@ -75,16 +78,17 @@ export class TagStoreWidget extends Widget {
                 productCardFooterModalButtonContainer.className = "col-md-4 pt-2";
                 let addToCartButton = document.createElement("button");
 
-                addToCartButton.className = "btn btn-outline-primary m-0 p-1";
-                addToCartButton.textContent = "Add to Cart";
+                addToCartButton.className = "btn btn-outline-primary m-0 p-2";
+                addToCartButton.textContent = "More Details";
                 addToCartButton.onclick = () =>{
                     this.generateProductInfoModal(product);
                 }
                 productCardFooterModalButtonContainer.append(addToCartButton);
                 productCardFooter.append(productCardFooterModalButtonContainer);
                 productCard.append(productCardFooter);
-                    
-                cardBody.append(productCard);
+                productCardContainer.append(productCard);
+                
+                cardBody.append(productCardContainer);
             }
         }
         // Hide Product category cards that have no products
@@ -130,7 +134,7 @@ export class TagStoreWidget extends Widget {
         productPriceIcon.className = "far fa-bookmark mr-1";
         productPriceContainer.append(productPriceIcon);
         let productPrice = document.createElement("h6");
-        productPrice.textContent = "Price: $" + productData.price;
+        productPrice.textContent = "Price: $" + productData.price.toFixed(2);
         productPriceContainer.append(productPrice);
         productDetailsContainer.append(productPriceContainer);
 
@@ -203,7 +207,10 @@ export class TagStoreWidget extends Widget {
             product_name: productData.product,
             quantity: parseInt(productQuantity),
             is_premise_id_required_for_product: parseInt(productData.is_premise_id_required),
-            product_units: productData.unit
+            product_units: productData.unit,
+            vendor_product_reference_id: productData.vendor_product_reference_id,
+            product_units_per_order: productData.units_per_order,
+            product_vendor_id: productData.product_vendor_id
         }
         if(!(productData.id in shoppingCart)){
             shoppingCart[productData.id] = productDataToBeStored;

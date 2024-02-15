@@ -1,1 +1,0 @@
-$("#grandTotal").text(localStorage.getItem('grandTotal'))

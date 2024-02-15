@@ -9,8 +9,21 @@ Checkout
 {% block dashboard_content %}
 <div class="row">
     <div class="col">
-        <div class = "col-sm-12 mb-0 widget" data-widget-type = "checkout">
-        </div>
+        <div 
+            class = "col-sm-12 mb-0 widget" 
+            data-widget-type = "checkout"
+            data-widget-first-name = '{{dashboard_standard_user_first}}'
+            data-widget-last-name = '{{dashboard_standard_user_last}}'
+            data-widget-company-name = '{{dashboard_standard_account.company()}}'
+            data-widget-address = '{{dashboard_standard_account.address()}}'
+            data-widget-city = '{{dashboard_standard_account.city()}}'
+            data-widget-state = '{{dashboard_standard_account.state()}}'
+            data-widget-zip = '{{dashboard_standard_account.zip()}}'
+            data-widget-phone = '{{dashboard_standard_account.phone()}}'
+            data-widget-shop-homepage-link = '{{shop_homepage_link}}'
+            data-widget-shopping-cart-link = '{{shopping_cart_link}}'
+            data-widget-checkout-payment-link = '{{checkout_payment_link}}'
+        ></div>
     </div>
 </div>
 {% endblock dashboard_content %}

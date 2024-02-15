@@ -1,14 +1,21 @@
+from core.database.tables.matches import Matches
+from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
+from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
+from core.database.tables.reports import Reports
 from flask import (
     Response, request, Blueprint, g, redirect, url_for
 )
+import json
+import stripe
 
 from ..blueprints.stripe import serve_stripe_price
 from ..config import ROOT as WEBSITE_ROOT, FLATFILE_LICENSE
-from core.database.tables.account_users import AccountUsers
+from ..database.tables.account_users import AccountUsers
 from ..database.tables.api_inserts import ApiInserts
 from ..database.tables.accounts import AccountsException, HEALTH_TRACK_PARTNER_COMPANY, Accounts
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEGORY_IDS_TO_NAMES
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
@@ -16,12 +23,15 @@ from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
 from ..database.tables.orders import Orders
+from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
+from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
 from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
+from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
 from ..database import scripts
-from ..database.combinations import perform_new_account_actions, update_partner_payment_of_account
+from ..database.combinations import perform_new_account_actions, send_email_to_admin_users, update_partner_payment_of_account
 from ..database.tables.event_logs import EVENT_TYPE_NAMES_TO_IDS
 from ..common_exceptions import ExportException
 from ..renderers.employee import employee_render
@@ -30,11 +40,9 @@ from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
 from ..utilities import crut, auth, token
 from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
-from random import randint
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
 from datetime import datetime
-import json
 
 bp = Blueprint('employee_bp', __name__)
 
@@ -56,6 +64,7 @@ def serve_employee_create_account():
 
 
 @bp.route("/employee/dashboard/create-new-account/action", methods=["POST"])
+@crut.require_employee
 def serve_employee_create_account_action():
     try:
         required = {
@@ -88,9 +97,7 @@ def serve_employee_create_account_action():
                 zip=format_field(required['zip_code'])
         )
 
-        # Creating a default pseudo admin user for created account
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
-        # Assigning user as admin
         AccountUsers(g.db).insert_account_user(user_id, account_obj.id(), int(True))
 
         perform_new_account_actions(
@@ -112,6 +119,7 @@ def serve_add_new_employee():
 
 
 @bp.route("/employee/dashboard/add-new-employee/action", methods=["POST"])
+@crut.require_employee
 def serve_add_new_employee_action():
     try:
         required = {
@@ -288,7 +296,7 @@ def serve_edit_selected_partner(partner_id):
         )
         credits_diff = subscription_credits - partner["partner_subscription_credits"]
         if credits_diff:
-            Transactions(g.db).insert_transaction(
+            Transactions(g.db).insert(
                 transaction_type_id=TRANSACTION_TYPE_NAMES_TO_IDS["Subscription Credits"],
                 partner_id=partner["id"],
                 subscription_credits=credits_diff,
@@ -309,6 +317,7 @@ def serve_edit_selected_partner(partner_id):
 
 
 @bp.route("/employee/dashboard/view-partners", methods=["GET"])
+@crut.require_employee
 def serve_view_partners():
     partner_rows = Accounts(g.db).get_partners()
     partner_and_partner_users = []
@@ -330,6 +339,7 @@ def serve_view_partners():
 
 
 @bp.route("/employee/dashboard/create-new-partner", methods=["GET"])
+@crut.require_employee
 def serve_create_new_partner():
     return employee_render("/employee/accounts/create-new-partner.html", {
         "sectors_name_to_id": SECTORS_NAME_TO_ID
@@ -337,6 +347,7 @@ def serve_create_new_partner():
 
 
 @bp.route("/employee/dashboard/create-new-partner/action", methods=["POST"])
+@crut.require_employee
 def serve_create_new_partner_action():
     try:
         required = {
@@ -368,12 +379,14 @@ def serve_create_new_partner_action():
         )
         user_id = Users(g.db).create_pseudo_user(account_id, True)
         AccountUsers(g.db).insert_account_user(user_id, account_id, int(False))
+        Reports(g.db).make_partner_reports(account_id, int(format_field(required['sector'])))
         return {"redirect": "/employee/dashboard/view-partners"}
     except (ExportException, AccountsException, UsersException, ValueError) as e:
         return {"error": str(e)}
 
 
 @bp.route("/employee/upload-packer-data", methods=["GET", "POST"])
+@crut.require_employee
 def serve_upload_packer_data():
     if request.method == 'POST':
         data = json.loads(request.data)
@@ -390,6 +403,7 @@ def serve_upload_packer_data():
 
 
 @bp.route("/employee/dashboard/notifications", methods=["GET"])
+@crut.require_employee
 def serve_notifications():
     notifications = Notifications(g.db).get_notifications()
     return employee_render("/employee/accounts/notifications/notifications.html", {
@@ -399,16 +413,19 @@ def serve_notifications():
 
 
 @bp.route("/employee/dashboard/create-new-notification", methods=["GET"])
+@crut.require_employee
 def serve_create_new_notifcation():
     return employee_render("/employee/accounts/notifications/create-new-notification.html")
 
 
 @bp.route("/employee/dashboard/create-new-notification/global", methods=["GET"])
+@crut.require_employee
 def serve_create_global_notification():
     return employee_render("/employee/accounts/notifications/create-global-notification.html")
 
 
 @bp.route("/employee/dashboard/create-new-notification/global/action", methods=["POST"])
+@crut.require_employee
 def serve_create_global_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -420,12 +437,14 @@ def serve_create_global_notification_action():
 
 
 @bp.route("/employee/dashboard/create-new-notification/partner", methods=["GET"])
+@crut.require_employee
 def serve_create_partner_notification():
     partners = Accounts(g.db).get_accounts(is_partner=1)
     return employee_render("/employee/accounts/notifications/create-partner-notification.html", {"partners": partners})
 
 
 @bp.route("/employee/dashboard/create-new-notification/partner/action", methods=["POST"])
+@crut.require_employee
 def serve_create_partner_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -440,11 +459,13 @@ def serve_create_partner_notification_action():
 
 
 @bp.route("/employee/dashboard/create-new-notification/sector", methods=["GET"])
+@crut.require_employee
 def serve_create_sector_notification():
     return employee_render("/employee/accounts/notifications/create-sector-notification.html", {"sectors_id_to_name": SECTORS_ID_TO_NAME})
 
 
 @bp.route("/employee/dashboard/create-new-notification/sector/action", methods=["POST"])
+@crut.require_employee
 def serve_create_sector_notification_action():
     notification_id = Notifications(g.db).insert_notification(
         subject=request.form["subject"],
@@ -459,6 +480,7 @@ def serve_create_sector_notification_action():
 
 
 @bp.route("/employee/dashboard/archive-notification", methods=["POST"])
+@crut.require_employee
 def serve_archive_notification():
     Notifications(g.db).update_notification(id=int(request.json["notification_id"]), is_archived=1)
     return {}
@@ -496,8 +518,9 @@ def serve_update_account_paid_status():
 
 @bp.route('/employee/dashboard/animals/', defaults={'animal_eid': ''}, methods=['GET'])
 @bp.route("/employee/dashboard/animals/<int:animal_eid>", methods=["GET"])
+@crut.require_employee
 def serve_animal_eid(animal_eid):
-    animal = g.db.matches.get_animal_by_eid(animal_eid)
+    animal = Matches(g.db).get_animal_by_eid(animal_eid)
 
     display_certificate = False
     owner_account_match = sorted(
@@ -565,6 +588,17 @@ def serve_tag_store_reports():
     total = sum([order["grand_total"] for order in orders])
     return employee_render("/employee/finance/tag-store-reports.html", {
         "orders": orders, "total": round(total, 2)
+    })
+
+
+@bp.route("/employee/dashboard/select-report-type/tag-report", methods=["GET"])
+@crut.require_employee
+def serve_tag_reports():
+    accounts = Accounts(g.db).get_accounts(sector=SECTORS_NAME_TO_ID["Cow-Calf"], is_partner=int(False))
+    for account in accounts:
+        account["tag_count"] = Matches(g.db).get_count_eid_distinct_for_accounts(account["id"])
+    return employee_render("/employee/finance/tag-report.html", {
+        "accounts_and_tags": accounts
     })
 
 
@@ -703,6 +737,181 @@ def serve_log_back_in():
             auth.login_as_employee(employee["id"])
             return redirect(url_for("employee_bp.serve_dashboard"))
         else:
-            raise ExportException("Not authorized")
+            auth.logout()
+            return redirect(url_for("outside_bp.serve_employee_login"))
     else:
-        raise ExportException("Not authorized")
+        auth.logout()
+        return redirect(url_for("outside_bp.serve_employee_login"))
+
+
+@bp.route("/employee/payment-links", methods=["GET", "POST"])
+@crut.require_employee
+def serve_payment_links():
+    if request.method == "POST":
+        if str_to_bool(request.form["recurring"]):
+            rec_payment_id = RecurringPayments(g.db).insert(
+                account_id=request.form["customer"],
+                employee_id=g.employee.id(),
+                recurring_interval=request.form["interval"],
+                status=RECURRING_STATUS_NAMES_TO_IDS["unpaid"],
+                amount=request.form["amount"],
+                reason=request.form["reason"],
+                description=request.form["description"]
+            )
+            return {
+                "redirect": url_for("employee_bp.serve_recurring_payment_link", recurring_payment_id=rec_payment_id)
+            }
+        else:
+            payment_id = Payments(g.db).insert(
+                account_id=request.form["customer"],
+                employee_id=g.employee.id(),
+                amount=request.form["amount"],
+                status=PAYMENT_STATUS_NAMES_TO_IDS["unpaid"],
+                reason=request.form["reason"],
+                description=request.form["description"]
+            )
+        return {"redirect": url_for("employee_bp.serve_payment_link", payment_id=payment_id)}
+    payments = RecurringPayments(g.db).get(employee_id=g.employee.id(), expand=True)
+    payments.extend(Payments(g.db).get(employee_id=g.employee.id(), recurring_payment_id=None, expand=True))
+    payments.sort(key=lambda p: p["created_timestamp"], reverse=True)
+    return employee_render("/employee/finance/payment-links.html", {
+        "payments": payments,
+        "root": WEBSITE_ROOT,
+        "PAYMENT_STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES,
+        "RECURRING_STATUS_IDS_TO_NAMES": RECURRING_STATUS_IDS_TO_NAMES,
+        "payment_route": url_for("employee_bp.serve_payment_link"),
+        "recurring_payment_route": url_for("employee_bp.serve_recurring_payment_link")
+    })
+
+
+@bp.route('/employee/payment-link/', defaults={'payment_id': ''}, methods=["GET"])
+@bp.route("/employee/payment-link/<int:payment_id>", methods=["GET"])
+@crut.require_employee
+def serve_payment_link(payment_id):
+    accounts = Accounts(g.db).get_accounts(columns=("id", "company"))
+    payment = None
+    if payment_id:
+        if payment := Payments(g.db).get(id=payment_id):
+            payment = payment[0]
+            payment["link"] = WEBSITE_ROOT + url_for("stripe_bp.serve_payment", payment_id=payment_id)
+            if payment["recurring_payment_id"]:
+                recurring_payment = RecurringPayments(g.db).get(id=payment["recurring_payment_id"])[0]
+                payment["recurring_interval"] = recurring_payment["recurring_interval"]
+        else:
+            raise ExportException("Bad Request")
+    return employee_render("/employee/finance/payment-link.html", {
+        "accounts": accounts, "payment": payment, "STATUS_IDS_TO_NAMES": PAYMENT_STATUS_IDS_TO_NAMES
+    })
+
+
+@bp.route('/employee/recurring-payment-link/', defaults={'recurring_payment_id': ''}, methods=["GET"])
+@bp.route("/employee/recurring-payment-link/<int:recurring_payment_id>", methods=["GET"])
+@crut.require_employee
+def serve_recurring_payment_link(recurring_payment_id):
+    accounts = Accounts(g.db).get_accounts(columns=("id", "company"))
+    recurring_payment = None
+    if recurring_payment_id:
+        if recurring_payment := RecurringPayments(g.db).get(id=recurring_payment_id):
+            recurring_payment = recurring_payment[0]
+            recurring_payment["link"] = WEBSITE_ROOT + url_for(
+                "stripe_bp.serve_recurring_payment", recurring_payment_id=recurring_payment_id
+            )
+        else:
+            raise ExportException("Bad Request")
+    return employee_render("/employee/finance/payment-link.html", {
+        "accounts": accounts, "payment": recurring_payment, "STATUS_IDS_TO_NAMES": RECURRING_STATUS_IDS_TO_NAMES
+    })
+
+
+@bp.route("/employee/billing", methods=["GET", "POST"])
+@crut.require_employee
+def serve_billing():
+    if request.method == "POST":
+        for account in request.json:
+            send_email_to_admin_users(
+                g.db, account["id"], "Your payment is due to be debited soon", render_email(
+                    "payment_debit_alert.html", {"company": account["company"], "unpaid_cattle": account["count_eid"]}
+                ),
+                add_log=True
+            )
+    accounts = Accounts(g.db).get_accounts_for_charge()
+    chargable_accounts = []
+    for account in accounts:
+        account["last4"] = "Not Added"
+        account["expiration"] = "N/A"
+        if account["stripe_customer_id"]:
+            payment_methods = stripe.PaymentMethod.list(
+                customer=account["stripe_customer_id"],
+                type="card",
+            )["data"]
+            if payment_methods:
+                account["last4"] = payment_methods[0].card.last4
+                account["expiration"] = (
+                    str(payment_methods[0].card.exp_month) + "/" + str(payment_methods[0].card.exp_year)
+                )
+                chargable_accounts.append(account)
+    return employee_render("/employee/finance/billing.html", {
+        "accounts": accounts, "chargeable_accounts": chargable_accounts
+    })
+
+
+@bp.route('/employee/auction-markets', methods=["GET"])
+@crut.require_employee
+def serve_auction_markets():
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    return employee_render("/employee/auction-markets/auction-markets.html", {"auction_markets": auction_markets})
+
+
+@bp.route('/employee/seedstock-producers/add', methods=["GET", "POST"])
+@crut.require_employee
+def serve_add_seedstock_producer():
+    if request.method == "GET":
+        seedstock_accounts = Accounts(g.db).get_accounts(sector=SECTORS_NAME_TO_ID["Seedstock Producer"])
+        return employee_render("/employee/marketplace/add-seedstock-producer.html", {
+            "marketplace_files_s3_path": MARKETPLACE_FILES_S3_PATH,
+            "seedstock_accounts": seedstock_accounts
+        })
+    if request.method == "POST":
+        SeedstockProducers(g.db).insert(
+            account_id=request.form["account_id"],
+            marketplace_account_name=request.form["name"],
+            marketplace_account_email=request.form["email"],
+            marketplace_account_contact_name=request.form["contact_name"],
+            marketplace_account_phone=request.form["phone"],
+            short_description=request.form["short_description"],
+            long_description=request.form["long_description"],
+            logo_file_id=request.form.get("logo_file_id", None)
+        )
+        return {"redirect": "/employee/dashboard"}
+
+
+@bp.route('/employee/sales-groups/sales-group-fields-values', methods=["GET"])
+@crut.require_employee
+def serve_sales_groups_field_values():
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
+    return employee_render("/employee/sales-groups/sales-group-fields-values.html",{
+        "sales_group_fields_values": sales_group_fields_values,
+        "sales_group_field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES
+    })
+
+
+@bp.route('/employee/sales-group-payments', methods=["GET"])
+@crut.require_employee
+def serve_sales_group_payments():
+    sales_groups = SalesGroups(g.db).get_sales_groups(payment_id_is_not_null=True)
+    sales_group_payments = []
+    for group in sales_groups:
+        row = {}
+        row["name"] = group["group_name"]
+        row["sale_date"] = datetime.utcfromtimestamp(group["sale_date"])
+        row["delivery_location"] = group["delivery_location"]
+        account = Accounts(g.db).get_accounts(id=group["account"])[0]
+        row["account_number"] = account["id"]
+        row["company"] = account["company"]
+        payment = Payments(g.db).get(id=group["payment_id"])[0]
+        row["amount"] = payment["amount"]
+        row["status"] = PAYMENT_STATUS_IDS_TO_NAMES[payment["status"]].capitalize()
+        row["paid_date"] = payment["paid_date"]
+        sales_group_payments.append(row)
+    return employee_render("/employee/finance/sales-group-payments.html",
+                           {"sales_group_payments": sales_group_payments})

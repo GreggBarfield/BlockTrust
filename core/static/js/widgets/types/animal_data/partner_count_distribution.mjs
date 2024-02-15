@@ -7,7 +7,7 @@ export class PartnerCountDistributionWidget extends Widget {
 
     initType = async() =>{
         let accountSummaryDataResult = await this.getData("data_request", {request: {type: "count_distribution", params: {}}});
-        let accountSummaryData = accountSummaryDataResult.result.count_distribution !== null ? accountSummaryDataResult.result.count_distribution: {};
+        let accountSummaryData = accountSummaryDataResult.result.count_distribution? accountSummaryDataResult.result.count_distribution: {};
         this.frame.innerHTML = "";
         let container = this.makeTableContainer(accountSummaryData);
         this.frame.appendChild(container);
@@ -28,7 +28,7 @@ export class PartnerCountDistributionWidget extends Widget {
 
         this.mainTableHeadRow0 = document.createElement("tr");
         this.mainTableHead.appendChild(this.mainTableHeadRow0);
-        const headers = ["Ranch", "Sightings", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
+        const headers = ["Member", "Sightings", "Sustainability Score", "Prime", "Choice", "Select", "YG1", "YG2", "YG3", "YG4", "YG5"]
         for (const headerText of headers) {
             let th = document.createElement("th");
             th.textContent = headerText;

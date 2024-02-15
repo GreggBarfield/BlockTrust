@@ -1,5 +1,5 @@
 import { Widget } from '../../widget.mjs';
-import { makeShoppingCartTotalsContainer, generateButtonLink, generateRemoveProductButton, makeShoppingCartTable } from '../../utilities/tag_store_utilities.mjs';
+import { makeShoppingCartTotalsContainer, generateButtonLink, getShoppingCartTotalsData, makeShoppingCartTable } from '../../utilities/tag_store_utilities.mjs';
 
 export class ShoppingCartWidget extends Widget {
     constructor(frame) {
@@ -8,11 +8,13 @@ export class ShoppingCartWidget extends Widget {
 
     initType = () =>{
         this.frame.innerHTML = "";
-        let shoppingCart = this.makeShoppingCart();
+        let shopHomepageLink = this.frame.getAttribute("data-widget-shop-homepage-link");
+        let checkoutLink = this.frame.getAttribute("data-widget-checkout-link");
+        let shoppingCart = this.makeShoppingCart(shopHomepageLink, checkoutLink);
         this.frame.append(shoppingCart);
     }
 
-    makeShoppingCart = () =>{
+    makeShoppingCart = (shopHomepageLink, checkoutLink) =>{
         let card = document.createElement("div");
         card.className = "card border rounded";
         
@@ -28,27 +30,30 @@ export class ShoppingCartWidget extends Widget {
         let cardBody = document.createElement("div");
         cardBody.className = "card-body row";
 
-        let shoppingCartTable = makeShoppingCartTable(true);
+        let shoppingCartString = localStorage.getItem("shoppingCart");
+        let shoppingCart = JSON.parse(shoppingCartString);
+        let shoppingCartTable = makeShoppingCartTable(shoppingCart, true, shopHomepageLink);
         cardBody.append(shoppingCartTable);
         let shoppingCartTotalsContainer = document.createElement("div");
         shoppingCartTotalsContainer.className = "col-md-6";
-        let shoppingCartTotals = makeShoppingCartTotalsContainer();
+        let shoppingCartTotalsData = getShoppingCartTotalsData();
+        let shoppingCartTotals = makeShoppingCartTotalsContainer(shoppingCartTotalsData);
         shoppingCartTotalsContainer.append(shoppingCartTotals);
         cardBody.append(shoppingCartTotalsContainer);
-        let shoppingCartPageLinks = this.makeShoppingCartPageLinksContainer();
+        let shoppingCartPageLinks = this.makeShoppingCartPageLinksContainer(shopHomepageLink, checkoutLink);
         cardBody.append(shoppingCartPageLinks);
 
         card.append(cardBody);
         return card;
     }
 
-    makeShoppingCartPageLinksContainer = () =>{
+    makeShoppingCartPageLinksContainer = (shopHomepageLink, checkoutLink) =>{
         let linksContainer = document.createElement("div");
         linksContainer.className = "col-md-12 d-flex justify-content-end";
 
-        let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", "/shop/tag-store", true, "fas fa-shopping-cart");
+        let continueShoppingButton = generateButtonLink("CONTINUE SHOPPING  ", shopHomepageLink, true, "fas fa-shopping-cart");
         linksContainer.append(continueShoppingButton);
-        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", "/shop/checkout", true, "fas fa-credit-card");
+        let proceedToCheckoutButton = generateButtonLink("PROCEED TO CHECKOUT  ", checkoutLink, true, "fas fa-credit-card");
         linksContainer.append(proceedToCheckoutButton);
         return linksContainer;
     }

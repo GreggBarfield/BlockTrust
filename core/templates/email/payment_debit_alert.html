@@ -1,0 +1,18 @@
+{% extends "email/standard.html" %}
+{% block email_standard_subdescription %}
+<div>
+    <p>
+        Hello {{company}},
+        <br><br>
+        We wanted to inform you that the following amount will be charged to your credit card on file:
+        <table border="0">
+            <tr><td>Total unpaid cattle: {{unpaid_cattle}}</td></tr>
+            <tr><td>Amount due: {{"$%.2f"|format(unpaid_cattle)}}</td></tr>
+        </table>
+    </p>
+    <p>If you have questions about this payment, or would just like to chat, contact us at any time. We'd love to hear from you.</p>
+    <p>Kind regards,<br> 
+       BlockTrust Network</p>
+</div>
+(Please don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

@@ -47,7 +47,10 @@ import { InvoiceWidget } from './types/tag-store/invoice.mjs';
 import { UploadRanchAccountsWidget } from './types/employee/accounts/upload_ranch_accounts.mjs';
 import { MapV2Widget } from './types/animal_data/map_v2_widget.mjs';
 import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
-
+import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
+import { SeedstockProducersWidget } from './types/marketplace/seedstock_producers.mjs';
+import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstock_producer_data.mjs';
+import { ManageSalesGroupFieldsValuesWidget } from './types/employee/sales-groups/manage-sales-group-fields-values.mjs';
 
 // Immediately invoked
 (function () {
@@ -110,6 +113,10 @@ import { CheckoutPaymentWidget } from './types/tag-store/checkout-payment.mjs';
     attach("upload ranch accounts", UploadRanchAccountsWidget);
     attach("map v2", MapV2Widget);
     attach("checkout payment", CheckoutPaymentWidget);
+    attach("view order", ViewOrderWidget);
+    attach("seedstock producers", SeedstockProducersWidget);
+    attach("add seedstock producer data", AddSeedstockProducerDataWidget);
+    attach("manage sales group fields values", ManageSalesGroupFieldsValuesWidget);
 
     // Find widgets
     $(".widget").each(function () {

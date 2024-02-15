@@ -19,6 +19,10 @@ let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
 let personal_phone = signupForm.find("#signup_form_personal_phone");
+let are_auction_market_utilized = signupForm.find("#signup_form_are_auction_market_utilizied");
+let auction_markets = signupForm.find("#signup_form_auction_markets");
+let preconditioning_programs = signupForm.find("#signup_form_preconditioning_programs");
+let pvp_programs = signupForm.find("#signup_form_pvp_programs")
 
 let ip="", country="";
 if(checkIP.toLowerCase() === "true") {
@@ -29,6 +33,53 @@ if(checkIP.toLowerCase() === "true") {
         country = clientMachineDetails.country;
     }
 }
+
+let preconditioningProgramsList = [];
+let pvpProgramsList = [];
+let auctionMarketsList = [];
+let preconditioningPrograms = [
+	"Health Track",
+	"Value Added Calf-45",
+	"OQBN Vac-45 Program",
+	"JRS Wean-Vac 45",
+	"Superior Livestock Vac-45",
+	"TAMU Vac-45",
+	"Integrity Beef Alliance Vac-45",
+	"Health Track Vac-45",
+	"NMSU Vac-45",
+	"MCA Vac-45",
+	"PrimeVac Vac-45",
+	"SelectVac WeanVac"
+];
+let pvpPrograms = [
+    "American Certified Brands",
+    "AzTx Cattle Co.",
+    "BeefTraxx",
+    "Big Blue Sale Barn Passport Program®",
+    "Cal Poly State Univ Animal Science",
+    "Frost PLLC dba FACTA",
+    "IdentiGEN North America",
+    "IMI Global",
+    "Legacy Verified",
+    "Ranchers Connecting Ranchers",
+    "Red Angus Association of America",
+    "Samson",
+    "TechniTrack",
+    "Zoetis Genetics",
+    "Other"
+];
+for(let auctionMarket of auctionMarkets){
+    auctionMarketsList.push({id: auctionMarket.id, text: auctionMarket.name + ", " + auctionMarket.city + ", "  + auctionMarket.state});
+}
+for(let preconditioningProgram of preconditioningPrograms){
+    preconditioningProgramsList.push({id: preconditioningProgram, text: preconditioningProgram});
+}
+for(let pvpProgram of pvpPrograms){
+    pvpProgramsList.push({id: pvpProgram, text: pvpProgram});
+}
+$("#signup_form_auction_markets").select2({data: auctionMarketsList, multiple: true, placeholder: "Select Auction Markets"});
+$("#signup_form_preconditioning_programs").select2({data: preconditioningProgramsList, multiple: true, placeholder: "Select Preconditioning Programs"});
+$("#signup_form_pvp_programs").select2({data: pvpProgramsList, multiple: true, placeholder: "Select PVP Programs"});
 
 let form = new AsyncForm({
     action: "/signup/action",
@@ -59,7 +110,11 @@ let form = new AsyncForm({
             zip_code: zip_code.val(),
             personal_phone: personal_phone.val(),
             ip_address: ip,
-            ip_country: country
+            ip_country: country,
+            are_auction_markets_used_by_account: are_auction_market_utilized.val(),
+            auction_markets: JSON.stringify(auction_markets.val()),
+            preconditioning_programs: JSON.stringify(preconditioning_programs.val()),
+            pvp_programs: JSON.stringify(pvp_programs.val())
         }
     }
 });
@@ -69,5 +124,15 @@ partner.on('change', function() {
         partner_id.prop('disabled', true);
     } else {
         partner_id.prop('disabled', false);
+    }
+});
+
+are_auction_market_utilized.on('change', function(){
+    if(are_auction_market_utilized.val() == "0"){
+        auction_markets.prop('disabled', true);
+        auction_markets.val(null).trigger("change");
+    }
+    else{
+        auction_markets.prop('disabled', false);
     }
 });

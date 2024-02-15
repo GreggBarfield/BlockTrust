@@ -341,7 +341,7 @@ ADD COLUMN `partner_contact_email` VARCHAR(127) NULL DEFAULT NULL COMMENT 'This 
 /* Note ids of partners on dev server: 582 - MFA PowerCalf, 603 - ILS, 604 - MFA HealthTrack, 605 - BTN1. You will see the same ids in the 
    api_inserts table depending on who the data came from */
 INSERT INTO `example_db_1`.`accounts`(id, company, sector, is_partner, partner_contact_name, partner_contact_email, phone, address, city, state, zip)
-values(604,  'MFA Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
+values(604,  'Health Track', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       (582,  'MFA Power Calf', 4, 1, 'Mike John', 'mjohn@mfa-inc.com', 5738745111, '201 Ray Young Drive', 'Columbia', 'MO', 65201),
       (603, 'ILS, Inc.', 6, 1, 'Brandon Depenbush', 'brandon.depenbusch@ilsbeef.com', 7855879700, '2006 Broadway Avenue', 'Great Bend', 'KS', 66503)
 
@@ -921,7 +921,7 @@ CREATE TABLE `api_data_requests` (
 /* Nisheet Thakur 01/04/2022 */
 ALTER TABLE `accounts` 
 ADD COLUMN `is_partner_used_for_signup` TINYINT NULL DEFAULT '0';
-SET @partner_id := (SELECT id FROM accounts WHERE company='MFA Health Track' AND is_partner=1);
+SET @partner_id := (SELECT id FROM accounts WHERE company='Health Track' AND is_partner=1);
 UPDATE `accounts` SET `is_partner_used_for_signup`=1 WHERE `id`=@partner_id;
 
 /* Nisheet Thakur 01/10/2021 */
@@ -1788,7 +1788,7 @@ ADD COLUMN `details` JSON NULL AFTER `blocked_date`,
 CHANGE COLUMN `blocked_date_time` `blocked_date` DATETIME NULL DEFAULT NULL;
 
 /* Rohan Sureshkumar 1/27/23 */
-UPDATE accounts SET name = CONCAT("Auction House ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
+UPDATE accounts SET name = CONCAT("Auction ", id) WHERE sector = 5 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Feedlot ", id) WHERE sector = 6 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Packer ", id) WHERE sector = 7 AND (is_partner=0 OR is_partner IS NULL);
 UPDATE accounts SET name = CONCAT("Buyer ", id) WHERE sector = 8 AND (is_partner=0 OR is_partner IS NULL);
@@ -2006,3 +2006,608 @@ VALUES(900, 294, 4.0, 0.5, 2.2, 4.5, 3.5, 2.0, 2.8, 20,'{"air": {"air1": "Yes", 
 (902, 296, 4.0, 0.5, 2.2, 4.5, 3.5, 2.0, 2.8, 20,'{"air": {"air1": "Yes", "air2": "Yes", "air3": "Yes", "air4": "Yes", "air5": "Yes", "air6": "Yes", "air7": "No", "air8": "We track emissions but have no direct GHG reduction goal to report at this time.  We have SBTi 1.5C targets established but those are goals for reductions in fossil fuel use (scope 1),  increase in renewable electricity use (scope 2) and in areas of scope 3 (livestock).", "air9": "No", "air10": "Yes"}, "land": {"land1": "No", "land2": "No", "land3": "No", "land4": "No", "land5": "Yes", "land6": "No"}, "water": {"water1": "No", "water2": "No", "water3": "0", "water4": "837.4 gal/hd at slaughter plants", "water5": "Yes", "water6": "Yes", "water7": "No", "water8": "Yes", "water9": "No", "water10": "Yes", "water11": "No", "water12": "Yes", "water13": "No"}, "animal": {"animal1": "Yes", "animal2": "Yes", "animal3": "Yes", "animal4": "100", "animal5": "100", "animal6": "Yes", "animal7": "0", "animal8": "Yes", "animal9": "Yes", "animal10": "Yes", "animal11": "No", "animal12": "Yes", "animal13": "As needed", "animal14": "Yes", "animal15": "100", "animal16": "Yes", "animal17": "100"}, "safety": {"safety1": "Yes", "safety2": "No", "safety3": "Yes", "safety4": "Yes", "safety5": "Yes", "safety6": "Yes", "safety7": "Yes", "safety8": "Yes", "safety9": "No", "safety10": "No"}, "efficiency": {"efficiency1": "Yes", "efficiency2": "No", "efficiency3": "Yes", "efficiency4": "45.5 lb./head", "efficiency5": "No", "efficiency6": "No", "efficiency7": "Yes", "efficiency8": "No", "efficiency9": "No", "efficiency10": "Not available for sharing at this time", "efficiency11": "No", "efficiency12": "No", "efficiency13": "No", "efficiency14": "No"}, "improvement": {"improvement1": "Yes", "improvement2": "Planning in next 2-3 years", "improvement3": "Yes", "improvement4": "Planning in next 2-3 years", "improvement5": "No", "improvement6": "Scope 3 emissions in our sector are only available as estimates and estimation methods are not consistent or validated", "improvement7": "No", "improvement8": "Yes", "improvement9": "No", "improvement10": "3.3% if scope 1 and 18% of scope 2 are renewable", "improvement11": "No", "improvement12": "No", "improvement13": "No"}}', 7, 1),
 (903, 297, 4.0, 0.5, 2.2, 4.5, 3.5, 2.0, 2.8, 20,'{"air": {"air1": "Yes", "air2": "Yes", "air3": "Yes", "air4": "Yes", "air5": "Yes", "air6": "Yes", "air7": "No", "air8": "We track emissions but have no direct GHG reduction goal to report at this time.  We have SBTi 1.5C targets established but those are goals for reductions in fossil fuel use (scope 1),  increase in renewable electricity use (scope 2) and in areas of scope 3 (livestock).", "air9": "No", "air10": "Yes"}, "land": {"land1": "No", "land2": "No", "land3": "No", "land4": "No", "land5": "Yes", "land6": "No"}, "water": {"water1": "No", "water2": "No", "water3": "0", "water4": "837.4 gal/hd at slaughter plants", "water5": "Yes", "water6": "Yes", "water7": "No", "water8": "Yes", "water9": "No", "water10": "Yes", "water11": "No", "water12": "Yes", "water13": "No"}, "animal": {"animal1": "Yes", "animal2": "Yes", "animal3": "Yes", "animal4": "100", "animal5": "100", "animal6": "Yes", "animal7": "0", "animal8": "Yes", "animal9": "Yes", "animal10": "Yes", "animal11": "No", "animal12": "Yes", "animal13": "As needed", "animal14": "Yes", "animal15": "100", "animal16": "Yes", "animal17": "100"}, "safety": {"safety1": "Yes", "safety2": "No", "safety3": "Yes", "safety4": "Yes", "safety5": "Yes", "safety6": "Yes", "safety7": "Yes", "safety8": "Yes", "safety9": "No", "safety10": "No"}, "efficiency": {"efficiency1": "Yes", "efficiency2": "No", "efficiency3": "Yes", "efficiency4": "45.5 lb./head", "efficiency5": "No", "efficiency6": "No", "efficiency7": "Yes", "efficiency8": "No", "efficiency9": "No", "efficiency10": "Not available for sharing at this time", "efficiency11": "No", "efficiency12": "No", "efficiency13": "No", "efficiency14": "No"}, "improvement": {"improvement1": "Yes", "improvement2": "Planning in next 2-3 years", "improvement3": "Yes", "improvement4": "Planning in next 2-3 years", "improvement5": "No", "improvement6": "Scope 3 emissions in our sector are only available as estimates and estimation methods are not consistent or validated", "improvement7": "No", "improvement8": "Yes", "improvement9": "No", "improvement10": "3.3% if scope 1 and 18% of scope 2 are renewable", "improvement11": "No", "improvement12": "No", "improvement13": "No"}}', 7, 1),
 (904, 298, 4.0, 0.5, 2.2, 4.5, 3.5, 2.0, 2.8, 20,'{"air": {"air1": "Yes", "air2": "Yes", "air3": "Yes", "air4": "Yes", "air5": "Yes", "air6": "Yes", "air7": "No", "air8": "We track emissions but have no direct GHG reduction goal to report at this time.  We have SBTi 1.5C targets established but those are goals for reductions in fossil fuel use (scope 1),  increase in renewable electricity use (scope 2) and in areas of scope 3 (livestock).", "air9": "No", "air10": "Yes"}, "land": {"land1": "No", "land2": "No", "land3": "No", "land4": "No", "land5": "Yes", "land6": "No"}, "water": {"water1": "No", "water2": "No", "water3": "0", "water4": "837.4 gal/hd at slaughter plants", "water5": "Yes", "water6": "Yes", "water7": "No", "water8": "Yes", "water9": "No", "water10": "Yes", "water11": "No", "water12": "Yes", "water13": "No"}, "animal": {"animal1": "Yes", "animal2": "Yes", "animal3": "Yes", "animal4": "100", "animal5": "100", "animal6": "Yes", "animal7": "0", "animal8": "Yes", "animal9": "Yes", "animal10": "Yes", "animal11": "No", "animal12": "Yes", "animal13": "As needed", "animal14": "Yes", "animal15": "100", "animal16": "Yes", "animal17": "100"}, "safety": {"safety1": "Yes", "safety2": "No", "safety3": "Yes", "safety4": "Yes", "safety5": "Yes", "safety6": "Yes", "safety7": "Yes", "safety8": "Yes", "safety9": "No", "safety10": "No"}, "efficiency": {"efficiency1": "Yes", "efficiency2": "No", "efficiency3": "Yes", "efficiency4": "45.5 lb./head", "efficiency5": "No", "efficiency6": "No", "efficiency7": "Yes", "efficiency8": "No", "efficiency9": "No", "efficiency10": "Not available for sharing at this time", "efficiency11": "No", "efficiency12": "No", "efficiency13": "No", "efficiency14": "No"}, "improvement": {"improvement1": "Yes", "improvement2": "Planning in next 2-3 years", "improvement3": "Yes", "improvement4": "Planning in next 2-3 years", "improvement5": "No", "improvement6": "Scope 3 emissions in our sector are only available as estimates and estimation methods are not consistent or validated", "improvement7": "No", "improvement8": "Yes", "improvement9": "No", "improvement10": "3.3% if scope 1 and 18% of scope 2 are renewable", "improvement11": "No", "improvement12": "No", "improvement13": "No"}}', 7, 1);
+
+
+/* Nisheet Thakur 06/29/2023 */
+ALTER TABLE `products` 
+CHANGE COLUMN `details` `details` VARCHAR(1500);
+ALTER TABLE `products` 
+ADD COLUMN `vendor_product_reference_id` INT DEFAULT NULL,
+ADD COLUMN `product_tag_store_location` TINYINT DEFAULT 2;
+SET @herd_whistle_id := (SELECT id FROM product_vendors WHERE vendor_name="Herd Whistle");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, vendor_product_reference_id, product_tag_store_location)
+VALUES ("HerdWhistle™ One Piece UHF Ear Tags ","HW_one_piece_UHF_ear_tags.png","HW_one_piece_UHF_ear_tags.png",80,0,"","Bag(s) of 50","HerdWhistle™ One Piece UHF Cattle Tags let you rapidly count, track, and manage thousands of cattle in a feedlot.;Ultra-high frequency (UHF) RFID chips allow for multiple ear tags to be scanned at the same time, helping you track cattle as they run through alleyways or board a truck.;The one piece design makes it easy and safe to apply, saving you time at the squeeze.;The UHF RFID chip is embedded inside of a flexible and durable TPU plastic mold for long lasting data collection, even in the rough feedlot environments.;Each ear tag goes through a strict quality control process to ensure a reliable read rate when deployed on the feedlot.;Reduce trips to the squeeze. Rapidly count, track, and manage hundreds of cattle EID’s in the field with ultra-high frequency data collection.;Long lasting RFID readability. UHF RFID chip is embedded inside of thermoplastic polyurethane (TPU) mold for ultimate retention.;Extraordinarily long RFID read range. Scan and track EID’s from greater than 30ft (9m) away.;Customized to your operation. Add custom laser printed visual ID and graphics to fit your management standards.;Fast and easy application. Use any two piece ear tag applicator for simple application on your cows.", @high_frequency_id, @herd_whistle_id, 0, 80, 3674, 1),
+("HerdWhistle™ Two Piece UHF Ear Tags","HW_two_piece_UHF_ear_tags.png","HW_two_piece_UHF_ear_tags.png",82.50,0,"","Bag(s) of 50","HerdWhistle™ Two Piece UHF Cow Ear Tags enable rapid counting, tracking, and management of thousands of cows in the field.;Using ultra-high frequency (UHF) RFID technology, multiple ear tags can be scanned at the same time to track cattle as they run through alleyways or board a truck.;Our ear tags are built to last the entire life of the cow.;The two piece design is tamper proof for permanent retention.;The UHF RFID chip is embedded inside of a flexible and durable TPU plastic mold for long lasting data collection, even in the rough cattle environments.;Each ear tag goes through a strict quality control process to ensure a reliable read rate when deployed on the farm.Reduce trips to the squeeze. Rapidly count, track, and manage hundreds of cattle EID’s in the field with ultra-high frequency data collection.;Long lasting RFID readability. UHF RFID chip is embedded inside of thermoplastic polyurethane (TPU) mold for ultimate retention.;Extraordinarily long RFID read range. Scan and track EID’s from greater than 30ft (9m) away.;Customized to your operation.Add custom laser printed visual ID and graphics to fit your management standards.;Fast and easy application.Use any two piece ear tag applicator for simple application on your cows.", @high_frequency_id, @herd_whistle_id, 0, 82.50, 3684, 1);
+
+
+/* Nisheet Thakur 07/04/2023 */
+CREATE TABLE `vendor_identifiers_for_accounts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `product_vendor_id` INT NULL,
+  `vendor_customer_id` INT NULL,
+  `vendor_customer_shipping_id` INT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+ALTER TABLE `orders`
+ADD COLUMN `herdwhistle_sale_order_id` INT DEFAULT NULL;
+
+
+/* Nisheet Thakur 07/13/2023 */
+ALTER TABLE `orders`
+RENAME COLUMN `account` TO `account_id`;
+ALTER TABLE `orders`
+ADD COLUMN `user_id` INT DEFAULT NULL;
+ALTER TABLE `order_products`
+RENAME COLUMN `order` TO `order_id`,
+RENAME COLUMN `product` TO `product_id`;
+
+
+/* Nisheet Thakur 08/07/2023 */
+ALTER TABLE `orders`
+ADD COLUMN `has_eids_been_retrieved` TINYINT DEFAULT 0;
+
+
+/* Nisheet Thakur 08/14/2023 */
+ALTER TABLE `products`
+RENAME COLUMN `product_tag_store_location` TO `is_internal`;
+UPDATE `products` SET is_internal = 0 WHERE is_internal = 2;
+SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)
+VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 35, 0, "", "Bag(s) of 20", 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.', @usda_840_id, @alldatatagsid, 1, 35, 1);
+
+
+/* Nisheet Thakur 08/17/2023*/
+ALTER TABLE `products`
+ADD COLUMN `units_per_order` INT DEFAULT 1;
+SET @herd_whistle_one_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ One Piece UHF Ear Tags" and is_internal=1);
+UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_one_piece_id;
+SET @herd_whistle_two_piece_id := (SELECT id FROM products WHERE product="HerdWhistle™ Two Piece UHF Ear Tags" and is_internal=1);
+UPDATE `products` SET units_per_order=50 WHERE id=@herd_whistle_two_piece_id;
+SET @usda_hdx_840_id := (SELECT id FROM products WHERE product="USDA HDX 840 Tag" and is_internal=1);
+UPDATE `products` SET units_per_order=20 WHERE id=@usda_hdx_840_id;
+
+/* Rohan Sureshkumar 8/24/2023 */
+CREATE TABLE `payments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `employee_id` INT NULL,
+  `amount` DECIMAL(8,2) NULL,
+  `status` INT NULL,
+  `reason` VARCHAR(45) NULL,
+  `description` VARCHAR(200) NULL,
+  `details` JSON NULL,
+  `paid_date` DATETIME NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `payments` 
+ADD INDEX `fk_payments_account_id_id_accounts` (`account_id` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD CONSTRAINT `fk_payments_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `payments` 
+ADD INDEX `fk_payments_employee_id_id_employees` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD CONSTRAINT `fk_payments_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Rohan Sureshkumar 8/31/23 */
+CREATE TABLE `recurring_payments` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `employee_id` INT NULL,
+  `amount` DECIMAL(8,2) NULL,
+  `recurring_interval` VARCHAR(45),
+  `status` INT NULL,
+  `reason` VARCHAR(45) NULL,
+  `description` VARCHAR(200) NULL,
+  `details` JSON NULL,
+  `start_date` DATETIME NULL,
+  `end_date` DATETIME NULL,
+  `email` VARCHAR(150) NULL,
+  `stripe_customer_id` VARCHAR(90) NULL,
+  `stripe_checkout_id` VARCHAR(90) NULL,
+  `stripe_subscription_id` VARCHAR(90) NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+ALTER TABLE `payments` 
+ADD COLUMN `recurring_payment_id` INT NULL AFTER `paid_date`,
+ADD COLUMN `email` VARCHAR(150) NULL AFTER `recurring_payment_id`,
+ADD COLUMN `stripe_checkout_id` VARCHAR(90) NULL AFTER `email`,
+ADD COLUMN `stripe_customer_id` VARCHAR(90) NULL AFTER `stripe_checkout_id`,
+ADD COLUMN `stripe_invoice_id` VARCHAR(90) NULL AFTER `stripe_customer_id`;
+ALTER TABLE `payments`
+ADD INDEX `fk_payments_recurring_payment_id_id_recurring_payments` (`recurring_payment_id` ASC) VISIBLE;
+ALTER TABLE `payments`
+ADD CONSTRAINT `fk_payments_recurring_payment_id_id_recurring_payments`
+  FOREIGN KEY (`recurring_payment_id`)
+  REFERENCES `recurring_payments`(`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+ALTER TABLE `recurring_payments` 
+ADD INDEX `fk_recurring_payments_account_id_id_accounts_idx` (`account_id` ASC) VISIBLE;
+ALTER TABLE `recurring_payments` 
+ADD CONSTRAINT `fk_recurring_payments_account_id_id_accounts`
+  FOREIGN KEY (`account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `recurring_payments` 
+ADD INDEX `fk_recurring_payments_employee_id_id_employees_idx` (`employee_id` ASC) VISIBLE;
+ALTER TABLE `recurring_payments` 
+ADD CONSTRAINT `fk_recurring_payments_employee_id_id_employees`
+  FOREIGN KEY (`employee_id`)
+  REFERENCES `employees` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `show_account_carcass_data` TINYINT DEFAULT 1;
+
+/* Nisheet Thakur 09/14/2023 */
+ALTER TABLE `sales_groups`
+ADD COLUMN `is_api_insert` TINYINT NOT NULL DEFAULT 0;
+
+/* Rohan Sureshkumar 9/18/2023 */
+ALTER TABLE `animals` 
+ADD COLUMN `is_paid` TINYINT NULL DEFAULT 0 AFTER `average_daily_gain`,
+ADD COLUMN `paid_by_account_id` INT NULL AFTER `is_paid`;
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_paid_by_account_id_id_accounts_idx` (`paid_by_account_id` ASC) VISIBLE;
+ALTER TABLE `animals` 
+ADD CONSTRAINT `fk_animals_paid_by_account_id_id_accounts`
+  FOREIGN KEY (`paid_by_account_id`)
+  REFERENCES `accounts` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+/* Nisheet Thakur 09/25/2023 */
+ALTER TABLE `accounts`
+ADD COLUMN `are_auction_markets_used_by_account` TINYINT DEFAULT 0;
+
+CREATE TABLE `auction_markets_used_by_accounts`(
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `auction_market_id` INT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 09/03/2023 */
+ALTER TABLE `accounts`
+ADD COLUMN `optional_fields` JSON DEFAULT NULL;
+
+ALTER TABLE `accounts`
+DROP COLUMN `are_auction_markets_used_by_account`;
+DROP TABLE auction_markets_used_by_accounts;
+
+/* Rohan Sureshkumar 9/25/2023 */
+ALTER TABLE `animals` 
+DROP FOREIGN KEY `fk_animals_paid_by_account_id_id_accounts`;
+ALTER TABLE `animals` 
+DROP INDEX `fk_animals_paid_by_account_id_id_accounts_idx` ;
+ALTER TABLE `animals` 
+DROP COLUMN `paid_by_account_id`;
+ALTER TABLE `animals` 
+ADD COLUMN `payment_id` INT NULL AFTER `is_paid`;
+ALTER TABLE `animals` 
+ADD INDEX `fk_animals_payment_id_id_payments_idx` (`payment_id` ASC) VISIBLE;
+ALTER TABLE `animals` 
+ADD CONSTRAINT `fk_animals_payment_id_id_payments`
+  FOREIGN KEY (`payment_id`)
+  REFERENCES `payments` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `animals` 
+ADD INDEX `is_paid_idx` (`is_paid` ASC) VISIBLE;
+ALTER TABLE `payments` 
+ADD COLUMN `stripe_payment_intent_id` VARCHAR(90) NULL AFTER `stripe_invoice_id`,
+ADD COLUMN `stripe_error_code` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
+UPDATE `animals` SET is_paid = 1;
+ALTER TABLE `error_logs` 
+CHANGE COLUMN `short_error` `short_error` VARCHAR(300) CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_0900_ai_ci' NULL DEFAULT NULL ;
+
+/* Rohan Sureshkumar 10/6/2023 */
+CREATE TABLE `sent_emails` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NULL,
+  `user_id` INT NULL,
+  `email_address` VARCHAR(200) NULL,
+  `subject` VARCHAR(100) NULL,
+  `file` VARCHAR(100) NULL,
+  `routine` VARCHAR(100) NULL,
+  `template_name` VARCHAR(100) NULL,
+  `variables` JSON NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Rohan Sureshkumar 10/10/2023 */
+CREATE TABLE `sales_group_searches` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(100),
+  `user_id` INT NOT NULL,
+  `radius` VARCHAR(50) NULL,
+  `zip` VARCHAR(50) NULL,
+  `category` VARCHAR(50) NULL,
+  `breed` VARCHAR(50) NULL,
+  `minimum_weight` VARCHAR(50) NULL,
+  `maximum_weight` VARCHAR(50) NULL,
+  `preconditioning_program` VARCHAR(50) NULL,
+  `process_verified_program` VARCHAR(50) NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Rohan Sureshkumar 10/30/2023 */
+ALTER TABLE `sales_groups` 
+CHANGE COLUMN `delivery_location_type` `delivery_location_type` VARCHAR(50) NULL DEFAULT "Direct/Off Ranch" ;
+UPDATE sales_groups SET delivery_location_type = 'Direct/Off Ranch' where delivery_location_type = "Off Ranch";
+UPDATE `sales_groups` SET `reported` = JSON_MERGE_PRESERVE(`reported`, '{"program":"None"}');
+
+/* Rohan Sureshkumar 11/3/2023 */
+ALTER TABLE `sales_group_searches` 
+CHANGE COLUMN `process_verified_program` `programs` VARCHAR(100) NULL DEFAULT NULL,
+ADD COLUMN `target_date_description` VARCHAR(50) NULL AFTER `programs`;
+
+/* Rohan Sureshkumar 11/7/2023 */
+ALTER TABLE `sales_group_searches` 
+ADD COLUMN `multi_select_fields` JSON NULL AFTER `target_date_description`;
+
+/* Nisheet Thakur 11/8/2023 */
+ALTER TABLE `sales_groups`
+RENAME COLUMN `start` TO `sale_date`;
+ALTER TABLE `sales_groups`
+DROP COLUMN `end`;
+
+/* Rohan Sureshkumar 11/10/23 */
+ALTER TABLE `sales_group_searches` 
+DROP COLUMN `programs`,
+DROP COLUMN `breed`,
+DROP COLUMN `category`,
+CHANGE COLUMN `radius` `radius` INT NULL DEFAULT NULL,
+CHANGE COLUMN `minimum_weight` `minimum_weight` INT NULL DEFAULT NULL,
+CHANGE COLUMN `maximum_weight` `maximum_weight` INT NULL DEFAULT NULL;
+
+/* Rohan Sureshkumar 11/17/23 */
+ALTER TABLE `accounts` 
+ADD COLUMN `auction_market_id` INT NULL AFTER `partner_stripe_publishable_key`;
+ALTER TABLE `accounts` 
+ADD INDEX `fk_accounts_auction_market_id_id_auction_markets_idx` (`auction_market_id` ASC) VISIBLE;
+ALTER TABLE `accounts` 
+ADD CONSTRAINT `fk_accounts_auction_market_id_id_auction_markets`
+  FOREIGN KEY (`auction_market_id`)
+  REFERENCES `auction_markets` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `sales_groups` 
+ADD COLUMN `auction_market_id` INT NULL AFTER `family_farm_or_ranch`;
+ALTER TABLE `sales_groups` 
+ADD INDEX `fk_sales_groups_auction_market_id_id_auction_markets_idx` (`auction_market_id` ASC) VISIBLE;
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_auction_market_id_id_auction_markets`
+  FOREIGN KEY (`auction_market_id`)
+  REFERENCES `auction_markets` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+/* Nisheet Thakur  12/04/2023*/
+CREATE TABLE `sales_group_fields_values` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `field_id` INT NOT NULL,
+  `value` VARCHAR(100) DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (1, "Not Applicable"),
+(1, "Blackleg"),
+(1, "H. Somnus"),
+(1, "Pasturella"),
+(1, "4-way virus (MLV)"),
+(1, "4-way virus (Killed)"),
+(1, "5-way virus (MLV)"),
+(1, "5-way virus (Killed)"),
+(1, "Internal Parasites"),
+(1, "External Parasites");
+
+/* Nisheet Thakur 12/11/2023 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (1, "No"),
+(1, "Yes (Names Unknown)"),
+(2, "Top Dollar Angus"),
+(2, "Angus Link - GMS"),
+(2, "Feeder Profit Calculator"),
+(2, "Igenity Feeder"),
+(2, "Igenity Beef"),
+(2, "Zoetis GeneMax"),
+(2, "Zoetis Inherit"),
+(3, "Home Raised/Single Source"),
+(3, "Comingled"),
+(4, "Yes"),
+(4, "No"),
+(4, "N/A"),
+(5, "No"),
+(5, "15+ Days"),
+(5, "30+ Days"),
+(5, "45+ Days"),
+(5, "60+ Days"),
+(6, "Amerifax"),
+(6, "Angus"),
+(6, "Angus Cross"),
+(6, "Angus F1"),
+(6, "Angus Plus"),
+(6, "Aubrac"),
+(6, "Balancer"),
+(6, "Barzona"),
+(6, "Beef Friesian"),
+(6, "Beefalo"),
+(6, "Beefmaster"),
+(6, "Beefmaster Cross"),
+(6, "Belgian Blue"),
+(6, "Belted Galloway"),
+(6, "Black Angus"),
+(6, "Black Hereford"),
+(6, "Black Simmental"),
+(6, "Blonde d' Aquitaine"),
+(6, "Braford"),
+(6, "Brahman"),
+(6, "Brahman Cross"),
+(6, "Brahman F1"),
+(6, "Brahmousin"),
+(6, "Brangus"),
+(6, "Brangus Cross"),
+(6, "Braunvieh"),
+(6, "Braunvieh F1"),
+(6, "British White"),
+(6, "Charbray"),
+(6, "Charloais F1"),
+(6, "Charolais"),
+(6, "Charolais Cross"),
+(6, "Chianina"),
+(6, "Corriente"),
+(6, "Criollo"),
+(6, "Crossbred"),
+(6, "Devon"),
+(6, "Dexter"),
+(6, "Fleckvieh"),
+(6, "Galloway"),
+(6, "Gelbvieh"),
+(6, "Gelbvieh Cross"),
+(6, "Gelbvieh F1"),
+(6, "Hereford"),
+(6, "Hereford Cross"),
+(6, "Hereford F1"),
+(6, "Holstein"),
+(6, "Irish Blacks"),
+(6, "Jersey"),
+(6, "LimFlex"),
+(6, "Limousin"),
+(6, "Limousin Cross"),
+(6, "Limousin F1"),
+(6, "Longhorn"),
+(6, "Lowline"),
+(6, "Maine-Anjou"),
+(6, "Murray Grey"),
+(6, "Piedmontese"),
+(6, "Pinzgauer"),
+(6, "Polled Hereford"),
+(6, "Randall"),
+(6, "Red Angus"),
+(6, "Red Angus Cross"),
+(6, "Red Brangus"),
+(6, "Red Poll"),
+(6, "Romagnola"),
+(6, "Salers"),
+(6, "Santa Cruz"),
+(6, "Santa Gertrudis"),
+(6, "Santa Gertrudis Cross"),
+(6, "Scottish Highlander"),
+(6, "Senepol"),
+(6, "Shorthorn"),
+(6, "Shorthorn Cross"),
+(6, "Shorthorn F1"),
+(6, "SimAngus"),
+(6, "Simbrah"),
+(6, "Simmental"),
+(6, "Simmental Cross"),
+(6, "Simmental F1"),
+(6, "South Devon"),
+(6, "South Poll"),
+(6, "Star 5"),
+(6, "Tarentaise"),
+(6, "Texas Cross"),
+(6, "Tigerstripe"),
+(6, "Wagyu"),
+(6, "White Park"),
+(6, "Not Reported"),
+(7, "Conventional"),
+(7, "Natural"),
+(7, "NHTC"),
+(8, "Yes / Name Unknown"),
+(8, "Health Track"),
+(8, "Value Added Calf-45"),
+(8, "OQBN Vac-45 Program"),
+(8, "JRS Wean-Vac 45"),
+(8, "Superior Livestock Vac-45"),
+(8, "TAMU Vac-45"),
+(8, "Integrity Beef Alliance Vac-45"),
+(8, "MFA Health Track Vac-45"),
+(8, "NMSU Vac-45"),
+(8, "MCA Vac-45"),
+(8, "PrimeVac Vac-45"),
+(8, "SelectVac WeanVac"),
+(9, "N/A"),
+(9, "Small"),
+(9, "Medium"),
+(9, "Large"),
+(10, "N/A"),
+(10, "Light"),
+(10, "Heavy"),
+(11, "N/A"),
+(11, "Horns"),
+(11, "No Horns"),
+(12, "Direct/Off Ranch"),
+(12, "Auction"),
+(12, "Video Auction"),
+(12, "Internet"),
+(13, "Not Applicable"),
+(13, "Not Castrated"),
+(13, "Banded"),
+(13, "Blade"),
+(13, "Chemicals"),
+(13, "Other"),
+(14, "Not Applicable"),
+(14, "Native Range"),
+(14, "Improved Pasture"),
+(15, "Not Applicable"),
+(15, "Ralgro"),
+(16, "Mixed Steers and Heifers"),
+(16, "Feeder Steers"),
+(16, "Feeder Heifers"),
+(16, "Beef Dairy Cross Steers"),
+(16, "Beef Dairy Cross Heifers"),
+(16, "Weaned Heifer Calves"),
+(16, "Weaned Steer Calves"),
+(16, "Steer Calves"),
+(16, "Heifer Calves"),
+(16, "Replacement Heifers"),
+(16, "Bred Cows"),
+(17, "Open"),
+(17, "Guaranteed Open"),
+(17, "Lutalysed"),
+(17, "Spayed");
+
+ALTER TABLE `sales_groups` DROP COLUMN `are_annual_cattle_herd_vaccinations_given`;
+
+/* Nisheet Thakur 12/27/2023 */
+UPDATE `sales_group_fields_values` SET value='Angus Link Genetic Merit Screening' WHERE value='Angus Link – GMS';
+
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (18, "Angus Verified"),
+(18, "ABS InFocus Genetics"),
+(18, "American Aberdeen Premium Beef"),
+(18, "Certified Piedmontese"),
+(18, "Charolais Advantage"),
+(18, "Gelbvieh Balancer Edge"),
+(18, "Hereford Advantage"),
+(18, "Red Angus FCCP"),
+(18, "Allied Access");
+
+/* Nisheet Thakur 01/16/2024 */
+CREATE TABLE `genetics` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `owner_account_id` INT NOT NULL,
+  `uid` VARCHAR(100) NOT NULL,
+  `breed` VARCHAR(100) DEFAULT NULL,
+  `ranch_name` VARCHAR(100) DEFAULT NULL,
+  `address` VARCHAR(255) DEFAULT NULL,
+  `city` VARCHAR(50) DEFAULT NULL,
+  `state` VARCHAR(10) DEFAULT NULL,
+  `zip_code` VARCHAR(10) DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 01/22/2024 */
+CREATE TABLE `seedstock_producers` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `marketplace_account_name` VARCHAR(100) NULL,
+  `marketplace_account_email` VARCHAR(100) NULL,
+  `marketplace_account_contact_name` VARCHAR(100) NULL,
+  `marketplace_account_phone` BIGINT NULL,
+  `short_description` VARCHAR(100) NULL,
+  `long_description` VARCHAR(1000) NULL,
+  `is_archived` TINYINT NULL DEFAULT 0,
+  `logo_file_id` INT NULL DEFAULT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Nisheet Thakur 01/29/2024 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (7, "Age and Source"),
+(7, "GAP"),
+(7, "CARES"),
+(19, "IMI"),
+(19, "Red Angus"),
+(19, "Earth Claims");
+
+/* Rohan Sureshkumar 1/24/2023 */
+ALTER TABLE `sales_groups` 
+ADD COLUMN `is_paid` TINYINT NOT NULL DEFAULT '0' AFTER `is_api_insert`,
+CHANGE COLUMN `created_timestamp` `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `is_paid`,
+CHANGE COLUMN `last_updated_timestamp` `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER `created_timestamp`;
+ALTER TABLE `sales_groups` 
+ADD COLUMN `payment_id` INT NULL DEFAULT NULL AFTER `is_paid`;
+ALTER TABLE `sales_groups` 
+ADD INDEX `fk_sales_groups_payment_id_id_payments_idx` (`payment_id` ASC) VISIBLE;
+ALTER TABLE `sales_groups` 
+ADD CONSTRAINT `fk_sales_groups_payment_id_id_payments`
+  FOREIGN KEY (`payment_id`)
+  REFERENCES `payments` (`id`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+ALTER TABLE `payments` 
+ADD COLUMN `stripe_payment_method_id` VARCHAR(90) NULL AFTER `stripe_payment_intent_id`;
+UPDATE `sales_groups` SET is_paid = 1 WHERE published = 1;
+
+/* Nisheet Thakur 02/01/2024 */
+ALTER TABLE `sales_group_fields_values`
+ADD COLUMN `is_archived` TINYINT DEFAULT 0;
+
+/* Nisheet Thakur 02/02/2024 */
+INSERT INTO `sales_group_fields_values` (field_id, value)
+VALUES (5, "90+ Days");
+UPDATE `sales_group_fields_values`
+SET value="Pasture Grazing" WHERE value="Native Range";
+UPDATE `sales_group_fields_values`
+SET value="On Feed" WHERE value="Improved Pasture";
+
+/* Nisheet Thakur 02/06/2024 */
+SET @herd_whistle_id := (SELECT id FROM product_vendors WHERE vendor_name="Herd Whistle");
+SET @high_frequency_id := (SELECT id FROM product_categories WHERE category_name="High Frequency");
+SET @alldatatagsid := (SELECT id FROM product_vendors WHERE vendor_name="All Data Tags");
+SET @usda_840_id := (SELECT id FROM product_categories WHERE category_name="USDA 840");
+SET @partner_id := (SELECT id FROM accounts WHERE name="Health Track");
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,partner,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, vendor_product_reference_id, is_internal, units_per_order)
+VALUES ("HerdWhistle™ One Piece UHF Ear Tags ","HW_one_piece_UHF_ear_tags.png","HW_one_piece_UHF_ear_tags.png",80,0,"","Bag(s) of 50",@partner_id,"HerdWhistle™ One Piece UHF Cattle Tags let you rapidly count, track, and manage thousands of cattle in a feedlot.;Ultra-high frequency (UHF) RFID chips allow for multiple ear tags to be scanned at the same time, helping you track cattle as they run through alleyways or board a truck.;The one piece design makes it easy and safe to apply, saving you time at the squeeze.;The UHF RFID chip is embedded inside of a flexible and durable TPU plastic mold for long lasting data collection, even in the rough feedlot environments.;Each ear tag goes through a strict quality control process to ensure a reliable read rate when deployed on the feedlot.;Reduce trips to the squeeze. Rapidly count, track, and manage hundreds of cattle EID’s in the field with ultra-high frequency data collection.;Long lasting RFID readability. UHF RFID chip is embedded inside of thermoplastic polyurethane (TPU) mold for ultimate retention.;Extraordinarily long RFID read range. Scan and track EID’s from greater than 30ft (9m) away.;Customized to your operation. Add custom laser printed visual ID and graphics to fit your management standards.;Fast and easy application. Use any two piece ear tag applicator for simple application on your cows.", @high_frequency_id, @herd_whistle_id, 0, 80, 3674, 0 , 50),
+("HerdWhistle™ Two Piece UHF Ear Tags","HW_two_piece_UHF_ear_tags.png","HW_two_piece_UHF_ear_tags.png",82.50,0,"","Bag(s) of 50",@partner_id,"HerdWhistle™ Two Piece UHF Cow Ear Tags enable rapid counting, tracking, and management of thousands of cows in the field.;Using ultra-high frequency (UHF) RFID technology, multiple ear tags can be scanned at the same time to track cattle as they run through alleyways or board a truck.;Our ear tags are built to last the entire life of the cow.;The two piece design is tamper proof for permanent retention.;The UHF RFID chip is embedded inside of a flexible and durable TPU plastic mold for long lasting data collection, even in the rough cattle environments.;Each ear tag goes through a strict quality control process to ensure a reliable read rate when deployed on the farm.Reduce trips to the squeeze. Rapidly count, track, and manage hundreds of cattle EID’s in the field with ultra-high frequency data collection.;Long lasting RFID readability. UHF RFID chip is embedded inside of thermoplastic polyurethane (TPU) mold for ultimate retention.;Extraordinarily long RFID read range. Scan and track EID’s from greater than 30ft (9m) away.;Customized to your operation.Add custom laser printed visual ID and graphics to fit your management standards.;Fast and easy application.Use any two piece ear tag applicator for simple application on your cows.", @high_frequency_id, @herd_whistle_id, 0, 82.50, 3684, 0, 50);
+
+SET @partner_id := (SELECT id FROM accounts WHERE name="Health Track");
+INSERT INTO `products` (product,pic_1,pic_2,price,orders,subheader,unit,partner,details, product_category_id, product_vendor_id, is_premise_id_required, member_price, is_internal)
+VALUES ("USDA HDX 840 Tag", "alldata_840_white.png", "alldata_840_white.png", 35, 0, "", "Bag(s) of 20", @partner_id, 'USDA certified HDX 840 Cattle Tag;Colors: White or Yellow.;Low Frequency.;ISO / ICAR certified.;Tamper Proof, 2-piece.;Tags can be applied with any universal tagger;1 year manufacturer warranty.', @usda_840_id, @alldatatagsid, 1, 35, 0);
+
+/* Rohan Sureshkumar 2/9/24 */
+UPDATE sales_group_fields_values
+SET value = "Health Track Vac-45" where value = "MFA Health Track Vac-45";
+UPDATE accounts SET company="Health Track", name="Health Track" WHERE company="MFA Health Track";
+UPDATE sales_groups set reported = JSON_SET(reported, "$.preconditioning_program", "Health Track Vac-45") 
+WHERE JSON_EXTRACT(reported,'$.preconditioning_program') = "MFA Health Track Vac-45";
+
+/* Nisheet Thakur 02/14/2024 */
+CREATE TABLE `not_interested_sales_group_ids_for_accounts` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `account_id` INT NOT NULL,
+  `sales_group_id` INT NOT NULL,
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

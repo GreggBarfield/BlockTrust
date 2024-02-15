@@ -1,6 +1,7 @@
 from core.database.database import Database
 from api.database.inserts_model import InsertsModel
 from api.translation_worker.all_to_unix import all_to_unix
+from core.database.tables.matches import Matches
 from .medical_helper import format_data
 from core.sectors import SECTORS_NAME_TO_ID
 
@@ -17,7 +18,7 @@ def handle(db: Database, insert):
     
     sectors = ["cc", "fd", "pk", "au"]
     sectors_by_abbreviation = {
-        "au": "Auction House",
+        "au": "Auction",
         "cc": "Cow-Calf",
         "fd": "Feedlot",
         "pk": "Packer"
@@ -38,7 +39,7 @@ def handle(db: Database, insert):
         #                 insert=True
         #             )[0].id()
 
-        db.matches.types.insert_sighting(
+        Matches(db).types.insert_sighting(
             eid=eid,
             time=all_to_unix(date),
             lat=lat,

@@ -7,6 +7,7 @@ href="https://fonts.googleapis.com/css?family=Archivo:400,400i,500,500i,600,600i
 <link rel="stylesheet" href="/static/libs/flaticon/css/flaticon.css" />
 <link rel="stylesheet" href="/static/libs/themify/css/themify-icons.min.css" />
 <link rel="stylesheet" href="/static/libs2/OwlCarousel2-2.3.4/assets/owl.carousel.min.css" />
+<link rel="stylesheet" href="/static/libs2/select2/select2.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="/static/css/common/fonts/feather/css/feather.min.css" />
 <link rel="stylesheet" href="/static/build/build_outside_main.min.css" />
 <script src="/static/js/jquery-3.5.1.min.js"></script>
@@ -229,7 +230,7 @@ Needs outside content
   </div>
 </section>
 <section class="text-center py-2 py-md-3 bg-light">
-  <div class="container">
+  <div class="container" style="max-width:1500px">
     <div class="row">
       <div class="col-sm-12">
         <h5>Some of Our Industry Partners</h5>
@@ -256,23 +257,23 @@ Needs outside content
             </a>
           </div>
           <div class="item">
-            <a href="https://mfa-inc.com/powercalf" target="_blank">
+            <a href="https://redangus.org/" target="_blank">
               <div class="client-logo client-logo-grayscale">
-                <img src="/static/images/partners/powercalf_small.png" alt="">
+                <img src="/static/images/partners/redangus_new.png" style="transform:scaleX(0.7) scaleY(1.6);margin-top:7.5%;margin-left:-11%;" alt="">
               </div>
             </a>
           </div>
           <div class="item">
             <a href="https://www.beefmarketinggroup.com/" target="_blank">
               <div class="client-logo client-logo-grayscale">
-                <img src="/static/images/partners/bmg_small.png" alt="">
+                <img src="/static/images/partners/bmg_small.png" style="margin-left:37%" alt="">
               </div>
             </a>
           </div>
           <div class="item">
-            <a href="https://www.uscattletrace.org/" target="_blank">
+            <a href="https://vytelle.com/" target="_blank">
               <div class="client-logo client-logo-grayscale">
-                <img src="/static/images/partners/cattletrace_small.png" alt="">
+                <img src="/static/images/partners/vytelle_sm.png" style="transform:scaleX(0.8) scaleY(1.6); margin-top:6%" alt="">
               </div>
             </a>
           </div>
@@ -296,7 +297,10 @@ Needs outside content
           items: 3
         },
         1000: {
-          items: 5
+          items: 4
+        },
+        1500: {
+          items: 6
         }
       }
     });
@@ -405,6 +409,7 @@ Needs outside content
 <script src="/static/libs2/parallax.js-1.5.0/parallax.min.js"></script>
 <script src="/static/libs2/OwlCarousel2-2.3.4/owl.carousel.min.js"></script>
 <script src="/static/build/build_outside_interactive.min.mjs"></script>
+<script src="/static/libs2/select2/select2.min.js"></script>
 <script>
   document.getElementById("year").innerText = new Date().getFullYear()
 </script>

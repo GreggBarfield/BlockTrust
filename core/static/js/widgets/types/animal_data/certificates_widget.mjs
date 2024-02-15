@@ -59,7 +59,7 @@ export class CertificatesWidget extends Widget {
 
         let certHeader = document.createElement("h2");
         certHeader.style="text-align: center;margin-top: 10px; font-size:20px"
-        certHeader.textContent= "MFA Health Track Processing and Feed Report"
+        certHeader.textContent= "Health Track Processing and Feed Report"
         this.frame.append(certHeader)
 
         let row =  document.createElement("div");

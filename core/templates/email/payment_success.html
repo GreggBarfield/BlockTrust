@@ -1,0 +1,17 @@
+{% extends "email/standard.html" %}
+{% block email_standard_subdescription %}
+<div>
+    <p>
+        Hello,
+        <br><br>
+        We have received the following payment:
+        <table border="0">
+            <tr><td>Card: ************{{last_4}}</td></tr>
+            <tr><td>Amount: {{"$%.2f"|format(amount)}}</td></tr>
+            <tr><td>Number of cattle paid for: {{amount}}</td></tr>
+        </table>
+    </p>
+    <p>Thank you.</p>
+</div>
+(Please don't respond to this email.)<br>
+{% endblock email_standard_subdescription %}

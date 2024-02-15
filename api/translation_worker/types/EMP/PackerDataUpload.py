@@ -1,3 +1,4 @@
+from core.database.tables.matches import Matches
 from core.utilities.zip_codes import get_lat_lon
 from ...exceptions import ExecutionException
 from core.database.database import Database
@@ -65,7 +66,7 @@ def handle(db: Database, insert):
                         break
                 else:
                     lat, lon = get_lat_lon(int(f5))
-                    db.matches.types.insert_sighting(
+                    Matches(db).types.insert_sighting(
                         eid=eid,
                         time=all_to_unix(fields['SightedDate'])-86400,
                         lat=lat,
@@ -96,7 +97,7 @@ def handle(db: Database, insert):
                     break
             else:
                 lat, lon = get_lat_lon(int(f5))
-                db.matches.types.insert_sighting(
+                Matches(db).types.insert_sighting(
                     eid=eid,
                     time=all_to_unix(fields['SightedDate']),
                     lat=lat,
@@ -108,7 +109,7 @@ def handle(db: Database, insert):
 
     # USDAYieldGrade
     if "USDAYieldGrade" in fields and fields["USDAYieldGrade"] != "" and int(fields["USDAYieldGrade"]) != 0:
-        db.matches.types.insert_usda_yield_grade(
+        Matches(db).types.insert_usda_yield_grade(
             int(fields["USDAYieldGrade"]),
             eid=eid,
             partner_account=partner_account,
@@ -118,7 +119,7 @@ def handle(db: Database, insert):
 
     # USDAQualityGrade
     if "USDAQualityGrade" in fields and fields["USDAQualityGrade"] != "":
-        db.matches.types.insert_usda_quality_grade(
+        Matches(db).types.insert_usda_quality_grade(
             fields["USDAQualityGrade"],
             eid=eid,
             partner_account=partner_account,
@@ -128,7 +129,7 @@ def handle(db: Database, insert):
 
     # Hot Weight
     if "HotWeight" in fields and fields["HotWeight"] != "" and float(fields["HotWeight"]) != 0:
-        db.matches.types.insert_hot_weight(
+        Matches(db).types.insert_hot_weight(
             weight=float(fields["HotWeight"]),
             eid=eid,
             partner_account=partner_account,
@@ -147,7 +148,7 @@ def handle(db: Database, insert):
         packer_data["FatThickness"] = float(fields["FatThickness"])
         
     if packer_data:
-        db.matches.types.insert_packer(
+        Matches(db).types.insert_packer(
             packer_str = packer_data,
             eid=eid,
             partner_account=partner_account,

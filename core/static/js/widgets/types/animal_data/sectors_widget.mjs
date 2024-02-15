@@ -67,7 +67,7 @@ export class SectorsWidget extends Widget {
             sectors.push({ "name": sectorName, "tabs": [] });
         }
 
-        let displaySectors = ["Cow-Calf", "Auction House", "Feedlot", "Packer"];
+        let displaySectors = ["Cow-Calf", "Auction", "Feedlot", "Packer"];
 
         let uniqueTabID = 0;
 

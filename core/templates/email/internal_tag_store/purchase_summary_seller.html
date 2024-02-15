@@ -1,0 +1,55 @@
+{% extends "email/internal_tag_store/internal_tag_store_standard.html" %}
+
+{% block email_content %}
+<div class="col-sm-4 col-grid">
+    <h4>Shipping Information: </h4>
+    Order ID: {{order_id}}<br>
+    Customer name: {{first}} {{last}}<br>
+    Shipping Address: {{shipping_address_line}}, {{shipping_city}} {{shipping_state}} {{shipping_zip_code}}<br> 
+    <h4>Order Information: </h4>
+    <table class="customTable">
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Details</th>
+        </tr>
+        {% for key, value in cart.items() %}
+        <tr>    
+            <td>{{value.product_name}}</td>
+            <td>{{value.quantity}}</td>
+            <td>{{"$%.2f"|format(value.price)}}</td>
+            <td>{{"$%.2f"|format(value.quantity*value.price)}}</td>
+            {% if value.is_premise_id_required == 1 %}
+            <td>Premise ID: {{premise_id}}</td>
+            {% else %}
+            <td></td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+    <table class="customTable">
+        <tr>
+            <th>Total Price: </th>
+            <td>{{"$%.2f"|format(total_price|float)}}</td>
+        </tr>
+        <tr>
+            <th>Total Tax: </th>
+            <td>{{"$%.2f"|format(total_tax|float)}}</td>
+        </tr>
+        <tr>
+            <th>Shipping: </th>
+            <td>{{"$%.2f"|format(shipping|float)}}</td>
+        </tr>
+        <tr>
+            <th>Discount: </th>
+            <td>-{{"$%.2f"|format(discount|float)}}</td>
+        </tr>
+        <tr>
+            <th>Grand Total: </th>
+            <td>{{"$%.2f"|format(grand_total|float)}}</td>
+        </tr>
+    </table>
+</div>
+{% endblock email_content %}

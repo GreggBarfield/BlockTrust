@@ -145,7 +145,7 @@ class Connections:
             return connection[0]
         return None
 
-    def get_unconnected_accounts(self, account_id):
+    def get_unconnected_accounts(self, account_id, get_partners_only=NO_VALUE):
         """
         Get accounts not connected to the specified account
 
@@ -155,22 +155,22 @@ class Connections:
         Returns:
             A list of accounts which are not connected to the specified account or an empty list
         """
-        unconnected_accounts = self._db.execute_d(
-            """
-            SELECT * FROM accounts WHERE id NOT IN(
-            SELECT from_account_id as connected_account_id FROM connections WHERE to_account_id = %(account_id)s UNION
-            SELECT to_account_id as connected_account_id FROM connections WHERE from_account_id = %(account_id)s
-            ) AND id!=%(account_id)s AND is_partner=0
-            """, {
-                "account_id": account_id
-            }
-        )
+        query = """SELECT * FROM accounts WHERE id NOT IN(
+                SELECT from_account_id as connected_account_id FROM connections WHERE to_account_id = %(account_id)s UNION
+                SELECT to_account_id as connected_account_id FROM connections WHERE from_account_id = %(account_id)s
+                ) AND id!=%(account_id)s
+                """
+        
+        if get_partners_only is not NO_VALUE:
+            query = query + " AND is_partner = 1"
+        unconnected_accounts = self._db.execute_d(query, {"account_id": account_id})
+
         if len(unconnected_accounts) > 0:
             return unconnected_accounts
         return []
 
     def get_connections(self, id=NO_VALUE, from_account_id=NO_VALUE, to_account_id=NO_VALUE, status=NO_VALUE,
-                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_full=False,
+                        connection_type_id=NO_VALUE, blocked_by_account_id=NO_VALUE, get_related_data=False,
                         from_account_id_OR_to_account_id=NO_VALUE):
         """
         Gets the connections based on the provided parameters
@@ -187,7 +187,7 @@ class Connections:
             A list of connections or and empty list
         """
 
-        if get_full:
+        if get_related_data:
             base_query = """
                 SELECT c.*, fa.name as from_account_name, fa.sector as from_account_sector_id,
                 ta.name as to_account_name, ta.sector as to_account_sector_id FROM connections c
@@ -285,7 +285,7 @@ class Connections:
 
     def get_connected_account_ids(self, account_id, sector_id=None):
         connections = Connections(self._db).get_connections(
-            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_full=True
+            from_account_id_OR_to_account_id=account_id, status=CONNECTION_STATUS_NAME_TO_ID["Connected"], get_related_data=True
         )
 
         connected_account_ids = []
