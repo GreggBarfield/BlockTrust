@@ -37,11 +37,11 @@ export class DateFormGroup extends FormGroup {
      * @param {string} label The label text
      * @param {number} [unixTime] the unix time to default to
      */
-    constructor(attachTo, label, unixTime=null) {
+    constructor(attachTo, label, input_id, unixTime=null) {
         super(attachTo, label);
 
         this._input = document.createElement("input");
-        this._input.id = this._input_id;
+        this._input.id = input_id;
         this._input.type = "date";
         this._input.className = "form-control";
 
@@ -74,6 +74,10 @@ export class DateFormGroup extends FormGroup {
         let values = this._input.value.split("-");
         let d = new Date(values[0], values[1] - 1, values[2]);
         return Math.floor(d.getTime() / 1000);
+    }
+
+    setInputDisabledStatus(status) {
+        this._input.disabled = status;
     }
 }
 

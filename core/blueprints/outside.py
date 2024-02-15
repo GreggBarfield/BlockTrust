@@ -4,14 +4,21 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.combinations import send_email_to_admin_users
+from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
-from ..database.tables.accounts import AccountsException
+from ..database.tables.accounts import Accounts, AccountsException
+from ..database.tables.error_logs import ErrorLogs
 from ..database.tables.files import Files
-from ..database.tables.sales_groups import SalesGroups
+from ..database.tables.matches import Matches
+from ..database.tables.product_categories import ProductCategories
+from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
+from ..database.tables.products import ProductTable
+from ..database.tables.sales_groups import SalesGroups, SalesGroupsException, TARGET_DATE_KEYS_TO_DESC
+from ..database.tables.sales_group_searches import SalesGroupSearches
 from ..database.tables.tips import Tips
 from ..common_exceptions import ExportException
-from ..utilities import auth
+from ..utilities import auth, csrf, crut
 from ..utilities.email import send_email
 from ..utilities import token
 from ..utilities.constants import HTTP_BAD_REQUEST, HTTP_NO_CONTENT
@@ -23,8 +30,10 @@ from core.config import (
 from ..sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from json import loads
 from requests import post
+from traceback import format_exc
 from ..match_types import MATCH_TYPES_NAME_TO_ID
 
+import json
 
 bp = Blueprint('outside_bp', __name__)
 
@@ -41,68 +50,71 @@ def serve_logout():
     return outside_render('logged-out.html', {"login_url": login_url})
 
 
-@bp.route('/login', methods=['GET'])
+@bp.route('/login', methods=['GET', 'POST'])
+@csrf.csrf_protect
 def serve_login():
-    redirect_to = ''
+    if request.method == 'POST':
+        try:
+            if 'identifier' not in request.form:
+                raise ExportException("internal error, identifier missing from form")
 
+            if 'password' not in request.form:
+                raise ExportException("internal error, password missing from form")
+            try:
+                user_id = auth.login(
+                    identifier=request.form['identifier'],
+                    password=request.form['password']
+                )
+                auth.load_user(user_id)
+                account_users = g.db.account_users.get_account_users(user=g.user.id())
+                if len(account_users) == 1:
+                    auth.load_account(account_users[0]["account"])
+                else:
+                    return {"redirect": url_for("dashboard_bp.serve_accounts")}
+
+                if (
+                    'requestRedirectTo' in request.form and
+                    request.form['requestRedirectTo'] is not None and
+                    request.form['requestRedirectTo'] != ''
+                ):
+                    redirect_to = request.form['requestRedirectTo']
+                elif g.account.is_partner():
+                    redirect_to = url_for("partner_bp.serve_dashboard")
+                else:
+                    redirect_to = url_for("dashboard_bp.serve_dashboard")
+                return {"redirect": redirect_to}
+            except auth.LoginException as e:
+                raise ExportException(str(e))
+            except auth.EmailNotVerifiedException as e:
+                raise ExportException(str(e))
+            except auth.SignupFailedException as e:
+                raise ExportException("internal error in Users.login")
+        except ExportException as e:
+            return jsonify({"error": str(e)}), 400
+    redirect_to = ''
     # Might want to revisit this eventually to protect against users getting tricked
     if 'redirect' in request.args:
         redirect_to = request.args['redirect']
-
     return outside_render('login.html', {"redirect_to": redirect_to})
-
-
-@bp.route('/login/action', methods=['POST'])
-def serve_login_action():
-    try:
-        if 'identifier' not in request.form:
-            raise ExportException("internal error, identifier missing from form")
-
-        if 'password' not in request.form:
-            raise ExportException("internal error, password missing from form")
-        try:
-            user_id = auth.login(
-                identifier=request.form['identifier'],
-                password=request.form['password']
-            )
-            auth.load_user(user_id)
-            account_users = g.db.account_users.get_account_users(user=g.user.id())
-            if len(account_users) == 1:
-                auth.load_account(account_users[0]["account"])
-            else:
-                return {"redirect": url_for("dashboard_bp.serve_accounts")}
-
-            if (
-                'requestRedirectTo' in request.form and
-                request.form['requestRedirectTo'] is not None and
-                request.form['requestRedirectTo'] != ''
-            ):
-                redirect_to = request.form['requestRedirectTo']
-            elif g.account.is_partner():
-                redirect_to = url_for("partner_bp.serve_dashboard")
-            else:
-                redirect_to = url_for("dashboard_bp.serve_dashboard")
-            return {"redirect": redirect_to}
-        except auth.LoginException as e:
-            raise ExportException(str(e))
-        except auth.EmailNotVerifiedException as e:
-            raise ExportException(str(e))
-        except auth.SignupFailedException as e:
-            raise ExportException("internal error in Users.login")
-    except ExportException as e:
-        return jsonify({"error": str(e)}), 400
 
 
 @bp.route('/signup', methods=['GET'])
 def serve_signup():
     available_sectors = {
         "Cow Calf Ranch": SECTORS_NAME_TO_ID["Cow-Calf"],
-        "Stocker/Backgrounder": SECTORS_NAME_TO_ID["Stocker/Backgrounder"]
+        "Stocker/Backgrounder": SECTORS_NAME_TO_ID["Stocker/Backgrounder"],
+        "Buyer": SECTORS_NAME_TO_ID["Buyer"],
+        "Seedstock Producer": SECTORS_NAME_TO_ID["Seedstock Producer"]
     }
     partners = g.db.accounts.get_accounts(
         sectors=[s for s in available_sectors.values()],
         is_partner=1,
         is_partner_used_for_signup=1
+    )
+    auction_markets = AuctionMarkets(g.db).get_auction_markets(
+        is_archived=0,
+        auction_markets_order_by="name",
+        auction_markets_sort_by="ASC"
     )
     return outside_render('signup.html', {
         "available_sectors": available_sectors,
@@ -110,7 +122,8 @@ def serve_signup():
         "partners": partners,
         "site_key": RECAPTCHA_SITE_KEY,
         "ipinfo_access_token": IPINFO_TOKEN,
-        "check_ip": CHECK_IP
+        "check_ip": CHECK_IP,
+        "auction_markets": auction_markets
     })
 
 
@@ -128,10 +141,12 @@ def serve_signup_action():
             required[required_field] = request.form[required_field]
             if len(required[required_field].strip()) == 0:
                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+        if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
+            raise ExportException("Please Select Auction Market(s)")
 
         if request.form.get('token', None) is not None:
             data = {
-                "secret" : RECAPTCHA_SECRET_KEY,
+                "secret": RECAPTCHA_SECRET_KEY,
                 "response": request.form['token']
             }
             verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
@@ -158,7 +173,10 @@ def serve_signup_action():
                         personal_phone=request.form['personal_phone'],
                         recaptcha_score=verification_response_json['score'],
                         ip_address=request.form['ip_address'],
-                        ip_country=request.form['ip_country']
+                        ip_country=request.form['ip_country'],
+                        auction_markets_used=loads(request.form["auction_markets"]),
+                        preconditioning_programs=loads(request.form["preconditioning_programs"]),
+                        pvp_programs=loads(request.form["pvp_programs"])
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
                     raise ExportException("Signup failed: " + str(e))
@@ -182,7 +200,6 @@ def serve_signup_action():
             raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
     except ExportException as e:
         return {"error": str(e)}, 400
-
 # About us
 
 
@@ -257,10 +274,7 @@ def serve_contact_form_response():
 
 @bp.route('/request-password-reset', methods=['GET'])
 def serve_request_password_reset():
-    redirect_to = ''
-    if 'redirect' in request.args:
-        redirect_to = request.args['redirect']
-
+    redirect_to = '/password-reset-message'
     return outside_render('request_password_reset.html', {"redirect_to": redirect_to})
 
 # Request password reset action
@@ -285,7 +299,14 @@ def serve_password_request_action():
                     'password_reset_url': password_reset_url
                 }), request.form['email']
         )
-        return {"redirect": "/password-reset-message"}
+        redirect_to = "/password-reset-message"
+        if (
+            'requestRedirectTo' in request.form and
+            request.form['requestRedirectTo'] is not None and
+            request.form['requestRedirectTo'] != ''
+            ):
+                redirect_to = request.form['requestRedirectTo']
+        return {"redirect": redirect_to}
 
 
 # Password reset message page
@@ -354,126 +375,6 @@ def serve_contact_email():
         contactEmail=SUPPORT_GENERAL_EMAIL
     )
 
-# Routes for shop, shopping cart, product and checkout pages
-# TODO: These need to be fixed as part of BTN-254
-
-# @bp.route('/shop', methods=['GET'])
-# def serve_shop():
-#     allProductData = g.db.products.get_all_products()
-#     return outside_render('shop/shop_homepage.html', {"allProductData": allProductData})
-
-
-# Routes for adding and deleting cart items
-
-
-# @bp.route('/shop', methods=['POST'])
-# def serve_add_to_cart():
-#     try:
-#         return outside_render("shop/shop_homepage.html")
-#     except ExportException as e:
-#         return jsonify({"error": e})
-
-
-# Routes for shopping cart page
-
-
-# @bp.route('/shopping-cart', methods=['GET'])
-# def serve_shopping_cart():
-#     return outside_render("shop/shopping_cart.html")
-
-# # Checkout Login and Checkout Register pages 
-
-
-# @bp.route('/checkout_payment', methods=['GET'])
-# def serve_checkout_payment():
-#     return outside_render('shop/checkout_payment.html')
-
-
-# @bp.route('/checkout_payment', methods=['POST'])
-# def serve_payment():
-#     print(request.form)
-#     return redirect('/invoice')
-
-
-# @bp.route('/checkout_loggedIn', methods=['GET'])
-# def serve_checkout_register():
-#     if g.user is not None:
-#         return outside_render('shop/checkout_loggedIn.html', {'redirect_to': '/checkout_payment'})
-
-
-# @bp.route('/checkout_loggedIn', methods=['POST'])
-# def serve_loggedIn_checkout():
-#     try:
-#         redirect_to = ''
-#         if 'redirect' in request.args:
-#             redirect_to = request.args['redirect']
-#         # Need to modify this to update shipping address incase of change by logged in user
-#         return redirect('/checkout_payment')
-#         # return outside_render('shop/checkout_payment.html')
-#     except ExportException as e:
-#         return jsonify({"error": str(e)})
-
-
-# @bp.route('/checkout_register/action', methods=['POST'])
-# def serve_checkout_register_action():
-#     try:
-#         required = {
-#             'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-#             'city': None, 'state': None, 'zip_code': None, 'address': None,
-#             'username': None, 'email': None, 'password': None, 'confirm_password': None, 'affiliate_id': None,
-#             'address': None, 'partner': None
-#         }
-#         for required_field in required:
-#             if required_field not in request.form:
-#                 raise ExportException("internal error, {} missing from form".format(required_field))
-#             required[required_field] = request.form[required_field]
-#             if len(required[required_field].strip()) == 0:
-#                 raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-
-#         # Sign up
-#         try:
-#             auth.signup(
-#                 username=required['username'],
-#                 email=required['email'],
-#                 phone=request.form['phone'],
-#                 first_name=required['first_name'],
-#                 last_name=required['last_name'],
-#                 password=required['password'],
-#                 confirm_password=required['confirm_password'],
-#                 company=required['company'],
-#                 affiliate_id=required['affiliate_id'],
-#                 sector=required['sector'],
-#                 address=required['address'],
-#                 city=required['city'],
-#                 state=required['state'],
-#                 zip_code=required['zip_code'],
-#                 partner=required['partner']
-#             )
-#         except (auth.SignupFailedException, AccountsException, UsersException) as e:
-#             raise ExportException("Signup failed: " + str(e))
-#     # We can send out an email for verification if needed. The verification method has been implemented above in signup
-#         return jsonify({"redirect": "/checkout_payment"})
-#     except ExportException as e:
-#         return jsonify({"error": str(e)})
-
-
-# # Checkout form to get user information and payment information
-# @bp.route('/checkout', methods=['GET'])
-# def serve_checkout():
-#     if g.user is not None:
-#         return redirect('/checkout_loggedIn')
-#     else:
-#         return outside_render('shop/checkout.html', {
-#             "sectors_id_to_name": SECTORS_ID_TO_NAME,
-#             "redirect_to": '/checkout'
-#             })
-
-
-# # Invoice routes
-# @bp.route('/invoice', methods=['GET'])
-# def serve_invoice():
-#     return outside_render('shop/invoice.html')
-
 
 @bp.route('/rfid-tags', methods=["GET"])
 def serve_rfid_tags():
@@ -514,6 +415,11 @@ def serve_employee_login_action():
 @bp.route('/images/<path:path>')
 def send_file(path):
     return send_from_directory('static/images', path)
+
+
+@bp.route('/files/<path:path>')
+def send_document(path):
+    return send_from_directory('static/files', path)
 
 
 @bp.route('/add-user/<string:invite_token>', methods=['GET'])
@@ -560,14 +466,17 @@ def serve_add_invited_user():
 
 @bp.route("/markettrust/<int:sales_group_id>", methods=["GET"])
 def serve_external_sales_group_viewer(sales_group_id):
-    sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    try:
+        sales_group_row = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    except SalesGroupsException:
+        return outside_render("/outside/error.html", {"error_reason": "Sales Group Not Found"})
     return outside_render("/outside/external-sales-group-viewer.html", {"sales_group": sales_group_row})
 
 
 @bp.route("/retail/<int:eid>", methods=["GET"])
 def serve_retail(eid):
     supply_chain_account_ids = []
-    original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    original_ranch_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],
@@ -575,14 +484,14 @@ def serve_retail(eid):
     )
     if len(original_ranch_match_and_account_link) > 0:
         supply_chain_account_ids.append(original_ranch_match_and_account_link[0]["account"])
-    feedyard_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    feedyard_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Feedlot"]
     )
     if len(feedyard_match_and_account_link) > 0:
         supply_chain_account_ids.append(feedyard_match_and_account_link[0]["account"])
-    packer_match_and_account_link = g.db.matches.get_matches_with_account_links(
+    packer_match_and_account_link = Matches(g.db).get_matches_with_account_links(
         matches_eid=eid,
         matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
         account_links_sector=SECTORS_NAME_TO_ID["Packer"]
@@ -628,7 +537,7 @@ def serve_contact_account():
 def serve_tip(eid, account_id):
     account_with_payouts_enabled = g.db.accounts.get_accounts(id=account_id, is_stripe_payouts_enabled=1)
     if len(account_with_payouts_enabled) > 0:
-        original_ranch_match_and_account_link = g.db.matches.get_matches_with_account_links(
+        original_ranch_match_and_account_link = Matches(g.db).get_matches_with_account_links(
             matches_eid=eid,
             matches_restrict_type=MATCH_TYPES_NAME_TO_ID["Sighting"],
             account_links_sector=SECTORS_NAME_TO_ID["Cow-Calf"],

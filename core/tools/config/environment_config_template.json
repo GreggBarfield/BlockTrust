@@ -54,7 +54,7 @@
     },
     "flatfile_license": "59cef5be-e3d4-4687-a687-79f0a3e2aaba",
     "blockchain": {
-           "endpoint": "http://ec2-18-116-170-112.us-east-2.compute.amazonaws.com:3000",
+           "endpoint": "http://ec2-3-129-6-38.us-east-2.compute.amazonaws.com:3000",
            "upload": true,
            "batch_size": 10
     },
@@ -68,6 +68,15 @@
         "check_ip": false
     },
     "run_jobs": {
-        "notify_admin_if_no_data_received_from_partner": false
+        "notify_admin_if_no_data_received_from_partner": false,
+        "payments": false
+    },
+    "herdwhistle": {
+        "api_key": "438b049e5dc62b50477cab6b9c7a5a04c128e112",
+        "api_endpoint": "https://herdwhistle-staging-10160549.dev.odoo.com",
+        "db": "herdwhistle-staging-10160549",
+        "username": "blocktrust",
+        "invoice_id": 5230,
+        "fetch_eids_from_api": false
     }
 }

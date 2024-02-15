@@ -15,6 +15,7 @@ __name__ = "core.main"
 from flask import (
     Flask, request, g
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
 from flask_talisman import Talisman
 from flask_qrcode import QRcode
@@ -22,7 +23,7 @@ from flask_qrcode import QRcode
 from .config import *
 from .database.database import Database
 
-from .blueprints import dashboard, outside, widgets, stripe, shop, employees, partners
+from .blueprints import dashboard, outside, widgets, stripe, employees, partners, iframes
 
 from .utilities.handlers import attach_handlers
 from .utilities import auth, csrf
@@ -36,6 +37,7 @@ Talisman(
 )
 CORS(app)
 qrcode = QRcode(app)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
 attach_handlers(app)
 csrf.add_csrf(app)
@@ -52,9 +54,7 @@ def before_request():
     if getattr(g, "db", None) is None:
         g.db = Database(MYSQL_CONFIG)
 
-    # g.attribute_list = ["user", "account", "is_admin", "employee", "employee_id"]
-
-    auth.load_app_context_from_session()
+    auth.load_app_context()
 
 
 @app.teardown_request
@@ -73,9 +73,9 @@ app.register_blueprint(dashboard.bp)
 app.register_blueprint(outside.bp)
 app.register_blueprint(widgets.bp)
 app.register_blueprint(stripe.bp)
-app.register_blueprint(shop.bp)
 app.register_blueprint(employees.bp)
 app.register_blueprint(partners.bp)
+app.register_blueprint(iframes.bp)
 
 if debug_mode:
     app.run(

@@ -9,6 +9,7 @@ export class TableWidget extends Widget {
         this.account = parseInt(this.frame.getAttribute("data-widget-account"));
         this.companyName = this.frame.getAttribute("data-widget-company-name");
         this.downloadButtonId = this.frame.getAttribute("data-widget-button-id");
+        this.detailDownloadButtonId = this.frame.getAttribute("data-widget-detail-button-id");
 
         this.frame.innerHTML = "";
         this.makeTable();
@@ -136,10 +137,17 @@ export class TableWidget extends Widget {
                     this.count_eid_distinct_sighted = data.result.count_eid_distinct_sighted;
                 }
                 this.displayGlobal();
+            }),
+
+            this.getData(
+                "get_yield_and_quality_grades_for_owned_eids"
+            ).then((data) =>{
+                this.eid_based_yield_and_quality_grade_data = data;
             })
         ]).then(() => {
             if (this.downloadButtonId && this.account_usda_quality_grade_distribution) {
-                this.createSummaryTableExport()
+                this.createSummaryTableExport();
+                this.createDetailTableExport();
             }
         })
     }
@@ -164,18 +172,21 @@ export class TableWidget extends Widget {
         //Second table
         let accountDataAvailableTotal = 0, globalDataAvailableTotal = 0;
 
-        let qualityGradeToCountAccount = {"Prime":0, "Choice":0, "Select or Lower":0,"Others":0};
-        let qualityGradeToCountGlobal = {"Prime":0, "Choice":0, "Select or Lower":0,"Others":0};
+        let qualityGradeToCountAccount = {"Prime":0, "Choice":0, "Select or Lower":0, "Others":0};
+        let qualityGradeToCountGlobal = {"Prime":0, "Choice":0, "Select or Lower":0, "Others":0};
         for(let dataItem of this.account_usda_quality_grade_distribution)
         {
+            dataItem.data = dataItem.data == "Select"? "Select or Lower": dataItem.data;
             accountDataAvailableTotal += dataItem.count;
-            if(qualityGrades.includes(dataItem.data))
+            if(qualityGrades.includes(dataItem.data)) {
                 qualityGradeToCountAccount[dataItem.data] += dataItem.count;
+            }
             else
                 qualityGradeToCountAccount["Others"] += dataItem.count;
         }
         for(let dataItem of this.global_usda_quality_grade_distribution)
-        {          
+        {       
+            dataItem.data = dataItem.data == "Select"? "Select or Lower": dataItem.data;  
             globalDataAvailableTotal += dataItem.count;
             if(qualityGrades.includes(dataItem.data))
                 qualityGradeToCountGlobal[dataItem.data] += dataItem.count;
@@ -228,6 +239,28 @@ export class TableWidget extends Widget {
         let downloadButton = document.getElementById(this.downloadButtonId)
         downloadButton.setAttribute("href", encodedUri);
         downloadButton.setAttribute("download", "Calf-Crop Summary.csv");
+        downloadButton.classList.remove("d-none")
+    }
+
+    createDetailTableExport = () =>{
+        let tableExport = [];
+        let tableHeaders = ["EID", "Quality Grade", "Yield Grade"]
+        tableExport.push(tableHeaders);
+
+        for(const [eid, carcassData] of Object.entries(this.eid_based_yield_and_quality_grade_data)){
+            let eidCarcassDataRow = [];
+            eidCarcassDataRow.push(
+                eid,
+                carcassData.quality_grade !== undefined ? carcassData.quality_grade : "N/A",
+                carcassData.yield_grade !== undefined ? carcassData.yield_grade : "N/A"
+            );
+            tableExport.push(eidCarcassDataRow);
+        }
+        let csvContent = "data:text/csv;charset=utf-8," + tableExport.map(e => e.join(",")).join("\n");
+        var encodedUri = encodeURI(csvContent);
+        let downloadButton = document.getElementById(this.detailDownloadButtonId);
+        downloadButton.setAttribute("href", encodedUri);
+        downloadButton.setAttribute("download", "Detailed Carcass Report.csv");
         downloadButton.classList.remove("d-none")
     }
 
@@ -290,7 +323,7 @@ export class TableWidget extends Widget {
                     else if (r.data == "Choice") {
                         yg[1]+=r.count;
                     }
-                    else if (r.data == "Select or Lower") {
+                    else if (r.data.includes("Select")) {
                         yg[2]+=r.count;
                     }
                     else {
@@ -368,7 +401,7 @@ export class TableWidget extends Widget {
                     else if (r.data == "Choice") {
                         yg[1]+=r.count;
                     }
-                    else if (r.data == "Select or Lower") {
+                    else if (r.data.includes("Select")) {
                         yg[2]+=r.count;
                     }
                     else {

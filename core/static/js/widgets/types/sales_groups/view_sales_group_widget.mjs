@@ -1,6 +1,6 @@
 import { Widget } from '../../widget.mjs';
 import { SalesGroupViewer } from '../../../sales_groups/view_sales_group.mjs';
-import { CreatePrintFlyerButton } from '../../../sales_groups/create_sales_group_flyer.mjs';
+import { printContainerById } from '../../utilities/general_utilities.mjs';
 
 export class ViewSalesGroupWidget extends Widget {
     constructor(frame) {
@@ -20,18 +20,28 @@ export class ViewSalesGroupWidget extends Widget {
         ).then((salesGroup) => {
             let firstRow = document.createElement("div");
             firstRow.className = "d-flex align-items-end";
-            firstRow.appendChild(CreatePrintFlyerButton(salesGroup));
+            firstRow.appendChild(this.createPrintFlyerButton());
             firstRow.appendChild(this.createQRLinkBtn());
             firstRow.appendChild(this.createQRCodeImg());
             this.frame.append(firstRow);
 
-            new SalesGroupViewer(salesGroup, this.frame);
+            new SalesGroupViewer(salesGroup, this.frame, this.frame.getAttribute("data-widget-account"));
         });
 
         this.onSomeDataLoaded(function () {
             this.frame.innerHTML = "";
         });
 
+    }
+
+    createPrintFlyerButton = () =>{
+        let printFlyerButton = document.createElement("button");
+        printFlyerButton.className = "btn btn-outline-primary btn-sm";
+        printFlyerButton.innerHTML = "Print Flyer";
+        printFlyerButton.onclick =  () => {
+            printContainerById("sales-group-viewer");
+        };
+        return printFlyerButton;
     }
 
     createQRLinkBtn = () => {

@@ -15,11 +15,9 @@ export class CoreModal {
         this.modal.style = "display:block";
         this.modal.style.overflowY = "scroll";
         document.body.append(this.modal);
-
-        // Todo: implement wide
         
         this.modalDialog = document.createElement("div");
-        this.modalDialog.className = "modal-dialog";
+        this.modalDialog.className = wide ? "modal-dialog modal-xl" : "modal-dialog";
         this.modal.append(this.modalDialog);
 
         this.modalContent = document.createElement("div");

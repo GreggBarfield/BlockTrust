@@ -213,8 +213,8 @@
                         </div>
                         <ul class="pro-body">
                             <li>
-                                <a href="/dashboard/plans">
-                                    <i class="feather icon-credit-card"></i> Subscription
+                                <a href="/dashboard/payment">
+                                    <i class="feather icon-credit-card"></i> Payment
                                 </a>
                             </li>
                         {% if dashboard_standard_is_admin == 1 %}
@@ -250,10 +250,16 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                        {% if dashboard_is_employee_impersonating == 0 %}
+                        {% if not dashboard_is_employee %}
                             <li>
                                 <a href="/dashboard/edit/edituser">
                                     <i class="feather icon-edit"></i> Edit User
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="/employee/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to staff portal
                                 </a>
                             </li>
                         {% endif %}
@@ -300,53 +306,53 @@
                 </a>
                 <ul>
                     <li><a href="/dashboard/sales-groups">Search</a></li>
-                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] or dashboard_standard_account.sector_id() == sectors_name_to_id["Auction House"]%}
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"]
+                    or dashboard_standard_account.sector_id() == sectors_name_to_id["Auction"]
+                    or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
                     <li><a href="/dashboard/sales-groups/manage">Manage Sales Groups</a></li>
                     <li><a href="/dashboard/sales-groups/new">New Sales Group</a></li>
                     <li><a href="/dashboard/sales-groups/archive">Archived Sales Groups</a></li>
                 {% endif %}
                 </ul>
             </li>
-        {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Auction House"] %}
-            <li>
-                <a href="/dashboard/auction-sales/manage">
-                    <span><i class="feather icon-award"></i></span>
-                    <span>Auctions</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/auction-sales/new">New Auction Sale</a></li>
-                    <li><a href="/dashboard/auction-sales/manage">Manage Auction Sales</a></li>
-                </ul>
-            </li>
-        {% endif %}
-        {% if dashboard_standard_account.sector_id() != sectors_name_to_id["Buyer"]%}
-            <li>
-                <a href="/dashboard">
-                    <span><i class="feather icon-trending-up"></i></span>
-                    <span>Dashboards</span>
-                </a>
-                <ul>
-                    <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
-                    <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
-                    <li><a href="/dashboard/sustainability">Sustainability</a></li>
-                    {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
-                    <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
-                    {% endif %} 
-                </ul>
-            </li>
-        {% endif %}
         <li>
-            <a href="/shop/tag-store">
+            <a href="/dashboard">
+                <span><i class="feather icon-trending-up"></i></span>
+                <span>Dashboards</span>
+            </a>
+            <ul>
+                <li><a href="/dashboard/upload-tags">Upload Tag Data</a></li> 
+                <!--  Disabled 1/9/2023 <li><a href="/dashboard/data/market">Market Data</a></li> -->
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"] %}
+                <li><a href="/dashboard/genetics">Upload Genetics Data</a></li>
+                {% endif %}
+                <li><a href="/dashboard/sustainability">Sustainability</a></li>
+                {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] 
+                    or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
+                <li><a href="/dashboard/data-views">Who's viewed your data</a></li>
+                {% endif %} 
+            </ul>
+        </li>
+        <li>
+            <a href="/dashboard">
                 <span><i class="feather icon-shopping-cart"></i></span>
                 <span>Tag Store</span>
             </a>
+                <ul>
+                    <li><a href="/shop/tag-store">Tag Store</a></li>
+                    <li><a href="/shop/view-orders">Order History</a></li>
+                </ul>
         </li>
-        {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] %}
+        {% if dashboard_standard_account.sector_id() == sectors_name_to_id["Cow-Calf"] or dashboard_standard_account.sector_id() == sectors_name_to_id["Seedstock Producer"]%}
             <li>
                 <a href="/dashboard/marketplace">
                     <span><i class="feather icon-trending-up"></i></span>
                     <span>MarketPlace</span>
                 </a>
+                <ul>
+                    <li><a href="/dashboard/marketplace">MarketPlace</a></li>
+                    <li><a href="/dashboard/seedstock-producers">Seedstock Producers</a></li>
+                </ul>
             </li>
         {% endif %}
         {% endif %}

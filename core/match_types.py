@@ -13,7 +13,8 @@ MATCH_TYPES_ID_TO_NAME = {
     18: "Died",
     19: "Railed",
     20: "Medical",
-    21: "Sold"
+    21: "Sold",
+    22: "Insemination"
 }
 
 MATCH_TYPES_NAME_TO_ID = {

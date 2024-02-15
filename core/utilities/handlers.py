@@ -1,12 +1,16 @@
 from flask import g, request, render_template, redirect
-from werkzeug.urls import url_encode
+import urllib.parse
+
+from core.renderers.employee import employee_render
 
 from .crut.requirements import (
     RequireNonPartnerAccountFailed,
     RequireUserOrEmployeeFailed,
     RequireUserFailed,
+    RequireUserIframeFailed,
     RequirePaidAccountFailed,
-    RequirePartnerFailed
+    RequirePartnerFailed,
+    RequireEmployeeFailed
 )
 from ..common_exceptions import ExportException, FriendlyException, DebugException
 
@@ -23,7 +27,7 @@ def respond(code, short, exception=None):
         short: the short reason
     """
 
-    if request.method == 'POST':
+    if request.method in ('POST', 'PUT'):
         # Return as an api response
         return {
             'error': short,
@@ -44,28 +48,39 @@ def attach_handlers(app):
     @app.errorhandler(RequireUserFailed)
     def handle_require_user_failed(e):
         if request.method == 'GET':
+            if "employee" in g:
+                return employee_render("errors/no-access.html")
             return redirect(
-                "/login?" + url_encode({
+                "/login?" + urllib.parse.urlencode({
                     'redirect': request.url
                 })
             )
         else:
-            # Else send a 401
-            return respond(401, 'Not logged in')
+            return respond(401, 'User Not logged in')
+
+    @app.errorhandler(RequireUserIframeFailed)
+    def handle_require_user_iframe_failed(e):
+        if request.method == 'GET':
+            return redirect(
+                "/iframe/login?" + urllib.parse.urlencode({
+                    'redirect': request.url
+                })
+            )
+        else:
+            return respond(401, 'Iframe Not logged in')
 
     @app.errorhandler(RequireNonPartnerAccountFailed)
     def handle_require_account_failed(e):
+        # user is logged in and has a partner account
         if request.method == 'GET':
-            if "account" in g and g.account.is_partner():
-                return partner_render("errors/no-access.html")
-            else:
-                return dashboard_render("errors/no-account.html")
+            return partner_render("errors/no-access.html")
         else:
             # Else send a 401
             return respond(401, 'No account selected', e)
 
     @app.errorhandler(RequirePaidAccountFailed)
     def handle_require_paid_account_failed(e):
+        # user is logged in and has an unpaid account
         if request.method == 'GET':
             return dashboard_render("errors/no-paid-account.html")
         else:
@@ -74,6 +89,7 @@ def attach_handlers(app):
 
     @app.errorhandler(RequireUserOrEmployeeFailed)
     def handle_require_account_or_employee_failed(e):
+        # should be used only for APIs
         return respond(401, "Not authorized", e)
 
     @app.errorhandler(RequirePartnerFailed)
@@ -82,6 +98,22 @@ def attach_handlers(app):
             return dashboard_render("errors/no-access.html")
         else:
             return respond(401, 'No access', e)
+
+    @app.errorhandler(RequireEmployeeFailed)
+    def handle_require_employee_failed(e):
+        if request.method == 'GET':
+            if "account" in g and g.account.is_partner():
+                return partner_render("errors/no-access.html")
+            elif "user" in g:
+                return dashboard_render("errors/no-access.html")
+            return redirect(
+                "/employee/login?" + urllib.parse.urlencode({
+                    'redirect': request.url
+                })
+            )
+        else:
+            # Else send a 401
+            return respond(401, 'Not authorized', e)
 
     @app.errorhandler(ExportException)
     def handle_export_exception(e):

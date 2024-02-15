@@ -1,0 +1,22 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Access Denied" %}
+
+{% block employee_content_header %}
+Access Denied
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">You shall not pass!</h5>
+                <p class="card-text">This is a customer page and you need to login to the appropriate account first.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock employee_content %}

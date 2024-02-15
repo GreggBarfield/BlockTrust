@@ -46,6 +46,9 @@ CSP = {
         'https://unpkg.com/@flatfile/adapter/build/dist/index.min.js',
         'https://portal-2.flatfile.io/',
         'https://ipinfo.io/',
+        'https://maps.googleapis.com',
+        'https://maps.gstatic.com',
+        'https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js',
         ROOT,
         '\'unsafe-inline\'',
         'fonts.gstatic.com',
@@ -58,7 +61,8 @@ CSP = {
         'blocktrustnetwork.com',
         'uscattletrace.org',
         'www.uscattletrace.org',
-        'www-uscattletrace-org.filesusr.com'
+        'www-uscattletrace-org.filesusr.com',
+        'partner.blocktrustnetwork.com'
     ]
 }
 
@@ -106,3 +110,11 @@ IPINFO_TOKEN = config_file["ipinfo"]["token"]
 CHECK_IP = config_file["ipinfo"]["check_ip"]
 
 RUN_NOTIFY_IF_NO_DATA_RECEIVED_FROM_PARTNER = config_file["run_jobs"]["notify_admin_if_no_data_received_from_partner"]
+PAYMENTS = config_file["run_jobs"]["payments"]
+
+HERDWHISTLE_API_KEY = config_file["herdwhistle"]["api_key"]
+HERDWHISTLE_API_ENDPOINT = config_file["herdwhistle"]["api_endpoint"]
+HERDWHISTLE_DB = config_file["herdwhistle"]["db"]
+HERDWHISTLE_USERNAME = config_file["herdwhistle"]["username"]
+HERDWHISTLE_INVOICE_ID = config_file["herdwhistle"]["invoice_id"]
+HERDWHISTLE_FETCH_EIDS_FROM_API = config_file["herdwhistle"]["fetch_eids_from_api"]

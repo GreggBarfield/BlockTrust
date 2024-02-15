@@ -1,8 +1,8 @@
-from api.translation_worker.types.helper import process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
-from core.database.combinations import create_connection_with_eid_owner, create_connection_with_all_sighted_accounts_for_eid
-from core.sectors import SECTORS_NAME_TO_ID
+from api.translation_worker.types.helper import (
+    process_animal_characteristics, process_birth_date, process_sighting, process_weaning_data
+)
+from core.database.tables.accounts import RED_ANGUS_PARTNER_COMPANY
 from ...exceptions import ExecutionException
-from pytz import timezone
 
 
 def _check_required(insert):
@@ -21,7 +21,7 @@ def handle(db, insert):
     _check_required(insert)
 
     fields = insert['fields']
-    date_created = str(insert['created'])
+    sighting_date = fields["birth_date"] if fields.get("birth_date", None) else str(insert['created'])
 
     eid = int(fields["eid"])
     api_insert = insert["id"]
@@ -35,27 +35,27 @@ def handle(db, insert):
             account = account[0]
             zipcode = str(account["zip"])
             process_sighting(
-                db, eid, account_link["id"], api_insert, zipcode, date_created,
-                insert["account"], visual_id, timezone=timezone('Etc/GMT+11')
+                db, eid, account_link["id"], api_insert, zipcode, sighting_date,
+                insert["account"], account_id=account["id"], sector_id=account["sector"],
+                visual_id=visual_id,
+                connection_details={"created_by_operation": "Partner Tag Upload", "eid": eid, "api_insert": api_insert}
             )
             process_weaning_data(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
             process_birth_date(
-                db, fields, eid, insert["account"], account_link["id"], api_insert, timezone('Etc/GMT+11')
+                db, fields, eid, insert["account"], account_link["id"], api_insert
             )
-            process_animal_characteristics(db, fields, eid, api_insert, visual_id)
-
-            if account["sector"] == SECTORS_NAME_TO_ID["Cow-Calf"]:
-                create_connection_with_all_sighted_accounts_for_eid(
-                    db, eid, account["id"],
-                    details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
-                )
+            red_angus_partner = db.accounts.get_partners(company=RED_ANGUS_PARTNER_COMPANY)[0]
+            if insert["account"] == red_angus_partner["id"]:
+                is_paid = int(True)
             else:
-                create_connection_with_eid_owner(
-                    db=db, eid=eid, connecting_account_id=account["id"],
-                    details={"created_by_operation": "Tag Upload", "eid": eid, "api_insert": api_insert}
-                )
+                is_paid = int(False)
+            process_animal_characteristics(db, fields, eid, api_insert, visual_id, is_paid=is_paid)
+
+        else:
+            raise Exception(f"""No account exists for partner: {insert['account']}
+                            and affiliate ID: {fields['affiliate_id']}""")
     else:
-        raise Exception(f"""No account exists for partner: {insert['account']}
+        raise Exception(f"""No account link exists for partner: {insert['account']}
                          and affiliate ID: {fields['affiliate_id']}""")

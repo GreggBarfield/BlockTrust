@@ -6,54 +6,100 @@ export class CreateSalesGroupWidget extends Widget {
         super(frame);
     }
 
-    initType() {
-        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
-    this.getData(
-        "auction_markets"
-    ).then((data) => {
-        this.auctionMarketsData = this.processAuctionMarketsData(data.auction_markets);
-        this.makeForm();
-    });
-
-    this.onSomeDataLoaded(function () {
+    initType = async() =>{
         this.frame.innerHTML = "";
-    });
+        this.postRoute = this.frame.getAttribute("data-widget-form-post-route");
+        this.auctionMarkets = this.processAuctionMarketsData(JSON.parse(this.frame.getAttribute("data-widget-auction-markets")));
+        this.preSelectAuctionMarket = this.frame.getAttribute("data-widget-pre-select-auction-market").toLowerCase();
+        this.preSelectedAuctionMarketId = this.frame.getAttribute("data-widget-pre-selected-auction-market-id");
+        this.fieldIdsToNames = JSON.parse(this.frame.getAttribute("data-widget-sales-group-field-ids-to-names"));
+        this.salesGroupFieldsValues = this.processSalesGroupFieldsValues(JSON.parse(this.frame.getAttribute("data-widget-sales-group-fields-values")));
+        this.accountId = this.frame.getAttribute("data-widget-account-id");
+        this.paymentURL = this.frame.getAttribute("data-widget-payment-URL");
+        this.viewURL = this.frame.getAttribute("data-widget-view-URL");
+
+        // Checking for availability of carcass data
+        this.carcassDataAvailable = true;
+        this.getData(
+            "get_count_distribution_for_account", {account_id: parseInt(this.accountId)}
+        ).then((data) => {
+            if("result" in data && "count_distribution" in data.result){
+                let accountUSDAQualityGradeDistribution = data.result.count_distribution;
+                if(accountUSDAQualityGradeDistribution.length == 0){
+                    this.carcassDataAvailable = false;
+                }
+            }
+            else{
+                this.carcassDataAvailable = false;
+            }
+            this.makeForm();
+        });
     }
 
     processAuctionMarketsData(auctionMarkets){
-        let selectData=[];
-        selectData.push("None");
+        let selectData={};
+        selectData[0] = "None";
         for(const auctionMarket of auctionMarkets){
             let optionText = auctionMarket.name+", "+auctionMarket.city+", "+auctionMarket.state;
-            selectData.push(optionText);
+            selectData[auctionMarket.id] = optionText;
         }
         return selectData;
     }
 
+    processSalesGroupFieldsValues = (salesGroupFieldsValues) =>{
+        let processedSalesGroupFieldsValues = {
+            "vaccination": [],
+            "genetics_verification": [],
+            "comingled_status": [],
+            "creep_feed": [],
+            "weaned": [],
+            "breed": [],
+            "pvp_program": [],
+            "preconditioning_program": [],
+            "frame": [],
+            "muscling": [],
+            "horn": [],
+            "delivery_location_type": [],
+            "castrated": [],
+            "feeding_program": [],
+            "implant": [],
+            "category": [],
+            "pregnancy_status": [],
+            "breed_program_certification_co": [],
+            "certified_through": []
+        }
+        for(const fieldData of salesGroupFieldsValues){
+            let fieldId = fieldData.field_id;
+            let fieldName = this.fieldIdsToNames[fieldId];
+            processedSalesGroupFieldsValues[fieldName].push(fieldData.value);
+        }
+        return processedSalesGroupFieldsValues;
+    }
+
     makeForm(){
 
-    let that = this;
-    let card = document.createElement("div");
-    card.className = "card";
+        let that = this;
+        let card = document.createElement("div");
+        card.className = "card";
 
-    let createGroupName = document.createElement("h5");
-    createGroupName.className = "mt-2";
-    createGroupName.style = "text-align: center;  font-size: 25px; padding-left: 15px;padding-right: 15px;"
+        let createGroupName = document.createElement("h5");
+        createGroupName.className = "mt-2 font-weight-bold p-1 text-center";
 
-    createGroupName.textContent = "Create New Sales Group ";
+        createGroupName.textContent = "Create New Sales Group ";
 
-    let cardHeader = document.createElement("div");
-    cardHeader.className = "card-header form-group d-flex justify-content-between";
-    cardHeader.style = "padding:5px;padding-left: 15px;"
-    cardHeader.append(createGroupName);
-    card.append(cardHeader)
+        let cardHeader = document.createElement("div");
+        cardHeader.className = "card-header form-group d-flex justify-content-between p-1";
+        cardHeader.append(createGroupName);
+        card.append(cardHeader)
 
-    let cardBody = document.createElement("div");
-    cardBody.className = "card-body";
-    card.append(cardBody);
-    this.frame.append(card)
-    // Widget containing common input fields used in sales group form
-    let salesGroupForm = new SalesGroupsCommonForm(null, this.auctionMarketsData, this.postRoute);
-    cardBody.append(salesGroupForm);
+        let cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+        card.append(cardBody);
+        this.frame.append(card)
+        // Widget containing common input fields used in sales group form
+        let salesGroupForm = new SalesGroupsCommonForm(
+            null, this.auctionMarkets, this.postRoute, this.salesGroupFieldsValues, this.preSelectAuctionMarket, this.preSelectedAuctionMarketId, this.carcassDataAvailable, this.viewURL, this.paymentURL
+        );
+        cardBody.append(salesGroupForm);
     }
 }

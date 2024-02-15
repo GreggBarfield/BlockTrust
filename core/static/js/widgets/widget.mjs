@@ -47,12 +47,20 @@ export class Widget {
             const suppressErrors = dataRequest.suppressErrors;
             const method = dataRequest.method;
             let that = this;
-            ajax({
+            let requestParams = {
                 url: "/widgets/data/" + action,
-                data: JSON.stringify(params),
                 contentType: 'application/json',
                 method: method
-            })
+            };
+            if(["POST", "PUT"].includes(method)){
+                requestParams.data = JSON.stringify(params);
+            }
+            else{
+                for(let p of params){
+                    requestParams.url += `/${p}`
+                }
+            }
+            ajax(requestParams)
                 .then((networkResult) => {
                     if ('onSomeDataLoaded_bind' in that && that.onSomeDataLoaded_bind) {
                         that.onSomeDataLoaded_bind();

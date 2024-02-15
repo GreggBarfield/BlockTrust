@@ -1,13 +1,6 @@
 {% extends "email/standard.html" %}
 
 {% block email_standard_center %}
-<table>
-    <tr>
-        <td valign="top" style="text-align: center; padding: 10px 20px 15px 20px; font-family: sans-serif; font-size: 15px; line-height: 20px; color: #fff;">
-            <p style="margin: 0;">New Registration Information</p>
-        </td>
-    </tr>
-</table>
 {% endblock email_standard_center %}
 
 {% block email_standard_subdescription %}
@@ -39,15 +32,15 @@
         <tbody>
             <tr>
                 <th>Account Name</th>
-                <td>{{user_account.name}}</td>
+                <td>{{user_account.name()}}</td>
             </tr>
             <tr>
                 <th>Account Company</th>
-                <td>{{user_account.company}}</td>
+                <td>{{user_account.company()}}</td>
             </tr>
             <tr>
                 <th>Sector</th>
-                <td>{{sectors_id_to_name[user_account.sector]}}</td>
+                <td>{{user_account.sector_name()}}</td>
             </tr>
             <tr>
                 <th>Partner</th>
@@ -55,27 +48,49 @@
             </tr>
             <tr>
                 <th>Affiliate ID</th>
-                <td>{{user_account.affiliate_id}}</td>
+                <td>{{user_account.affiliate_id()}}</td>
             </tr>
             <tr>
                 <th>Address</th>
-                <td>{{user_account.address}}</td>
+                <td>{{user_account.address()}}</td>
             </tr>
             <tr>
                 <th>City</th>
-                <td>{{user_account.city}}</td>
+                <td>{{user_account.city()}}</td>
             </tr>
             <tr>
                 <th>State</th>
-                <td>{{user_account.state}}</td>
+                <td>{{user_account.state()}}</td>
             </tr>
             <tr>
                 <th>Zip</th>
-                <td>{{user_account.zip}}</td>
+                <td>{{user_account.zip()}}</td>
             </tr>
             <tr>
                 <th>Account Phone</th>
-                <td>{{user_account.account_phone}}</td>
+                <td>{{user_account.phone()}}</td>
+            </tr>
+            <tr>
+                <th>Are Auction Markets Used by Account</th>
+                <td>
+                    {% if are_auction_markets_used_by_account %}
+                        Yes
+                    {% else %}
+                        No
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Auction Markets Used</th>
+                <td>{{account_auction_market_names|join(', ')}}</td>
+            </tr>
+            <tr>
+                <th>Preconditioning Programs</th>
+                <td>{{preconditioning_programs|join(', ')}}</td>
+            </tr>
+            <tr>
+                <th>PVP Programs</th>
+                <td>{{pvp_programs|join(', ')}}</td>
             </tr>
         </tbody>
     </table>
@@ -85,19 +100,19 @@
     <tbody>
         <tr>
             <th>First Name</th>
-            <td>{{user_account.first_name}}</td>
+            <td>{{user.first_name()}}</td>
         </tr>
         <tr>
             <th>Last Name</th>
-            <td>{{user_account.last_name}}</td>
+            <td>{{user.last_name()}}</td>
         </tr>
         <tr>
             <th>Email</th>
-            <td>{{user_account.email}}</td>
+            <td>{{user.email()}}</td>
         </tr>
         <tr>
             <th>Phone</th>
-            <td>{{user_account.user_phone}}</td>
+            <td>{{user.phone()}}</td>
         </tr>
     </tbody>
     </table>
