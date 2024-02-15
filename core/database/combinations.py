@@ -261,6 +261,6 @@ def convert_auction_market_to_account(db, auction_market_id, group_name):
         )
         perform_new_account_actions(
             db=db, account_id=account_obj.id(), user_id=user_id,
-            event_type_id=event_type_by_name["Auction Market Account Created"],
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Auction Market Account Created"],
             sector_id=account_obj.sector_id()
         )

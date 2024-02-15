@@ -215,7 +215,7 @@ def signup(username, email, phone, first_name, last_name, password, confirm_pass
         )
 
         perform_new_account_actions(
-            db=g.db, account_id=account_obj.id(), user_id=user.id(), event_type_id=event_type_by_name["Signup"],
+            db=g.db, account_id=account_obj.id(), user_id=user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup"],
             sector_id=account_obj.sector_id(), partner_id=partner, email=email
         )
 
@@ -305,7 +305,7 @@ def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
     g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
-    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=event_type_by_name["Email Verified"])
+    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=EVENT_TYPE_NAMES_TO_IDS["Email Verified"])
 
 
 def login(identifier, password=""):
@@ -803,7 +803,7 @@ def verified_signup(username, email, phone, first_name, last_name, password, con
         )
         perform_new_account_actions(
             db=g.db, account_id=account_obj.id(), user_id=user.id(),
-            event_type_id=event_type_by_name["API Signup"], sector_id=account_obj.sector_id(),
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["API Signup"], sector_id=account_obj.sector_id(),
             partner_id=partner, email=email
         )
 
