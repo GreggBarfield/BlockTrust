@@ -1,6 +1,6 @@
 {% extends "employee/standard.html" %}
 
-{% set page_title = "View Account & User Event Logs" %}
+{% set page_title = "View Account Event Logs" %}
 {% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
 
 {% block employee_content_header %}
@@ -9,7 +9,7 @@
 {% block employee_content %}
 <div class="card">
     <div class="card-header">
-        <h5>Account & User Event Logs</h5>
+        <h5>Account Event Logs</h5>
     </div>
     <div class="card-body">
         <table class="table" id="eventsTable">
@@ -24,7 +24,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for event in event_logs %}
+                {% for event in account_event_logs %}
                 <tr>
                     <td>{{event.id}}</td>
                     <td>
@@ -61,4 +61,5 @@
         $('#eventsTable').DataTable({pageLength:50});
     });
 </script>
+
 {% endblock employee_content %}

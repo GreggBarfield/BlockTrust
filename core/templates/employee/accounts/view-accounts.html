@@ -27,6 +27,7 @@
                     <th></th>
                     <th>Paid</th>
                     <th>Created</th>
+                    <th>Logs</th>
                     <th></th>
                     <th></th>
                     <th style="display:none;"></th>
@@ -58,6 +59,9 @@
                         </div>
                     </td>
                     <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
+                    <td>
+                        <a class="button" href="/employee/view-account-event-logs/{{account.id}}"><i class="feather icon-external-link" title="View Account Logs"></i></a>
+                    </td>
                     <td>
                         <a href="/employee/dashboard/invite-admin/{{account.id}}"><i class="feather icon-user-plus" title="Invite Admin"></i></a>
                     </td>

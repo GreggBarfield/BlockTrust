@@ -601,7 +601,12 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
 
-        EventLogs(g.db).insert_event_log(account_id=account.id(), user_id=user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup"])
+        EventLogs(g.db).insert_event_log(
+            account_id=account.id(),
+            user_id=user.id(),
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup"],
+            details={"invited_user_email": email}
+        )
 
         user_accounts = g.db.users.get_users_and_accounts(user_email=email)
         if len(user_accounts) > 1:
