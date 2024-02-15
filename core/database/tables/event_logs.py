@@ -22,7 +22,8 @@ EVENT_TYPE_NAMES_TO_IDS = {
     "Invited Signup Failed": 16,
     "Password Reset By Admin": 17,
     "Signup Failed By User": 18,
-    "Login Failed": 19
+    "Login Failed": 19,
+    "User Login": 20
 }
 EVENT_TYPE_IDS_TO_NAMES = {
     value: key

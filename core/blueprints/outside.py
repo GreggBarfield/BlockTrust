@@ -72,6 +72,11 @@ def serve_login():
                     auth.load_account(account_users[0]["account"])
                 else:
                     return {"redirect": url_for("dashboard_bp.serve_accounts")}
+                EventLogs(g.db).insert(
+                    event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Login"],
+                    account_id=g.account.id(),
+                    user_id=g.user.id()
+                )
 
                 if (
                     'requestRedirectTo' in request.form and
