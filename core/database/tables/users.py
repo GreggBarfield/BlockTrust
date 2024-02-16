@@ -477,7 +477,7 @@ class Users:
         self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
 
     def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
-                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE):
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE, last_logged_in_date=NO_VALUE):
         """
         Updates an user.
 
@@ -521,6 +521,9 @@ class Users:
         if phone is not NO_VALUE:
             query_conditions.append("phone = %(phone)s")
             query_values["phone"] = phone
+        if last_logged_in_date is not NO_VALUE:
+            query_conditions.append("last_logged_in_date = %(last_logged_in_date)s")
+            query_values["last_logged_in_date"] = last_logged_in_date
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
