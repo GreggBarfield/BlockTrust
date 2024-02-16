@@ -1,4 +1,5 @@
 import bcrypt
+from datetime import datetime
 from flask import g, session
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.users import Users
@@ -444,18 +445,19 @@ def login(identifier, password=""):
 
             raise LoginException(generic_error)
 
-        if user_row["failed_attempts"] > 0:
-            g.db.execute(
-                """
-                    UPDATE users
-                    SET failed_attempts =  0
-                    WHERE
-                        users.id=%(id)s
-                """,
-                {
-                    "id": user_row["id"]
-                }
-            )
+        g.db.execute(
+            """
+                UPDATE users
+                SET failed_attempts =  0,
+                last_logged_in_date = %(date)s
+                WHERE
+                    users.id=%(id)s
+            """,
+            {
+                "id": user_row["id"],
+                "date": datetime.utcnow()
+            }
+        )
         return user_row["id"]
     except LoginException as e:
         raise e
