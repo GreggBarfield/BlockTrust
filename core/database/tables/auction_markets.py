@@ -115,3 +115,4 @@ class AuctionMarkets:
                 "phone": phone
             }
         )
+        return self._db.last_row_id()
