@@ -367,6 +367,24 @@ export class SearchSalesGroupsWidget extends Widget {
                 loadLink.target = "_blank";
                 loadLink.innerText = "View";
                 td.append(loadLink);
+
+                let notInterestedButton = document.createElement("button");
+                notInterestedButton.className = "btn btn-sm btn-secondary";
+                notInterestedButton.innerText = "Not Interested";
+                td.append(notInterestedButton);
+                notInterestedButton.onclick = async() =>{
+                    const response = await fetch(
+                        "/widgets/not-interested-in-sales-group",{
+                            method: "POST",
+                            body: JSON.stringify({"sales_group_id": salesGroup.id}),
+                            headers: {"Content-type": "application/json; charset=UTF-8"}
+                        }
+                    );
+                    if(response.ok == true){
+                        location.reload();
+                    }
+                }
+
                 tr.append(td);
                 table.append(tr);            
             }
