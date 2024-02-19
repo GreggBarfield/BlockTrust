@@ -1,12 +1,15 @@
 import { InfoModal } from '../../../core/info_modal.mjs';
 import { AsyncForm } from '../../../../global/async_form.mjs';
 import { Widget } from '../../widget.mjs';
+import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 
 export class CreateAuctionMarketWidget extends Widget{
-    constructor() {
+    constructor(auctionMarketDropdownInputId=null) {
         let infoModal = new InfoModal("Create Auction Market");
         super(infoModal.getBody());
         this.auctionSaleFrame = infoModal.getFooter();
+        this.infoModal = infoModal;
+        this.auctionMarketDropdownInputId = auctionMarketDropdownInputId !== null ? auctionMarketDropdownInputId : null;
     }
 
     initType() {
@@ -134,7 +137,13 @@ export class CreateAuctionMarketWidget extends Widget{
                     email: auctionMarketEmailInput.value             
                 }
             },
-            requestRedirectTo: window.location.href
+            onFinished: (data) =>{
+                let newAuctionMarketOption = new Option(data.new_auction_market_name, data.new_auction_market_id, false, false);
+                let auctionMarketInputId = this.auctionMarketDropdownInputId == null ? salesGroupFormInputIds.marketingAuctionMarketLocation : this.auctionMarketDropdownInputId;
+                let auctionMarketInput = document.getElementById(auctionMarketInputId);
+                $(auctionMarketInput).append(newAuctionMarketOption).trigger('change');
+                this.infoModal.close();
+            }
         });
     }
 }
