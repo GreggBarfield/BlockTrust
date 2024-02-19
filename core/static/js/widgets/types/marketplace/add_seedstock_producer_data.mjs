@@ -55,6 +55,8 @@ export class AddSeedstockProducerDataWidget extends Widget {
         inputsRow.append(shortDescriptionInput);
         let longDescriptionInput = generateTextInput("*Long Description", "text", "long_description", true, "col-md-12");
         inputsRow.append(longDescriptionInput);
+        let websiteUrlInput = generateTextInput("*Website URL", "text", "website_url", true, "col-md-12");
+        inputsRow.append(websiteUrlInput);
         let logoUploadContainer = generateUploadInput("Upload Logo: ");
         inputsRow.append(logoUploadContainer);
         this.inputsRow = inputsRow;
@@ -87,6 +89,8 @@ export class AddSeedstockProducerDataWidget extends Widget {
             formResponseValues.push(shortDescription);
             let longDescription = document.getElementById("long_description").value;
             formResponseValues.push(longDescription);
+            let websiteUrl = document.getElementById("website_url").value;
+            formResponseValues.push(websiteUrl);
             let logoInput = logoUploadContainer.getElementsByTagName("input");
             let formValidationStatus = validateFormCompletion(formResponseValues);
             if(formValidationStatus){
@@ -109,6 +113,7 @@ export class AddSeedstockProducerDataWidget extends Widget {
                             phone: phone,
                             short_description: shortDescription,
                             long_description: longDescription,
+                            website_url: websiteUrl,
                             logo_file_id: logoFileID
                         };
                     }

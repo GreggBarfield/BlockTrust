@@ -634,6 +634,7 @@ def serve_add_advertisement_company():
             state=request.form["state"],
             zip_code=request.form["zip_code"],
             phone=request.form["phone"],
+            website_url=request.form["website_url"],
             logo_file_id=request.form.get("logo_file_id", None),
             is_integrated_with_blocktrust=int(str_to_bool(request.form["is_integrated_with_blocktrust"]))
         )
@@ -880,6 +881,7 @@ def serve_add_seedstock_producer():
             marketplace_account_phone=request.form["phone"],
             short_description=request.form["short_description"],
             long_description=request.form["long_description"],
+            website_url=request.form["website_url"],
             logo_file_id=request.form.get("logo_file_id", None)
         )
         return {"redirect": "/employee/dashboard"}
