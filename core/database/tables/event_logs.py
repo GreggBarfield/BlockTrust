@@ -85,7 +85,7 @@ class EventLogs:
         else:
             return []
 
-    def insert_event_log(self, event_type_id=None, account_id=None, user_id=None, details=None):
+    def insert(self, event_type_id=None, account_id=None, user_id=None, details=None):
         """
         Inserts an event log
 

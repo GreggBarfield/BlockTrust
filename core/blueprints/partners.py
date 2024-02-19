@@ -107,7 +107,7 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(g.account.id(), "PARTNER", "TagUpload", row)
-            EventLogs(g.db).insert_event_log(
+            EventLogs(g.db).insert(
                 account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Tag Upload"]
             )
             return "", 200

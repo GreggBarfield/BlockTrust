@@ -4,6 +4,7 @@ from flask import (
 
 from ..renderers.outside import outside_render
 from ..database.combinations import send_email_to_admin_users
+from ..database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.rejected_registrations import RejectedRegistrations
 from ..database.tables.users import UsersException
@@ -71,6 +72,11 @@ def serve_login():
                     auth.load_account(account_users[0]["account"])
                 else:
                     return {"redirect": url_for("dashboard_bp.serve_accounts")}
+                EventLogs(g.db).insert(
+                    event_type_id=EVENT_TYPE_NAMES_TO_IDS["User Login"],
+                    account_id=g.account.id(),
+                    user_id=g.user.id()
+                )
 
                 if (
                     'requestRedirectTo' in request.form and
@@ -179,6 +185,10 @@ def serve_signup_action():
                         pvp_programs=loads(request.form["pvp_programs"])
                     )
                 except (auth.SignupFailedException, AccountsException, UsersException) as e:
+                    EventLogs(g.db).insert(
+                        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup Failed By User"],
+                        details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
+                    )
                     raise ExportException("Signup failed: " + str(e))
 
                 # Generating token identifier for user for email verification
@@ -298,6 +308,11 @@ def serve_password_request_action():
                 render_email("forgot_password.html", {
                     'password_reset_url': password_reset_url
                 }), request.form['email']
+        )
+        EventLogs(g.db).insert(
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Password Reset Requested"],
+            user_id=user.id(),
+            details={"user_email": request.form["email"]}
         )
         redirect_to = "/password-reset-message"
         if (

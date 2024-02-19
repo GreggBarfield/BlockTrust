@@ -1,4 +1,5 @@
 import bcrypt
+from datetime import datetime
 from flask import g, session
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.users import Users
@@ -289,7 +290,15 @@ def reset_user_password(email, new_password, confirm_password):
             id=user["id"],
             password=new_password
         )
+        EventLogs(g.db).insert(
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Password Reset Completed"],
+            user_id=user["id"]
+        )
     except Exception as e:
+        EventLogs(g.db).insert(
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Password Reset Failed"],
+            details={"error_message": str(e)}
+        )
         raise e
 
 
@@ -297,7 +306,7 @@ def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
     g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
-    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=EVENT_TYPE_NAMES_TO_IDS["Email Verified"])
+    EventLogs(g.db).insert(user_id=user_account["user_id"], event_type_id=EVENT_TYPE_NAMES_TO_IDS["Email Verified"])
 
 
 def login(identifier, password=""):
@@ -381,11 +390,20 @@ def login(identifier, password=""):
         generic_error = "Sorry, that didn't match any of our records. Try again, or contact us if you're having issues"
 
         if user_row is None:
+            EventLogs(g.db).insert(
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Login Failed"],
+                details={"error_message": "User account not found for " + identifier}
+            )
             raise LoginException(generic_error)
 
         # To check if the user profile being accessed has a verified email
         if user_row['is_email_verified'] == 0:
             email_not_verified_error = "Your email is not verified. Please verify your email and try to login again"
+            EventLogs(g.db).insert(
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Login Failed"],
+                user_id=user_row["id"],
+                details={"error_message": email_not_verified_error}
+            )
             raise EmailNotVerifiedException(email_not_verified_error)
 
         # Retained for future 5/30/23
@@ -393,6 +411,11 @@ def login(identifier, password=""):
         # if int(user_row["is_user_locked"]) == 1:
         #     # If the user is currently locked, check whether the user has waited for one day. If not, throw error.
         #     if (user_row["locked_time"] + SECONDS_IN_ONE_DAY) > int(round(time.time())):
+        #         EventLogs(g.db).insert(
+        #             event_type_id=EVENT_TYPE_NAMES_TO_IDS["Login Failed"],
+        #             user_id=user_row["id"],
+        #             details={"error_message": locked_account_error}
+        #         )
         #         raise LoginException(locked_account_error)
         #     else:
         #         g.db.execute(
@@ -444,18 +467,19 @@ def login(identifier, password=""):
 
             raise LoginException(generic_error)
 
-        if user_row["failed_attempts"] > 0:
-            g.db.execute(
-                """
-                    UPDATE users
-                    SET failed_attempts =  0
-                    WHERE
-                        users.id=%(id)s
-                """,
-                {
-                    "id": user_row["id"]
-                }
-            )
+        g.db.execute(
+            """
+                UPDATE users
+                SET failed_attempts =  0,
+                last_logged_in_date = %(date)s
+                WHERE
+                    users.id=%(id)s
+            """,
+            {
+                "id": user_row["id"],
+                "date": datetime.utcnow()
+            }
+        )
         return user_row["id"]
     except LoginException as e:
         raise e
@@ -601,7 +625,7 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
 
-        EventLogs(g.db).insert_event_log(
+        EventLogs(g.db).insert(
             account_id=account.id(),
             user_id=user.id(),
             event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup"],
@@ -625,6 +649,10 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
                 }), SUPPORT_GENERAL_EMAIL
             )
     else:
+        EventLogs(g.db).insert(
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup Failed"],
+            details={"error_message": email_validation["message"]}
+        )
         raise Exception(email_validation["message"])
 
 
