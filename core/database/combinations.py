@@ -6,7 +6,7 @@ from core.database.tables.account_users import AccountUsers
 from core.database.tables.accounts import Accounts
 from core.database.tables.auction_markets import AuctionMarkets
 from core.database.tables.connection_invites import ConnectionInvites
-from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.reports import Reports
 from core.database.tables.sent_emails import SentEmails
 from core.database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
@@ -137,7 +137,7 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
     event_details = {"connections": ",".join(str(n) for n in new_connections)}
     if employee_id:
         event_details["employee_id"] = employee_id
-    EventLogs(db).insert_event_log(
+    EventLogs(db).insert(
         account_id=account_id, user_id=user_id, event_type_id=event_type_id, details=event_details
     )
 
@@ -261,6 +261,6 @@ def convert_auction_market_to_account(db, auction_market_id, group_name):
         )
         perform_new_account_actions(
             db=db, account_id=account_obj.id(), user_id=user_id,
-            event_type_id=event_type_by_name["Auction Market Account Created"],
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Auction Market Account Created"],
             sector_id=account_obj.sector_id()
         )

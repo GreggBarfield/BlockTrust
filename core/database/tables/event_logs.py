@@ -3,7 +3,7 @@ from json import dumps
 
 NO_VALUE = NoValue()
 
-event_type_by_name = {
+EVENT_TYPE_NAMES_TO_IDS = {
     "Signup": 1,
     "Tag Upload": 2,
     "Account Info Edit": 3,
@@ -14,11 +14,20 @@ event_type_by_name = {
     "Account Created By Employee": 8,
     "Bulk Account And User Signup By Employee": 9,
     "API Signup": 10,
-    "Auction Market Account Created": 11
+    "Auction Market Account Created": 11,
+    "Password Reset Requested": 12,
+    "Password Reset Completed": 13,
+    "Password Reset Failed": 14,
+    "User Invited By Account": 15,
+    "Invited Signup Failed": 16,
+    "Password Reset By Admin": 17,
+    "Signup Failed By User": 18,
+    "Login Failed": 19,
+    "User Login": 20
 }
-event_type_by_id = {
+EVENT_TYPE_IDS_TO_NAMES = {
     value: key
-    for key, value in event_type_by_name.items()
+    for key, value in EVENT_TYPE_NAMES_TO_IDS.items()
 }
 
 
@@ -27,7 +36,7 @@ class EventLogs:
     def __init__(self, db):
         self._db = db
 
-    def get_event_logs(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, event_type_id=NO_VALUE,
+    def get(self, id=NO_VALUE, account_id=NO_VALUE, user_id=NO_VALUE, event_type_id=NO_VALUE,
                        details=NO_VALUE):
         """
         Gets the event logs based on provided parameters
@@ -76,7 +85,7 @@ class EventLogs:
         else:
             return []
 
-    def insert_event_log(self, event_type_id=None, account_id=None, user_id=None, details=None):
+    def insert(self, event_type_id=None, account_id=None, user_id=None, details=None):
         """
         Inserts an event log
 
