@@ -7,7 +7,7 @@ from core.database.tables.account_links import AccountLinks
 from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
-from core.database.tables.event_logs import EventLogs, event_type_by_name
+from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
 from core.database.tables.matches import Matches
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
@@ -107,8 +107,8 @@ def serve_upload_tags():
         try:
             for row in data["eids"]:
                 ApiInserts(g.db).insert(g.account.id(), "PARTNER", "TagUpload", row)
-            EventLogs(g.db).insert_event_log(
-                account_id=g.account.id(), user_id=g.user.id(), event_type_id=event_type_by_name["Tag Upload"]
+            EventLogs(g.db).insert(
+                account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Tag Upload"]
             )
             return "", 200
         except Exception as e:

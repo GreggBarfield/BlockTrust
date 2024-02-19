@@ -1,4 +1,5 @@
 import {AsyncForm} from '/static/global/async_form.mjs';
+import { CreateAuctionMarketWidget } from '../../js/widgets/types/sales_groups/create_auction_market_widget.mjs';
 
 let signupForm = $("#signup_form");
 let statusMessage = signupForm.find("#signup_status_message");
@@ -32,6 +33,12 @@ if(checkIP.toLowerCase() === "true") {
         ip = clientMachineDetails.ip;
         country = clientMachineDetails.country;
     }
+}
+
+let createAuctionMarketLink = document.getElementById("create-auction-market-link");
+createAuctionMarketLink.onclick = () =>{
+    let widget = new CreateAuctionMarketWidget("signup_form_auction_markets");
+    widget.init();
 }
 
 let preconditioningProgramsList = [];

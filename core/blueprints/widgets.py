@@ -657,7 +657,7 @@ def serve_create_auction_market():
         raise ExportException("Auction market City cannot be blank")
     if len(request.form["state"].strip()) == 0:
         raise ExportException("Auction market State cannot be blank")
-    AuctionMarkets(g.db).insert_auction_market(
+    new_auction_market_id = AuctionMarkets(g.db).insert_auction_market(
         name=format_field(request.form["name"]),
         address=format_field(request.form["address"]),
         city=format_field(request.form["city"]),
@@ -666,7 +666,11 @@ def serve_create_auction_market():
         phone=format_field(request.form["phone"]),
         email=format_field(request.form["email"])
     )
-    return {"redirect": request.form['requestRedirectTo']}
+    new_auction_market_name = request.form["name"] + ", " + request.form["city"] + ", " + request.form["state"]
+    return {
+        "new_auction_market_name": new_auction_market_name,
+        "new_auction_market_id": new_auction_market_id
+    }
 
 @bp.route('/widgets/data/add-connection-request', methods=["POST"])
 @crut.require_account
