@@ -1,6 +1,6 @@
 {% extends "employee/standard.html" %}
 
-{% set page_title = "Users" %}
+{% set page_title = "Users & Accounts" %}
 {% set employee_locations = [("/employee/dashboard", "Users")] %}
 
 {% block employee_content_header %}
@@ -101,6 +101,6 @@
     let encoded = encodeURIComponent(csvContent);
     let downloadButton = document.getElementsByClassName("btn-success")[0];
     downloadButton.setAttribute("href", "data:text/csv;charset=utf-8," + encoded);
-    downloadButton.setAttribute("download", "Users.csv");
+    downloadButton.setAttribute("download", "Users & Accounts.csv");
 </script> 
 {% endblock employee_content %}
