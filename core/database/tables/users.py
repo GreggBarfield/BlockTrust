@@ -3,7 +3,9 @@ import bcrypt
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
-
+COLUMNS = ("id", "password", "username", "email", "phone", "first_name", "last_name", "is_email_verified", 
+           "failed_attempts", "is_user_locked", "locked_time", "is_system_generated", "recaptcha_score",
+           "last_logged_in_date", "ip_address", "ip_country", "created_timestamp", "last_updated_timestamp")
 
 class UsersException(Exception):
     """Generic user exception."""
@@ -301,7 +303,8 @@ class Users:
 
     def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                   is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
-                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE):
+                  is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE,
+                  selected_cols=()):
         """
         Returns the users based on provided attributes
 
@@ -321,8 +324,15 @@ class Users:
             A list of users or None
 
         """
-        base_query = "SELECT u.* FROM users u INNER JOIN account_users au ON u.id = au.user"
+        base_query = "SELECT"
+        if selected_cols:
+            if not all(col in COLUMNS for col in selected_cols):
+                raise UsersException("Incorrect column selected")
+            base_query += " " + ", ".join(list(map(lambda col: f"u.{col}", selected_cols)))
+        else:
+            base_query += " *"
 
+        base_query += " FROM users u INNER JOIN account_users au ON u.id = au.user"
         query_conditions = []
         query_values = {}
 
