@@ -1,0 +1,106 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Users" %}
+{% set employee_locations = [("/employee/dashboard", "Users")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+
+        <div class="card d-inline-block">
+            <div class="card-header">
+                <h5>Users</h5>
+                <a class="btn btn-sm btn-success float-right"><i class="fa fa-download"></i> Download</a>
+            </div>
+            <div class="card-body">
+                <table class="table" id="users">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Last Time Logged In</th>
+                            <th>Account Number</th>
+                            <th>Ranch Name</th>
+                            <th>Sector</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>State</th>
+                            <th>Zip</th>
+                            <th>Company Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in users_and_accounts %}
+                        <tr>
+                            <td>{{row.first_name}}</td>
+                            <td>{{row.last_name}}</td>
+                            <td>{{row.email}}</td>
+                            <td>{{row.user_phone if row.user_phone else ''}}</td>
+                            <td name="last-logged-in-date">{{row.last_logged_in_date if row.last_logged_in_date else ''}}</td>
+                            <td>{{row.id}}</td>
+                            <td>{{row.company}}</td>
+                            <td>{{SECTORS_ID_TO_NAME[row.sector]}}</td>
+                            <td>{{row.address if row.address else ''}}</td>
+                            <td>{{(row.city if row.city else '')}}</td>
+                            <td>{{(row.state if row.state else '')}}</td>
+                            <td>{{row.zip if row.zip else ''}}</td>
+                            <td>{{row.phone if row.phone else ''}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#users').DataTable({pageLength:50});
+    });
+    let loginDates = document.getElementsByName("last-logged-in-date");
+    for(let d of loginDates){
+        if (d.innerText){
+            d.innerText = new Date(d.innerText + ' UTC').toLocaleString("en-US", {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            });
+        }
+    }
+    let data = JSON.parse('{{users_and_accounts|tojson}}');
+    let sectors = JSON.parse('{{SECTORS_ID_TO_NAME|tojson}}');
+    let tableExport = [Array.from(document.getElementsByTagName("th")).map((tag) => tag.innerText)];
+    for (let row of data){
+        console.log(row);
+        tableExport.push([
+            row.first_name,
+            row.last_name,
+            row.email,
+            row.user_phone,
+            row.last_logged_in_date? '"' + new Date(row.last_logged_in_date + ' UTC').toLocaleString("en-US", {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric'
+            }) + '"': "",
+            row.id,
+            '"' + row.company + '"',
+            sectors[row.sector],
+            row.address? '"' + row.address + '"': "",
+            row.city,
+            row.state,
+            row.zip,
+            row.phone,
+        ]);
+    }
+    let csvContent =  tableExport.map(e => e.join(",")).join("\n");
+    let encoded = encodeURIComponent(csvContent);
+    let downloadButton = document.getElementsByClassName("btn-success")[0];
+    downloadButton.setAttribute("href", "data:text/csv;charset=utf-8," + encoded);
+    downloadButton.setAttribute("download", "Users.csv");
+</script> 
+{% endblock employee_content %}

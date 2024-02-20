@@ -1,3 +1,4 @@
+from copy import deepcopy
 from core.database.tables.matches import Matches
 from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
@@ -178,6 +179,7 @@ def serve_login_as_user(user_id, account_id):
         is_admin = int(True)
     Employees(g.db).update(id=g.employee.id(), impersonating_as_user_id=user_id)
     auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
+    g.db.users.update_user(user_id, last_logged_in_date=datetime.utcnow())
     UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
     if account["is_partner"]:
         return redirect(url_for("partner_bp.serve_dashboard"))
@@ -334,6 +336,37 @@ def serve_view_partners():
         {
             "partner_and_partner_users": partner_and_partner_users,
             "sectors_id_to_name": SECTORS_ID_TO_NAME
+        }
+    )
+
+
+@bp.route("/employee/dashboard/users", methods=["GET"])
+@crut.require_employee
+def serve_users():
+    accounts = Accounts(g.db).get_accounts(
+        columns=("id", "company", "sector", "address", "city", "state", "zip", "phone")
+    )
+    users_and_accounts = []
+    for account in accounts:
+        if len(account_users := AccountUsers(g.db).get_account_users(
+            account=account["id"], users__is_system_generated=int(False)
+        )):
+            for user in account_users:
+                user = Users(g.db).get_users(
+                    id=user['user'],
+                    selected_cols=("first_name", "last_name", "email", "phone", "last_logged_in_date")
+                )[0]
+                user["user_phone"] = user.pop("phone")
+                account_copy = deepcopy(account)
+                account_copy.update(user)
+                users_and_accounts.append(account_copy)
+        else:
+            users_and_accounts.append(account)
+    return employee_render(
+        "/employee/accounts/users.html",
+        {
+            "users_and_accounts": users_and_accounts,
+            "SECTORS_ID_TO_NAME": SECTORS_ID_TO_NAME
         }
     )
 
