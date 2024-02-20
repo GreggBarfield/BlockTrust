@@ -53,7 +53,7 @@ class Blockchain:
                 break
 
     def get_next_batch_of_matches(self, size):
-        query = "SELECT * FROM matches WHERE bc_upload=0 and DATE(created_timestamp) >= "+ BLOCKCHAIN_CUTOFF_DATE_FOR_UPLOADS +" ORDER BY id LIMIT " + str(size)
+        query = "SELECT * FROM matches WHERE bc_upload=0 and DATE(created_timestamp) >= " + BLOCKCHAIN_CUTOFF_DATE_FOR_UPLOADS + " ORDER BY id LIMIT " + str(size)
         match_rows = self._db.execute_d(query)
         return match_rows
 
