@@ -1,7 +1,7 @@
+
+import gzip
 from http import HTTPStatus
 import json
-import os
-import gzip
 
 
 from flask import (
