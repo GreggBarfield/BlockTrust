@@ -1,10 +1,11 @@
-import json
-import os
+
 import gzip
+from http import HTTPStatus
+import json
 
 
 from flask import (
-    Flask, jsonify, request, session, Blueprint, g, redirect
+    Flask, jsonify, request, session, Blueprint, g, redirect, Response
 )
 
 
@@ -90,7 +91,6 @@ def serve_api():
             size = 5000
             right = 0
             while left < len(rows):
-                print(left, "/", len(rows))
                 right = left + size
                 if right > len(rows):
                     right = len(rows)
@@ -115,7 +115,6 @@ def serve_api():
                     "INSERT INTO api_inserts (account, namespace, type, fields) VALUES " +
                     ",".join(["(%s, %s, %s, %s)" for i in range(right - left)])
                 )
-                print(sql)
 
                 # TODO: remove once we have a separate dev and prod server for API
                 server = data.get("server", "production")
@@ -138,7 +137,6 @@ def serve_api():
 
                 left = right
 
-        print("sent to db")
 
         # All-good
         print("api good")
@@ -320,3 +318,9 @@ def serve_create_new_account():
         print("Create Account API", e.__class__.__name__ + ": " + str(e), format_exc())
         ErrorLogs(g.db).insert_error_log("Sales Group API", e.__class__.__name__ + ": " + str(e), format_exc())
         return {"error": "Internal Server Error"}, 500
+
+
+@bp.route('/api/data', methods=["POST"])
+def data():
+    print(f"Route: {request.path}, Data received: {request.json}")
+    return Response(status=HTTPStatus.NO_CONTENT)
