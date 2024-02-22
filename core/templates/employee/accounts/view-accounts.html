@@ -23,7 +23,6 @@
                     <th>Sector</th>
                     <th>Partner</th>
                     <th>Acct city, state</th>
-                    <th>Admin Name</th>
                     <th></th>
                     <th>Paid</th>
                     <th>Created</th>
@@ -44,7 +43,6 @@
                     <td>{{sectors_id_to_name[account.sector]}}</td>
                     <td>{{account.account_partner_name}}</td>
                     <td>{{account.city}}, {{account.state}}</td>
-                    <td>{{account.account_admin_name}}</td>
                     <td>
                         {% if account.account_admin_email != "" %}
                         <a href="mailto:{{account.account_admin_email}}"><i class="feather icon-mail" title="Send an email to Admin"></i></a>
