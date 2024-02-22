@@ -897,7 +897,7 @@ class Matches:
         Get the daily upload counts for Blockchain uploads
 
         Returns:
-            Daily Blockchain upload counts
+            A list of daily Blockchain upload counts with date
         """
         query_values = {}
         query = """

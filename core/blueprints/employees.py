@@ -951,6 +951,13 @@ def serve_sales_group_payments():
                            {"sales_group_payments": sales_group_payments})
 
 
+@bp.route('/employee/blockchain/dashboard', methods=["GET"])
+@crut.require_employee
+def serve_blockchain_dashboard():
+    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
+
+
 @bp.route('/employee/blockchain/reports', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_reports():
