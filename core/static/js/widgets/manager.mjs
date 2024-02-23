@@ -51,6 +51,7 @@ import { ViewOrderWidget } from './types/tag-store/view-order.mjs';
 import { SeedstockProducersWidget } from './types/marketplace/seedstock_producers.mjs';
 import { AddSeedstockProducerDataWidget } from './types/marketplace/add_seedstock_producer_data.mjs';
 import { ManageSalesGroupFieldsValuesWidget } from './types/employee/sales-groups/manage-sales-group-fields-values.mjs';
+import { BlockchainDailyUploadsGraphWidget } from './types/employee/blockchain/blockchain_uploads_graph.mjs';
 
 // Immediately invoked
 (function () {
@@ -117,6 +118,7 @@ import { ManageSalesGroupFieldsValuesWidget } from './types/employee/sales-group
     attach("seedstock producers", SeedstockProducersWidget);
     attach("add seedstock producer data", AddSeedstockProducerDataWidget);
     attach("manage sales group fields values", ManageSalesGroupFieldsValuesWidget);
+    attach("blockchain daily uploads graph", BlockchainDailyUploadsGraphWidget);
 
     // Find widgets
     $(".widget").each(function () {

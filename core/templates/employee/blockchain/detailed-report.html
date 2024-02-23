@@ -1,0 +1,64 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Detailed Upload Report" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+Detailed Upload Report
+{% endblock employee_content_header %}
+ 
+{% block employee_content %}
+<div class="card d-inline-block">
+    <div class="card-header">
+        <h5>Detailed Report for {{upload_date}}</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="detailed-report-table">
+            <thead>
+                <tr>
+                    <th>Match ID</th>
+                    <th>EID</th>
+                    <th>Visual ID</th>
+                    <th>Grouping ID</th>
+                    <th>Type</th>
+                    <th>Account Link</th>
+                    <th>Account Name</th>
+                    <th>Account Sector</th>
+                    <th>Data</th>
+                    <th>Creation Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in uploaded_matches %}
+                <tr>
+                    <td>{{match.id}}</td>
+                    <td>{{match.eid}}</td>
+                    <td>{{match.visual_id if match.visual_id else "N/A"}}</td>
+                    <td>{{match.grouping_id if match.grouping_id else "N/A"}}</td>
+                    <td>{{match_types_id_to_name[match.type]}}</td>
+                    <td>{{match.account_link}}</td>
+                    <td>{{match.name}}</td>
+                    <td>{{sectors_id_to_name[match.sector] if match.sector else "N/A"}}</td>
+                    <td>
+                        {% if match.data != None and match.data|length > 0 and match.data is mapping %}
+                            {% for data_title, data_value in match.data.items() %}
+                                <p>{{data_title.replace("_", " ").title()}}: {{data_value}}</p>
+                            {% endfor %}
+                        {% else %}
+                        {{match.data if match.data else ""}}
+                        {% endif %}
+                    </td> 
+                    <td>{{match.created_timestamp.strftime("%m/%d/%Y")}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#detailed-report-table').DataTable({pageLength:50});
+    });
+</script>
+{% endblock employee_content %}

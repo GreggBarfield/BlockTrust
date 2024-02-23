@@ -344,7 +344,8 @@ class Matches:
 
     def get_matches_with_account_links(self, matches_eid=NO_VALUE, matches_eids=NO_VALUE, matches_visual_id=NO_VALUE,
                                        matches_restrict_type=NO_VALUE, matches_order_by=NO_VALUE,
-                                       matches_sort_by=NO_VALUE, account_links_sector=NO_VALUE,
+                                       matches_sort_by=NO_VALUE, matches_bc_upload = NO_VALUE,
+                                       matches_last_updated_date = NO_VALUE, account_links_sector=NO_VALUE,
                                        account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE,
                                        is_distinct=False, matches_cols=(), account_links_multiple_account_ids=(),
                                        account_links_partner_account=NO_VALUE):
@@ -395,6 +396,14 @@ class Matches:
         if matches_partner_account_id is not NO_VALUE:
             query_conditions.append("m.partner_account = %(matches_partner_account_id)s" if matches_partner_account_id is not None else "m.partner_account IS %(matches_partner_account_id)s")
             query_values["matches_partner_account_id"] = matches_partner_account_id
+
+        if matches_bc_upload is not NO_VALUE:
+            query_conditions.append("m.bc_upload = %(matches_bc_upload)s" if matches_bc_upload is not None else "m.bc_upload IS %(matches_bc_upload)s")
+            query_values["matches_bc_upload"] = matches_bc_upload
+
+        if matches_last_updated_date is not NO_VALUE:
+            query_conditions.append("DATE(m.last_updated_timestamp) = %(matches_last_updated_date)s")
+            query_values["matches_last_updated_date"] = matches_last_updated_date
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
@@ -881,6 +890,20 @@ class Matches:
         """
         query_values["partner_account_id"] = partner_account_id
 
+        return self._db.execute_d(query, query_values)
+
+    def get_daily_blockchain_upload_counts(self):
+        """
+        Get the daily upload counts for Blockchain uploads
+
+        Returns:
+            A list of daily Blockchain upload counts with date
+        """
+        query_values = {}
+        query = """
+            SELECT count(*) as daily_upload_count, DATE(last_updated_timestamp) as date FROM matches
+            WHERE bc_upload=1 GROUP BY DATE(last_updated_timestamp) ORDER BY last_updated_timestamp DESC
+        """
         return self._db.execute_d(query, query_values)
 
     @staticmethod
