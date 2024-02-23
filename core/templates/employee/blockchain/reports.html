@@ -1,0 +1,42 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Blockchain Reports" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+Blockchain Reports
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card col-md-12">
+    <div class="card-header">
+        <h5>Blockchain Reports</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="upload-counts-table">
+            <thead>
+                <tr>
+                    <th>Upload Date</th>
+                    <th>No. of Uploads</th>
+                    <th>View Detailed Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blockchain_upload in daily_blockchain_uploads %}
+                <tr>
+                    <td>{{blockchain_upload.date.strftime("%m/%d/%Y")}}</td>
+                    <td>{{blockchain_upload.daily_upload_count}}</td>
+                    <td><a href="/employee/blockchain/detailed-report/{{blockchain_upload.date}}">View Detailed Report <i class="feather icon-external-link"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#upload-counts-table').DataTable({pageLength:50});
+    });
+</script>
+{% endblock employee_content %}

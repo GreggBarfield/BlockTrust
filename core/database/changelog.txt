@@ -2621,3 +2621,7 @@ ALTER TABLE `seedstock_producers`
 ADD COLUMN `website_url` VARCHAR(100) DEFAULT NULL;
 ALTER TABLE `advertisement_companies`
 ADD COLUMN `website_url` VARCHAR(100) DEFAULT NULL;
+
+/* Nisheet Thakur 02/22/2024 */
+ALTER TABLE `matches`
+ADD COLUMN `bc_upload_timestamp` INT DEFAULT NULL;

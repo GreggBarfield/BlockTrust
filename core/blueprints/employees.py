@@ -35,6 +35,7 @@ from ..database import scripts
 from ..database.combinations import perform_new_account_actions, send_email_to_admin_users, update_partner_payment_of_account
 from ..database.tables.event_logs import EVENT_TYPE_NAMES_TO_IDS
 from ..common_exceptions import ExportException
+from ..match_types import MATCH_TYPES_ID_TO_NAME
 from ..renderers.employee import employee_render
 from ..renderers.email import render_email
 from ..sectors import SECTORS_ID_TO_NAME, SECTORS_NAME_TO_ID
@@ -950,3 +951,29 @@ def serve_sales_group_payments():
         sales_group_payments.append(row)
     return employee_render("/employee/finance/sales-group-payments.html",
                            {"sales_group_payments": sales_group_payments})
+
+
+@bp.route('/employee/blockchain/dashboard', methods=["GET"])
+@crut.require_employee
+def serve_blockchain_dashboard():
+    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
+
+
+@bp.route('/employee/blockchain/reports', methods=["GET"])
+@crut.require_employee
+def serve_blockchain_reports():
+    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    return employee_render("/employee/blockchain/reports.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
+
+
+@bp.route('/employee/blockchain/detailed-report/<string:upload_date>', methods=["GET"])
+@crut.require_employee
+def serve_blockchain_detailed_report(upload_date):
+    uploaded_matches = Matches(g.db).get_matches_with_account_links(matches_bc_upload=1, matches_last_updated_date=upload_date)
+    return employee_render("/employee/blockchain/detailed-report.html", {
+        "uploaded_matches": uploaded_matches,
+        "upload_date": upload_date,
+        "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
+        "sectors_id_to_name": SECTORS_ID_TO_NAME
+    })

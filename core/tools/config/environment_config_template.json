@@ -56,7 +56,8 @@
     "blockchain": {
            "endpoint": "http://ec2-3-129-6-38.us-east-2.compute.amazonaws.com:3000",
            "upload": true,
-           "batch_size": 10
+           "batch_size": 10,
+           "cutoff_date_for_uploads": "2024-02-01"
     },
     "recaptcha": {
         "site_key": "6Lc-42odAAAAAAShThEnDs6F86VvQ3ELGPvDW4Gl",
