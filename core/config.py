@@ -101,6 +101,7 @@ FLATFILE_LICENSE = config_file["flatfile_license"]
 BLOCKCHAIN_ENDPOINT = config_file["blockchain"]["endpoint"]
 BLOCKCHAIN_UPLOADS = config_file["blockchain"]["upload"]
 BLOCKCHAIN_BATCH_SIZE = config_file["blockchain"]["batch_size"]
+BLOCKCHAIN_CUTOFF_DATE_FOR_UPLOADS = config_file["blockchain"]["cutoff_date_for_uploads"]
 
 RECAPTCHA_SITE_KEY = config_file["recaptcha"]["site_key"]
 RECAPTCHA_SECRET_KEY = config_file["recaptcha"]["secret_key"]

@@ -1,0 +1,13 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Blockchain Dashboard" %}
+{% set employee_locations = [("/employee", "Welcome")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+ 
+{% block employee_content %}
+<div>
+    <div class="col-md-6 widget" data-widget-type="blockchain daily uploads graph" data-widget-daily-upload-counts='{{daily_blockchain_uploads|tojson}}'></div>
+</div>
+{% endblock employee_content %}
