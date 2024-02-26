@@ -42,7 +42,7 @@ try:
         current_time = datetime.datetime.now().time()
 
         # this will run once between 2 and 3 AM
-        if datetime.time(0, 0, 0) <= current_time < datetime.time(23, 0, 0):
+        if datetime.time(2, 0, 0) <= current_time < datetime.time(3, 0, 0):
             if not any(t.getName() == "Blockchain" for t in threads):
                 job_run_id = JobRuns(db).insert("Blockchain", scheduled_jobs["Blockchain"].split('|')[0], scheduled_jobs["Blockchain"].split('|')[1])
                 t = Thread(target=run_bc_tasks, name="Blockchain", args=[job_run_id, Database(MYSQL_CONFIG)])
