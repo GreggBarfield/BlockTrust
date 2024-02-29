@@ -79,7 +79,7 @@ def serve_sales_group():
         "account": sales_group_row["account"],
         "account_name": sales_group_row["account_name"],
         "is_account_payouts_enabled": sales_group_row["is_account_payouts_enabled"],
-        "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
+        "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_row["id"]))),
         "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
         "zip": sales_group_row["zip"],
         "market_location": sales_group_row["market_location"],
@@ -135,7 +135,7 @@ def serve_search_sales_groups():
                 "published": sales_group_row["published"],
                 "account": sales_group_row["account"],
                 "account_name": sales_group_row["account_name"],
-                "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
+                "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_row["id"]))),
                 "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None) if request.json["file_auths"] else [],
                 "zip": sales_group_row["zip"],
                 "market_location": sales_group_row["market_location"],
@@ -183,7 +183,7 @@ def serve_search_sales_groups_2():
             "group_name": sales_group_row["group_name"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_row["id"]))),
             "file_auths": Files(g.db).get_auths(
                 sales_group_row["reported"]["images"]
                 if "images" in sales_group_row["reported"]
@@ -370,6 +370,10 @@ def serve_create_sales_group():
         show_account_carcass_data=request.json["show_account_carcass_data"],
         is_api_insert=0
     )
+    uploaded_eids = []
+    for eid in request.json["uploaded_eids"]:
+        uploaded_eids.append({"eid": eid, "visual_id": None})
+    SalesGroupAnimals(g.db).insert(sales_group_id, uploaded_eids)
     return {"id": sales_group_id}
 
 
@@ -427,7 +431,10 @@ def serve_update_sales_group():
         weighing_conditions=request.json["weighing_conditions"],
         show_account_carcass_data=request.json["show_account_carcass_data"]
     )
-  
+    uploaded_eids = []
+    for eid in request.json["uploaded_eids"]:
+        uploaded_eids.append({"eid": eid, "visual_id": None})
+    SalesGroupAnimals(g.db).insert(request.json["id"], uploaded_eids)
     return Response(status=HTTP_NO_CONTENT)
 
 
@@ -460,7 +467,7 @@ def serve_archived_sales_group():
             "published": sales_group_row["published"],
             "account": sales_group_row["account"],
             "account_name": sales_group_row["account_name"],
-            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"]))),
+            "eids": list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_row["id"]))),
             "file_auths": Files(g.db).get_auths(sales_group_row["reported"]["images"] if "images" in sales_group_row["reported"] else None),
             "zip": sales_group_row["zip"],
             "market_location": sales_group_row["market_location"],
@@ -497,7 +504,7 @@ def serve_get_eids_for_sales_group():
     account_sales_groups_ids = list(map(lambda item: item['id'], SalesGroups(g.db).get_sales_groups_and_data(account_id=g.account.id())))
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
-        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)))
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_id)))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
     available_eids_with_visual_ids = []
@@ -507,7 +514,7 @@ def serve_get_eids_for_sales_group():
                 "eid": distinct_eid["eid"],
                 "visual_id": distinct_eid["visual_id"]
             })
-    assigned_animals = SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_row["id"])
+    assigned_animals = SalesGroupAnimals(g.db).get(sales_group_id=sales_group_row["id"])
     return {
         "id": sales_group_row["id"],
         "assigned_animals": assigned_animals,
@@ -520,8 +527,8 @@ def serve_get_eids_for_sales_group():
 @crut.require_account
 def serve_save_eids_for_sales_group():
     original_row = SalesGroups(g.db).get_sales_group_by_id(request.json["id"])
-    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=original_row["id"])
-    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
+    SalesGroupAnimals(g.db).delete(sales_group_id=original_row["id"])
+    SalesGroupAnimals(g.db).insert(sales_group_id=original_row["id"], eids_and_visual_ids=request.json["eids_and_visual_ids"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 
@@ -730,7 +737,7 @@ def get_animals_and_grouping_ids_for_account():
     account_sales_groups_ids = SalesGroups(g.db).get_sales_groups(account_id=g.account.id(), sales_group_cols=["id"])
     assigned_eids_for_account = []
     for sales_group_id in account_sales_groups_ids:
-        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id["id"])))
+        assigned_eids = list(map(lambda item: item['eid'], SalesGroupAnimals(g.db).get(sales_group_id=sales_group_id["id"])))
         if len(assigned_eids) > 0:
             assigned_eids_for_account.extend(assigned_eids)
     available_animals_and_grouping_ids = []
@@ -742,8 +749,8 @@ def get_animals_and_grouping_ids_for_account():
 @bp.route('/widgets/data/save_eids_by_application_id_for_sales_group', methods=["POST"])
 @crut.require_account
 def serve_save_eids_by_application_id():
-    SalesGroupAnimals(g.db).delete_sales_group_eids(sales_group_id=request.json["sales_group_id"])
-    SalesGroupAnimals(g.db).insert_sales_group_eids(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
+    SalesGroupAnimals(g.db).delete(sales_group_id=request.json["sales_group_id"])
+    SalesGroupAnimals(g.db).insert(sales_group_id=request.json["sales_group_id"], eids_and_visual_ids=request.json["eids_and_visual_ids_list"])
     return {"redirect": "/dashboard/sales-groups/manage"}
 
 @bp.route('/widgets/data/save_sustainability_questionnaire', methods=["POST"])

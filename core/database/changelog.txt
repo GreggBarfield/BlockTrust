@@ -2619,3 +2619,14 @@ ADD COLUMN `last_logged_in_date` DATETIME NULL AFTER `is_system_generated`;
 /* Nisheet Thakur 02/22/2024 */
 ALTER TABLE `matches`
 ADD COLUMN `bc_upload_timestamp` INT DEFAULT NULL;
+
+/* Nisheet Thakur 02/29/2024 */
+DROP TABLE sales_group_animals;
+CREATE TABLE `sales_group_animals` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `eid` BIGINT NOT NULL,
+  `sales_group_id` INT NOT NULL,
+  `visual_id` INT DEFAULT NULL, 
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));

@@ -12,7 +12,7 @@ export class Widget {
         this.totalDataRequested = 0;
         this.queuedDataRequests = [];
         this.instantProcessDataRequests = false;
-        this.type = frame.getAttribute("data-widget-type");
+        //this.type = frame.getAttribute("data-widget-type");
         this.frame.innerHTML = spinner;
     }
 
