@@ -109,6 +109,10 @@ export class MarketPlaceWidget extends Widget {
         companyInformationContainer.append(phoneLine);
         let emailLine = this.generateFormattedTextLine(advertisement.email, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(emailLine);
+        if(advertisement.website_url !== null){
+            let websiteButton = this.generateWebsiteLink(advertisement.website_url);
+            companyInformationContainer.append(websiteButton);
+        }
 
         return companyInformationContainer;
 
@@ -123,4 +127,15 @@ export class MarketPlaceWidget extends Widget {
         return customText;
     }
 
+    generateWebsiteLink = (websiteURL) =>{
+        let linkContainer = document.createElement("div");
+        linkContainer.className = "mt-1 pt-1";
+        let link = document.createElement("a");
+        link.href = websiteURL;
+        link.className = "btn btn-primary";
+        link.textContent = "Website";
+        link.target = "_blank";
+        linkContainer.append(link)
+        return linkContainer;
+    }
 }
