@@ -16,7 +16,7 @@ class SeedstockProducers:
 
     def insert(self, account_id=None, marketplace_account_name=None, marketplace_account_email=None,
                marketplace_account_contact_name=None, marketplace_account_phone=None,
-               short_description=None, long_description=None, logo_file_id=None):
+               short_description=None, long_description=None, logo_file_id=None, website_url=None):
         """
         Inserts a new seedstock producer marketplace advertisement
 
@@ -33,10 +33,10 @@ class SeedstockProducers:
             """
             INSERT INTO seedstock_producers(account_id, marketplace_account_name, marketplace_account_email,
             marketplace_account_contact_name, marketplace_account_phone, short_description, long_description,
-            logo_file_id)
+            logo_file_id, website_url)
             VALUES(%(account_id)s, %(marketplace_account_name)s, %(marketplace_account_email)s,
             %(marketplace_account_contact_name)s, %(marketplace_account_phone)s, %(short_description)s,
-            %(long_description)s, %(logo_file_id)s)
+            %(long_description)s, %(logo_file_id)s, %(website_url)s)
             """,
             {
                 "account_id": account_id,
@@ -46,14 +46,15 @@ class SeedstockProducers:
                 "marketplace_account_phone": marketplace_account_phone,
                 "short_description": short_description,
                 "long_description": long_description,
-                "logo_file_id": logo_file_id
+                "logo_file_id": logo_file_id,
+                "website_url": website_url
             }
         )
 
     def get(self, id=NO_VALUE, account_id=NO_VALUE, marketplace_account_name=NO_VALUE,
             marketplace_account_email=NO_VALUE, marketplace_account_contact_name=NO_VALUE,
             marketplace_account_phone=NO_VALUE, short_description=NO_VALUE, long_description=NO_VALUE,
-            logo_file_id=NO_VALUE, is_archived=NO_VALUE, include_logo_url=False):
+            logo_file_id=NO_VALUE, is_archived=NO_VALUE, website_url=NO_VALUE, include_logo_url=False):
         """
         Gets the seedstock producer data based on attributes provided
 
@@ -105,6 +106,9 @@ class SeedstockProducers:
         if is_archived is not NO_VALUE:
             query_conditions.append("is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
+        if website_url is not NO_VALUE:
+            query_conditions.append("website_url = %(website_url)s")
+            query_values["website_url"] = website_url
         
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
@@ -129,7 +133,8 @@ class SeedstockProducers:
 
     def update(self, id, account_id=NO_VALUE, marketplace_account_name=NO_VALUE, marketplace_account_email=NO_VALUE,
                marketplace_account_contact_name=NO_VALUE, marketplace_account_phone=NO_VALUE,
-               short_description=NO_VALUE, long_description=NO_VALUE, logo_file_id=NO_VALUE, is_archived=NO_VALUE):
+               short_description=NO_VALUE, long_description=NO_VALUE, logo_file_id=NO_VALUE, is_archived=NO_VALUE,
+               website_url=NO_VALUE):
         """
         Updates the seedstock producer data based on attributes provided
 
@@ -176,6 +181,9 @@ class SeedstockProducers:
         if is_archived is not NO_VALUE:
             query_conditions.append("is_archived = %(is_archived)s")
             query_values["is_archived"] = is_archived
+        if website_url is not NO_VALUE:
+            query_conditions.append("website_url = %(website_url)s")
+            query_values["website_url"] = website_url
         
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"

@@ -42,7 +42,8 @@ class Blockchain:
 
                 bc_transaction_id = blockchain_helper.transmit(hashes)
                 # update matches rows with corresponding transaction id and hash
-                hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, x[1]), hash_and_match_ids))
+                current_timestamp = int(time.time())
+                hash_transaction_and_match_ids = list(map(lambda x: (x[0], bc_transaction_id, current_timestamp, x[1]), hash_and_match_ids))
                 self.update_matches_with_bc_data(hash_transaction_and_match_ids)
                 number_of_consecutive_uploads += 1
                 if number_of_consecutive_uploads % 10 == 0:
@@ -58,7 +59,7 @@ class Blockchain:
         return match_rows
 
     def update_matches_with_bc_data(self, hash_and_ids):
-        query = "UPDATE matches SET bc_hash=%s, bc_transaction_id=%s, bc_upload=1 WHERE id=%s"
+        query = "UPDATE matches SET bc_hash=%s, bc_transaction_id=%s, bc_upload_timestamp=%s, bc_upload=1 WHERE id=%s"
         self._db.execute_many(query, hash_and_ids)
         return self._db.row_count()
 

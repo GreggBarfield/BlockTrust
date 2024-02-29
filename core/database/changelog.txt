@@ -2616,6 +2616,12 @@ CREATE TABLE `not_interested_sales_group_ids_for_accounts` (
 ALTER TABLE `users` 
 ADD COLUMN `last_logged_in_date` DATETIME NULL AFTER `is_system_generated`;
 
+/* Nisheet Thakur 02/19/2024 */
+ALTER TABLE `seedstock_producers`
+ADD COLUMN `website_url` VARCHAR(100) DEFAULT NULL;
+ALTER TABLE `advertisement_companies`
+ADD COLUMN `website_url` VARCHAR(100) DEFAULT NULL;
+
 /* Nisheet Thakur 02/22/2024 */
 ALTER TABLE `matches`
 ADD COLUMN `bc_upload_timestamp` INT DEFAULT NULL;

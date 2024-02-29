@@ -89,7 +89,11 @@ export class SeedstockProducersWidget extends Widget {
         let phoneLine = this.generateFormattedTextLine(seedstockProducer.marketplace_account_phone, "h6", "font-weight-bold text-secondary m-0");
         companyInformationContainer.append(phoneLine);
         let emailLine = this.generateFormattedTextLine(seedstockProducer.marketplace_account_email, "h6", "font-weight-bold text-secondary m-0");
-        companyInformationContainer.append(emailLine);
+        companyInformationContainer.append(emailLine); 
+        if(seedstockProducer.website_url !== null){
+            let websiteButton = this.generateWebsiteLink(seedstockProducer.website_url);
+            companyInformationContainer.append(websiteButton);
+        }
         return companyInformationContainer;
     }
 
@@ -100,5 +104,17 @@ export class SeedstockProducersWidget extends Widget {
         let lineBreak = document.createElement("br");
         customText.appendChild(lineBreak);
         return customText;
+    }
+
+    generateWebsiteLink = (websiteURL) =>{
+        let linkContainer = document.createElement("div");
+        linkContainer.className = "mt-1 pt-1";
+        let link = document.createElement("a");
+        link.href = websiteURL;
+        link.className = "btn btn-primary";
+        link.textContent = "Website";
+        link.target = "_blank";
+        linkContainer.append(link)
+        return linkContainer;
     }
 }

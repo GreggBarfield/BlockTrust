@@ -306,7 +306,7 @@ def confirm(email):
     """Confirms that the user email is verified"""
     user_account = g.db.users.get_users_and_accounts(user_email=email)[0]
     g.db.users.modify_user(id=user_account["user_id"], is_email_verified=1)
-    EventLogs(g.db).insert_event_log(user_id=user_account["user_id"], event_type_id=EVENT_TYPE_NAMES_TO_IDS["Email Verified"])
+    EventLogs(g.db).insert(user_id=user_account["user_id"], event_type_id=EVENT_TYPE_NAMES_TO_IDS["Email Verified"])
 
 
 def login(identifier, password=""):
@@ -625,7 +625,12 @@ def invited_signup(username, email, first_name, last_name, password, confirm_pas
         else:
             g.db.account_users.add_user_to_account(user, account, 1)
 
-        EventLogs(g.db).insert(account_id=account.id(), user_id=user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup"])
+        EventLogs(g.db).insert(
+            account_id=account.id(),
+            user_id=user.id(),
+            event_type_id=EVENT_TYPE_NAMES_TO_IDS["Invited Signup"],
+            details={"invited_user_email": email}
+        )
 
         user_accounts = g.db.users.get_users_and_accounts(user_email=email)
         if len(user_accounts) > 1:
