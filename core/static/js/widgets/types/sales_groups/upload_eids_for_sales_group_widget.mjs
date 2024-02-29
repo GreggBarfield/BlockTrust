@@ -1,4 +1,3 @@
-
 import { InfoModal } from "../../../core/info_modal.mjs";
 
 export class UploadEIDsForSalesGroupWidget{
@@ -208,14 +207,6 @@ export class UploadEIDsForSalesGroupWidget{
         return eidSequenceContainer;
     }
 
-    getUploadedEids = () =>{
-        return this.eids;
-    }
-
-    resetUploadedEids = () =>{
-        this.eids = [];
-    }
-
     saveManuallyUploadedEids = (eids) =>{
         this.resetUploadedEids();
         let validList = true;
@@ -268,5 +259,13 @@ export class UploadEIDsForSalesGroupWidget{
 
     closeEidUploadModal = () =>{
         this.infoModal.close();
+    }
+
+    getUploadedEids = () =>{
+        return this.eids;
+    }
+
+    resetUploadedEids = () =>{
+        this.eids = [];
     }
 }

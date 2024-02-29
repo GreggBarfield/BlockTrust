@@ -10,7 +10,6 @@ let salesGroupFormInputIds = {
     marketingRepresentedBy: "marketing-represented-by",
     marketingExpectedShipDate: "marketing-expected-ship-date",
     marketingComments: "marketing-comments",
-    marketingUploadEIDs: "marketing-upload-eids",
     characteristicsCount: "characteristics-count",
     characteristicsCategory: "characteristics-category",
     characteristicBreeds: "characteristis-breeds",
