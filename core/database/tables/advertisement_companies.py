@@ -9,7 +9,7 @@ class AdvertisementCompanies:
         self._db = db
 
     def insert(self, name=None, email=None, contact_name=None, address=None, city=None, state=None, zip_code=None,
-               phone=None, is_integrated_with_blocktrust=None, logo_file_id=None):
+               phone=None, is_integrated_with_blocktrust=None, logo_file_id=None, website_url=None):
         """
         Inserts an advertisement company
 
@@ -27,10 +27,10 @@ class AdvertisementCompanies:
         """
         self._db.execute(
             """
-            INSERT INTO advertisement_companies (name, email, contact_name, address, city,
-            state, zip_code, phone, is_integrated_with_blocktrust, logo_file_id)
-            VALUES (%(name)s, %(email)s, %(contact_name)s, %(address)s, %(city)s,%(state)s,
-            %(zip_code)s, %(phone)s, %(is_integrated_with_blocktrust)s, %(logo_file_id)s)
+            INSERT INTO advertisement_companies (name, email, contact_name, address, city, state, zip_code, phone, 
+            is_integrated_with_blocktrust, logo_file_id, website_url)
+            VALUES (%(name)s, %(email)s, %(contact_name)s, %(address)s, %(city)s,%(state)s, %(zip_code)s, %(phone)s, 
+            %(is_integrated_with_blocktrust)s, %(logo_file_id)s, %(website_url)s)
             """, 
             {
                 "name": name,
@@ -42,11 +42,13 @@ class AdvertisementCompanies:
                 "zip_code": zip_code,
                 "phone": phone,
                 "is_integrated_with_blocktrust": is_integrated_with_blocktrust,
-                "logo_file_id": logo_file_id
+                "logo_file_id": logo_file_id,
+                "website_url": website_url
             })
 
     def get(self, id=NO_VALUE, name=NO_VALUE, email=NO_VALUE, contact_name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
-            state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE):
+            state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE,
+            logo_file_id=NO_VALUE,website_url=NO_VALUE):
         """
         Gets the advertisement company based on the attributes provided
 
@@ -104,6 +106,9 @@ class AdvertisementCompanies:
         if logo_file_id is not NO_VALUE:
             query_conditions.append(" logo_file_id = %(logo_file_id)s")
             query_values["logo_file_id"] = logo_file_id
+        if website_url is not NO_VALUE:
+            query_conditions.append(" website_url = %(website_url)s")
+            query_values["website_url"] = website_url
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE" + " AND ".join(query_conditions)
@@ -119,7 +124,8 @@ class AdvertisementCompanies:
             return []
 
     def update(self, id, name=NO_VALUE, email=NO_VALUE, contact_name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
-               state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE, logo_file_id=NO_VALUE):
+               state=NO_VALUE, zip_code=NO_VALUE, phone=NO_VALUE, is_integrated_with_blocktrust=NO_VALUE,
+               logo_file_id=NO_VALUE, website_url=NO_VALUE):
         """
         Updates the advertisement company based on the ID provided
 
@@ -172,6 +178,9 @@ class AdvertisementCompanies:
         if logo_file_id is not NO_VALUE:
             query_conditions.append(" logo_file_id = %(logo_file_id)s")
             query_values["logo_file_id"] = logo_file_id
+        if website_url is not NO_VALUE:
+            query_conditions.append(" website_url = %(website_url)s")
+            query_values["website_url"] = website_url
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
