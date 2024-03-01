@@ -123,11 +123,7 @@ export class UploadEIDsForSalesGroupWidget{
         resetButton.className = "btn btn-secondary";
         resetButton.textContent = "Reset";
         resetButton.addEventListener("click", (e)=>{
-            this.errorMessage.style.display = "none";
-            this.manualUploadInput.value = "";
-            this.startSequenceInput.value = 0;
-            this.endSequenceInput.value = 0;
-            this.resetUploadedEids();
+            this.resetAllInputs();
         });
         modalFooter.prepend(resetButton);
     
@@ -210,12 +206,15 @@ export class UploadEIDsForSalesGroupWidget{
     saveManuallyUploadedEids = (eids) =>{
         this.resetUploadedEids();
         let validList = true;
+        if(eids.replace(/\s/g, '').length == 0){
+            this.updateErrorMessage("Please provide EIDs to be uploaded", "d-block mt-2 mb-0 alert alert-danger");
+            return;
+        }
         let eidsList = eids.split(',');
         for(const eidString of eidsList){
             let formattedEidString = eidString.replace(/\s/g, '');
             if(formattedEidString.length < 15 || ! /^\d+$/.test(formattedEidString)){
-                this.errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
-                this.errorMessage.textContent = "Invalid EID format for: " + formattedEidString;
+                this.updateErrorMessage("Invalid EID format for: " + formattedEidString, "d-block mt-2 mb-0 alert alert-danger");
                 validList = false;
             }
         }
@@ -223,7 +222,7 @@ export class UploadEIDsForSalesGroupWidget{
             for(let eidString of eidsList){
                 let formattedEidString = eidString.replace(/\s/g, '');
                 this.eids.push(parseInt(formattedEidString));
-                this.updateModalLinkText("Uploaded " + this.eids.length + " EIDs.");
+                this.updateModalLinkText("Uploaded " + this.eids.length + " EID(s)");
                 this.closeEidUploadModal();
             }
         }
@@ -232,22 +231,20 @@ export class UploadEIDsForSalesGroupWidget{
     saveEidsbySequence = (start, end) =>{
         this.resetUploadedEids();
         if(start.length < 15 || ! /^\d+$/.test(start) || end.length < 15 || ! /^\d+$/.test(end)){
-            this.errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
-            this.errorMessage.textContent = "Invalid format for Start or End Tag Number";
+            this.updateErrorMessage("Invalid format for Start or End Tag Number","d-block mt-2 mb-0 alert alert-danger");
         }
         else{
             let startNumber = parseInt(start.replace(/\s/g, ''));
             let endNumber = parseInt(end.replace(/\s/g, ''));
             if(startNumber > endNumber){
-                this.errorMessage.className = "d-block mt-2 mb-0 alert alert-danger";
-                this.errorMessage.textContent = "Start Number cannot be greater than End Number";
+                this.updateErrorMessage("Start Number cannot be greater than End Number", "d-block mt-2 mb-0 alert alert-danger");
             }
             else{
                 while(startNumber <= endNumber){
                     this.eids.push(startNumber);
                     startNumber++;
                 }
-                this.updateModalLinkText("Uploaded " + this.eids.length + "EIDs.");
+                this.updateModalLinkText("Uploaded " + this.eids.length + "EID(s)");
                 this.closeEidUploadModal();
             }
         }
@@ -267,5 +264,19 @@ export class UploadEIDsForSalesGroupWidget{
 
     resetUploadedEids = () =>{
         this.eids = [];
+    }
+
+    resetAllInputs = () =>{
+        this.manualUploadInput.value = "";
+        this.startSequenceInput.value = "";
+        this.endSequenceInput.value = "";
+        this.eids = [];
+        this.updateErrorMessage("", "d-none");
+        this.updateModalLinkText("Upload EIDs for Sales Group");
+    }
+
+    updateErrorMessage = (errorMessageText, errorMessageClass) =>{
+        this.errorMessage.textContent = errorMessageText;
+        this.errorMessage.className = errorMessageClass;
     }
 }
