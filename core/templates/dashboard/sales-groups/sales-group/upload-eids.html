@@ -1,0 +1,101 @@
+{% extends "dashboard/standard.html" %}
+
+{% set page_title = "Upload EIDs" %}
+{% set dashboard_locations = [("/dashboard/sales-groups", "Sales Groups"), ("/dashboard/sales-groups/view/" + (sales_group['id']|e) + "", "Upload EIDs using Excel for sales group " + (sales_group['id']|e))] %}
+
+{% block dashboard_content_header %}
+Upload EIDs for sales group {{ sales_group['id'] }} : {{sales_group['group_name']|e}}
+{% endblock dashboard_content_header %}
+
+{% block dashboard_content %}
+
+
+<div id="popup" class="alert alert-success d-none justify-content-between">
+    <p id="popupText" class="m-0"></p>
+    <button type="button" class="close ml-3" onclick="{
+        $('#popup').removeClass('d-flex');
+        $('#popup').addClass('d-none');
+      }">x</button>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h5>Sales Group {{ sales_group['id'] }} EID Upload</h5>
+    </div>
+    <div class="card-body">
+        <p>This module allows you to upload Sales Group EIDs and Visual IDs simply by dropping your file or manually entering the data.</p>
+        <p>
+            To begin, you must have your data in a data file (Excel Spreadsheet 
+            or Comma Delimited file). Field name must be at the top of the 
+            column. Remember where you have it stored on your computer.
+        </p>
+        <button class="btn btn-primary" onclick="createFlatFileImporter()">Start Upload</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
+<script>
+    const createFlatFileImporter = () =>{
+        const importer = new FlatfileImporter('{{license}}', {
+            type: "Sales Group EIDs Import",
+            title: "Sales Group EIDs Import",
+            managed: true,
+            fields: [{
+                key: "eid", label: "EID",
+                validators: [
+                    { validate: "required" },
+                    { validate: "unique" },
+                    {
+                        validate: 'regex_matches',
+                        regex: '^[0-9]{15}$',
+                        error: 'Only can be a unique number and must be 15 digits in length.'
+                    }
+                ]
+            },
+            {
+                key: "visual_id", label: "Visual ID",
+                validators: [
+                    {
+                        validate: 'regex_matches',
+                        regex: '^[0-9]+$',
+                        error: 'Must be a Number'
+                    }
+                ]
+            }
+            ],
+            i18nOverrides: {
+            en: {
+              otherLocales: ["en-US", "en-CA", "en-GB"],
+              overrides: {}
+            }
+          },
+          theme: {
+              buttons: {
+                  primary: {
+                      backgroundColor: "#8b4513",
+                      border: "1px solid #8b4513",
+                      ":hover": {
+                          backgroundColor: "#722C00",
+                          border: "1px solid #722C00"
+                      }
+                  }
+              },
+            }
+        });
+
+    importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email: '{{user.email()}}'});
+
+    importer.requestDataFromUser().then(function(results) {
+        $('#popup').removeClass('d-none');
+        $('#popup').addClass('d-flex');
+        $('#popupText').html('You successfully uploaded '+results.data.length+' record(s) on '+new Date().toLocaleString()+'. '+ 'If you have any questions, please contact us.');
+        importer.displaySuccess('Thanks for uploading your data!');
+        fetch('/dashboard/sales-groups/upload-eids-using-excel/{{sales_group["id"]}}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json',},
+            body: JSON.stringify({uploaded_eids_and_visual_ids: results.data}),
+        });
+    });
+    }
+</script>
+
+{% endblock dashboard_content  %}

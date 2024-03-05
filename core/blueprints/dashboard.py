@@ -28,6 +28,7 @@ from ..database.tables.order_products import OrderProducts
 from ..database.tables.products import ProductTable
 from ..database.tables.product_categories import ProductCategories
 from ..database.tables.product_vendors import ProductVendors, HERD_WHISTLE_VENDOR_NAME
+from ..database.tables.sales_group_animals import SalesGroupAnimals
 from ..database.tables.sales_groups import TARGET_DATE_KEYS_TO_DESC, SalesGroups
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES, SALES_GROUP_FIELD_NAMES_TO_IDS
 from ..database.tables.seedstock_producers import SeedstockProducers
@@ -1047,3 +1048,32 @@ def serve_genetics():
                     zip_code=genetics_data["zip_code"]
                 )
             return Response(status=HTTP_OK)
+
+
+@bp.route('/dashboard/sales-groups/upload-eids-using-excel/<int:sales_group_id>', methods=["GET", "POST"])
+@crut.require_account
+def serve_upload_eids_using_excel(sales_group_id):
+    if request.method == "GET":
+        try:
+            sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+            if sales_group["account"] != g.account.id():
+                return dashboard_render("errors/no-access.html")
+            return dashboard_render("sales-groups/sales-group/upload-eids.html", {
+                "sales_group": sales_group,
+                "license": FLATFILE_LICENSE,
+                "user": g.user
+            })
+        except Exception as e:
+            return dashboard_render("errors/no-access.html")
+    elif request.method == "POST":
+        print("------------------Uploaded EIDs---------------")
+        # print(request.json["uploaded_eids_and_visual_ids"])
+        eids_list = [eid_and_visual_id["eid"] for eid_and_visual_id in request.json["uploaded_eids_and_visual_ids"]]
+        print(eids_list)
+        sales_group_animals = SalesGroupAnimals(g.db).check_if_eids_are_present(eids=eids_list)
+        print(sales_group_animals)
+        # SalesGroupAnimals(g.db).insert_sales_group_eids(
+        #     sales_group_id=sales_group_id,
+        #     eids_and_visual_ids=request.json["uploaded_eids_and_visual_ids"]
+        # )
+        return {}

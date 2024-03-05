@@ -53,6 +53,11 @@ export class AccountSalesGroupsWidget extends Widget {
                 "btn btn-sm btn-info",
                 "/dashboard/sales-groups/manage-eids/" + salesGroup.id
             );
+            controls.addA(
+                "Upload EIDs",
+                "btn btn-sm btn-info",
+                "/dashboard/sales-groups/upload-eids-using-excel/" + salesGroup.id
+            );
             controls.addButton(
                 "Archive",
                 "btn btn-sm btn-info",
