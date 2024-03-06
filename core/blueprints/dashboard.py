@@ -1056,24 +1056,29 @@ def serve_upload_eids_using_excel(sales_group_id):
     if request.method == "GET":
         try:
             sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+            sales_group_animals = SalesGroupAnimals(g.db).get_sales_group_animals(sales_group_id=sales_group_id)
             if sales_group["account"] != g.account.id():
                 return dashboard_render("errors/no-access.html")
             return dashboard_render("sales-groups/sales-group/upload-eids.html", {
                 "sales_group": sales_group,
+                "sales_group_animals": sales_group_animals,
                 "license": FLATFILE_LICENSE,
                 "user": g.user
             })
         except Exception as e:
+            print(str(e))
             return dashboard_render("errors/no-access.html")
     elif request.method == "POST":
         print("------------------Uploaded EIDs---------------")
-        # print(request.json["uploaded_eids_and_visual_ids"])
         eids_list = [eid_and_visual_id["eid"] for eid_and_visual_id in request.json["uploaded_eids_and_visual_ids"]]
         print(eids_list)
         sales_group_animals = SalesGroupAnimals(g.db).check_if_eids_are_present(eids=eids_list)
-        print(sales_group_animals)
-        # SalesGroupAnimals(g.db).insert_sales_group_eids(
-        #     sales_group_id=sales_group_id,
-        #     eids_and_visual_ids=request.json["uploaded_eids_and_visual_ids"]
-        # )
-        return {}
+        if len(sales_group_animals) == 0:
+            SalesGroupAnimals(g.db).insert_sales_group_eids(
+                sales_group_id=sales_group_id,
+                eids_and_visual_ids=request.json["uploaded_eids_and_visual_ids"]
+            )
+            return {
+                "upload_completed": True
+            }
+        return {"upload_completed": False, "sales_group_animals": sales_group_animals}

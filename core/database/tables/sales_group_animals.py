@@ -71,8 +71,8 @@ class SalesGroupAnimals:
                 """,
                 {
                     "sales_group_id": sales_group_id,
-                    "eid": eid_and_visual_id["eid"],
-                    "visual_id": eid_and_visual_id["visual_id"]
+                    "eid": eid_and_visual_id["eid"] if "eid" in eid_and_visual_id else None,
+                    "visual_id": eid_and_visual_id["visual_id"] if "visual_id" in eid_and_visual_id else None
                 }
             )
 

@@ -8,15 +8,6 @@ Upload EIDs for sales group {{ sales_group['id'] }} : {{sales_group['group_name'
 {% endblock dashboard_content_header %}
 
 {% block dashboard_content %}
-
-
-<div id="popup" class="alert alert-success d-none justify-content-between">
-    <p id="popupText" class="m-0"></p>
-    <button type="button" class="close ml-3" onclick="{
-        $('#popup').removeClass('d-flex');
-        $('#popup').addClass('d-none');
-      }">x</button>
-</div>
 <div class="card">
     <div class="card-header">
         <h5>Sales Group {{ sales_group['id'] }} EID Upload</h5>
@@ -31,9 +22,33 @@ Upload EIDs for sales group {{ sales_group['id'] }} : {{sales_group['group_name'
         <button class="btn btn-primary" onclick="createFlatFileImporter()">Start Upload</button>
     </div>
 </div>
+<div class="card">
+    <div class="card-header">
+        <h5>Uploaded EIDs for Sales Group</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="sales-group-animals">
+            <thead>
+                <td>EID</td>
+                <td>Visual ID</td>
+            </thead>
+            <tbody>
+                {% for sales_group_animal in sales_group_animals %}
+                <tr>
+                    <th>{{sales_group_animal.eid}}</th>
+                    <th>{{sales_group_animal.visual_id if sales_group_animal.visual_id != None else "N/A"}}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
 <script src="https://unpkg.com/@flatfile/adapter/build/dist/index.min.js"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#sales-group-animals').DataTable({pageLength:50});
+    });
     const createFlatFileImporter = () =>{
         const importer = new FlatfileImporter('{{license}}', {
             type: "Sales Group EIDs Import",
@@ -84,16 +99,21 @@ Upload EIDs for sales group {{ sales_group['id'] }} : {{sales_group['group_name'
 
     importer.setCustomer({userId: '{{user.id()}}' , name:'{{user.first_name() + " " + user.last_name()}}', email: '{{user.email()}}'});
 
-    importer.requestDataFromUser().then(function(results) {
-        $('#popup').removeClass('d-none');
-        $('#popup').addClass('d-flex');
-        $('#popupText').html('You successfully uploaded '+results.data.length+' record(s) on '+new Date().toLocaleString()+'. '+ 'If you have any questions, please contact us.');
-        importer.displaySuccess('Thanks for uploading your data!');
-        fetch('/dashboard/sales-groups/upload-eids-using-excel/{{sales_group["id"]}}', {
+    importer.requestDataFromUser().then(async(results) => {
+        let checkAndUploadData = await fetch('/dashboard/sales-groups/upload-eids-using-excel/{{sales_group["id"]}}', {
             method: 'POST',
             headers: {'Content-Type': 'application/json',},
             body: JSON.stringify({uploaded_eids_and_visual_ids: results.data}),
         });
+        let checkAndUploadDataResult = await checkAndUploadData.json();
+        console.log(checkAndUploadDataResult);
+        if(checkAndUploadDataResult.upload_completed == true){
+            importer.displaySuccess('Thanks for uploading your data!');
+            location.reload();
+        }
+        else{
+
+        }
     });
     }
 </script>
