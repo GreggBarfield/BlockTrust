@@ -906,6 +906,20 @@ class Matches:
         """
         return self._db.execute_d(query, query_values)
 
+    def get_daily_blockchain_upload_counts1(self):
+        """
+        Get the daily upload counts for Blockchain uploads
+
+        Returns:
+            A list of daily Blockchain upload counts with date
+        """
+        query_values = {}
+        query = """
+            SELECT count(*) as upload_count, bc_upload_timestamp  FROM matches WHERE bc_upload=1 and
+            bc_upload_timestamp is NOT NULL GROUP BY bc_upload_timestamp
+        """
+        return self._db.execute_d(query, query_values)
+
     @staticmethod
     def _load_rows(rows):
         """Parses returned JSON from mysql"""

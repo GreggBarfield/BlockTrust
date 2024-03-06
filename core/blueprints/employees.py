@@ -985,6 +985,10 @@ def serve_view_account_event_logs(account_id):
 @crut.require_employee
 def serve_blockchain_dashboard():
     daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts1()
+    daily_blockchain_uploads = {}
+    for blockchain_upload in blockchain_uploads:
+        bc_upload_timestamp_datetime_obj = datetime.fromtimestamp(blockchain_upload["bc_upload_timestamp"])
     return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
