@@ -315,6 +315,7 @@ def serve_edit_selected_partner(partner_id):
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
+            partner_pays_sales_groups=int(str_to_bool(request.form["partner_pays_sales_groups"])),
             partner_subscription_credits=subscription_credits
         )
         return {"redirect": request.path}
@@ -331,7 +332,7 @@ def serve_view_partners():
         if generated_user:
             user = Users(g.db).get_users(generated_user['user'])[0]
             partner["user_name"] = user["first_name"] + " " + user["last_name"]
-            partner["user_id"] = user["id"]
+            partner["user_id"] = user["user"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",

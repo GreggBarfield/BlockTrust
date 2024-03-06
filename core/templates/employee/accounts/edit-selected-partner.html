@@ -13,13 +13,14 @@
             <div class="card-header d-flex">
                 <div class="col-md-3">
                     <h5>Edit Partner Account</h5>
-                </div> 
+                </div>
                 <div class="col-md-9 d-flex justify-content-end">
-                    <a class="btn btn-primary" href="/employee/dashboard/edit-partner/upload-ranch-accounts/{{partner_row.id}}">Upload Ranch Accounts</a>
+                    <a class="btn btn-primary" href="/employee/dashboard/edit-partner/upload-ranch-accounts/{{partner_row.id}}">Upload Ranch
+                        Accounts</a>
                 </div>
             </div>
             <div class="card-body col-lg-6 mb-2">
-                <form class="bg-white"  id="edit_partner_account_form"  method="POST"> 
+                <form class="bg-white" id="edit_partner_account_form" method="POST">
                     <div class="row">
                         <h4>Company Information:</h4>
                     </div>
@@ -39,7 +40,7 @@
                                 <span class="focus-border"></span>
                             </div>
                         </div>
-                    </div>         
+                    </div>
                     <div class="form-group required">
                         <label for="edit_address">Address</label>
                         <input type="text" class="form-control" id="edit_address" value="{{partner_row.address}}" required>
@@ -125,22 +126,34 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="subscription_credits">Subscription Credits</label>
-                                <input type="number" class="form-control" id="subscription_credits" value="{{partner_row.partner_subscription_credits}}">
+                                <input type="number" class="form-control" id="subscription_credits"
+                                    value="{{partner_row.partner_subscription_credits}}">
                             </div>
                         </div>
-                    </div> 
+                    </div>
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group required">
-                                <input type="checkbox" id="is_partner_used_for_signup" {{'checked' if partner_row.is_partner_used_for_signup else ''}}>
+                                <input type="checkbox" id="is_partner_used_for_signup" {{'checked' if partner_row.is_partner_used_for_signup else '' }}>
                                 <label for="is_partner_used_for_signup">Show Partner on Signup</label>
                                 <span class="focus-border"></span>
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input type="checkbox" id="partner_pays_sales_groups" {{'checked' if partner_row.partner_pays_sales_groups else '' }}>
+                                <label for="partner_pays_sales_groups">Partner pays for sales groups</label>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Apply Changes</button>
-                <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, saving your changes...</p>
-                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">Internal error...</p>
+                    <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, saving your
+                        changes...</p>
+                    <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="edit_account_error_message">
+                        Internal error...</p>
                 </form>
             </div>
         </div>
