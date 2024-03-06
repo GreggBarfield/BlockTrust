@@ -925,7 +925,7 @@ def serve_get_count_distribution_for_account():
 
 
 @bp.route('/widgets/data/get_yield_and_quality_grades_for_owned_eids', methods=["POST"])
-@crut.require_account
+@crut.require_user
 def serve_get_all_matches_for_an_account():
     eids_carcass_data = {}
     account_links = AccountLinks(g.db).get_account_links(account_id=g.account.id())
