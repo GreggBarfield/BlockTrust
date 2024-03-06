@@ -131,6 +131,7 @@ export class SalesGroupsCommonForm{
         this.carcassDataAvailable = carcassDataAvailable;
         this.viewSalesGroupURL = viewSalesGroupURL;
         this.paymentURL = paymentURL;
+        console.log("this.paymentURL", this.paymentURL, typeof this.paymentURL);
         this.makeForm();
         return this.box;
     }
@@ -796,11 +797,11 @@ export class SalesGroupsCommonForm{
                     "uploaded_eids": uploadEIDsWidget.getUploadedEids()
                 }
             },
-            onFinished: (data, status) =>{
+            onFinished: (data, status) => {
+                if(!this.salesGroupID){
+                    this.salesGroupID = data.id;
+                }
                 if (this.paymentURL && 200<=status && status<300) {
-                    if(!this.salesGroupID){
-                        this.salesGroupID = data.id;
-                    }
                     if (publishSwitch.isChecked() && !this.isPaid){
                         let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
                         If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
@@ -832,6 +833,9 @@ export class SalesGroupsCommonForm{
                     else {
                         window.location.href = this.viewSalesGroupURL + this.salesGroupID;
                     }
+                }
+                else {
+                    window.location.href = this.viewSalesGroupURL + this.salesGroupID;
                 }
             }
         });

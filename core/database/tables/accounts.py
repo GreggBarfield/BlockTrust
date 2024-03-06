@@ -473,7 +473,7 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                       partner_subscription_credits=NO_VALUE):
+                       partner_subscription_credits=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
         """
         Updates an account.
 
@@ -543,9 +543,12 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
+        if partner_pays_sales_groups is not NO_VALUE:
+            query_conditions.append(" partner_pays_sales_groups = %(partner_pays_sales_groups)s")
+            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
         if partner_subscription_credits is not NO_VALUE:
             query_conditions.append(" partner_subscription_credits = %(partner_subscription_credits)s")
-            query_values["partner_subscription_credits"] = partner_subscription_credits       
+            query_values["partner_subscription_credits"] = partner_subscription_credits
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
