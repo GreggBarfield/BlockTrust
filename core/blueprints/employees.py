@@ -332,7 +332,7 @@ def serve_view_partners():
         if generated_user:
             user = Users(g.db).get_users(generated_user['user'])[0]
             partner["user_name"] = user["first_name"] + " " + user["last_name"]
-            partner["user_id"] = user["id"]
+            partner["user_id"] = user["user"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
