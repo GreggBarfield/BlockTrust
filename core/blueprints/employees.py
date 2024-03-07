@@ -332,7 +332,7 @@ def serve_view_partners():
         if generated_user:
             user = Users(g.db).get_users(generated_user['user'])[0]
             partner["user_name"] = user["first_name"] + " " + user["last_name"]
-            partner["user_id"] = user["user"]
+            partner["user_id"] = user["id"]
         partner_and_partner_users.append(partner)
     return employee_render(
         "/employee/accounts/partners.html",
@@ -354,9 +354,9 @@ def serve_users():
         if len(account_users := AccountUsers(g.db).get_account_users(
             account=account["id"], users__is_system_generated=int(False)
         )):
-            for user in account_users:
+            for account_user in account_users:
                 user = Users(g.db).get_users(
-                    id=user['user'],
+                    id=account_user['user'],
                     selected_cols=("first_name", "last_name", "email", "phone", "last_logged_in_date")
                 )[0]
                 user["user_phone"] = user.pop("phone")
