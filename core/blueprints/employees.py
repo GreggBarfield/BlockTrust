@@ -997,6 +997,11 @@ def serve_blockchain_dashboard():
 @crut.require_employee
 def serve_blockchain_reports():
     daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts1()
+    daily_blockchain_uploads = {}
+    for blockchain_upload in blockchain_uploads:
+        bc_upload_timestamp_datetime_obj = datetime.fromtimestamp(blockchain_upload["bc_upload_timestamp"])
+        print(bc_upload_timestamp_datetime_obj.date())
     return employee_render("/employee/blockchain/reports.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 

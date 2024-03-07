@@ -915,7 +915,7 @@ class Matches:
         """
         query_values = {}
         query = """
-            SELECT count(*) as upload_count, bc_upload_timestamp  FROM matches WHERE bc_upload=1 and
+            SELECT count(*) as upload_count, bc_upload_timestamp  FROM matches WHERE bc_upload=1 and 
             bc_upload_timestamp is NOT NULL GROUP BY bc_upload_timestamp
         """
         return self._db.execute_d(query, query_values)
