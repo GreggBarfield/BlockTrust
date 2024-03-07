@@ -46,6 +46,7 @@ from ..utilities.email import send_email
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
 from datetime import datetime
+import time
 
 bp = Blueprint('employee_bp', __name__)
 
@@ -984,24 +985,14 @@ def serve_view_account_event_logs(account_id):
 @bp.route('/employee/blockchain/dashboard', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_dashboard():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
-    blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts1()
-    daily_blockchain_uploads = {}
-    for blockchain_upload in blockchain_uploads:
-        bc_upload_timestamp_datetime_obj = datetime.fromtimestamp(blockchain_upload["bc_upload_timestamp"])
-        print(bc_upload_timestamp_datetime_obj.date())
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts()
     return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
 @bp.route('/employee/blockchain/reports', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_reports():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
-    blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts1()
-    daily_blockchain_uploads = {}
-    for blockchain_upload in blockchain_uploads:
-        bc_upload_timestamp_datetime_obj = datetime.fromtimestamp(blockchain_upload["bc_upload_timestamp"])
-        print(bc_upload_timestamp_datetime_obj.date())
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/reports.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 

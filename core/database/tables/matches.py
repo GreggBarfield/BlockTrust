@@ -906,7 +906,7 @@ class Matches:
         """
         return self._db.execute_d(query, query_values)
 
-    def get_daily_blockchain_upload_counts1(self):
+    def get_blockchain_upload_counts(self, get_daily_upload_counts=False):
         """
         Get the daily upload counts for Blockchain uploads
 
@@ -918,7 +918,23 @@ class Matches:
             SELECT count(*) as upload_count, bc_upload_timestamp  FROM matches WHERE bc_upload=1 and 
             bc_upload_timestamp is NOT NULL GROUP BY bc_upload_timestamp
         """
-        return self._db.execute_d(query, query_values)
+        blockchain_upload_counts = self._db.execute_d(query, query_values)
+        if get_daily_upload_counts:
+            daily_blockchain_uploads = []
+            blockchain_uploads_by_date = {}
+            for blockchain_upload in blockchain_upload_counts:
+                bc_upload_timestamp_datetime_obj = datetime.fromtimestamp(blockchain_upload["bc_upload_timestamp"])
+                if bc_upload_timestamp_datetime_obj.date() in blockchain_uploads_by_date:
+                    previous_count = blockchain_uploads_by_date[bc_upload_timestamp_datetime_obj.date()]
+                    blockchain_uploads_by_date[bc_upload_timestamp_datetime_obj.date()] = previous_count + blockchain_upload["upload_count"]
+                else:
+                    blockchain_uploads_by_date[bc_upload_timestamp_datetime_obj.date()] = blockchain_upload["upload_count"]
+            for upload_date, upload_count in  blockchain_uploads_by_date.items():
+                daily_blockchain_uploads.append({"daily_upload_count": upload_count,"date": upload_date})
+            return daily_blockchain_uploads
+        else:
+            return blockchain_upload_counts
+            
 
     @staticmethod
     def _load_rows(rows):
