@@ -985,7 +985,7 @@ def serve_view_account_event_logs(account_id):
 @bp.route('/employee/blockchain/dashboard', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_dashboard():
-    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts()
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
