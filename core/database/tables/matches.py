@@ -348,7 +348,8 @@ class Matches:
                                        matches_last_updated_date = NO_VALUE, account_links_sector=NO_VALUE,
                                        account_links_account_id=NO_VALUE, matches_partner_account_id=NO_VALUE,
                                        is_distinct=False, matches_cols=(), account_links_multiple_account_ids=(),
-                                       account_links_partner_account=NO_VALUE):
+                                       account_links_partner_account=NO_VALUE, matches_bc_upload_start_date=NO_VALUE,
+                                       matches_bc_upload_end_date=NO_VALUE):
         """
         Get matches with account_links (if any) by the values specified. If no account_links exist for a match,
         only the match is returned
@@ -404,6 +405,11 @@ class Matches:
         if matches_last_updated_date is not NO_VALUE:
             query_conditions.append("DATE(m.last_updated_timestamp) = %(matches_last_updated_date)s")
             query_values["matches_last_updated_date"] = matches_last_updated_date
+
+        if matches_bc_upload_start_date is not NO_VALUE and matches_bc_upload_end_date is not NO_VALUE:
+            query_conditions.append("m.bc_upload_timestamp >= %(matches_bc_upload_start_date)s and m.bc_upload_timestamp <= %(matches_bc_upload_end_date)s")
+            query_values["matches_bc_upload_start_date"] = matches_bc_upload_start_date
+            query_values["matches_bc_upload_end_date"] = matches_bc_upload_end_date
 
         if account_links_sector is not NO_VALUE:
             query_conditions.append("al.sector = %(account_links_sector)s" if account_links_sector is not None else "al.sector IS %(account_links_sector)s")
@@ -892,26 +898,14 @@ class Matches:
 
         return self._db.execute_d(query, query_values)
 
-    def get_daily_blockchain_upload_counts(self):
-        """
-        Get the daily upload counts for Blockchain uploads
-
-        Returns:
-            A list of daily Blockchain upload counts with date
-        """
-        query_values = {}
-        query = """
-            SELECT count(*) as daily_upload_count, DATE(last_updated_timestamp) as date FROM matches
-            WHERE bc_upload=1 GROUP BY DATE(last_updated_timestamp) ORDER BY last_updated_timestamp DESC
-        """
-        return self._db.execute_d(query, query_values)
-
     def get_blockchain_upload_counts(self, get_daily_upload_counts=False):
         """
-        Get the daily upload counts for Blockchain uploads
+        Get the upload counts for Blockchain uploads
 
+        Params:
+            get_daily_upload_counts: Get upload counts per day
         Returns:
-            A list of daily Blockchain upload counts with date
+            A list of Blockchain upload counts with timestamps
         """
         query_values = {}
         query = """
