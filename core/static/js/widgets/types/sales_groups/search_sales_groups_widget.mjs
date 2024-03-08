@@ -40,7 +40,7 @@ export class SearchSalesGroupsWidget extends Widget {
         
         let locationHeader = document.createElement("h6");
         locationHeader.innerHTML = `Search Options ${
-            searchName?"<span class='text-brown'>(options loaded from: " + searchName + ")</span>":""
+            searchName?"<span class='text-brown'>(Options loaded from: " + searchName + ")</span>":""
         }` ;
         this.form.append(locationHeader);
 
@@ -570,8 +570,9 @@ export class SearchSalesGroupsWidget extends Widget {
                     catch(err){
                         console.log(err);
                         alert.className = "alert alert-danger";
-                        alert.textContent = "An unexpected error occured. Please try again after sometime";
-                        saveButton.disabled = false;
+                        alert.innerHTML = `Sales Group Search couldn't be saved because <strong>${err.message}</strong>. Please try again.`;
+                        this.showError(err.message[0].toUpperCase() + err.message.slice(1));
+                        setTimeout(() => infoModal.close(), 5000);
                     }
                 }
             });
