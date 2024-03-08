@@ -49,3 +49,8 @@ def get_locations(zip_code):
     info = zcdb[zip_code]
     result = info.city+","+info.state
     return result
+
+def does_zip_exist(zip_code):
+    if zip_code in ZIP_CODES:
+        return True
+    return False
