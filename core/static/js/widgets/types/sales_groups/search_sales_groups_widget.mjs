@@ -40,7 +40,7 @@ export class SearchSalesGroupsWidget extends Widget {
         
         let locationHeader = document.createElement("h6");
         locationHeader.innerHTML = `Search Options ${
-            searchName?"<span class='text-brown'>(Options loaded from: " + searchName + ")</span>":""
+            searchName?"<span class='text-brown'>(currently loaded: " + searchName + ")</span>":""
         }` ;
         this.form.append(locationHeader);
 
