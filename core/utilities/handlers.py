@@ -30,7 +30,7 @@ def respond(code, short, exception=None):
     if request.method in ('POST', 'PUT'):
         # Return as an api response
         return {
-            'error': short,
+            'message': short,
             'code': code,
             'exception': type(exception).__name__ if exception is not None else None
         }, code
