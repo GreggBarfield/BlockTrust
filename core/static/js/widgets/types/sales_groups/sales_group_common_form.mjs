@@ -821,7 +821,9 @@ export class SalesGroupsCommonForm{
                     }
                 }
                 else {
-                    window.location.href = this.viewSalesGroupURL + this.salesGroupID;
+                    if(status >= 200 && status <= 300){
+                        window.location.href = this.viewSalesGroupURL + this.salesGroupID;
+                    }
                 }
             }
         });
