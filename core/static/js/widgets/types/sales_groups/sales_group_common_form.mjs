@@ -784,44 +784,44 @@ export class SalesGroupsCommonForm{
                 }
             },
             onFinished: (data, status) => {
-                if(!this.salesGroupID){
-                    this.salesGroupID = data.id;
-                }
-                if (this.paymentURL && 200<=status && status<300) {
-                    if (publishSwitch.isChecked() && !this.isPaid){
-                        let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
-                        If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
-                        <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
-                        null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);  
-                        infoModal.getHeader().classList.add("text-center", "p-4");
-                        let proceedButton = document.createElement("button");
-                        proceedButton.textContent = "OK";
-                        proceedButton.className = "btn btn-primary";
-                        let processPayment = (id) => {
-                            infoModal.getHeader().innerHTML = spinner;
-                            infoModal.getHeader().classList.add("justify-content-center");
-                            infoModal.getFooter().className = "d-none";
-                            fetch(this.paymentURL, {
-                                method:"POST",
-                                body:JSON.stringify({id: id})
-                            }).then(response => {
-                                if (response.redirected) {
-                                    window.location.href = response.url;
-                                }
-                                else {
-                                    new InfoModal("An error occured. Please try again later.", null, false, "d-none", () => window.location.reload(), "OK");
-                                }
-                            })
+                if (200 <= status && status < 300) {
+                    if (!this.salesGroupID) {
+                        this.salesGroupID = data.id;
+                    }
+                    if (this.paymentURL) {
+                        if (publishSwitch.isChecked() && !this.isPaid) {
+                            let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
+                                                           If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
+                                                           <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
+                                null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);
+                            infoModal.getHeader().classList.add("text-center", "p-4");
+                            let proceedButton = document.createElement("button");
+                            proceedButton.textContent = "OK";
+                            proceedButton.className = "btn btn-primary";
+                            let processPayment = (id) => {
+                                infoModal.getHeader().innerHTML = spinner;
+                                infoModal.getHeader().classList.add("justify-content-center");
+                                infoModal.getFooter().className = "d-none";
+                                fetch(this.paymentURL, {
+                                    method: "POST",
+                                    body: JSON.stringify({ id: id })
+                                }).then(response => {
+                                    if (response.redirected) {
+                                        window.location.href = response.url;
+                                    }
+                                    else {
+                                        new InfoModal("An error occured. Please try again later.", null, false, "d-none", () => window.location.reload(), "OK");
+                                    }
+                                })
+                            }
+                            proceedButton.onclick = () => processPayment(this.salesGroupID);
+                            infoModal.getActionButtonDiv().append(proceedButton);
                         }
-                        proceedButton.onclick = () => processPayment(this.salesGroupID);
-                        infoModal.getActionButtonDiv().append(proceedButton);              
+                        else {
+                            window.location.href = this.viewSalesGroupURL + this.salesGroupID;
+                        }
                     }
                     else {
-                        window.location.href = this.viewSalesGroupURL + this.salesGroupID;
-                    }
-                }
-                else {
-                    if(status >= 200 && status <= 300){
                         window.location.href = this.viewSalesGroupURL + this.salesGroupID;
                     }
                 }
