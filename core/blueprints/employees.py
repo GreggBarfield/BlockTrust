@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import reduce
 from core.database.tables.matches import Matches
 from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
@@ -1005,3 +1006,46 @@ def serve_blockchain_detailed_report(upload_date):
         "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
+
+
+@bp.route('/employee/partners-sales-group-payments', methods=["GET"])
+@crut.require_employee
+def serve_partners_sales_group_payments():
+    partners = Accounts(g.db).get_partners(partner_pays_sales_groups=int(True))
+    partner_payments = []
+    for partner in partners:
+        row = {}
+        row["id"] = partner["id"]
+        row["name"] = partner["company"]
+        accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
+        sales_groups = SalesGroups(g.db).get_sales_groups(
+            account_ids=tuple(account["id"] for account in accounts),
+            published=int(True),
+            is_paid=int(False)
+        )
+        total_amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
+        row["total_amount"] = total_amount
+        partner_payments.append(row)
+    return employee_render("/employee/finance/partner-sales-group-payments-list.html",
+                           {"partner_payments": partner_payments})
+
+
+@bp.route('/employee/partners-sales-group-payments/<int:partner_id>', methods=["GET"])
+@crut.require_employee
+def serve_partner_sales_group_payments(partner_id):
+    partner = Accounts(g.db).get_partners(id=partner_id)[0]
+    accounts = Accounts(g.db).get_accounts(partner_account=partner_id)
+    sales_groups = SalesGroups(g.db).get_sales_groups(
+        account_ids=tuple(account["id"] for account in accounts),
+        published=int(True)
+    )
+    paid_groups = []
+    unpaid_groups = []
+    for group in sales_groups:
+        if not group["is_paid"]:
+            patron = next(account for account in accounts if account["id"] == group["account"])
+            group["patron"] = patron["company"]
+            group["patron_id"] = patron["id"]
+            unpaid_groups.append(group)
+    return employee_render("/employee/finance/partner-sales-group-payments-detail.html",
+                           {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})
