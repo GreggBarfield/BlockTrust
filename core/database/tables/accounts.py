@@ -435,7 +435,7 @@ class Accounts:
         else:
             return []
 
-    def get_partners(self, id=NO_VALUE, company=NO_VALUE):
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
         """
         Get a partner by the values specified.
 
@@ -455,6 +455,10 @@ class Accounts:
         if company is not NO_VALUE:
             query_conditions.append("company = %(company)s")
             query_values["company"] = company
+
+        if partner_pays_sales_groups is not NO_VALUE:
+            query_conditions.append("partner_pays_sales_groups = %(partner_pays_sales_groups)s")
+            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
 
         if len(query_conditions) >= 1:
             combined_query_condition = " AND " + " AND ".join(query_conditions)
