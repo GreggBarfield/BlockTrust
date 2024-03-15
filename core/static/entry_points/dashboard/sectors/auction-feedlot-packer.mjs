@@ -35,8 +35,8 @@ window.printSalesGroup = (salesGroupId) =>{
 
 }
 
-window.downloadSalesGroupsExcel = () =>{
-    let tableHeaders = ["ID", "SALES GROUP NAME", "SALE DATE", "ACCOUNT", "PUBLISHED", "DELIVERY TYPE", "PRICE", "CATEGORY", 
+window.downloadSalesGroupsDetailedReport = () =>{
+    let tableHeaders = ["ID", "SALES GROUP NAME", "SALE DATE", "ACCOUNT", "PUBLISHED", "DELIVERY TYPE", "DELIVERY LOCATION", "PRICE", "CATEGORY", 
     "EPD", "COUNT", "HORNS", "BREEDS", "WEANED", "BASE WEIGHT", "WEIGHT VARIANCE", "WEIGHING CONDITIONS", "PVP PROGRAM", "IMPLANTS", 
     "MUSCLING", "CASTRATED", "CREEP FEED", "VACCINATIONS", "VERFIFICATION", "GENOMIC TESTING", "MARKETING SLIDE", "USDA FRAME SIZE",
     "COMINGLED STATUS", "FEEDING PROGRAMS", "PREGNANCY STATUS", "CERTIFIED THROUGH", "EXPECTED SHIP DATE", "PRECON PROGRAM",
@@ -55,6 +55,7 @@ window.downloadSalesGroupsExcel = () =>{
             salesGroup.account,
             salesGroup.published == 1 ? "Yes": "No",
             salesGroup.delivery_location_type,
+            salesGroup.delivery_location,
             salesGroup.price,
             salesGroup.category,
             salesGroup.reported.epd ? salesGroup.reported.epd : "N/A",
@@ -97,7 +98,35 @@ window.downloadSalesGroupsExcel = () =>{
         let downloadElement = document.createElement('a');
         downloadElement.href = 'data:text/csv;charset=utf-8,' + encoded;
         downloadElement.target = '_blank';
-        downloadElement.download = "SalesGroupsReport"+ new Date().toDateString() +".csv";
+        downloadElement.download = "SalesGroupsDetailedReport"+ new Date().toDateString() +".csv";
+        downloadElement.click();
+}
+
+window.downloadSalesGroupsSummaryReport = () =>{
+    let tableHeaders = ["NAME", "NO. OF HEAD", "CATEGORY/SEX", "BREED", "WEIGHT", "MARKET NAME/LOCATION", "SALE DATE"];
+    let salesGroupsdDataTableExport = [];
+    salesGroupsdDataTableExport.push([tableHeaders]);
+    salesGroupsdDataTableExport.push([]);
+
+    for(let salesGroup of salesGroups){
+        let salesGroupRow = [];
+        salesGroupRow.push(
+            salesGroup.group_name,
+            salesGroup.reported.count ? salesGroup.reported.count : "N/A",
+            salesGroup.category,
+            salesGroup.reported.breeds ? salesGroup.reported.breeds.join("/"): "N/A",
+            salesGroup.reported.weight ? salesGroup.reported.weight : "N/A",
+            salesGroup.delivery_location.replaceAll(",", " "),
+            new Date(salesGroup.sale_date*1000).toDateString()
+        )
+        salesGroupsdDataTableExport.push(salesGroupRow);
+    }
+    let csvContent =  salesGroupsdDataTableExport.map(e => e.join(",")).join("\n");
+        let encoded = encodeURIComponent(csvContent);
+        let downloadElement = document.createElement('a');
+        downloadElement.href = 'data:text/csv;charset=utf-8,' + encoded;
+        downloadElement.target = '_blank';
+        downloadElement.download = "SalesGroupsSummaryReport"+ new Date().toDateString() +".csv";
         downloadElement.click();
 }
 
