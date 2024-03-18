@@ -46,7 +46,7 @@ from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
-from datetime import datetime
+from datetime import datetime, timedelta
 
 bp = Blueprint('employee_bp', __name__)
 
@@ -985,21 +985,32 @@ def serve_view_account_event_logs(account_id):
 @bp.route('/employee/blockchain/dashboard', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_dashboard():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
 @bp.route('/employee/blockchain/reports', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_reports():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/reports.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
 @bp.route('/employee/blockchain/detailed-report/<string:upload_date>', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_detailed_report(upload_date):
-    uploaded_matches = Matches(g.db).get_matches_with_account_links(matches_bc_upload=1, matches_last_updated_date=upload_date)
+    start_date_obj = datetime.strptime(upload_date, '%Y-%m-%d')
+    start_date_epoch = start_date_obj.strftime('%s')
+    end_date_obj = start_date_obj + timedelta(days=1)
+    end_date_epoch = end_date_obj.strftime('%s')
+    uploaded_matches = Matches(g.db).get_matches_with_account_links(
+        matches_bc_upload=1,
+        matches_bc_upload_start_date=start_date_epoch,
+        matches_bc_upload_end_date=end_date_epoch
+    )
+    for match in uploaded_matches:
+        if match["data"] is not None:
+            match["data"] = json.loads(match["data"])
     return employee_render("/employee/blockchain/detailed-report.html", {
         "uploaded_matches": uploaded_matches,
         "upload_date": upload_date,
