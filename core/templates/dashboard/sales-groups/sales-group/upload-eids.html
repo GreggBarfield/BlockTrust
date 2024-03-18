@@ -106,13 +106,18 @@ Upload EIDs for sales group {{ sales_group['id'] }} : {{sales_group['group_name'
             body: JSON.stringify({uploaded_eids_and_visual_ids: results.data}),
         });
         let checkAndUploadDataResult = await checkAndUploadData.json();
-        console.log(checkAndUploadDataResult);
         if(checkAndUploadDataResult.upload_completed == true){
             importer.displaySuccess('Thanks for uploading your data!');
             location.reload();
         }
         else{
-
+            let existingAnimals = checkAndUploadDataResult.sales_group_animals;
+            let existingEIDs = [];
+            for(let animal of existingAnimals){
+                existingEIDs.push(animal.eid);
+            }
+            let errorMessage = "The following EIDs could not be assigned to the Sales Group : " + existingEIDs.join(",");
+            importer.displayError(errorMessage);
         }
     });
     }
