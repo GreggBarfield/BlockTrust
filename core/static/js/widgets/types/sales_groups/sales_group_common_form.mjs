@@ -9,6 +9,7 @@ import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 import { InfoModal } from "../../../core/info_modal.mjs";
 import { spinner } from '../../../ui/spinner.mjs';
+import { UploadEIDsForSalesGroupWidget } from './upload_eids_for_sales_group_widget.mjs';
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null) {
@@ -188,6 +189,13 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
+        function createEmptyRowElement(row, groupColumnSize=4){
+            let group = document.createElement("div");
+            group.className = `col-md-${groupColumnSize} d-flex justify-content-center align-items-center`;
+            row.append(group);
+            return group;
+        }
+
         function createNumber(row, name, id, value, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, isDecimal=false) {
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize);
             let input = document.createElement("input");
@@ -305,7 +313,7 @@ export class SalesGroupsCommonForm{
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupName = createText(marketingRow,"Sales Group Nickname", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
+        let salesGroupName = createText(marketingRow,"Visible Name of Group", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 4);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDate = createDate(marketingRow, "Market Date", salesGroupFormInputIds.marketingDate, this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
@@ -345,6 +353,11 @@ export class SalesGroupsCommonForm{
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);  
         let marketingExpectedShipDate = createDate(marketingRow, "Expected Ship Date", salesGroupFormInputIds.marketingExpectedShipDate, this.marketingExpectedShipDateValue, false, "marketingExpectedShipDate","");
+        
+        let uploadEIDsWidget = new UploadEIDsForSalesGroupWidget();
+        let widgetContainer = createEmptyRowElement(marketingRow, 4);
+        widgetContainer.append(uploadEIDsWidget.createModalLink());
+
         let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12, 150);
 
         marketingDeliveryLocationType.onchange = () => {
@@ -780,7 +793,8 @@ export class SalesGroupsCommonForm{
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsComments.value,
                     "weighing_conditions": marketingWeighingConditions.value,
-                    "is_paid": this.isPaid
+                    "is_paid": this.isPaid,
+                    "uploaded_eids": uploadEIDsWidget.getUploadedEids()
                 }
             },
             onFinished: (data, status) => {
