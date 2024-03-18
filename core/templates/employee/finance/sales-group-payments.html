@@ -20,6 +20,7 @@
                                 <th>SALES GROUP</th>
                                 <th>SALE DATE</th>
                                 <th>DELIVERY LOCATION</th>
+                                <th>PAID BY</th>
                                 <th>AMOUNT</th>
                                 <th>STATUS</th>
                                 <th>PAID DATE</th>
@@ -33,6 +34,7 @@
                                 <td>{{row.name}}</td>
                                 <td name="sale-date">{{row.sale_date}}</td>
                                 <td>{{row.delivery_location}}</td>
+                                <td>{{row.payer}}</td>
                                 <td>{{row.amount}}</td>
                                 <td>{{row.status}}</td>
                                 <td name="paid-date">{{row.paid_date}}</td>
@@ -79,6 +81,7 @@
                 day: 'numeric'
             }),
             '"' + row.delivery_location + '"',
+            row.payer,
             row.amount,
             row.status,
             '"'+ new Date(row.paid_date + " UTC").toLocaleString('en-US', {

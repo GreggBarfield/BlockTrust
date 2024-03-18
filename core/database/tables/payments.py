@@ -20,7 +20,7 @@ class Payments:
     def insert(self, account_id=None, employee_id=None, amount=None, status=None, reason=None, description=None,
                recurring_payment_id=None, paid_date=None, email=None, stripe_customer_id=None, details=None,
                stripe_invoice_id=None, stripe_payment_intent_id=None, stripe_error_code=None,
-               stripe_payment_method_id=None):
+               stripe_payment_method_id=None, partner_id=None):
         """
         Inserts a new payment
 
@@ -32,11 +32,12 @@ class Payments:
             """
                 INSERT INTO payments (account_id, employee_id, amount, status, reason, description,
                     recurring_payment_id, paid_date, email, stripe_customer_id, details,
-                    stripe_invoice_id, stripe_payment_intent_id, stripe_error_code, stripe_payment_method_id)
+                    stripe_invoice_id, stripe_payment_intent_id, stripe_error_code, stripe_payment_method_id,
+                    partner_id)
                 VALUES (%(account_id)s, %(employee_id)s, %(amount)s, %(status)s, %(reason)s, %(description)s,
                     %(recurring_payment_id)s, %(paid_date)s, %(email)s, %(stripe_customer_id)s, %(details)s,
                     %(stripe_invoice_id)s, %(stripe_payment_intent_id)s, %(stripe_error_code)s,
-                    %(stripe_payment_method_id)s)
+                    %(stripe_payment_method_id)s, %(partner_id)s)
             """,
             {
                 "account_id": account_id,
@@ -53,7 +54,8 @@ class Payments:
                 "stripe_invoice_id": stripe_invoice_id,
                 "stripe_payment_intent_id": stripe_payment_intent_id,
                 "stripe_error_code": stripe_error_code,
-                "stripe_payment_method_id": stripe_payment_method_id
+                "stripe_payment_method_id": stripe_payment_method_id,
+                "partner_id": partner_id
             }
         )
         return self._db.last_row_id()
