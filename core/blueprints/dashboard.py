@@ -1076,12 +1076,9 @@ def serve_upload_eids_using_excel(sales_group_id):
                 "user": g.user
             })
         except Exception as e:
-            print(str(e))
             return dashboard_render("errors/no-access.html")
     elif request.method == "POST":
-        print("------------------Uploaded EIDs---------------")
         eids_list = [eid_and_visual_id["eid"] for eid_and_visual_id in request.json["uploaded_eids_and_visual_ids"]]
-        print(eids_list)
         sales_group_animals = SalesGroupAnimals(g.db).check_if_eids_are_present(eids=eids_list)
         if len(sales_group_animals) == 0:
             uploaded_eids_and_visual_ids = []
