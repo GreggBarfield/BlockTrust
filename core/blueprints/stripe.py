@@ -670,9 +670,10 @@ def send_partner_invoice():
         invoice = stripe.Invoice.create(
             customer=customer_id,
             collection_method="send_invoice",
+            days_until_due=0,
             description="Sales Group Payments",
             metadata={'partner_id': partner["id"]},
-            days_until_due=0
+            pending_invoice_items_behavior="exclude"
         )
         accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
         sales_groups = SalesGroups(g.db).get_sales_groups(
