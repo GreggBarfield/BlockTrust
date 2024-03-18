@@ -1,4 +1,6 @@
 from json import dumps, loads
+from core.common_exceptions import ExportException
+from core.utilities.zip_codes import does_zip_exist
 from ..no_value import NoValue
 
 NO_VALUE = NoValue()
@@ -17,6 +19,7 @@ class SalesGroupSearches:
         Returns:
             id of row inserted
         """
+        self._validate(zip)
 
         self._db.execute(
             """
@@ -82,6 +85,7 @@ class SalesGroupSearches:
             id of row inserted
         """
 
+        self._validate(zip)
         base_query = "UPDATE sales_group_searches"
 
         query_conditions = []
@@ -127,3 +131,8 @@ class SalesGroupSearches:
 
         query = "DELETE FROM sales_group_searches WHERE id = %s"
         self._db.execute(query, [id])
+
+    def _validate(self, zip=NO_VALUE):
+        if zip is not NO_VALUE:
+            if not does_zip_exist(zip):
+                raise ExportException(f"zip code {zip} is not valid")

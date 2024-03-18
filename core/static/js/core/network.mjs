@@ -16,7 +16,7 @@ export class NetworkError extends Error {
     }
 
     getHumanReadable() {
-        let error = "HTTP " + this.jqXHR.status + ":";
+        let error = ""; // "HTTP " + this.jqXHR.status + ":";
 
         try {
 
@@ -28,15 +28,20 @@ export class NetworkError extends Error {
             if (contentType.includes("json")) {
                 let o = JSON.parse(this.jqXHR.responseText);
 
-                if ('short' in o) {
-                    error += " " + o.short;
-                }
+                // if ('short' in o) {
+                //     error += " " + o.short;
+                // }
 
-                if ('exception' in o) {
-                    error += " (" + o.exception + ")";
+                // if ('exception' in o) {
+                //     error += " (" + o.exception + ")";
+                // }
+                if ('message' in o) {
+                    error += o.message;    
                 }
-
-                error += " (full error: " + this.jqXHR.responseText + ")";
+                else {
+                    error += this.jqXHR.responseText
+                }
+                // error += " (full error: " + this.jqXHR.responseText + ")";
             }
             else if (contentType.includes("html")) {
                 error += " Uncommon error. Contact us to get help. \
@@ -72,7 +77,6 @@ export class NetworkError extends Error {
             error += " " + this.jqXHR.responseText;
             error += " (additionally, an error occurred while generating this: " + e + ") ";
         }
-
         return error;
     }
 }

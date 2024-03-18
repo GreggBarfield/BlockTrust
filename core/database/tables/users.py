@@ -330,7 +330,7 @@ class Users:
                 raise UsersException("Incorrect column selected")
             base_query += " " + ", ".join(list(map(lambda col: f"u.{col}", selected_cols)))
         else:
-            base_query += " *"
+            base_query += " u.*"
 
         base_query += " FROM users u INNER JOIN account_users au ON u.id = au.user"
         query_conditions = []

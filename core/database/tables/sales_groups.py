@@ -506,7 +506,7 @@ class SalesGroups:
         if zip is None:
             raise ExportException("Zip code cannot be blank")
         if zip not in ZIP_CODES:
-            raise ExportException("Sorry, that zip code could not be found.")
+            raise ExportException("Zip code is invalid")
         if sale_date is None:
             raise ExportException("Sorry, sale date date missing.")
         if delivery_location_type is None:
@@ -540,7 +540,7 @@ class SalesGroups:
                          group_name=NO_VALUE, is_archived=NO_VALUE, delivery_location_type=NO_VALUE, price=NO_VALUE,
                          is_sold=NO_VALUE, buyer_account_id=NO_VALUE, account_id=NO_VALUE, category=NO_VALUE,
                          breed_comments=NO_VALUE, weighing_conditions=NO_VALUE, sales_group_cols=[],
-                         auction_market_id=NO_VALUE, payment_id_is_not_null=False):
+                         auction_market_id=NO_VALUE, payment_id_is_not_null=False, is_paid=NO_VALUE, account_ids=()):
         """
         Gets the sales groups based on attributes provided
         
@@ -630,8 +630,15 @@ class SalesGroups:
         if auction_market_id is not NO_VALUE:
             query_conditions.append("auction_market_id = %(auction_market_id)s")
             query_values["auction_market_id"] = auction_market_id
+        if is_paid is not NO_VALUE:
+            query_conditions.append("is_paid = %(is_paid)s")
+            query_values["is_paid"] = is_paid
         if payment_id_is_not_null:
             query_conditions.append("payment_id IS NOT NULL")
+        if account_ids:
+            if not all(isinstance(id, int) for id in account_ids):
+                raise Exception("Incorrect account id")
+            query_conditions.append(f"account IN ({', '.join(str(id) for id in account_ids)})")
 
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)

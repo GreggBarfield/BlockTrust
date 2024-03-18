@@ -124,8 +124,8 @@ export class AsyncForm {
             .fail(function(xhr, status){
                 try {
                     let data = JSON.parse(xhr.responseText);
-                    if ("error" in data) {
-                        that.setError(data.error);
+                    if ("message" in data) {
+                        that.setError(data.message);
                     }
                     else {
                         throw "Nope";

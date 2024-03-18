@@ -9,6 +9,7 @@ import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 import { InfoModal } from "../../../core/info_modal.mjs";
 import { spinner } from '../../../ui/spinner.mjs';
+import { UploadEIDsForSalesGroupWidget } from './upload_eids_for_sales_group_widget.mjs';
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null) {
@@ -130,6 +131,7 @@ export class SalesGroupsCommonForm{
         this.carcassDataAvailable = carcassDataAvailable;
         this.viewSalesGroupURL = viewSalesGroupURL;
         this.paymentURL = paymentURL;
+        console.log("this.paymentURL", this.paymentURL, typeof this.paymentURL);
         this.makeForm();
         return this.box;
     }
@@ -184,6 +186,13 @@ export class SalesGroupsCommonForm{
                 groupLabel.append(newLink);
             }
             group.append(groupLabel);
+            return group;
+        }
+
+        function createEmptyRowElement(row, groupColumnSize=4){
+            let group = document.createElement("div");
+            group.className = `col-md-${groupColumnSize} d-flex justify-content-center align-items-center`;
+            row.append(group);
             return group;
         }
 
@@ -304,7 +313,7 @@ export class SalesGroupsCommonForm{
 
         let marketingRow = createSection(form, "Marketing");
 
-        let salesGroupName = createText(marketingRow,"Sales Group Nickname", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
+        let salesGroupName = createText(marketingRow,"Visible Name of Group", salesGroupFormInputIds.marketingGroupName, this.salesGroupNameValue,true,"salesGroupNickname","This is the name for this sales group", 4);
         let marketingZIP = createNumber(marketingRow, "Market ZIP Code", salesGroupFormInputIds.marketingZIP, this.marketingZIPValue,true,"marketingZIP","This is the zip code of location where the cattle will be picked up.", 4);
         //let marketingPrice = createNumber(marketingRow, "Sales Group Price", this.marketingPriceValue || null,true,"marketingPrice", "Please enter the approximate price for the Sales Group", 4, true);
         let marketingDate = createDate(marketingRow, "Market Date", salesGroupFormInputIds.marketingDate, this.marketingSaleDateValue, true, "marketingDate","This is the date for the sale.");
@@ -344,6 +353,11 @@ export class SalesGroupsCommonForm{
         let marketingWeighingConditions = createText(marketingRow,"Weighing Conditions", salesGroupFormInputIds.marketingWeighingConditions, this.marketingWeighingConditionsValue || "",true,"marketingWeighingConditions","", 4);
         let marketingRepresentedBy = createText(marketingRow,"Represented By", salesGroupFormInputIds.marketingRepresentedBy, this.marketingRepresentedByValue || "",true,"marketingRepresentedBy","", 4);  
         let marketingExpectedShipDate = createDate(marketingRow, "Expected Ship Date", salesGroupFormInputIds.marketingExpectedShipDate, this.marketingExpectedShipDateValue, false, "marketingExpectedShipDate","");
+        
+        let uploadEIDsWidget = new UploadEIDsForSalesGroupWidget();
+        let widgetContainer = createEmptyRowElement(marketingRow, 4);
+        widgetContainer.append(uploadEIDsWidget.createModalLink());
+
         let marketingComments = createText(marketingRow,"Marketing Comments", salesGroupFormInputIds.marketingComments, this.markertingCommentsValue || "",true,"marketingComments","", 12, 150);
 
         marketingDeliveryLocationType.onchange = () => {
@@ -779,41 +793,47 @@ export class SalesGroupsCommonForm{
                     "category": characteristicsCategory.value,
                     "breed_comments": characteristicsComments.value,
                     "weighing_conditions": marketingWeighingConditions.value,
-                    "is_paid": this.isPaid
+                    "is_paid": this.isPaid,
+                    "uploaded_eids": uploadEIDsWidget.getUploadedEids()
                 }
             },
-            onFinished: (data, status) =>{
-                if (this.paymentURL && 200<=status && status<300) {
-                    if(!this.salesGroupID){
+            onFinished: (data, status) => {
+                if (200 <= status && status < 300) {
+                    if (!this.salesGroupID) {
                         this.salesGroupID = data.id;
                     }
-                    if (publishSwitch.isChecked() && !this.isPaid){
-                        let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
-                        If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
-                        <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
-                        null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);  
-                        infoModal.getHeader().classList.add("text-center", "p-4");
-                        let proceedButton = document.createElement("button");
-                        proceedButton.textContent = "OK";
-                        proceedButton.className = "btn btn-primary";
-                        let processPayment = (id) => {
-                            infoModal.getHeader().innerHTML = spinner;
-                            infoModal.getHeader().classList.add("justify-content-center");
-                            infoModal.getFooter().className = "d-none";
-                            fetch(this.paymentURL, {
-                                method:"POST",
-                                body:JSON.stringify({id: id})
-                            }).then(response => {
-                                if (response.redirected) {
-                                    window.location.href = response.url;
-                                }
-                                else {
-                                    new InfoModal("An error occured. Please try again later.", null, false, "d-none", () => window.location.reload(), "OK");
-                                }
-                            })
+                    if (this.paymentURL) {
+                        if (publishSwitch.isChecked() && !this.isPaid) {
+                            let infoModal = new InfoModal(`Since you are publishing this sales group, you will be charged <span class="text-danger">$${safeInt(characteristicsCount.value).toFixed(2)}</span> on your saved card. 
+                                                           If no card has been added to your account or if payment on your saved card fails, you will be redirected to enter new payment details. Click <span class="text-danger">OK</span> to proceed.
+                                                           <br/><br/>In case, you are not ready to pay, click <span class="text-danger">Cancel</span>. In this case, the sales group will be saved and not published.`,
+                                null, false, "d-none", () => window.location.href = this.viewSalesGroupURL + this.salesGroupID);
+                            infoModal.getHeader().classList.add("text-center", "p-4");
+                            let proceedButton = document.createElement("button");
+                            proceedButton.textContent = "OK";
+                            proceedButton.className = "btn btn-primary";
+                            let processPayment = (id) => {
+                                infoModal.getHeader().innerHTML = spinner;
+                                infoModal.getHeader().classList.add("justify-content-center");
+                                infoModal.getFooter().className = "d-none";
+                                fetch(this.paymentURL, {
+                                    method: "POST",
+                                    body: JSON.stringify({ id: id })
+                                }).then(response => {
+                                    if (response.redirected) {
+                                        window.location.href = response.url;
+                                    }
+                                    else {
+                                        new InfoModal("An error occured. Please try again later.", null, false, "d-none", () => window.location.reload(), "OK");
+                                    }
+                                })
+                            }
+                            proceedButton.onclick = () => processPayment(this.salesGroupID);
+                            infoModal.getActionButtonDiv().append(proceedButton);
                         }
-                        proceedButton.onclick = () => processPayment(this.salesGroupID);
-                        infoModal.getActionButtonDiv().append(proceedButton);              
+                        else {
+                            window.location.href = this.viewSalesGroupURL + this.salesGroupID;
+                        }
                     }
                     else {
                         window.location.href = this.viewSalesGroupURL + this.salesGroupID;

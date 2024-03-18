@@ -2625,3 +2625,24 @@ ADD COLUMN `website_url` VARCHAR(100) DEFAULT NULL;
 /* Nisheet Thakur 02/22/2024 */
 ALTER TABLE `matches`
 ADD COLUMN `bc_upload_timestamp` INT DEFAULT NULL;
+
+/* Nisheet Thakur 02/29/2024 */
+DROP TABLE sales_group_animals;
+CREATE TABLE `sales_group_animals` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `eid` BIGINT NOT NULL,
+  `sales_group_id` INT NOT NULL,
+  `visual_id` INT DEFAULT NULL, 
+  `created_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `last_updated_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`));
+
+/* Rohan Sureshkumar 03/01/2024 */
+ALTER TABLE `accounts` 
+ADD COLUMN `partner_pays_sales_groups` INT NULL DEFAULT 0 AFTER `partner_account`;
+
+/* Rohan Sureshkumar 03/13/2024 */
+ALTER TABLE `payments` 
+ADD COLUMN `partner_id` INT NULL DEFAULT NULL AFTER `account_id`,
+CHANGE COLUMN `amount` `amount` DECIMAL(8,2) NOT NULL ,
+CHANGE COLUMN `status` `status` INT NOT NULL ;

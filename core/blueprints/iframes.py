@@ -42,41 +42,38 @@ bp = Blueprint('iframe_bp', __name__)
 def serve_create_sales_group():
     if request.method == 'GET':
         auction_markets = AuctionMarkets(g.db).get_auction_markets()
-        form_post_route = url_for('iframe_bp.serve_create_sales_group')
         sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
         return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
             "auction_markets": auction_markets,
-            "form_post_route": form_post_route,
+            "form_post_route": url_for("iframe_bp.serve_create_sales_group"),
             "pre_select_auction_market": False,
             "pre_selected_auction_market_id": None,
             "sales_group_fields_values": sales_group_fields_values,
             "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
-            "account_id": g.account.id()
+            "account_id": g.account.id(),
+            "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
         })
     if request.method == 'POST':
         images = []
         if 'images' in request.json["reported"]:
             images = request.json["reported"]["images"]
-        try:
-            SalesGroups(g.db).validate_or_fail_sales_group(
-                account_id=g.account.id(),
-                group_name=request.json["group_name"],
-                zip=request.json["zip"],
-                delivery_location_type=request.json["delivery_location_type"],
-                count=request.json["reported"]["count"],
-                weight=request.json["reported"]["weight"],
-                category=request.json["category"],
-                breeds=request.json["reported"]["breeds"],
-                sale_date=request.json["sale_date"],
-                delivery_location=request.json["delivery_location"],
-                auction_market_location=request.json["auction_market_location"],
-                images=images,
-                price=request.json["price"],
-                slide=request.json["reported"]["marketing_slide"],
-                weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
-            )
-        except ExportException as e:
-            return {"error": str(e)}
+        SalesGroups(g.db).validate_or_fail_sales_group(
+            account_id=g.account.id(),
+            group_name=request.json["group_name"],
+            zip=request.json["zip"],
+            delivery_location_type=request.json["delivery_location_type"],
+            count=request.json["reported"]["count"],
+            weight=request.json["reported"]["weight"],
+            category=request.json["category"],
+            breeds=request.json["reported"]["breeds"],
+            sale_date=request.json["sale_date"],
+            delivery_location=request.json["delivery_location"],
+            auction_market_location=request.json["auction_market_location"],
+            images=images,
+            price=request.json["price"],
+            slide=request.json["reported"]["marketing_slide"],
+            weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+        )
         delivery_location = ""
         auction_market_id = None
         if request.json["delivery_location_type"] == "Direct/Off Ranch":
@@ -104,7 +101,7 @@ def serve_create_sales_group():
             show_account_carcass_data=request.json["show_account_carcass_data"],
             is_api_insert=0
         )
-        return {"redirect": "/iframe/sales-group/sales-group-created"}
+        return {"id": sales_group_id}
 
 
 @bp.route('/iframe/sales-group/create/<int:auction_market_id>', methods=["GET"])
@@ -122,13 +119,9 @@ def serve_create_sales_group_with_preselected_auction_market(auction_market_id):
         "pre_selected_auction_market_id": auction_market_id,
         "sales_group_fields_values": sales_group_fields_values,
         "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
-        "account_id": g.account.id()
+        "account_id": g.account.id(),
+        "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
     })
-
-@bp.route('/iframe/sales-group/sales-group-created')
-@crut.require_user_iframe
-def serve_sales_group_created():
-    return outside_render("/outside/iframes/sales-groups/sales-group-created.html")
 
 
 @bp.route('/iframe/login', methods=['GET'])
@@ -167,7 +160,8 @@ def serve_edit_sales_group(sales_group_id):
             "external_shareable_link": external_shareable_link,
             "sales_group_fields_values": sales_group_fields_values,
             "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
-            "account_id": g.account.id()
+            "account_id": g.account.id(),
+            "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
         })
     if request.method == 'POST':
         # Check that the account selected is the owner of the sales group
@@ -222,6 +216,7 @@ def serve_edit_sales_group(sales_group_id):
         return {"redirect": "/iframe/sales-group/manage-sales-groups"}
 
 
+@bp.route('/iframe/sales-group/view/', defaults={'sales_group_id': ''}, methods=['GET'])
 @bp.route('/iframe/sales-group/view/<int:sales_group_id>', methods=['GET', 'POST'])
 @crut.require_user_iframe
 def serve_view_sales_group(sales_group_id):
