@@ -961,6 +961,10 @@ def serve_sales_group_payments():
         row["account_number"] = account["id"]
         row["company"] = account["company"]
         payment = Payments(g.db).get(id=group["payment_id"])[0]
+        if payment["account_id"]:
+            row["payer"] = row["company"]
+        elif payment["partner_id"]:
+            row["payer"] = Accounts(g.db).get_partners(id=payment["partner_id"])[0]["company"]
         row["amount"] = payment["amount"]
         row["status"] = PAYMENT_STATUS_IDS_TO_NAMES[payment["status"]].capitalize()
         row["paid_date"] = payment["paid_date"]

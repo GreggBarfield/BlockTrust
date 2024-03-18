@@ -635,7 +635,7 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
-        base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
+        base_query = "UPDATE accounts a LEFT JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
         query_values = {}
@@ -649,7 +649,7 @@ class Accounts:
             query_conditions.append("a.name = %(a_name)s")
             query_values["a_name"] = name
             query_conditions.append("al.name = %(al_name)s")
-            query_values["al_name"] = name           
+            query_values["al_name"] = name
         if address is not NO_VALUE:
             query_conditions.append("address = %(address)s")
             query_values["address"] = address

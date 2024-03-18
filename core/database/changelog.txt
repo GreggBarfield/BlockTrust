@@ -2629,3 +2629,9 @@ ADD COLUMN `bc_upload_timestamp` INT DEFAULT NULL;
 /* Rohan Sureshkumar 03/01/2024 */
 ALTER TABLE `accounts` 
 ADD COLUMN `partner_pays_sales_groups` INT NULL DEFAULT 0 AFTER `partner_account`;
+
+/* Rohan Sureshkumar 03/13/2024 */
+ALTER TABLE `payments` 
+ADD COLUMN `partner_id` INT NULL DEFAULT NULL AFTER `account_id`,
+CHANGE COLUMN `amount` `amount` DECIMAL(8,2) NOT NULL ,
+CHANGE COLUMN `status` `status` INT NOT NULL ;
