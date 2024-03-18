@@ -19,7 +19,7 @@ class SalesGroupAnimals:
     def __init__(self, db):
         self._db = db
 
-    def get_sales_group_animals(self, sales_group_id=NO_VALUE, eid=NO_VALUE):
+    def get(self, id=NO_VALUE,sales_group_id=NO_VALUE, eid=NO_VALUE):
         """
         Gets sales group animal row(s) based on provided arguments
         Params:
@@ -33,6 +33,10 @@ class SalesGroupAnimals:
         base_query = "SELECT * FROM sales_group_animals"
         query_conditions = []
         query_values = {}
+
+        if id is not NO_VALUE:
+            query_conditions.append(" id = %(id)s")
+            query_values["id"] = id
 
         if sales_group_id is not NO_VALUE:
             query_conditions.append(" sales_group_id = %(sales_group_id)s")
@@ -55,7 +59,7 @@ class SalesGroupAnimals:
         else:
             return []
 
-    def insert_sales_group_eids(self, sales_group_id, eids_and_visual_ids):
+    def insert(self, sales_group_id, eids_and_visual_ids):
         """
         Inserts EIDs for a sales group
 
@@ -76,7 +80,7 @@ class SalesGroupAnimals:
                 }
             )
 
-    def delete_sales_group_eids(self, sales_group_id):
+    def delete(self, sales_group_id):
         """
         Deletes eid rows of a sales group
 
