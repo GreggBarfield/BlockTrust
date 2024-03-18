@@ -64,10 +64,10 @@
                 body:JSON.stringify({id : button.getAttribute('partner-id')})
             });
             if(response.ok){
-                alert("Invoice sent successfully!")
+                alert("Invoice sent successfully!");
             }
             else {
-                alert("An error occurred. Please try again later")
+                alert("An error occurred. Please try again later");
             }
             button.disabled = false;
             button.getElementsByClassName('spinner-border')[0].classList.add("d-none");
