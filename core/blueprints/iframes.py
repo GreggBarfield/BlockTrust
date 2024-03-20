@@ -640,3 +640,10 @@ def serve_iframe_external_invoice(partner_id):
     return outside_render("/outside/iframes/external-tag-store/invoice.html", {
         "shop_homepage_link": shop_homepage_link
     })
+
+
+@bp.route('/iframe/redirect-to-dashboard', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_redirect_to_dashboard():
+    dashboard_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_dashboard')
+    return outside_render("/outside/iframes/redirect-to-dashboard.html", {"dashboard_link": dashboard_link})
