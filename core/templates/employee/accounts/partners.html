@@ -27,6 +27,7 @@
                             <th>User</th>
                             <th></th>
                             <th></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,6 +54,12 @@
                                     <i class="feather icon-log-in" title="Login as user"></i>
                                 </a>
                                 {% endif %}
+                            </td>
+                            
+                            <td>
+                                <a class="button" href= "/employee/dashboard/partner-customizations/{{partner.id}}">
+                                    <i class="feather icon-external-link" title="Partner Customizations"></i>
+                                </a>
                             </td>
                         </tr>
                         {%endfor%}
