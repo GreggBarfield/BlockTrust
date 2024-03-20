@@ -52,6 +52,7 @@ def serve_logout():
 
 
 @bp.route('/login', methods=['GET', 'POST'])
+@csrf.csrf_protect
 def serve_login():
     if request.method == 'POST':
         try:
