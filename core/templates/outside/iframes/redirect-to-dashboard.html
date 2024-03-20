@@ -1,0 +1,9 @@
+{% extends "outside/iframes/iframe-standard.html" %}
+
+{% set page_title = "" %}
+
+{% block outside_content %}
+<script>
+    window.top.location.href = "{{dashboard_link}}";
+</script>
+{% endblock outside_content %}
