@@ -49,9 +49,48 @@ export class PartnerCustomizationsWidget extends Widget {
         let logoUploader = new FileUploader(logoInputRow, []);
         form.append(logoInputRow);
         
+        let saveFormGroup = document.createElement("div");
+        saveFormGroup.className = "form-group m-1 p-1";
+        form.append(saveFormGroup);
 
+        let saveButton = document.createElement("button");
+        saveButton.className = "btn btn-primary";
+        saveButton.textContent = "Save";
+        saveButton.type = "button";
+        saveFormGroup.append(saveButton);
 
- 
+        let statusMessage = document.createElement("p");
+        statusMessage.className = "d-none mt-2 mb-0";
+        form.append(statusMessage);
+        
+        let errorMessage = document.createElement("p");
+        errorMessage.className = "d-none mt-2 mb-0 alert alert-danger";
+        form.append(errorMessage);
+
+        let uploaded_logo_file_id = null;
+
+        saveButton.onlclick = async() =>{
+            if(logoUploader.isFileAttached()){
+                uploaded_logo_file_id = await fileUploader.upload();
+            }
+            this.asyncForm.submit();
+        }
+
+        this.asyncForm = new AsyncForm({
+            action: "/widgets/data/save_partner_customizations",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            asJSON: true,
+            getData: () => {
+                return {
+                    color_hex: colorInput.value,
+                    uploaded_logo_file_id: uploaded_logo_file_id
+                };
+            }
+        });
 
         cardBody.append(form);
         card.append(cardBody);

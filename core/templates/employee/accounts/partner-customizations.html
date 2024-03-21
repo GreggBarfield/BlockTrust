@@ -7,18 +7,6 @@
 {% endblock employee_content_header %}
 
 {% block employee_content %}
-<div class="card">
-    <h5 class="card-header">Customization options for Partner {{partner_id}}</h5>
-    <div class="card-body"> 
-        <form class="bg-white" id="partner-customization-form">
-            <div class="col-md-3 d-inline-flex">
-                <label for="color-code" class="form-label">Select Color Scheme</label>
-                <input type="color" class="form-control form-control-color" id="color-code"  value="#563d7c" title="Choose your color" required>
-            </div>
-        </form>
-    </div>
-</div>
-
 <div class="row">
     <div class="col">
         <div class = "col-sm-12 mb-0 widget" data-widget-type = "partner customizations" data-widget-partner-id="{{partner_id}}">
