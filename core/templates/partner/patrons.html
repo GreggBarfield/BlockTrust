@@ -1,0 +1,38 @@
+{% extends "partner/standard.html" %}
+
+{% set page_title = "Patrons" %}
+{% set partner_locations = [(url_for(request.endpoint), "Patrons")] %}
+
+{% block partner_content_header %}
+Patrons
+{% endblock partner_content_header %}
+
+{% block partner_content %}
+
+        <div class="card d-inline-block col-md-12">
+            <div class="card-header">
+                <h5>Patrons</h5>
+            </div>
+            <div class="card-body">
+                <table class="table" id="patrons">
+                    <thead>
+                        <tr>
+                            <th>Blocktrust Account Number</th>
+                            <th>Patron Name</th>
+                            <th>Patron city, state</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patron in patrons %}
+                        <tr>
+                            <td>{{patron.id}}</td>
+                            <td>{{patron.company}}</td>
+                            <td>{{patron.city}}, {{patron.state}}</td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+{% endblock partner_content %}
