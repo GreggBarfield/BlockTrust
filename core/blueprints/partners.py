@@ -230,7 +230,7 @@ def serve_view_partner_accounts_sustainability_data():
                         else:
                             matched_account_data = accounts_object_for_sector[matched_account_id]
                             matched_account_data["count"] += matched_account["count"]
-        
+
         ranch_matches_for_partner_account = Matches(g.db).get_matches_for_partner_accounts(
             partner_account_id=connected_account_id
         )
@@ -239,7 +239,7 @@ def serve_view_partner_accounts_sustainability_data():
             account_id = ranch_match["account_id"]
             if account_id not in ranches_data:
                 ranches_data[account_id] = {}
-        
+
         for account_id, account_data in ranches_data.items():
             # Sustainability data for matched account
             account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
@@ -282,3 +282,12 @@ def serve_add_connection():
             connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
         )
         return Response(status=HTTP_OK)
+
+
+@bp.route('/patrons', methods=["GET"])
+@crut.require_partner
+def serve_patrons():
+    patrons = g.db.accounts.get_accounts(partner_account=g.account.id())
+    return partner_render("patrons.html", {
+        "patrons": patrons
+    })
