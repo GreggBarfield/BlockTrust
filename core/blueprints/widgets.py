@@ -10,7 +10,7 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import convert_auction_market_to_account, send_connection_request_email_to_admin_users
 from ..database.tables.account_links import AccountLinks
-from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
+from ..database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
 from ..database.tables.auction_markets import AuctionMarkets
@@ -1006,7 +1006,12 @@ def serve_remove_sales_group_field_values():
 
 
 @bp.route('/widgets/data/save_partner_customizations', methods=["POST"])
-@crut.require_account
+@crut.require_employee
 def serve_save_partner_customizations():
-
-    return {}
+    uploaded_logo_id = request.json["uploaded_logo_file_id"] if "uploaded_logo_file_id" in request.json else None
+    Accounts(g.db).update_partner(
+        id=request.json["partner_id"],
+        partner_private_logo_id=uploaded_logo_id,
+        partner_private_color_scheme_hex=request.json["partner_private_color_scheme_hex"]
+    )
+    return {"redirect": "/employee/dashboard/partner-customizations/" +request.json["partner_id"]}

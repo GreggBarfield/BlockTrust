@@ -5,6 +5,7 @@ from ..no_value import NoValue
 DEFAULT_FILES_S3_PATH = "files/"
 PRODUCT_FILES_S3_PATH = "products/"
 MARKETPLACE_FILES_S3_PATH = "marketplace/"
+LOGO_FILES_S3_PATH = "logos/"
 
 NO_VALUE = NoValue()
 

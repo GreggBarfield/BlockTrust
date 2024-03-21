@@ -2646,3 +2646,10 @@ ALTER TABLE `payments`
 ADD COLUMN `partner_id` INT NULL DEFAULT NULL AFTER `account_id`,
 CHANGE COLUMN `amount` `amount` DECIMAL(8,2) NOT NULL ,
 CHANGE COLUMN `status` `status` INT NOT NULL ;
+
+/* Nisheet Thakur 03/21/2024 */
+ALTER TABLE `accounts`
+DROP COLUMN `partner_private_logo`;
+ALTER TABLE `accounts` 
+ADD COLUMN `partner_private_logo_id` INT DEFAULT NULL,
+ADD COLUMN `partner_private_color_scheme_hex` VARCHAR(30) DEFAULT NULL;

@@ -1,5 +1,7 @@
 import { Widget } from '../../../widget.mjs';
 import { FileUploader } from '../../../../files/file_uploader.mjs';
+import { generateUploadInput } from '../../../utilities/advertisement_utilities.mjs';
+import { saveAndUploadFile } from '../../../../files/files.mjs';
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 
 export class PartnerCustomizationsWidget extends Widget {
@@ -10,11 +12,12 @@ export class PartnerCustomizationsWidget extends Widget {
     initType = () =>{
         this.frame.innerHTML = "";
         let partnerId = this.frame.getAttribute("data-widget-partner-id");
-        let partnerCustomizationsForm = this.createPartnerCustomizationsForm(partnerId);
+        let logoFilesS3Path = this.frame.getAttribute("data-widget-logo-files-s3-path");
+        let partnerCustomizationsForm = this.createPartnerCustomizationsForm(partnerId, logoFilesS3Path);
         this.frame.append(partnerCustomizationsForm);
     }
 
-    createPartnerCustomizationsForm = (partnerId) =>{
+    createPartnerCustomizationsForm = (partnerId, logoFilesS3Path) =>{
         let card = document.createElement("div");
         card.className = "card";
         
@@ -31,10 +34,10 @@ export class PartnerCustomizationsWidget extends Widget {
 
         let form = document.createElement("form");
         let colorFormRow = document.createElement("div");
-        colorFormRow.className = "col-md-3 d-inline-flex";
+        colorFormRow.className = "col-md-5 d-inline-flex";
         let colorInputText = document.createElement("label");
-        colorInputText.className = "form-label";
-        colorInputText.textContent = "Select Color Scheme";
+        colorInputText.className = "h6 m-2 p-1 text-dark";
+        colorInputText.textContent = "Select Color Scheme: ";
         colorFormRow.append(colorInputText);
         let colorInput = document.createElement("input");
         colorInput.type = "color";
@@ -45,8 +48,8 @@ export class PartnerCustomizationsWidget extends Widget {
         form.append(colorFormRow);
 
         let logoInputRow = document.createElement("div");
-        logoInputRow.className = "m-1 p-1";
-        let logoUploader = new FileUploader(logoInputRow, []);
+        let logoUploadContainer = generateUploadInput("Upload Private Logo: ")
+        logoInputRow.append(logoUploadContainer);
         form.append(logoInputRow);
         
         let saveFormGroup = document.createElement("div");
@@ -66,17 +69,11 @@ export class PartnerCustomizationsWidget extends Widget {
         let errorMessage = document.createElement("p");
         errorMessage.className = "d-none mt-2 mb-0 alert alert-danger";
         form.append(errorMessage);
+        cardBody.append(form);
+        card.append(cardBody);
 
-        let uploaded_logo_file_id = null;
-
-        saveButton.onlclick = async() =>{
-            if(logoUploader.isFileAttached()){
-                uploaded_logo_file_id = await fileUploader.upload();
-            }
-            this.asyncForm.submit();
-        }
-
-        this.asyncForm = new AsyncForm({
+        let uploadedLogoFileId = undefined;
+        let partnerCustomizationForm = new AsyncForm({
             action: "/widgets/data/save_partner_customizations",
             form: form,
             status: statusMessage,
@@ -86,14 +83,24 @@ export class PartnerCustomizationsWidget extends Widget {
             asJSON: true,
             getData: () => {
                 return {
+                    partner_id: partnerId,
                     color_hex: colorInput.value,
-                    uploaded_logo_file_id: uploaded_logo_file_id
+                    uploaded_logo_file_id: uploadedLogoFileId
                 };
             }
         });
 
-        cardBody.append(form);
-        card.append(cardBody);
+        saveButton.onclick = async() =>{
+            console.log("Clicked")
+            let logoInput = logoUploadContainer.getElementsByTagName("input");
+            let uploadedFiles = logoInput[0].files;
+            if(Object.entries(uploadedFiles).length > 0){
+                let uploadedLogoFile = uploadedFiles[0];
+                uploadedLogoFileId = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, logoFilesS3Path);
+            }
+            partnerCustomizationForm.submit();
+        }
+
         return card;
     }
 }

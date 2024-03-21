@@ -20,7 +20,7 @@ from ..database.tables.advertisements import Advertisements, ADVERTISEMENT_CATEG
 from ..database.tables.auction_markets import AuctionMarkets
 from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
-from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
+from ..database.tables.files import MARKETPLACE_FILES_S3_PATH, LOGO_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
@@ -1069,5 +1069,7 @@ def serve_partner_sales_group_payments(partner_id):
 @bp.route('/employee/dashboard/partner-customizations/<int:partner_id>', methods=["GET", "POST"])
 @crut.require_employee
 def serve_partner_customizations(partner_id):
-
-    return employee_render("/employee/accounts/partner-customizations.html", {"partner_id": partner_id})
+    return employee_render("/employee/accounts/partner-customizations.html", {
+        "partner_id": partner_id,
+        "logo_files_s3_path": LOGO_FILES_S3_PATH
+    })
