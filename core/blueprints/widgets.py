@@ -1012,6 +1012,6 @@ def serve_save_partner_customizations():
     Accounts(g.db).update_partner(
         id=request.json["partner_id"],
         partner_private_logo_id=uploaded_logo_id,
-        partner_private_color_scheme_hex=request.json["partner_private_color_scheme_hex"]
+        partner_private_color_scheme_hex=request.json["color_hex"]
     )
-    return {"redirect": "/employee/dashboard/partner-customizations/" +request.json["partner_id"]}
+    return {"redirect": "/employee/dashboard/view-partners"}

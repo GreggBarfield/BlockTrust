@@ -89,9 +89,9 @@ export class PartnerCustomizationsWidget extends Widget {
                 };
             }
         });
+        
 
         saveButton.onclick = async() =>{
-            console.log("Clicked")
             let logoInput = logoUploadContainer.getElementsByTagName("input");
             let uploadedFiles = logoInput[0].files;
             if(Object.entries(uploadedFiles).length > 0){
