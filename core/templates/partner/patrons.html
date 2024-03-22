@@ -19,6 +19,7 @@ Patrons
                         <tr>
                             <th>Blocktrust Account Number</th>
                             <th>Patron Name</th>
+                            <th>Affiliate ID</th>
                             <th>Patron city, state</th>
                             <th></th>
                         </tr>
@@ -28,11 +29,32 @@ Patrons
                         <tr>
                             <td>{{patron.id}}</td>
                             <td>{{patron.company}}</td>
+                            <td>{{patron.affiliate_id}}</td>
                             <td>{{patron.city}}, {{patron.state}}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary text-decoration-none" 
+                                    login-link= "/partner/patrons/{{patron.id}}/{{patron.user_id}}" 
+                                    title="{{('Login to ' + patron.company) if patron.user_id else 'No users available to login'}}" {{"disabled" if not patron.user_id else ""}}
+                                >
+                                    <i class="feather icon-log-in"></i>
+                                </button>
+                            </td>
                         </tr>
                         {%endfor%}
                     </tbody>
                 </table>
             </div>
         </div>
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#patrons').DataTable();
+    });
+    let loginButtons = document.getElementsByTagName("button");
+    for (let button of loginButtons){
+        button.addEventListener("click", async() => {
+            let response = await fetch(button.getAttribute("login-link"), {method: "POST"});
+            window.location.href = response.url;
+        })
+    }
+</script>
 {% endblock partner_content %}
