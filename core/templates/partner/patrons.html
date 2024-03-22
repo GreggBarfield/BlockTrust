@@ -53,7 +53,12 @@ Patrons
     for (let button of loginButtons){
         button.addEventListener("click", async() => {
             let response = await fetch(button.getAttribute("login-link"), {method: "POST"});
-            window.location.href = response.url;
+            if (response.ok){
+                window.location.href = response.url;
+            }
+            else {
+                alert("An error occured. Please try again later")
+            }
         })
     }
 </script>
