@@ -305,17 +305,16 @@ def serve_patrons():
 def serve_patron(patron_id, user_id):
     patron = g.db.accounts.get_accounts(id=patron_id)[0]
     if len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
-        user = user[0]
         auth.login_as_user(
-            account_id=patron["id"], user_id=user["id"], is_admin=True, impersonated_by_user_id=g.user.id()
+            account_id=patron["id"], user_id=user[0]["id"], is_admin=True, impersonated_by_user_id=g.user.id()
         )
         g.db.users.update_user(
-            g.impersonated_by_user_id, impersonating_as_user_id=user["id"]
+            g.impersonated_by_user_id, impersonating_as_user_id=user[0]["id"]
         )
-        Impersonations(g.db).insert(user_id=user["id"], impersonated_by_user_id=g.impersonated_by_user_id)
+        Impersonations(g.db).insert(user_id=user[0]["id"], impersonated_by_user_id=g.impersonated_by_user_id)
         return redirect(url_for("dashboard_bp.serve_dashboard"))
     else:
-        raise ExportException("Bad request")
+        raise ExportException("No user found")
 
 
 @bp.route('/log-back-in', methods=["GET"])
@@ -327,7 +326,7 @@ def log_back_in():
             g.db.users.update_user(id=user["id"], impersonating_as_user_id=None)
             account_user = g.db.account_users.get_account_users(user=user["id"])[0]
             auth.login_as_user(account_id=account_user["account"], user_id=user["id"], is_admin=int(False))
-            return redirect(url_for("partner_bp.serve_dashboard"))
+            return redirect(url_for("partner_bp.serve_patrons"))
         else:
             auth.logout()
             return redirect(url_for("outside_bp.serve_login"))
