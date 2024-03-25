@@ -8,12 +8,14 @@ from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
+from core.database.tables.impersonations import Impersonations
 from core.database.tables.matches import Matches
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.reports.query_types import count_distribution
 from core.sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
+from core.utilities import auth
 from core.utilities.constants import HTTP_OK
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
@@ -230,7 +232,7 @@ def serve_view_partner_accounts_sustainability_data():
                         else:
                             matched_account_data = accounts_object_for_sector[matched_account_id]
                             matched_account_data["count"] += matched_account["count"]
-        
+
         ranch_matches_for_partner_account = Matches(g.db).get_matches_for_partner_accounts(
             partner_account_id=connected_account_id
         )
@@ -239,7 +241,7 @@ def serve_view_partner_accounts_sustainability_data():
             account_id = ranch_match["account_id"]
             if account_id not in ranches_data:
                 ranches_data[account_id] = {}
-        
+
         for account_id, account_data in ranches_data.items():
             # Sustainability data for matched account
             account_sustainability_responses_data = SustainabilityResponses(g.db).get_sustainability_responses(
@@ -282,3 +284,52 @@ def serve_add_connection():
             connection_type_id=CONNECTION_TYPE_NAME_TO_ID["Created"]
         )
         return Response(status=HTTP_OK)
+
+
+@bp.route('/patrons', methods=["GET"])
+@crut.require_partner
+def serve_patrons():
+    patrons = g.db.accounts.get_accounts(partner_account=g.account.id())
+    for patron in patrons:
+        if len(user := g.db.users.get_users(is_system_generated=int(True), account_users__account=patron["id"])) > 0:
+            patron["user_id"] = user[0]["id"]
+        elif len(user := g.db.users.get_users(account_users__is_admin=int(True), account_users__account=patron["id"])) > 0:
+            patron["user_id"] = user[0]["id"]
+    return partner_render("patrons.html", {
+        "patrons": patrons
+    })
+
+
+@bp.route('/patrons/<int:patron_id>/<int:user_id>', methods=["POST"])
+@crut.require_partner
+def serve_patron(patron_id, user_id):
+    patron = g.db.accounts.get_accounts(id=patron_id)[0]
+    if len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
+        auth.login_as_user(
+            account_id=patron["id"], user_id=user[0]["id"], is_admin=True, impersonated_by_user_id=g.user.id()
+        )
+        g.db.users.update_user(
+            g.impersonated_by_user_id, impersonating_as_user_id=user[0]["id"]
+        )
+        Impersonations(g.db).insert(user_id=user[0]["id"], impersonated_by_user_id=g.impersonated_by_user_id)
+        return redirect(url_for("dashboard_bp.serve_dashboard"))
+    else:
+        raise ExportException("No user found")
+
+
+@bp.route('/log-back-in', methods=["GET"])
+@crut.require_user
+def log_back_in():
+    if g.impersonated_by_user_id:
+        user = g.db.users.get_users(id=g.impersonated_by_user_id)[0]
+        if user["impersonating_as_user_id"] == g.user.id():
+            g.db.users.update_user(id=user["id"], impersonating_as_user_id=None)
+            account_user = g.db.account_users.get_account_users(user=user["id"])[0]
+            auth.login_as_user(account_id=account_user["account"], user_id=user["id"], is_admin=int(False))
+            return redirect(url_for("partner_bp.serve_patrons"))
+        else:
+            auth.logout()
+            return redirect(url_for("outside_bp.serve_login"))
+    else:
+        auth.logout()
+        return redirect(url_for("outside_bp.serve_login"))

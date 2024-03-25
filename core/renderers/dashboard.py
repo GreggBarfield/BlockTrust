@@ -30,6 +30,7 @@ def dashboard_render(file, args={}):
         "dashboard_standard_account": g.account if "account" in g else None,
         "dashboard_standard_is_admin": g.is_admin if "is_admin" in g else None,
         "dashboard_is_employee": "employee_id" in g,
+        "dashboard_is_partner": "impersonated_by_user_id" in g,
         "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False,
         "sectors_name_to_id": SECTORS_NAME_TO_ID
     }
