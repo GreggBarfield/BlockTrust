@@ -45,7 +45,8 @@
                                 <td name="sale-date" value="">{{group.sale_date}}</td>
                                 <td>
                                     <a class="btn btn-sm btn-info" href="/dashboard/sales-groups/view/{{group.id}}" target="_blank">View</a>
-                                    <button class="btn btn-sm btn-info" onclick="printSalesGroup('{{group.id}}')">Download PDF</button>
+                                    <!-- TODO: Fix print option to print sales group viewer -->
+                                    <!-- <button class="btn btn-sm btn-info" onclick="printSalesGroup('{{group.id}}')">Download PDF</button> -->
                                 </td>
                             </tr>
                             {% endfor %}

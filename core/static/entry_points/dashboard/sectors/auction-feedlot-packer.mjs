@@ -1,4 +1,4 @@
-import { printSalesGroupViewerContainer } from "../../../js/widgets/utilities/general_utilities.mjs";
+import { printContainer, printSalesGroupViewerContainer } from "../../../js/widgets/utilities/general_utilities.mjs";
 import { SalesGroupViewer } from "../../../js/sales_groups/view_sales_group.mjs";
 
 let elements = document.getElementsByName("sale-date");
@@ -10,6 +10,7 @@ for (let element of elements){
     });
 }
 
+// TODO: Fix printSalesGroup method to print Sales Group Viewer container instead of [object HTMLDivElement]
 window.printSalesGroup = (salesGroupId) =>{
     let salesGroup = {};
     for(let group of salesGroups){
@@ -17,30 +18,9 @@ window.printSalesGroup = (salesGroupId) =>{
             salesGroup = group;
         }
     }
-    printSalesGroupViewerContainer(salesGroup)
-    //let salesGroupViewerContainer = document.createElement("div");
-    //new SalesGroupViewer(salesGroup, salesGroupViewerContainer);
-    //console.log(salesGroupViewerContainer);
-
-    //let tempWindowForPrint = window.open('', '', 'width=1100,height=900');
-    //
-    //let salesGroupViewerContainer = tempWindowForPrint.document.createElement("div");
-    //new SalesGroupViewer(salesGroup, salesGroupViewerContainer);
-    //console.log(salesGroupViewerContainer.innerHTML);
-    //console.log(typeof(salesGroupViewerContainer));
-//
-    //let breakLine = "<hr style='height:2px;background:black'/>";
-    //tempWindowForPrint.document.write('<html><head><link rel="stylesheet" href="/static/build/build_dashboard_main.min.css"/><link rel="stylesheet" href="/static/css/dashboard/flashable/flash_able_old/plugins/bootstrap/css/bootstrap.min.css"/></head><body>');
-    //tempWindowForPrint.document.write(breakLine);
-    //tempWindowForPrint.document.write(salesGroupViewerContainer);
-    //tempWindowForPrint.document.write(breakLine);
-    //tempWindowForPrint.document.write('</body></html>');
-    //tempWindowForPrint.document.close();
-    //tempWindowForPrint.focus();
-    //tempWindowForPrint.addEventListener("load", (e)=>{
-    //    tempWindowForPrint.print();
-    //})
-
+    let salesGroupViewerContainer = document.createElement("div");
+    new SalesGroupViewer(salesGroup, salesGroupViewerContainer);
+    printContainer(salesGroupViewerContainer);
 }
 
 window.downloadSalesGroupsDetailedReport = () =>{
