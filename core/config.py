@@ -62,7 +62,8 @@ CSP = {
         'uscattletrace.org',
         'www.uscattletrace.org',
         'www-uscattletrace-org.filesusr.com',
-        'partner.blocktrustnetwork.com'
+        'partner.blocktrustnetwork.com',
+        'healthtracknetwork.com'
     ]
 }
 
@@ -82,6 +83,7 @@ ADMIN_EMAIL = config_file["email"]["admin_email"]
 
 SUBSCRIPTION_WEBHOOK_SECRET = config_file["stripe"]["subscription_webhook_secret"]
 ACCOUNT_WEBHOOK_SECRET = config_file["stripe"]["account_webhook_secret"]
+WEBHOOK_SECRET = config_file["stripe"]["webhook_secret"]
 
 EMAIL_TOKEN_SALT = config_file["internal_api"]["email_token_salt"]
 

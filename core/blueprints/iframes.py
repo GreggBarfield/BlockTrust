@@ -57,26 +57,23 @@ def serve_create_sales_group():
         images = []
         if 'images' in request.json["reported"]:
             images = request.json["reported"]["images"]
-        try:
-            SalesGroups(g.db).validate_or_fail_sales_group(
-                account_id=g.account.id(),
-                group_name=request.json["group_name"],
-                zip=request.json["zip"],
-                delivery_location_type=request.json["delivery_location_type"],
-                count=request.json["reported"]["count"],
-                weight=request.json["reported"]["weight"],
-                category=request.json["category"],
-                breeds=request.json["reported"]["breeds"],
-                sale_date=request.json["sale_date"],
-                delivery_location=request.json["delivery_location"],
-                auction_market_location=request.json["auction_market_location"],
-                images=images,
-                price=request.json["price"],
-                slide=request.json["reported"]["marketing_slide"],
-                weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
-            )
-        except ExportException as e:
-            return {"error": str(e)}
+        SalesGroups(g.db).validate_or_fail_sales_group(
+            account_id=g.account.id(),
+            group_name=request.json["group_name"],
+            zip=request.json["zip"],
+            delivery_location_type=request.json["delivery_location_type"],
+            count=request.json["reported"]["count"],
+            weight=request.json["reported"]["weight"],
+            category=request.json["category"],
+            breeds=request.json["reported"]["breeds"],
+            sale_date=request.json["sale_date"],
+            delivery_location=request.json["delivery_location"],
+            auction_market_location=request.json["auction_market_location"],
+            images=images,
+            price=request.json["price"],
+            slide=request.json["reported"]["marketing_slide"],
+            weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+        )
         delivery_location = ""
         auction_market_id = None
         if request.json["delivery_location_type"] == "Direct/Off Ranch":
@@ -643,3 +640,10 @@ def serve_iframe_external_invoice(partner_id):
     return outside_render("/outside/iframes/external-tag-store/invoice.html", {
         "shop_homepage_link": shop_homepage_link
     })
+
+
+@bp.route('/iframe/redirect-to-dashboard', methods=["GET"])
+@crut.require_user_iframe
+def serve_iframe_redirect_to_dashboard():
+    dashboard_link = WEBSITE_ROOT + url_for('dashboard_bp.serve_dashboard')
+    return outside_render("/outside/iframes/redirect-to-dashboard.html", {"dashboard_link": dashboard_link})

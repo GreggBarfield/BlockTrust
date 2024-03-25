@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import reduce
 from core.database.tables.matches import Matches
 from core.database.tables.payments import PAYMENT_STATUS_IDS_TO_NAMES, PAYMENT_STATUS_NAMES_TO_IDS, Payments
 from core.database.tables.recurring_payments import RECURRING_STATUS_IDS_TO_NAMES, RECURRING_STATUS_NAMES_TO_IDS, RecurringPayments
@@ -21,6 +22,7 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
 from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.impersonations import Impersonations
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
@@ -28,7 +30,6 @@ from ..database.tables.orders import Orders
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
 from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
-from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
@@ -45,7 +46,7 @@ from ..utilities.constants import DEFAULT_PASSWORD, HTTP_NO_CONTENT, HTTP_OK
 from ..utilities.email import send_email
 from ..utilities.constants import StripePrices
 from ..utilities.general_utilities import format_field, str_to_bool, validate_email
-from datetime import datetime
+from datetime import datetime, timedelta
 
 bp = Blueprint('employee_bp', __name__)
 
@@ -180,9 +181,8 @@ def serve_login_as_user(user_id, account_id):
     else:
         is_admin = int(True)
     Employees(g.db).update(id=g.employee.id(), impersonating_as_user_id=user_id)
-    auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
-    g.db.users.update_user(user_id, last_logged_in_date=datetime.utcnow())
-    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
+    auth.login_as_user(account_id, user_id, employee_id, is_admin)
+    Impersonations(g.db).insert(user_id, employee_id)
     if account["is_partner"]:
         return redirect(url_for("partner_bp.serve_dashboard"))
     else:
@@ -960,6 +960,10 @@ def serve_sales_group_payments():
         row["account_number"] = account["id"]
         row["company"] = account["company"]
         payment = Payments(g.db).get(id=group["payment_id"])[0]
+        if payment["account_id"]:
+            row["payer"] = row["company"]
+        elif payment["partner_id"]:
+            row["payer"] = Accounts(g.db).get_partners(id=payment["partner_id"])[0]["company"]
         row["amount"] = payment["amount"]
         row["status"] = PAYMENT_STATUS_IDS_TO_NAMES[payment["status"]].capitalize()
         row["paid_date"] = payment["paid_date"]
@@ -984,24 +988,78 @@ def serve_view_account_event_logs(account_id):
 @bp.route('/employee/blockchain/dashboard', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_dashboard():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/dashboard.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
 @bp.route('/employee/blockchain/reports', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_reports():
-    daily_blockchain_uploads = Matches(g.db).get_daily_blockchain_upload_counts()
+    daily_blockchain_uploads = Matches(g.db).get_blockchain_upload_counts(get_daily_upload_counts=True)
     return employee_render("/employee/blockchain/reports.html", {"daily_blockchain_uploads": daily_blockchain_uploads})
 
 
 @bp.route('/employee/blockchain/detailed-report/<string:upload_date>', methods=["GET"])
 @crut.require_employee
 def serve_blockchain_detailed_report(upload_date):
-    uploaded_matches = Matches(g.db).get_matches_with_account_links(matches_bc_upload=1, matches_last_updated_date=upload_date)
+    start_date_obj = datetime.strptime(upload_date, '%Y-%m-%d')
+    start_date_epoch = start_date_obj.strftime('%s')
+    end_date_obj = start_date_obj + timedelta(days=1)
+    end_date_epoch = end_date_obj.strftime('%s')
+    uploaded_matches = Matches(g.db).get_matches_with_account_links(
+        matches_bc_upload=1,
+        matches_bc_upload_start_date=start_date_epoch,
+        matches_bc_upload_end_date=end_date_epoch
+    )
+    for match in uploaded_matches:
+        if match["data"] is not None:
+            match["data"] = json.loads(match["data"])
     return employee_render("/employee/blockchain/detailed-report.html", {
         "uploaded_matches": uploaded_matches,
         "upload_date": upload_date,
         "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
+
+
+@bp.route('/employee/partners-sales-group-payments', methods=["GET"])
+@crut.require_employee
+def serve_partners_sales_group_payments():
+    partners = Accounts(g.db).get_partners(partner_pays_sales_groups=int(True))
+    partner_payments = []
+    for partner in partners:
+        row = {}
+        row["id"] = partner["id"]
+        row["name"] = partner["company"]
+        accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
+        sales_groups = SalesGroups(g.db).get_sales_groups(
+            account_ids=tuple(account["id"] for account in accounts),
+            published=int(True),
+            is_paid=int(False)
+        )
+        total_amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
+        row["total_amount"] = total_amount
+        partner_payments.append(row)
+    return employee_render("/employee/finance/partner-sales-group-payments-list.html",
+                           {"partner_payments": partner_payments})
+
+
+@bp.route('/employee/partners-sales-group-payments/<int:partner_id>', methods=["GET"])
+@crut.require_employee
+def serve_partner_sales_group_payments(partner_id):
+    partner = Accounts(g.db).get_partners(id=partner_id)[0]
+    accounts = Accounts(g.db).get_accounts(partner_account=partner_id)
+    sales_groups = SalesGroups(g.db).get_sales_groups(
+        account_ids=tuple(account["id"] for account in accounts),
+        published=int(True)
+    )
+    paid_groups = []
+    unpaid_groups = []
+    for group in sales_groups:
+        if not group["is_paid"]:
+            patron = next(account for account in accounts if account["id"] == group["account"])
+            group["patron"] = patron["company"]
+            group["patron_id"] = patron["id"]
+            unpaid_groups.append(group)
+    return employee_render("/employee/finance/partner-sales-group-payments-detail.html",
+                           {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})

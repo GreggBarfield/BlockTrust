@@ -38,4 +38,16 @@ export class CoreModal {
         }, 100);
         return this.closedPromise;
     }
+
+    display() {
+        let that = this;
+        this.modal.classList.add("show");
+        this.modalBackdrop.classList.add("show");
+        setTimeout(()=>{
+            document.body.append(that.modal);
+            document.body.append(that.modalBackdrop);
+            this.closedPromiseResolve();
+        }, 100);
+        return this.closedPromise;
+    }
 }

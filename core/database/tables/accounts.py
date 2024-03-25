@@ -435,7 +435,7 @@ class Accounts:
         else:
             return []
 
-    def get_partners(self, id=NO_VALUE, company=NO_VALUE):
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
         """
         Get a partner by the values specified.
 
@@ -455,6 +455,10 @@ class Accounts:
         if company is not NO_VALUE:
             query_conditions.append("company = %(company)s")
             query_values["company"] = company
+
+        if partner_pays_sales_groups is not NO_VALUE:
+            query_conditions.append("partner_pays_sales_groups = %(partner_pays_sales_groups)s")
+            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
 
         if len(query_conditions) >= 1:
             combined_query_condition = " AND " + " AND ".join(query_conditions)
@@ -631,7 +635,7 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
-        base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
+        base_query = "UPDATE accounts a LEFT JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
         query_values = {}
@@ -645,7 +649,7 @@ class Accounts:
             query_conditions.append("a.name = %(a_name)s")
             query_values["a_name"] = name
             query_conditions.append("al.name = %(al_name)s")
-            query_values["al_name"] = name           
+            query_values["al_name"] = name
         if address is not NO_VALUE:
             query_conditions.append("address = %(address)s")
             query_values["address"] = address

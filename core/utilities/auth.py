@@ -27,6 +27,7 @@ SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
 SESSION_EMPLOYEE_ID_VAR = "jkl"
 SESSION_STRIPE_ACCOUNT_ID_VAR = "mno"
+SESSION_IMPERSONATED_BY_USER_ID_VAR = "pqr"
 
 
 class AuthException(Exception):
@@ -108,11 +109,13 @@ def load_account(account_id):
     load_account_to_context()
 
 
-def load_user(user_id, employee_id=0):
+def load_user(user_id, employee_id=None, impersonated_by_user_id=None):
     session.clear()
     session[SESSION_USER_ID_VAR] = user_id
     if employee_id:
         session[SESSION_EMPLOYEE_ID_VAR] = employee_id
+    if impersonated_by_user_id:
+        session[SESSION_IMPERSONATED_BY_USER_ID_VAR] = impersonated_by_user_id
     load_user_to_context()
 
 
@@ -121,6 +124,8 @@ def load_user_to_context():
         g.user = g.db.users.get_user_by_id(session[SESSION_USER_ID_VAR])
         if SESSION_EMPLOYEE_ID_VAR in session:
             g.employee_id = session[SESSION_EMPLOYEE_ID_VAR]
+        if SESSION_IMPERSONATED_BY_USER_ID_VAR in session:
+            g.impersonated_by_user_id = session[SESSION_IMPERSONATED_BY_USER_ID_VAR]
 
 
 def load_account_to_context():
@@ -697,7 +702,7 @@ def employee_signup(first_name, last_name, email, phone, username, password, con
         raise e
 
 
-def employee_login_as_user(account_id, user_id, employee_id, is_admin):
+def login_as_user(account_id, user_id, employee_id=None, is_admin=None, impersonated_by_user_id=None):
     """
     Params:
         account_id: Account's ID
@@ -713,7 +718,7 @@ def employee_login_as_user(account_id, user_id, employee_id, is_admin):
     account_user = g.db.account_users.get_account_users(account=account_id, user=user_id, is_admin=is_admin)
     if account_user:
         logout()
-        load_user(user_id, employee_id)
+        load_user(user_id, employee_id, impersonated_by_user_id)
         load_account(account_id)
     else:
         raise Exception("No user found")
