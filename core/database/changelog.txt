@@ -2653,3 +2653,10 @@ DROP COLUMN `partner_private_logo`;
 ALTER TABLE `accounts` 
 ADD COLUMN `partner_private_logo_id` INT DEFAULT NULL,
 ADD COLUMN `partner_private_color_scheme_hex` VARCHAR(30) DEFAULT NULL;
+
+/* Rohan Sureshkumar 03/19/23 */
+ALTER TABLE `user_logins_by_employee` 
+ADD COLUMN `impersonated_by_user_id` INT NULL AFTER `employee_id`,
+CHANGE COLUMN `employee_id` `employee_id` INT NULL , RENAME TO  `impersonations` ;
+ALTER TABLE `users` 
+ADD COLUMN `impersonating_as_user_id` INT NULL DEFAULT NULL AFTER `last_logged_in_date`;

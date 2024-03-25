@@ -238,7 +238,7 @@
                     </div>
                 </li>
             {% endif %}
-                <li class="b-user-settings-li" title="User Settings">
+                <li class="b-user-settings-li">
                     <a href="#" class="toggler" data-toggles="b-user-settings-li b-user-settings">
                         <i class="icon feather icon-user h2"></i>
                     </a>
@@ -250,16 +250,22 @@
                             </a>
                         </div>
                         <ul class="pro-body">
-                        {% if not dashboard_is_employee %}
+                        {% if dashboard_is_employee %}
                             <li>
-                                <a href="/dashboard/edit/edituser">
-                                    <i class="feather icon-edit"></i> Edit User
+                                <a href="/employee/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to staff portal
+                                </a>
+                            </li>
+                        {% elif dashboard_is_partner %}
+                            <li>
+                                <a href="/partner/log-back-in">
+                                    <i class="feather icon-log-in"></i> Back to partner portal
                                 </a>
                             </li>
                         {% else %}
                             <li>
-                                <a href="/employee/log-back-in">
-                                    <i class="feather icon-log-in"></i> Back to staff portal
+                                <a href="/dashboard/edit/edituser">
+                                    <i class="feather icon-edit"></i> Edit User
                                 </a>
                             </li>
                         {% endif %}
