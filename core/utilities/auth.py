@@ -27,6 +27,8 @@ SESSION_ACCOUNT_ID_VAR = "def"
 SESSION_IS_ADMIN_VAR = "ghi"
 SESSION_EMPLOYEE_ID_VAR = "jkl"
 SESSION_STRIPE_ACCOUNT_ID_VAR = "mno"
+SESSION_PARTNER_LOGO_URL_VAR = "pqr"
+SESSION_PARTNER_COLOR_SCHEME_HEX_VAR = "stu"
 
 
 class AuthException(Exception):
@@ -106,7 +108,6 @@ def load_account(account_id):
     session[SESSION_ACCOUNT_ID_VAR] = account_id
     session[SESSION_IS_ADMIN_VAR] = account_user.is_admin()
     load_account_to_context()
-    load_partner_data_to_context()
 
 
 def load_user(user_id, employee_id=0):
@@ -115,6 +116,17 @@ def load_user(user_id, employee_id=0):
     if employee_id:
         session[SESSION_EMPLOYEE_ID_VAR] = employee_id
     load_user_to_context()
+
+
+def load_partner_customization_data():
+    if 'account' in g and g.account.partner_account_id() is not None:
+        partner_account = g.db.accounts.get_account_by_id(g.account.partner_account_id())
+        if partner_account is not None:
+            if partner_account.partner_private_color_scheme_hex() is not None:
+                session[SESSION_PARTNER_COLOR_SCHEME_HEX_VAR] = partner_account.partner_private_color_scheme_hex()
+            if partner_account.partner_private_logo_id() is not None:
+                session[SESSION_PARTNER_LOGO_URL_VAR] = partner_account.partner_private_logo_url()
+    load_partner_customization_data_to_context()
 
 
 def load_user_to_context():
@@ -130,17 +142,11 @@ def load_account_to_context():
         if SESSION_IS_ADMIN_VAR in session:
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
 
-def load_partner_data_to_context():
-    if 'account' in g and g.account.partner_account_id() is not None:
-        partner_account = g.db.accounts.get_account_by_id(g.account.partner_account_id())
-        print(partner_account.company())
-        if partner_account is not None:
-            if partner_account.partner_private_color_scheme_hex() is not None:
-                g.private_color_scheme_hex = partner_account.partner_private_color_scheme_hex()
-                print(g.private_color_scheme_hex)
-            if partner_account.partner_private_logo_id() is not None:
-                g.private_logo_url = partner_account.partner_private_logo_url()
-                print(g.private_logo_url)
+def load_partner_customization_data_to_context():
+    if SESSION_PARTNER_COLOR_SCHEME_HEX_VAR in session:
+        g.private_color_scheme_hex = session[SESSION_PARTNER_COLOR_SCHEME_HEX_VAR]
+    if SESSION_PARTNER_LOGO_URL_VAR in session:
+        g.private_logo_url = session[SESSION_PARTNER_LOGO_URL_VAR]
 
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id,
            sector, address, city, state, zip_code, personal_phone, recaptcha_score, ip_address, ip_country,

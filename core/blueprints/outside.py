@@ -70,6 +70,7 @@ def serve_login():
                 account_users = g.db.account_users.get_account_users(user=g.user.id())
                 if len(account_users) == 1:
                     auth.load_account(account_users[0]["account"])
+                    auth.load_partner_customization_data()
                 else:
                     return {"redirect": url_for("dashboard_bp.serve_accounts")}
                 EventLogs(g.db).insert(
