@@ -1,4 +1,4 @@
-import { printContainer, printSalesGroupViewerContainer } from "../../../js/widgets/utilities/general_utilities.mjs";
+import { printContainer } from "../../../js/widgets/utilities/general_utilities.mjs";
 import { SalesGroupViewer } from "../../../js/sales_groups/view_sales_group.mjs";
 
 let elements = document.getElementsByName("sale-date");
