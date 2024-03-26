@@ -1065,7 +1065,7 @@ def serve_partner_sales_group_payments(partner_id):
                            {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})
 
 
-@bp.route('/employee/dashboard/partner-customizations/<int:partner_id>', methods=["GET", "POST"])
+@bp.route('/employee/dashboard/partner-customizations/<int:partner_id>', methods=["GET"])
 @crut.require_employee
 def serve_partner_customizations(partner_id):
     return employee_render("/employee/accounts/partner-customizations.html", {
