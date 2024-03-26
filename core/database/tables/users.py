@@ -304,7 +304,7 @@ class Users:
     def get_users(self, id=NO_VALUE, username=NO_VALUE, email=NO_VALUE, phone=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
                   is_email_verified=NO_VALUE, failed_attempts=NO_VALUE, is_user_locked=NO_VALUE, locked_time=NO_VALUE,
                   is_system_generated=NO_VALUE, recaptcha_score=NO_VALUE, account_users__account=NO_VALUE,
-                  selected_cols=()):
+                  selected_cols=(), account_users__is_admin=NO_VALUE):
         """
         Returns the users based on provided attributes
 
@@ -375,6 +375,9 @@ class Users:
         if account_users__account is not NO_VALUE:
             query_conditions.append("au.account = %(account_users__account)s")
             query_values["account_users__account"] = account_users__account
+        if account_users__is_admin is not NO_VALUE:
+            query_conditions.append("au.is_admin = %(account_users__is_admin)s")
+            query_values["account_users__is_admin"] = account_users__is_admin
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
@@ -487,7 +490,8 @@ class Users:
         self.update_user(id, email, first_name, last_name, phone, password, is_email_verified)
 
     def update_user(self, id, email=NO_VALUE, first_name=NO_VALUE, last_name=NO_VALUE,
-                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE, last_logged_in_date=NO_VALUE):
+                    phone=NO_VALUE, password=NO_VALUE, is_email_verified=NO_VALUE, last_logged_in_date=NO_VALUE,
+                    impersonating_as_user_id=NO_VALUE):
         """
         Updates an user.
 
@@ -534,6 +538,10 @@ class Users:
         if last_logged_in_date is not NO_VALUE:
             query_conditions.append("last_logged_in_date = %(last_logged_in_date)s")
             query_values["last_logged_in_date"] = last_logged_in_date
+        if impersonating_as_user_id is not NO_VALUE:
+            query_conditions.append("impersonating_as_user_id = %(impersonating_as_user_id)s")
+            query_values["impersonating_as_user_id"] = impersonating_as_user_id
+
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition

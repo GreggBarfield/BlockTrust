@@ -22,6 +22,7 @@ from ..database.tables.employees import Employees, EmployeesException
 from ..database.tables.event_logs import EventLogs, EVENT_TYPE_IDS_TO_NAMES
 from ..database.tables.files import MARKETPLACE_FILES_S3_PATH
 from ..database.tables.debug_logs import DebugLogs
+from ..database.tables.impersonations import Impersonations
 from ..database.tables.invited_users import InvitedUsers
 from ..database.tables.notifications import Notifications
 from ..database.tables.notification_recipients import NotificationRecipients
@@ -29,7 +30,6 @@ from ..database.tables.orders import Orders
 from ..database.tables.sales_group_fields_values import SalesGroupFieldsValues, SALES_GROUP_FIELD_IDS_TO_NAMES
 from ..database.tables.seedstock_producers import SeedstockProducers
 from ..database.tables.users import Users, UsersException
-from ..database.tables.user_logins_by_employee import UserLoginsByEmployee
 from ..database.tables.notifications import notification_type_name_to_id, notification_type_id_to_name
 from ..database.tables.sales_groups import SalesGroups
 from ..database.tables.transactions import TRANSACTION_TYPE_NAMES_TO_IDS, Transactions
@@ -181,9 +181,8 @@ def serve_login_as_user(user_id, account_id):
     else:
         is_admin = int(True)
     Employees(g.db).update(id=g.employee.id(), impersonating_as_user_id=user_id)
-    auth.employee_login_as_user(account_id, user_id, employee_id, is_admin)
-    g.db.users.update_user(user_id, last_logged_in_date=datetime.utcnow())
-    UserLoginsByEmployee(g.db).insert_user_logins_by_employee(user_id, employee_id)
+    auth.login_as_user(account_id, user_id, employee_id, is_admin)
+    Impersonations(g.db).insert(user_id, employee_id)
     if account["is_partner"]:
         return redirect(url_for("partner_bp.serve_dashboard"))
     else:
