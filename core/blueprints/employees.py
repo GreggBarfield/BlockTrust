@@ -1022,7 +1022,7 @@ def serve_blockchain_detailed_report(upload_date):
     })
 
 
-@bp.route('/employee/seedstock-producers/manage', methods=["GET", "POST"])
+@bp.route('/employee/seedstock-producers/manage', methods=["GET"])
 @crut.require_employee
 def serve_manage_seedstock_producer():
     seedstock_producers = SeedstockProducers(g.db).get()
