@@ -13,83 +13,166 @@
     </div>
 
     {% for seedstock_producer in seedstock_producers %}
-    <div class="card col-md-12 m-2 p-2">
-        <div class="card-header d-flex">
-            <div class="col-md-3">
-                <h5>{{seedstock_producer.short_description}}</h5>
+        {% if seedstock_producer.is_archived == 0 %}
+        <div class="card col-md-12 m-2 p-2">
+            <div class="card-header d-flex">
+                <div class="col-md-3">
+                    <h5>{{seedstock_producer.short_description}}</h5>
+                </div>
+                <div class="col-md-9 d-flex justify-content-end">
+                    <button class="btn btn-danger" onclick="archiveSeedstockProducerAd('{{seedstock_producer.id}}')">Archive</button>
+                </div>
             </div>
-            <div class="col-md-9 d-flex justify-content-end">
-                <button class="btn btn-danger" onclick="archiveSeedstockProducerAd('{{seedstock_producer.id}}')">Archive</button>
+            <div class="card-body m-1 p-1">
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer Ad ID: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.id}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Email: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_email}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Contact Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_contact_name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Phone: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_phone}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Short Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.short_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Long Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.long_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Ad Created On: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.created_timestamp}}</h6></p>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card-body m-1 p-1">
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Seedstock Producer Ad ID: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.id}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Seedstock Producer MarketPlace Account Name: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.marketplace_account_name}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Seedstock Producer MarketPlace Account Email: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.marketplace_account_email}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Seedstock Producer MarketPlace Account Contact Name: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.marketplace_account_contact_name}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Seedstock Producer MarketPlace Account Phone: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.marketplace_account_phone}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Short Description: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.short_description}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Long Description: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.long_description}}</h6></p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-3 sub-col-left">
-                    <p><h6>Ad Created On: </h6></p>
-                </div>
-                <div class="col-md-9 sub-col-right">
-                    <p><h6>{{seedstock_producer.created_timestamp}}</h6></p>
-                </div>
-            </div>
-
-        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<div class="row">
+    <div class="m-2 p-2">
+        <h5>Archived Seedstock Producer Ads</h5>
     </div>
+    {% for seedstock_producer in seedstock_producers %}
+        {% if seedstock_producer.is_archived == 1 %}
+        <div class="card col-md-12 m-2 p-2">
+            <div class="card-header d-flex">
+                <div class="col-md-3">
+                    <h5>{{seedstock_producer.short_description}}</h5>
+                </div>
+            </div>
+            <div class="card-body m-1 p-1">
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer Ad ID: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.id}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Email: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_email}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Contact Name: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_contact_name}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Seedstock Producer MarketPlace Account Phone: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.marketplace_account_phone}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Short Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.short_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Long Description: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.long_description}}</h6></p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 sub-col-left">
+                        <p><h6>Ad Created On: </h6></p>
+                    </div>
+                    <div class="col-md-9 sub-col-right">
+                        <p><h6>{{seedstock_producer.created_timestamp}}</h6></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     {% endfor %}
 </div>
 <script type="text/javascript">
