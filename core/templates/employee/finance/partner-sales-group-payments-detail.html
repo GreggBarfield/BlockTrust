@@ -1,0 +1,49 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Unpaid Sales Groups for {{partner}}" %}
+{% block employee_content %}
+<div class="row">
+    <div class="col-md">
+        <div class="card shadow-none">
+            <div class="card-header">
+                <h5 class="mt-2">Unpaid Sales Groups for {{partner}}</h5>
+                <a href="/employee/partners-sales-group-payments" class="btn btn-sm btn-primary float-right"><i class="fa fa-undo"></i></a>
+            </div>
+            <div class="card-body mb-2">
+                <div class="col-lg-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>SALES GROUP NUMBER</th>
+                                <th>SALES GROUP NAME</th>
+                                <th>PUBLISHED BY PATRON</th>                                
+                                <th>PATRON ACCOUNT NUMBER</th>
+                                <th>AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if unpaid_groups %}
+                            {% for row in unpaid_groups %}
+                            <tr>
+                                <td>{{row.id}}</td>
+                                <td>{{row.group_name}}</td>
+                                <td>{{row.patron}}</td>
+                                <td>{{row.patron_id}}</td>
+                                <td>{{ "${:,.2f}".format(row.reported.count)}}</td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center font-italic">
+                                    Nothing to show currently
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}

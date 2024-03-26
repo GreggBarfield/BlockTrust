@@ -15,7 +15,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description",
                 "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
-                "partner_paid", "auction_market_id", "optional_fields")
+                "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups")
 
 
 class AccountsException(Exception):
@@ -435,7 +435,7 @@ class Accounts:
         else:
             return []
 
-    def get_partners(self, id=NO_VALUE, company=NO_VALUE):
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
         """
         Get a partner by the values specified.
 
@@ -456,6 +456,10 @@ class Accounts:
             query_conditions.append("company = %(company)s")
             query_values["company"] = company
 
+        if partner_pays_sales_groups is not NO_VALUE:
+            query_conditions.append("partner_pays_sales_groups = %(partner_pays_sales_groups)s")
+            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
+
         if len(query_conditions) >= 1:
             combined_query_condition = " AND " + " AND ".join(query_conditions)
         else:
@@ -473,7 +477,7 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                       partner_subscription_credits=NO_VALUE):
+                       partner_subscription_credits=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
         """
         Updates an account.
 
@@ -543,9 +547,12 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
+        if partner_pays_sales_groups is not NO_VALUE:
+            query_conditions.append(" partner_pays_sales_groups = %(partner_pays_sales_groups)s")
+            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
         if partner_subscription_credits is not NO_VALUE:
             query_conditions.append(" partner_subscription_credits = %(partner_subscription_credits)s")
-            query_values["partner_subscription_credits"] = partner_subscription_credits       
+            query_values["partner_subscription_credits"] = partner_subscription_credits
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition
@@ -628,7 +635,7 @@ class Accounts:
             retail_name: Retail name visible externally
             retail_description: Retail Information visible externally
         """
-        base_query = "UPDATE accounts a INNER JOIN account_links al ON a.id = al.account"
+        base_query = "UPDATE accounts a LEFT JOIN account_links al ON a.id = al.account"
 
         query_conditions = []
         query_values = {}
@@ -642,7 +649,7 @@ class Accounts:
             query_conditions.append("a.name = %(a_name)s")
             query_values["a_name"] = name
             query_conditions.append("al.name = %(al_name)s")
-            query_values["al_name"] = name           
+            query_values["al_name"] = name
         if address is not NO_VALUE:
             query_conditions.append("address = %(address)s")
             query_values["address"] = address

@@ -1,0 +1,77 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Unpaid Sales Groups For Partners" %}
+{% block employee_content %}
+<div class="row">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                <h5>Unpaid Sales Groups For Partners</h5>
+            </div>
+            <div class="card-body mb-2">
+                <div class="col-lg-12">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>PARTNER ACCOUNT NUMBER</th>
+                                <th>PARTNER NAME</th>
+                                <th>AMOUNT DUE</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if partner_payments %}
+                            {% for row in partner_payments %}
+                            <tr>
+                                <td>{{row.id}}</td>
+                                <td>{{row.name}}</td>
+                                <td>{{ "${:,.2f}".format(row.total_amount)}}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" {{'disabled' if row.total_amount == 0 else ''}} partner-id="{{row.id}}" data-toggle="tooltip" data-placement="top" title="Send Invoice to {{row.name}}">
+                                        <i class='fa fa-envelope'></i>               
+                                        <div class="spinner-border spinner-border-sm ml-1 p-2 d-none"></div> 
+                                    </button>
+                                    <a href="/employee/partners-sales-group-payments/{{row.id}}" class="btn btn-sm btn-info" data-toggle="tooltip" data-placement="top" title="View Details">
+                                        <i class="fa fa-info-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center font-italic">
+                                    Nothing to show currently
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock employee_content %}
+{% block employee_scripts %}
+<script type="text/javascript">
+    let buttons = document.getElementsByClassName("btn-danger");
+    for (let button of buttons){
+        button.addEventListener("click", async() => {   
+            button.disabled = true;
+            button.getElementsByClassName('spinner-border')[0].classList.remove("d-none");
+            let response = await fetch("/stripe/send-invoice", {
+                method:"POST",
+                body:JSON.stringify({id : button.getAttribute('partner-id')})
+            });
+            if(response.ok){
+                alert("Invoice sent successfully!");
+            }
+            else {
+                alert("An error occurred. Please try again later");
+            }
+            button.disabled = false;
+            button.getElementsByClassName('spinner-border')[0].classList.add("d-none");
+        })
+    }
+</script>
+{% endblock employee_scripts %}

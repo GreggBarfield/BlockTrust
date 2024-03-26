@@ -1,0 +1,64 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "View Account & User Event Logs" %}
+{% set employee_locations = [("/employee/dashboard", "View Accounts")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card">
+    <div class="card-header">
+        <h5>Account & User Event Logs</h5>
+    </div>
+    <div class="card-body">
+        <table class="table" id="eventsTable">
+            <thead>
+                <tr>
+                    <th>Event ID</th>
+                    <th>Account ID</th>
+                    <th>User ID</th>
+                    <th>Event Type</th>
+                    <th>Timestamp</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in event_logs %}
+                <tr>
+                    <td>{{event.id}}</td>
+                    <td>
+                        {% if event.account_id != None %}
+                        {{event.account_id}}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if event.user_id != None %}
+                        {{event.user_id}}
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                    <td>{{event_type_ids_to_names[event.event_type_id]}}</td>
+                    <td>{{event.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
+                    <td>
+                        {% if event.details != None and event.details|length > 0 %}
+                            {% for detail_title,detail_data in event.details.items() %}
+                                <p>{{detail_title.replace("_", " ").title()}}: {{detail_data}}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#eventsTable').DataTable({pageLength:50});
+    });
+</script>
+{% endblock employee_content %}

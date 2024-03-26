@@ -40,7 +40,7 @@ Detailed Upload Report
                     <td>{{match.name}}</td>
                     <td>{{sectors_id_to_name[match.sector] if match.sector else "N/A"}}</td>
                     <td>
-                        {% if match.data != None and match.data|length > 0 and match.data is mapping %}
+                        {% if match.data != None and match.data is not integer and match.data|length > 0 and match.data is mapping %}
                             {% for data_title, data_value in match.data.items() %}
                                 <p>{{data_title.replace("_", " ").title()}}: {{data_value}}</p>
                             {% endfor %}

@@ -96,7 +96,7 @@ def serve_login():
             except auth.SignupFailedException as e:
                 raise ExportException("internal error in Users.login")
         except ExportException as e:
-            return jsonify({"error": str(e)}), 400
+            return jsonify({"message": str(e)}), 400
     redirect_to = ''
     # Might want to revisit this eventually to protect against users getting tricked
     if 'redirect' in request.args:

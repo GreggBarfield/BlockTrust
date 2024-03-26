@@ -1,9 +1,10 @@
+from json import loads
 from flask import (
     Blueprint, Response, request, g, session, redirect, url_for
 )
 
 from core.common_exceptions import ExportException
-from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET
+from core.config import ROOT, SUBSCRIPTION_WEBHOOK_SECRET, STRIPE_SECRET_KEY, STRIPE_PUBLISHABLE_KEY, STRIPE_BASIC_PRICE, ACCOUNT_WEBHOOK_SECRET, WEBHOOK_SECRET
 from core.database.tables.accounts import Accounts, AccountsException
 from core.database.tables.debug_logs import DebugLogs
 from core.database.tables.error_logs import ErrorLogs
@@ -193,7 +194,12 @@ def create_payment_intent():
         if 'sales_group_id' in data:
             sales_group_id = data['sales_group_id']
             sales_group = SalesGroups(g.db).get_sales_groups(id=sales_group_id)[0]
-            customer_id = g.account.stripe_customer_id() if g.account.stripe_customer_id() else _create_customer()
+            customer_id = g.account.stripe_customer_id() if g.account.stripe_customer_id() else _create_customer(
+                email=g.user.email() if g.user.is_email_verified() else None,
+                company=g.account.company(),
+                account_id=g.account.id(),
+                user_id=g.user.id()
+            )
             intent = _create_payment_intent_for_sales_group(
                 count=sales_group["reported"]["count"],
                 customer_id=customer_id,
@@ -381,11 +387,9 @@ def serve_stripe_account():
             payload, sig_header, endpoint_secret
         )
     except ValueError as e:
-        # Invalid payload
         ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e), json.dumps(json.loads(request.data)))
         raise ExportException(str(e))
     except stripe.error.SignatureVerificationError as e:
-        # Invalid signature
         ErrorLogs(g.db).insert_error_log("Stripe", "Connect web hook received", str(e))
         raise ExportException(str(e))
 
@@ -515,7 +519,12 @@ def setup_payment():
     try:
         payment_methods = []
         if not g.account.stripe_customer_id():
-            customer_id = _create_customer()
+            customer_id = _create_customer(
+                email=g.user.email() if g.user.is_email_verified() else None,
+                company=g.account.company(),
+                account_id=g.account.id(),
+                user_id=g.user.id()
+            )
         else:
             customer_id = g.account.stripe_customer_id()
             payment_methods = stripe.PaymentMethod.list(
@@ -611,14 +620,99 @@ def _create_payment_intent_for_sales_group(count, customer_id, metadata, payment
     return stripe.PaymentIntent.create(**params)
 
 
-def _create_customer():
+@bp.route('/stripe/events', methods=['POST'])
+def serve_invoice_paid():
+    payload = request.data
+    endpoint_secret = WEBHOOK_SECRET
+    sig_header = request.headers.get('stripe-signature')
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        ErrorLogs(g.db).insert_error_log("Stripe", "Web hook received", str(e), json.dumps(json.loads(request.data)))
+        raise ExportException(str(e))
+    except stripe.error.SignatureVerificationError as e:
+        ErrorLogs(g.db).insert_error_log("Stripe", "Web hook received", str(e))
+        raise ExportException(str(e))
+
+    if event.type == 'invoice.payment_succeeded':
+        invoice = event.data.object
+        for item in stripe.InvoiceItem.list(invoice=invoice.id).data:
+            payment_id = Payments(g.db).insert(
+                partner_id=invoice.metadata["partner_id"],
+                amount=item.amount/100,
+                status=PAYMENT_STATUS_NAMES_TO_IDS["paid"],
+                paid_date=datetime.now(),
+                stripe_customer_id=item.customer,
+                stripe_payment_intent_id=invoice.payment_intent,
+                stripe_invoice_id=invoice.id
+            )
+            sales_group = SalesGroups(g.db).get_sales_groups(id=item.metadata["sales_group_id"])[0]
+            SalesGroups(g.db).update_sales_group(id=sales_group["id"], is_paid=int(True), payment_id=payment_id)
+    else:
+        raise ExportException('This event type ' + event.type + ' is not supported.')
+    return Response(status=HTTP_NO_CONTENT)
+
+
+@crut.require_employee
+@bp.route('/stripe/send-invoice', methods=['POST'])
+def send_partner_invoice():
+    try:
+        partner = g.db.accounts.get_partners(id=loads(request.data)["id"])[0]
+        customer_id = partner["stripe_customer_id"] if partner["stripe_customer_id"] else _create_customer(
+            email=partner["partner_contact_email"],
+            company=partner["company"],
+            partner_id=partner["id"]
+        )
+
+        invoice = stripe.Invoice.create(
+            customer=customer_id,
+            collection_method="send_invoice",
+            days_until_due=0,
+            description="Sales Group Payments",
+            metadata={'partner_id': partner["id"]},
+            pending_invoice_items_behavior="exclude"
+        )
+        accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
+        sales_groups = SalesGroups(g.db).get_sales_groups(
+            account_ids=tuple(account["id"] for account in accounts),
+            published=int(True),
+            is_paid=int(False)
+        )
+        for sales_group in sales_groups:
+            stripe.InvoiceItem.create(
+                customer=customer_id,
+                invoice=invoice.id,
+                amount=sales_group["reported"]["count"] * 100,
+                description=f"""Payment for sales group: {sales_group['group_name']},
+                                Number of animals: {sales_group['reported']['count']}""",
+                metadata={"sales_group_id": sales_group["id"]}
+            )
+
+        invoice = stripe.Invoice.finalize_invoice(invoice.id)
+        stripe.Invoice.send_invoice(invoice.id)
+        return Response(status=HTTP_NO_CONTENT)
+    except Exception as e:
+        raise ExportException(str(e))
+
+
+def _create_customer(email, company, account_id=None, partner_id=None, user_id=None):
+    metadata = {}
+    if account_id:
+        metadata["account_id"] = account_id
+    elif partner_id:
+        metadata["partner_id"] = partner_id
+    if user_id:
+        metadata["user_id"] = user_id
     customer_id = stripe.Customer.create(
-        email=g.user.email() if g.user.is_email_verified() else None,
-        name=g.account.company(),
-        metadata={'account_id': g.account.id(), 'user_id': g.user.id()}
+        email=email,
+        name=company,
+        metadata=metadata
     ).id
     g.db.accounts.update_account(
-        g.account.id(),
+        account_id=account_id if account_id else partner_id,
         stripe_customer_id=customer_id
     )
     return customer_id

@@ -53,7 +53,12 @@ def before_request():
     # Database
     if getattr(g, "db", None) is None:
         g.db = Database(MYSQL_CONFIG)
-
+    if "iframe" in request.path:
+        app.config.update(
+            SESSION_COOKIE_SECURE=True,
+            SESSION_COOKIE_HTTPONLY=True,
+            SESSION_COOKIE_SAMESITE='None',
+        )      
     auth.load_app_context()
 
 
