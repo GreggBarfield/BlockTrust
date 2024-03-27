@@ -15,11 +15,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "partner_private_logo_id", "is_partner_used_for_signup", "retail_name", "retail_description",
                 "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
-<<<<<<< HEAD
-                "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups", "partner_private_color_scheme_hex")
-=======
                 "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups", "partner_color")
->>>>>>> 3401e9f26e28428c347ee2cf340472a3738296c4
 
 
 class AccountsException(Exception):
@@ -499,8 +495,6 @@ class Accounts:
             stripe_paid: indicates if this account has an active subscription in stripe
             manual_paid: indicates if it is a manually marked paid account
             stripe_customer_id: the id for the corresponding customer object in stripe
-            partner_private_logo_id: File ID of logo stored in S3 bucket
-            partner_private_color_scheme_hex: Hex code for color scheme to be used in partner dashboard
         """
         # base query
         base_query = "UPDATE accounts "

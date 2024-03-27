@@ -1,9 +1,6 @@
 from copy import deepcopy
 from ...sectors import SECTORS_ID_TO_NAME
 from ..tables.account_users import AccountUsersException
-from ... import config
-from ...utilities.aws import aws
-from ..tables.files import LOGO_FILES_S3_PATH
 
 
 class AccountException(Exception):
@@ -94,8 +91,8 @@ class Account:
     def partner_stripe_secret_key(self):
         return self._row['partner_stripe_secret_key']
 
-    def partner_private_logo_id(self):
-        return self._row['partner_private_logo_id']
+    def partner_private_logo(self):
+        return self._row['partner_private_logo']
 
     def account_manager_id(self):
         return self._row['account_manager_id']
@@ -126,15 +123,6 @@ class Account:
     
     def can_partner_login(self):
         return self._row["auction_market_id"]
-
-    def partner_private_color_scheme_hex(self):
-        return self._row["partner_private_color_scheme_hex"]
-    
-    def partner_private_logo_url(self):
-        return aws.get_s3_client().generate_presigned_url(
-            ClientMethod="get_object",
-            Params={"Bucket": config.AWS_S3_BUCKET, "Key": LOGO_FILES_S3_PATH + str(self._row["partner_private_logo_id"])}
-        )
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
