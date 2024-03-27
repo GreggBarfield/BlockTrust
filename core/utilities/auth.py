@@ -134,6 +134,7 @@ def load_account_to_context():
         if SESSION_IS_ADMIN_VAR in session:
             g.is_admin = session[SESSION_IS_ADMIN_VAR]
 
+
 def signup(username, email, phone, first_name, last_name, password, confirm_password, company, partner, affiliate_id,
            sector, address, city, state, zip_code, personal_phone, recaptcha_score, ip_address, ip_country,
            auction_markets_used, preconditioning_programs, pvp_programs):

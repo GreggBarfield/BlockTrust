@@ -13,7 +13,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_account", "affiliate_id", "address", "city", "state", "zip", "phone", "token", "stripe_paid",
                 "manual_paid", "generated_paid", "stripe_customer_id", "stripe_account_id", "is_stripe_payouts_enabled",
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
-                "partner_private_logo_id", "is_partner_used_for_signup", "retail_name", "retail_description",
+                "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description",
                 "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
                 "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups", "partner_color")
 
