@@ -1008,10 +1008,5 @@ def serve_remove_sales_group_field_values():
 @bp.route('/widgets/data/save_partner_customizations', methods=["POST"])
 @crut.require_employee
 def serve_save_partner_customizations():
-    uploaded_logo_id = request.json["uploaded_logo_file_id"] if "uploaded_logo_file_id" in request.json else None
-    Accounts(g.db).update_partner(
-        id=request.json["partner_id"],
-        partner_private_logo_id=uploaded_logo_id,
-        partner_private_color_scheme_hex=request.json["color_hex"]
-    )
+    Accounts(g.db).update_partner(id=request.json["partner_id"], partner_color=request.json["color_hex"])
     return {"redirect": "/employee/dashboard/view-partners"}

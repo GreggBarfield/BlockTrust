@@ -12,12 +12,11 @@ export class PartnerCustomizationsWidget extends Widget {
     initType = () =>{
         this.frame.innerHTML = "";
         let partnerId = this.frame.getAttribute("data-widget-partner-id");
-        let logoFilesS3Path = this.frame.getAttribute("data-widget-logo-files-s3-path");
-        let partnerCustomizationsForm = this.createPartnerCustomizationsForm(partnerId, logoFilesS3Path);
+        let partnerCustomizationsForm = this.createPartnerCustomizationsForm(partnerId);
         this.frame.append(partnerCustomizationsForm);
     }
 
-    createPartnerCustomizationsForm = (partnerId, logoFilesS3Path) =>{
+    createPartnerCustomizationsForm = (partnerId) =>{
         let card = document.createElement("div");
         card.className = "card";
         
@@ -46,11 +45,6 @@ export class PartnerCustomizationsWidget extends Widget {
         colorInput.title = "Choose your color";
         colorFormRow.append(colorInput);
         form.append(colorFormRow);
-
-        let logoInputRow = document.createElement("div");
-        let logoUploadContainer = generateUploadInput("Upload Private Logo: ")
-        logoInputRow.append(logoUploadContainer);
-        form.append(logoInputRow);
         
         let saveFormGroup = document.createElement("div");
         saveFormGroup.className = "form-group m-1 p-1";
@@ -72,7 +66,6 @@ export class PartnerCustomizationsWidget extends Widget {
         cardBody.append(form);
         card.append(cardBody);
 
-        let uploadedLogoFileId = undefined;
         let partnerCustomizationForm = new AsyncForm({
             action: "/widgets/data/save_partner_customizations",
             form: form,
@@ -84,20 +77,13 @@ export class PartnerCustomizationsWidget extends Widget {
             getData: () => {
                 return {
                     partner_id: partnerId,
-                    color_hex: colorInput.value,
-                    uploaded_logo_file_id: uploadedLogoFileId
+                    color_hex: colorInput.value
                 };
             }
         });
         
 
         saveButton.onclick = async() =>{
-            let logoInput = logoUploadContainer.getElementsByTagName("input");
-            let uploadedFiles = logoInput[0].files;
-            if(Object.entries(uploadedFiles).length > 0){
-                let uploadedLogoFile = uploadedFiles[0];
-                uploadedLogoFileId = await saveAndUploadFile(false, false, uploadedLogoFile, null, null, true, logoFilesS3Path);
-            }
             partnerCustomizationForm.submit();
         }
 

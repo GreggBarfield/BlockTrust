@@ -36,9 +36,7 @@ def dashboard_render(file, args={}):
         "dashboard_logo": partner_account["partner_private_logo"],
         "dashboard_color": partner_account["partner_color"],
         "enable_google_analytics": True if DOMAIN == "blocktrustnetwork.com" else False,
-        "sectors_name_to_id": SECTORS_NAME_TO_ID,
-        "dashboard_partner_color_hex": g.private_color_scheme_hex if "private_color_scheme_hex" in g else None,
-        "dashboard_partner_private_logo_url": g.private_logo_url if "private_logo_url" in g else None
+        "sectors_name_to_id": SECTORS_NAME_TO_ID
     }
     for key in args:
         if key in dashboard_standard_args:

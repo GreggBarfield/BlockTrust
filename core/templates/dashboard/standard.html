@@ -34,6 +34,13 @@
 </style>
 <script src="/static/js/jquery-3.5.1.min.js"></script>
 <script src="/static/global/global.mjs" type="module"></script>
+{% if dashboard_color %}
+    <style>
+        li:hover {
+            background-color: "{{dashboard_color}}" !important;
+        }
+    </style>
+{% endif %}
 {% block head_section_per_dashboard_page %}
 {% endblock head_section_per_dashboard_page %}
 {% endblock head_section %}
