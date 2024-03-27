@@ -36,7 +36,10 @@
 <script src="/static/global/global.mjs" type="module"></script>
 {% if dashboard_color %}
     <style>
-        li:hover {
+        .b-nav > ul > li:hover::after{
+            color: {{dashboard_color}} !important;
+        }
+        .b-nav-utility > ul > li:hover{
             background-color: {{dashboard_color}} !important;
         }
     </style>
