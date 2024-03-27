@@ -123,6 +123,9 @@ class Account:
 
     def auction_market_id(self):
         return self._row["auction_market_id"]
+    
+    def can_partner_login(self):
+        return self._row["auction_market_id"]
 
     def partner_private_color_scheme_hex(self):
         return self._row["partner_private_color_scheme_hex"]

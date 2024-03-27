@@ -316,7 +316,8 @@ def serve_edit_selected_partner(partner_id):
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
             partner_pays_sales_groups=int(str_to_bool(request.form["partner_pays_sales_groups"])),
-            partner_subscription_credits=subscription_credits
+            partner_subscription_credits=subscription_credits,
+            partner_color=format_field(request.form["partner_color"])
         )
         return {"redirect": request.path}
 
@@ -1020,6 +1021,22 @@ def serve_blockchain_detailed_report(upload_date):
         "match_types_id_to_name": MATCH_TYPES_ID_TO_NAME,
         "sectors_id_to_name": SECTORS_ID_TO_NAME
     })
+
+
+@bp.route('/employee/seedstock-producers/manage', methods=["GET"])
+@crut.require_employee
+def serve_manage_seedstock_producer():
+    seedstock_producers = SeedstockProducers(g.db).get()
+    return employee_render("/employee/marketplace/manage-seedstock-producers.html", {
+        "seedstock_producers": seedstock_producers
+    })
+
+
+@bp.route('/employee/seedstock-producers/archive', methods=["POST"])
+@crut.require_employee
+def serve_archive_seedstock_producer_ads():
+    SeedstockProducers(g.db).update(id=request.json["seedstock_producer_id"], is_archived=1)
+    return Response(status=HTTP_NO_CONTENT)
 
 
 @bp.route('/employee/partners-sales-group-payments', methods=["GET"])
