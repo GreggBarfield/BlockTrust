@@ -149,6 +149,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <input type="color" id="partner_color" value="{{partner_row.partner_color if partner_row.partner_color else '#8b4513'}}">
+                                <label for="partner_color" class="ml-1">Color</label>
+                                <span class="focus-border"></span>
+                            </div>
+                        </div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Apply Changes</button>
                     <p class="mt-2 mb-0" id="edit_account_status_message" style="display:none;">Hang on, saving your
                         changes...</p>
@@ -160,8 +169,8 @@
     </div>
 </div>
 <script type="text/javascript">
-    let partner_state = '{{partner_row.state}}'
-    let partner_id = '{{partner_row.id}}'
+    let partner_state = '{{partner_row.state}}';
+    let partner_id = '{{partner_row.id}}';
 </script>
 <script type="module" src="/static/entry_points/employee/accounts/edit-selected-partner.mjs"></script>
 {% endblock employee_content %}

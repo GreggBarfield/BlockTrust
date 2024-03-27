@@ -15,7 +15,7 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description",
                 "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
-                "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups")
+                "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups", "partner_color")
 
 
 class AccountsException(Exception):
@@ -477,7 +477,7 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                       partner_subscription_credits=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
+                       partner_subscription_credits=NO_VALUE, partner_pays_sales_groups=NO_VALUE, partner_color=NO_VALUE):
         """
         Updates an account.
 
@@ -553,6 +553,9 @@ class Accounts:
         if partner_subscription_credits is not NO_VALUE:
             query_conditions.append(" partner_subscription_credits = %(partner_subscription_credits)s")
             query_values["partner_subscription_credits"] = partner_subscription_credits
+        if partner_color is not NO_VALUE:
+            query_conditions.append(" partner_color = %(partner_color)s")
+            query_values["partner_color"] = partner_color
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE id=%(id)s"
             query = base_query + combined_query_condition

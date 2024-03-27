@@ -316,7 +316,8 @@ def serve_edit_selected_partner(partner_id):
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
             partner_pays_sales_groups=int(str_to_bool(request.form["partner_pays_sales_groups"])),
-            partner_subscription_credits=subscription_credits
+            partner_subscription_credits=subscription_credits,
+            partner_color=format_field(request.form["partner_color"])
         )
         return {"redirect": request.path}
 

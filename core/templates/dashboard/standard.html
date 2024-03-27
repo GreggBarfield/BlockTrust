@@ -155,9 +155,9 @@
 <header class="b-header">
     <div class="b-header-bar">
         <a class="b-header-logo" href="/">
-        {% if dashboard_standard_account is not none and dashboard_standard_account.partner_private_logo() is not none %}
-            <img class="b-header-logo-desktop"src="{{dashboard_standard_account.partner_private_logo()}}"/>
-            <img class="b-header-logo-mobile" src="{{dashboard_standard_account.partner_private_logo()}}"/>
+        {% if dashboard_logo %}
+            <img class="b-header-logo-desktop"src="{{dashboard_logo}}"/>
+            <img class="b-header-logo-mobile" src="{{dashboard_logo}}"/>
         {% else %}
             <img class="b-header-logo-desktop" src="/static/images/logos/logo-color-light-eps-01.svg"/>
             <img class="b-header-logo-mobile" src="/static/images/logos/logo-color-dark-eps-01.svg"/>
@@ -175,7 +175,7 @@
         </span>
     </button>
     
-    <nav class="b-nav">
+    <nav class="b-nav" {{"style=background-color:" + dashboard_color if dashboard_color else ""}}>
         <span>Utility</span>
         <div class="b-nav-utility">
             <ul>

@@ -2647,9 +2647,14 @@ ADD COLUMN `partner_id` INT NULL DEFAULT NULL AFTER `account_id`,
 CHANGE COLUMN `amount` `amount` DECIMAL(8,2) NOT NULL ,
 CHANGE COLUMN `status` `status` INT NOT NULL ;
 
-/* Rohan Sureshkumar 03/19/23 */
+/* Rohan Sureshkumar 03/19/24 */
 ALTER TABLE `user_logins_by_employee` 
 ADD COLUMN `impersonated_by_user_id` INT NULL AFTER `employee_id`,
 CHANGE COLUMN `employee_id` `employee_id` INT NULL , RENAME TO  `impersonations` ;
 ALTER TABLE `users` 
 ADD COLUMN `impersonating_as_user_id` INT NULL DEFAULT NULL AFTER `last_logged_in_date`;
+
+/* Rohan Sureshkumar 03/27/24 */
+ALTER TABLE `accounts` 
+ADD COLUMN `partner_color` VARCHAR(30) NULL AFTER `partner_private_logo`,
+CHANGE COLUMN `partner_private_logo` `partner_private_logo` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_pays_sales_groups`;
