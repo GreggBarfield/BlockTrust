@@ -1,7 +1,4 @@
 import { Widget } from '../../../widget.mjs';
-import { FileUploader } from '../../../../files/file_uploader.mjs';
-import { generateUploadInput } from '../../../utilities/advertisement_utilities.mjs';
-import { saveAndUploadFile } from '../../../../files/files.mjs';
 import { AsyncForm } from '../../../../../global/async_form.mjs';
 
 export class PartnerCustomizationsWidget extends Widget {
