@@ -1023,6 +1023,22 @@ def serve_blockchain_detailed_report(upload_date):
     })
 
 
+@bp.route('/employee/seedstock-producers/manage', methods=["GET"])
+@crut.require_employee
+def serve_manage_seedstock_producer():
+    seedstock_producers = SeedstockProducers(g.db).get()
+    return employee_render("/employee/marketplace/manage-seedstock-producers.html", {
+        "seedstock_producers": seedstock_producers
+    })
+
+
+@bp.route('/employee/seedstock-producers/archive', methods=["POST"])
+@crut.require_employee
+def serve_archive_seedstock_producer_ads():
+    SeedstockProducers(g.db).update(id=request.json["seedstock_producer_id"], is_archived=1)
+    return Response(status=HTTP_NO_CONTENT)
+
+
 @bp.route('/employee/partners-sales-group-payments', methods=["GET"])
 @crut.require_employee
 def serve_partners_sales_group_payments():
