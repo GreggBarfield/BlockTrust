@@ -41,6 +41,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsMusclingValue = this.data.reported.muscling;
             this.characteristicsHornsValue = this.data.reported.horns;
             this.characteristicsPregnancyStatusValue = this.data.reported.pregnancy_status;
+            this.characteristicsFirstBirthDateValue = this.data.reported.first_birth_date;
             this.characteristicsCommentsValue = this.data.reported.characteristics_comments;
             this.geneticsGenomicTestingValue = this.data.reported.genomic_testing;
             this.geneticsEPDValue = this.data.reported.epd;
@@ -53,6 +54,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceComingledStatusValue = this.data.reported.comingled_status;
             this.maintenanceCreepFeedValue = this.data.reported.creep_feed;
             this.maintenanceWeanedValue = this.data.reported.weaned;
+            this.maintenanceWeanedDateValue = this.data.reported.weaned_date;
             this.maintenanceCommentsValue = this.data.reported.maintenance_comments;
             this.valueAddProgramsProgramValue = this.data.reported.program;
             this.valueAddProgramsPreconditioningProgramsValue = this.data.reported.preconditioning_program;
@@ -94,6 +96,7 @@ export class SalesGroupsCommonForm{
             this.characteristicsMusclingValue = [];
             this.characteristicsHornsValue = [];
             this.characteristicsPregnancyStatusValue = [];
+            this.characteristicsFirstBirthDateValue = null;
             this.characteristicsCommentsValue = "";
             this.geneticsGenomicTestingValue = [];
             this.geneticsEPDValue = [];
@@ -109,6 +112,7 @@ export class SalesGroupsCommonForm{
             this.maintenanceCreepFeedValue = [];
             this.maintenanceWeanedValue = [];
             this.maintenanceCommentsValue = "";
+            this.maintenanceWeanedDateValue = null;
             this.valueAddProgramsProgramValue = [];
             this.valueAddProgramsPreconditioningProgramsValue = [];
             this.valueAddedProgramsFeedingProgramsValue = [];
@@ -487,6 +491,7 @@ export class SalesGroupsCommonForm{
             tags: true,
             placeholder: "Please Select"
         }, false, "" , "", 4);
+        let characteristicFirstBirthDate = createDate(characteristicsRow, "1st Birth Date", salesGroupFormInputIds.characteristicsFirstBirthDate, this.characteristicsFirstBirthDateValue, true, "characteristicFirstBirthDate","");
         let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12, 150);
 
         // Maintenance
@@ -543,6 +548,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let mantainanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
         // Genetics
@@ -780,7 +786,9 @@ export class SalesGroupsCommonForm{
                         maintenance_comments: maintenanceComments.value,
                         breed_program_certification_co: valueAddProgramsBreedProgramCertificationCo.value,
                         certified_through: valueAddProgramsCertifiedThrough.value,
-                        expected_ship_date: marketingExpectedShipDate.getTime()
+                        expected_ship_date: marketingExpectedShipDate.getTime(),
+                        first_birth_date: characteristicFirstBirthDate.getTime(),
+                        weaned_date: maintenanceWeanedDate.getTime()
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,
