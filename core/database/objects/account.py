@@ -147,3 +147,4 @@ class Account:
         if not allow_cache or not self._account_links:
             self._account_links = self._db.account_links.get_by_account_id(self.id())
         return self._account_links
+

@@ -10,7 +10,7 @@ from ..common_exceptions import ExportException
 
 from ..database.combinations import convert_auction_market_to_account, send_connection_request_email_to_admin_users
 from ..database.tables.account_links import AccountLinks
-from ..database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
+from ..database.tables.accounts import HEALTH_TRACK_PARTNER_COMPANY
 from ..database.tables.advertisement_companies import AdvertisementCompanies
 from ..database.tables.advertisements import ADVERTISEMENT_CATEGORY_IDS_TO_NAMES, Advertisements
 from ..database.tables.auction_markets import AuctionMarkets
