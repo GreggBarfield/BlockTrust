@@ -1003,10 +1003,3 @@ def serve_remove_sales_group_field_values():
     for sales_group_field_value_id in request.json["sales_group_field_value_ids"]:
         SalesGroupFieldsValues(g.db).update(id=sales_group_field_value_id, is_archived=1)
     return Response(status=HTTP_NO_CONTENT)
-
-
-@bp.route('/widgets/data/save_partner_customizations', methods=["POST"])
-@crut.require_employee
-def serve_save_partner_customizations():
-    Accounts(g.db).update_partner(id=request.json["partner_id"], partner_color=request.json["color_hex"])
-    return {"redirect": "/employee/dashboard/view-partners"}
