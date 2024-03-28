@@ -75,8 +75,8 @@ class SalesGroupAnimals:
                 """,
                 {
                     "sales_group_id": sales_group_id,
-                    "eid": eid_and_visual_id["eid"],
-                    "visual_id": eid_and_visual_id["visual_id"]
+                    "eid": eid_and_visual_id["eid"] if "eid" in eid_and_visual_id else None,
+                    "visual_id": eid_and_visual_id["visual_id"] if "visual_id" in eid_and_visual_id else None
                 }
             )
 
@@ -96,3 +96,18 @@ class SalesGroupAnimals:
                 "sales_group_id": sales_group_id
             }
         )
+
+
+    def check_if_eids_are_present(self, eids):
+        """
+        Checks for the presence of EIDs in sales_groups_animals table
+
+        Params:
+            eids: List of eids
+        
+        Returns:
+            A list of sales group animal rows if EID is presnt or an empty list
+        """
+        query = "SELECT * FROM sales_group_animals where eid in (" + ", ".join(eids) + ")"
+        sales_group_animals_rows = self._db.execute_d(query, {})
+        return sales_group_animals_rows
