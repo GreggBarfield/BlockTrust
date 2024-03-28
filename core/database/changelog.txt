@@ -2656,7 +2656,7 @@ ADD COLUMN `impersonating_as_user_id` INT NULL DEFAULT NULL AFTER `last_logged_i
 
 /* Rohan Sureshkumar 03/27/24 */
 ALTER TABLE `accounts` 
-ADD COLUMN `partner_color` VARCHAR(30) NULL AFTER `partner_private_logo`,
-CHANGE COLUMN `partner_private_logo` `partner_private_logo` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_pays_sales_groups`;
+CHANGE COLUMN `partner_private_logo` `partner_private_logo` VARCHAR(256) NULL DEFAULT NULL AFTER `partner_pays_sales_groups`,
+ADD COLUMN `partner_color` VARCHAR(30) NULL AFTER `partner_private_logo`;
 SELECT id FROM accounts WHERE company = 'Health Track' AND is_partner=1 INTO @partner_id;
 UPDATE accounts SET partner_private_logo = '/static/images/partners/health_track_new_logo.png' WHERE id = @partner_id;
