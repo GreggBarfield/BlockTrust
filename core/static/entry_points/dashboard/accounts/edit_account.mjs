@@ -12,6 +12,7 @@ let state = editaccountForm.find("#edit_account_state");
 let zip = editaccountForm.find("#edit_account_zip");
 let phone = editaccountForm.find("#edit_account_phone");
 let showRealName = editaccountForm.find("#edit_account_show_real_name");
+let canPartnerLogin = editaccountForm.find("#edit_account_can_partner_login");
 
 let form = new AsyncForm({
     action: "/dashboard/edit/edit-account",
@@ -28,7 +29,8 @@ let form = new AsyncForm({
             state: state.val(),
             zip: zip.val(),
             phone: phone.val(),
-            show_real_name: showRealName.is(":checked")? 1:0
+            show_real_name: showRealName.is(":checked"),
+            can_partner_login: canPartnerLogin.is(":checked")
         }
     }
 });

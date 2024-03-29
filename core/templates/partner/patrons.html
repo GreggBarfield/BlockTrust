@@ -32,11 +32,12 @@ Patrons
                             <td>{{patron.affiliate_id}}</td>
                             <td>{{patron.city}}, {{patron.state}}</td>
                             <td>
-                                <button class="btn btn-sm btn-primary text-decoration-none" 
+                                <button class="{{'btn btn-sm btn-primary' if patron.can_partner_login else 'btn btn-sm btn-danger'}}" 
                                     login-link= "/partner/patrons/{{patron.id}}/{{patron.user_id}}" 
-                                    title="{{('Login to ' + patron.company) if patron.user_id else 'No users available to login'}}" {{"disabled" if not patron.user_id else ""}}
+                                    title="{{('Login to ' + patron.company) if patron.can_partner_login else 'Login disabled by ' + patron.company}}"
+                                    {{"disabled" if (not patron.user_id or not patron.can_partner_login) else ""}}
                                 >
-                                    <i class="feather icon-log-in"></i>
+                                    <i class="{{'feather icon-log-in' if patron.can_partner_login else 'feather icon-lock'}}"></i>
                                 </button>
                             </td>
                         </tr>
