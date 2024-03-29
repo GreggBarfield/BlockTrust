@@ -316,7 +316,7 @@ def serve_patron(patron_id, user_id):
         Impersonations(g.db).insert(user_id=user[0]["id"], impersonated_by_user_id=g.impersonated_by_user_id)
         return redirect(url_for("dashboard_bp.serve_dashboard"))
     else:
-        raise ExportException("Login not available")
+        raise ExportException("Login not allowed or not available")
 
 
 @bp.route('/log-back-in', methods=["GET"])
