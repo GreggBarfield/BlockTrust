@@ -583,13 +583,13 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
 
         existing_row = self.get_accounts(id=account_id)[0]
-        name=NO_VALUE
+        name = NO_VALUE
         if company is not NO_VALUE:
             # name needs to be updated if show_real_name is true
             if company != existing_row["company"]:
@@ -601,15 +601,16 @@ class Accounts:
             else:
                 name = self.mask_company_name(account_id, existing_row["sector"])
         if phone is not NO_VALUE:
-            phone=self.process_phone(phone)
-    
+            phone = self.process_phone(phone)
+
         self.update_account(
             account_id, company=company, name=name, address=address, city=city, state=state,
-            zip=zip, phone=phone, token=token, stripe_paid=stripe_paid, 
-            manual_paid=manual_paid, stripe_customer_id=stripe_customer_id, 
+            zip=zip, phone=phone, token=token, stripe_paid=stripe_paid,
+            manual_paid=manual_paid, stripe_customer_id=stripe_customer_id,
             stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
-            retail_name=retail_name, retail_description=retail_description, subscription_start_date=subscription_start_date,
-            subscription_end_date=subscription_end_date, show_real_name=show_real_name
+            retail_name=retail_name, retail_description=retail_description,
+            subscription_start_date=subscription_start_date, subscription_end_date=subscription_end_date,
+            show_real_name=show_real_name, can_partner_login=can_partner_login
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -617,7 +618,7 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
         """
         Updates an account.
 
@@ -704,6 +705,9 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
+        if can_partner_login is not NO_VALUE:
+            query_conditions.append("can_partner_login = %(can_partner_login)s")
+            query_values["can_partner_login"] = can_partner_login
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"

@@ -293,7 +293,9 @@ def serve_patrons():
     for patron in patrons:
         if len(user := g.db.users.get_users(is_system_generated=int(True), account_users__account=patron["id"])) > 0:
             patron["user_id"] = user[0]["id"]
-        elif len(user := g.db.users.get_users(account_users__is_admin=int(True), account_users__account=patron["id"])) > 0:
+        elif len(
+            user := g.db.users.get_users(account_users__is_admin=int(True), account_users__account=patron["id"])
+        ) > 0:
             patron["user_id"] = user[0]["id"]
     return partner_render("patrons.html", {
         "patrons": patrons
@@ -304,7 +306,7 @@ def serve_patrons():
 @crut.require_partner
 def serve_patron(patron_id, user_id):
     patron = g.db.accounts.get_accounts(id=patron_id)[0]
-    if len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
+    if patron["can_partner_login"] and len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
         auth.login_as_user(
             account_id=patron["id"], user_id=user[0]["id"], is_admin=True, impersonated_by_user_id=g.user.id()
         )
@@ -314,7 +316,7 @@ def serve_patron(patron_id, user_id):
         Impersonations(g.db).insert(user_id=user[0]["id"], impersonated_by_user_id=g.impersonated_by_user_id)
         return redirect(url_for("dashboard_bp.serve_dashboard"))
     else:
-        raise ExportException("No user found")
+        raise ExportException("Login not available")
 
 
 @bp.route('/log-back-in', methods=["GET"])

@@ -45,6 +45,7 @@ from ..utilities import token
 from ..utilities.constants import DEFAULT_PASSWORD, HTTP_BAD_REQUEST, HTTP_NO_CONTENT, HTTP_NOT_FOUND, HTTP_OK
 from ..utilities.email import send_email, send_tag_store_email, send_multiple_tag_store_email
 from ..utilities.shop.herdwhistle_api import HerdWhistleAPI
+from ..utilities.general_utilities import str_to_bool
 
 from core.config import SUPPORT_GENERAL_EMAIL, ROOT as WEBSITE_ROOT
 import json
@@ -400,7 +401,8 @@ def serve_edit_account():
                 state=request.form["state"],
                 zip=request.form["zip"],
                 phone=request.form["phone"],
-                show_real_name=int(request.form["show_real_name"])
+                show_real_name=int(str_to_bool(request.form["show_real_name"])),
+                can_partner_login=int(str_to_bool(request.form["can_partner_login"]))
             )
             EventLogs(g.db).insert(account_id=g.account.id(), user_id=g.user.id(), event_type_id=EVENT_TYPE_NAMES_TO_IDS["Account Info Edit"])
             return {"redirect": "/dashboard/edit/edit-account"}

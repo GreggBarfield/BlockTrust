@@ -23,13 +23,14 @@ def dashboard_render(file, args={}):
     """
     if g.user is None:
         raise ValueError("user is not logged in")
+    dashboard_standard_account = g.account if "account" in g else None
     partner_account = (g.db.accounts.get_accounts(id=g.account.partner_account_id())[0]
-                       if g.account.partner_account_id() else None)
+                       if g.account.partner_account_id() else None) if dashboard_standard_account else None
     dashboard_standard_args = {
         "dashboard_standard_user_first": g.user.first_name(),
         "dashboard_standard_user_last": g.user.last_name(),
         "dashboard_standard_user_username": g.user.username(),
-        "dashboard_standard_account": g.account if "account" in g else None,
+        "dashboard_standard_account": dashboard_standard_account,
         "dashboard_standard_is_admin": g.is_admin if "is_admin" in g else None,
         "dashboard_is_employee": "employee_id" in g,
         "dashboard_is_partner": "impersonated_by_user_id" in g,

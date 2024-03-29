@@ -32,7 +32,6 @@ Edit Account
                         </div>
                     </div>
                     <div class="col-lg-4"> 
-                        <!-- Empty for checkbox -->
                     </div>
                     <div class="col-lg-6">               
                         <div class="form-check">
@@ -123,6 +122,15 @@ Edit Account
                             <input type="text" class="form-control" id="edit_account_phone"  value="{{dashboard_standard_account.phone() if dashboard_standard_account.phone() is not none}}" name="phone">                        
                             <span class="focus-border"></span>
                         </div>
+                    </div>
+                    <div class="col-lg-12 mt-2 mb-3">               
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="edit_account_can_partner_login" 
+                                {{"checked" if dashboard_standard_account.can_partner_login() else ""}}
+                                {{"disabled" if dashboard_is_partner else ""}}
+                            > 
+                            <label class="form-check-label" for="edit_account_can_partner_login">Let partner login and make changes</label>
+                        </div>    
                     </div>
                 </div>
                 <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token() }}"></input> 
