@@ -10,6 +10,7 @@ import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mj
 import { InfoModal } from "../../../core/info_modal.mjs";
 import { spinner } from '../../../ui/spinner.mjs';
 import { UploadEIDsForSalesGroupWidget } from './upload_eids_for_sales_group_widget.mjs';
+import { UploadVaccinationDatesWidget } from './upload_vaccination_dates_widget.mjs';
 
 export class SalesGroupsCommonForm{
     constructor(data, auctionMarketsData, postRoute, salesGroupFieldsValues, preSelectAuctionMarket="false", preSelectedAuctionMarketId=null, carcassDataAvailable=false, viewSalesGroupURL=null, paymentURL=null) {
@@ -551,6 +552,11 @@ export class SalesGroupsCommonForm{
         let mantainanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
+
+        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget();
+        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
+        widgetContainer1.append(uploadVaccinationsDateWidget.createModalLink());
+
         // Genetics
 
         let geneticsRow = createSection(form, "Genetics");
@@ -640,6 +646,7 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
+        let valueAddProgramsNutritionType = createText(valueAddProgramsRow,"Nutrition Type", salesGroupFormInputIds.valueAddProgramNutritionType,this.valueAddProgramNutritionTypeValue || "",false,"valueAddProgramNutritionType","", 4, 150);
         let valueAddProgramsComments = createText(valueAddProgramsRow,"Program Comments", salesGroupFormInputIds.valueAddProgramProgramComments,this.valueAddedProgramsCommentsValue || "",false,"geneticsComments","", 12, 150);
 
         // Media
@@ -788,7 +795,8 @@ export class SalesGroupsCommonForm{
                         certified_through: valueAddProgramsCertifiedThrough.value,
                         expected_ship_date: marketingExpectedShipDate.getTime(),
                         first_birth_date: characteristicFirstBirthDate.getTime(),
-                        weaned_date: maintenanceWeanedDate.getTime()
+                        weaned_date: maintenanceWeanedDate.getTime(),
+                        nutrition_type: valueAddProgramsNutritionType.value
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,

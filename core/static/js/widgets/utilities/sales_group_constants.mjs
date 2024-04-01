@@ -43,6 +43,7 @@ let salesGroupFormInputIds = {
     valueAddProgramFeedingProgram: "value-add-program-feeding-program",
     valueAddProgramBreedProgramCertificationCo: "value-add-program-breed-program-certification-co",
     valueAddProgramCertifiedThrough: "value-add-program-certified-through",
+    valueAddProgramNutritionType: "value-add-program-nutrition-type",
     valueAddProgramProgramComments: "value-add-program-program-comments"
 }
 
