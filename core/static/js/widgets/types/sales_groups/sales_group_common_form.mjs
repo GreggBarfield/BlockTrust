@@ -553,7 +553,7 @@ export class SalesGroupsCommonForm{
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
 
-        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget();
+        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
         let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
         widgetContainer1.append(uploadVaccinationsDateWidget.createModalLink());
 
