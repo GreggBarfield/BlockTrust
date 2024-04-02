@@ -164,6 +164,8 @@ Create New Patron
         </div>
     </div>
 </div>
+{% endblock partner_content %}
+{% block partner_scripts %}
 <script type="module">
     import {AsyncForm} from '/static/global/async_form.mjs';
     let patronForm = $("#create_patron_form");
@@ -187,4 +189,4 @@ Create New Patron
         }
     });
 </script>
-{% endblock partner_content %}
+{% endblock partner_scripts %}

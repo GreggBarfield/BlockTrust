@@ -135,8 +135,11 @@ class Accounts:
             if affiliate_id is None:
                 raise AccountsException("You have not entered a partner id for the selected partner")
             accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0 and int(affiliate_id) != 9999:
-                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+            if len(accounts) > 0 and not (affiliate_id.isdigit() and int(affiliate_id) == 9999):
+                raise AccountsException(f"""
+                    This affiliate id: {affiliate_id} for the selected partner has already been taken
+                    by another account.
+                """)
             if affiliate_id and affiliate_id.isdigit():
                 affiliate_id = int(affiliate_id)
 
