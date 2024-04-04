@@ -194,9 +194,15 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createEmptyRowElement(row, groupColumnSize=4){
+        function createEmptyRowElement(row, groupColumnSize=4, attachWidget=false, attachedWidget=null, widgetLinkText=""){
             let group = document.createElement("div");
             group.className = `col-md-${groupColumnSize} d-flex justify-content-center align-items-center`;
+            row.append(group);
+            return group;
+        }
+
+        function createEmptyRowElementWithWidget(row, name, id, groupColumnSize=4, hasTooltip=false, dataToggle="", tooltipText="", attachWidget=false, attachedWidget=null, widgetLinkText=""){
+            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget, widgetLinkText);
             row.append(group);
             return group;
         }
@@ -499,16 +505,20 @@ export class SalesGroupsCommonForm{
 
         let maintenanceRow = createSection(form, "Management");
 
-        let maintenanceVaccinations = createSelect({
-            row: maintenanceRow,
-            name: "Vaccinations",
-            id: salesGroupFormInputIds.maintenanceVaccinations,
-            options: this.salesGroupFieldsValues.vaccination,
-            values: this.maintenanceVaccinationsValue,
-            multiple: true,
-            tags: true,
-            placeholder: "Please Select"
-        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
+//        let maintenanceVaccinations = createSelect({
+//            row: maintenanceRow,
+//            name: "Vaccinations",
+//            id: salesGroupFormInputIds.maintenanceVaccinations,
+//            options: this.salesGroupFieldsValues.vaccination,
+//            values: this.maintenanceVaccinationsValue,
+//            multiple: true,
+//            tags: true,
+//            placeholder: "Please Select"
+//        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
+        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
+//        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
+        let uploadVaccinationsDateWidgetContainer = createEmptyRowElementWithWidget(maintenanceRow, "Vaccinations", "test1", 4, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", true, CreateVaccinationWidget, "Add New")
+        uploadVaccinationsDateWidgetContainer.append(uploadVaccinationsDateWidget.createModalLink());
         let maintenanceComingledStatus = createSelect({
             row: maintenanceRow,
             name: "Comingled Status",
@@ -549,13 +559,13 @@ export class SalesGroupsCommonForm{
             tags: false,
             placeholder: "Please Select"
         }, false, "", "", 4);
-        let mantainanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
+        let maintenanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
 
-        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
-        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
-        widgetContainer1.append(uploadVaccinationsDateWidget.createModalLink());
+//        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
+//        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
+//        widgetContainer1.append(uploadVaccinationsDateWidget.createModalLink());
 
         // Genetics
 

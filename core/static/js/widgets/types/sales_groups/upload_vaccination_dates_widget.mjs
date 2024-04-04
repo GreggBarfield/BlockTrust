@@ -1,4 +1,5 @@
 import { InfoModal } from "../../../core/info_modal.mjs";
+import { CreateVaccinationWidget } from "./create_vaccination_widget.mjs";
 
 export class UploadVaccinationDatesWidget{
     constructor(vaccinations) {
@@ -17,7 +18,7 @@ export class UploadVaccinationDatesWidget{
         this.link = document.createElement("a");
         this.link.className = "h6";
         this.link.href="#";
-        this.link.textContent = "Add Vaccination Dates";
+        this.link.textContent = "Add Vaccination Details";
         this.link.onclick = () =>{
             this.displayModal();
         }
@@ -40,6 +41,13 @@ export class UploadVaccinationDatesWidget{
 
     generateVaccinationDatesUploadContainer = () =>{
         let modalBodyContainer = document.createElement("div");
+
+        let addNewVaccineLink = this.createAddNewVaccineLink();
+        modalBodyContainer.append(addNewVaccineLink);
+
+        let headerContainer = this.createHeaderContainer();
+        modalBodyContainer.append(headerContainer);
+
         let uploadContainer = document.createElement("div");
         modalBodyContainer.append(uploadContainer);
 
@@ -68,11 +76,45 @@ export class UploadVaccinationDatesWidget{
         return modalBodyContainer;
     }
 
+    createHeaderContainer = () =>{
+        let headerContainer = document.createElement("div");
+        headerContainer.className = "row m-1 p-1";
+
+        let vaccinationHeader = document.createElement("div");
+        vaccinationHeader.className = "col-md-4 h5 text-primary";
+        vaccinationHeader.textContent = "Vaccination"
+        headerContainer.append(vaccinationHeader);
+
+        let dateHeader = document.createElement("div");
+        dateHeader.className = "col-md-4 h5 text-primary";
+        dateHeader.textContent = "Date";
+        headerContainer.append(dateHeader);
+        return headerContainer;
+    }
+
+    createAddNewVaccineLink = () =>{
+        let newVaccineContainer = document.createElement("div");
+        newVaccineContainer.className = "row m-1 p-1";
+
+        let widgetLink = document.createElement("a");
+        widgetLink.className = "form-label text-primary";
+        widgetLink.textContent = "Don't see yours?";
+        widgetLink.onclick = () => {
+            let widget = new CreateVaccinationWidget();
+            widget.init();
+        }
+        newVaccineContainer.append(widgetLink);
+        return newVaccineContainer;
+    }
+
     updateFooter = () =>{
         let modalFooter = this.infoModal.getFooter();
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
         submitButton.textContent = "Save";
+        submitButton.onclick = () =>{
+            this.closeUploadModal();
+        }
         modalFooter.prepend(submitButton);
     }
 
@@ -125,7 +167,6 @@ export class UploadVaccinationDatesWidget{
         return container;
     }
 
-
     removeVaccinationAndDateRow = (containerId) =>{
         let rowElement = document.getElementById(containerId);
         if(rowElement){
@@ -136,7 +177,7 @@ export class UploadVaccinationDatesWidget{
 
     getVaccinationAndDateValues = () =>{
         let vaccinationAndDateValues = [];
-        for(let vaccinationAndDateElement in Object.values(this.vaccinationAndDateELements)){
+        for(let vaccinationAndDateElement of Object.values(this.vaccinationAndDateELements)){
             vaccinationAndDateValues.push({
                 "vacccination": vaccinationAndDateElement.vaccinationInput,
                 "date": vaccinationAndDateElement.dateInput
@@ -147,5 +188,9 @@ export class UploadVaccinationDatesWidget{
     updateErrorMessage = (errorMessageText, errorMessageClass) =>{
         this.errorMessage.textContent = errorMessageText;
         this.errorMessage.className = errorMessageClass;
+    }
+
+    closeUploadModal = () =>{
+        this.infoModal.close();
     }
 }
