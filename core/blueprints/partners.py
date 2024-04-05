@@ -3,8 +3,9 @@ from flask import (
 )
 from core.common_exceptions import ExportException
 from core.config import FLATFILE_LICENSE
+from core.database.combinations import perform_new_account_actions
 from core.database.tables.account_links import AccountLinks
-from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY
+from core.database.tables.accounts import Accounts, HEALTH_TRACK_PARTNER_COMPANY, AccountsException
 from core.database.tables.api_inserts import ApiInserts
 from core.database.tables.connections import CONNECTION_STATUS_NAME_TO_ID, CONNECTION_TYPE_ID_TO_NAME, CONNECTION_TYPE_NAME_TO_ID, Connections
 from core.database.tables.event_logs import EventLogs, EVENT_TYPE_NAMES_TO_IDS
@@ -12,7 +13,7 @@ from core.database.tables.impersonations import Impersonations
 from core.database.tables.matches import Matches
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
-from core.match_types import MATCH_TYPES_NAME_TO_ID
+from core.database.tables.users import UsersException
 from core.reports.query_types import count_distribution
 from core.sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from core.utilities import auth
@@ -286,14 +287,53 @@ def serve_add_connection():
         return Response(status=HTTP_OK)
 
 
-@bp.route('/patrons', methods=["GET"])
+@bp.route('/create-patron', methods=["GET"])
+@crut.require_partner
+def serve_create_patron():
+    return partner_render("create-patron.html")
+
+
+@bp.route('/patrons', methods=["GET", "POST"])
 @crut.require_partner
 def serve_patrons():
+    if request.method == "POST":
+        try:
+            fields = {key: value for key, value in request.form.items()}
+            sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
+                g.account.sector_id(), g.account.id(), fields["affiliate_id"], fields["phone"]
+            )
+            account_obj = Accounts(g.db).create_account(
+                    phone=phone,
+                    company=fields['company'],
+                    partner=g.account.id(),
+                    affiliate_id=affiliate_id,
+                    sector=sector,
+                    address=fields['address'],
+                    city=fields['city'],
+                    state=fields['state'],
+                    zip=fields['zip'],
+                    created_by_user_id=g.user.id()
+            )
+
+            user_id = g.db.users.create_pseudo_user(account_obj.id(), False)
+            g.db.account_users.insert_account_user(user_id, account_obj.id(), int(True))
+
+            perform_new_account_actions(
+                db=g.db, account_id=account_obj.id(), user_id=user_id,
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Account Created By Partner"],
+                sector_id=account_obj.sector_id()
+            )
+
+            return {"redirect": url_for("partner_bp.serve_patrons")}
+        except (ExportException, AccountsException, UsersException, ValueError) as e:
+            raise ExportException(str(e))
     patrons = g.db.accounts.get_accounts(partner_account=g.account.id())
     for patron in patrons:
         if len(user := g.db.users.get_users(is_system_generated=int(True), account_users__account=patron["id"])) > 0:
             patron["user_id"] = user[0]["id"]
-        elif len(user := g.db.users.get_users(account_users__is_admin=int(True), account_users__account=patron["id"])) > 0:
+        elif len(
+            user := g.db.users.get_users(account_users__is_admin=int(True), account_users__account=patron["id"])
+        ) > 0:
             patron["user_id"] = user[0]["id"]
     return partner_render("patrons.html", {
         "patrons": patrons
@@ -304,7 +344,7 @@ def serve_patrons():
 @crut.require_partner
 def serve_patron(patron_id, user_id):
     patron = g.db.accounts.get_accounts(id=patron_id)[0]
-    if len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
+    if patron["can_partner_login"] and len(user := g.db.users.get_users(id=user_id, account_users__account=patron_id)) > 0:
         auth.login_as_user(
             account_id=patron["id"], user_id=user[0]["id"], is_admin=True, impersonated_by_user_id=g.user.id()
         )
@@ -314,7 +354,7 @@ def serve_patron(patron_id, user_id):
         Impersonations(g.db).insert(user_id=user[0]["id"], impersonated_by_user_id=g.impersonated_by_user_id)
         return redirect(url_for("dashboard_bp.serve_dashboard"))
     else:
-        raise ExportException("No user found")
+        raise ExportException("Login not allowed or not available")
 
 
 @bp.route('/log-back-in', methods=["GET"])

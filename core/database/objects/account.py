@@ -120,9 +120,9 @@ class Account:
 
     def auction_market_id(self):
         return self._row["auction_market_id"]
-    
+
     def can_partner_login(self):
-        return self._row["auction_market_id"]
+        return self._row["can_partner_login"]
 
     def add_user(self, user, is_admin=0):
         """Add a user to this account.

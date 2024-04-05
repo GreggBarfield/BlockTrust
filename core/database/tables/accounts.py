@@ -135,8 +135,11 @@ class Accounts:
             if affiliate_id is None:
                 raise AccountsException("You have not entered a partner id for the selected partner")
             accounts = self.get_accounts(affiliate_id=affiliate_id, partner_account=partner)
-            if len(accounts) > 0 and int(affiliate_id) != 9999:
-                raise AccountsException(f"This partner id: {affiliate_id} for the selected partner has already been taken by another account.")
+            if len(accounts) > 0 and not (affiliate_id.isdigit() and int(affiliate_id) == 9999):
+                raise AccountsException(f"""
+                    This affiliate id: {affiliate_id} for the selected partner has already been taken
+                    by another account.
+                """)
             if affiliate_id and affiliate_id.isdigit():
                 affiliate_id = int(affiliate_id)
 
@@ -164,7 +167,8 @@ class Accounts:
         return sector, phone, affiliate_id
 
     def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                       auction_market_id=None, optional_fields=None):
+                       auction_market_id=None, optional_fields=None, created_by_employee_id=None,
+                       created_by_user_id=None):
         """Creates a new account without a user.
 
         Params:
@@ -188,10 +192,11 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
-                auction_market_id, optional_fields)
+                 auction_market_id, optional_fields, created_by_employee_id, created_by_user_id)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
-                    %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s,
+                     %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s,
+                     %(created_by_employee_id)s, %(created_by_user_id)s)
             """,
             {
                 "company": company,
@@ -205,7 +210,9 @@ class Accounts:
                 "phone": phone,
                 "show_real_name": int(False),
                 "auction_market_id": auction_market_id,
-                "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None
+                "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None,
+                "created_by_employee_id": created_by_employee_id,
+                "created_by_user_id": created_by_user_id
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -251,7 +258,8 @@ class Accounts:
 
         return account
 
-    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup):
+    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip,
+                       phone, is_partner_used_for_signup, created_by_employee_id=None):
         """Creates a new partner without a user.
 
         Params:
@@ -287,9 +295,11 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
+                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, 
+                 address, city, state, zip, phone, is_partner_used_for_signup, created_by_employee_id)
                 VALUES
-                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
+                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, 
+                     %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s, %(created_by_employee_id)s)
             """,
             {
                 "company": company,
@@ -303,7 +313,8 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "is_partner_used_for_signup": is_partner_used_for_signup
+                "is_partner_used_for_signup": is_partner_used_for_signup,
+                "created_by_employee_id": created_by_employee_id
             }
         )
         return self._db.last_row_id()
@@ -583,13 +594,13 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
 
         existing_row = self.get_accounts(id=account_id)[0]
-        name=NO_VALUE
+        name = NO_VALUE
         if company is not NO_VALUE:
             # name needs to be updated if show_real_name is true
             if company != existing_row["company"]:
@@ -601,15 +612,16 @@ class Accounts:
             else:
                 name = self.mask_company_name(account_id, existing_row["sector"])
         if phone is not NO_VALUE:
-            phone=self.process_phone(phone)
-    
+            phone = self.process_phone(phone)
+
         self.update_account(
             account_id, company=company, name=name, address=address, city=city, state=state,
-            zip=zip, phone=phone, token=token, stripe_paid=stripe_paid, 
-            manual_paid=manual_paid, stripe_customer_id=stripe_customer_id, 
+            zip=zip, phone=phone, token=token, stripe_paid=stripe_paid,
+            manual_paid=manual_paid, stripe_customer_id=stripe_customer_id,
             stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
-            retail_name=retail_name, retail_description=retail_description, subscription_start_date=subscription_start_date,
-            subscription_end_date=subscription_end_date, show_real_name=show_real_name
+            retail_name=retail_name, retail_description=retail_description,
+            subscription_start_date=subscription_start_date, subscription_end_date=subscription_end_date,
+            show_real_name=show_real_name, can_partner_login=can_partner_login
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -617,7 +629,7 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
         """
         Updates an account.
 
@@ -704,6 +716,9 @@ class Accounts:
         if show_real_name is not NO_VALUE:
             query_conditions.append("show_real_name = %(show_real_name)s")
             query_values["show_real_name"] = show_real_name
+        if can_partner_login is not NO_VALUE:
+            query_conditions.append("can_partner_login = %(can_partner_login)s")
+            query_values["can_partner_login"] = can_partner_login
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"
