@@ -1,5 +1,5 @@
 import { InfoModal } from "../../../core/info_modal.mjs";
-import { CreateVaccinationWidget } from "./create_vaccination_widget.mjs";
+import { AsyncForm } from "../../../../global/async_form.mjs";
 
 export class UploadVaccinationDatesWidget{
     constructor(vaccinations, vaccinationsAndDatesValues) {
@@ -107,8 +107,7 @@ export class UploadVaccinationDatesWidget{
         widgetLink.className = "form-label text-primary";
         widgetLink.textContent = "Don't see yours?";
         widgetLink.onclick = () => {
-            let widget = new CreateVaccinationWidget();
-            widget.init();
+            this.createNewVaccinationModal();
         }
         newVaccineContainer.append(widgetLink);
         return newVaccineContainer; 
@@ -208,5 +207,149 @@ export class UploadVaccinationDatesWidget{
 
     closeUploadModal = () =>{
         this.infoModal.close();
+    }
+
+    createNewVaccinationForm = () =>{
+        let form = document.createElement("form");
+
+        let firstFormRow = document.createElement("div");
+        firstFormRow.className = "form-row";
+        form.append(firstFormRow);
+
+        let required = document.createElement("span");
+        required.textContent = "*Required"
+        required.style = "color: red;";
+        firstFormRow.append(required);
+
+        let vaccinationFormGroup = document.createElement("div");
+        vaccinationFormGroup.className = "form-group col-md-12";
+        
+        let requiredIconName = document.createElement("span");
+        requiredIconName.textContent = "*"
+        requiredIconName.style = "color:red";
+        let vaccinationName = document.createElement("label");
+        vaccinationName.textContent = "Vaccination Name";
+        vaccinationFormGroup.append(vaccinationName);
+        vaccinationFormGroup.append(requiredIconName);
+        let vaccinationNameInput = document.createElement("input");
+        vaccinationNameInput.className = "form-control";
+        vaccinationNameInput.type = "text";
+        vaccinationFormGroup.append(vaccinationNameInput);
+        form.append(vaccinationFormGroup);
+
+        let statusMessage = document.createElement("p");
+        statusMessage.style.display = "none";
+        statusMessage.className = "mt-2 mb-0";
+        form.append(statusMessage);
+        let errorMessage = document.createElement("p");
+        errorMessage.style.display = "none";
+        errorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(errorMessage);
+
+        let submitButton = document.createElement("button");
+        submitButton.className = "btn btn-primary";
+        submitButton.textContent = "Save";
+        submitButton.addEventListener("click", (e)=>{
+            this.asyncForm.submit();
+        });
+        this.addVaccinationModalFooter.prepend(submitButton);
+
+        this.asyncForm = new AsyncForm({
+            action: "/widgets/data/add_new_sales_group_field_value",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            getData: () => {
+                return {
+                    field_name: "vaccination",
+                    new_field_value: vaccinationNameInput.value          
+                }
+            },
+            onFinished: (data) =>{
+                let newVaccinationOption = new Option(data.new_field_value, data.new_field_value, false, false);
+                let maintenanceVaccinations = document.getElementById(salesGroupFormInputIds.maintenanceVaccinations);
+                $(maintenanceVaccinations).append(newVaccinationOption).trigger('change');
+                this.infoModal.close();
+            }
+        });
+        return form;
+    }
+
+    createNewVaccinationModal = () =>{
+        let infoModal = new InfoModal("Add Vaccination");
+        let modalBody = infoModal.getBody();
+
+        let form = document.createElement("form");
+        let firstFormRow = document.createElement("div");
+        firstFormRow.className = "form-row";
+        form.append(firstFormRow);
+
+        let required = document.createElement("span");
+        required.textContent = "*Required"
+        required.style = "color: red;";
+        firstFormRow.append(required);
+
+        let vaccinationFormGroup = document.createElement("div");
+        vaccinationFormGroup.className = "form-group col-md-12";
+        
+        let requiredIconName = document.createElement("span");
+        requiredIconName.textContent = "*"
+        requiredIconName.style = "color:red";
+        let vaccinationName = document.createElement("label");
+        vaccinationName.textContent = "Vaccination Name";
+        vaccinationFormGroup.append(vaccinationName);
+        vaccinationFormGroup.append(requiredIconName);
+        let vaccinationNameInput = document.createElement("input");
+        vaccinationNameInput.className = "form-control";
+        vaccinationNameInput.type = "text";
+        vaccinationFormGroup.append(vaccinationNameInput);
+        form.append(vaccinationFormGroup);
+
+        let statusMessage = document.createElement("p");
+        statusMessage.style.display = "none";
+        statusMessage.className = "mt-2 mb-0";
+        form.append(statusMessage);
+        let errorMessage = document.createElement("p");
+        errorMessage.style.display = "none";
+        errorMessage.className = "mt-2 mb-0 alert alert-danger";
+        form.append(errorMessage);
+
+        let submitButton = document.createElement("button");
+        submitButton.className = "btn btn-primary";
+        submitButton.textContent = "Save";
+        submitButton.addEventListener("click", (e)=>{
+            this.asyncForm.submit();
+        });
+        infoModal.getFooter().prepend(submitButton);
+
+        this.asyncForm = new AsyncForm({
+            action: "/widgets/data/add_new_sales_group_field_value",
+            form: form,
+            status: statusMessage,
+            error: errorMessage,
+            redirectMessage: "Saved!",
+            loadingMessage: "Saving...",
+            getData: () => {
+                return {
+                    field_name: "vaccination",
+                    new_field_value: vaccinationNameInput.value          
+                }
+            },
+            onFinished: (data) =>{
+                this.updateVaccinationOptions(data.new_field_value);
+                infoModal.close();
+            }
+        });
+        modalBody.append(form);
+    }
+
+    updateVaccinationOptions = (vaccinationName) =>{
+        this.vaccinations.push(vaccinationName);
+        let newVaccinationOption = new Option(vaccinationName, vaccinationName, false, false);
+        for(let vaccinationAndDateElement of Object.values(this.vaccinationAndDateElements)){
+            $(vaccinationAndDateElement.vaccinationInput).append(newVaccinationOption).trigger('change');
+        }
     }
 }

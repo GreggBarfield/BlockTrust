@@ -5,7 +5,6 @@ import { SwitchFormGroup } from '../../../ui/switch.mjs';
 import { DateFormGroup, DateRangeFormGroup} from '../../../ui/inputs.mjs';
 import { VideoSession } from '../../../files/video_links.mjs';
 import { CreateAuctionMarketWidget } from './create_auction_market_widget.mjs';
-import { CreateVaccinationWidget } from './create_vaccination_widget.mjs';
 import { salesGroupFormInputIds } from '../../utilities/sales_group_constants.mjs';
 import { InfoModal } from "../../../core/info_modal.mjs";
 import { spinner } from '../../../ui/spinner.mjs';
@@ -506,20 +505,9 @@ export class SalesGroupsCommonForm{
         // Maintenance
 
         let maintenanceRow = createSection(form, "Management");
-
-//        let maintenanceVaccinations = createSelect({
-//            row: maintenanceRow,
-//            name: "Vaccinations",
-//            id: salesGroupFormInputIds.maintenanceVaccinations,
-//            options: this.salesGroupFieldsValues.vaccination,
-//            values: this.maintenanceVaccinationsValue,
-//            multiple: true,
-//            tags: true,
-//            placeholder: "Please Select"
-//        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
+        
         let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination, this.maintenanceVaccinationsAndDatesValue);
-//        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
-        let uploadVaccinationsDateWidgetContainer = createEmptyRowElementWithWidget(maintenanceRow, "Vaccinations", "test1", 4, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", true, CreateVaccinationWidget, "Add New")
+        let uploadVaccinationsDateWidgetContainer = createEmptyRowElement(maintenanceRow, 4);
         uploadVaccinationsDateWidgetContainer.append(uploadVaccinationsDateWidget.createModalLink());
         let maintenanceComingledStatus = createSelect({
             row: maintenanceRow,
