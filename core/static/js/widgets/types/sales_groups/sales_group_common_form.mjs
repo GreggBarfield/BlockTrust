@@ -49,6 +49,7 @@ export class SalesGroupsCommonForm{
             this.geneticsCommentsValue = this.data.reported.genetics_comments;
             this.geneticsVerificationValue = this.data.reported.verification;
             this.maintenanceVaccinationsValue = this.data.reported.vaccinations;
+            this.maintenanceVaccinationsAndDatesValue = this.data.reported.vaccinations_and_dates;
             this.characteristicsImplantsValue = this.data.reported.implants;
             this.maintenanceCastratedValue = this.data.reported.castrated;
             this.maintenanceProgramValue = this.data.reported.program;
@@ -105,6 +106,7 @@ export class SalesGroupsCommonForm{
             this.geneticsVerificationValue = [];
             this.maintenancePreconditioningProgramValue = [];
             this.maintenanceVaccinationsValue = [];
+            this.maintenanceVaccinationsAndDatesValue = [];
             this.maintenanceFeedingProgramValue = [];
             this.characteristicsImplantsValue = [];
             this.maintenanceCastratedValue = [];
@@ -515,7 +517,7 @@ export class SalesGroupsCommonForm{
 //            tags: true,
 //            placeholder: "Please Select"
 //        }, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", 4, true, null, CreateVaccinationWidget, "Add New");
-        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
+        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination, this.maintenanceVaccinationsAndDatesValue);
 //        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
         let uploadVaccinationsDateWidgetContainer = createEmptyRowElementWithWidget(maintenanceRow, "Vaccinations", "test1", 4, true, "maintenanceVaccinations", "Please enter vaccinations given to the cattle in this group or “not listed”.", true, CreateVaccinationWidget, "Add New")
         uploadVaccinationsDateWidgetContainer.append(uploadVaccinationsDateWidget.createModalLink());
@@ -779,7 +781,7 @@ export class SalesGroupsCommonForm{
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,
                         preconditioning_program: valueAddProgramsPreconditioningProgram.value,
-                        vaccinations: $(maintenanceVaccinations).val(),
+//                        vaccinations: $(maintenanceVaccinations).val(),
                         feeding_programs: $(valueAddProgramsFeedingProgram).val(),
                         implants: $(characteristicsImplants).val(),
                         castrated: maintenanceCastrated.value,
@@ -806,7 +808,8 @@ export class SalesGroupsCommonForm{
                         expected_ship_date: marketingExpectedShipDate.getTime(),
                         first_birth_date: characteristicFirstBirthDate.getTime(),
                         weaned_date: maintenanceWeanedDate.getTime(),
-                        nutrition_type: valueAddProgramsNutritionType.value
+                        nutrition_type: valueAddProgramsNutritionType.value,
+                        vaccinations_and_dates: uploadVaccinationsDateWidget.getVaccinationAndDateValues()
                     },
                     "delivery_location_type": marketingDeliveryLocationType.value,
                     "delivery_location": marketingOffRanchLocation.value,

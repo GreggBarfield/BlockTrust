@@ -2,14 +2,14 @@ import { InfoModal } from "../../../core/info_modal.mjs";
 import { CreateVaccinationWidget } from "./create_vaccination_widget.mjs";
 
 export class UploadVaccinationDatesWidget{
-    constructor(vaccinations) {
+    constructor(vaccinations, vaccinationsAndDatesValues) {
         this.eids = [];
         this.infoModal = null;
         this.vaccinations = vaccinations;
         this.rowCounter = 1;
         this.vaccinationsAndDates = [];
-        this.vaccinationAndDateELements = {}
-        console.log(this.vaccinations);
+        this.vaccinationAndDateElements = {};
+        this.vaccinationsAndDatesValues = vaccinationsAndDatesValues;
     }
 
     createModalLink = () =>{
@@ -50,6 +50,13 @@ export class UploadVaccinationDatesWidget{
 
         let uploadContainer = document.createElement("div");
         modalBodyContainer.append(uploadContainer);
+
+        if(this.vaccinationsAndDatesValues){
+            for(let vaccinationAndDateValue of this.vaccinationsAndDatesValues){
+                let newRowElement = this.createVaccinationAndDateRow(vaccinationAndDateValue.vaccination, vaccinationAndDateValue.date);
+                uploadContainer.append(newRowElement);
+            }
+        }
 
         let optionsRow = document.createElement("div");
         let addNewRowButtonContainer = document.createElement("div");
@@ -104,7 +111,7 @@ export class UploadVaccinationDatesWidget{
             widget.init();
         }
         newVaccineContainer.append(widgetLink);
-        return newVaccineContainer;
+        return newVaccineContainer; 
     }
 
     updateFooter = () =>{
@@ -112,7 +119,12 @@ export class UploadVaccinationDatesWidget{
         let submitButton = document.createElement("button");
         submitButton.className = "btn btn-primary";
         submitButton.textContent = "Save";
-        submitButton.onclick = () =>{
+        submitButton.onclick = () =>{  
+            for(let [containerId, vaccinationAndDateElement] of Object.entries(this.vaccinationAndDateElements)){
+                if(vaccinationAndDateElement.vaccinationInput.value == "" && vaccinationAndDateElement.dateInput.value == ""){
+                    this.removeVaccinationAndDateRow(containerId);
+                }
+            }
             this.closeUploadModal();
         }
         modalFooter.prepend(submitButton);
@@ -134,6 +146,7 @@ export class UploadVaccinationDatesWidget{
         vaccinationInput.className = "form-control";
         vaccinationInputContainer.append(vaccinationInput);
         $(vaccinationInput).select2({data: vaccinationsList, dropdownParent: $(this.infoModal.getBody()), multiple: false, placeholder: "Select Vaccination"});
+        $(vaccinationInput).val("").trigger("change");
         vaccinationInputContainer.append(vaccinationInput);
         container.append(vaccinationInputContainer);
 
@@ -145,7 +158,7 @@ export class UploadVaccinationDatesWidget{
         dateInputContainer.append(dateInput);
         container.append(dateInputContainer);
         if(vaccinationValue !== null){
-            $(vaccinationInput).val(vaccinationValue).trigger('change');
+            $(vaccinationInput).val(vaccinationValue).trigger("change");
         }
         if(dateValue !== null){
             dateInput.value = dateValue;
@@ -162,7 +175,7 @@ export class UploadVaccinationDatesWidget{
         }
         container.append(removeButtonContainer);
 
-        this.vaccinationAndDateELements.containerId = {"vaccinationInput": vaccinationInput, "dateInput": dateInput}
+        this.vaccinationAndDateElements[containerId] = {"vaccinationInput": vaccinationInput, "dateInput": dateInput}
         this.rowCounter++;
         return container;
     }
@@ -172,17 +185,20 @@ export class UploadVaccinationDatesWidget{
         if(rowElement){
             rowElement.remove();
         }
-        delete this.vaccinationAndDateELements.containerId;
+        delete this.vaccinationAndDateElements.containerId;
     }
 
     getVaccinationAndDateValues = () =>{
         let vaccinationAndDateValues = [];
-        for(let vaccinationAndDateElement of Object.values(this.vaccinationAndDateELements)){
-            vaccinationAndDateValues.push({
-                "vacccination": vaccinationAndDateElement.vaccinationInput,
-                "date": vaccinationAndDateElement.dateInput
-            })
+        for(let vaccinationAndDateElement of Object.values(this.vaccinationAndDateElements)){
+            if(vaccinationAndDateElement.vaccinationInput.value !== "" || vaccinationAndDateElement.dateInput.value !== ""){
+                vaccinationAndDateValues.push({
+                    "vaccination": vaccinationAndDateElement.vaccinationInput.value,
+                    "date": vaccinationAndDateElement.dateInput.value
+                });
+            }
         }
+        return vaccinationAndDateValues;
     }
 
     updateErrorMessage = (errorMessageText, errorMessageClass) =>{
