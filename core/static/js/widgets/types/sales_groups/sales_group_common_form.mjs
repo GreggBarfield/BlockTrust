@@ -62,6 +62,7 @@ export class SalesGroupsCommonForm{
             this.valueAddedProgramsFeedingProgramsValue = this.data.reported.feeding_programs;
             this.valueAddProgramsBreedProgramCertificationCoValue = this.data.reported.breed_program_certification_co;
             this.valueAddProgramsCertifiedThroughValue = this.data.reported.certified_through;
+            this.valueAddProgramNutritionTypeValue = this.data.reported.nutrition_type;
             this.valueAddedProgramsCommentsValue = this.data.reported.program_comments;
             this.reportedImages = this.data.reported.images;
             this.reportedVideos = this.data.reported.videos;
@@ -120,6 +121,7 @@ export class SalesGroupsCommonForm{
             this.valueAddedProgramsFeedingProgramsValue = [];
             this.valueAddProgramsBreedProgramCertificationCoValue = [];
             this.valueAddProgramsCertifiedThroughValue = [];
+            this.valueAddProgramNutritionTypeValue = "";
             this.valueAddedProgramsCommentsValue = "";
             this.reportedImages = [];
             this.reportedVideos = [];
@@ -198,12 +200,6 @@ export class SalesGroupsCommonForm{
         function createEmptyRowElement(row, groupColumnSize=4, attachWidget=false, attachedWidget=null, widgetLinkText=""){
             let group = document.createElement("div");
             group.className = `col-md-${groupColumnSize} d-flex justify-content-center align-items-center`;
-            row.append(group);
-            return group;
-        }
-
-        function createEmptyRowElementWithWidget(row, name, id, groupColumnSize=4, hasTooltip=false, dataToggle="", tooltipText="", attachWidget=false, attachedWidget=null, widgetLinkText=""){
-            let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget, widgetLinkText);
             row.append(group);
             return group;
         }
