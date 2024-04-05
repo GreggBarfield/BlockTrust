@@ -135,81 +135,80 @@ def serve_signup():
 
 @bp.route('/signup/action', methods=['POST'])
 def serve_signup_action():
-    try:
-        required = {
-            'company': None, 'sector': None, 'first_name': None, 'last_name': None,
-            'address': None, 'city': None, 'state': None, 'zip_code': None,
-            'username': None, 'email': None, 'password': None, 'confirm_password': None
+    required = {
+        'company': None, 'sector': None, 'first_name': None, 'last_name': None,
+        'address': None, 'city': None, 'state': None, 'zip_code': None,
+        'username': None, 'email': None, 'password': None, 'confirm_password': None
+    }
+    for required_field in required:
+        if required_field not in request.form:
+            raise ExportException("internal error, {} missing from form".format(required_field))
+        required[required_field] = request.form[required_field]
+        if len(required[required_field].strip()) == 0:
+            raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
+    if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
+        raise ExportException("Please Select Auction Market(s)")
+
+    if request.form.get('token', None) is not None:
+        data = {
+            "secret": RECAPTCHA_SECRET_KEY,
+            "response": request.form['token']
         }
-        for required_field in required:
-            if required_field not in request.form:
-                raise ExportException("internal error, {} missing from form".format(required_field))
-            required[required_field] = request.form[required_field]
-            if len(required[required_field].strip()) == 0:
-                raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
-        if int(request.form["are_auction_markets_used_by_account"]) == 1 and len(loads(request.form["auction_markets"])) == 0:
-            raise ExportException("Please Select Auction Market(s)")
-
-        if request.form.get('token', None) is not None:
-            data = {
-                "secret": RECAPTCHA_SECRET_KEY,
-                "response": request.form['token']
-            }
-            verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
-            verification_response_json = verification_response.json()
-            if verification_response_json['success']  and verification_response_json['score'] >= RECAPTCHA_MIN_SCORE:
-                # Sign up
-                try:
-                    auth.signup(
-                        username=required['username'],
-                        email=required['email'],
-                        phone=request.form['phone'],
-                        first_name=required['first_name'],
-                        last_name=required['last_name'],
-                        password=required['password'],
-                        confirm_password=required['confirm_password'],
-                        company=required['company'],
-                        partner=request.form['partner'],
-                        affiliate_id=request.form['affiliate_id'],
-                        sector=required['sector'],
-                        address=required['address'],
-                        city=required['city'],
-                        state=required['state'],
-                        zip_code=required['zip_code'],
-                        personal_phone=request.form['personal_phone'],
-                        recaptcha_score=verification_response_json['score'],
-                        ip_address=request.form['ip_address'],
-                        ip_country=request.form['ip_country'],
-                        auction_markets_used=loads(request.form["auction_markets"]),
-                        preconditioning_programs=loads(request.form["preconditioning_programs"]),
-                        pvp_programs=loads(request.form["pvp_programs"])
-                    )
-                except (auth.SignupFailedException, AccountsException, UsersException) as e:
-                    EventLogs(g.db).insert(
-                        event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup Failed By User"],
-                        details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
-                    )
-                    raise ExportException("Signup failed: " + str(e))
-
-                # Generating token identifier for user for email verification
-                userToken = token.generateConfirmationToken(required['email'])
-                # Creating URL for user to confirm email address
-                confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_confirm', tok=userToken)
-                # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
-                send_email(
-                    "BlockTrust Network Email Confirmation",
-                    render_email("verification_email.html", {
-                        'confirm_url': confirm_url
-                    }), required['email']
+        verification_response = post("https://www.google.com/recaptcha/api/siteverify", data=data)
+        verification_response_json = verification_response.json()
+        if verification_response_json['success']  and verification_response_json['score'] >= RECAPTCHA_MIN_SCORE:
+            # Sign up
+            try:
+                auth.signup(
+                    username=required['username'],
+                    email=required['email'],
+                    phone=request.form['phone'],
+                    first_name=required['first_name'],
+                    last_name=required['last_name'],
+                    password=required['password'],
+                    confirm_password=required['confirm_password'],
+                    company=required['company'],
+                    partner=request.form['partner'],
+                    affiliate_id=request.form['affiliate_id'],
+                    sector=required['sector'],
+                    address=required['address'],
+                    city=required['city'],
+                    state=required['state'],
+                    zip_code=required['zip_code'],
+                    personal_phone=request.form['personal_phone'],
+                    recaptcha_score=verification_response_json['score'],
+                    ip_address=request.form['ip_address'],
+                    ip_country=request.form['ip_country'],
+                    auction_markets_used=loads(request.form["auction_markets"]),
+                    preconditioning_programs=loads(request.form["preconditioning_programs"]),
+                    pvp_programs=loads(request.form["pvp_programs"])
                 )
-                return {"redirect": "/email_not_verified"}
-            else:
-                RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
-                return {"redirect": "/not-authorized-to-register"}
+            except (auth.SignupFailedException, AccountsException, UsersException) as e:
+                EventLogs(g.db).insert(
+                    event_type_id=EVENT_TYPE_NAMES_TO_IDS["Signup Failed By User"],
+                    details={"user_email": required["email"],"error_message": "Signup failed: "+str(e)}
+                )
+                raise ExportException("Signup failed: " + str(e))
+
+            # Generating token identifier for user for email verification
+            userToken = token.generateConfirmationToken(required['email'])
+            # Creating URL for user to confirm email address
+            confirm_url = WEBSITE_ROOT + url_for('outside_bp.serve_confirm', tok=userToken)
+            # Sending an email to user including Blocktrust email template and verification link with validity of 24 hours
+            send_email(
+                "BlockTrust Network Email Confirmation",
+                render_email("verification_email.html", {
+                    'confirm_url': confirm_url
+                }), required['email']
+            )
+            return {"redirect": "/email_not_verified"}
         else:
-            raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
-    except ExportException as e:
-        return {"error": str(e)}, 400
+            RejectedRegistrations(g.db).insert_rejected_registration(required, verification_response_json)
+            return {"redirect": "/not-authorized-to-register"}
+    else:
+        raise ExportException("There was an error verifying your registration. Please try again or write to us at info@blocktrustnetwork.com")
+
+
 # About us
 
 

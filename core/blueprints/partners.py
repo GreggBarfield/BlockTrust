@@ -14,7 +14,6 @@ from core.database.tables.matches import Matches
 from core.database.tables.reports import Reports
 from core.database.tables.sustainability_responses import SustainabilityResponses, QUESTIONNAIRE_STATUS_NAMES_TO_IDS
 from core.database.tables.users import UsersException
-from core.match_types import MATCH_TYPES_NAME_TO_ID
 from core.reports.query_types import count_distribution
 from core.sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from core.utilities import auth
@@ -312,7 +311,8 @@ def serve_patrons():
                     address=fields['address'],
                     city=fields['city'],
                     state=fields['state'],
-                    zip=fields['zip']
+                    zip=fields['zip'],
+                    created_by_user_id=g.user.id()
             )
 
             user_id = g.db.users.create_pseudo_user(account_obj.id(), False)
@@ -320,8 +320,8 @@ def serve_patrons():
 
             perform_new_account_actions(
                 db=g.db, account_id=account_obj.id(), user_id=user_id,
-                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Account Created By Employee"],
-                sector_id=account_obj.sector_id(), partner_id=g.account.id(),
+                event_type_id=EVENT_TYPE_NAMES_TO_IDS["Account Created By Partner"],
+                sector_id=account_obj.sector_id()
             )
 
             return {"redirect": url_for("partner_bp.serve_patrons")}
