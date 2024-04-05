@@ -197,7 +197,7 @@ export class SalesGroupsCommonForm{
             return group;
         }
 
-        function createEmptyRowElement(row, groupColumnSize=4, attachWidget=false, attachedWidget=null, widgetLinkText=""){
+        function createEmptyRowElement(row, groupColumnSize=4){
             let group = document.createElement("div");
             group.className = `col-md-${groupColumnSize} d-flex justify-content-center align-items-center`;
             row.append(group);
@@ -548,11 +548,6 @@ export class SalesGroupsCommonForm{
         let maintenanceWeanedDate = createDate(maintenanceRow, "Weaned Date", salesGroupFormInputIds.maintenanceWeanedDate, this.mantainanceWeanedDateValue, true, "mantainanceWeanedDate","");
         let maintenanceComments = createText(maintenanceRow,"Maintenance Comments", salesGroupFormInputIds.maintenanceComments,this.maintenanceCommentsValue || "",false,"maintenanceComments","", 12, 150);
 
-
-//        let uploadVaccinationsDateWidget = new UploadVaccinationDatesWidget(this.salesGroupFieldsValues.vaccination);
-//        let widgetContainer1 = createEmptyRowElement(maintenanceRow, 4);
-//        widgetContainer1.append(uploadVaccinationsDateWidget.createModalLink());
-
         // Genetics
 
         let geneticsRow = createSection(form, "Genetics");
@@ -765,7 +760,6 @@ export class SalesGroupsCommonForm{
                         muscling: characteristicsMuscling.value,
                         usda_frame_size: characteristicsFrame.value,
                         preconditioning_program: valueAddProgramsPreconditioningProgram.value,
-//                        vaccinations: $(maintenanceVaccinations).val(),
                         feeding_programs: $(valueAddProgramsFeedingProgram).val(),
                         implants: $(characteristicsImplants).val(),
                         castrated: maintenanceCastrated.value,
