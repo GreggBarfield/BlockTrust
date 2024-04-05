@@ -2664,3 +2664,10 @@ UPDATE accounts SET partner_private_logo = '/static/images/partners/health_track
 /* Rohan Sureshkumar 03/28/24 */
 ALTER TABLE `accounts` 
 ADD COLUMN `can_partner_login` TINYINT NULL DEFAULT 1 AFTER `partner_color`;
+
+/* Rohan Sureshkumar 04/05/24 */
+ALTER TABLE `accounts` 
+CHANGE COLUMN `manual_paid` `manual_paid` TINYINT(1) NULL DEFAULT 1 ;
+ALTER TABLE `accounts` 
+ADD COLUMN `created_by_employee_id` INT NULL AFTER `partner_stripe_secret_key`,
+ADD COLUMN `created_by_user_id` INT NULL AFTER `created_by_employee_id`;

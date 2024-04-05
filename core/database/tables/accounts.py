@@ -167,7 +167,8 @@ class Accounts:
         return sector, phone, affiliate_id
 
     def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
-                       auction_market_id=None, optional_fields=None):
+                       auction_market_id=None, optional_fields=None, created_by_employee_id=None,
+                       created_by_user_id=None):
         """Creates a new account without a user.
 
         Params:
@@ -191,10 +192,11 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
-                auction_market_id, optional_fields)
+                 auction_market_id, optional_fields, created_by_employee_id, created_by_user_id)
                 VALUES
-                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s, 
-                    %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s)
+                    (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s,
+                     %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s,
+                     %(created_by_employee_id)s, %(created_by_user_id)s)
             """,
             {
                 "company": company,
@@ -208,7 +210,9 @@ class Accounts:
                 "phone": phone,
                 "show_real_name": int(False),
                 "auction_market_id": auction_market_id,
-                "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None
+                "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None,
+                "created_by_employee_id": created_by_employee_id,
+                "created_by_user_id": created_by_user_id
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -254,7 +258,8 @@ class Accounts:
 
         return account
 
-    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup):
+    def create_partner(self, company, sector, partner_contact_name, partner_contact_email, address, city, state, zip,
+                       phone, is_partner_used_for_signup, created_by_employee_id=None):
         """Creates a new partner without a user.
 
         Params:
@@ -290,9 +295,11 @@ class Accounts:
 
         self._db.execute(
             """INSERT INTO accounts
-                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, address, city, state, zip, phone, is_partner_used_for_signup)
+                (company, name, sector, is_partner, partner_contact_name, partner_contact_email, 
+                 address, city, state, zip, phone, is_partner_used_for_signup, created_by_employee_id)
                 VALUES
-                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s)
+                    (%(company)s, %(name)s, %(sector)s, %(is_partner)s, %(partner_contact_name)s, %(partner_contact_email)s, 
+                     %(address)s, %(city)s, %(state)s, %(zip)s, %(phone)s, %(is_partner_used_for_signup)s, %(created_by_employee_id)s)
             """,
             {
                 "company": company,
@@ -306,7 +313,8 @@ class Accounts:
                 "state": state,
                 "zip": zip,
                 "phone": phone,
-                "is_partner_used_for_signup": is_partner_used_for_signup
+                "is_partner_used_for_signup": is_partner_used_for_signup,
+                "created_by_employee_id": created_by_employee_id
             }
         )
         return self._db.last_row_id()

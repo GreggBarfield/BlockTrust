@@ -98,7 +98,8 @@ def serve_employee_create_account_action():
                 address=format_field(required['address']),
                 city=format_field(required['city']),
                 state=format_field(required['state']),
-                zip=format_field(required['zip_code'])
+                zip=format_field(required['zip_code']),
+                created_by_employee_id=g.employee.id()
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
@@ -112,8 +113,8 @@ def serve_employee_create_account_action():
         )
 
         return {"redirect": "/employee/dashboard"}
-    except (ExportException, AccountsException, UsersException, ValueError) as e:
-        return {"error": str(e)}, 400
+    except (AccountsException, UsersException, ValueError) as e:
+        raise ExportException(str(e))
 
 
 @bp.route("/employee/dashboard/add-new-employee", methods=["GET"])
@@ -412,7 +413,8 @@ def serve_create_new_partner_action():
                 city=format_field(required['city']),
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
-                is_partner_used_for_signup=is_partner_used_for_signup
+                is_partner_used_for_signup=is_partner_used_for_signup,
+                created_by_employee_id=g.employee.id()
         )
         user_id = Users(g.db).create_pseudo_user(account_id, True)
         AccountUsers(g.db).insert_account_user(user_id, account_id, int(False))
