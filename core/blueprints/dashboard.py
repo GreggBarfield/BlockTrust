@@ -196,10 +196,8 @@ def serve_new_sales_group():
     sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     form_post_route = url_for('widgets_bp.serve_create_sales_group')
     payment_URL = url_for("stripe_bp.serve_sales_group_payment")
-    if g.account.partner_account_id():
-        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
-        if partner["partner_pays_sales_groups"]:
-            payment_URL = ""
+    if g.account.partner_account_id() and g.account.payments_by_partner():
+        payment_URL = ""
     return dashboard_render("sales-groups/sales-group/create.html", {
         "form_post_route": form_post_route,
         "auction_markets": auction_markets,
@@ -225,10 +223,8 @@ def serve_edit_sales_group(sales_group_id):
     form_post_route = url_for('widgets_bp.serve_update_sales_group')
     sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
     payment_URL = url_for("stripe_bp.serve_sales_group_payment")
-    if g.account.partner_account_id():
-        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
-        if partner["partner_pays_sales_groups"]:
-            payment_URL = ""
+    if g.account.partner_account_id() and g.account.payments_by_partner():
+        payment_URL = ""
     return dashboard_render(
         "sales-groups/sales-group/edit.html", {
             "sales_group": sales_group_row,
