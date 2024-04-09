@@ -18,6 +18,7 @@ from core.reports.query_types import count_distribution
 from core.sectors import SECTORS_NAME_TO_ID, SECTORS_ID_TO_NAME
 from core.utilities import auth
 from core.utilities.constants import HTTP_OK
+from core.utilities.general_utilities import str_to_bool
 from ..renderers.partner import partner_render
 from ..utilities import crut, csrf
 from json import loads
@@ -299,20 +300,22 @@ def serve_patrons():
     if request.method == "POST":
         try:
             fields = {key: value for key, value in request.form.items()}
-            sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
-                g.account.sector_id(), g.account.id(), fields["affiliate_id"], fields["phone"]
+            sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(
+                g.account.sector_id(), g.account.id(), fields["affiliate_id"], fields["phone"],
+                str_to_bool(fields["payments_by_partner"])
             )
             account_obj = Accounts(g.db).create_account(
                     phone=phone,
-                    company=fields['company'],
+                    company=fields["company"],
                     partner=g.account.id(),
                     affiliate_id=affiliate_id,
                     sector=sector,
-                    address=fields['address'],
-                    city=fields['city'],
-                    state=fields['state'],
-                    zip=fields['zip'],
-                    created_by_user_id=g.user.id()
+                    address=fields["address"],
+                    city=fields["city"],
+                    state=fields["state"],
+                    zip=fields["zip"],
+                    created_by_user_id=g.user.id(),
+                    payments_by_partner=int(str_to_bool(fields["payments_by_partner"]))
             )
 
             user_id = g.db.users.create_pseudo_user(account_obj.id(), False)

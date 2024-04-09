@@ -73,7 +73,8 @@ def serve_employee_create_account_action():
     try:
         required = {
             'company': None, 'sector': None, 'address': None, 'city': None,
-            'state': None, 'zip_code': None, 'phone': None, 'company': None
+            'state': None, 'zip_code': None, 'phone': None, 'company': None,
+            'payments_by_partner': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -86,7 +87,7 @@ def serve_employee_create_account_action():
         partner = format_field(request.form['partner'])
         affiliate_id = format_field(request.form['affiliate_id'])
         sector = format_field(required['sector'])
-        sector, phone, affiliate_id = Accounts(g.db).validate_new_account(sector, partner, affiliate_id, phone)
+        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone)
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -99,7 +100,8 @@ def serve_employee_create_account_action():
                 city=format_field(required['city']),
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
-                created_by_employee_id=g.employee.id()
+                created_by_employee_id=g.employee.id(),
+                payments_by_partner=int(str_to_bool(required['payments_by_partner']))
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
@@ -282,7 +284,8 @@ def serve_edit_selected_account(account_id):
             address=format_field(request.form["address"]),
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
-            zip=format_field(request.form["zip_code"])
+            zip=format_field(request.form["zip_code"]),
+            payments_by_partner=int(str_to_bool(request.form["payments_by_partner"]))
         )
         return {"redirect": "/employee/dashboard"}
 
@@ -316,7 +319,6 @@ def serve_edit_selected_partner(partner_id):
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
             is_partner_used_for_signup=int(str_to_bool(request.form["is_partner_used_for_signup"])),
-            partner_pays_sales_groups=int(str_to_bool(request.form["partner_pays_sales_groups"])),
             partner_subscription_credits=subscription_credits,
             partner_color=format_field(request.form["partner_color"])
         )
@@ -698,10 +700,10 @@ def serve_upload_ranch_accounts_test(partner_id):
                     if len(account_data[required_field].strip()) == 0:
                         raise ExportException("'" + required_field.capitalize().replace("_", " ") + "' does not have a value")
                     required_data[required_field] = format_field(account_data[required_field])
-                sector, phone, affiliate_id = Accounts(g.db).validate_new_account(
+                sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(
                     SECTORS_NAME_TO_ID[required_data["sector"]],
-                    partner_id, 
-                    required_data["affiliate_id"], 
+                    partner_id,
+                    required_data["affiliate_id"],
                     required_data["phone"]
                 )
 
