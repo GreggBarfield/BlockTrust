@@ -37,22 +37,21 @@ import json
 bp = Blueprint('iframe_bp', __name__)
 
 
-@bp.route('/iframe/sales-group/create', methods=['GET', 'POST'])
+@bp.route('/iframe/sales-group/create', methods=['GET'])
 @crut.require_user_iframe
 def serve_create_sales_group():
-    if request.method == 'GET':
-        auction_markets = AuctionMarkets(g.db).get_auction_markets()
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
-        return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
-            "auction_markets": auction_markets,
-            "form_post_route": url_for("widgets_bp.serve_create_sales_group"),
-            "pre_select_auction_market": False,
-            "pre_selected_auction_market_id": None,
-            "sales_group_fields_values": sales_group_fields_values,
-            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
-            "account_id": g.account.id(),
-            "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
-        })
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
+    return outside_render("/outside/iframes/sales-groups/create-sales-group.html", {
+        "auction_markets": auction_markets,
+        "form_post_route": url_for("widgets_bp.serve_create_sales_group"),
+        "pre_select_auction_market": False,
+        "pre_selected_auction_market_id": None,
+        "sales_group_fields_values": sales_group_fields_values,
+        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+        "account_id": g.account.id(),
+        "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
+    })
 
 
 @bp.route('/iframe/sales-group/create/<int:auction_market_id>', methods=["GET"])
@@ -92,28 +91,26 @@ def serve_manage_sales_groups():
     return outside_render("/outside/iframes/sales-groups/manage-sales-groups.html", {"sales_groups": sales_groups})
 
 
-@bp.route('/iframe/sales-group/edit/<int:sales_group_id>', methods=['GET', 'POST'])
+@bp.route('/iframe/sales-group/edit/<int:sales_group_id>', methods=['GET'])
 @crut.require_user_iframe
 def serve_edit_sales_group(sales_group_id):
-    if request.method == 'GET':
-        sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
-        auction_markets = AuctionMarkets(g.db).get_auction_markets()
-        form_post_route = url_for('widgets_bp.serve_update_sales_group', sales_group_id=sales_group_id)
-        if(sales_group["account"] != g.account.id()):
-            return outside_render("/outside/iframes/sales-groups/unauthorized.html")
-        external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
-            sales_group_id=sales_group['id'])
-        sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
-        return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
-            "sales_group": sales_group,
-            "auction_markets": auction_markets,
-            "form_post_route": form_post_route,
-            "external_shareable_link": external_shareable_link,
-            "sales_group_fields_values": sales_group_fields_values,
-            "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
-            "account_id": g.account.id(),
-            "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
-        })
+    sales_group = SalesGroups(g.db).get_sales_group_by_id(sales_group_id)
+    auction_markets = AuctionMarkets(g.db).get_auction_markets()
+    if(sales_group["account"] != g.account.id()):
+        return outside_render("/outside/iframes/sales-groups/unauthorized.html")
+    external_shareable_link = WEBSITE_ROOT + url_for('outside_bp.serve_external_sales_group_viewer',
+        sales_group_id=sales_group['id'])
+    sales_group_fields_values = SalesGroupFieldsValues(g.db).get(is_archived=0)
+    return outside_render("/outside/iframes/sales-groups/edit-sales-group.html", {
+        "sales_group": sales_group,
+        "auction_markets": auction_markets,
+        "form_post_route": url_for('widgets_bp.serve_update_sales_group', sales_group_id=sales_group_id),
+        "external_shareable_link": external_shareable_link,
+        "sales_group_fields_values": sales_group_fields_values,
+        "field_ids_to_names": SALES_GROUP_FIELD_IDS_TO_NAMES,
+        "account_id": g.account.id(),
+        "view_sales_group_URL": url_for("iframe_bp.serve_view_sales_group")
+    })
 
 
 @bp.route('/iframe/sales-group/view/', defaults={'sales_group_id': ''}, methods=['GET'])
