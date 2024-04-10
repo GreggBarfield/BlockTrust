@@ -489,6 +489,10 @@ export class SalesGroupsCommonForm{
         }, false, "" , "", 4);
         let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12, 150);
 
+
+        characteristicsCount.onchange = () =>{
+            uploadEIDsWidget.setEidCountLimit(characteristicsCount.value);
+        }
         // Maintenance
 
         let maintenanceRow = createSection(form, "Management");

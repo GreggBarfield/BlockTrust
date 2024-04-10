@@ -4,6 +4,7 @@ export class UploadEIDsForSalesGroupWidget{
     constructor() {
         this.eids = [];
         this.infoModal = null;
+        this.eidCountLimit = 0;
     }
 
     createModalLink = () =>{
@@ -14,7 +15,12 @@ export class UploadEIDsForSalesGroupWidget{
         this.link.href="#";
         this.link.textContent = "Upload EIDs for Sales Group";
         this.link.onclick = () =>{
-            this.displayModal();
+            if(this.eidCountLimit == 0){
+                this.generateModalWithMessage("Upload EIDs for Sales Group", "Please provide the Total Head Count under Characteristics to start uploading EIDs.");
+            }
+            else{
+                this.displayModal();
+            }
         }
         linkContainer.append(this.link);
         return linkContainer;
@@ -44,6 +50,11 @@ export class UploadEIDsForSalesGroupWidget{
         requiredMessage.className = "col-md-12 text-primary font-italic";
         requiredMessage.textContent = "*Please select how you would like to upload the EIDs";
         eidsUploadContainer.append(requiredMessage);
+
+        let eidLimitMessage = document.createElement("h6");
+        eidLimitMessage.className = "col-md-12 text-primary font-italic";
+        eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
+        eidsUploadContainer.append(eidLimitMessage);
 
         let uploadEidsManuallyCheckboxRow = document.createElement("div");
         uploadEidsManuallyCheckboxRow.className = "row d-flex m-2 p-2";
@@ -214,11 +225,11 @@ export class UploadEIDsForSalesGroupWidget{
         for(const eidString of eidsList){
             let formattedEidString = eidString.replace(/\s/g, '');
             if(formattedEidString.length < 15 || ! /^\d+$/.test(formattedEidString)){
-                this.updateErrorMessage("Invalid EID format for: " + formattedEidString, "d-block mt-2 mb-0 alert alert-danger");
+                this.updateErrorMessage("Invalid EID format detected. Please check the uploaded EIDs", "d-block mt-2 mb-0 alert alert-danger");
                 validList = false;
             }
         }
-        if(validList){
+        if(validList && this.validateEidUploadCount(eidsList.length)){
             for(let eidString of eidsList){
                 let formattedEidString = eidString.replace(/\s/g, '');
                 this.eids.push(parseInt(formattedEidString));
@@ -239,7 +250,7 @@ export class UploadEIDsForSalesGroupWidget{
             if(startNumber > endNumber){
                 this.updateErrorMessage("Start Number cannot be greater than End Number", "d-block mt-2 mb-0 alert alert-danger");
             }
-            else{
+            else if(this.validateEidUploadCount(endNumber - startNumber + 1)){
                 while(startNumber <= endNumber){
                     this.eids.push(startNumber);
                     startNumber++;
@@ -248,6 +259,14 @@ export class UploadEIDsForSalesGroupWidget{
                 this.closeEidUploadModal();
             }
         }
+    }
+
+    setEidCountLimit = (eidCountLimit) =>{
+        this.eidCountLimit = eidCountLimit;
+    }
+
+    getEidCountLimit = () =>{
+        return this.eidCountLimit;
     }
 
     displayEidUploadModal = () =>{
@@ -278,5 +297,26 @@ export class UploadEIDsForSalesGroupWidget{
     updateErrorMessage = (errorMessageText, errorMessageClass) =>{
         this.errorMessage.textContent = errorMessageText;
         this.errorMessage.className = errorMessageClass;
+    }
+
+    generateModalWithMessage = (modalHeader, messageText) =>{
+        let messageModal = new InfoModal(modalHeader, null, true)
+        let messageContainer = document.createElement("div");
+        let message = document.createElement("h6");
+        message.textContent = messageText;
+        messageContainer.append(message);
+        messageModal.getBody().append(messageContainer);
+    }
+
+    validateEidUploadCount = (uploadedEidsCount) =>{
+        if(uploadedEidsCount > parseInt(this.getEidCountLimit())){
+            this.updateErrorMessage("Please provide upto " + this.getEidCountLimit() + " EIDs. Current EID count is " + uploadedEidsCount, "d-block mt-2 mb-0 alert alert-danger");
+            return false;
+        }
+        if(uploadedEidsCount <= parseInt(this.getEidCountLimit())){
+            this.generateModalWithMessage("EID Upload", "You have uploaded " + uploadedEidsCount + " EIDs. " + (this.getEidCountLimit() - uploadedEidsCount) + " head(s) of cattle will remain untracked.")
+            return true;
+        }
+        return true;
     }
 }
