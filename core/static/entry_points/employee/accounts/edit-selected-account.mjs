@@ -22,6 +22,7 @@ let address = editAccountForm.find("#edit_address");
 let city = editAccountForm.find("#edit_city");
 let state = editAccountForm.find("#edit_state");
 let zip_code = editAccountForm.find("#edit_zip");
+let partner_pays = editAccountForm.find("#partner_pays");
 let action_route = "/employee/dashboard/edit-account/"+account_id;
 
 let form = new AsyncForm({
@@ -42,6 +43,7 @@ let form = new AsyncForm({
             city: city.val(),
             state: state.val(),
             zip_code: zip_code.val(),
+            partner_pays: partner_pays.is(":checked")
         }
     }
 });

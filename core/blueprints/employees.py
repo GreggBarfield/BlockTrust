@@ -74,7 +74,7 @@ def serve_employee_create_account_action():
         required = {
             'company': None, 'sector': None, 'address': None, 'city': None,
             'state': None, 'zip_code': None, 'phone': None, 'company': None,
-            'payments_by_partner': None
+            'partner_pays': None
         }
         for required_field in required:
             if required_field not in request.form:
@@ -101,7 +101,7 @@ def serve_employee_create_account_action():
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
                 created_by_employee_id=g.employee.id(),
-                payments_by_partner=int(str_to_bool(required['payments_by_partner']))
+                partner_pays=int(str_to_bool(required['partner_pays']))
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
@@ -160,6 +160,7 @@ def serve_view_account():
     accounts = Accounts(g.db).get_accounts(is_partner=0)
     for account in accounts:
         account['company'] = account['company'].upper()
+        account['partner_account'] = account['partner_account']
         admin_user = AccountUsers(g.db).get_account_users(account=account["id"], is_admin=1)
         account["account_partner_name"] = g.db.accounts.get_accounts(id=account["partner_account"])[0]["company"] if account["partner_account"] is not None else ""
         if len(admin_user) > 0:
@@ -285,7 +286,7 @@ def serve_edit_selected_account(account_id):
             city=format_field(request.form["city"]),
             state=format_field(request.form["state"]),
             zip=format_field(request.form["zip_code"]),
-            payments_by_partner=int(str_to_bool(request.form["payments_by_partner"]))
+            partner_pays=int(str_to_bool(request.form["partner_pays"]))
         )
         return {"redirect": "/employee/dashboard"}
 
@@ -527,33 +528,35 @@ def serve_archive_notification():
     return {}
 
 
-@bp.route("/employee/update-account-paid-status", methods=["PUT"])
+@bp.route("/employee/account/<int:account_id>", methods=["PUT"])
 @crut.require_employee
-def serve_update_account_paid_status():
+def serve_update_account_paid_status(account_id):
     request_data = json.loads(request.data)
-    account_id = request_data["account_id"]
     account = Accounts(g.db).get_accounts(id=account_id)[0]
-    if request_data["paid_status"]:
-        if account["partner_account"]:
-            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
-            if partner["partner_subscription_credits"]:
-                update_partner_payment_of_account(g.db, partner, account_id, True, g.employee.id())
-            else:
-                Accounts(g.db).update_account(
-                    account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
-                )
-        else:
+    if "paid_status" in request_data:
+        if request_data["paid_status"]:
+            # Retained
+            # if account["partner_account"]:
+            #     partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+            #     if partner["partner_subscription_credits"]:
+            #         update_partner_payment_of_account(g.db, partner, account_id, True, g.employee.id())
+            #     else:
             Accounts(g.db).update_account(
                 account_id, manual_paid=1, subscription_start_date=datetime.utcnow(), subscription_end_date=None
             )
-    else:
-        if account["stripe_paid"]:
-            raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
-        elif account["partner_paid"]:
-            partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
-            update_partner_payment_of_account(g.db, partner, account_id, False, g.employee.id())
         else:
-            g.db.accounts.update_account(account_id, manual_paid=0, subscription_end_date=datetime.utcnow())
+            if account["stripe_paid"]:
+                raise ExportException(f"This account ({account_id}) has paid through stripe and cannot be marked unpaid")
+            elif account["partner_paid"]:
+                partner = Accounts(g.db).get_partners(id=account["partner_account"])[0]
+                update_partner_payment_of_account(g.db, partner, account_id, False, g.employee.id())
+            else:
+                g.db.accounts.update_account(account_id, manual_paid=0, subscription_end_date=datetime.utcnow())
+    else:
+        if account["partner_account"]:
+            Accounts(g.db).update_account(account_id=account_id, partner_pays=int(request_data["partner_pays"]))
+        else:
+            raise ExportException(f"This account ({account_id}) doesn't have a partner account")
     return Response(status=HTTP_NO_CONTENT)
 
 
@@ -1046,20 +1049,20 @@ def serve_archive_seedstock_producer_ads():
 @bp.route('/employee/partners-sales-group-payments', methods=["GET"])
 @crut.require_employee
 def serve_partners_sales_group_payments():
-    partners = Accounts(g.db).get_partners(partner_pays_sales_groups=int(True))
+    accounts = Accounts(g.db).get_accounts(partner_pays=int(True))
+    partners = Accounts(g.db).get_partners(ids=tuple(account["partner_account"] for account in accounts))
     partner_payments = []
     for partner in partners:
         row = {}
         row["id"] = partner["id"]
         row["name"] = partner["company"]
-        accounts = Accounts(g.db).get_accounts(partner_account=partner["id"])
         sales_groups = SalesGroups(g.db).get_sales_groups(
-            account_ids=tuple(account["id"] for account in accounts),
+            account_ids=tuple(account["id"] for account in accounts if account["partner_account"] == partner["id"]),
             published=int(True),
             is_paid=int(False)
         )
-        total_amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
-        row["total_amount"] = total_amount
+        amount = reduce(lambda x, y: x + y["reported"]["count"], sales_groups, 0)
+        row["amount"] = amount
         partner_payments.append(row)
     return employee_render("/employee/finance/partner-sales-group-payments-list.html",
                            {"partner_payments": partner_payments})
@@ -1069,18 +1072,17 @@ def serve_partners_sales_group_payments():
 @crut.require_employee
 def serve_partner_sales_group_payments(partner_id):
     partner = Accounts(g.db).get_partners(id=partner_id)[0]
-    accounts = Accounts(g.db).get_accounts(partner_account=partner_id)
+    accounts = Accounts(g.db).get_accounts(partner_account=partner_id, partner_pays=int(True))
     sales_groups = SalesGroups(g.db).get_sales_groups(
         account_ids=tuple(account["id"] for account in accounts),
-        published=int(True)
+        published=int(True), is_paid=int(False)
     )
     paid_groups = []
     unpaid_groups = []
     for group in sales_groups:
-        if not group["is_paid"]:
-            patron = next(account for account in accounts if account["id"] == group["account"])
-            group["patron"] = patron["company"]
-            group["patron_id"] = patron["id"]
-            unpaid_groups.append(group)
+        patron = next(account for account in accounts if account["id"] == group["account"])
+        group["patron"] = patron["company"]
+        group["patron_id"] = patron["id"]
+        unpaid_groups.append(group)
     return employee_render("/employee/finance/partner-sales-group-payments-detail.html",
                            {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})
