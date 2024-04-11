@@ -413,6 +413,9 @@ export class SalesGroupsCommonForm{
         let characteristicsRow = createSection(form, "Characteristics");
         
         let characteristicsCount = createNumber(characteristicsRow, "Total Head Count", salesGroupFormInputIds.characteristicsCount, this.marketingCountValue, false, "", "", 4);
+        characteristicsCount.onchange = () =>{
+            uploadEIDsWidget.setEidCountLimit(characteristicsCount.value);
+        }
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
@@ -489,10 +492,6 @@ export class SalesGroupsCommonForm{
         }, false, "" , "", 4);
         let characteristicsComments = createText(characteristicsRow,"Characteristics Comments",salesGroupFormInputIds.characteristicsComments, this.characteristicsCommentsValue || "",true,"characteristicsComments","", 12, 150);
 
-
-        characteristicsCount.onchange = () =>{
-            uploadEIDsWidget.setEidCountLimit(characteristicsCount.value);
-        }
         // Maintenance
 
         let maintenanceRow = createSection(form, "Management");

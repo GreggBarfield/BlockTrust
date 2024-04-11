@@ -40,6 +40,7 @@ export class UploadEIDsForSalesGroupWidget{
         }
         else{
             this.infoModal.display();
+            this.updateEidLimitMessage();
         }
     }
 
@@ -53,6 +54,7 @@ export class UploadEIDsForSalesGroupWidget{
 
         let eidLimitMessage = document.createElement("h6");
         eidLimitMessage.className = "col-md-12 text-primary font-italic";
+        eidLimitMessage.id = "eid-limit-message";
         eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
         eidsUploadContainer.append(eidLimitMessage);
 
@@ -152,6 +154,11 @@ export class UploadEIDsForSalesGroupWidget{
         modalFooter.prepend(submitButton);
 
         return eidsUploadContainer;
+    }
+
+    updateEidLimitMessage = () =>{
+        let eidLimitMessage = document.getElementById("eid-limit-message");
+        eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
     }
 
     generateManualUploadInput = () =>{
