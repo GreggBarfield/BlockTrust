@@ -87,7 +87,8 @@ def serve_employee_create_account_action():
         partner = format_field(request.form['partner'])
         affiliate_id = format_field(request.form['affiliate_id'])
         sector = format_field(required['sector'])
-        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone)
+        partner_pays = int(str_to_bool(required['partner_pays']))
+        sector, phone, affiliate_id = Accounts(g.db).validate_or_fail_account(sector, partner, affiliate_id, phone, partner_pays)
 
         # Creating an account without an admin
         account_obj = Accounts(g.db).create_account(
@@ -101,7 +102,7 @@ def serve_employee_create_account_action():
                 state=format_field(required['state']),
                 zip=format_field(required['zip_code']),
                 created_by_employee_id=g.employee.id(),
-                partner_pays=int(str_to_bool(required['partner_pays']))
+                partner_pays=partner_pays
         )
 
         user_id = Users(g.db).create_pseudo_user(account_obj.id(), False)
