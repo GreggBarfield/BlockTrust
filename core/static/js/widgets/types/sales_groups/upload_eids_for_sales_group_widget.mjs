@@ -52,11 +52,11 @@ export class UploadEIDsForSalesGroupWidget{
         requiredMessage.textContent = "*Please select how you would like to upload the EIDs";
         eidsUploadContainer.append(requiredMessage);
 
-        let eidLimitMessage = document.createElement("h6");
-        eidLimitMessage.className = "col-md-12 text-primary font-italic";
-        eidLimitMessage.id = "eid-limit-message";
-        eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
-        eidsUploadContainer.append(eidLimitMessage);
+        this.eidLimitMessage = document.createElement("h6");
+        this.eidLimitMessage.className = "col-md-12 text-primary font-italic";
+        this.eidLimitMessage.id = "eid-limit-message";
+        this.eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
+        eidsUploadContainer.append(this.eidLimitMessage);
 
         let uploadEidsManuallyCheckboxRow = document.createElement("div");
         uploadEidsManuallyCheckboxRow.className = "row d-flex m-2 p-2";
@@ -157,8 +157,7 @@ export class UploadEIDsForSalesGroupWidget{
     }
 
     updateEidLimitMessage = () =>{
-        let eidLimitMessage = document.getElementById("eid-limit-message");
-        eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
+        this.eidLimitMessage.textContent = "*Please provide at most " + this.getEidCountLimit() + " EIDs";
     }
 
     generateManualUploadInput = () =>{
@@ -309,7 +308,7 @@ export class UploadEIDsForSalesGroupWidget{
     }
 
     generateModalWithMessage = (modalHeader, messageText) =>{
-        let messageModal = new InfoModal(modalHeader, null, true)
+        let messageModal = new InfoModal(modalHeader, null, true);
         let messageContainer = document.createElement("div");
         let message = document.createElement("h6");
         message.textContent = messageText;
