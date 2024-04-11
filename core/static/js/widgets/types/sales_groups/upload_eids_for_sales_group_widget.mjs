@@ -233,6 +233,7 @@ export class UploadEIDsForSalesGroupWidget{
             for(let eidString of eidsList){
                 let formattedEidString = eidString.replace(/\s/g, '');
                 this.eids.push(parseInt(formattedEidString));
+                this.updateErrorMessage("", "d-none");
                 this.updateModalLinkText("Uploaded " + this.eids.length + " EID(s)");
                 this.closeEidUploadModal();
             }
@@ -255,6 +256,7 @@ export class UploadEIDsForSalesGroupWidget{
                     this.eids.push(startNumber);
                     startNumber++;
                 }
+                this.updateErrorMessage("", "d-none");
                 this.updateModalLinkText("Uploaded " + this.eids.length + "EID(s)");
                 this.closeEidUploadModal();
             }
@@ -313,8 +315,8 @@ export class UploadEIDsForSalesGroupWidget{
             this.updateErrorMessage("Please provide upto " + this.getEidCountLimit() + " EIDs. Current EID count is " + uploadedEidsCount, "d-block mt-2 mb-0 alert alert-danger");
             return false;
         }
-        if(uploadedEidsCount <= parseInt(this.getEidCountLimit())){
-            this.generateModalWithMessage("EID Upload", "You have uploaded " + uploadedEidsCount + " EIDs. " + (this.getEidCountLimit() - uploadedEidsCount) + " head(s) of cattle will remain untracked.")
+        if(uploadedEidsCount < parseInt(this.getEidCountLimit())){
+            this.generateModalWithMessage("EID Upload", "You have uploaded " + uploadedEidsCount + " EIDs. " + (this.getEidCountLimit() - uploadedEidsCount) + " head(s) of cattle will remain untracked.");
             return true;
         }
         return true;
