@@ -15,9 +15,11 @@ $(document).ready(function(){
     $("#signup_form_partner").change(function(){
         if($(this).val() == 0){
             $("#signup_form_partner_id").prop('disabled', true);
+            document.getElementsByClassName("custom-switch")[0].classList.add("d-none");
         }
         else{
             $("#signup_form_partner_id").prop('disabled', false);
+            document.getElementsByClassName("custom-switch")[0].classList.remove("d-none");
         }
     })
 })
@@ -34,6 +36,7 @@ let address = signupForm.find("#signup_form_address");
 let city = signupForm.find("#signup_form_city");
 let state = signupForm.find("#signup_form_state");
 let zip_code = signupForm.find("#signup_form_zip");
+let partner_pays = signupForm.find("#partner_pays");
 
 let form = new AsyncForm({
     action: "/employee/dashboard/create-new-account/action",
@@ -52,7 +55,8 @@ let form = new AsyncForm({
             address: address.val(),
             city: city.val(),
             state: state.val(),
-            zip_code: zip_code.val()
+            zip_code: zip_code.val(),
+            partner_pays: partner_pays.is(":checked")
         }
     }
 });

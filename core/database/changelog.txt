@@ -2671,3 +2671,8 @@ CHANGE COLUMN `manual_paid` `manual_paid` TINYINT(1) NULL DEFAULT 1 ;
 ALTER TABLE `accounts` 
 ADD COLUMN `created_by_employee_id` INT NULL AFTER `partner_stripe_secret_key`,
 ADD COLUMN `created_by_user_id` INT NULL AFTER `created_by_employee_id`;
+
+/* Rohan Sureskumar 04/08/24 */
+ALTER TABLE `accounts` 
+DROP COLUMN `partner_pays_sales_groups`,
+ADD COLUMN `partner_pays` INT NULL DEFAULT 0 AFTER `partner_account`;

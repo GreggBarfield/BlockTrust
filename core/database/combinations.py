@@ -129,6 +129,7 @@ def perform_new_account_actions(db, account_id, user_id, event_type_id, sector_i
     account_link_id = AccountLinks(db).get_account_links(account_id=account_id)[0]["id"]
     new_connections = create_connections_for_supply_chain(db, account_link_id, account_id)
 
+    # Retained
     # if partner_id:
     #     partner = Accounts(db).get_partners(id=partner_id)[0]
     #     if partner["partner_subscription_credits"]:

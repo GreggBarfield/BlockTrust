@@ -124,6 +124,9 @@ class Account:
     def can_partner_login(self):
         return self._row["can_partner_login"]
 
+    def partner_pays(self):
+        return self._row["partner_pays"]
+
     def add_user(self, user, is_admin=0):
         """Add a user to this account.
 

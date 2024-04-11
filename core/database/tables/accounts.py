@@ -15,7 +15,8 @@ account_cols = ("id", "name", "company", "sector", "is_partner", "partner_contac
                 "partner_stripe_publishable_key", "partner_stripe_secret_key", "created_timestamp", "last_updated_timestamp",
                 "partner_private_logo", "is_partner_used_for_signup", "retail_name", "retail_description",
                 "subscription_start_date", "subscription_end_date", "show_real_name", "partner_subscription_credits",
-                "partner_paid", "auction_market_id", "optional_fields", "partner_pays_sales_groups", "partner_color")
+                "partner_paid", "auction_market_id", "optional_fields", "partner_color",
+                "partner_pays")
 
 
 class AccountsException(Exception):
@@ -117,7 +118,7 @@ class Accounts:
             return None
         return Account(self._db, account_rows[0])
 
-    def validate_new_account(self, sector, partner, affiliate_id, phone):
+    def validate_or_fail_account(self, sector, partner, affiliate_id, phone, partner_pays=None):
         """validates input to create account
 
         Params:
@@ -142,6 +143,9 @@ class Accounts:
                 """)
             if affiliate_id and affiliate_id.isdigit():
                 affiliate_id = int(affiliate_id)
+        else:
+            if partner_pays:
+                raise AccountsException("Payments cannot be paid by partner since no partner is set")
 
         try:
             sector = int(sector)
@@ -168,7 +172,7 @@ class Accounts:
 
     def create_account(self, company, sector, partner, affiliate_id, address, city, state, zip, phone,
                        auction_market_id=None, optional_fields=None, created_by_employee_id=None,
-                       created_by_user_id=None):
+                       created_by_user_id=None, partner_pays=None):
         """Creates a new account without a user.
 
         Params:
@@ -192,11 +196,11 @@ class Accounts:
         self._db.execute(
             """INSERT INTO accounts
                 (company, sector, partner_account, affiliate_id, address, city, state, zip, phone, show_real_name,
-                 auction_market_id, optional_fields, created_by_employee_id, created_by_user_id)
+                 auction_market_id, optional_fields, created_by_employee_id, created_by_user_id, partner_pays)
                 VALUES
                     (%(company)s, %(sector)s, %(partner)s, %(affiliate_id)s, %(address)s, %(city)s, %(state)s, %(zip)s,
                      %(phone)s, %(show_real_name)s, %(auction_market_id)s, %(optional_fields)s,
-                     %(created_by_employee_id)s, %(created_by_user_id)s)
+                     %(created_by_employee_id)s, %(created_by_user_id)s, %(partner_pays)s)
             """,
             {
                 "company": company,
@@ -212,7 +216,8 @@ class Accounts:
                 "auction_market_id": auction_market_id,
                 "optional_fields": json.dumps(optional_fields) if optional_fields is not None else None,
                 "created_by_employee_id": created_by_employee_id,
-                "created_by_user_id": created_by_user_id
+                "created_by_user_id": created_by_user_id,
+                "partner_pays": partner_pays
             }
         )
         account = self.get_account_by_id(self._db.last_row_id())
@@ -222,7 +227,7 @@ class Accounts:
         self._db.account_links.update_account_link_with_account(
             account.partner_account_id(), account.affiliate_id(), account.sector_id(), 
             company, name, account.id()
-        )      
+        )
         self.update_account(account.id(), name=name)
 
         return account
@@ -325,7 +330,7 @@ class Accounts:
                      token=NO_VALUE, stripe_customer_id=NO_VALUE, stripe_account_id=NO_VALUE,
                      accounts_order_by=NO_VALUE, accounts_sort_by=NO_VALUE,
                      generated_paid=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE, auction_market_id=NO_VALUE,
-                     columns=()):
+                     partner_pays=NO_VALUE, columns=()):
         """
         Get an account by the values specified.
 
@@ -423,6 +428,10 @@ class Accounts:
             query_conditions.append(" auction_market_id = %(auction_market_id)s ")
             query_values["auction_market_id"] = auction_market_id
 
+        if partner_pays is not NO_VALUE:
+            query_conditions.append(" partner_pays = %(partner_pays)s ")
+            query_values["partner_pays"] = partner_pays
+
         if len(query_conditions) >= 1:
             combined_query_condition = " WHERE " + " AND ".join(query_conditions)
         else:
@@ -446,7 +455,7 @@ class Accounts:
         else:
             return []
 
-    def get_partners(self, id=NO_VALUE, company=NO_VALUE, partner_pays_sales_groups=NO_VALUE):
+    def get_partners(self, id=NO_VALUE, company=NO_VALUE, ids=()):
         """
         Get a partner by the values specified.
 
@@ -462,16 +471,16 @@ class Accounts:
         if id is not NO_VALUE:
             query_conditions.append("id = %(id)s")
             query_values["id"] = id
+        elif ids:
+            if not all(isinstance(id, int) for id in ids):
+                raise Exception("Ids must be of type integer")
+            query_conditions.append(f"id IN ({','.join(str(id) for id in ids)})")
 
         if company is not NO_VALUE:
             query_conditions.append("company = %(company)s")
             query_values["company"] = company
 
-        if partner_pays_sales_groups is not NO_VALUE:
-            query_conditions.append("partner_pays_sales_groups = %(partner_pays_sales_groups)s")
-            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
-
-        if len(query_conditions) >= 1:
+        if query_conditions:
             combined_query_condition = " AND " + " AND ".join(query_conditions)
         else:
             combined_query_condition = ""
@@ -488,7 +497,7 @@ class Accounts:
                        address=NO_VALUE, city=NO_VALUE, state=NO_VALUE, zip=NO_VALUE, phone=NO_VALUE, token=NO_VALUE,
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        partner_account=NO_VALUE, is_partner_used_for_signup=NO_VALUE,
-                       partner_subscription_credits=NO_VALUE, partner_pays_sales_groups=NO_VALUE, partner_color=NO_VALUE):
+                       partner_subscription_credits=NO_VALUE, partner_color=NO_VALUE):
         """
         Updates an account.
 
@@ -558,9 +567,6 @@ class Accounts:
         if is_partner_used_for_signup is not NO_VALUE:
             query_conditions.append(" is_partner_used_for_signup = %(is_partner_used_for_signup)s")
             query_values["is_partner_used_for_signup"] = is_partner_used_for_signup
-        if partner_pays_sales_groups is not NO_VALUE:
-            query_conditions.append(" partner_pays_sales_groups = %(partner_pays_sales_groups)s")
-            query_values["partner_pays_sales_groups"] = partner_pays_sales_groups
         if partner_subscription_credits is not NO_VALUE:
             query_conditions.append(" partner_subscription_credits = %(partner_subscription_credits)s")
             query_values["partner_subscription_credits"] = partner_subscription_credits
@@ -594,7 +600,8 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE,
+                       partner_pays=NO_VALUE):
         """
         Transform, validate and updates an account.
         """
@@ -621,7 +628,7 @@ class Accounts:
             stripe_account_id=stripe_account_id, is_stripe_payouts_enabled=is_stripe_payouts_enabled,
             retail_name=retail_name, retail_description=retail_description,
             subscription_start_date=subscription_start_date, subscription_end_date=subscription_end_date,
-            show_real_name=show_real_name, can_partner_login=can_partner_login
+            show_real_name=show_real_name, can_partner_login=can_partner_login, partner_pays=partner_pays
         )
 
     def update_account(self, account_id, company=NO_VALUE, name=NO_VALUE, address=NO_VALUE, city=NO_VALUE,
@@ -629,7 +636,8 @@ class Accounts:
                        stripe_paid=NO_VALUE, manual_paid=NO_VALUE, partner_paid=NO_VALUE, stripe_customer_id=NO_VALUE,
                        stripe_account_id=NO_VALUE, is_stripe_payouts_enabled=NO_VALUE,
                        retail_name=NO_VALUE, retail_description=NO_VALUE, subscription_start_date=NO_VALUE,
-                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE):
+                       subscription_end_date=NO_VALUE, show_real_name=NO_VALUE, can_partner_login=NO_VALUE, 
+                       partner_pays=NO_VALUE):
         """
         Updates an account.
 
@@ -719,6 +727,9 @@ class Accounts:
         if can_partner_login is not NO_VALUE:
             query_conditions.append("can_partner_login = %(can_partner_login)s")
             query_values["can_partner_login"] = can_partner_login
+        if partner_pays is not NO_VALUE:
+            query_conditions.append("partner_pays = %(partner_pays)s")
+            query_values["partner_pays"] = partner_pays
 
         if len(query_conditions) >= 1:
             combined_query_condition = " SET " + ", ".join(query_conditions) + " WHERE a.id=%(id)s"

@@ -6,7 +6,11 @@
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                <h5>Unpaid Sales Groups For Partners</h5>
+                <h5>
+                    Unpaid Sales Groups For Partners
+                    <a class="feather icon-info text-info ml-1" data-toggle="tooltip" data-placement="right" title="Partners who are paying for at least 1 patron are shown below"></a>
+                </h5>
+
             </div>
             <div class="card-body mb-2">
                 <div class="col-lg-12">
@@ -25,7 +29,7 @@
                             <tr>
                                 <td>{{row.id}}</td>
                                 <td>{{row.name}}</td>
-                                <td>{{ "${:,.2f}".format(row.total_amount)}}</td>
+                                <td>{{ "${:,.2f}".format(row.amount)}}</td>
                                 <td>
                                     <button class="btn btn-sm btn-danger" {{'disabled' if row.total_amount == 0 else ''}} partner-id="{{row.id}}" data-toggle="tooltip" data-placement="top" title="Send Invoice to {{row.name}}">
                                         <i class='fa fa-envelope'></i>               
