@@ -18,13 +18,14 @@
         <table class="table" id="accountsTable">
             <thead>
                 <tr>
-                    <th>Acct Number</th>
-                    <th>Acct Name</th>
+                    <th>Number</th>
+                    <th>Name</th>
                     <th>Sector</th>
                     <th>Partner</th>
-                    <th>Acct city, state</th>
+                    <th>City, state</th>
                     <th></th>
                     <th>Paid</th>
+                    <th>Partner<br>Pays</th>
                     <th>Created</th>
                     <th>Logs</th>
                     <th></th>
@@ -37,7 +38,7 @@
                 <tr>
                     <td>{{account.id}}</td>
                     <td>
-                        <a href={{"/employee/dashboard/edit-account/"+(account.id|string) if sectors_id_to_name[account.sector]=="Cow-Calf" else ""}}>
+                        <a href={{"/employee/dashboard/edit-account/"+(account.id|string)}}>
                             {{account.company}}
                         </a>
                     </td>
@@ -51,9 +52,18 @@
                     </td>
                     <td >
                         <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" value={{account.id}} 
+                            <input type="checkbox" class="custom-control-input" value={{account.id}} name="account-payment-switch"
                                 id={{"paidSwitch" + account.id|string}} {{'checked' if account.generated_paid else ''}}>
                             <label class="custom-control-label" for={{"paidSwitch"  + account.id|string}}></label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="custom-control custom-switch" title="{{'Partner cannot make payments since this account has no partner' if not account.partner_account else ''}}">
+                            <input type="checkbox" class="custom-control-input" value={{account.id}} name="partner-payment-switch"
+                                id={{"paymentsByPartner" + account.id|string}} {{'checked' if account.partner_pays else ''}} 
+                                {{'disabled' if not account.partner_account else ''}}
+                            >
+                            <label class="custom-control-label" for={{"paymentsByPartner"  + account.id|string}}></label>
                         </div>
                     </td>
                     <td>{{account.created_timestamp.strftime("%m/%d/%Y" + " at " + "%H:%M")}}</td>
@@ -74,50 +84,57 @@
     </div>
 </div>
 <script type="text/javascript">
-    var switches = document.getElementsByClassName("custom-control-input");
-
+    let requestConfig = {
+        method: 'PUT',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        }
+    };
+    let url = "/employee/account";
+    let switches = document.getElementsByName("account-payment-switch");
     for (let s of switches) {
         s.addEventListener('change', async() => {
-            let requestConfig = {
-                method: 'PUT',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                }
-            }
-            try {
-                if (s.checked) {
-                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": true})
-
-                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
-                    if (response.ok) {
-                        alert("Success! Account marked as paid")
-                    }
-                    else {
-                        const responseJSON = await response.json();
-                        s.checked = false;
-                        alert(responseJSON.error)
-                    }
-                    
-                } else {
-                    requestConfig["body"] = JSON.stringify({"account_id": s.value, "paid_status": false})
-
-                    const response = await fetch('/employee/update-account-paid-status', requestConfig);
-                    if (response.ok) {
-                        alert("Success! Account marked as unpaid")
-                    }
-                    else {
-                        const responseJSON = await response.json();
-                        s.checked = true;
-                        alert("Error: " + responseJSON.error)
-                    }                 
-                }
-            }
-            catch(error) {
-                alert(error)
-                s.checked? s.checked = false : s.checked = true;
+            if (s.checked) {
+                requestConfig["body"] = JSON.stringify({"paid_status": true})
+                makeRequest("Success! Account is PAID", s, requestConfig);
+                
+            } else {
+                requestConfig["body"] = JSON.stringify({"paid_status": false})
+                makeRequest("Success! Account is UNPAID", s, requestConfig);                
             }
         });
+    }
+    switches = document.getElementsByName("partner-payment-switch");
+    for (let s of switches) {
+        s.addEventListener('change', async() => {
+            if (s.checked) {
+                requestConfig["body"] = JSON.stringify({"partner_pays": true})
+                makeRequest("Success! Account is PARTNER PAID", s, requestConfig);
+                
+            } else {
+                requestConfig["body"] = JSON.stringify({"partner_pays": false})
+                makeRequest("Success! Account is SELF PAID", s, requestConfig);                
+            }
+        });
+    }
+
+    let makeRequest = async(message, element, requestConfig) => {
+        try {
+            const response = await fetch(`${url}/${element.value}`, requestConfig);
+            if (response.ok) {
+                alert(message)
+            }
+            else {
+                const responseJSON = await response.json();
+                element.checked = !element.checked;
+                alert("Error: " + responseJSON.message)
+            }  
+        }
+        catch(error) {
+            alert(error);
+            element.checked = !element.checked;
+        }
     }
     document.addEventListener('DOMContentLoaded', function () {
         $('#accountsTable').DataTable({pageLength:50});

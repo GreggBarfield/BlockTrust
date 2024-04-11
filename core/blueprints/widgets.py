@@ -353,10 +353,8 @@ def serve_create_sales_group():
             auction_market_id = request.json["auction_market_id"]
             convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     partner_pays = False
-    if g.account.partner_account_id():
-        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
-        if partner["partner_pays_sales_groups"]:
-            partner_pays = True
+    if g.account.partner_account_id() and g.account.partner_pays():
+        partner_pays = True
     sales_group_id = SalesGroups(g.db).insert_sales_group(
         account=g.account.id(),
         reported=request.json["reported"],
@@ -420,10 +418,8 @@ def serve_update_sales_group():
             auction_market_id = request.json["auction_market_id"]
             convert_auction_market_to_account(g.db, auction_market_id, request.json["group_name"])
     partner_pays = False
-    if g.account.partner_account_id():
-        partner = g.db.accounts.get_partners(id=g.account.partner_account_id())[0]
-        if partner["partner_pays_sales_groups"]:
-            partner_pays = True
+    if g.account.partner_account_id() and g.account.partner_pays():
+        partner_pays = True
     SalesGroups(g.db).update_sales_group(
         id=request.json["id"],
         reported=request.json["reported"],
