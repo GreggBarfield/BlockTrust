@@ -78,7 +78,7 @@ export class SalesGroupsCommonForm{
             this.marketingCountValue = null;
             this.marketingZIPValue = null;
             this.marketingSaleDateValue = null;
-            this.marketingDeliveryLocationTypeValue = "";
+            this.marketingDeliveryLocationTypeValue = [];
             this.marketingDeliveryLocationValue = "";
             this.marketingAuctionMarketLocationValue = "";
             this.marketingOffRanchLocationValue = null;
@@ -139,7 +139,6 @@ export class SalesGroupsCommonForm{
         this.carcassDataAvailable = carcassDataAvailable;
         this.viewSalesGroupURL = viewSalesGroupURL;
         this.paymentURL = paymentURL;
-        console.log("this.paymentURL", this.paymentURL, typeof this.paymentURL);
         this.makeForm();
         return this.box;
     }
@@ -252,7 +251,12 @@ export class SalesGroupsCommonForm{
 
         function createSelect({row, name, id, options, values, multiple, tags, placeholder}, hasTooltip=false, dataToggle="", tooltipText="", groupColumnSize=4, attachWidget=false, optionsObject=null, attachedWidget=null, widgetLinkText="") {
             if (!Array.isArray(values)) {
-                values = [values];
+                if (values) {
+                    values = [values];
+                }
+                else {
+                    values = [];
+                }
             }
             let group = createGroup(row, name, id, hasTooltip, dataToggle, tooltipText, groupColumnSize, attachWidget, attachedWidget, widgetLinkText);
             let select = document.createElement("select");
@@ -330,7 +334,7 @@ export class SalesGroupsCommonForm{
             row: marketingRow,
             name: "Market Type",
             id: salesGroupFormInputIds.marketingDeliveryLocationType,
-            options: this.salesGroupFieldsValues.delivery_location_type,
+            options: this.salesGroupFieldsValues.delivery_location_type.sort(),
             values: this.marketingDeliveryLocationTypeValue,
             multiple: false,
             tags: false,
@@ -430,7 +434,7 @@ export class SalesGroupsCommonForm{
             multiple: true,
             tags: true,
             placeholder: "Please Select"
-        },true,"characteristicBreeds","Please choose all the breeds of cattle in the group.", 4);
+        }, true, "characteristicBreeds", "Please choose all the breeds of cattle in the group.", 4);
         let characteristicsCategory = createSelect({
             row: characteristicsRow,
             name: "Category/Sex",
