@@ -332,8 +332,8 @@ export class SalesGroupViewer {
 
             addInfo("Total Count", this.formatData(this.data.reported.count), marketBody);
 
-            var date = new Date(this.data.sale_date * 1000);
-            addInfo("Sales Date", date.toDateString(), marketBody);
+            var date = this.data.sale_date? new Date(this.data.sale_date * 1000).toDateString(): "";
+            addInfo("Sales Date", date, marketBody);
 
             addInfo("Delivery Location Type", this.formatData(this.data.delivery_location_type), marketBody);
             if(this.data.delivery_location_type == "Video Auction"){

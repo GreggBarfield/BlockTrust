@@ -340,7 +340,8 @@ def serve_create_sales_group():
         images=images,
         price=request.json["price"],
         slide=request.json["reported"]["marketing_slide"],
-        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"],
+        published=request.json["published"]
     )
     # Alright, go ahead...
     delivery_location = ""
@@ -406,7 +407,8 @@ def serve_update_sales_group():
         images=images,
         price=request.json["price"],
         slide=request.json["reported"]["marketing_slide"],
-        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"]
+        weighing_conditions=request.json["reported"]["marketing_weighing_conditions"],
+        published=request.json["published"]
     )
     delivery_location = ""
     auction_market_id = None
