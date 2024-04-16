@@ -1,0 +1,33 @@
+{% extends "employee/standard.html" %}
+
+{% set page_title = "Emails" %}
+{% set employee_locations = [("/employee/dashboard", "Dashboard")] %}
+
+{% block employee_content_header %}
+{% endblock employee_content_header %}
+
+{% block employee_content %}
+<div class="card">
+    <h5 class="card-header">Welcome Email</h5>
+    <div class="card-body">
+        <div class="row">
+            <form  class="bg-white col-md-12" id="welcome_email_form">
+                <div class="col-md-6 m-1 p-1">
+                    <select id="accounts_select"  class="form-control">
+                        {% for account in accounts %}
+                        <option value='{{account["id"]}}'>{{account["name"]}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 m-1 p-1">
+                    <button type="submit" class="btn btn-primary">Send Welcome Email</button>
+                </div>
+                <p class="mt-2 mb-0" id="email_status_message" style="display:none;">Sending Email...</p>
+                <p class="mt-2 mb-0 alert alert-danger" style="display:none;" id="email_error_message">Error</p>
+            </form>
+        </div>
+    </div>
+
+</div>
+<script type="module" src="/static/entry_points/employee/accounts/emails.mjs"></script>
+{% endblock employee_content %}
