@@ -1089,24 +1089,25 @@ def serve_partner_sales_group_payments(partner_id):
                            {"partner": partner["company"], "paid_groups": paid_groups, "unpaid_groups": unpaid_groups})
 
 
-@bp.route('/employee/dashboard/emails', methods=["GET", "POST"])
+@bp.route('/employee/dashboard/emails', methods=["GET"])
 @crut.require_employee
 def serve_emails():
-    if request.method == "GET":
-        accounts = Accounts(g.db).get_accounts()
-        return employee_render("/employee/accounts/emails.html", {"accounts": accounts})
-    if request.method == "POST":
-        account_id = int(request.form["account_id"])
+    accounts = Accounts(g.db).get_accounts()
+    return employee_render("/employee/accounts/emails.html", {"accounts": accounts})
 
-        
-        admin_user = AccountUsers(g.db).get_account_users(account=account_id, is_admin=1)
-        if len(admin_user) > 0:
-            user = Users(g.db).get_user_by_id(admin_user[0]['user'])
-            if user is not None and user.is_system_generated() == 0:
-                send_email(
-                    "Welcome",
-                    render_email("employee/welcome-email.html", {}), user.email()
-                )
-            else:
-                return {"error": "Invalid Email or User is System Generated"}
-        return Response(status=HTTP_NO_CONTENT)
+
+@bp.route('/employee/dashboard/send-welcome-email', methods=["POST"])
+@crut.require_employee
+def serve_send_welcome_email():
+    account_id = int(request.form["account_id"])
+    admin_user = AccountUsers(g.db).get_account_users(account=account_id, is_admin=1)
+    if len(admin_user) > 0:
+        user = Users(g.db).get_user_by_id(admin_user[0]['user'])
+        if user is not None and user.is_system_generated() == 0:
+            send_email(
+                "Welcome",
+                render_email("employee/welcome-email.html", {}), user.email()
+            )
+        else:
+            return {"error": "Invalid Email or User is System Generated"}
+    return {"redirect": "/employee/dashboard/emails"}
