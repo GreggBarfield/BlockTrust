@@ -1111,3 +1111,10 @@ def serve_send_welcome_email():
         else:
             return {"error": "Invalid Email or User is System Generated"}
     return {"redirect": "/employee/dashboard/emails"}
+
+
+@bp.route('/employee/dashboard/emails/send-custom-emails', methods=["GET"])
+@crut.require_employee
+def serve_send_custom_emails():
+    accounts = Accounts(g.db).get_accounts()
+    return employee_render("/employee/accounts/send-custom-emails.html", {"accounts": accounts})
