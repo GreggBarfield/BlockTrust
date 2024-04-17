@@ -425,6 +425,9 @@ export class SalesGroupsCommonForm{
         let characteristicsRow = createSection(form, "Characteristics");
         
         let characteristicsCount = createNumber(characteristicsRow, "Total Head Count", salesGroupFormInputIds.characteristicsCount, this.marketingCountValue, false, "", "", 4);
+        characteristicsCount.onchange = () =>{
+            uploadEIDsWidget.setEidCountLimit(characteristicsCount.value);
+        }
         let characteristicBreeds = createSelect({
             row: characteristicsRow,
             name: "Breed",
